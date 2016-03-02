@@ -1,0 +1,106 @@
+<script src="../../assets/vendor/google-blockly/blockly_compressed.js"></script>
+<script src="../../assets/vendor/google-blockly/blocks_compressed.js"></script>
+<script src="../../assets/vendor/google-blockly/javascript_compressed.js"></script>
+<script src="../../assets/vendor/google-blockly/msg/js/en.js"></script>
+
+<dom-module id="kano-blockly">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-horizontal);
+    }
+    :host #area {
+        @apply(--layout-flex);
+    }
+    :host #workspace {
+        position: absolute;
+    }
+    </style>
+    <template>
+        <div id="area">
+            <div id="workspace"></div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class KanoBlockly {
+        beforeRegister () {
+            this.is = 'kano-blockly';
+            this.properties = {
+                toolbox: {
+                    type: Object
+                },
+                toolboxXml: {
+                    type: String,
+                    computed: 'computeToolboxXml(toolbox)'
+                },
+                code: {
+                    type: String,
+                    notify: true
+                }
+            }
+        }
+        created () {
+            Blockly.HSV_SATURATION = 0.8;
+            Blockly.HSV_VALUE = 0.8;
+        }
+        attached () {
+            this.workspace = Blockly.inject(this.$.workspace, {
+                toolbox: this.toolboxXml
+            });
+            window.addEventListener('resize', this.onResize.bind(this), false);
+            this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
+            this.onResize();
+        }
+        ready () {
+            this.onResize();
+        }
+        detached () {
+            // Hack to get rid of the remaining blockly elements
+            let blocklyElements = document.querySelectorAll([
+                '.blocklyWidgetDiv',
+                '.blocklyTooltipDiv',
+                '.blocklyToolboxDiv',
+            ].join(','));
+            blocklyElements = [].slice.call(blocklyElements);
+            blocklyElements.forEach((el) => {
+                el.parentNode.removeChild(el);
+            });
+        }
+        onResize () {
+            let workspace = this.$.workspace,
+                area = this.$.area;
+            workspace.style.width = area.offsetWidth + 'px';
+            workspace.style.height = area.offsetHeight + 'px';
+        }
+        computeToolboxXml (toolbox) {
+            let xml;
+                categoriesXml = toolbox.map((category) => {
+                    let blocksXml = category.blocks.map((block) => {
+                        return `<block type="${block.id}"></block>`;
+                    }).join();
+                    return `<category name="${category.name}" colour="${category.colour}">${blocksXml}</category>`;
+                }).join();
+            xml = `<xml>${categoriesXml}</xml>`;
+            if (this.workspace) {
+                this.workspace.updateToolbox(xml);
+            }
+            return xml;
+        }
+        onBlocklyChange (e) {
+            this.set('code', Blockly.JavaScript.workspaceToCode(this.workspace));
+            this.fire('change', e);
+        }
+        getXml () {
+            return Blockly.Xml.workspaceToDom(this.workspace);
+        }
+        getCode (type) {
+            return Blockly[type].workspaceToCode(this.workspace);
+        }
+        getDom () {
+            return Blockly.Xml.workspaceToDom(this.workspace);
+        }
+    }
+    Polymer(KanoBlockly);
+</script>

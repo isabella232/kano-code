@@ -1,0 +1,40 @@
+<dom-module id="kano-hw-canvas">
+    <style>
+    :host {
+        display: block;
+    }
+    :host canvas {
+        border: 2px solid var(--color-primary);
+    }
+    </style>
+    <template>
+        <canvas id="canvas" width="300" height="300"></canvas>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoHwCanvas {
+        beforeRegister () {
+            this.is = 'kano-hw-canvas';
+            this.properties = {
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                }
+            };
+        }
+        drawPicture (pic) {
+            let img = new Image(),
+                canvas = this.$.canvas,
+                context = canvas.getContext('2d');
+
+            img.onload = function() {
+                context.drawImage(this, 0, 0, canvas.width, canvas.height);
+            }
+            img.src = pic;
+        }
+    }
+    Polymer(KanoHwCanvas);
+</script>

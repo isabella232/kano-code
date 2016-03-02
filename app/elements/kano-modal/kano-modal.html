@@ -1,0 +1,131 @@
+<dom-module id="kano-modal">
+    <style>
+    :host {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        display: block;
+        visibility: hidden;
+        background-color: rgba(255, 255, 255, 0.3);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    :host .modal {
+        max-width: 100%;
+        max-height: 100%;
+        animation: zoom-in 150ms ease-out;
+        background-color: var(--color-grey-lighter);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        @apply(--layout-vertical);
+    }
+    :host .modal header {
+        @apply(--layout-horizontal);
+    }
+    :host .modal header .title {
+        @apply(--layout-flex);
+        text-align: center;
+        font-size: 1.3em;
+    }
+    :host .modal header button {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        border: 0px;
+        background-color: transparent;
+        color: var(--color-black);
+        font-size: 2em;
+        line-height: 20px;
+    }
+    :host .modal header button:hover {
+        cursor: pointer;
+    }
+    :host .modal section {
+        overflow: auto;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    </style>
+    <template>
+        <style include="kano-style"></style>
+        <div class="modal" style$="[[size]]">
+            <header>
+                <div class="title">{{title}}</div>
+                <button type="button" on-tap="close">&times;</button>
+            </header>
+            <section id="content"></section>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoModal {
+        beforeRegister () {
+            this.is = 'kano-modal';
+            this.properties = {
+                animate: {
+                    type: Boolean,
+                    value: true
+                },
+                autoClose: {
+                    type: Boolean,
+                    value: true
+                },
+                height: {
+                    type: String,
+                    value: '50%'
+                },
+                width: {
+                    type: String,
+                    value: 'auto'
+                },
+                size: {
+                    type: String,
+                    computed: 'computeSize(height, width)'
+                },
+                title: {
+                    type: String,
+                    value: ''
+                }
+            };
+        }
+        computeSize () {
+            return `height: ${this.height}; width: ${this.width}`;
+        }
+        show (callback) {
+            this.style.visibility = 'visible';
+            setTimeout(() => {
+                this.fire('animation-finished');
+            }, 150);
+        }
+        hide (callback) {
+            this.style.animation = 'zoom-out 150ms ease-out';
+            setTimeout(() => {
+                this.style.visibility = 'hidden';
+                callback();
+            }, 150);
+        }
+        close () {
+            if (this.autoClose) {
+                this.hide(() => {
+                    this.fire('modal-close');
+                });
+            } else {
+                this.fire('modal-close');
+            }
+        }
+        setContent (el) {
+            let content = this.$.content;
+            while (content.firstChild) {
+                content.removeChild(content.firstChild);
+            }
+            el.style.display = 'flex';
+            el.style.flex = 1;
+            content.appendChild(el);
+        }
+    }
+    Polymer(KanoModal);
+</script>

@@ -1,0 +1,132 @@
+<link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../kano-style/kano-style.html">
+
+<dom-module id="kano-hw-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host header {
+        font-family: bariol;
+        font-weight: normal;
+        font-size: 1.2em;
+        padding: 25px;
+        background-color: var(--color-grey-lighter);
+        text-align: center;
+    }
+    :host kano-blockly {
+        @apply(--layout-flex);
+    }
+    :host .event-control {
+        background-color: var(--primary-color);
+        color: var(--color-white);
+        padding: 4px;
+        border-radius: 6px;
+    }
+    </style>
+    <template>
+        <style include="kano-style"></style>
+        <header>
+            <label>When the </label>
+            <label class="event-control">
+                <span>{{selectedHw.label}}</span>
+                <select id="select" value="{{event::change}}" selectedIndex="0">
+                    <template is="dom-repeat" items="[[selectedHw.events]]" as="event">
+                        <option value$="[[event.id]]">[[event.label]]</option>
+                    </template>
+                </select>
+            </label>
+        </header>
+        <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{blocklyCode}}"></kano-blockly>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoHwEditor {
+        beforeRegister () {
+            this.is = 'kano-hw-editor';
+            this.properties = {
+                hws: {
+                    type: Array,
+                    value: () => []
+                },
+                toolbox: {
+                    type: Array,
+                    computed: 'computeToolbox(hws)'
+                },
+                selectedHw: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    },
+                    observer: 'selectedHwChanged'
+                },
+                code: {
+                    type: String,
+                    computed: 'computeCode(blocklyCode)',
+                    notify: true
+                },
+                event: {
+                    type: String
+                },
+                rule: {
+                    type: Object,
+                    notify: true,
+                    computed: 'computeRule(event, selectedHw.events.*, code)'
+                },
+                defaultCategories: {
+                    type: Array,
+                    value: () => []
+                }
+            }
+        }
+        selectedHwChanged () {
+            if (!this.event && this.selectedHw.events) {
+                this.event = this.selectedHw.events[0].id;
+            }
+        }
+        computeRule (eventName) {
+            let index = this.$.select.selectedIndex,
+                label;
+            if (index === -1) {
+                index = 0;
+            }
+            if (!this.selectedHw.events) {
+                return;
+            }
+            label = this.selectedHw.events[index].label;
+            return {
+                trigger: `When the ${this.selectedHw.label} is ${label}`,
+                action: this.$.blockly.getCode('Natural')
+            };
+        }
+        computeCode (blocklyCode) {
+            return `devices.get('${this.selectedHw.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
+        }
+        computeToolbox (hws) {
+            hws.forEach((hw) => {
+                hw.blocks.forEach((block) => {
+                    Blockly.Blocks[block.id] = {
+                        init: function () {
+                            block.colour = hw.hue;
+                            this.jsonInit(block);
+                        }
+                    };
+                    Blockly.JavaScript[block.id] = block.javascript(hw);
+                    Blockly.Natural[block.id] = block.natural(hw);
+                });
+            });
+            return hws.map((hw) => {
+                return {
+                        name: hw.label,
+                        blocks: hw.blocks,
+                        colour: hw.hue
+                    };
+            }).concat(this.defaultCategories || []).filter((category) => category.blocks.length);
+        }
+        getBlocklyXml () {
+            return this.$.blockly.getXml();
+        }
+    }
+    Polymer(KanoHwEditor);
+</script>

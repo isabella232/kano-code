@@ -1,0 +1,73 @@
+<dom-module id="kano-focus-on">
+    <style>
+    :host {
+        display: block;
+        visibility: hidden;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        z-index: 500;
+    }
+    :host .overlay {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+    :host #top {
+        top: 0px;
+        left: 0px;
+        right: 0px;
+    }
+    :host #bottom {
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+    }
+    :host #left {
+        bottom: 0px;
+        left: 0px;
+        top: 0px;
+    }
+    :host #right {
+        bottom: 0px;
+        right: 0px;
+        top: 0px;
+    }
+    </style>
+    <template>
+        <div id="top" class="overlay"></div>
+        <div id="bottom" class="overlay"></div>
+        <div id="left" class="overlay"></div>
+        <div id="right" class="overlay"></div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoFocusOn {
+        beforeRegister () {
+            this.is = 'kano-focus-on';
+        }
+        show (el) {
+            this.target = el;
+            this.oldZIndex = el.style.zIndex;
+            let rect = el.getBoundingClientRect();
+            this.style.visibility = 'visible';
+            this.$.top.style.height = `${rect.top}px`;
+            this.$.top.style.width = `${rect.width}px`;
+            this.$.top.style.left = `${rect.left}px`;
+            this.$.bottom.style.top = `${rect.top+rect.height}px`;
+            this.$.bottom.style.width = `${rect.width}px`;
+            this.$.bottom.style.left = `${rect.left}px`;
+            this.$.left.style.width = `${rect.left}px`;
+            this.$.right.style.left = `${rect.left+rect.width}px`;
+            this.target.style.zIndex = 501;
+            this.target.style.position = 'relative';
+        }
+        hide () {
+            this.target.style.zIndex = this.oldZIndex;
+            this.style.visibility = 'hidden';
+        }
+    }
+    Polymer(KanoFocusOn);
+</script>

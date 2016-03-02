@@ -1,0 +1,54 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../kano-view/kano-view.html">
+<script src="../../bower_components/page/page.js"></script>
+
+<dom-module id="kano-routing">
+  <template>
+    <style>
+      :host {
+          display: block;
+          @apply(--layout-horizontal);
+      }
+      :host kano-view {
+          @apply(--layout-flex);
+          @apply(--layout-vertical);
+      }
+    </style>
+    <kano-view view-name="[[currentView]]"></kano-view>
+  </template>
+  <script>
+  class KanoRouting {
+      beforeRegister () {
+          this.is = 'kano-routing';
+          this.properties = {
+              ctx: {
+                  type: Object,
+                  notify: true
+              }
+          }
+      }
+      /**
+       * Initialize the views
+       */
+      ready () {
+          page('/', this.partial('kano-view-workshop'));
+          page('/ui', this.partial('kano-view-ui-editor'));
+          page('*', () => {});
+          //page({ dispatch: false}); // turn off auto dispatching
+          page(); // force trigger the initial root page
+      }
+      /**
+       * Creates a function to be used by page.js
+       * @param  {String} name  Name of the view component to load
+       * @return {Function}     A function ready to be used in page.js
+       */
+      partial (name) {
+          return (ctx) => {
+              this.ctx = ctx;
+              this.currentView = name;
+          }
+      }
+  }
+  Polymer(KanoRouting);
+  </script>
+</dom-module>

@@ -1,0 +1,53 @@
+<link rel="import" href="../kano-hw-list/kano-hw-list.html">
+
+<dom-module id="kano-sidebar">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host header {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        background-color: var(--color-grey-dark, lightgray);
+        color: var(--white, white);
+        height: 92px;
+        text-align: center;
+    }
+    :host kano-hw-list {
+        @apply(--layout-flex);
+    }
+    /* Smartphones (portrait and landscape) ----------- */
+    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+        :host header h1 {
+            margin: 0px;
+            font-weight: normal;
+        }
+        :host header {
+            height: auto;
+        }
+    }
+    </style>
+    <template>
+        <header>
+            <h1>My Hardware</h1>
+        </header>
+        <kano-hw-list id="list" hws="{{hws}}"></kano-hw-list>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoSidebar {
+        beforeRegister () {
+            this.is = 'kano-sidebar';
+            this.properties = {
+                hws: {
+                    type: Array,
+                    value: () => []
+                }
+            };
+        }
+    }
+    Polymer(KanoSidebar);
+</script>

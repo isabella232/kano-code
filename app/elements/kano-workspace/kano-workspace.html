@@ -1,0 +1,122 @@
+<dom-module id="kano-workspace">
+    <style>
+    :host {
+        position: relative;
+        @apply(--layout-vertical);
+        background-color: #2196F3;
+        background-image: linear-gradient(#2196F3, #3F51B5);
+        border: 0px;
+        transition: box-shadow linear 100ms;
+        box-shadow: 0px 0px 0px 4px transparent inset;
+        overflow: hidden;
+    }
+    :host.pulsing {
+        box-shadow: 0px 0px 0px 4px var(--primary-color) inset;
+    }
+    :host .content {
+        @apply(--layout-flex);
+        background-color: transparent;
+        background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+        height: 100%;
+        background-size: 50px 50px;
+        overflow: auto;
+    }
+    :host .content.running {
+        border: 3px solid var(--color-red);
+    }
+    :host kano-hw {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+    :host .trash {
+        position: absolute;
+        right: -150px;
+        bottom: -150px;
+        width: 300px;
+        height: 300px;
+        transition: all 100ms ease-out;
+        background: radial-gradient(rgba(255, 255, 255, 0.3), transparent);
+        border-radius: 50%;
+    }
+    :host .trash.open {
+        width: 500px;
+        height: 500px;
+        right: -250px;
+        bottom: -250px;
+    }
+    </style>
+    <template>
+        <div class="content" id="content"></div>
+        <div class="trash" id="trash" on-mouseenter="trashEnter" on-mouseleave="trashLeave"></div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoWorkspace {
+        beforeRegister () {
+            this.is = 'kano-workspace';
+            this.properties = {
+                hws: {
+                    type: Array,
+                    notify: true
+                },
+                running: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'updateRunning'
+                },
+                pulsing: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'pulsingChanged'
+                }
+            }
+        }
+        attached () {
+            this.hws = [];
+        }
+        addHw (model, position) {
+            let rect = this.getBoundingClientRect(),
+                el;
+            position.x = position.x - rect.left;
+            position.y = position.y - rect.top;
+            el = document.createElement('kano-hw');
+            el.model = model;
+            el.style.position = 'absolute';
+            el.style.left = `${position.x}px`;
+            el.style.top = `${position.y}px`;
+            el.setAttribute('id', model.id);
+            this.$.content.appendChild(el);
+            this.push('hws', model);
+        }
+        removeHw (id) {
+            for (let i in this.hws) {
+                if (this.hws[i].id === id) {
+                    this.splice('hws', i, 1);
+                }
+            }
+            this.$.content.removeChild(this.$.content.querySelector(`#${id}`));
+        }
+        updateRunning () {
+            let children = this.$.content.children;
+            if (!children) {
+                return;
+            }
+            [].slice.call(children).forEach((el) => el.running = this.running);
+        }
+        pulsingChanged () {
+            this.toggleClass('pulsing', this.pulsing);
+        }
+        getTrashElement () {
+            return this.$.trash;
+        }
+        trashEnter () {
+            this.toggleClass('open', true, this.$.trash);
+        }
+        trashLeave () {
+            this.toggleClass('open', false, this.$.trash);
+        }
+    }
+    Polymer(KanoWorkspace);
+</script>

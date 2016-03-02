@@ -1,0 +1,92 @@
+<dom-module id="kano-hw-camera">
+    <style>
+    :host {
+        display: block;
+    }
+    :host iron-image {
+        width: 120px;
+        height: 120px;
+    }
+    :host video {
+        display: none;
+    }
+    :host canvas {
+        display: none;
+    }
+    </style>
+    <template>
+        <video id="video" autoplay></video>
+        <iron-image src="{{model.image}}" preload sizing="contain"></iron-image>
+        <canvas id="canvas" width="300" height="300"></canvas>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoHwCamera {
+        beforeRegister () {
+            this.is = 'kano-hw-camera';
+            this.properties = {
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                }
+            };
+        }
+        created () {
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            navigator.getUserMedia.call(navigator, { video: true }, this.onStreamReady.bind(this), this.onStreamError.bind(this));
+        }
+        start () {
+            let streaming = false,
+                width = 300,
+                height = 0;
+            if (navigator.mozGetUserMedia) {
+                this.$.video.mozSrcObject = this.stream;
+            } else {
+                var vendorURL = window.URL || window.webkitURL;
+                this.$.video.src = vendorURL.createObjectURL(this.stream);
+            }
+            this.$.video.play();
+            video.addEventListener('canplay', (ev) => {
+              if (!streaming) {
+                height = this.$.video.videoHeight / (this.$.video.videoWidth/width);
+
+                // Firefox currently has a bug where the height can't be read from
+                // the video, so we will make assumptions if this happens.
+
+                if (isNaN(height)) {
+                  height = width / (4/3);
+                }
+
+                this.$.video.setAttribute('width', width);
+                this.$.video.setAttribute('height', height);
+                this.$.canvas.setAttribute('width', width);
+                this.$.canvas.setAttribute('height', height);
+                streaming = true;
+              }
+          }, false);
+        }
+        stop () {
+            this.$.video.pause();
+        }
+        onStreamReady (stream) {
+            this.stream = stream;
+        }
+        takePicture () {
+            let context = this.$.canvas.getContext('2d');
+            context.drawImage(this.$.video, 0, 0, 300, 300);
+            this.lastPicture = this.$.canvas.toDataURL();
+            this.fire('picture-taken');
+            return Promise.resolve();
+        }
+        getLastPicture () {
+            return this.lastPicture;
+        }
+        onStreamError (error) {
+            console.error(error);
+        }
+    }
+    Polymer(KanoHwCamera);
+</script>

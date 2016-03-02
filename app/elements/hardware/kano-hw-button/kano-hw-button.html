@@ -1,0 +1,38 @@
+<dom-module id="kano-hw-button">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-horizontal);
+    }
+    :host button {
+        @apply(--kano-button);
+        background-color: var(--color-green);
+    }
+    </style>
+    <template>
+        <button type="button" on-tap="buttonClicked">Click me</button>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoHwButton {
+        beforeRegister () {
+            this.is = 'kano-hw-button';
+            this.properties = {
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                }
+            };
+        }
+        buttonClicked () {
+            this.fire('clicked');
+        }
+        getValue () {
+            return this.value;
+        }
+    }
+    Polymer(KanoHwButton);
+</script>

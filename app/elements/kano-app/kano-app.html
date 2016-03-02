@@ -1,0 +1,43 @@
+<script src="../../scripts/app.js"></script>
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../kano-routing/kano-routing.html">
+<link rel="import" href="../kano-style/kano-style.html">
+
+<dom-module id="kano-app">
+    <style>
+    :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-vertical);
+        font-family: var(--font-body);
+    }
+    :host kano-routing {
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <style include="kano-style"></style>
+        <kano-routing ctx="{{ctx}}"></kano-routing>
+    </template>
+</dom-module>
+<script>
+    class KanoApp {
+        beforeRegister () {
+            this.is = 'kano-app';
+            this.observers = [
+                'ctxChanged(ctx.*)'
+            ]
+        }
+        /**
+         * When the router changes the ctx, we update it in the app
+         */
+        ctxChanged () {
+            app.ctx = this.ctx;
+        }
+    }
+    Polymer(KanoApp);
+</script>
