@@ -135,7 +135,7 @@ gulp.task('cordova', () => {
 
 gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
-        .pipe(sass({ includePaths: 'app/bower_components/sass-pure' }).on('error', sass.logError))
+        .pipe(sass({ includePaths: 'app/bower_components' }).on('error', sass.logError))
         .pipe(gulp.dest('www/css'));
 });
 
