@@ -13,6 +13,7 @@ let gulp = require('gulp'),
     clean = require('gulp-clean'),
     auth = require('basic-auth'),
     htmlreplace = require('gulp-html-replace'),
+    sass = require('gulp-sass'),
     $ = {
         if: require('gulp-if')
     },
@@ -70,7 +71,7 @@ gulp.task('js', ['babel', 'bundle'], () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('babel', ['copy', 'static'], () => {
+gulp.task('babel', ['copy', 'assets'], () => {
     return gulp.src('app/elements/**/*.html')
         .pipe(crisper({ scriptInHead: false }))
         .pipe($.if('*.js', babel({ presets: ['es2015'] })))
@@ -94,11 +95,6 @@ gulp.task('assets', () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('static', ['assets'], () => {
-    return gulp.src(['app/css/**/*'], { base: 'app' })
-        .pipe(gulp.dest('www'));
-});
-
 gulp.task('clean', () => {
     return gulp.src('.tmp')
         .pipe(clean());
@@ -115,7 +111,9 @@ gulp.task('views', () => {
 gulp.task('watch', () => {
     let watchers = [
         gulp.watch(['./app/index.html','./app/**/*.{js,html,css}'], ['js']),
-        gulp.watch(['./app/views/**/*'], ['views'])
+        gulp.watch(['./app/views/**/*'], ['views']),
+        gulp.watch(['./app/style/**/*'], ['sass']),
+        gulp.watch(['./app/assets/challenges/**/*'], ['assets'])
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {
@@ -135,9 +133,13 @@ gulp.task('cordova', () => {
         .pipe(gulp.dest('www'));
 });
 
+gulp.task('sass', () => {
+    gulp.src('app/style/**/*.sass')
+        .pipe(sass({ includePaths: 'app/bower_components/sass-pure' }).on('error', sass.logError))
+        .pipe(gulp.dest('www/css'));
+});
+
 gulp.task('dev', ['watch', 'serve']);
 
-gulp.task('default', ['views','js']);
-gulp.task('build', ['views','js']);
-gulp.task('production', ['js', 'serve']);
-gulp.task('prod', ['views', 'js']);
+gulp.task('default', ['build']);
+gulp.task('build', ['views','js', 'sass']);

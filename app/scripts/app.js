@@ -2,6 +2,7 @@ import Interact from 'interact.js';
 import Devices from './service/devices';
 import Codes from './service/codes';
 import Elements from './service/elements';
+import Challenges from './service/challenges';
 import Hardware from './hardware';
 import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
@@ -41,6 +42,7 @@ let config = {
     app.codes = Codes;
     app.hardware = Hardware;
     app.elements = Elements;
+    app.challenges = Challenges;
 
     app.getHws = () => {
         return app.hardware.getAll();

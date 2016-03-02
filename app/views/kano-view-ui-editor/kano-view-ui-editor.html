@@ -5,23 +5,18 @@
             position: relative;
             @apply(--layout-vertical);
         }
+        :host kano-blockly-challenge {
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
         :host kano-blockly {
             @apply(--layout-flex);
         }
-        :host kano-login-form {
-            @apply(--layout-flex);
-        }
-        :host .instruction-overlay {
-            @apply(--kano-overlay);
-            @apply(--layout-vertical);
-            @apply(--layout-center);
-        }
     </style>
     <template>
-        <div class="instruction-overlay">
-            <h3>{{instruction}}</h3>
-        </div>
-        <kano-blockly toolbox="{{toolbox}}" id="blockly" on-change="blocklyChanged"></kano-blockly>
+        <kano-blockly-challenge steps="{{steps}}" id="blockly">
+            <kano-blockly class="blockly" toolbox="{{toolbox}}"></kano-blockly>
+        </kano-blockly-challenge>
     </template>
 </dom-module>
 
