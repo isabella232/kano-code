@@ -14,6 +14,7 @@ let gulp = require('gulp'),
     auth = require('basic-auth'),
     htmlreplace = require('gulp-html-replace'),
     sass = require('gulp-sass'),
+    path = require('path'),
     $ = {
         if: require('gulp-if')
     },
@@ -65,13 +66,17 @@ gulp.task('serve-prod', () => {
 });
 
 gulp.task('js', ['babel', 'bundle'], () => {
-    gulp.src('.tmp/app/index.html')
+    gulp.src('./.tmp/app/index.html')
         .pipe(vulcanize({ inlineScripts: true }))
         .pipe(crisper({ scriptInHead: false }))
+        .pipe(htmlreplace({ base: `
+            <base href="/" target="_blank">
+            <meta http-equiv="Content-Security-Policy" content="media-src *">
+            ` }))
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('babel', ['copy', 'assets'], () => {
+gulp.task('babel', ['copy'], () => {
     return gulp.src('app/elements/**/*.html')
         .pipe(crisper({ scriptInHead: false }))
         .pipe($.if('*.js', babel({ presets: ['es2015'] })))
@@ -85,7 +90,7 @@ gulp.task('copy', /*['clean'],*/ () => {
             'app/assets/vendor/google-blockly/blockly_compressed.js',
             'app/assets/vendor/google-blockly/blocks_compressed.js',
             'app/assets/vendor/google-blockly/javascript_compressed.js',
-            'app/assets/vendor/google-blockly/msg/js/en.js',
+            'app/assets/vendor/google-blockly/msg/js/en.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
 });
@@ -124,15 +129,6 @@ gulp.task('watch', () => {
     bundle();
 });
 
-gulp.task('cordova', () => {
-    gulp.src('www/index.html')
-        .pipe(htmlreplace({ cordova: `
-            <base href="#" target="_blank">
-            <meta http-equiv="Content-Security-Policy" content="media-src *">
-            ` }))
-        .pipe(gulp.dest('www'));
-});
-
 gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
         .pipe(sass({ includePaths: 'app/bower_components' }).on('error', sass.logError))
@@ -142,4 +138,4 @@ gulp.task('sass', () => {
 gulp.task('dev', ['watch', 'serve']);
 
 gulp.task('default', ['build']);
-gulp.task('build', ['views','js', 'sass']);
+gulp.task('build', ['views', 'js', 'sass', 'assets']);
