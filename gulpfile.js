@@ -118,7 +118,7 @@ gulp.task('watch', () => {
         gulp.watch(['./app/index.html','./app/**/*.{js,html,css}'], ['js']),
         gulp.watch(['./app/views/**/*'], ['views']),
         gulp.watch(['./app/style/**/*'], ['sass']),
-        gulp.watch(['./app/assets/challenges/**/*'], ['assets'])
+        gulp.watch(['./app/assets/projects/**/*'], ['assets'])
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {

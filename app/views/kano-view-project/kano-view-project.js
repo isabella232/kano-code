@@ -1,41 +1,41 @@
-class KanoViewChallenge {
+class KanoViewProject {
     beforeRegister () {
-        this.is = 'kano-view-challenge';
+        this.is = 'kano-view-project';
         this.properties = {
             selected: {
                 type: Number,
                 value: 0,
                 observer: 'selectedChanged'
             },
-            challenge: {
+            project: {
                 type: Object,
                 observer: 'selectedChanged'
             }
         };
     }
     attached () {
-        app.challenges.getById(app.ctx.params.id)
-            .then((challenge) => {
-                this.set('challenge', challenge);
+        app.projects.getById(app.ctx.params.id)
+            .then((project) => {
+                this.set('project', project);
             });
     }
     isSelected (index) {
         return index === this.selected;
     }
-    nextBoard () {
-        if (this.selected < this.challenge.boards.length - 1) {
+    nextScene () {
+        if (this.selected < this.project.scenes.length - 1) {
             this.selected++;
         }
     }
     selectedChanged () {
-        if (!this.challenge) {
+        if (!this.project) {
             return;
         }
-        app.challenges.getBoardByIndex(this.challenge, this.selected)
-            .then((board) => {
-                this.set('board', board);
+        app.projects.getSceneByIndex(this.project, this.selected)
+            .then((scene) => {
+                this.set('scene', scene);
             });
     }
 }
 
-Polymer(KanoViewChallenge);
+Polymer(KanoViewProject);

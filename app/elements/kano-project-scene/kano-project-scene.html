@@ -1,0 +1,76 @@
+<dom-module id="kano-project-scene">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host * {
+        @apply(--layout-flex);
+    }
+    :host #video {
+        width: 100%;
+    }
+    </style>
+    <template>
+        <template is="dom-if" if="{{type.isBlockly}}" restamp>
+            <kano-blockly-challenge steps="{{scene.steps}}" id="blockly">
+                <kano-blockly class="blockly" toolbox="{{scene.toolbox}}"></kano-blockly>
+            </kano-blockly-challenge>
+        </template>
+        <template is="dom-if" if="{{type.isVideo}}" restamp>
+            <video autoplay id="video" on-ended="sceneFinished">
+                <source src="{{scene.src}}" type="video/mp4">
+            </video>
+        </template>
+        <template is="dom-if" if="{{type.isComponent}}" restamp>
+            <kano-view location="{{componentLocation}}" view-name="{{scene.component}}"></kano-view>
+        </template>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    window.Kano = window.Kano || {};
+    Kano.SceneComponentBehavior = {
+
+        finish () {
+            this.fire('done');
+        }
+
+    };
+    class KanoProjectScene {
+        beforeRegister () {
+            this.is = 'kano-project-scene';
+            this.properties = {
+                scene: {
+                    type: Object,
+                    value: () => {
+                        return {}
+                    }
+                },
+                type: {
+                    type: Boolean,
+                    computed: 'computeType(scene.*)'
+                },
+                componentLocation: {
+                    type: String,
+                    computed: 'computeComponentLocation(scene.*)'
+                }
+            };
+        }
+        computeComponentLocation () {
+            return `assets/projects/${this.scene.project}`;
+        }
+        computeType () {
+            if (this.scene.type === 'blockly') {
+                return { isBlockly: true };
+            } else if (this.scene.type === 'video') {
+                return { isVideo: true };
+            } else if (this.scene.type === 'component') {
+                return { isComponent: true };
+            }
+        }
+        sceneFinished () {
+            this.fire('done');
+        }
+    }
+    Polymer(KanoProjectScene);
+</script>

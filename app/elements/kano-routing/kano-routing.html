@@ -31,10 +31,12 @@
        * Initialize the views
        */
       ready () {
-          page('/', this.partial('kano-view-workshop'));
-          page('/ui', this.partial('kano-view-ui-editor'));
-          page('/challenge/:id', this.partial('kano-view-challenge'));
-          page('*', () => {});
+          page('/', this.partial('kano-view-projects'));
+          page('/make', this.partial('kano-view-workshop'));
+          page('/project/:id', this.partial('kano-view-project'));
+          page('*', () => {
+              page('/');
+          });
           //page({ dispatch: false}); // turn off auto dispatching
           page(); // force trigger the initial root page
       }
