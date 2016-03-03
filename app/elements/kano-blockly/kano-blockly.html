@@ -29,7 +29,8 @@
             this.is = 'kano-blockly';
             this.properties = {
                 toolbox: {
-                    type: Object
+                    type: Array,
+                    value: () => []
                 },
                 toolboxXml: {
                     type: String,
@@ -75,8 +76,11 @@
             workspace.style.height = area.offsetHeight + 'px';
         }
         computeToolboxXml (toolbox) {
+            if (!this.toolbox) {
+                return;
+            }
             let xml;
-                categoriesXml = toolbox.map((category) => {
+                categoriesXml = this.toolbox.map((category) => {
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
                     }).join();
