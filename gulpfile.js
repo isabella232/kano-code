@@ -139,3 +139,4 @@ gulp.task('dev', ['watch', 'serve']);
 
 gulp.task('default', ['build']);
 gulp.task('build', ['views', 'js', 'sass', 'assets']);
+gulp.task('prod', ['build']);
