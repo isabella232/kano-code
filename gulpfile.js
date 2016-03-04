@@ -2,7 +2,9 @@
 'use strict';
 
 let gulp = require('gulp'),
-    vulcanize = require('gulp-vulcanize'),
+    gutil = require('gulp-util'),
+    notify = require('gulp-notify'),
+    gulpVulcanize = require('gulp-vulcanize'),
     babel = require('gulp-babel'),
     babelify = require('babelify'),
     crisper = require('gulp-crisper'),
@@ -21,6 +23,12 @@ let gulp = require('gulp'),
     bundler = browserify('app/scripts/app.js', watchify.args)
         .transform(babelify.configure({ presets: ['es2015'] }));
 
+function vulcanize(options) {
+    return gulpVulcanize(options)
+        .on('error', notify.onError((error) => {
+            return error.message || error;
+        }));
+}
 
 function bundle() {
     console.log('Compiling JS...');
