@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	npm install
+	NODE_ENV=production DEPLOY=rpi ./node_modules/.bin/gulp build
+
+override_dh_auto_install override_dh_auto_test:
