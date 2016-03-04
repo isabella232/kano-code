@@ -10,6 +10,11 @@
 
 import os
 import sys
+import multiprocessing
+import signal
+import time
+import atexit
+import subprocess
 
 if __name__ == '__main__' and __package__ is None:
     DIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -19,3 +24,86 @@ if __name__ == '__main__' and __package__ is None:
 
 from kano_profile.tracker import Tracker
 kanotracker = Tracker()
+
+from kano.utils import run_cmd
+from kano.logging import logger
+import make_apps.server
+
+SERVER_PROC = None
+UI_PROC = None
+
+
+def _kill_subprocess(proc_handle):
+    if proc_handle is not None and proc_handle.poll() is None:
+        proc_handle.terminate()
+
+
+def _kill_multiprocessing_process(proc_handle):
+    if proc_handle is not None and proc_handle.is_alive():
+        proc_handle.terminate()
+
+
+def _kill_lingering_processes():
+    """ Look for processes still attached to the port whose name starts with
+    'dbus-' and kill them
+    """
+    pid_no, dummy, dummy2 = run_cmd(
+        "lsof -i :{} | grep 'dbus-' | awk '{ print $2 }'".format(make_apps.server.DEFAULT_PORT)
+    )
+    if pid_no:
+        pids = pid_no.splitlines()
+        for pid in pids:
+            try:
+                os.kill(int(pid), signal.SIGTERM)
+            except ValueError:
+                pass
+
+
+def _at_exit_hook():
+    """ Ensure that the two subprocesses are killed before this process exits
+    """
+    _kill_subprocess(UI_PROC)
+    # Give the server subprocess 5 secs to die
+    SERVER_PROC.join(5)
+    # Now kill it anyway
+    _kill_multiprocessing_process(SERVER_PROC)
+    # Cleanup the lingering processes (usually produced by omxplayer)
+    _kill_lingering_processes()
+
+
+# At this point cleaning up just exits. This is triggered once the server
+# (which is a child process) notifies us to exit
+def cleanup(signum, frame):
+    sys.exit(0)
+
+atexit.register(_at_exit_hook)
+signal.signal(signal.SIGINT, cleanup)
+
+APP_PID = os.getpid()
+# Initialise the local server
+SERVER_PROC = multiprocessing.Process(target=make_apps.server.start,
+                                      kwargs={
+                                          'parent_pid': APP_PID
+                                      })
+SERVER_PROC.start()
+
+# Init the web app
+kwargs = {}
+if len(sys.argv) > 1:
+    kwargs['load_path'] = sys.argv[1]
+
+URL = "http://localhost:{}".format(make_apps.server.DEFAULT_PORT)
+UI_PROC = subprocess.Popen(['chromium-browser', '--app', ])
+
+
+# This process is really a factory/watchdog process. It launches the UI and
+# server processes as children and makes sure to terminate both once they have
+# one of them has been terminated
+try:
+    while UI_PROC.poll() is None and SERVER_PROC.is_alive():
+        time.sleep(3)
+    sys.exit(0)
+except Exception as exc:
+    # the SIGINT handler has executed here
+    logger.error('Error while in the main waiting loop: [{}]'.format(exc))
+    sys.exit(0)
