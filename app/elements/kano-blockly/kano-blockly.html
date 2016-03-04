@@ -76,8 +76,8 @@
             workspace.style.height = area.offsetHeight + 'px';
         }
         computeToolboxXml (toolbox) {
-            if (!this.toolbox) {
-                return;
+            if (!this.toolbox || !this.toolbox.length) {
+                this.toolbox = [{name: 'Category', blocks: []}]
             }
             let xml;
                 categoriesXml = this.toolbox.map((category) => {
@@ -89,6 +89,7 @@
             xml = `<xml>${categoriesXml}</xml>`;
             if (this.workspace) {
                 this.workspace.updateToolbox(xml);
+                this.onResize();
             }
             return xml;
         }

@@ -21,8 +21,33 @@
                 location: {
                     type: String,
                     value: 'views'
+                },
+                attributes: {
+                    type: Object,
+                    observer: 'attributesChanged',
+                    value: () => {
+                        return {};
+                    }
                 }
             }
+        }
+        attributesChanged () {
+            if (!this.viewComponent) {
+                return;
+            }
+            this.applyAttributes();
+        }
+        /**
+         * Apply the attributes to the loaded component
+         */
+        applyAttributes () {
+            Object.keys(this.attributes).forEach((attribute) => {
+                try {
+                    this.viewComponent.set(attribute, this.attributes[attribute]);
+                } catch (e) {
+                    console.log(e);
+                }
+            });
         }
         viewChanged () {
             if (this.view && !this.viewName.length) {
@@ -35,12 +60,13 @@
                 });
         }
         displayView () {
-            let viewComponent = document.createElement(this.viewName);
-            viewComponent.style.flex = 1;
+            this.viewComponent = document.createElement(this.viewName);
+            this.viewComponent.style.flex = 1;
             while (this.firstChild) {
                 this.removeChild(this.firstChild);
             }
-            this.appendChild(viewComponent);
+            this.appendChild(this.viewComponent);
+            this.applyAttributes();
         }
         /**
          * Import the view component
