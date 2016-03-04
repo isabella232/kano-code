@@ -1,4 +1,4 @@
-<dom-module id="kano-hw-canvas">
+<dom-module id="kano-ui-gif-creator">
     <style>
     :host {
         display: block;
@@ -13,9 +13,9 @@
 </dom-module>
 
 <script type="text/javascript">
-    class KanoHwCanvas {
+    class KanoUiGifCreator {
         beforeRegister () {
-            this.is = 'kano-hw-canvas';
+            this.is = 'kano-ui-gif-creator';
             this.properties = {
                 model: {
                     type: Object,
@@ -24,6 +24,28 @@
                     }
                 }
             };
+        }
+        created () {
+            this.pictures = [];
+            this.currentIndex = null;
+        }
+        attached () {
+            setInterval(() => {
+                if (this.currentIndex !== null) {
+                    this.drawPicture(this.pictures[this.currentIndex]);
+                    this.currentIndex++;
+                    if (this.currentIndex >= this.pictures.length) {
+                        this.restart();
+                    }
+                }
+            }, 800);
+        }
+        restart () {
+            this.currentIndex = 0;
+        }
+        addPicture (pic) {
+            this.pictures.push(pic);
+            this.restart();
         }
         drawPicture (pic) {
             let img = new Image(),
@@ -36,5 +58,5 @@
             img.src = pic;
         }
     }
-    Polymer(KanoHwCanvas);
+    Polymer(KanoUiGifCreator);
 </script>

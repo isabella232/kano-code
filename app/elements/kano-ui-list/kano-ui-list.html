@@ -1,5 +1,5 @@
-<link rel="import" href="../kano-hw-item/kano-hw-item.html">
-<dom-module id="kano-hw-list">
+<link rel="import" href="../kano-ui-item/kano-ui-item.html">
+<dom-module id="kano-ui-list">
     <style>
     :host {
         display: block;
@@ -8,28 +8,28 @@
         @apply(--layout-wrap);
         overflow-y: auto;
     }
-    :host kano-hw-item {
+    :host kano-ui-item {
         margin: 10px;
     }
     </style>
     <template>
-        <template is="dom-repeat" items="{{hws}}" as="hardware">
-            <kano-hw-item model="{{hardware}}"></kano-hw-item>
+        <template is="dom-repeat" items="{{items}}">
+            <kano-ui-item model="{{item}}"></kano-ui-item>
         </template>
     </template>
 </dom-module>
 
 <script type="text/javascript">
-    class KanoHwList {
+    class KanoUiList {
         beforeRegister () {
-            this.is = 'kano-hw-list';
+            this.is = 'kano-ui-list';
             this.properties = {
-                hws: {
+                items: {
                     type: Array,
                     value: () => []
                 }
             }
         }
     }
-    Polymer(KanoHwList);
+    Polymer(KanoUiList);
 </script>

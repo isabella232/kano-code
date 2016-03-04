@@ -1,6 +1,6 @@
-import Hardware from './hardware';
+import UI from './ui';
 
-export default class TextInput extends Hardware {
+export default class TextInput extends UI {
     constructor () {
         super({
             type: 'text-input',

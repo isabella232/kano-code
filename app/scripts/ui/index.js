@@ -24,10 +24,8 @@ export default {
     /**
      * Create a new model based on the type
      */
-    create (type, remote=false, slave=false) {
+    create (type) {
         let m = new models[type]();
-        m.remote = remote;
-        m.slave = slave;
         return m;
     },
     getAll () {

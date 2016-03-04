@@ -1,6 +1,6 @@
 import Elements from '../service/elements';
 
-export default class Hardware {
+export default class UI {
     constructor (opts) {
         this.type = opts.type;
         this.label = opts.label;

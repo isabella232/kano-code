@@ -1,4 +1,11 @@
-<dom-module id="kano-hw">
+<link rel="import" href="../kano-ui-speaker/kano-ui-speaker.html">
+<link rel="import" href="../kano-ui-camera/kano-ui-camera.html">
+<link rel="import" href="../kano-ui-canvas/kano-ui-canvas.html">
+<link rel="import" href="../kano-ui-gif-creator/kano-ui-gif-creator.html">
+<link rel="import" href="../kano-ui-button/kano-ui-button.html">
+<link rel="import" href="../kano-ui-text-input/kano-ui-text-input.html">
+
+<dom-module id="kano-ui">
     <style>
     :host {
         display: inline-block;
@@ -63,11 +70,8 @@
     <template>
         <div class="content">
             <div class="overlay-container">
-                <template is="dom-if" if="{{model.remote}}">
-                    <image src="../../../assets/hw/remote.png" class="remote"/>
-                </template>
                 <div id="overlay" class="overlay" on-tap="toggleSelected"></div>
-                <div id="hw-container"></div>
+                <div id="ui-container"></div>
             </div>
             <div class="controls" hidden$="{{!showControls}}">
                 <label class="title">{{model.label}}</label>
@@ -86,9 +90,10 @@
 </dom-module>
 
 <script type="text/javascript">
-    class KanoHw {
+    class KanoUi {
+
         beforeRegister () {
-            this.is = 'kano-hw';
+            this.is = 'kano-ui';
             this.properties = {
                 model: {
                     type: Object,
@@ -117,18 +122,19 @@
             };
         }
         attached () {
-            let hwContainer = this.$['hw-container'],
-                hw = document.createElement(`kano-hw-${this.model.type}`);
-            hw.model = this.model;
-            while(hwContainer.firstChild) {
-                hwContainer.removeChild(hwContainer.firstChild);
+            // Create the related ui component and place it in the ui container
+            let uiContainer = this.$['ui-container'],
+                ui = document.createElement(`kano-ui-${this.model.type}`);
+            ui.model = this.model;
+            while(uiContainer.firstChild) {
+                uiContainer.removeChild(uiContainer.firstChild);
             }
-            Polymer.dom(hwContainer).appendChild(hw);
-            this.hw = hw;
-            this.fire('hw-ready', this);
+            Polymer.dom(uiContainer).appendChild(ui);
+            this.ui = ui;
+            this.fire('ui-ready', this);
         }
-        getHw () {
-            return this.hw;
+        getComponent () {
+            return this.ui;
         }
         toggleSelected (e) {
             if (this.running) {
@@ -157,5 +163,5 @@
             }
         }
     }
-    Polymer(KanoHw);
+    Polymer(KanoUi);
 </script>

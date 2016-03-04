@@ -1,6 +1,6 @@
-import Hardware from './hardware';
+import UI from './ui';
 
-export default class Camera extends Hardware {
+export default class Camera extends UI {
     constructor () {
         super({
             type: 'camera',

@@ -24,7 +24,7 @@
     :host .content.running {
         border: 3px solid var(--color-red);
     }
-    :host kano-hw {
+    :host kano-ui {
         position: absolute;
         top: 0px;
         left: 0px;
@@ -57,7 +57,7 @@
         beforeRegister () {
             this.is = 'kano-workspace';
             this.properties = {
-                hws: {
+                uiElements: {
                     type: Array,
                     notify: true
                 },
@@ -74,26 +74,26 @@
             }
         }
         attached () {
-            this.hws = [];
+            this.uiElements = [];
         }
-        addHw (model, position) {
+        addUi (model, position) {
             let rect = this.getBoundingClientRect(),
                 el;
             position.x = position.x - rect.left;
             position.y = position.y - rect.top;
-            el = document.createElement('kano-hw');
+            el = document.createElement('kano-ui');
             el.model = model;
             el.style.position = 'absolute';
             el.style.left = `${position.x}px`;
             el.style.top = `${position.y}px`;
             el.setAttribute('id', model.id);
             this.$.content.appendChild(el);
-            this.push('hws', model);
+            this.push('uiElements', model);
         }
-        removeHw (id) {
-            for (let i in this.hws) {
-                if (this.hws[i].id === id) {
-                    this.splice('hws', i, 1);
+        removeUi (id) {
+            for (let i in this.uiElements) {
+                if (this.uiElements[i].id === id) {
+                    this.splice('uiElements', i, 1);
                 }
             }
             this.$.content.removeChild(this.$.content.querySelector(`#${id}`));
