@@ -95,8 +95,12 @@ gulp.task('copy', /*['clean'],*/ () => {
         .pipe(gulp.dest('.tmp/app'));
 });
 
-gulp.task('assets', () => {
-    gulp.src(['app/assets/**/*', 'app/manifest.json'], { base: 'app' })
+gulp.task('assets', ['scenes'], () => {
+    gulp.src([
+        'app/assets/**/*',
+        'app/manifest.json',
+        '!app/assets/projects/**/*.{js,html}'
+    ], { base: 'app' })
         .pipe(gulp.dest('www'));
 });
 
@@ -113,12 +117,20 @@ gulp.task('views', () => {
         .pipe(gulp.dest('www/views'));
 });
 
+gulp.task('scenes', () => {
+    gulp.src('app/assets/projects/**/*.html')
+        .pipe(vulcanize({ inlineScripts: true }))
+        .pipe(crisper({ scriptInHead: false }))
+        .pipe($.if('*.js', babel({ presets: ['es2015'] })))
+        .pipe(gulp.dest('www/assets/projects'));
+});
+
 gulp.task('watch', () => {
     let watchers = [
         gulp.watch(['./app/index.html','./app/**/*.{js,html,css}'], ['js']),
         gulp.watch(['./app/views/**/*'], ['views']),
         gulp.watch(['./app/style/**/*'], ['sass']),
-        gulp.watch(['./app/assets/projects/**/*'], ['assets'])
+        gulp.watch(['./app/assets/projects/**/*'], ['assets']),
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {
