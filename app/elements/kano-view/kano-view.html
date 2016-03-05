@@ -15,12 +15,11 @@
             this.is = 'kano-view';
             this.properties = {
                 viewName: {
-                    type: String,
-                    observer: 'viewChanged'
+                    type: String
                 },
                 location: {
                     type: String,
-                    value: 'views'
+                    value: 'views',
                 },
                 attributes: {
                     type: Object,
@@ -29,7 +28,10 @@
                         return {};
                     }
                 }
-            }
+            };
+            this.observers = [
+                'viewChanged(viewName)'
+            ];
         }
         attributesChanged () {
             if (!this.viewComponent) {
@@ -50,7 +52,7 @@
             });
         }
         viewChanged () {
-            if (this.view && !this.viewName.length) {
+            if ((this.viewName && !this.viewName.length) || !this.location) {
                 return;
             }
             this.loadView(this.viewName)

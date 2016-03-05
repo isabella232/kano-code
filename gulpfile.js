@@ -99,7 +99,7 @@ gulp.task('assets', ['scenes'], () => {
     gulp.src([
         'app/assets/**/*',
         'app/manifest.json',
-        '!app/assets/projects/**/*.{js,html}'
+        '!app/assets/stories/**/*.{js,html}'
     ], { base: 'app' })
         .pipe(gulp.dest('www'));
 });
@@ -118,11 +118,11 @@ gulp.task('views', () => {
 });
 
 gulp.task('scenes', () => {
-    gulp.src('app/assets/projects/**/*.html')
+    gulp.src('app/assets/stories/**/*.html')
         .pipe(vulcanize({ inlineScripts: true }))
         .pipe(crisper({ scriptInHead: false }))
         .pipe($.if('*.js', babel({ presets: ['es2015'] })))
-        .pipe(gulp.dest('www/assets/projects'));
+        .pipe(gulp.dest('www/assets/stories'));
 });
 
 gulp.task('watch', () => {
@@ -130,7 +130,7 @@ gulp.task('watch', () => {
         gulp.watch(['./app/index.html','./app/**/*.{js,html,css}'], ['js']),
         gulp.watch(['./app/views/**/*'], ['views']),
         gulp.watch(['./app/style/**/*'], ['sass']),
-        gulp.watch(['./app/assets/projects/**/*'], ['assets']),
+        gulp.watch(['./app/assets/stories/**/*'], ['assets']),
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {

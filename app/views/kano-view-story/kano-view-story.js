@@ -1,41 +1,41 @@
-class KanoViewProject {
+class KanoViewStory {
     beforeRegister () {
-        this.is = 'kano-view-project';
+        this.is = 'kano-view-story';
         this.properties = {
             selected: {
                 type: Number,
                 value: 0,
                 observer: 'selectedChanged'
             },
-            project: {
+            story: {
                 type: Object,
                 observer: 'selectedChanged'
             }
         };
     }
     attached () {
-        app.projects.getById(app.ctx.params.id)
-            .then((project) => {
-                this.set('project', project);
+        app.stories.getById(app.ctx.params.id)
+            .then((story) => {
+                this.set('story', story);
             });
     }
     isSelected (index) {
         return index === this.selected;
     }
     nextScene () {
-        if (this.selected < this.project.scenes.length - 1) {
+        if (this.selected < this.story.scenes.length - 1) {
             this.selected++;
         }
     }
     selectedChanged () {
-        if (!this.project) {
+        if (!this.story) {
             return;
         }
-        app.projects.getSceneByIndex(this.project, this.selected)
+        app.stories.getSceneByIndex(this.story, this.selected)
             .then((scene) => {
                 this.set('scene', scene);
             });
     }
 }
 
-Polymer(KanoViewProject);
+Polymer(KanoViewStory);

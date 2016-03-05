@@ -1,4 +1,4 @@
-<dom-module id="kano-project-scene">
+<dom-module id="kano-story-scene">
     <style>
     :host {
         display: block;
@@ -9,7 +9,9 @@
     }
     </style>
     <template>
-        <kano-view location="[[componentLocation]]" view-name="[[scene.component]]" attributes="[[attributes]]"></kano-view>
+        <kano-view location="[[location]]"
+                view-name="[[name]]"
+                attributes="[[attributes]]"></kano-view>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -28,9 +30,9 @@
         }
 
     };
-    class KanoProjectScene {
+    class KanoStoryScene {
         beforeRegister () {
-            this.is = 'kano-project-scene';
+            this.is = 'kano-story-scene';
             this.properties = {
                 scene: {
                     type: Object,
@@ -38,27 +40,37 @@
                         return {}
                     }
                 },
-                componentLocation: {
-                    type: String,
-                    computed: 'computeComponentLocation(scene.*)'
+                location: {
+                    type: String
+                },
+                name: {
+                    type: String
                 },
                 attributes: {
                     type: Object,
-                    computed: 'computeAttributes(scene.*)'
+                    computed: 'computeAttributes(scene.data.*)'
                 }
             };
+            this.observers = [
+                'componentChanged(scene.component)'
+            ];
         }
         computeAttributes () {
             return {
-                scene: this.scene
+                scene: this.scene.data
             };
         }
-        computeComponentLocation () {
-            return `assets/projects/${this.scene.project}`;
+        componentChanged () {
+            if (!this.scene.component) {
+                return {};
+            }
+            let splitted = this.scene.component.split('/');
+            this.set('location', `assets/stories/${splitted[0]}`),
+            this.set('name', `kano-scene-${splitted[1]}`);
         }
         sceneFinished () {
             this.fire('done');
         }
     }
-    Polymer(KanoProjectScene);
+    Polymer(KanoStoryScene);
 </script>
