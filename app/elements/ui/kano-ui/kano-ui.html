@@ -1,0 +1,167 @@
+<link rel="import" href="../kano-ui-speaker/kano-ui-speaker.html">
+<link rel="import" href="../kano-ui-camera/kano-ui-camera.html">
+<link rel="import" href="../kano-ui-canvas/kano-ui-canvas.html">
+<link rel="import" href="../kano-ui-gif-creator/kano-ui-gif-creator.html">
+<link rel="import" href="../kano-ui-button/kano-ui-button.html">
+<link rel="import" href="../kano-ui-text-input/kano-ui-text-input.html">
+
+<dom-module id="kano-ui">
+    <style>
+    :host {
+        display: inline-block;
+        animation: zoom-in 150ms ease-out;
+    }
+    :host .content {
+        @apply(--layout-horizontal);
+    }
+    :host .controls {
+        @apply(--layout-vertical);
+        margin-left: 10px;
+        font-size: 1.2em;
+    }
+    :host .controls label.title {
+        font-weight: normal;
+    }
+    :host .controls button {
+        background-color: var(--color-black);
+        color: var(--color-white);
+        border-radius: 50%;
+        border: 0px;
+        width: 20px;
+        height: 20px;
+        font-weight: bold;
+    }
+    :host .overlay {
+        z-index: 1;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    :host .overlay-container {
+        position: relative;
+        @apply(--layout-flex);
+    }
+    :host .add-rule:hover,
+    :host .add-rule button:hover {
+        cursor: pointer;
+    }
+    :host .rule {
+        margin: 3px;
+        background-color: var(--color-white);
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 1em;
+        @apply(--layout-vertical);
+    }
+    :host .rule .trigger {
+        font-weight: 600;
+    }
+    :host .remote {
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -15px;
+        right: -15px;
+    }
+    </style>
+    <template>
+        <div class="content">
+            <div class="overlay-container">
+                <div id="overlay" class="overlay" on-tap="toggleSelected"></div>
+                <div id="ui-container"></div>
+            </div>
+            <div class="controls" hidden$="{{!showControls}}">
+                <label class="title">{{model.label}}</label>
+                <template is="dom-repeat" items="{{rules}}" as="rule">
+                    <div class="rule">
+                        <span class="trigger">{{rule.trigger}}</span>
+                        <span class="action">{{rule.action}}</span>
+                    </div>
+                </template>
+                <div>
+                    <label class="add-rule"><button type="button" on-tap="addRuleTapped">+</button>Add Rule</label>
+                </div>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUi {
+
+        beforeRegister () {
+            this.is = 'kano-ui';
+            this.properties = {
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                },
+                rules: {
+                    type: Array,
+                    value: () => []
+                },
+                selected: {
+                    type: Boolean,
+                    value: false
+                },
+                running: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'runningChanged'
+                },
+                showControls: {
+                    type: Boolean,
+                    value: false,
+                    computed: 'computeShowControls(selected, model.events.*)'
+                }
+            };
+        }
+        attached () {
+            // Create the related ui component and place it in the ui container
+            let uiContainer = this.$['ui-container'],
+                ui = document.createElement(`kano-ui-${this.model.type}`);
+            ui.model = this.model;
+            while(uiContainer.firstChild) {
+                uiContainer.removeChild(uiContainer.firstChild);
+            }
+            Polymer.dom(uiContainer).appendChild(ui);
+            this.ui = ui;
+            this.fire('ui-ready', this);
+        }
+        getComponent () {
+            return this.ui;
+        }
+        toggleSelected (e) {
+            if (this.running) {
+                return;
+            }
+            this.set('selected', !this.get('selected'));
+        }
+        addRuleTapped (ev) {
+            this.fire('add-rule-tapped', this);
+        }
+        computeShowControls () {
+            return this.selected
+                    && this.model.events
+                    && this.model.events.length
+                    && !this.model.slave;
+        }
+        runningChanged (running) {
+            let overlay = this.$.overlay;
+            if (running) {
+                overlay.style.display = 'none';
+                overlay.style.zIndex = -1;
+                this.set('selected', false);
+            } else {
+                overlay.style.display = 'block';
+                overlay.style.zIndex = 1;
+            }
+        }
+    }
+    Polymer(KanoUi);
+</script>

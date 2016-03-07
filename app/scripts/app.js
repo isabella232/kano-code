@@ -3,7 +3,7 @@ import Devices from './service/devices';
 import Codes from './service/codes';
 import Elements from './service/elements';
 import Stories from './service/stories';
-import Hardware from './hardware';
+import UI from './ui';
 import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
 
@@ -40,13 +40,9 @@ let config = {
 
     app.devices = Devices;
     app.codes = Codes;
-    app.hardware = Hardware;
+    app.ui = UI;
     app.elements = Elements;
     app.stories = Stories;
-
-    app.getHws = () => {
-        return app.hardware.getAll();
-    };
 
     app.defaultCategories = Blockly.categories;
 

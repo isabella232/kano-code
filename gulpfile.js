@@ -2,50 +2,55 @@
 'use strict';
 
 let gulp = require('gulp'),
-    vulcanize = require('gulp-vulcanize'),
-    babel = require('gulp-babel'),
+    $ = require('gulp-load-plugins')({ lazy: false }),
     babelify = require('babelify'),
-    crisper = require('gulp-crisper'),
-    connect = require('gulp-connect'),
     browserify = require('browserify'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
-    clean = require('gulp-clean'),
+    del = require('del'),
     auth = require('basic-auth'),
-    htmlreplace = require('gulp-html-replace'),
-    sass = require('gulp-sass'),
     path = require('path'),
-    $ = {
-        if: require('gulp-if')
-    },
-    bundler = browserify('app/scripts/app.js', watchify.args)
+    bundler,
+    utils;
+
+bundler = browserify('app/scripts/app.js', watchify.args)
         .transform(babelify.configure({ presets: ['es2015'] }));
 
+utils = {
+    notifyError: $.notify.onError((error) => {
+        $.util.beep();
+        return error.message || error;
+    }),
+    notifyUpdate (message) {
+        return $.util.log($.util.colors.blue(message));
+    },
+    // Wrap vulcanize to automatically add error reporting
+    vulcanize (options) {
+        return $.vulcanize(options)
+            .on('error', utils.notifyError);
+    },
+    bundle () {
+        utils.notifyUpdate('Browserify: compiling JS...');
+        return bundler.bundle()
+            .on('error', utils.notifyError)
+            .pipe(source('app.js'))
+            .pipe(gulp.dest('.tmp/app/scripts'));
+    }
+};
 
-function bundle() {
-    console.log('Compiling JS...');
-
-    return bundler.bundle()
-        .on('error', function (err) {
-            console.error(err);
-            this.emit('end');
-        })
-        .pipe(source('app.js'))
-        .pipe(gulp.dest('.tmp/app/scripts'));
-}
-
-gulp.task('bundle', bundle);
+gulp.task('bundle', utils.bundle);
 
 gulp.task('serve', () => {
-    return connect.server({
+    return $.connect.server({
         root: 'www',
         port: 4000,
-        fallback: './www/index.html'
+        fallback: './www/index.html',
+        livereload: true
     });
 });
 
 gulp.task('serve-prod', () => {
-    return connect.server({
+    return $.connect.server({
         root: 'www',
         port: process.env.PORT,
         fallback: './www/index.html',
@@ -67,23 +72,24 @@ gulp.task('serve-prod', () => {
 
 gulp.task('js', ['babel', 'bundle'], () => {
     gulp.src('./.tmp/app/index.html')
-        .pipe(vulcanize({ inlineScripts: true }))
-        .pipe(crisper({ scriptInHead: false }))
-        .pipe(htmlreplace({ base: `
+        .pipe(utils.vulcanize({ inlineScripts: true }))
+        .pipe($.crisper({ scriptInHead: false }))
+        .pipe($.htmlReplace({ base: `
             <base href="/" target="_blank">
             <meta http-equiv="Content-Security-Policy" content="media-src *">
             ` }))
+        .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
 });
 
 gulp.task('babel', ['copy'], () => {
     return gulp.src('app/elements/**/*.html')
-        .pipe(crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', babel({ presets: ['es2015'] })))
+        .pipe($.crisper({ scriptInHead: false }))
+        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('.tmp/app/elements'));
 });
 
-gulp.task('copy', /*['clean'],*/ () => {
+gulp.task('copy', ['clean'], () => {
     return gulp.src([
             'app/index.html',
             'app/bower_components/**/*',
@@ -105,15 +111,14 @@ gulp.task('assets', ['scenes'], () => {
 });
 
 gulp.task('clean', () => {
-    return gulp.src('.tmp')
-        .pipe(clean());
+    return del(['.tmp/**/*', 'www/**/*']);
 });
 
 gulp.task('views', () => {
     gulp.src('app/views/**/*.html')
-        .pipe(vulcanize({ inlineScripts: true }))
-        .pipe(crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', babel({ presets: ['es2015'] })))
+        .pipe(utils.vulcanize({ inlineScripts: true }))
+        .pipe($.crisper({ scriptInHead: false }))
+        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('www/views'));
 });
 
@@ -134,16 +139,15 @@ gulp.task('watch', () => {
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {
-            console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+            utils.notifyUpdate('File ' + event.path + ' was ' + event.type + ', running tasks...');
         });
     });
-    bundler = watchify(bundler).on('update', bundle);
-    bundle();
+    bundler = watchify(bundler).on('update', utils.bundle);
 });
 
 gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
-        .pipe(sass({ includePaths: 'app/bower_components' }).on('error', sass.logError))
+        .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
         .pipe(gulp.dest('www/css'));
 });
 

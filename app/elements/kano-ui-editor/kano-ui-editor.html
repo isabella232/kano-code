@@ -1,0 +1,132 @@
+<link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../kano-style/kano-style.html">
+
+<dom-module id="kano-ui-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host header {
+        font-family: bariol;
+        font-weight: normal;
+        font-size: 1.2em;
+        padding: 25px;
+        background-color: var(--color-grey-lighter);
+        text-align: center;
+    }
+    :host kano-blockly {
+        @apply(--layout-flex);
+    }
+    :host .event-control {
+        background-color: var(--primary-color);
+        color: var(--color-white);
+        padding: 4px;
+        border-radius: 6px;
+    }
+    </style>
+    <template>
+        <style include="kano-style"></style>
+        <header>
+            <label>When the </label>
+            <label class="event-control">
+                <span>{{selectedUi.label}}</span>
+                <select id="select" value="{{event::change}}" selectedIndex="0">
+                    <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
+                        <option value$="[[event.id]]">[[event.label]]</option>
+                    </template>
+                </select>
+            </label>
+        </header>
+        <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{blocklyCode}}"></kano-blockly>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoUiEditor {
+        beforeRegister () {
+            this.is = 'kano-ui-editor';
+            this.properties = {
+                uiElements: {
+                    type: Array,
+                    value: () => []
+                },
+                toolbox: {
+                    type: Array,
+                    computed: 'computeToolbox(uiElements)'
+                },
+                selectedUi: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    },
+                    observer: 'selectedUiChanged'
+                },
+                code: {
+                    type: String,
+                    computed: 'computeCode(blocklyCode)',
+                    notify: true
+                },
+                event: {
+                    type: String
+                },
+                rule: {
+                    type: Object,
+                    notify: true,
+                    computed: 'computeRule(event, selectedUi.events.*, code)'
+                },
+                defaultCategories: {
+                    type: Array,
+                    value: () => []
+                }
+            }
+        }
+        selectedUiChanged () {
+            if (!this.event && this.selectedUi.events) {
+                this.event = this.selectedUi.events[0].id;
+            }
+        }
+        computeRule (eventName) {
+            let index = this.$.select.selectedIndex,
+                label;
+            if (index === -1) {
+                index = 0;
+            }
+            if (!this.selectedUi.events) {
+                return;
+            }
+            label = this.selectedUi.events[index].label;
+            return {
+                trigger: `When the ${this.selectedUi.label} is ${label}`,
+                action: this.$.blockly.getCode('Natural')
+            };
+        }
+        computeCode (blocklyCode) {
+            return `devices.get('${this.selectedUi.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
+        }
+        computeToolbox (uiElements) {
+            uiElements.forEach((ui) => {
+                ui.blocks.forEach((block) => {
+                    Blockly.Blocks[block.id] = {
+                        init: function () {
+                            block.colour = ui.hue;
+                            this.jsonInit(block);
+                        }
+                    };
+                    Blockly.JavaScript[block.id] = block.javascript(ui);
+                    Blockly.Natural[block.id] = block.natural(ui);
+                });
+            });
+            return uiElements.map((ui) => {
+                return {
+                        name: ui.label,
+                        blocks: ui.blocks,
+                        colour: ui.hue
+                    };
+            }).concat(this.defaultCategories || []).filter((category) => category.blocks.length);
+        }
+        getBlocklyXml () {
+            return this.$.blockly.getXml();
+        }
+    }
+    Polymer(KanoUiEditor);
+</script>

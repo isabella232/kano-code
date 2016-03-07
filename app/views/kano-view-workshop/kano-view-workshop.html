@@ -50,14 +50,13 @@
             <button type="button" class$="make-button {{running}}" on-tap="toggleMake">{{buttonAction}}</button>
         </header>
         <section id="section">
-            <kano-sidebar hws="{{hws}}" on-hw-ready="sidebarHwReady"></kano-sidebar>
+            <kano-sidebar ui-elements="{{uiElements}}" on-ui-ready="sidebarUiReady"></kano-sidebar>
             <kano-workspace id="workspace"
-                            on-hw-ready="workspaceHwReady"
+                            on-ui-ready="workspaceUiReady"
                             on-add-rule-tapped="openModal"
-                            hws="{{workspaceHws}}"
+                            ui-elements="{{workspaceUiElements}}"
                             running="{{isRunning}}"></kano-workspace>
         </section>
-        <kano-device-discovery devices="{{devices}}" hws="{{hws}}"></kano-device-discovery>
     </template>
 </dom-module>
 
@@ -80,7 +79,7 @@
                 }
             };
             this.observers = [
-                'workspaceHwsChanged(workspaceHws.splices)'
+                'workspaceUiElementsChanged(workspaceUiElements.splices)'
             ];
         }
         computeRunning (running) {
@@ -91,11 +90,11 @@
         }
         attached () {
             let trash = this.$.workspace.getTrashElement();
-            this.workspaceHws = [];
+            this.workspaceUiElements = [];
             this.isRunning = false;
-            this.set('devices', app.getHws());
+            this.set('uiElements', app.ui.getAll());
             app.Interact(this.$.workspace).dropzone({
-                accept: 'kano-hw-item',
+                accept: 'kano-ui-item',
                 ondragenter: () => {
                     this.$.workspace.pulsing = true;
                 },
@@ -108,31 +107,31 @@
                             x: rect.left + (rect.width / 2),
                             y: rect.top + (rect.height / 2)
                         },
-                        model = app.hardware.create(e.relatedTarget.model.type);
+                        model = app.ui.create(e.relatedTarget.model.type);
                     model.id = this.createId(model.type);
-                    this.$.workspace.addHw(model, elemCenter);
+                    this.$.workspace.addUi(model, elemCenter);
                     this.$.workspace.pulsing = false;
                 }
             });
             app.Interact(trash).dropzone({
-                accept: 'kano-hw',
+                accept: 'kano-ui',
                 overlap: 0.01,
                 ondrop: (e) => {
                     let id = e.relatedTarget.model.id
-                    this.$.workspace.removeHw(id);
+                    this.$.workspace.removeUi(id);
                     app.devices.remove(id);
                     app.codes.remove(id);
                 }
             });
         }
         createId (type) {
-            let ids = this.hws.map((hw) => hw.id);
+            let ids = this.uiElements.map((ui) => ui.id);
             if (ids.indexOf(type) !== -1) {
                 return this.createId(`${type}-1`);
             }
             return type;
         }
-        sidebarHwReady (e) {
+        sidebarUiReady (e) {
             let clone;
             app.Interact(e.detail).draggable({
                 onmove: app.dragMoveListener,
@@ -168,10 +167,10 @@
                 }
             });
         }
-        workspaceHwReady (e) {
+        workspaceUiReady (e) {
             let element = e.detail;
             // Register the element in the service
-            app.elements.add(element.model.id, element.getHw());
+            app.elements.add(element.model.id, element.getComponent());
             app.Interact(element).draggable({
                 onmove: app.dragMoveListener,
                 restrict: {
@@ -182,31 +181,31 @@
         }
         openModal (e) {
             let modal = document.createElement('kano-modal'),
-                editor = document.createElement('kano-hw-editor'),
+                editor = document.createElement('kano-ui-editor'),
                 appElement = document.querySelector('kano-app');
             modal.height = '98%';
             modal.width = '98%';
             modal.addEventListener('modal-close', () => {
-                app.codes.add(editor.selectedHw.id, editor.code, editor.rule, editor.getBlocklyXml());
-                e.detail.rules = app.codes.getRulesFor(editor.selectedHw.id);
+                app.codes.add(editor.selectedUi.id, editor.code, editor.rule, editor.getBlocklyXml());
+                e.detail.rules = app.codes.getRulesFor(editor.selectedUi.id);
                 appElement.removeChild(modal);
             });
             app.registerBlockly(window.Blockly);
             editor.defaultCategories = app.defaultCategories;
-            editor.selectedHw = e.detail.model;
-            editor.hws = this.workspaceHws;
+            editor.selectedUi = e.detail.model;
+            editor.uiElements = this.workspaceUiElements;
             appElement.appendChild(modal);
             modal.addEventListener('animation-finished', () => {
                 modal.setContent(editor);
             });
             modal.show();
         }
-        workspaceHwsChanged () {
-            let groupedHws = this.workspaceHws.reduce((acc, hw) => {
-                acc[hw.id] = hw;
+        workspaceUiElementsChanged () {
+            let groupedUiElements = this.workspaceUiElements.reduce((acc, ui) => {
+                acc[ui.id] = ui;
                 return acc;
             }, {});
-            app.devices.setDevices(groupedHws);
+            app.devices.setDevices(groupedUiElements);
         }
         toggleMake () {
             this.isRunning = !this.isRunning;

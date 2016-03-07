@@ -1,0 +1,35 @@
+<link rel="import" href="../kano-ui-item/kano-ui-item.html">
+<dom-module id="kano-ui-list">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-horizontal);
+        @apply(--layout-around-justified);
+        @apply(--layout-wrap);
+        overflow-y: auto;
+    }
+    :host kano-ui-item {
+        margin: 10px;
+    }
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{items}}">
+            <kano-ui-item model="{{item}}"></kano-ui-item>
+        </template>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUiList {
+        beforeRegister () {
+            this.is = 'kano-ui-list';
+            this.properties = {
+                items: {
+                    type: Array,
+                    value: () => []
+                }
+            }
+        }
+    }
+    Polymer(KanoUiList);
+</script>
