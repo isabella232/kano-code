@@ -18,7 +18,7 @@ class ComponentStore {
      * @param {Object}      component   The model
      * @param {HTMLElement} element     The DOM element added in the view
      */
-    add (model, element) {
+    add (model) {
         // When added to this store, we make sure the name is unique
         model.name = this.createUniqueName(model.name || model.label);
         // As the name is displayed, we also want an id, that will only contain
@@ -27,9 +27,12 @@ class ComponentStore {
         // Use the id as key
         this.components[model.id] = {
             model,
-            element,
+            element: null,
             codes: []
         };
+    }
+    setElement (id, element) {
+        this.get(id).element = element;
     }
     /**
      * Add a piece of code to a component
@@ -155,7 +158,7 @@ class ComponentStore {
         // Run the code using this store. Only expose the get function
         CodeService.run(codeList.join(';'), {
             get (id) {
-                return componentStore.get(id).element;
+                return componentStore.get(id).model;
             }
         });
     }

@@ -9,12 +9,9 @@ export default class UI {
         this.blocks = opts.blocks || [];
         this.events = opts.events || [];
         this.listeners = opts.listeners || [];
-        this.remote = opts.remote || false;
-        this.slave = opts.slave || false;
-        this.element = null;
     }
     getElement () {
-        return ComponentStore.get(this.id);
+        return ComponentStore.get(this.id).element;
     }
     addBlock (block) {
         this.blocks.push(block);

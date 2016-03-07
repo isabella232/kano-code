@@ -1,5 +1,4 @@
 import Interact from 'interact.js';
-import Devices from './service/devices';
 import Stories from './service/stories';
 import Components from './service/components';
 import UI from './ui';
@@ -37,7 +36,6 @@ let config = {
         target.setAttribute('data-y', y);
     };
 
-    app.devices = Devices;
     app.ui = UI;
     app.stories = Stories;
     app.components = Components;

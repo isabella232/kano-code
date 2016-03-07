@@ -110,6 +110,7 @@
                             y: rect.top + (rect.height / 2)
                         },
                         model = app.ui.create(e.relatedTarget.model.type);
+                    app.components.add(model);
                     this.$.workspace.addUi(model, elemCenter);
                     this.$.workspace.pulsing = false;
                 }
@@ -171,7 +172,7 @@
         workspaceUiReady (e) {
             let element = e.detail;
             // Register the element in the service
-            app.components.add(element.model, element);
+            app.components.setElement(element.model.id, element);
             app.Interact(element).draggable({
                 onmove: app.dragMoveListener,
                 restrict: {

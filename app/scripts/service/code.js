@@ -32,6 +32,10 @@ export default CodeService = {
         window.userCode.apply(null, modulesArray);
     },
     stop () {
-
+        Object.keys(modules).forEach((name) => {
+            if (modules[name].lifecycle && modules[name].lifecycle.stop) {
+                modules[name].lifecycle.stop();
+            }
+        });
     }
 };
