@@ -1,6 +1,6 @@
-import Hardware from './hardware';
+import UI from './ui';
 
-export default class Button extends Hardware {
+export default class Button extends UI {
     constructor () {
         super({
             type: 'button',
@@ -16,17 +16,13 @@ export default class Button extends Hardware {
     addEventListener (name, callback) {
         super.addEventListener.apply(this, arguments);
         let element = this.getElement();
-        if (!this.remote) {
-            return element.addEventListener.apply(element, arguments);
-        }
+        return element.addEventListener.apply(element, arguments);
     }
     removeListeners () {
-        if (!this.remote) {
-            let element = this.getElement();
-            this.listeners.forEach((listener) => {
-                element.removeEventListener.apply(element, listener);
-            });
-        }
+        let element = this.getElement();
+        this.listeners.forEach((listener) => {
+            element.removeEventListener.apply(element, listener);
+        });
         super.removeListeners();
     }
 }

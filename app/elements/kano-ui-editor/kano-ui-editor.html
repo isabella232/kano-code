@@ -1,7 +1,7 @@
 <link rel="import" href="../kano-blockly/kano-blockly.html">
 <link rel="import" href="../kano-style/kano-style.html">
 
-<dom-module id="kano-hw-editor">
+<dom-module id="kano-ui-editor">
     <style>
     :host {
         display: block;
@@ -30,9 +30,9 @@
         <header>
             <label>When the </label>
             <label class="event-control">
-                <span>{{selectedHw.label}}</span>
+                <span>{{selectedUi.label}}</span>
                 <select id="select" value="{{event::change}}" selectedIndex="0">
-                    <template is="dom-repeat" items="[[selectedHw.events]]" as="event">
+                    <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
                         <option value$="[[event.id]]">[[event.label]]</option>
                     </template>
                 </select>
@@ -42,24 +42,24 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    class KanoHwEditor {
+    class KanoUiEditor {
         beforeRegister () {
-            this.is = 'kano-hw-editor';
+            this.is = 'kano-ui-editor';
             this.properties = {
-                hws: {
+                uiElements: {
                     type: Array,
                     value: () => []
                 },
                 toolbox: {
                     type: Array,
-                    computed: 'computeToolbox(hws)'
+                    computed: 'computeToolbox(uiElements)'
                 },
-                selectedHw: {
+                selectedUi: {
                     type: Object,
                     value: () => {
                         return {};
                     },
-                    observer: 'selectedHwChanged'
+                    observer: 'selectedUiChanged'
                 },
                 code: {
                     type: String,
@@ -72,7 +72,7 @@
                 rule: {
                     type: Object,
                     notify: true,
-                    computed: 'computeRule(event, selectedHw.events.*, code)'
+                    computed: 'computeRule(event, selectedUi.events.*, code)'
                 },
                 defaultCategories: {
                     type: Array,
@@ -80,9 +80,9 @@
                 }
             }
         }
-        selectedHwChanged () {
-            if (!this.event && this.selectedHw.events) {
-                this.event = this.selectedHw.events[0].id;
+        selectedUiChanged () {
+            if (!this.event && this.selectedUi.events) {
+                this.event = this.selectedUi.events[0].id;
             }
         }
         computeRule (eventName) {
@@ -91,36 +91,36 @@
             if (index === -1) {
                 index = 0;
             }
-            if (!this.selectedHw.events) {
+            if (!this.selectedUi.events) {
                 return;
             }
-            label = this.selectedHw.events[index].label;
+            label = this.selectedUi.events[index].label;
             return {
-                trigger: `When the ${this.selectedHw.label} is ${label}`,
+                trigger: `When the ${this.selectedUi.label} is ${label}`,
                 action: this.$.blockly.getCode('Natural')
             };
         }
         computeCode (blocklyCode) {
-            return `devices.get('${this.selectedHw.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
+            return `devices.get('${this.selectedUi.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
         }
-        computeToolbox (hws) {
-            hws.forEach((hw) => {
-                hw.blocks.forEach((block) => {
+        computeToolbox (uiElements) {
+            uiElements.forEach((ui) => {
+                ui.blocks.forEach((block) => {
                     Blockly.Blocks[block.id] = {
                         init: function () {
-                            block.colour = hw.hue;
+                            block.colour = ui.hue;
                             this.jsonInit(block);
                         }
                     };
-                    Blockly.JavaScript[block.id] = block.javascript(hw);
-                    Blockly.Natural[block.id] = block.natural(hw);
+                    Blockly.JavaScript[block.id] = block.javascript(ui);
+                    Blockly.Natural[block.id] = block.natural(ui);
                 });
             });
-            return hws.map((hw) => {
+            return uiElements.map((ui) => {
                 return {
-                        name: hw.label,
-                        blocks: hw.blocks,
-                        colour: hw.hue
+                        name: ui.label,
+                        blocks: ui.blocks,
+                        colour: ui.hue
                     };
             }).concat(this.defaultCategories || []).filter((category) => category.blocks.length);
         }
@@ -128,5 +128,5 @@
             return this.$.blockly.getXml();
         }
     }
-    Polymer(KanoHwEditor);
+    Polymer(KanoUiEditor);
 </script>
