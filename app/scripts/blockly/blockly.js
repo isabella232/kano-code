@@ -2,6 +2,7 @@ import natural from './natural';
 import catPicture from './cat-picture';
 import weather from './weather';
 import images from './images';
+import time from './time';
 import basic from './basic';
 
 /**
@@ -11,18 +12,25 @@ import basic from './basic';
  * @param  {[type]} Blockly [description]
  * @return {[type]}         [description]
  */
-let register = (Blockly) => {
-    // Register the modules
-    natural.register(Blockly);
-    catPicture.register(Blockly);
-    weather.register(Blockly);
-    images.register(Blockly);
-};
+let registered = false,
+    register = (Blockly) => {
+        if (registered) {
+            return;
+        }
+        // Register the modules
+        natural.register(Blockly);
+        catPicture.register(Blockly);
+        weather.register(Blockly);
+        images.register(Blockly);
+        time.register(Blockly);
+        registered = true;
+    };
 
 let categories = [
     catPicture.category,
     weather.category,
-    images.category
+    images.category,
+    time.category
 ].concat(basic.categories);
 
 export default {

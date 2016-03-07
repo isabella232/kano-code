@@ -97,16 +97,29 @@
                     this.nextStep();
                 }
             // Check the 'value' case. We are waiting for a Change Blockly event
-            } else if (step.validation.value && e.detail instanceof Blockly.Events.Change) {
+            } else if (step.validation.value
+                        && e.detail instanceof Blockly.Events.Change) {
                 let validation = step.validation.value,
                     targetId = this.stepIds[validation.target],
-                    block = e.detail;
-                // Check that the element that changed is the one we target and that
-                // the value is set to the one we expect
-                // We use the double equal to be sure we catch Number/String
-                // parsing
-                if (block.blockId === targetId && block.newValue == validation.value) {
-                    this.nextStep();
+                    block = e.detail,
+                    failed = false;
+                // Check that the element that changed is the one we target
+                if (block.blockId === targetId) {
+                    if (validation.minLength
+                            && block.newValue.length
+                            && block.newValue.length < validation.minLength) {
+                        failed = true;
+                    }
+                    // Check that
+                    // the value is set to the one we expect
+                    // We use the double equal to be sure we catch Number/String
+                    // parsing
+                    if (validation.value && block.newValue != validation.value) {
+                        failed = true;
+                    }
+                    if (!failed) {
+                        this.nextStep();
+                    }
                 }
             }
         }

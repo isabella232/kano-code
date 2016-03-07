@@ -1,0 +1,81 @@
+<dom-module id="kano-story-scene">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host * {
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <kano-view location="[[location]]"
+                view-name="[[name]]"
+                attributes="[[attributes]]"></kano-view>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    window.Kano = window.Kano || {};
+    Kano.SceneComponentBehavior = {
+
+        properties: {
+            scene: Object,
+            value: () => {
+                return {};
+            }
+        },
+
+        finish () {
+            this.fire('done');
+        }
+
+    };
+    class KanoStoryScene {
+        beforeRegister () {
+            this.is = 'kano-story-scene';
+            this.properties = {
+                scene: {
+                    type: Object,
+                    value: () => {
+                        return {}
+                    }
+                },
+                location: {
+                    type: String
+                },
+                name: {
+                    type: String
+                },
+                attributes: {
+                    type: Object,
+                    computed: 'computeAttributes(scene.data.*)'
+                }
+            };
+            this.observers = [
+                'componentChanged(scene.component)'
+            ];
+        }
+        computeAttributes () {
+            return {
+                scene: this.scene.data
+            };
+        }
+        componentChanged () {
+            if (!this.scene.component) {
+                return {};
+            }
+            // Cut using '/'
+            let pieces = this.scene.component.split('/');
+            // Extract the last piece
+                name = pieces.pop(),
+            // Join back the first pieces to get the location
+                loc = pieces.join('/');
+            this.set('location', `assets/stories/${loc}`),
+            this.set('name', `kano-scene-${name}`);
+        }
+        sceneFinished () {
+            this.fire('done');
+        }
+    }
+    Polymer(KanoStoryScene);
+</script>

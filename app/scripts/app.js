@@ -2,7 +2,7 @@ import Interact from 'interact.js';
 import Devices from './service/devices';
 import Codes from './service/codes';
 import Elements from './service/elements';
-import Challenges from './service/challenges';
+import Stories from './service/stories';
 import UI from './ui';
 import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
@@ -42,7 +42,7 @@ let config = {
     app.codes = Codes;
     app.ui = UI;
     app.elements = Elements;
-    app.challenges = Challenges;
+    app.stories = Stories;
 
     app.defaultCategories = Blockly.categories;
 
