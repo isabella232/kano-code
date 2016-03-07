@@ -1,4 +1,4 @@
-import Elements from '../service/elements';
+import ComponentStore from '../service/components';
 
 export default class UI {
     constructor (opts) {
@@ -11,9 +11,10 @@ export default class UI {
         this.listeners = opts.listeners || [];
         this.remote = opts.remote || false;
         this.slave = opts.slave || false;
+        this.element = null;
     }
     getElement () {
-        return Elements.get(this.id);
+        return ComponentStore.get(this.id);
     }
     addBlock (block) {
         this.blocks.push(block);
