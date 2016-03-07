@@ -64,9 +64,14 @@
             if (!this.scene.component) {
                 return {};
             }
-            let splitted = this.scene.component.split('/');
-            this.set('location', `assets/stories/${splitted[0]}`),
-            this.set('name', `kano-scene-${splitted[1]}`);
+            // Cut using '/'
+            let pieces = this.scene.component.split('/');
+            // Extract the last piece
+                name = pieces.pop(),
+            // Join back the first pieces to get the location
+                loc = pieces.join('/');
+            this.set('location', `assets/stories/${loc}`),
+            this.set('name', `kano-scene-${name}`);
         }
         sceneFinished () {
             this.fire('done');
