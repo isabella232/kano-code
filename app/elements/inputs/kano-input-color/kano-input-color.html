@@ -1,0 +1,72 @@
+<script src="../behaviors.js"></script>
+
+<dom-module id="kano-input-color">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host .selectedColor {
+        width: 60px;
+        height: 60px;
+        border-radius: 2px;
+        margin: 2px;
+    }
+    :host .colors {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+    }
+    :host .color {
+        width: 30px;
+        height: 30px;
+        margin: 2px;
+        border-radius: 2px;
+    }
+    :host .color:hover {
+        cursor: pointer;
+    }
+    </style>
+    <template>
+        <div class="selectedColor" style$="[[computeColor(value)]]"></div>
+        <div class="colors">
+            <template is="dom-repeat" items="{{colors}}" as="color">
+                <div class="color" style$="[[computeColor(color)]]" on-tap="selectColor"></div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoInputColor {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-color';
+        }
+
+        attached () {
+            this.colors = [
+                '#ff842a',
+                '#70c222',
+                '#96d7ec',
+                '#59b3d0',
+                '#e95c5a',
+                '#333',
+                '#f5f5f5',
+                '#7d7a73'
+            ];
+        }
+
+        computeColor (color) {
+            return `background-color: ${color}`;
+        }
+
+        selectColor (e) {
+            this.set('value', e.model.get('color'));
+            this.fire('change', this.value);
+        }
+    }
+    Polymer(KanoInputColor);
+</script>

@@ -6,7 +6,10 @@ export default class UIImage extends UI {
             type: 'image',
             label: 'Image',
             image: 'assets/hw/canvas.png',
-            hue: 60
+            hue: 60,
+            customizable: {
+                style: ['width', 'height']
+            }
         });
         this.addBlock({
             id: 'draw_picture',

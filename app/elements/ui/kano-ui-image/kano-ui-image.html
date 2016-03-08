@@ -4,12 +4,14 @@
     :host {
         display: block;
     }
-    :host canvas {
+    :host iron-image {
         border: 2px solid var(--color-primary);
     }
     </style>
     <template>
-        <iron-image id="image" style$="[[computeImageStyle(userStyle.*)]]" sizing="cover"></iron-image>
+        <iron-image id="image"
+                    style$="[[computeImageStyle(model.userStyle.*)]]"
+                    sizing="cover"></iron-image>
     </template>
 </dom-module>
 
@@ -22,17 +24,9 @@
 
         beforeRegister () {
             this.is = 'kano-ui-image';
-            this.properties = {
-                model: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                }
-            };
         }
         attached () {
-            this.set('userStyle', {
+            this.set('model.userStyle', {
                 width: '200px',
                 height: '200px'
             });
