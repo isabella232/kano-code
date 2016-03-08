@@ -26,6 +26,13 @@ ensure_dir(CHALLENGE_DIR)
 
 
 def _get_static_dir():
+    SCRIPT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+    # Use local asets when not installed in /usr
+    if not SCRIPT_DIR.startswith('/usr'):
+        print SCRIPT_DIR
+        return os.path.join(SCRIPT_DIR, '../www')
+
     return STATIC_ASSET_DIR
 
 
