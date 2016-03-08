@@ -25,7 +25,7 @@ let register = (Blockly) => {
     Blockly.JavaScript['every_x_seconds'] = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
             interval = Blockly.JavaScript.valueToCode(block, 'INTERVAL'),
-            code = `window.interval = setInterval(function () {
+            code = `time.setInterval(function () {
                         ${statement}
                     }, ${interval});`;
         return code;

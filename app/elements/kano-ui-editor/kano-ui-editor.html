@@ -28,9 +28,9 @@
     <template>
         <style include="kano-style"></style>
         <header>
-            <label>When the </label>
+            <label>When </label>
             <label class="event-control">
-                <span>{{selectedUi.label}}</span>
+                <span>{{selectedUi.name}}</span>
                 <select id="select" value="{{event::change}}" selectedIndex="0">
                     <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
                         <option value$="[[event.id]]">[[event.label]]</option>
@@ -96,7 +96,7 @@
             }
             label = this.selectedUi.events[index].label;
             return {
-                trigger: `When the ${this.selectedUi.label} is ${label}`,
+                trigger: `When ${this.selectedUi.name} ${label}`,
                 action: this.$.blockly.getCode('Natural')
             };
         }
@@ -118,7 +118,7 @@
             });
             return uiElements.map((ui) => {
                 return {
-                        name: ui.label,
+                        name: ui.name,
                         blocks: ui.blocks,
                         colour: ui.hue
                     };

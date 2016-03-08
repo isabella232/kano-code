@@ -47,7 +47,11 @@
     }
     </style>
     <template>
-        <div class="content" id="content"></div>
+        <div class="content" id="content">
+            <template is="dom-repeat" items="{{uiElements}}" as="model">
+                <kano-ui model="{{model}}" running="[[running]]" style$="{{computePositionStyle(model)}}"></kano-ui>
+            </template>
+        </div>
         <div class="trash" id="trash" on-mouseenter="trashEnter" on-mouseleave="trashLeave"></div>
     </template>
 </dom-module>
@@ -63,8 +67,7 @@
                 },
                 running: {
                     type: Boolean,
-                    value: false,
-                    observer: 'updateRunning'
+                    value: false
                 },
                 pulsing: {
                     type: Boolean,
@@ -81,14 +84,14 @@
                 el;
             position.x = position.x - rect.left;
             position.y = position.y - rect.top;
-            el = document.createElement('kano-ui');
-            el.model = model;
-            el.style.position = 'absolute';
-            el.style.left = `${position.x}px`;
-            el.style.top = `${position.y}px`;
-            el.setAttribute('id', model.id);
-            this.$.content.appendChild(el);
+            model.position = position;
+
             this.push('uiElements', model);
+        }
+        computePositionStyle (model) {
+            return `position: absolute;
+                    left: ${model.position.x}px;
+                    top: ${model.position.y}px;`;
         }
         removeUi (id) {
             for (let i in this.uiElements) {
@@ -96,14 +99,6 @@
                     this.splice('uiElements', i, 1);
                 }
             }
-            this.$.content.removeChild(this.$.content.querySelector(`#${id}`));
-        }
-        updateRunning () {
-            let children = this.$.content.children;
-            if (!children) {
-                return;
-            }
-            [].slice.call(children).forEach((el) => el.running = this.running);
         }
         pulsingChanged () {
             this.toggleClass('pulsing', this.pulsing);

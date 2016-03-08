@@ -23,6 +23,10 @@ export default class Button extends UI {
         this.listeners.forEach((listener) => {
             element.removeEventListener.apply(element, listener);
         });
-        super.removeListeners();
+        super.removeListeners.apply(this, arguments);
+    }
+    stop () {
+        this.removeListeners();
+        super.stop.apply(this, arguments);
     }
 }
