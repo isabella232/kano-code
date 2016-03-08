@@ -15,6 +15,8 @@ from kano.utils import ensure_dir
 from kano.utils import play_sound
 from kano.logging import logger
 
+from .kano_content_utils import latest_content_object_assets
+
 
 APP_NAME = 'make-apps'
 DEFAULT_PORT = 8000
@@ -43,7 +45,12 @@ def _get_static_dir():
         print script_dir
         return abspath(join(script_dir, '..', 'www'))
 
-    return STATIC_ASSET_DIR
+    cobj_static_path = latest_content_object_assets()
+
+    if cobj_static_path is None:
+        return STATIC_ASSET_DIR
+    else:
+        return cobj_static_path
 
 
 def _get_image_from_str(img_str):
