@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-# A script to update or install Make Apps on a Kano OS box
+# A script to update or install Make Apps on a Kano OS devellopment box
 
 function do_install
 {
     sudo apt-get update
     sudo apt-get install make-apps
-    echo "Unless you saw any errors above, Make Apps should be up to date."
+    kdesk -r
+    echo "\nUnless you saw any errors above, Make Apps should be up to date."
 }
 
 case $1 in
@@ -17,6 +18,9 @@ case $1 in
         do_install
         ;;
     setup)
+        echo "Installing Make Apps"
+        do_install
+
         echo "Adding `pwd` to your \$PATH..."
         echo "export PATH=\"`pwd`:\$PATH\"" >> ~/.bashrc
 
@@ -26,7 +30,7 @@ case $1 in
 
 SHELL=/bin/bash
 
-00 * * * * root apt-get update && apt-get install make-apps
+00 * * * * root /usr/bin/apt-get update && /usr/bin/apt-get install make-apps
 EOF
         ;;
     *)
