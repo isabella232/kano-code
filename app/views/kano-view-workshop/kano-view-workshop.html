@@ -48,10 +48,13 @@
             <iron-image src="../../assets/make-apps-logo.png"
                         preload
                         sizing="contain"></iron-image>
-            <h1></h1>
+            <h1>{{ user }}</h1>
             <button type="button"
                     class$="make-button {{running}}"
                     on-tap="toggleMake">{{buttonAction}}</button>
+            <button type="button"
+                    class$="login-button"
+                    on-tap="toggleLogin">{{buttonLogin}}</button>
         </header>
         <section id="section">
             <kano-sidebar ui-elements="{{uiElements}}"
@@ -62,6 +65,8 @@
                             ui-elements="{{workspaceUiElements}}"
                             running="{{isRunning}}"></kano-workspace>
         </section>
+        <kano-modal id="login-modal"></kano-modal>
+        <kano-device-discovery devices="{{devices}}" hws="{{hws}}"></kano-device-discovery>
     </template>
 </dom-module>
 
@@ -81,6 +86,14 @@
                 slave: {
                     type: Boolean,
                     value: false
+                },
+                user: {
+                  type: String,
+                  value: ''
+                },
+                buttonLogin: {
+                  type: String,
+                  computed: 'computeButtonLogin(user)'
                 }
             };
         }
@@ -89,6 +102,9 @@
         }
         computeButtonAction (running) {
             return running ? 'stop' : 'make';
+        }
+        computeButtonLogin (user) {
+            return user ? 'Logout' : 'Login';
         }
         attached () {
             let trash = this.$.workspace.getTrashElement();
@@ -153,7 +169,7 @@
                     rect = original.getBoundingClientRect();
 
                     // create a clone of the currentTarget element
-                    clone = Polymer.dom(original).cloneNode(true);
+                      clone = Polymer.dom(original).cloneNode(true);
                     clone.model = original.model;
                     clone.style.position = 'absolute';
                     clone.style.top = `${rect.top}px`;
@@ -214,6 +230,43 @@
             } else {
                 app.components.stop();
             }
+        }
+        toggleLogin () {
+          let modal;
+
+          if (this.user) {
+            app.modelManager.unset('user');
+            this.user = app.modelManager.get('user');
+            return;
+          }
+
+          const handleSwitch = (ev) => {
+            if (ev.target.localName === 'kano-login-form') {
+              modal.setContent(document.createElement('kano-signup-form'));
+              document.querySelector('#already-signedup-button').addEventListener('click', handleSwitch);
+            }
+            if (ev.target.id === 'already-signedup-button') {
+              modal.setContent(document.createElement('kano-login-form'));
+              document.querySelector('kano-login-form').addEventListener('signup-click', handleSwitch);
+            }
+          }
+
+          const handleLogin = (data) => {
+            app.modelManager.set('user', data.details)
+            this.user = data.details.user.username;
+            modal.close();
+          }
+
+          modal = document.createElement('kano-modal');
+          modal.setContent(document.createElement('kano-login-form'));
+          modal.show(() => {
+            let loginForm = document.querySelector('kano-login-form');
+            loginForm.addEventListener('signup-click', handleSwitch);
+            loginForm.addEventListener('success', handleLogin);
+          });
+          document.body.appendChild(modal);
+
+
         }
     }
     Polymer(KanoViewWorkshop);
