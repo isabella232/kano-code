@@ -7,7 +7,7 @@ function do_install
     sudo apt-get update
     sudo apt-get install make-apps
     kdesk -r
-    echo "\nUnless you saw any errors above, Make Apps should be up to date."
+    echo -e "\nUnless you saw any errors above, Make Apps should be up to date."
 }
 
 case $1 in
@@ -32,6 +32,8 @@ SHELL=/bin/bash
 
 00 * * * * root /usr/bin/apt-get update && /usr/bin/apt-get install make-apps
 EOF
+
+        echo -e "\n Setup done!"
         ;;
     *)
         echo "Unknown task $1"
