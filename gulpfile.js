@@ -70,21 +70,22 @@ gulp.task('serve-prod', () => {
     });
 });
 
+// For a build with cordova, add this to html replace
+// <meta http-equiv="Content-Security-Policy" content="media-src *">
 gulp.task('js', ['babel', 'bundle'], () => {
     gulp.src('./.tmp/app/index.html')
         .pipe(utils.vulcanize({ inlineScripts: true }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.htmlReplace({ base: `
             <base href="/" target="_blank">
-            <meta http-equiv="Content-Security-Policy" content="media-src *">
             ` }))
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
 });
 
 gulp.task('babel', ['copy'], () => {
-    return gulp.src('app/elements/**/*.html')
-        .pipe($.crisper({ scriptInHead: false }))
+    return gulp.src('app/elements/**/*.{js,html}')
+        .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('.tmp/app/elements'));
 });

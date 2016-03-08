@@ -1,7 +1,7 @@
 import Camera from './camera';
 import Speaker from './speaker';
 import TextInput from './text-input';
-import Canvas from './canvas';
+import UiImage from './image';
 import Button from './button';
 import GifCreator from './gif-creator';
 
@@ -10,7 +10,7 @@ let models = {
     'speaker': Speaker,
     'text-input': TextInput,
     'camera': Camera,
-    'canvas': Canvas,
+    'image': UiImage,
     'button': Button,
     'gif-creator': GifCreator
 };

@@ -5,6 +5,7 @@ import images from './images';
 import time from './time';
 import cons from './console';
 import basic from './basic';
+import giphy from './giphy';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -25,6 +26,7 @@ let registered = false,
         images.register(Blockly);
         time.register(Blockly);
         cons.register(Blockly);
+        giphy.register(Blockly);
         registered = true;
     };
 
@@ -33,7 +35,8 @@ let categories = [
     weather.category,
     images.category,
     time.category,
-    cons.category
+    cons.category,
+    giphy.category
 ].concat(basic.categories);
 
 export default {

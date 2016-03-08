@@ -1,10 +1,10 @@
 import UI from './ui';
 
-export default class Canvas extends UI {
+export default class UIImage extends UI {
     constructor () {
         super({
-            type: 'canvas',
-            label: 'Canvas',
+            type: 'image',
+            label: 'Image',
             image: 'assets/hw/canvas.png',
             hue: 60
         });
@@ -26,7 +26,7 @@ export default class Canvas extends UI {
             natural: (hw) => {
                 return function (block) {
                     let pic = Blockly.Natural.valueToCode(block, 'PICTURE'),
-                        code = `draw picture on ${hw.id} from ${pic}`;
+                        code = `draw picture on ${hw.name} from ${pic}`;
                     return code;
                 };
             }

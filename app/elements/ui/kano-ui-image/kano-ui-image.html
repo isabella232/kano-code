@@ -1,0 +1,50 @@
+<script src="../behaviors.js"></script>
+<dom-module id="kano-ui-image">
+    <style>
+    :host {
+        display: block;
+    }
+    :host canvas {
+        border: 2px solid var(--color-primary);
+    }
+    </style>
+    <template>
+        <iron-image id="image" style$="[[computeImageStyle(userStyle.*)]]" sizing="cover"></iron-image>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUiImage {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-image';
+            this.properties = {
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                }
+            };
+        }
+        attached () {
+            this.set('userStyle', {
+                width: '200px',
+                height: '200px'
+            });
+        }
+        drawPicture (pic) {
+            if (!this.consume(pic, this.drawPicture)) {
+                this.$.image.src = pic;
+            }
+        }
+        computeImageStyle () {
+            return this.getPartialStyle(['width', 'height']);
+        }
+    }
+    Polymer(KanoUiImage);
+</script>
