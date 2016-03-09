@@ -1,0 +1,70 @@
+<script src="../behaviors.js"></script>
+
+<dom-module id="kano-input-size">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-horizontal);
+    }
+    </style>
+    <template>
+        <input type="number" value="{{number::input}}" on-change="numberChanged">
+        <select value="{{unit::change}}">
+            <template is="dom-repeat" items="[[types]]" as="type">
+                <option value$="[[type.value]]">[[type.label]]</option>
+            </template>
+        </select>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    const SIZE_TYPES = [{
+        label: 'Pixels',
+        value: 'px'
+    },{
+        label: 'Percent',
+        value: '%'
+    }];
+    class KanoInputSize {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-size';
+            this.properties = {
+                value: {
+                    type: String,
+                    computed: 'computeValue(number, unit)',
+                    observer: 'valueChanged'
+                },
+                unit: {
+                    type: String,
+                    value: SIZE_TYPES[0].value
+                },
+                number: {
+                    type: Number,
+                    value: 0
+                }
+            };
+        }
+
+        computeValue () {
+            console.log(`${this.number}${this.unit}`);
+            return `${this.number}${this.unit}`;
+        }
+
+        valueChanged () {
+            this.fire('change');
+        }
+
+        attached () {
+            this.types = SIZE_TYPES;
+        }
+
+        numberChanged (e) {
+            e.stopPropagation();
+        }
+    }
+    Polymer(KanoInputSize);
+</script>

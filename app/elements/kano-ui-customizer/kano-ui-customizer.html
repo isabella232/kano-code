@@ -1,0 +1,100 @@
+<dom-module id="kano-ui-customizer">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        background-color: var(--color-grey-lighter);
+        transition: all linear 100ms;
+        padding: 15px;
+    }
+    :host .line {
+        margin-top: 5px;
+        @apply(--layout-vertical);
+    }
+    </style>
+    <template>
+        <input value="{{uiElement.name::change}}" />
+        <label>Style</label>
+        <template is="dom-repeat"
+                items="{{uiElement.customizable.style}}"
+                as="styleName">
+            <div class="line">
+                <label>[[computeLabel(styleName)]]</label>
+                <kano-input type="[[computeType(styleName)]]"
+                        label="label"
+                        on-change="styleChanged"
+                        value="[[computeStyleValue(styleName)]]">
+                </kano-input>
+            </div>
+        </template>
+        <label>Properties</label>
+        <template is="dom-repeat"
+                items="{{propertiesKeys}}"
+                as="propertyName">
+            <div class="line">
+                <label>{{propertyName}}</label>
+                <input type="text"
+                        name="name"
+                        on-change="propertyChanged"
+                        value$="[[computePropertyValue(propertyName)]]"/>
+            </div>
+        </template>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    const STYLE_CONF = {
+        'background-color': {
+            type: 'color',
+            label: 'Background color'
+        },
+        'width': {
+            type: 'size',
+            label: 'Width'
+        },
+        'height': {
+            type: 'size',
+            label: 'Height'
+        }
+    };
+    class KanoUiCustomizer {
+        beforeRegister () {
+            this.is = 'kano-ui-customizer';
+            this.properties = {
+                uiElement: {
+                    type: Object,
+                    notify: true
+                },
+                propertiesKeys: {
+                    type: Array,
+                    computed: 'computePropertiesKeys(uiElement)'
+                }
+            }
+        }
+        styleChanged (e) {
+            let styleName = e.model.get('styleName'),
+                value = e.target.value;
+            this.set(`uiElement.userStyle.${styleName}`, value);
+        }
+        propertyChanged (e) {
+            let propertyName = e.model.get('propertyName');
+            this.set(`uiElement.userProperties.${propertyName}`, e.target.value);
+        }
+        computeStyleValue (styleName) {
+            return this.uiElement.userStyle[styleName];
+        }
+        computePropertyValue (propertyName) {
+            return this.uiElement.userProperties[propertyName];
+        }
+        computePropertiesKeys () {
+            return Object.keys(this.uiElement.customizable.properties);
+        }
+        computeType (styleName) {
+            return STYLE_CONF[styleName] ? STYLE_CONF[styleName].type : 'text';
+        }
+        computeLabel (styleName) {
+            return STYLE_CONF[styleName] ? STYLE_CONF[styleName].label : '';
+        }
+    }
+    Polymer(KanoUiCustomizer);
+</script>

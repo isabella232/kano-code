@@ -6,7 +6,15 @@ export default class Button extends UI {
             type: 'button',
             label: 'Button',
             image: 'assets/hw/button.png',
-            hue: 118
+            hue: 118,
+            customizable: {
+                style: ['background-color'],
+                properties: {
+                    text: {
+                        type: 'plain'
+                    }
+                }
+            }
         });
         this.addEvent({
             label: 'is clicked',

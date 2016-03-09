@@ -45,14 +45,40 @@
         right: -250px;
         bottom: -250px;
     }
+    :host kano-ui-customizer {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 100%;
+        right: -50%;
+    }
+    :host kano-ui-customizer.opened {
+        right: 0px;
+        left: 50%;
+    }
     </style>
     <template>
-        <div class="content" id="content">
+        <div class="content" id="content" on-tap="resetSelectedUiElement">
             <template is="dom-repeat" items="{{uiElements}}" as="model">
-                <kano-ui model="{{model}}" running="[[running]]" style$="{{computePositionStyle(model)}}"></kano-ui>
+                <kano-ui model="{{model}}"
+                        running="[[running]]"
+                        style$="{{computePositionStyle(model)}}"
+                        selected="[[isSelected(model, selectedUiElement)]]"
+                        on-tap="selectUiElement"></kano-ui>
+                <template is="dom-if"
+                            if="[[isSelected(model, selectedUiElement, running)]]"
+                            restamp>
+                    <kano-ui-customizer
+                        class="opened"
+                        ui-element="{{model}}">
+                    </kano-ui-customizer>
+                </template>
             </template>
         </div>
-        <div class="trash" id="trash" on-mouseenter="trashEnter" on-mouseleave="trashLeave"></div>
+        <div class="trash"
+                id="trash"
+                on-mouseenter="trashEnter"
+                on-mouseleave="trashLeave"></div>
     </template>
 </dom-module>
 
@@ -73,8 +99,11 @@
                     type: Boolean,
                     value: false,
                     observer: 'pulsingChanged'
+                },
+                selectedUiElement: {
+                    type: String
                 }
-            }
+            };
         }
         attached () {
             this.uiElements = [];
@@ -111,6 +140,23 @@
         }
         trashLeave () {
             this.toggleClass('open', false, this.$.trash);
+        }
+        onSelected (e) {
+            this.set('selectedUiElement',e.model.get('model.id'));
+        }
+        isSelected (model) {
+            return !this.running && model.id === this.selectedUiElement;
+        }
+        selectUiElement (e) {
+            e.stopPropagation();
+            if (!this.running) {
+                this.set('selectedUiElement', e.model.get('model.id'));
+            }
+        }
+        resetSelectedUiElement (e) {
+            if (e.target.getAttribute('id') === 'content') {
+                this.set('selectedUiElement', null);
+            }
         }
     }
     Polymer(KanoWorkspace);

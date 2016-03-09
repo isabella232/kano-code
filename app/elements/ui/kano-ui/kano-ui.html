@@ -1,3 +1,4 @@
+<script src="../behaviors.js"></script>
 <link rel="import" href="../kano-ui-speaker/kano-ui-speaker.html">
 <link rel="import" href="../kano-ui-camera/kano-ui-camera.html">
 <link rel="import" href="../kano-ui-canvas/kano-ui-canvas.html">
@@ -71,7 +72,7 @@
     <template>
         <div class="content">
             <div class="overlay-container">
-                <div id="overlay" class="overlay" on-tap="toggleSelected"></div>
+                <div id="overlay" class="overlay"></div>
                 <div id="ui-container"></div>
             </div>
             <div class="controls" hidden$="{{!showControls}}">
@@ -93,15 +94,13 @@
 <script type="text/javascript">
     class KanoUi {
 
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-ui';
             this.properties = {
-                model: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
                 rules: {
                     type: Array,
                     value: () => []
@@ -121,6 +120,9 @@
                     computed: 'computeShowControls(selected, model.events.*)'
                 }
             };
+            this.observers = [
+                'modelChanged(model.*)'
+            ];
         }
         attached () {
             // Create the related ui component and place it in the ui container
@@ -132,13 +134,7 @@
             }
             Polymer.dom(uiContainer).appendChild(ui);
             this.ui = ui;
-            this.fire('ui-ready', this.ui);
-        }
-        toggleSelected (e) {
-            if (this.running) {
-                return;
-            }
-            this.set('selected', !this.get('selected'));
+            this.fire('ui-ready', this);
         }
         addRuleTapped (ev) {
             this.fire('add-rule-tapped', this);
@@ -159,6 +155,15 @@
                 overlay.style.display = 'block';
                 overlay.style.zIndex = 1;
             }
+        }
+        // Propagate to wrapped ui element
+        modelChanged (e) {
+            if (this.ui) {
+                this.ui.set(e.path, e.value);
+            }
+        }
+        getUIElement () {
+            return this.ui;
         }
     }
     Polymer(KanoUi);

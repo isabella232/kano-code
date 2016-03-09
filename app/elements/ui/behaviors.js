@@ -9,17 +9,21 @@ window.KanoBehaviors = window.KanoBehaviors || {};
 window.KanoBehaviors.UIBehavior = {
     properties: {
         // Called userStyle to avoid conflict with DOM `style` attribute
-        userStyle: {
+        model: {
             type: Object,
             value: () => {
-                return {};
-            }
+                return {
+                    userStyle: {},
+                    userProperties: {}
+                };
+            },
+            notify: true
         }
     },
     getPartialStyle (attrs) {
-        attrs = attrs || Object.keys(this.userStyle);
+        attrs = attrs || Object.keys(this.model.userStyle);
         return attrs.reduce((acc, key) => {
-            acc += this.userStyle[key] ? `${key}:${this.userStyle[key]};` : '';
+            acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
             return acc;
         }, '');
     }

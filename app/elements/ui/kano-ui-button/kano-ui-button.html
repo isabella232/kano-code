@@ -1,3 +1,4 @@
+<script src="../behaviors.js"></script>
 <dom-module id="kano-ui-button">
     <style>
     :host {
@@ -10,28 +11,38 @@
     }
     </style>
     <template>
-        <button type="button" on-tap="buttonClicked">Click me</button>
+        <button id="button"
+                type="button"
+                on-tap="buttonClicked"
+                style$="[[computeButtonStyle(model.userStyle.*)]]">
+            {{model.userProperties.text}}
+        </button>
     </template>
 </dom-module>
 
 <script type="text/javascript">
     class KanoUiButton {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-ui-button';
-            this.properties = {
-                model: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                }
-            };
         }
+
+        attached () {
+            this.set('model.userProperties.text', 'Click me');
+            this.set('model.userStyle.background-color',
+                this.$.button.style.backgroundColor);
+        }
+
         buttonClicked () {
             this.fire('clicked');
         }
-        getValue () {
-            return this.value;
+
+        computeButtonStyle () {
+            return this.getPartialStyle(['background-color']);
         }
     }
     Polymer(KanoUiButton);
