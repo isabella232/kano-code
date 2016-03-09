@@ -4,6 +4,7 @@ import Components from './service/components';
 import UI from './ui';
 import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
+import ModelManager from './service/modelManager'
 
 import es6Assign from 'es6-object-assign';
 
@@ -39,6 +40,7 @@ let config = {
     app.ui = UI;
     app.stories = Stories;
     app.components = Components;
+    app.modelManager = ModelManager;
 
     app.defaultCategories = Blockly.categories;
 
