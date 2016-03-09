@@ -4,7 +4,7 @@ import Components from './service/components';
 import UI from './ui';
 import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
-import ModelManager from './service/modelManager'
+import ModelManager from './service/modelManager';
 
 import es6Assign from 'es6-object-assign';
 

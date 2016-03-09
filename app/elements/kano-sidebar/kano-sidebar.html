@@ -4,36 +4,21 @@
     <style>
     :host {
         display: block;
-        @apply(--layout-vertical);
-    }
-    :host header {
+        position: relative;
         @apply(--layout-horizontal);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        background-color: var(--color-grey-dark, lightgray);
-        color: var(--white, white);
-        height: 92px;
-        text-align: center;
+        background-color: var(--color-grey-dark);
+        padding-top: 15px;
     }
     :host kano-ui-list {
         @apply(--layout-flex);
     }
-    /* Smartphones (portrait and landscape) ----------- */
-    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
-        :host header h1 {
-            margin: 0px;
-            font-weight: normal;
-        }
-        :host header {
-            height: auto;
-        }
+    :host .close-button {
+        @apply(--kano-close-button);
     }
     </style>
     <template>
-        <header>
-            <h1>My Hardware</h1>
-        </header>
         <kano-ui-list id="list" items="{{uiElements}}"></kano-ui-list>
+        <button class="close-button" on-tap="handleTapped">&times;</button>
     </template>
 </dom-module>
 
@@ -47,6 +32,9 @@
                     value: () => []
                 }
             };
+        }
+        handleTapped () {
+            this.fire('close');
         }
     }
     Polymer(KanoSidebar);
