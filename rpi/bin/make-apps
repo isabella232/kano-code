@@ -48,7 +48,8 @@ def _kill_lingering_processes():
     'dbus-' and kill them
     """
     pid_no, dummy, dummy2 = run_cmd(
-        "lsof -i :{} | grep 'dbus-' | awk '{ print $2 }'".format(make_apps.server.DEFAULT_PORT)
+        "lsof -i :{} | grep 'dbus-' | awk '{{ print $2 }}'"
+        .format(make_apps.server.DEFAULT_PORT)
     )
     if pid_no:
         pids = pid_no.splitlines()

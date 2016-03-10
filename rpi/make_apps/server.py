@@ -6,7 +6,8 @@
 
 from flask import Flask, request
 import json
-import os
+from os import kill
+from os.path import abspath, dirname, expanduser, join, realpath
 import time
 import logging
 
@@ -14,29 +15,47 @@ from kano.utils import ensure_dir
 from kano.utils import play_sound
 from kano.logging import logger
 
+from .kano_content_utils import latest_content_object_assets
+
 
 APP_NAME = 'make-apps'
 DEFAULT_PORT = 8000
 PARENT_PID = None
 
-CHALLENGE_DIR = os.path.expanduser('~/Make-Apps-content')
-STATIC_ASSET_DIR = os.path.join('/usr', 'share', 'make-apps')
+CHALLENGE_DIR = expanduser('~/Make-Apps-content')
+STATIC_ASSET_DIR = join('/usr', 'share', 'make-apps')
 
 ensure_dir(CHALLENGE_DIR)
 
 
 def _get_static_dir():
-    SCRIPT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    """ Returns the path to the static assets. To be used by setting up Flask.
+    If the app runs form the standard installation dir
+    (/usr/lib/python2.7/dist-packages/make_apps/) it will use either
+    STATIC_ASSET_DIR or the dir to the extracted kano content provided assets
+    Otherwise, if the app is run from an rsynced or a local version of the
+    source it will use the local copy of the assets
+    :returns: Absolute path to the static dir
+    :rtype: str
+    """
+    script_dir = abspath(join(dirname(__file__), '..'))
 
     # Use local asets when not installed in /usr
-    if not SCRIPT_DIR.startswith('/usr'):
-        print SCRIPT_DIR
-        return os.path.join(SCRIPT_DIR, '../www')
+    if not script_dir.startswith('/usr'):
+        print script_dir
+        return abspath(join(script_dir, '..', 'www'))
 
-    return STATIC_ASSET_DIR
+    cobj_static_path = latest_content_object_assets()
+
+    if cobj_static_path is None:
+        return STATIC_ASSET_DIR
+    else:
+        return cobj_static_path
 
 
 def _get_image_from_str(img_str):
+    """ Decode a base-64 encoded string. Possibly containing image data
+    """
     import base64
 
     image_b64 = img_str.split(',')[-1]
@@ -54,9 +73,9 @@ def _save(data):
     code = data['code']
     image = _get_image_from_str(data['image'])
 
-    filepath = os.path.join(CHALLENGE_DIR, '{}.draw'.format(filename))
-    json_path = os.path.join(CHALLENGE_DIR, '{}.json'.format(filename))
-    img_path = os.path.join(CHALLENGE_DIR, '{}.png'.format(filename))
+    filepath = join(CHALLENGE_DIR, '{}.draw'.format(filename))
+    json_path = join(CHALLENGE_DIR, '{}.json'.format(filename))
+    img_path = join(CHALLENGE_DIR, '{}.png'.format(filename))
 
     with open(filepath, 'w') as f:
         f.write(code)
@@ -108,7 +127,7 @@ def _shutdown():
         )
 
     # Send signal to parent to initiate shutdown
-    os.kill(PARENT_PID, signal.SIGINT)
+    kill(PARENT_PID, signal.SIGINT)
 
 
 @server.errorhandler(404)
@@ -120,8 +139,8 @@ def page_not_found(err):
 
 @server.route('/play_sound/<path:filename>', methods=['POST'])
 def play_sounds(filename):
-    print os.path.realpath(os.path.join(_get_static_dir(), filename))
-    sound_file = os.path.realpath(os.path.join(_get_static_dir(), filename))
+    print realpath(join(_get_static_dir(), filename))
+    sound_file = realpath(join(_get_static_dir(), filename))
     play_sound(sound_file)
 
     return ''
