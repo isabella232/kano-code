@@ -28,6 +28,14 @@ gulp dev
 
 This will watch the files and rebuild when necessary. It also start a web server listening on port 4000
 
+## Take a snapshot of the app to be distributed with `kano-content`
+Check out the branch you want to take a snapshot of and follow these instructions:
+
+1. Run: `npm run content-snap`
+
+2. If everything goes well a file called `assets.tar.gz` will be created in the root dir of the repository.
+3. Use the online interface to upload it to `kano-content`
+
 ## Testing workflow on Kano OS
 
 Because of some native extensions of some dependencies, `npm install`
