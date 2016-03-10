@@ -39,15 +39,38 @@ Check out the branch you want to take a snapshot of and follow these instruction
 ## Testing workflow on Kano OS
 
 Because of some native extensions of some dependencies, `npm install`
-fails on the Pi. The easiest way to test on the Pi is to build on
+fails on the Pi. There are currently 2 documented methods of syncing the
+changes from your local dev machine to a Pi for testing, without having to
+wait for the build server to generate a debian package.
+
+### Get local changes to the Pi (Follow either method):
+#### Use provided script
+We have created a bash script that reduces the no of steps to allow for
+shorter iterations. To use it, do the following:
+1. From the root of this repository run: `push_to_pi.sh`
+(You may need to set the executable bit on this script)
+2. The location of your files are printed on your terminal.
+
+If you need to iterate change the files on your local machine and re run the
+script. It will only copy over the diff of the files so subsequent times will
+be faster than the first time.
+
+Feel free to improve this script :-)
+
+
+#### Do it manually
+The easiest way to test on the Pi is to build on
 your dev machine and rsync the directory to over. Like this:
 
+```bash
     cd make-apps/
     npm install
     bower install
     npm build
     rsync -av -e 'ssh -o StrictHostKeyChecking=no' --exclude=.git --exclude=node_modules . "kano@10.0.0.231:/tmp/radek-make-apps"
+```
 
+### Access the app on the kit (assumes you rsynced or used the script -see above)
 The next steps are:
 
 * Get on your Pi (direct or via VNC)
@@ -58,7 +81,7 @@ The next steps are:
 
 To debug, you'll need to rebuild the app, rsync again and relaunch it on the Pi.
 
-### Using HQ test station
+### Notes on using HQ test station
 
 If you'd like to quickly try things out, there's a test station in the office:
 
