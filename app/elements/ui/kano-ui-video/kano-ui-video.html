@@ -1,0 +1,48 @@
+<script src="../behaviors.js"></script>
+<dom-module id="kano-ui-video">
+    <style>
+    :host {
+        display: block;
+    }
+    :host video {
+        border: 2px solid var(--primary-color, orange);
+    }
+    </style>
+    <template>
+        <video id="video"
+                style$="[[computeVideoStyle(model.userStyle.*)]]"></video>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUiVideo {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-video';
+        }
+        attached () {
+            this.set('model.userStyle', {
+                width: '200px',
+                height: '200px'
+            });
+        }
+        showVideo (stream) {
+            if (!this.consume(stream, this.showVideo)) {
+                let vendorURL = window.URL || window.webkitURL;
+                if (navigator.mozGetUserMedia) {
+                    this.$.video.mozSrcObject = stream;
+                } else {
+                    this.$.video.src = vendorURL.createObjectURL(stream);
+                }
+            }
+        }
+        computeVideoStyle () {
+            return this.getPartialStyle(['width', 'height']);
+        }
+    }
+    Polymer(KanoUiVideo);
+</script>

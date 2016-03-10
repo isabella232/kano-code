@@ -163,13 +163,17 @@ class ComponentStore {
                     })
                     .join(';');
             });
-        this.startAll();
+        this.start();
         // Run the code using this store. Only expose the get function
         CodeService.run(codeList.join(';'), {
             get (id) {
                 return componentStore.get(id).model;
             }
         });
+    }
+    start () {
+        CodeService.start();
+        this.startAll();
     }
     /**
      * Stop the current running code. Will take care to stop the components
