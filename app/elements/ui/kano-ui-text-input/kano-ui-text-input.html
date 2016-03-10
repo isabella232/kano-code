@@ -28,7 +28,6 @@
     </style>
     <template>
         <input type="text" value="{{value::keyup}}" on-keyup="onKeyUp" placeholder="type text here">
-        <button type="button" on-tap="buttonClicked">Send</button>
     </template>
 </dom-module>
 
@@ -45,14 +44,14 @@
                 }
             };
         }
-        buttonClicked () {
-            this.fire('button-clicked', this.value);
-        }
         onKeyUp () {
             this.fire('input-keyup', this.value);
         }
         getValue () {
             return this.value;
+        }
+        setValue (value) {
+            this.value = value;
         }
     }
     Polymer(KanoUiTextInput);
