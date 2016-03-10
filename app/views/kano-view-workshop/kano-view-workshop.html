@@ -4,6 +4,10 @@
         display: block;
         @apply(--layout-vertical);
     }
+    :host button {
+        @apply(--kano-button);
+        background-color: var(--primary-color);
+    }
     :host section {
         @apply(--layout-horizontal);
         @apply(--layout-align-stretch);
@@ -13,25 +17,23 @@
         color: white;
         @apply(--kano-header);
         @apply(--layout-horizontal);
-        @apply(--layout-justify-around);
+        @apply(--layout-justified);
         @apply(--layout-center);
         height: 62px;
+    }
+    :host header div {
+        @apply(--layout-flex);
+    }
+    :host .user-info {
+        margin-left: 5px;
     }
     :host header iron-image {
         height: 42px;
         width: 155px;
         margin-left: 15px;
     }
-    :host header h1 {
-        @apply(--layout-flex);
-    }
     :host header button {
-        @apply(--kano-button);
-        background-color: var(--primary-color);
         margin-right: 15px;
-    }
-    :host header .make-button.running {
-        background-color: var(--color-red);
     }
     :host section {
         @apply(--layout-horizontal);
@@ -49,16 +51,29 @@
     :host .ui-edition kano-workspace {
         /*width: 1024px;
         height: 768px;*/
-        @apply(--layout-flex-7);
+        @apply(--layout-flex);
     }
     :host .ui-edition .controls {
         position: relative;
-        @apply(--layout-flex-5);
+        max-height: 40%;
+        min-height: 70px;
         @apply(--layout-vertical);
     }
     :host .controls .text-filler {
         @apply(--layout-flex);
-        background-color: var(--color-grey-dark);
+        @apply(--layout-vertical);
+        background-color: var(--color-black, black);
+    }
+    :host .text-filler .toolbar {
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        padding: 5px;
+    }
+    :host .make-button {
+        @apply(--kano-button-small);
+    }
+    :host .make-button.running {
+        background-color: var(--color-red, red);
     }
     :host .add-ui {
         @apply(--kano-round-button);
@@ -77,20 +92,21 @@
     </style>
     <template>
         <header>
+            <div class="user-info">
+                <h1 hidden$="{{!user}}">{{user}}</h1>
+                <button type="button"
+                    class="login-button"
+                    on-tap="toggleLogin">{{buttonLogin}}</button>
+            </div>
             <iron-image src="../../assets/make-apps-logo.png"
                         preload
                         sizing="contain"></iron-image>
-            <h1>{{ user }}</h1>
-            <button type="button"
-                    class$="make-button {{running}}"
-                    on-tap="toggleMake">{{buttonAction}}</button>
-            <button type="button"
-                    class="login-button"
-                    on-tap="toggleLogin">{{buttonLogin}}</button>
+            <div class=""></div>
         </header>
         <section id="section">
             <div class="blocks-edition">
-                <kano-ui-editor id="block-editor"
+                <kano-ui-editor
+                    id="block-editor"
                     ui-elements="{{workspaceUiElements}}"
                     selected-ui="{{selectedUi}}"></kano-ui-editor>
             </div>
@@ -102,7 +118,13 @@
                                 running="{{isRunning}}"></kano-workspace>
                 <div class="controls">
                     <button type="button" class="add-ui" on-tap="openUiDrawer">+</button>
-                    <div class="text-filler"></div>
+                    <div class="text-filler">
+                        <div class="toolbar">
+                            <button type="button"
+                                class$="make-button {{running}}"
+                                on-tap="toggleMake">{{buttonAction}}</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <kano-drawer position="left" overlap="48" id="ui-drawer">
@@ -154,7 +176,7 @@
             }
             if (editor.code && editor.code.trim().length) {
                 // Add the new code and its rule to the components store
-                app.components.addCode(oldValue.id,
+                app.components.setCode(oldValue.id, editor.event,
                     editor.code, editor.rule, editor.getBlocklyXml());
                 /*e.detail.rules = app.components.getRulesFor(
                     this.selectedUi.id);*/
@@ -245,6 +267,7 @@
                     clone.style.position = 'absolute';
                     clone.style.top = `${rect.top}px`;
                     clone.style.left = `${rect.left}px`;
+                    clone.style.zIndex = 11;
 
                     // insert the clone to the page
                     this.$.section.appendChild(clone);
@@ -278,6 +301,9 @@
         toggleMake () {
             this.isRunning = !this.isRunning;
             if (this.isRunning) {
+                if (this.selectedUi) {
+                    this.selectedUiChanged(null, this.selectedUi);
+                }
                 app.components.run();
             } else {
                 app.components.stop();

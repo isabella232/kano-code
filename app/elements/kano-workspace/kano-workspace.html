@@ -71,6 +71,8 @@
                     overlap="30"
                     opened="{{isCustomizationOpened(selectedUiIndex, running)}}">
             <div class="drawer-content">
+                <label>Name</label>
+                <input type="text" name="name" value="{{selected.name::change}}">
                 <label>Style</label>
                 <kano-ui-customizer
                     customizable="{{getStyleConfig(selected.customizable.style)}}"
@@ -202,12 +204,8 @@
             });
         }
         userValuesChanged (e) {
-            if (e.path.indexOf('userStyle') === -1
-                && e.path.indexOf('userProperties') === -1) {
-                return;
-            }
-            let path = e.path.replace('selected.',
-                        `uiElements.${this.selectedUiIndex}.`);
+            let path = e.path.replace('selected',
+                        `uiElements.${this.selectedUiIndex}`);
             this.set(path, e.value);
         }
     }

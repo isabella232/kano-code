@@ -24,11 +24,17 @@ class ComponentStore {
         // As the name is displayed, we also want an id, that will only contain
         // safe characters
         model.id = this.createId(model.name);
+        // Prefix the block ids with the component id to avoid
+        // collision during creation
+        model.blocks = model.blocks.map((block) => {
+            block.id = `${model.id}_${block.id}`;
+            return block;
+        });
         // Use the id as key
         this.components[model.id] = {
             model,
             element: null,
-            codes: []
+            codes: {}
         };
     }
     setElement (id, element) {
@@ -42,12 +48,12 @@ class ComponentStore {
      * @param {String} xml  Blockly representation of the blocks used to
      *                      create this piece of code
      */
-    addCode (id, code, rule, xml) {
-        this.get(id).codes.push({
+    setCode (id, event, code, rule, xml) {
+        this.get(id).codes[event] = {
             code,
             rule,
             xml
-        });
+        };
     }
     /**
      * Unregister a component
@@ -147,11 +153,14 @@ class ComponentStore {
     run () {
         let codeList = Object.keys(this.components)
             // Exclude the components without code pieces
-            .filter((id) => this.components[id].codes.length)
+            .filter((id) => Object.keys(this.components[id].codes).length)
             .map((id) => {
                 // Extract the JS code from the code pieces objects
-                return this.components[id].codes
-                    .map((c) => c.code)
+                return Object.keys(this.components[id].codes)
+                    .map((e) => {
+                        let code = this.components[id].codes[e].code;
+                        return `devices.get('${id}').addEventListener('${e}', function (){${code}})`;
+                    })
                     .join(';');
             });
         this.startAll();

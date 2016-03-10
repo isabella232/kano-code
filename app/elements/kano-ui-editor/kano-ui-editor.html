@@ -7,6 +7,20 @@
         display: block;
         @apply(--layout-vertical);
     }
+    :host iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host .empty {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    :host .code-editor {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
     :host header {
         font-family: bariol;
         font-weight: normal;
@@ -15,30 +29,41 @@
         background-color: var(--color-grey-lighter);
         text-align: center;
     }
-    :host kano-blockly {
-        @apply(--layout-flex);
-    }
     :host .event-control {
         background-color: var(--primary-color);
         color: var(--color-white);
         padding: 4px;
         border-radius: 6px;
     }
+    :host kano-blockly {
+        @apply(--layout-flex);
+    }
     </style>
     <template>
-        <style include="kano-style"></style>
-        <header>
-            <label>When </label>
-            <label class="event-control">
-                <span>{{selectedUi.name}}</span>
-                <select id="select" value="{{event::change}}" selectedIndex="0">
-                    <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
-                        <option value$="[[event.id]]">[[event.label]]</option>
-                    </template>
-                </select>
-            </label>
-        </header>
-        <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{blocklyCode}}"></kano-blockly>
+        <iron-pages
+            id="pages"
+            attr-for-selected="name"
+            selected="{{selectedPage}}">
+            <div name="empty" class="empty">
+                <h1>Select an element</h1>
+            </div>
+            <div name="edit-code" class="code-editor">
+                <template is="dom-if" if="{{hasEvents(selectedUi)}}">
+                    <header>
+                        <label>When </label>
+                        <label class="event-control">
+                            <span>{{selectedUi.name}}</span>
+                            <select id="select" value="{{event::change}}">
+                                <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
+                                    <option value$="[[event.id]]">[[event.label]]</option>
+                                </template>
+                            </select>
+                        </label>
+                    </header>
+                </template>
+                <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{code}}"></kano-blockly>
+            </div>
+        </iron-pages>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -63,7 +88,6 @@
                 },
                 code: {
                     type: String,
-                    computed: 'computeCode(blocklyCode)',
                     notify: true
                 },
                 event: {
@@ -77,17 +101,60 @@
                 defaultCategories: {
                     type: Array,
                     value: () => []
+                },
+                selectedPage: {
+                    type: String,
+                    computed: 'computeSelectedPage(selectedUi)',
+                    value: 'empty'
                 }
+            };
+            this.listeners = {
+                'pages.iron-select': 'pageEntered',
+                'pages.iron-deselect': 'pageLeaved',
             }
         }
+        pageEntered (e) {
+            // Trigger a resize on blockly when we get back to the
+            // code editor page
+            if (e.detail.item.getAttribute('name') === 'edit-code') {
+                let blocky = this.$.blockly;
+                blockly.showToolbox();
+                // Ugly but necessary. Blockly needs a resize to be triggered
+                // here because, its container was display none
+                blockly.resize();
+            }
+        }
+        pageLeaved (e) {
+            if (e.detail.item.getAttribute('name') === 'edit-code') {
+                blockly.hideToolbox();
+            }
+        }
+        hasEvents (selectedUi) {
+            return this.selectedUi
+                    && this.selectedUi.events
+                    && this.selectedUi.events.length;
+        }
+        computeSelectedPage () {
+            if (this.hasEvents(this.selectedUi)) {
+                return 'edit-code';
+            }
+            return 'empty';
+        }
         selectedUiChanged () {
-            if (!this.event && this.selectedUi.events) {
+            if (!this.event
+                    && this.selectedUi.events
+                    && this.selectedUi.events[0]) {
                 this.event = this.selectedUi.events[0].id;
             }
         }
         computeRule (eventName) {
-            let index = this.$.select.selectedIndex,
+            let select = this.$$('#select'),
+                index,
                 label;
+            if (!select) {
+                return;
+            }
+            index = select.selectedIndex;
             if (index === -1) {
                 index = 0;
             }
@@ -99,9 +166,6 @@
                 trigger: `When ${this.selectedUi.name} ${label}`,
                 action: this.$.blockly.getCode('Natural')
             };
-        }
-        computeCode (blocklyCode) {
-            return `devices.get('${this.selectedUi.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
         }
         computeToolbox () {
             this.uiElements.forEach((ui) => {
