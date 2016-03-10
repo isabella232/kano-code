@@ -64,7 +64,9 @@
                 '.blocklyTooltipDiv',
                 '.blocklyToolboxDiv',
             ].join(','));
-            return this.toolboxElements = [].slice.call(this.toolboxElements);
+            this.toolboxElements = [].slice.call(this.toolboxElements);
+            this.toolboxDiv = this.toolboxElements[2];
+            return this.toolboxElements;
         }
         hideToolbox () {
             this.getToolboxElements().forEach((el) => {
@@ -88,10 +90,13 @@
         onResize () {
             this.debounce('resize', () => {
                 let workspace = this.$.workspace;
-                workspace.style.top = '0px'
-                workspace.style.bottom = '0px'
-                workspace.style.left = '0px'
-                workspace.style.right = '0px'
+                workspace.style.top = '0px';
+                workspace.style.bottom = '0px';
+                workspace.style.left = '0px';
+                workspace.style.right = '0px';
+                if (this.toolboxDiv) {
+                    this.toolboxDiv.style.width = `${this.offsetWidth*0.25}px`;
+                }
             }, 50);
         }
         computeToolboxXml (toolbox) {

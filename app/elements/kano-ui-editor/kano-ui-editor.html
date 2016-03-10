@@ -18,22 +18,20 @@
         @apply(--layout-center-justified);
     }
     :host .code-editor {
+        position: relative;
         @apply(--layout-vertical);
         @apply(--layout-flex);
     }
     :host header {
+        position: absolute;
         font-family: bariol;
         font-weight: normal;
         font-size: 1.2em;
         padding: 25px;
-        background-color: var(--color-grey-lighter);
         text-align: center;
-    }
-    :host .event-control {
-        background-color: var(--primary-color);
-        color: var(--color-white);
-        padding: 4px;
-        border-radius: 6px;
+        top: 0px;
+        right: 0px;
+        left: 50%;
     }
     :host kano-blockly {
         @apply(--layout-flex);
@@ -48,20 +46,14 @@
                 <h1>Select an element</h1>
             </div>
             <div name="edit-code" class="code-editor">
-                <template is="dom-if" if="{{hasEvents(selectedUi)}}">
-                    <header>
-                        <label>When </label>
-                        <label class="event-control">
-                            <span>{{selectedUi.name}}</span>
-                            <select id="select" value="{{event::change}}">
-                                <template is="dom-repeat" items="[[selectedUi.events]]" as="event">
-                                    <option value$="[[event.id]]">[[event.label]]</option>
-                                </template>
-                            </select>
-                        </label>
-                    </header>
-                </template>
                 <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{code}}"></kano-blockly>
+                <header>
+                    <kano-event-select
+                        triggers="{{computeTriggers(uiElements.*)}}"
+                        selected-trigger="{{selectedTrigger}}"
+                        selected-event="{{event}}"
+                        ></kano-event-select>
+                </header>
             </div>
         </iron-pages>
     </template>
@@ -81,9 +73,6 @@
                 },
                 selectedUi: {
                     type: Object,
-                    value: () => {
-                        return {};
-                    },
                     observer: 'selectedUiChanged'
                 },
                 code: {
@@ -96,7 +85,7 @@
                 rule: {
                     type: Object,
                     notify: true,
-                    computed: 'computeRule(event, selectedUi.events.*, code)'
+                    computed: 'computeRule(event, selectedTrigger.events.*, code)'
                 },
                 defaultCategories: {
                     type: Array,
@@ -111,7 +100,10 @@
             this.listeners = {
                 'pages.iron-select': 'pageEntered',
                 'pages.iron-deselect': 'pageLeaved',
-            }
+            };
+        }
+        computeTriggers () {
+            return this.uiElements.filter((element) => this.hasEvents(element));
         }
         pageEntered (e) {
             // Trigger a resize on blockly when we get back to the
@@ -130,40 +122,43 @@
             }
         }
         hasEvents (selectedUi) {
-            return this.selectedUi
-                    && this.selectedUi.events
-                    && this.selectedUi.events.length;
+            return selectedUi
+                    && selectedUi.events
+                    && selectedUi.events.length;
         }
         computeSelectedPage () {
-            if (this.hasEvents(this.selectedUi)) {
+            if (this.selectedUi) {
                 return 'edit-code';
             }
             return 'empty';
         }
         selectedUiChanged () {
-            if (!this.event
-                    && this.selectedUi.events
-                    && this.selectedUi.events[0]) {
-                this.event = this.selectedUi.events[0].id;
+            let trigger;
+            if (this.hasEvents(this.selectedUi)) {
+                trigger = this.selectedUi;
+            } else {
+                trigger = this.computeTriggers()[0];
             }
+            if (!trigger) {
+                return;
+            }
+            this.set('selectedTrigger', trigger);
         }
         computeRule (eventName) {
-            let select = this.$$('#select'),
-                index,
-                label;
-            if (!select) {
+            let label,
+                events;
+            if (!this.selectedTrigger.events) {
                 return;
             }
-            index = select.selectedIndex;
-            if (index === -1) {
-                index = 0;
+            events = this.selectedTrigger.events;
+            for (let i in events) {
+                if (events[i].id === this.event) {
+                    label = events[i].label;
+                    break;
+                }
             }
-            if (!this.selectedUi.events) {
-                return;
-            }
-            label = this.selectedUi.events[index].label;
             return {
-                trigger: `When ${this.selectedUi.name} ${label}`,
+                trigger: `When ${this.selectedTrigger.name} ${label}`,
                 action: this.$.blockly.getCode('Natural')
             };
         }
