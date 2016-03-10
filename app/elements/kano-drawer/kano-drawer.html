@@ -1,0 +1,92 @@
+<dom-module id="kano-drawer">
+    <style>
+    :host {
+        display: block;
+        position: absolute;
+        transition: all ease-out 150ms;
+    }
+    :host ::content .drawer-content {
+        width: 100%;
+        height: 100%;
+    }
+    </style>
+    <template>
+        <content select=".drawer-content"></content>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoDrawer {
+        beforeRegister () {
+            this.is = 'kano-drawer';
+            this.properties = {
+                position: {
+                    type: String,
+                    value: 'right'
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
+                },
+                overlap: {
+                    type: Number,
+                    value: 50
+                }
+            };
+            this.observers = [
+                'updateStyle(position, opened, overlap)'
+            ]
+        }
+        updateStyle () {
+            if (this.position === 'right' || this.position === 'left') {
+                this.style.top = '0px';
+                this.style.bottom = '0px';
+            } else if (this.position === 'top' || this.position === 'bottom') {
+                this.style.right = '0px';
+                this.style.left = '0px';
+            }
+            switch (this.position) {
+                case 'right': {
+                    if (this.opened) {
+                        this.style.right = '0px';
+                        this.style.left = `${100-this.overlap}%`;
+                    } else {
+                        this.style.right = `-${100-this.overlap}%`;
+                        this.style.left = '100%';
+                    }
+                    break;
+                }
+                case 'left': {
+                    if (this.opened) {
+                        this.style.left = '0px';
+                        this.style.right = `${100-this.overlap}%`;
+                    } else {
+                        this.style.left = `-${100-this.overlap}%`;
+                        this.style.right = '100%';
+                    }
+                    break;
+                }
+                case 'top': {
+                    if (this.opened) {
+                        this.style.top = '0px';
+                        this.style.bottom = `${100-this.overlap}%`;
+                    } else {
+                        this.style.top = `-${100-this.overlap}%`;
+                        this.style.bottom = '100%';
+                    }
+                    break;
+                }
+                case 'bottom': {
+                    if (this.opened) {
+                        this.style.bottom = '0px';
+                        this.style.top = `${100-this.overlap}%`;
+                    } else {
+                        this.style.bottom = `-${100-this.overlap}%`;
+                        this.style.top = '100%';
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    Polymer(KanoDrawer);
+</script>

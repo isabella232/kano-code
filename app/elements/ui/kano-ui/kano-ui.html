@@ -73,7 +73,8 @@
         <div class="content">
             <div class="overlay-container">
                 <div id="overlay" class="overlay"></div>
-                <div id="ui-container"></div>
+                <div id="ui-container"
+                    style$="[[computeContainerStyle(selected)]]"></div>
             </div>
             <div class="controls" hidden$="{{!showControls}}">
                 <label class="title">{{model.name}}</label>
@@ -83,9 +84,6 @@
                         <span class="action">{{rule.action}}</span>
                     </div>
                 </template>
-                <div>
-                    <label class="add-rule"><button type="button" on-tap="addRuleTapped">+</button>Add Rule</label>
-                </div>
             </div>
         </div>
     </template>
@@ -164,6 +162,12 @@
         }
         getUIElement () {
             return this.ui;
+        }
+        computeContainerStyle (selected) {
+            if (selected) {
+                return `outline: 2px dashed yellow;
+                        outline-offset: 5px;`;
+            }
         }
     }
     Polymer(KanoUi);

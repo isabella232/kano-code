@@ -9,40 +9,19 @@ export default class Camera extends UI {
             hue: 60
         });
         this.addBlock({
-            id: 'get_last_picture',
-            output: true,
-            message0: 'last picture',
-            javascript: (hw) => {
-                return function (block) {
-                    return [`devices.get('${hw.id}').getLastPicture()`];
-                };
-            },
-            natural: (hw) => {
-                return function (block) {
-                    return [`${hw.label}'s last picture`];
-                };
-            }
-        });
-        this.addBlock({
             id: 'take_picture',
-            message0: 'take picture then,',
-            message1: '%1',
-            args1: [{
-                type: "input_statement",
-                name: "DO"
-            }],
+            output: true,
+            message0: 'take a picture',
             javascript: (hw) => {
                 return function (block) {
-                    let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-                        code = `devices.get('${hw.id}').takePicture().then(function () {${statement}})`;
-                    return code;
+                    let code = `devices.get('${hw.id}').takePicture()`;
+                    return [code];
                 };
             },
             natural: (hw) => {
                 return function (block) {
-                    let statement = Blockly.Natural.statementToCode(block, 'DO'),
-                        code = `take a picture with ${hw.label} then ${statement}`;
-                    return code;
+                    let code = `${hw.label}'s picture'`;
+                    return [code];
                 };
             }
         });
@@ -50,12 +29,18 @@ export default class Camera extends UI {
             label: 'took a picture',
             id: 'picture-taken'
         });
+        this.lastPicture = null;
     }
     getLastPicture () {
-        return this.getElement().getLastPicture();
+        return this.lastPicture;
     }
     takePicture () {
-        return this.getElement().takePicture();
+        return this.getElement()
+                    .takePicture()
+                    .then((picture) => {
+                        this.lastPicture = picture;
+                        return picture;
+                    });
     }
     stop () {
         super.stop.apply(this, arguments);

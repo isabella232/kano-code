@@ -34,13 +34,45 @@
         background-color: var(--color-red);
     }
     :host section {
+        @apply(--layout-horizontal);
         @apply(--layout-flex);
     }
-    :host section kano-sidebar {
-        @apply(--layout-flex-3);
+    :host section .ui-edition {
+        position: relative;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
     }
-    :host section kano-workspace {
-        @apply(--layout-flex-9);
+    :host section .blocks-edition {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host .ui-edition kano-workspace {
+        /*width: 1024px;
+        height: 768px;*/
+        @apply(--layout-flex-7);
+    }
+    :host .ui-edition .controls {
+        position: relative;
+        @apply(--layout-flex-5);
+        @apply(--layout-vertical);
+    }
+    :host .controls .text-filler {
+        @apply(--layout-flex);
+        background-color: var(--color-grey-dark);
+    }
+    :host .add-ui {
+        @apply(--kano-round-button);
+        background-color: var(--color-green, green);
+        color: var(--color-white, white);
+        position: absolute;
+        top: -25px;
+        left: 5px;
+    }
+    :host kano-ui-editor {
+        @apply(--layout-flex);
+    }
+    :host #ui-drawer {
+        z-index: 10;
     }
     </style>
     <template>
@@ -57,13 +89,28 @@
                     on-tap="toggleLogin">{{buttonLogin}}</button>
         </header>
         <section id="section">
-            <kano-sidebar ui-elements="{{uiElements}}"
-                          on-ui-ready="sidebarUiReady"></kano-sidebar>
-            <kano-workspace id="workspace"
-                            on-ui-ready="workspaceUiReady"
-                            on-add-rule-tapped="openModal"
-                            ui-elements="{{workspaceUiElements}}"
-                            running="{{isRunning}}"></kano-workspace>
+            <div class="blocks-edition">
+                <kano-ui-editor id="block-editor"
+                    ui-elements="{{workspaceUiElements}}"
+                    selected-ui="{{selectedUi}}"></kano-ui-editor>
+            </div>
+            <div class="ui-edition">
+                <kano-workspace id="workspace"
+                                on-ui-ready="workspaceUiReady"
+                                ui-elements="{{workspaceUiElements}}"
+                                selected="{{selectedUi}}"
+                                running="{{isRunning}}"></kano-workspace>
+                <div class="controls">
+                    <button type="button" class="add-ui" on-tap="openUiDrawer">+</button>
+                    <div class="text-filler"></div>
+                </div>
+            </div>
+            <kano-drawer position="left" overlap="48" id="ui-drawer">
+                <kano-sidebar class="drawer-content"
+                            ui-elements="{{uiElements}}"
+                            on-ui-ready="sidebarUiReady"
+                            on-close="closeUiDrawer"></kano-sidebar>
+            </kano-drawer>
         </section>
         <kano-modal id="login-modal"></kano-modal>
     </template>
@@ -93,8 +140,31 @@
                 buttonLogin: {
                   type: String,
                   computed: 'computeButtonLogin(user)'
-                }
+              },
+              selectedUi: {
+                  type: Object,
+                  observer: 'selectedUiChanged'
+              }
             };
+        }
+        selectedUiChanged (newValue, oldValue) {
+            let editor = this.$['block-editor'];
+            if (!oldValue) {
+                return;
+            }
+            if (editor.code && editor.code.trim().length) {
+                // Add the new code and its rule to the components store
+                app.components.addCode(oldValue.id,
+                    editor.code, editor.rule, editor.getBlocklyXml());
+                /*e.detail.rules = app.components.getRulesFor(
+                    this.selectedUi.id);*/
+            }
+        }
+        openUiDrawer () {
+            this.$['ui-drawer'].opened = true;
+        }
+        closeUiDrawer () {
+            this.$['ui-drawer'].opened = false;
         }
         computeRunning (running) {
             return running ? 'running' : '';
@@ -130,7 +200,7 @@
                     this.$.workspace.pulsing = false;
                 }
             });
-            app.Interact(trash).dropzone({
+            /*app.Interact(trash).dropzone({
                 accept: 'kano-ui',
                 overlap: 0.01,
                 ondrop: (e) => {
@@ -139,7 +209,9 @@
                     app.components.remove(id);
                     app.codes.remove(id);
                 }
-            });
+            });*/
+            app.registerBlockly(window.Blockly);
+            this.$['block-editor'].defaultCategories = app.defaultCategories;
         }
         createId (type) {
             let ids = this.uiElements.map((ui) => ui.id);
@@ -185,42 +257,23 @@
             });
         }
         workspaceUiReady (e) {
-            let element = e.detail;
+            let element = e.detail,
+                gridTarget = app.Interact.createSnapGrid({
+                    x: 32,
+                    y: 32
+                });
             // Register the element in the service
             app.components.setElement(element.model.id, element.getUIElement());
             app.Interact(element).draggable({
                 onmove: app.dragMoveListener,
+                snap: {
+                    targets: [gridTarget]
+                },
                 restrict: {
                     restriction: this.$.workspace,
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 }
             });
-        }
-        openModal (e) {
-            let modal = document.createElement('kano-modal'),
-                editor = document.createElement('kano-ui-editor'),
-                appElement = document.querySelector('kano-app');
-            modal.height = '98%';
-            modal.width = '98%';
-            modal.addEventListener('modal-close', () => {
-                if (editor.code && editor.code.trim().length) {
-                    // Add the new code and its rule to the components store
-                    app.components.addCode(editor.selectedUi.id,
-                        editor.code, editor.rule, editor.getBlocklyXml());
-                    e.detail.rules = app.components.getRulesFor(
-                        editor.selectedUi.id);
-                }
-                appElement.removeChild(modal);
-            });
-            app.registerBlockly(window.Blockly);
-            editor.defaultCategories = app.defaultCategories;
-            editor.selectedUi = e.detail.model;
-            editor.uiElements = this.workspaceUiElements;
-            appElement.appendChild(modal);
-            modal.addEventListener('animation-finished', () => {
-                modal.setContent(editor);
-            });
-            modal.show();
         }
         toggleMake () {
             this.isRunning = !this.isRunning;

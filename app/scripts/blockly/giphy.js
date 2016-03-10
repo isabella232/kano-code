@@ -7,8 +7,7 @@ let register = (Blockly) => {
                 id: 'search_giphy',
                 colour: COLOUR,
                 message0: 'a random gif',
-                output: true,
-                previousStatement: null
+                output: true
             };
             this.jsonInit(json);
         }

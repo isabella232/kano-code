@@ -75,14 +75,12 @@
             this.stream = stream;
         }
         takePicture () {
-            let context = this.$.canvas.getContext('2d');
+            let context = this.$.canvas.getContext('2d'),
+                picture;
             context.drawImage(this.$.video, 0, 0, 300, 300);
-            this.lastPicture = this.$.canvas.toDataURL();
-            this.fire('picture-taken');
-            return Promise.resolve();
-        }
-        getLastPicture () {
-            return this.lastPicture;
+            picture = this.$.canvas.toDataURL();
+            this.fire('picture-taken', picture);
+            return Promise.resolve(picture);
         }
         onStreamError (error) {
             console.error(error);

@@ -52,7 +52,7 @@
                 },
                 toolbox: {
                     type: Array,
-                    computed: 'computeToolbox(uiElements)'
+                    computed: 'computeToolbox(uiElements.*)'
                 },
                 selectedUi: {
                     type: Object,
@@ -103,8 +103,8 @@
         computeCode (blocklyCode) {
             return `devices.get('${this.selectedUi.id}').addEventListener('${this.event}', function (){${blocklyCode}})`;
         }
-        computeToolbox (uiElements) {
-            uiElements.forEach((ui) => {
+        computeToolbox () {
+            this.uiElements.forEach((ui) => {
                 ui.blocks.forEach((block) => {
                     Blockly.Blocks[block.id] = {
                         init: function () {
@@ -116,7 +116,7 @@
                     Blockly.Natural[block.id] = block.natural(ui);
                 });
             });
-            return uiElements.map((ui) => {
+            return this.uiElements.map((ui) => {
                 return {
                         name: ui.name,
                         blocks: ui.blocks,

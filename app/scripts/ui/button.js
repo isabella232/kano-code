@@ -9,11 +9,11 @@ export default class Button extends UI {
             hue: 118,
             customizable: {
                 style: ['background-color'],
-                properties: {
-                    text: {
-                        type: 'plain'
-                    }
-                }
+                properties: [{
+                    key: 'text',
+                    type: 'text',
+                    label: 'Text'
+                }]
             }
         });
         this.addEvent({
