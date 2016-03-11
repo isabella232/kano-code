@@ -7,19 +7,18 @@
     <style>
     :host {
         display: block;
-        @apply(--layout-horizontal);
-    }
-    :host #area {
-        @apply(--layout-flex);
+        position: relative;
     }
     :host #workspace {
         position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
     }
     </style>
     <template>
-        <div id="area">
-            <div id="workspace"></div>
-        </div>
+        <div id="workspace"></div>
     </template>
 </dom-module>
 
@@ -54,26 +53,51 @@
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.onResize();
         }
-        ready () {
-            this.onResize();
-        }
-        detached () {
-            // Hack to get rid of the remaining blockly elements
-            let blocklyElements = document.querySelectorAll([
+        // Wrap around the querySelector, and caches the values to
+        // gain performances
+        getToolboxElements () {
+            if (this.toolboxElements) {
+                return this.toolboxElements;
+            }
+            this.toolboxElements = document.querySelectorAll([
                 '.blocklyWidgetDiv',
                 '.blocklyTooltipDiv',
                 '.blocklyToolboxDiv',
             ].join(','));
-            blocklyElements = [].slice.call(blocklyElements);
-            blocklyElements.forEach((el) => {
+            this.toolboxElements = [].slice.call(this.toolboxElements);
+            this.toolboxDiv = this.toolboxElements[2];
+            return this.toolboxElements;
+        }
+        hideToolbox () {
+            this.getToolboxElements().forEach((el) => {
+                el.style.visibility = 'hidden';
+            });
+        }
+        showToolbox () {
+            this.getToolboxElements().forEach((el) => {
+                el.style.visibility = 'visible';
+            });
+        }
+        detached () {
+            // Hack to get rid of the remaining blockly elements
+            this.getToolboxElements().forEach((el) => {
                 el.parentNode.removeChild(el);
             });
         }
+        resize () {
+            Blockly.fireUiEvent(window, 'resize');
+        }
         onResize () {
-            let workspace = this.$.workspace,
-                area = this.$.area;
-            workspace.style.width = area.offsetWidth + 'px';
-            workspace.style.height = area.offsetHeight + 'px';
+            this.debounce('resize', () => {
+                let workspace = this.$.workspace;
+                workspace.style.top = '0px';
+                workspace.style.bottom = '0px';
+                workspace.style.left = '0px';
+                workspace.style.right = '0px';
+                if (this.toolboxDiv) {
+                    this.toolboxDiv.style.width = `${this.offsetWidth*0.25}px`;
+                }
+            }, 50);
         }
         computeToolboxXml (toolbox) {
             if (!this.toolbox || !this.toolbox.length) {
@@ -83,9 +107,9 @@
                 categoriesXml = this.toolbox.map((category) => {
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
-                    }).join();
+                    }).join('');
                     return `<category name="${category.name}" colour="${category.colour}">${blocksXml}</category>`;
-                }).join();
+                }).join('');
             xml = `<xml>${categoriesXml}</xml>`;
             if (this.workspace) {
                 this.workspace.updateToolbox(xml);
@@ -94,7 +118,7 @@
             return xml;
         }
         onBlocklyChange (e) {
-            this.set('code', Blockly.JavaScript.workspaceToCode(this.workspace));
+            this.set('code', this.getCode('JavaScript'));
             this.fire('change', e);
         }
         getXml () {

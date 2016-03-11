@@ -9,9 +9,9 @@ export default class UI {
         this.blocks = opts.blocks || [];
         this.events = opts.events || [];
         this.listeners = opts.listeners || [];
-        this.customizable = opts.customizable || { style: [], properties: {} };
-        this.customizable.style = this.customizable.style || {};
-        this.customizable.properties = this.customizable.properties || {};
+        this.customizable = opts.customizable || { style: [], properties: [] };
+        this.customizable.style = this.customizable.style || [];
+        this.customizable.properties = this.customizable.properties || [];
         this.userStyle = {};
         this.userProperties = {};
     }
