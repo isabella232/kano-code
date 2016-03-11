@@ -26,11 +26,8 @@
         height: 768px;*/
         @apply(--layout-flex);
     }
-    :host .ui-edition .controls {
-        position: relative;
-        max-height: 40%;
-        min-height: 70px;
-        @apply(--layout-vertical);
+    :host .ui-edition kano-workspace-controls {
+        min-height: 200px;
     }
     :host kano-ui-editor {
         @apply(--layout-flex);
@@ -52,9 +49,10 @@
                                 on-ui-ready="workspaceUiReady"
                                 ui-elements="{{workspaceUiElements}}"
                                 selected="{{selectedUi}}"
-                                running="{{isRunning}}"></kano-workspace>
+                                running="{{running}}"></kano-workspace>
                 <kano-workspace-controls
-                    running="{{isRunning}}"
+                    running="{{running}}"
+                    on-run-tap="toggleRunning"
                     on-add-tap="openUiDrawer"></kano-workspace-controls>
             </div>
             <kano-drawer position="left" overlap="48" id="ui-drawer">
@@ -76,6 +74,10 @@
                 selectedUi: {
                     type: Object,
                     observer: 'selectedUiChanged'
+                },
+                running: {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
@@ -101,7 +103,6 @@
         attached () {
             let trash = this.$.workspace.getTrashElement();
             this.workspaceUiElements = [];
-            this.isRunning = false;
             this.set('uiElements', app.ui.getAll());
             app.Interact(this.$.workspace).dropzone({
                 accept: 'kano-ui-item',
@@ -199,8 +200,9 @@
                 }
             });
         }
-        isRunningChanged () {
-            if (this.isRunning) {
+        toggleRunning () {
+            this.running = !this.running;
+            if (this.running) {
                 if (this.selectedUi) {
                     this.selectedUiChanged(null, this.selectedUi);
                 }
