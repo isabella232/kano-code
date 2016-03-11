@@ -1,0 +1,91 @@
+<dom-module id="kano-workspace-controls">
+    <style>
+    :host {
+        display: block;
+        position: relative;
+        max-height: 40%;
+        min-height: 70px;
+        @apply(--layout-vertical);
+    }
+    :host .content {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        background-color: var(--color-black, black);
+    }
+    :host .content .toolbar {
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        padding: 5px;
+        background-color: #212121;
+    }
+    :host .toolbar button {
+        @apply(--kano-button-small);
+        margin-left: 5px;
+    }
+    :host .make-button {
+        background-color: var(--primary-color, orange);
+    }
+    :host .share-button {
+        background-color: var(--color-blue, blue);
+    }
+    :host .save-button {
+        background-color: var(--color-green, green);
+    }
+    :host .make-button.stop {
+        background-color: var(--color-red, red);
+    }
+    :host .add-ui {
+        @apply(--kano-round-button);
+        background-color: var(--color-green, green);
+        color: var(--color-white, white);
+        position: absolute;
+        top: -25px;
+        left: 5px;
+    }
+    </style>
+    <template>
+        <button type="button" class="add-ui" on-tap="addTapped">+</button>
+        <div class="content">
+            <div class="toolbar">
+                <button type="button"
+                        class="save-button"
+                        on-tap="saveTapped">save</button>
+                <button type="button"
+                    class$="make-button {{computeRunningString(running)}}"
+                    on-tap="makeTapped">{{computeRunningString(running)}}</button>
+                <button type="button"
+                        class="share-button"
+                        on-tap="shareTapped">share</button>
+            </div>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoWorkspaceControls {
+        beforeRegister () {
+            this.is = 'kano-workspace-controls';
+            this.properties = {
+                running: {
+                    type: Boolean,
+                    notify: true
+                }
+            };
+        }
+        computeRunningString () {
+            return this.running ? 'stop' : 'make';
+        }
+        addTapped () {
+            this.fire('add-tap');
+        }
+        saveTapped () {
+            this.fire('save-tap');
+        }
+        makeTapped () {
+            this.running = !this.running;
+        }
+        shareTapped () {
+            this.fire('share-tap');
+        }
+    }
+    Polymer(KanoWorkspaceControls);
+</script>

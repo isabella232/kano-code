@@ -4,36 +4,9 @@
         display: block;
         @apply(--layout-vertical);
     }
-    :host button {
-        @apply(--kano-button);
-        background-color: var(--primary-color);
-    }
     :host section {
         @apply(--layout-horizontal);
         @apply(--layout-align-stretch);
-    }
-    :host header {
-        background-color: var(--color-header, black);
-        color: white;
-        @apply(--kano-header);
-        @apply(--layout-horizontal);
-        @apply(--layout-justified);
-        @apply(--layout-center);
-        height: 62px;
-    }
-    :host header div {
-        @apply(--layout-flex);
-    }
-    :host .user-info {
-        margin-left: 5px;
-    }
-    :host header iron-image {
-        height: 42px;
-        width: 155px;
-        margin-left: 15px;
-    }
-    :host header button {
-        margin-right: 15px;
     }
     :host section {
         @apply(--layout-horizontal);
@@ -59,30 +32,6 @@
         min-height: 70px;
         @apply(--layout-vertical);
     }
-    :host .controls .text-filler {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        background-color: var(--color-black, black);
-    }
-    :host .text-filler .toolbar {
-        @apply(--layout-horizontal);
-        @apply(--layout-end-justified);
-        padding: 5px;
-    }
-    :host .make-button {
-        @apply(--kano-button-small);
-    }
-    :host .make-button.running {
-        background-color: var(--color-red, red);
-    }
-    :host .add-ui {
-        @apply(--kano-round-button);
-        background-color: var(--color-green, green);
-        color: var(--color-white, white);
-        position: absolute;
-        top: -25px;
-        left: 5px;
-    }
     :host kano-ui-editor {
         @apply(--layout-flex);
     }
@@ -91,18 +40,6 @@
     }
     </style>
     <template>
-        <header>
-            <div class="user-info">
-                <h1 hidden$="{{!user}}">{{user}}</h1>
-                <button type="button"
-                    class="login-button"
-                    on-tap="toggleLogin">{{buttonLogin}}</button>
-            </div>
-            <iron-image src="../../assets/make-apps-logo.png"
-                        preload
-                        sizing="contain"></iron-image>
-            <div class=""></div>
-        </header>
         <section id="section">
             <div class="blocks-edition">
                 <kano-ui-editor
@@ -116,16 +53,9 @@
                                 ui-elements="{{workspaceUiElements}}"
                                 selected="{{selectedUi}}"
                                 running="{{isRunning}}"></kano-workspace>
-                <div class="controls">
-                    <button type="button" class="add-ui" on-tap="openUiDrawer">+</button>
-                    <div class="text-filler">
-                        <div class="toolbar">
-                            <button type="button"
-                                class$="make-button {{running}}"
-                                on-tap="toggleMake">{{buttonAction}}</button>
-                        </div>
-                    </div>
-                </div>
+                <kano-workspace-controls
+                    running="{{isRunning}}"
+                    on-add-tap="openUiDrawer"></kano-workspace-controls>
             </div>
             <kano-drawer position="left" overlap="48" id="ui-drawer">
                 <kano-sidebar class="drawer-content"
@@ -143,30 +73,10 @@
         beforeRegister () {
             this.is = 'kano-view-workshop';
             this.properties = {
-                running: {
-                    type: String,
-                    computed: 'computeRunning(isRunning)'
-                },
-                buttonAction: {
-                    type: String,
-                    computed: 'computeButtonAction(isRunning)'
-                },
-                slave: {
-                    type: Boolean,
-                    value: false
-                },
-                user: {
-                  type: String,
-                  value: ''
-                },
-                buttonLogin: {
-                  type: String,
-                  computed: 'computeButtonLogin(user)'
-              },
-              selectedUi: {
-                  type: Object,
-                  observer: 'selectedUiChanged'
-              }
+                selectedUi: {
+                    type: Object,
+                    observer: 'selectedUiChanged'
+                }
             };
         }
         selectedUiChanged (newValue, oldValue) {
@@ -187,15 +97,6 @@
         }
         closeUiDrawer () {
             this.$['ui-drawer'].opened = false;
-        }
-        computeRunning (running) {
-            return running ? 'running' : '';
-        }
-        computeButtonAction (running) {
-            return running ? 'stop' : 'make';
-        }
-        computeButtonLogin (user) {
-            return user ? 'Logout' : 'Login';
         }
         attached () {
             let trash = this.$.workspace.getTrashElement();
@@ -298,8 +199,7 @@
                 }
             });
         }
-        toggleMake () {
-            this.isRunning = !this.isRunning;
+        isRunningChanged () {
             if (this.isRunning) {
                 if (this.selectedUi) {
                     this.selectedUiChanged(null, this.selectedUi);
@@ -308,47 +208,6 @@
             } else {
                 app.components.stop();
             }
-        }
-        toggleLogin () {
-          let modal;
-
-          if (this.user) {
-            app.modelManager.unset('user');
-            this.user = app.modelManager.get('user');
-            return;
-          }
-
-          const handleSwitch = (ev) => {
-            if (ev.target.localName === 'kano-login-form') {
-              modal.setContent(document.createElement('kano-signup-form'));
-              document.querySelector('#already-signedup-button').addEventListener('click', handleSwitch);
-            }
-            if (ev.target.id === 'already-signedup-button') {
-              modal.setContent(document.createElement('kano-login-form'));
-              document.querySelector('kano-login-form').addEventListener('signup-click', handleSwitch);
-            }
-          }
-
-          const handleLogin = (data) => {
-            app.modelManager.set('user', data.details)
-            this.user = data.details.user.username;
-            modal.close();
-          }
-
-          modal = document.createElement('kano-modal');
-          modal.setContent(document.createElement('kano-login-form'));
-          modal.show(() => {
-            let loginForm = document.querySelector('kano-login-form');
-            loginForm.addEventListener('signup-click', handleSwitch);
-            loginForm.addEventListener('success', handleLogin);
-          });
-
-          modal.addEventListener('modal-close', () => {
-            document.body.removeChild(modal)
-          })
-          document.body.appendChild(modal);
-
-
         }
     }
     Polymer(KanoViewWorkshop);

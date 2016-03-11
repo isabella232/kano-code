@@ -31,6 +31,12 @@
        * Initialize the views
        */
       ready () {
+          this.viewLinks = {
+              '/': [{
+                  label: 'Playground',
+                  url: '/make'
+              }]
+          };
           page('/', this.partial('kano-view-stories'));
           page('/make', this.partial('kano-view-workshop'));
           page('/story/:id', this.partial('kano-view-story'));
@@ -47,6 +53,8 @@
        */
       partial (name) {
           return (ctx) => {
+              ctx.links = this.viewLinks[ctx.path];
+              console.log(ctx);
               this.ctx = ctx;
               this.currentView = name;
           };
