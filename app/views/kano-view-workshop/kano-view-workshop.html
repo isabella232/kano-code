@@ -42,7 +42,9 @@
                 <kano-ui-editor
                     id="block-editor"
                     ui-elements="{{workspaceUiElements}}"
-                    selected-ui="{{selectedUi}}"></kano-ui-editor>
+                    selected-ui="{{selectedUi}}"
+                    code="{{code}}"
+                    on-code-change="codeChanged"></kano-ui-editor>
             </div>
             <div class="ui-edition">
                 <kano-workspace id="workspace"
@@ -52,7 +54,10 @@
                                 running="{{running}}"></kano-workspace>
                 <kano-workspace-controls
                     running="{{running}}"
+                    code="[[code]]"
                     on-run-tap="toggleRunning"
+                    on-save-tap="save"
+                    on-share-tap="share"
                     on-add-tap="openUiDrawer"></kano-workspace-controls>
             </div>
             <kano-drawer position="left" overlap="48" id="ui-drawer">
@@ -72,8 +77,7 @@
             this.is = 'kano-view-workshop';
             this.properties = {
                 selectedUi: {
-                    type: Object,
-                    observer: 'selectedUiChanged'
+                    type: Object
                 },
                 running: {
                     type: Boolean,
@@ -81,18 +85,41 @@
                 }
             };
         }
-        selectedUiChanged (newValue, oldValue) {
-            let editor = this.$['block-editor'];
-            if (!oldValue) {
+        codeChanged (e) {
+            let data = e.detail;
+            // Add the new code and its rule to the components store
+            app.components.setCode(data.id, data.event, data.code);
+        }
+        share () {
+            let workspaceRect = this.$.workspace.getBoundingClientRect(),
+                savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
+                file = new Blob([savedApp], { type: 'text/html' });
+
+            file.filename = 'code.html';
+            console.log(savedApp);
+            /*app.sdk.api.share.post({
+                app: 'make-apps',
+                title: 'Cat gif',
+                files: {
+                    attachment: file
+                }
+            });*/
+        }
+        save () {
+            let workspaceRect = this.$.workspace.getBoundingClientRect(),
+                savedApp = app.components.saveAll(workspaceRect);
+            localStorage.setItem('savedApp', JSON.stringify(savedApp));
+        }
+        load () {
+            let savedApp = JSON.parse(localStorage.getItem('savedApp')),
+                loadedComponents;
+            if (!savedApp) {
                 return;
             }
-            if (editor.code && editor.code.trim().length) {
-                // Add the new code and its rule to the components store
-                app.components.setCode(editor.selectedTrigger.id, editor.event,
-                    editor.code, editor.rule, editor.getBlocklyXml());
-                /*e.detail.rules = app.components.getRulesFor(
-                    this.selectedUi.id);*/
-            }
+            app.components.loadAll(savedApp);
+            loadedComponents = app.components.getAll();
+            this.$.workspace.loadBatch(Object.keys(loadedComponents)
+                                        .map(id => loadedComponents[id].model));
         }
         openUiDrawer () {
             this.$['ui-drawer'].opened = true;
@@ -136,6 +163,7 @@
             });*/
             app.registerBlockly(window.Blockly);
             this.$['block-editor'].defaultCategories = app.defaultCategories;
+            this.load();
         }
         createId (type) {
             let ids = this.uiElements.map((ui) => ui.id);
@@ -203,9 +231,6 @@
         toggleRunning () {
             this.running = !this.running;
             if (this.running) {
-                if (this.selectedUi) {
-                    this.selectedUiChanged(null, this.selectedUi);
-                }
                 app.components.run();
             } else {
                 app.components.stop();

@@ -112,7 +112,8 @@
             this.properties = {
                 uiElements: {
                     type: Array,
-                    notify: true
+                    notify: true,
+                    value: () => []
                 },
                 running: {
                     type: Boolean,
@@ -137,9 +138,6 @@
                 'userValuesChanged(selected.*)'
             ];
         }
-        attached () {
-            this.uiElements = [];
-        }
         addUi (model, position) {
             let rect = this.getBoundingClientRect(),
                 el;
@@ -148,6 +146,11 @@
             model.position = position;
 
             this.push('uiElements', model);
+        }
+        loadBatch (models) {
+            models.forEach((model) => {
+                this.push('uiElements', model);
+            });
         }
         computePositionStyle (model) {
             return `position: absolute;

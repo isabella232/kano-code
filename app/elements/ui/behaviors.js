@@ -26,6 +26,20 @@ window.KanoBehaviors.UIBehavior = {
             acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
             return acc;
         }, '');
+    },
+    save () {
+        let tagName = this.tagName.toLowerCase();
+        return `<${tagName}
+                    id="${this.model.id}"
+                    model="{{components.${this.model.id}}}">
+                </${tagName}>`;
+    },
+    getPosition () {
+        let rect = this.getBoundingClientRect();
+        return {
+            x: rect.left,
+            y: rect.top
+        };
     }
 };
 

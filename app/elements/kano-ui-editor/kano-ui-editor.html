@@ -46,7 +46,11 @@
                 <h1>Select an element</h1>
             </div>
             <div name="edit-code" class="code-editor">
-                <kano-blockly id="blockly" toolbox="{{toolbox}}" code="{{code}}"></kano-blockly>
+                <kano-blockly id="blockly"
+                        toolbox="[[toolbox]]"
+                        blocks="[[blocks]]"
+                        on-change="blocklyChanged"
+                        code="{{code}}"></kano-blockly>
                 <header>
                     <kano-event-select
                         triggers="{{computeTriggers(uiElements.*)}}"
@@ -75,17 +79,8 @@
                     type: Object,
                     observer: 'selectedUiChanged'
                 },
-                code: {
-                    type: String,
-                    notify: true
-                },
                 event: {
                     type: String
-                },
-                rule: {
-                    type: Object,
-                    notify: true,
-                    computed: 'computeRule(event, selectedTrigger.events.*, code)'
                 },
                 defaultCategories: {
                     type: Array,
@@ -95,12 +90,67 @@
                     type: String,
                     computed: 'computeSelectedPage(selectedUi)',
                     value: 'empty'
+                },
+                selectedTrigger: {
+                    type: Object
+                },
+                code: {
+                    type: String,
+                    notify: true
+                },
+                blocks: {
+                    type: Object
                 }
             };
+            this.observers = [
+                'computeBlocks(selectedTrigger, event)'
+            ];
             this.listeners = {
                 'pages.iron-select': 'pageEntered',
                 'pages.iron-deselect': 'pageLeaved',
             };
+        }
+        computeBlocks () {
+            if (!this.selectedTrigger) {
+                return;
+            }
+            let code = this.selectedTrigger.codes[this.event];
+            if (!code) {
+                this.$.blockly.clearWorkspace();
+                return;
+            }
+            // Compute blocks is an observer that will react to changes on
+            // two properties that can be changed at the same time.
+            // To avoid duplicate call of this function, we debounce it
+            this.debounce('computeBlocks', () => {
+                this.set('blocks', code.blocks);
+            }, 10);
+        }
+        blocklyChanged () {
+            this.saveCode(this.selectedTrigger, this.event);
+        }
+        selectedTriggerChanged (newValue, oldValue) {
+            if (oldValue) {
+                this.saveCode(oldValue, this.event);
+            }
+        }
+        saveCode (trigger, event) {
+            this.debounce('saveCode', () => {
+                let code = {},
+                label;
+                code.blocks = this.$.blockly.getBlocks();
+                label = this.getEventFromId(trigger.events, event).label;
+                code.rule = {
+                    trigger: `When ${trigger.name} ${label}`,
+                    action: this.$.blockly.getCode('Natural')
+                };
+                code.code = this.$.blockly.getCode('JavaScript');
+                this.fire('code-change', {
+                    id: trigger.id,
+                    event,
+                    code
+                });
+            }, 300);
         }
         computeTriggers () {
             return this.uiElements.filter((element) => this.hasEvents(element));
@@ -122,9 +172,9 @@
             }
         }
         hasEvents (selectedUi) {
-            return selectedUi
-                    && selectedUi.events
-                    && selectedUi.events.length;
+            return selectedUi &&
+                    selectedUi.events &&
+                    selectedUi.events.length;
         }
         computeSelectedPage () {
             if (this.selectedUi) {
@@ -144,23 +194,12 @@
             }
             this.set('selectedTrigger', trigger);
         }
-        computeRule (eventName) {
-            let label,
-                events;
-            if (!this.selectedTrigger.events) {
-                return;
-            }
-            events = this.selectedTrigger.events;
+        getEventFromId (events, id) {
             for (let i in events) {
-                if (events[i].id === this.event) {
-                    label = events[i].label;
-                    break;
+                if (events[i].id === id) {
+                    return events[i];
                 }
             }
-            return {
-                trigger: `When ${this.selectedTrigger.name} ${label}`,
-                action: this.$.blockly.getCode('Natural')
-            };
         }
         computeToolbox () {
             this.uiElements.forEach((ui) => {
@@ -182,9 +221,6 @@
                         colour: ui.hue
                     };
             }).concat(this.defaultCategories || []).filter((category) => category.blocks.length);
-        }
-        getBlocklyXml () {
-            return this.$.blockly.getXml();
         }
     }
     Polymer(KanoUiEditor);

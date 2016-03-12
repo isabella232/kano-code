@@ -38,8 +38,12 @@
                 code: {
                     type: String,
                     notify: true
+                },
+                blocks: {
+                    type: String,
+                    observer: 'blocksChanged'
                 }
-            }
+            };
         }
         created () {
             Blockly.HSV_SATURATION = 0.8;
@@ -101,7 +105,7 @@
         }
         computeToolboxXml (toolbox) {
             if (!this.toolbox || !this.toolbox.length) {
-                this.toolbox = [{name: 'Category', blocks: []}]
+                this.toolbox = [{ name: 'Category', blocks: [] }];
             }
             let xml;
                 categoriesXml = this.toolbox.map((category) => {
@@ -117,12 +121,23 @@
             }
             return xml;
         }
+        clearWorkspace () {
+            this.workspace.clear();
+        }
+        blocksChanged () {
+            this.blocks = this.blocks || '<xml></xml>';
+            let xml = Blockly.Xml.textToDom(this.blocks);
+            this.clearWorkspace();
+            Blockly.Xml.domToWorkspace(this.workspace, xml);
+        }
         onBlocklyChange (e) {
             this.set('code', this.getCode('JavaScript'));
             this.fire('change', e);
         }
-        getXml () {
-            return Blockly.Xml.workspaceToDom(this.workspace);
+        getBlocks () {
+            let xml = Blockly.Xml.workspaceToDom(this.workspace),
+                xmlString = Blockly.Xml.domToText(xml);
+            return xmlString;
         }
         getCode (type) {
             return Blockly[type].workspaceToCode(this.workspace);
