@@ -1,0 +1,69 @@
+<dom-module id="kano-view-share-modal">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            @apply(--layout-vertical);
+            padding: 20px 20px 5px 20px;
+        }
+        :host .actions {
+            @apply(--layout-flex);
+            @apply(--layout-horizontal);
+            @apply(--layout-end-justified);
+            @apply(--layout-center);
+            margin-top: 5px;
+        }
+        :host button {
+            @apply(--kano-button-small);
+            margin-left: 5px;
+        }
+        :host .confirm {
+            background-color: var(--color-green);
+        }
+        :host .dismiss {
+            background-color: var(--color-grey-light);
+        }
+    </style>
+    <template>
+        <label>Title</label>
+        <input type="text" value="{{title::change}}">
+        <label>Description</label>
+        <textarea rows="8"
+                cols="40"
+                value="{{description::change}}"></textarea>
+        <div class="actions">
+            <button type="button"
+                    on-tap="cancel"
+                    class="dismiss">Cancel</button>
+            <button type="button"
+                    on-tap="share"
+                    class="confirm">Share</button>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class KanoShareModal {
+        beforeRegister () {
+            this.is = 'kano-view-share-modal';
+            this.properties = {
+                title: {
+                    type: String
+                },
+                description: {
+                    type: String
+                }
+            };
+        }
+        share () {
+            this.fire('confirm', {
+                title: this.title,
+                description: this.description
+            });
+        }
+        cancel () {
+            this.fire('dismiss');
+        }
+    }
+    Polymer(KanoShareModal);
+</script>

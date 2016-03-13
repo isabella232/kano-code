@@ -67,7 +67,6 @@
                             on-close="closeUiDrawer"></kano-sidebar>
             </kano-drawer>
         </section>
-        <kano-modal id="login-modal"></kano-modal>
     </template>
 </dom-module>
 
@@ -85,31 +84,69 @@
                 }
             };
         }
+        /**
+         * When the current code changes, save it in the components store
+         * @param  {Event} e  Informations about the code updated
+         */
         codeChanged (e) {
             let data = e.detail;
             // Add the new code and its rule to the components store
             app.components.setCode(data.id, data.event, data.code);
         }
+        /**
+         * Opens the sharing modal and share the app
+         */
         share () {
-            let workspaceRect = this.$.workspace.getBoundingClientRect(),
-                savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
-                file = new Blob([savedApp], { type: 'text/html' });
+            // Create a modal and a view
+            let modal = document.createElement('kano-modal'),
+                view = document.createElement('kano-view');
 
-            file.filename = 'code.html';
-            console.log(savedApp);
-            /*app.sdk.api.share.post({
-                app: 'make-apps',
-                title: 'Cat gif',
-                files: {
-                    attachment: file
-                }
-            });*/
+            // Load the view
+            view.viewName = 'kano-view-share-modal';
+
+            // Close the modal when the user dissmisses it
+            view.addEventListener('dismiss', () => {
+                modal.close();
+            });
+            // Share the app when the user confirms
+            view.addEventListener('confirm', (e) => {
+                // Generates the standalone component
+                let workspaceRect = this.$.workspace.getBoundingClientRect(),
+                    savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
+                    file = new Blob([savedApp], { type: 'text/html' });
+
+                file.filename = 'code.html';
+                // Share by calling the API
+                app.sdk.api.share.post({
+                    app: 'make-apps',
+                    title: e.detail.title,
+                    description: e.detail.description,
+                    files: {
+                        attachment: file
+                    }
+                }).then(() => {
+                    modal.close();
+                });
+            });
+            // Mount the view in the modal
+            modal.setContent(view);
+            modal.addEventListener('modal-close', () => {
+                this.removeChild(modal);
+            });
+            this.appendChild(modal);
+            modal.show();
         }
+        /**
+         * Save the current work in the local storage
+         */
         save () {
             let workspaceRect = this.$.workspace.getBoundingClientRect(),
                 savedApp = app.components.saveAll(workspaceRect);
             localStorage.setItem('savedApp', JSON.stringify(savedApp));
         }
+        /**
+         * Load the saved work from the local storage
+         */
         load () {
             let savedApp = JSON.parse(localStorage.getItem('savedApp')),
                 loadedComponents;
@@ -131,6 +168,7 @@
             let trash = this.$.workspace.getTrashElement();
             this.workspaceUiElements = [];
             this.set('uiElements', app.ui.getAll());
+            this.set('user', app.sdk.auth.getUser());
             app.Interact(this.$.workspace).dropzone({
                 accept: 'kano-ui-item',
                 ondragenter: () => {
@@ -151,16 +189,6 @@
                     this.$.workspace.pulsing = false;
                 }
             });
-            /*app.Interact(trash).dropzone({
-                accept: 'kano-ui',
-                overlap: 0.01,
-                ondrop: (e) => {
-                    let id = e.relatedTarget.model.id
-                    this.$.workspace.removeUi(id);
-                    app.components.remove(id);
-                    app.codes.remove(id);
-                }
-            });*/
             app.registerBlockly(window.Blockly);
             this.$['block-editor'].defaultCategories = app.defaultCategories;
             this.load();
@@ -172,6 +200,15 @@
             }
             return type;
         }
+        /**
+         * When an element has been added on the sidebar
+         * We should think about moving this in its own component
+         * (sidebar). If I did that in the first place it was to have
+         * the sidebar element completely agnostic of drag-and-drop
+         * actions
+         * @param  {Event} e
+         * @return {[type]}   [description]
+         */
         sidebarUiReady (e) {
             let clone;
             app.Interact(e.detail).draggable({
@@ -209,6 +246,10 @@
                 }
             });
         }
+        /**
+         * Add draggable properties to the added element in the workspace
+         * @param  {Event} e
+         */
         workspaceUiReady (e) {
             let element = e.detail,
                 gridTarget = app.Interact.createSnapGrid({
@@ -228,6 +269,9 @@
                 }
             });
         }
+        /**
+         * Toggle the running state of the current app
+         */
         toggleRunning () {
             this.running = !this.running;
             if (this.running) {
