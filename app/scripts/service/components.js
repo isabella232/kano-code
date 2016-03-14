@@ -1,6 +1,6 @@
 import slug from 'speakingurl';
 import CodeService from './code';
-
+import ui from '../ui';
 
 let componentStore;
 
@@ -18,23 +18,27 @@ class ComponentStore {
      * @param {Object}      component   The model
      * @param {HTMLElement} element     The DOM element added in the view
      */
-    add (model) {
-        // When added to this store, we make sure the name is unique
-        model.name = this.createUniqueName(model.name || model.label);
-        // As the name is displayed, we also want an id, that will only contain
-        // safe characters
-        model.id = this.createId(model.name);
+    add (model, codes) {
+        if (!model.id) {
+            // When added to this store, we make sure the name is unique
+            model.name = this.createUniqueName(model.name || model.label);
+            // As the name is displayed, we also want an id, that will only contain
+            // safe characters
+            model.id = this.createId(model.name);
+        }
         // Prefix the block ids with the component id to avoid
         // collision during creation
         model.blocks = model.blocks.map((block) => {
             block.id = `${model.id}_${block.id}`;
             return block;
         });
+
+        model.codes = codes || {};
+
         // Use the id as key
         this.components[model.id] = {
             model,
-            element: null,
-            codes: {}
+            element: null
         };
     }
     setElement (id, element) {
@@ -48,12 +52,8 @@ class ComponentStore {
      * @param {String} xml  Blockly representation of the blocks used to
      *                      create this piece of code
      */
-    setCode (id, event, code, rule, xml) {
-        this.get(id).codes[event] = {
-            code,
-            rule,
-            xml
-        };
+    setCode (id, event, code) {
+        this.get(id).model.codes[event] = code;
     }
     /**
      * Unregister a component
@@ -142,30 +142,34 @@ class ComponentStore {
      * @return {Array}      All the rules of the requested component
      */
     getRulesFor (id) {
-        return this.components[id].codes.map((c) => {
+        return this.components[id].model.codes.map((c) => {
             return c.rule;
         });
+    }
+    generateCode () {
+        let codeList = Object.keys(this.components)
+            // Exclude the components without code pieces
+            .filter((id) => Object.keys(this.components[id].model.codes).length)
+            .map((id) => {
+                // Extract the JS code from the code pieces objects
+                return Object.keys(this.components[id].model.codes)
+                    .map((e) => {
+                        let code = this.components[id].model.codes[e].code;
+                        return `devices.get('${id}').addEventListener('${e}', function (){${code}})`;
+                    })
+                    .join(';');
+            });
+        return codeList.join(';');
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
     run () {
-        let codeList = Object.keys(this.components)
-            // Exclude the components without code pieces
-            .filter((id) => Object.keys(this.components[id].codes).length)
-            .map((id) => {
-                // Extract the JS code from the code pieces objects
-                return Object.keys(this.components[id].codes)
-                    .map((e) => {
-                        let code = this.components[id].codes[e].code;
-                        return `devices.get('${id}').addEventListener('${e}', function (){${code}})`;
-                    })
-                    .join(';');
-            });
+        let code = this.generateCode();
         this.start();
         // Run the code using this store. Only expose the get function
-        CodeService.run(codeList.join(';'), {
+        CodeService.run(code, {
             get (id) {
                 return componentStore.get(id).model;
             }
@@ -182,6 +186,91 @@ class ComponentStore {
     stop () {
         CodeService.stop();
         this.stopAll();
+    }
+    save (id, rect) {
+        let component = this.get(id),
+            saved;
+        component.model.position = component.element.getPosition();
+        component.model.position.x -= rect.left;
+        component.model.position.y -= rect.top;
+        return {
+            model: component.model.toJSON(),
+            codes: component.model.codes
+        };
+    }
+    saveAll (workspaceRect) {
+        let components = Object.keys(this.components).reduce((acc, id) => {
+            acc[id] = this.save(id, workspaceRect);
+            return acc;
+        }, {});
+
+        return components;
+    }
+    generateStandaloneComponent (workspaceRect) {
+        let template = '',
+            components = Object.keys(this.components).reduce((acc, id) => {
+                acc[id] = this.save(id, workspaceRect).model;
+                template += this.get(id).element.save();
+                return acc;
+            }, {}),
+            code = this.generateCode(),
+            id = 'kano-user-component',
+            component,
+            modules;
+
+        modules = CodeService.getStringifiedModules();
+
+        component = `
+            <script>${modules};</script>
+            <dom-module id="${id}">
+                <style></style>
+                <template>
+                    ${template}
+                </template>
+            </dom-module>
+            <script>
+                Polymer({
+                    is: '${id}',
+                    properties: {
+                        components: {
+                            type: Object,
+                            value: JSON.parse('${JSON.stringify(components).replace(/'/g, "\\'")}'),
+                            observer: 'componentsChanged'
+                        }
+                    },
+                    attached: function () {
+                        var devices = {
+                            get: function (id) {
+                                return this.$$('#' + id);
+                            }.bind(this)
+                        };
+                        ${code};
+                    },
+                    componentsChanged () {
+                        var el;
+                        Object.keys(this.components).forEach(function (id) {
+                            el = this.$$('#' + id);
+                            el.style.position = 'absolute';
+                            el.style.left = this.components[id].position.x + 'px';
+                            el.style.top = this.components[id].position.y + 'px';
+                        }.bind(this));
+                    }
+                });
+            </script>
+        `;
+
+        return component;
+    }
+    loadAll (components) {
+        Object.keys(components).forEach((id) => {
+            this.load(ui.fromSaved(components[id].model), components[id].codes);
+        });
+    }
+    load (model, codes) {
+        this.add(model, codes);
+    }
+    getAll () {
+        return this.components;
     }
 }
 

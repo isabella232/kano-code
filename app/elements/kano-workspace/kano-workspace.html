@@ -112,7 +112,8 @@
             this.properties = {
                 uiElements: {
                     type: Array,
-                    notify: true
+                    notify: true,
+                    value: () => []
                 },
                 running: {
                     type: Boolean,
@@ -136,9 +137,32 @@
             this.observers = [
                 'userValuesChanged(selected.*)'
             ];
+            this.listeners = {
+                'mouseenter': 'onMouseEnter',
+                'mouseleave': 'onMouseLeave',
+            };
         }
         attached () {
-            this.uiElements = [];
+            window.addEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        detached () {
+            window.removeEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        onMouseEnter () {
+            this.focused = true;
+        }
+        onMouseLeave () {
+            this.focused = false;
+        }
+        onKeyUp (e) {
+            // If the delete key is pressed and an element is selected
+            // and the workspace is focused, remove the element
+            if (e.keyCode === 8 &&
+                    this.selected &&
+                    this.focused) {
+                e.preventDefault();
+                this.removeUi(this.selected.id);
+            }
         }
         addUi (model, position) {
             let rect = this.getBoundingClientRect(),
@@ -149,6 +173,11 @@
 
             this.push('uiElements', model);
         }
+        loadBatch (models) {
+            models.forEach((model) => {
+                this.push('uiElements', model);
+            });
+        }
         computePositionStyle (model) {
             return `position: absolute;
                     left: ${model.position.x}px;
@@ -158,6 +187,10 @@
             for (let i in this.uiElements) {
                 if (this.uiElements[i].id === id) {
                     this.splice('uiElements', i, 1);
+                    // i here will be a string since we use for in
+                    if (this.selectedUiIndex == i) {
+                        this.set('selectedUiIndex', null);
+                    }
                 }
             }
         }

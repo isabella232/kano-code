@@ -16,8 +16,8 @@
         font-family: var(--font-body);
     }
     :host button,
-    :host header a {
-        @apply(--kano-button);
+    :host header .link {
+        @apply(--kano-button-small);
         text-decoration: none;
         background-color: var(--primary-color);
     }
@@ -32,6 +32,9 @@
     }
     :host header div {
         @apply(--layout-flex);
+    }
+    :host header .logged {
+        @apply(--layout-vertical);
     }
     :host .user-info {
         margin-left: 5px;
@@ -57,17 +60,21 @@
         <style include="kano-style"></style>
         <header>
             <div class="user-info">
-                <h1 hidden$="{{!user}}">{{user}}</h1>
+                <div hidden$="{{!isUserLoggedIn(user)}}" class="logged">
+                    <label>{{user.username}}</label>
+                    <a href="#" on-tap="logout">Logout</a>
+                </div>
                 <button type="button"
                     class="login-button"
-                    on-tap="toggleLogin">{{computeButtonLogin(user)}}</button>
+                    hidden$="{{isUserLoggedIn(user)}}"
+                    on-tap="login">Login</button>
             </div>
             <iron-image src="../../assets/make-apps-logo.png"
                         preload
                         sizing="contain"></iron-image>
             <div class="links">
                 <template is="dom-repeat" items="{{ctx.links}}" as="link">
-                    <a href$="[[link.url]]">[[link.label]]</a>
+                    <a href$="[[link.url]]" class="link">[[link.label]]</a>
                 </template>
             </div>
         </header>
@@ -80,8 +87,7 @@
             this.is = 'kano-app';
             this.properties = {
                 user: {
-                    type: String,
-                    value: ''
+                    type: Object
                 }
             };
             this.observers = [
@@ -94,17 +100,21 @@
         ctxChanged () {
             app.ctx = this.ctx;
         }
-        computeButtonLogin (user) {
-            return user ? 'Logout' : 'Login';
+        isUserLoggedIn () {
+            return !!this.user;
         }
-        toggleLogin () {
+        attached () {
+            app.sdk.auth.initSession(() => {
+                this.user = app.sdk.auth.getUser();
+            });
+        }
+        logout (e) {
+            e.preventDefault();
+            app.sdk.auth.setToken(null);
+            this.user = null;
+        }
+        login () {
             let modal;
-
-            if (this.user) {
-                app.modelManager.unset('user');
-                this.user = app.modelManager.get('user');
-                return;
-            }
 
             const handleSwitch = (ev) => {
                 if (ev.target.localName === 'kano-login-form') {
@@ -120,8 +130,8 @@
             };
 
             const handleLogin = (data) => {
-                app.modelManager.set('user', data.details);
-                this.user = data.details.user.username;
+                this.user = data.details.user;
+                app.sdk.auth.setToken(data.details.token);
                 modal.close();
             };
 
@@ -134,9 +144,9 @@
             });
 
             modal.addEventListener('modal-close', () => {
-                document.body.removeChild(modal);
+                this.removeChild(modal);
             });
-            document.body.appendChild(modal);
+            this.appendChild(modal);
         }
     }
     Polymer(KanoApp);

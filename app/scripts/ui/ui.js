@@ -36,4 +36,21 @@ export default class UI {
     removeListeners () {
         this.listeners = [];
     }
+    toJSON () {
+        let plain = {};
+        plain.id = this.id;
+        plain.name = this.name;
+        plain.type = this.type;
+        plain.userStyle = this.userStyle;
+        plain.userProperties = this.userProperties;
+        plain.position = this.position;
+        return plain;
+    }
+    load (plain) {
+        this.id = plain.id;
+        this.name = plain.name;
+        this.userStyle = plain.userStyle;
+        this.userProperties = plain.userProperties;
+        this.position = plain.position;
+    }
 }

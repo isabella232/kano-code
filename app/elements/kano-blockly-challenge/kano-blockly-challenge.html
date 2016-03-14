@@ -44,17 +44,27 @@
                 }
             };
         }
+        /**
+         * Find the blockly element and listens to the change event
+         */
         attached () {
             this.stepIds = {};
             let node = Polymer.dom(this.$.content).getDistributedNodes()[0];
             node.addEventListener('change', this.blocklyChanged.bind(this));
         }
+        /**
+         * Get the instruction to display
+         */
         computeInstruction () {
             if (!this.steps[this.step]) {
                 return;
             }
             return this.done ? 'Done' : this.steps[this.step].instruction;
         }
+        /**
+         * Try to match the blockly event to the current step
+         * @param  {Event} e  A blockyl change event
+         */
         blocklyChanged (e) {
             // Store current step object
             let step = this.steps[this.step];
@@ -97,17 +107,17 @@
                     this.nextStep();
                 }
             // Check the 'value' case. We are waiting for a Change Blockly event
-            } else if (step.validation.value
-                        && e.detail instanceof Blockly.Events.Change) {
+            } else if (step.validation.value &&
+                        e.detail instanceof Blockly.Events.Change) {
                 let validation = step.validation.value,
                     targetId = this.stepIds[validation.target],
                     block = e.detail,
                     failed = false;
                 // Check that the element that changed is the one we target
                 if (block.blockId === targetId) {
-                    if (validation.minLength
-                            && block.newValue.length
-                            && block.newValue.length < validation.minLength) {
+                    if (validation.minLength &&
+                            block.newValue.length &&
+                            block.newValue.length < validation.minLength) {
                         failed = true;
                     }
                     // Check that

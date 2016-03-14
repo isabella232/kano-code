@@ -75,6 +75,10 @@
         padding: 8px;
         color: var(--color-white, white);
     }
+    :host ::content :not(pre) > code[class*="language-"],
+    :host ::content pre[class*="language-"] {
+    	background: var(--color-black, black);
+    }
     </style>
     <template>
         <button type="button" class="add-ui" on-tap="addTapped">+</button>
@@ -82,7 +86,8 @@
             <div class="toolbar">
                 <div class="tab-nav">
                     <button on-tap="switchTab"
-                            id="0">Steps</button>
+                            id="0"
+                            class="selected">Steps</button>
                     <button on-tap="switchTab"
                             id="1">Parts</button>
                     <button on-tap="switchTab"
@@ -105,7 +110,11 @@
                 <iron-pages selected="{{selected}}">
                     <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                     <div>Two</div>
-                    <div>Three</div>
+                    <div>
+                        <prism-js hidden$="{{!code.length}}"
+                                    language="javascript"
+                                    input-value="{{code}}"></prism-js>
+                    </div>
                 </iron-pages>
             </div>
         </div>
@@ -122,6 +131,9 @@
                 selected: {
                     type: Number,
                     value: 0
+                },
+                code: {
+                    type: String
                 }
             };
         }

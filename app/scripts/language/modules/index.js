@@ -10,6 +10,6 @@ export default {
     giphy,
     cat,
     weather,
-    console,
+    //console,
     camera
 };

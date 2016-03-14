@@ -11,7 +11,7 @@ import es6Assign from 'es6-object-assign';
 es6Assign.polyfill();
 
 let config = {
-    API_URL     : 'https://api.kano.me',
+    API_URL     : 'http://api-apps.kano.me',
     WORLD_URL   : 'http://world.kano.me'
 };
 

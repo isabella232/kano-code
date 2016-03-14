@@ -38,13 +38,20 @@
                 code: {
                     type: String,
                     notify: true
+                },
+                blocks: {
+                    type: String,
+                    observer: 'blocksChanged'
                 }
-            }
+            };
         }
         created () {
             Blockly.HSV_SATURATION = 0.8;
             Blockly.HSV_VALUE = 0.8;
         }
+        /**
+         * Inject blockly to the workspace div and register the resize event
+         */
         attached () {
             this.workspace = Blockly.inject(this.$.workspace, {
                 toolbox: this.toolboxXml
@@ -68,11 +75,20 @@
             this.toolboxDiv = this.toolboxElements[2];
             return this.toolboxElements;
         }
+        /**
+         * Set the sisibility of all the toolbox elements to hidden
+         * Needs to be done since these elements are added to the DOM
+         * by Blockly
+         */
         hideToolbox () {
             this.getToolboxElements().forEach((el) => {
                 el.style.visibility = 'hidden';
             });
         }
+        /**
+         * Set the sisibility of all the toolbox elements to visible
+         * Counteract the effects of `hideToolbox`
+         */
         showToolbox () {
             this.getToolboxElements().forEach((el) => {
                 el.style.visibility = 'visible';
@@ -84,9 +100,17 @@
                 el.parentNode.removeChild(el);
             });
         }
+        /**
+         * Triggers the resize event on the window
+         */
         resize () {
             Blockly.fireUiEvent(window, 'resize');
         }
+        /**
+         * Debounce function that will apply style rules to the workspace
+         * element to let know Blockly the new dimensions.
+         * It also forces the toolbox to be 25% the width of the workspace
+         */
         onResize () {
             this.debounce('resize', () => {
                 let workspace = this.$.workspace;
@@ -97,38 +121,82 @@
                 if (this.toolboxDiv) {
                     this.toolboxDiv.style.width = `${this.offsetWidth*0.25}px`;
                 }
-            }, 50);
+            }, 10);
         }
+        /**
+         * Takes a categories definition in JSON and generates the XML
+         * string blockly needs to display the toolbox.
+         * It will also update the current blockly workspace.
+         * @param  {Object} toolbox A JSON toolbox definition
+         * @return {String}         A XML toolbox definition
+         */
         computeToolboxXml (toolbox) {
+            // Force default toolbox if empty since blockly is not able
+            // to switch from empty to category mode
             if (!this.toolbox || !this.toolbox.length) {
-                this.toolbox = [{name: 'Category', blocks: []}]
+                this.toolbox = [{ name: 'Category', blocks: [] }];
             }
             let xml;
                 categoriesXml = this.toolbox.map((category) => {
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
                     }).join('');
-                    return `<category name="${category.name}" colour="${category.colour}">${blocksXml}</category>`;
+                    return `<category name="${category.name}"
+                                    colour="${category.colour}">
+                                ${blocksXml}
+                            </category>`;
                 }).join('');
             xml = `<xml>${categoriesXml}</xml>`;
+            // Update the workspace if it exists
             if (this.workspace) {
                 this.workspace.updateToolbox(xml);
-                this.onResize();
+                this.resize();
             }
             return xml;
         }
+        /**
+         * Remove every block in the workspace
+         */
+        clearWorkspace () {
+            this.workspace.clear();
+        }
+        /**
+         * Update the workspace and current code with the new blocks
+         */
+        blocksChanged () {
+            this.blocks = this.blocks || '<xml></xml>';
+            let xml = Blockly.Xml.textToDom(this.blocks);
+            this.clearWorkspace();
+            Blockly.Xml.domToWorkspace(this.workspace, xml);
+            this.set('code', this.getCode('JavaScript'));
+        }
+        /**
+         * Update the code on any blockly change and
+         * bubble up the event
+         * @param  {Event} e    A Blockly event
+         * @return {[type]}   [description]
+         */
         onBlocklyChange (e) {
             this.set('code', this.getCode('JavaScript'));
             this.fire('change', e);
         }
-        getXml () {
-            return Blockly.Xml.workspaceToDom(this.workspace);
+        /**
+         * Generate a XML string representation of the blocks
+         * currently on the workspace
+         * @return {String}     XML string representation of the blocks
+         */
+        getBlocks () {
+            let xml = Blockly.Xml.workspaceToDom(this.workspace),
+                xmlString = Blockly.Xml.domToText(xml);
+            return xmlString;
         }
+        /**
+         * Compute the current code for a given language
+         * @param  {String} type Language to use to compute the code
+         * @return {String}      A piece of code
+         */
         getCode (type) {
             return Blockly[type].workspaceToCode(this.workspace);
-        }
-        getDom () {
-            return Blockly.Xml.workspaceToDom(this.workspace);
         }
     }
     Polymer(KanoBlockly);

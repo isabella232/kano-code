@@ -1,22 +1,22 @@
-let timeouts = [],
-    intervals = [],
-    time;
+let time;
 
 export default time = {
+    timeouts: [],
+    intervals: [],
     methods: {
         setTimeout () {
             let id = setTimeout.apply(window, arguments);
-            timeouts.push(id);
+            time.timeouts.push(id);
         },
         setInterval () {
             let id = setInterval.apply(window, arguments);
-            intervals.push(id);
+            time.intervals.push(id);
         }
     },
     lifecycle: {
         stop () {
-            timeouts.forEach((id) => clearTimeout(id));
-            intervals.forEach((id) => clearInterval(id));
+            time.timeouts.forEach((id) => clearTimeout(id));
+            time.intervals.forEach((id) => clearInterval(id));
         }
     }
 };
