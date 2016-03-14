@@ -9,13 +9,21 @@
         margin-top: 5px;
         @apply(--layout-vertical);
     }
+    :host .line label {
+        font-size: 1.1em;
+        font-weight: 400;
+        color: var(--color-grey-darker, grey);
+    }
+    :host kano-input ::content input {
+        @apply(--kano-light-input);
+    }
     </style>
     <template>
         <template is="dom-repeat"
                 items="{{customizable}}"
                 as="property">
             <div class="line">
-                <label>{{property.label}}</label>
+                <label>{{property.label}}:</label>
                 <kano-input type="{{property.type}}"
                         name="name"
                         on-change="propertyChanged"

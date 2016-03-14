@@ -51,17 +51,11 @@
         @apply(--kano-button-small);
         margin-left: 5px;
     }
-    :host .make-button {
-        background-color: var(--primary-color, orange);
-    }
     :host .share-button {
         background-color: var(--color-blue, blue);
     }
     :host .save-button {
         background-color: var(--color-green, green);
-    }
-    :host .make-button.stop {
-        background-color: var(--color-red, red);
     }
     :host .add-ui {
         @apply(--kano-round-button);
@@ -87,19 +81,14 @@
                 <div class="tab-nav">
                     <button on-tap="switchTab"
                             id="0"
-                            class="selected">Steps</button>
+                            class="selected">Instructions</button>
                     <button on-tap="switchTab"
                             id="1">Parts</button>
-                    <button on-tap="switchTab"
-                            id="2">Code</button>
                 </div>
                 <div class="controls">
                     <button type="button"
                             class="save-button"
                             on-tap="saveTapped">save</button>
-                    <button type="button"
-                        class$="make-button {{computeRunningString(running)}}"
-                        on-tap="makeTapped">{{computeRunningString(running)}}</button>
                     <button type="button"
                             class="share-button"
                             on-tap="shareTapped">share</button>
@@ -109,12 +98,7 @@
             <div class="tabs">
                 <iron-pages selected="{{selected}}">
                     <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
-                    <div>Two</div>
-                    <div>
-                        <prism-js hidden$="{{!code.length}}"
-                                    language="javascript"
-                                    input-value="{{code}}"></prism-js>
-                    </div>
+                    <div>Parts</div>
                 </iron-pages>
             </div>
         </div>
@@ -145,17 +129,11 @@
             e.target.classList.add('selected');
             this.selected = e.target.getAttribute('id');
         }
-        computeRunningString () {
-            return this.running ? 'stop' : 'make';
-        }
         addTapped () {
             this.fire('add-tap');
         }
         saveTapped () {
             this.fire('save-tap');
-        }
-        makeTapped () {
-            this.fire('run-tap');
         }
         shareTapped () {
             this.fire('share-tap');

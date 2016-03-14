@@ -55,6 +55,8 @@ the content out of proportions to make it fit inside the available space.
             position: absolute;
             transform-origin: 0 0 0;
             overflow: hidden;
+            background-color: transparent;
+            @apply(--kano-ui-viewport);
         }
 
         .debug {
@@ -211,6 +213,10 @@ the content out of proportions to make it fit inside the available space.
 
         detached () {
             window.addEventListener('resize', this.listener);
+        }
+
+        getRect () {
+            return this.$.view.getBoundingClientRect();
         }
     }
     Polymer(KanoUiViewport);

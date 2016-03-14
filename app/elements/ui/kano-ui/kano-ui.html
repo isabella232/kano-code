@@ -5,6 +5,7 @@
 <link rel="import" href="../kano-ui-text-input/kano-ui-text-input.html">
 <link rel="import" href="../kano-ui-image/kano-ui-image.html">
 <link rel="import" href="../kano-ui-video/kano-ui-video.html">
+<link rel="import" href="../kano-ui-viewport/kano-ui-viewport.html">
 
 <dom-module id="kano-ui">
     <style>
@@ -14,23 +15,6 @@
     }
     :host .content {
         @apply(--layout-horizontal);
-    }
-    :host .controls {
-        @apply(--layout-vertical);
-        margin-left: 10px;
-        font-size: 1.2em;
-    }
-    :host .controls label.title {
-        font-weight: normal;
-    }
-    :host .controls button {
-        background-color: var(--color-black);
-        color: var(--color-white);
-        border-radius: 50%;
-        border: 0px;
-        width: 20px;
-        height: 20px;
-        font-weight: bold;
     }
     :host .overlay {
         z-index: 1;
@@ -75,15 +59,6 @@
                 <div id="ui-container"
                     style$="[[computeContainerStyle(selected)]]"></div>
             </div>
-            <div class="controls" hidden$="{{!showControls}}">
-                <label class="title">{{model.name}}</label>
-                <template is="dom-repeat" items="{{rules}}" as="rule">
-                    <div class="rule">
-                        <span class="trigger">{{rule.trigger}}</span>
-                        <span class="action">{{rule.action}}</span>
-                    </div>
-                </template>
-            </div>
         </div>
     </template>
 </dom-module>
@@ -98,10 +73,6 @@
         beforeRegister () {
             this.is = 'kano-ui';
             this.properties = {
-                rules: {
-                    type: Array,
-                    value: () => []
-                },
                 selected: {
                     type: Boolean,
                     value: false
@@ -110,11 +81,6 @@
                     type: Boolean,
                     value: false,
                     observer: 'runningChanged'
-                },
-                showControls: {
-                    type: Boolean,
-                    value: false,
-                    computed: 'computeShowControls(selected, model.events.*)'
                 }
             };
             this.observers = [
@@ -135,12 +101,6 @@
         }
         addRuleTapped (ev) {
             this.fire('add-rule-tapped', this);
-        }
-        computeShowControls () {
-            return this.selected
-                    && this.model.events
-                    && this.model.events.length
-                    && !this.model.slave;
         }
         runningChanged (running) {
             let overlay = this.$.overlay;

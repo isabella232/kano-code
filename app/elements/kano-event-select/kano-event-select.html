@@ -2,35 +2,26 @@
     <style>
     :host {
         display: block;
-        background-color: var(--primary-color, orange);
-        color: var(--color-white, white);
-        padding: 4px;
-        border-radius: 6px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
     }
-    :host select {
-        font-size: 0.8em;
-        font-weight: 100;
+    :host .trigger {
+        margin: 10px;
+        padding: 10px;
         color: var(--color-white, white);
-        background-color: var(--color-orange, orange);
-        border-color: var(--color-white, white);
+        background-color: var(--color-red, red);
+    }
+    :host .trigger:hover {
+        cursor: pointer;
     }
     </style>
     <template>
-        <span>When </span>
-        <select id="trigger" value="{{selectedTriggerId::change}}">
-            <template is="dom-repeat"
-                    items="{{triggers}}"
-                    as="trigger">
-                <option value$="[[trigger.id]]">[[trigger.name]]</option>
-            </template>
-        </select>
-        <select id="select" value$="{{selectedEvent::change}}">
-            <template is="dom-repeat"
-                    items="{{selectedTrigger.events}}"
-                    as="event">
-                <option value$="[[event.id]]" selected="selected">[[event.label]]</option>
-            </template>
-        </select>
+        <template is="dom-repeat" items="{{computeTriggers(parts)}}" as="trigger">
+            <div class="trigger"
+                on-tap="selectTrigger">
+                <span>[[trigger.text]]</span>
+            </div>
+        </template>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -38,52 +29,29 @@
         beforeRegister () {
             this.is = 'kano-event-select';
             this.properties = {
-                triggers: {
-                    type: Array
-                },
-                selectedTriggerId: {
-                    type: String,
-                    observer: 'selectedTriggerIdChanged'
-                },
-                selectedTrigger: {
-                    type: Object,
-                    notify: true
-                },
-                selectedEvent: {
-                    type: String,
-                    notify: true
+                parts: {
+                    type: Array,
+                    value: () => []
                 }
             };
-            this.observers = [
-                'selectedTriggerChanged(selectedTrigger.*)'
-            ];
         }
-        /**
-         * Update the selected trgigger when the user changes it
-         * with the select
-         */
-        selectedTriggerIdChanged () {
-            let triggerElement;
-            if (!this.triggers) {
+        computeTriggers () {
+            if (!this.parts) {
                 return;
             }
-            triggerElement = this.triggers
-                                    .filter((el) => el.id === this.selectedTriggerId);
-            if (triggerElement[0]) {
-                this.set('selectedTrigger', triggerElement[0]);
-            }
+            return this.parts.reduce((acc, part) => {
+                let events = part.events.map((event) => {
+                    return {
+                        emitter: part.id,
+                        event: event.id,
+                        text: `When ${part.name} ${event.label}`
+                    };
+                });
+                return acc.concat(events);
+            }, []);
         }
-        /**
-         * Update the choosen trigger and event when the selectedTrigger
-         * is updated
-         */
-        selectedTriggerChanged () {
-            // The selected UI element changed, we update the selected
-            // option
-            if (this.selectedTrigger) {
-                this.set('selectedTriggerId', this.selectedTrigger.id);
-                this.set('selectedEvent', this.selectedTrigger.events[0].id);
-            }
+        selectTrigger (e) {
+            this.fire('selected', e.model.get('trigger'));
         }
     }
     Polymer(KanoEventSelect);
