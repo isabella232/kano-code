@@ -147,7 +147,7 @@ def play_sounds(filename):
 
 @server.route('/speak', methods=['POST'])
 def speak():
-    if !request.json:
+    if not request.json:
         return 'No payload received.', 400
 
     req = request.json
