@@ -1,0 +1,41 @@
+<dom-module id='kano-ui-label'>
+    <style>
+        :host {
+            background-color: salmon;
+        }
+    </style>
+    <template>
+        <div
+            id='label'
+            style$='[[computeLabelStyle(model.userStyle.*)]]'
+        >
+            {{model.userProperties.text}}
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUiLabel {
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-label';
+        }
+
+        attached () {
+            this.set('model.userProperties.text', 'This is THE Label');
+            this.set('model.userStyle.background-color',
+                this.$.label.style.backgroundColor);
+            this.set('model.userStyle.color',
+                this.$.label.style.color);
+        }
+
+        computeLabelStyle () {
+            return this.getPartialStyle(['background-color', 'color']);
+        }
+    }
+    Polymer(KanoUiLabel);
+
+</script>
