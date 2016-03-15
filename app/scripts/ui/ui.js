@@ -5,15 +5,15 @@ export default class UI {
         this.type = opts.type;
         this.label = opts.label;
         this.image = opts.image;
-        this.hue = opts.hue;
+        this.colour = opts.colour;
         this.blocks = opts.blocks || [];
         this.events = opts.events || [];
         this.listeners = opts.listeners || [];
         this.customizable = opts.customizable || { style: [], properties: [] };
         this.customizable.style = this.customizable.style || [];
         this.customizable.properties = this.customizable.properties || [];
-        this.userStyle = {};
-        this.userProperties = {};
+        this.userStyle = opts.userStyle || {};
+        this.userProperties = opts.userProperties || {};
     }
     getElement () {
         return ComponentStore.get(this.id).element;

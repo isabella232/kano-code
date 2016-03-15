@@ -2,6 +2,9 @@
 <script src="../../assets/vendor/google-blockly/blocks_compressed.js"></script>
 <script src="../../assets/vendor/google-blockly/javascript_compressed.js"></script>
 <script src="../../assets/vendor/google-blockly/msg/js/en.js"></script>
+<script src="./blockly-override.js">
+
+</script>
 
 <dom-module id="kano-blockly">
     <style>
@@ -15,6 +18,9 @@
         bottom: 0px;
         left: 0px;
         right: 0px;
+    }
+    :host ::content svg {
+        @apply(--kano-dotted-background);
     }
     </style>
     <template>
@@ -109,18 +115,16 @@
         /**
          * Debounce function that will apply style rules to the workspace
          * element to let know Blockly the new dimensions.
-         * It also forces the toolbox to be 25% the width of the workspace
+         * It also forces the toolbox to be 50% the width of the workspace
          */
         onResize () {
             this.debounce('resize', () => {
                 let workspace = this.$.workspace;
+                    rows = document.querySelectorAll('.blocklyTreeRow');
                 workspace.style.top = '0px';
                 workspace.style.bottom = '0px';
                 workspace.style.left = '0px';
                 workspace.style.right = '0px';
-                if (this.toolboxDiv) {
-                    this.toolboxDiv.style.width = `${this.offsetWidth*0.25}px`;
-                }
             }, 10);
         }
         /**
@@ -140,9 +144,14 @@
                 categoriesXml = this.toolbox.map((category) => {
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
-                    }).join('');
+                    }).join(''),
+                        colour = category.colour;
+
+                    if (colour && typeof colour.replace === 'function') {
+                        colour = colour.replace(/"/g, '&quot;');
+                    }
                     return `<category name="${category.name}"
-                                    colour="${category.colour}">
+                                    colour="${colour}">
                                 ${blocksXml}
                             </category>`;
                 }).join('');

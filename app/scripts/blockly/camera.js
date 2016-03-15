@@ -1,4 +1,4 @@
-const COLOUR = 7;
+const COLOUR = '#FBDF51';
 
 let register = (Blockly) => {
     Blockly.Blocks['camera_take_picture'] = {

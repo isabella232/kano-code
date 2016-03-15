@@ -14,8 +14,11 @@
         font-weight: 400;
         color: var(--color-grey-darker, grey);
     }
-    :host kano-input ::content input {
+    :host kano-input ::content input[type="text"] {
         @apply(--kano-light-input);
+    }
+    :host kano-input ::content select {
+        @apply(--kano-light-select);
     }
     </style>
     <template>
@@ -23,9 +26,9 @@
                 items="{{customizable}}"
                 as="property">
             <div class="line">
-                <label>{{property.label}}:</label>
                 <kano-input type="{{property.type}}"
                         name="name"
+                        label="{{property.label}}"
                         on-change="propertyChanged"
                         value$="[[computeValue(property.key)]]">
                 </kano-input>
@@ -47,7 +50,7 @@
                     type: Array,
                     value: () => []
                 }
-            }
+            };
         }
         propertyChanged (e) {
             let propertyName = e.model.get('property.key');

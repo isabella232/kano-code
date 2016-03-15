@@ -1,0 +1,29 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-text">
+    <style>
+    :host {
+        display: block;
+    }
+    :host label {
+        display: block;
+    }
+    </style>
+    <template>
+        <label>{{label}}</label>
+        <input type="text" value="{{value::keyup}}">
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoInputtext {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-text';
+        }
+    }
+    Polymer(KanoInputtext);
+</script>

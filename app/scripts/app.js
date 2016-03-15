@@ -1,8 +1,8 @@
+import Blockly from './blockly/blockly';
 import Interact from 'interact.js';
 import Stories from './service/stories';
 import Components from './service/components';
 import UI from './ui';
-import Blockly from './blockly/blockly';
 import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 

@@ -1,4 +1,4 @@
-<script src="../behaviors.js"></script>
+<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-input-color">
     <style>
@@ -15,18 +15,20 @@
     :host .colors {
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
+        max-width: 220px;
     }
     :host .color {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         margin: 2px;
-        border-radius: 2px;
+        border-radius: 4px;
     }
     :host .color:hover {
         cursor: pointer;
     }
     </style>
     <template>
+        <label>{{label}}</label>
         <div class="colors">
             <template is="dom-repeat" items="{{colors}}" as="color">
                 <div class="color" style$="[[computeColor(color, value)]]" on-tap="selectColor"></div>
@@ -47,15 +49,23 @@
 
         attached () {
             this.colors = [
-                '#ff842a',
-                '#70c222',
-                '#96d7ec',
-                '#59b3d0',
-                '#e95c5a',
-                '#333',
-                '#f5f5f5',
-                '#7d7a73'
+                '#70c222', //green
+                '#F8EB1E', //yellow
+                '#e95c5a', // blue
+                '#ff842a', // kanorange
+                '#59b3d0', // red
+                '#A3897B', //Light brown
+                '#683D12', //brown
+                '#642682', //violet
+                '#2A3080', //purple
+                '#DB7D92', //pink
+                '#E61974',//Dark pink
+                '#3CAA36',//Light green
+                '#0E6633',//dark green
+                '#f5f5f5',//white
+                '#7d7a73'//black
             ];
+            this.value = this.value || this.colors[0];
         }
 
         computeColor (color, value) {

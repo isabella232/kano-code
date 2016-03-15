@@ -1,19 +1,19 @@
-import Speaker from './speaker';
+//import Speaker from './speaker';
 import TextInput from './text-input';
 import UiImage from './image';
 import Button from './button';
-import GifCreator from './gif-creator';
+//import GifCreator from './gif-creator';
 import Video from './video';
 
 let ui;
 
 // Group models by type
 let models = {
-    'speaker': Speaker,
+    //'speaker': Speaker,
     'text-input': TextInput,
     'image': UiImage,
     'button': Button,
-    'gif-creator': GifCreator,
+    //'gif-creator': GifCreator,
     'video': Video
 };
 

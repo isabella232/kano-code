@@ -9,7 +9,8 @@ export default class UIVideo extends UI {
             hue: 60,
             customizable: {
                 style: ['width', 'height']
-            }
+            },
+            colour: '#1BA238'
         });
         this.addBlock({
             id: 'show_video',

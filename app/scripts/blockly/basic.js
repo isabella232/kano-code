@@ -3,13 +3,13 @@ let register = (Blockly) => {
 };
 let categories = [{
     name: 'Math',
-    colour: 234,
+    colour: '#7DC242',
     blocks: [{
         id: 'math_number'
     }]
 },{
     name: 'Text',
-    colour: 131,
+    colour: '#9C27B0',
     blocks: [{
         id: 'text'
     },{
@@ -17,7 +17,7 @@ let categories = [{
     }]
 },{
     name: 'Variables',
-    colour: 5,
+    colour: '#1BA238',
     blocks: [{
         id: 'variables_set'
     },{
