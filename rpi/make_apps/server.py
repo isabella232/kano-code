@@ -11,8 +11,7 @@ from os.path import abspath, dirname, expanduser, join, realpath
 import time
 import logging
 
-from kano.utils import ensure_dir
-from kano.utils import play_sound
+from kano.utils import ensure_dir, play_sound, run_cmd_bg
 from kano.logging import logger
 
 from .kano_content_utils import latest_content_object_assets
@@ -142,6 +141,55 @@ def play_sounds(filename):
     print realpath(join(_get_static_dir(), filename))
     sound_file = realpath(join(_get_static_dir(), filename))
     play_sound(sound_file)
+
+    return ''
+
+
+@server.route('/speak', methods=['POST'])
+def speak():
+    if !request.json:
+        return 'No payload received.', 400
+
+    req = request.json
+
+    if not req.get('text'):
+        return 'Text is mandatory', 400
+
+    opts = []
+
+    if 'pitch' in req:
+        if req['pitch'] >= 0 and req['pitch'] <= 2:
+            p = int(req['pitch'] * 50)
+            if p >= 100:
+                p = 99
+
+            opts += "-p {}".format(p)
+        else:
+            return 'Pitch must be a float between 0 and 2 (default 1)', 400
+
+    if 'rate' in req:
+        if req['rate'] >= 0 and req['rate'] <= 10:
+            r = int(req['rate'] * 160)
+            opts += "-p {}".format(r)
+        else:
+            return 'Rate must be a float between 0 and 10 (default 1)', 400
+
+    supported_voices = {
+        "english": "english_rp",
+        "english-us": "english-us",
+        "english-scottish": "en-scottish",
+        "italian": "italian",
+        "french": "french",
+        "german": "german"
+    }
+    if 'voice' in req:
+        if req['voice'] in supported_voices:
+            opts += "-v {}".format(supported_voices[req['voice']])
+        else:
+            return 'Unknown voice', 400
+
+    cmd = "espeak {} \"{}\"".format(" ".join(opts), req['text'])
+    run_cmd_bg(cmd)
 
     return ''
 
