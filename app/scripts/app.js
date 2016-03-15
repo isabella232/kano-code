@@ -7,6 +7,7 @@ import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import config from './config';
+import TextToSpeech from './service/text-to-speech'
 
 import es6Assign from 'es6-object-assign';
 
@@ -26,6 +27,7 @@ es6Assign.polyfill();
     app.components = Components;
     app.modelManager = ModelManager;
     app.dragAndDrop = DragAndDrop;
+    app.tts = TextToSpeech;
 
     app.defaultCategories = Blockly.categories;
 
