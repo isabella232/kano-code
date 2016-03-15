@@ -6,5 +6,4 @@ if [ "$NODE_IMPORT" != 'make-apps' ]; then
     echo "Running postinstall script..."
     bower install;
     gulp prod;
-    exit 1;
 fi
