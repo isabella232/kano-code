@@ -14,8 +14,13 @@ import es6Assign from 'es6-object-assign';
 es6Assign.polyfill();
 
 (function (app) {
-
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
+
+    if (process.env.DEPLOY) {
+        config.DEPLOY = process.env.DEPLOY;
+    }
+    if (!(DEPLOY in config)) {
+    }
 
     app.registerBlockly = Blockly.register;
 
@@ -27,7 +32,7 @@ es6Assign.polyfill();
     app.components = Components;
     app.modelManager = ModelManager;
     app.dragAndDrop = DragAndDrop;
-    app.tts = TextToSpeech;
+    app.tts = TextToSpeech(config);
 
     app.defaultCategories = Blockly.categories;
 
