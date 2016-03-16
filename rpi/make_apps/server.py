@@ -4,7 +4,7 @@
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import json
 from os import kill
 from os.path import abspath, dirname, expanduser, join, realpath
@@ -145,15 +145,19 @@ def play_sounds(filename):
     return ''
 
 
+def _error(msg):
+    return jsonify(status='error', message=msg), 400
+
+
 @server.route('/speak', methods=['POST'])
 def speak():
     if not request.json:
-        return 'No payload received.', 400
+        return _error('No payload received')
 
     req = request.json
 
     if not req.get('text'):
-        return 'Text is mandatory', 400
+        return _error('Text is mandatory')
 
     opts = []
 
@@ -165,33 +169,32 @@ def speak():
 
             opts += "-p {}".format(p)
         else:
-            return 'Pitch must be a float between 0 and 2 (default 1)', 400
+            return _error('Pitch must be a float between 0 and 2 (default 1)')
 
     if 'rate' in req:
         if req['rate'] >= 0 and req['rate'] <= 10:
             r = int(req['rate'] * 160)
             opts += "-p {}".format(r)
         else:
-            return 'Rate must be a float between 0 and 10 (default 1)', 400
+            return _error('Rate must be a float between 0 and 10 (default 1)')
 
-    supported_voices = {
-        "english": "english_rp",
-        "english-us": "english-us",
-        "english-scottish": "en-scottish",
-        "italian": "italian",
-        "french": "french",
-        "german": "german"
+    supported_languages = {
+        "en-GB": "english_rp",
+        "en-US": "english-us",
+        "fr-FR": "french",
+        "de-DE": "german",
+        "it-IT": "italian"
     }
-    if 'voice' in req:
-        if req['voice'] in supported_voices:
-            opts += "-v {}".format(supported_voices[req['voice']])
+    if 'language' in req:
+        if req['language'] in supported_languages:
+            opts += "-v {}".format(supported_languages[req['language']])
         else:
-            return 'Unknown voice', 400
+            return _error('Unknown language')
 
     cmd = "espeak {} \"{}\"".format(" ".join(opts), req['text'])
     run_cmd_bg(cmd)
 
-    return ''
+    return jsonify(status='ok'), 200
 
 
 def start(parent_pid=None):
