@@ -15,6 +15,7 @@ export default CodeService = {
             wrapUserCode;
 
         modulesNames.unshift('global');
+        modulesNames.unshift('time');
 
         modulesArray = modulesNames.map((name) => modules[name].methods);
 

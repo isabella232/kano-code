@@ -5,6 +5,7 @@ import Button from './button';
 //import GifCreator from './gif-creator';
 import Video from './video';
 import Cat from './cat';
+import Twitter from './twitter';
 
 let part;
 
@@ -16,7 +17,8 @@ let models = {
     'button': Button,
     //'gif-creator': GifCreator,
     'video': Video,
-    'cat': Cat
+    'cat': Cat,
+    'twitter': Twitter
 };
 
 // Get an array of each instance

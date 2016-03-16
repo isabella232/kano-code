@@ -7,12 +7,15 @@ import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import config from './config';
+import modules from './language/modules';
 
 import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
 (function (app) {
+
+    window.modules = modules;
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 

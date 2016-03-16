@@ -5,6 +5,7 @@ import cat from './cat';
 import weather from './weather';
 import camera from './camera';
 import global from './global';
+import twitter from './twitter';
 
 export default {
     time,
@@ -13,5 +14,6 @@ export default {
     weather,
     //console,
     //camera,
-    global
+    global,
+    twitter
 };

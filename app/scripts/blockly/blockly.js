@@ -23,7 +23,7 @@ let registered = false,
         natural.register(Blockly);
         //weather.register(Blockly);
         //images.register(Blockly);
-        //time.register(Blockly);
+        time.register(Blockly);
         //cons.register(Blockly);
         giphy.register(Blockly);
         camera.register(Blockly);
@@ -33,7 +33,7 @@ let registered = false,
 let categories = [
     //weather.category,
     //images.category,
-    //time.category,
+    time.category,
     //cons.category,
     giphy.category,
     camera.category
