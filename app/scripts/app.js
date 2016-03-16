@@ -2,7 +2,7 @@ import Blockly from './blockly/blockly';
 import Interact from 'interact.js';
 import Stories from './service/stories';
 import Components from './service/components';
-import UI from './ui';
+import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
@@ -20,7 +20,7 @@ es6Assign.polyfill();
 
     app.Interact = Interact;
 
-    app.ui = UI;
+    app.part = Part;
     app.stories = Stories;
     app.components = Components;
     app.modelManager = ModelManager;

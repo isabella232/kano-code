@@ -174,7 +174,8 @@
                     computed: 'computeToolbox(uiElements.*, selectedUi)'
                 },
                 selectedUi: {
-                    type: Object
+                    type: Object,
+                    notify: true
                 },
                 defaultCategories: {
                     type: Array,
@@ -315,25 +316,34 @@
             }
         }
         computeToolbox () {
-            if (!this.selectedUi) {
+            let categories;
+            if (!this.uiElements) {
                 return;
             }
-            let ui = this.selectedUi;
-            ui.blocks.forEach((block) => {
-                Blockly.Blocks[block.id] = {
-                    init: function () {
-                        block.colour = ui.colour;
-                        this.jsonInit(block);
-                    }
-                };
-                Blockly.JavaScript[block.id] = block.javascript(ui);
-                Blockly.Natural[block.id] = block.natural(ui);
+            this.uiElements.forEach((ui) => {
+                ui.blocks.forEach((block) => {
+                    Blockly.Blocks[block.id] = {
+                        init: function () {
+                            block.colour = ui.colour;
+                            this.jsonInit(block);
+                        }
+                    };
+                    Blockly.JavaScript[block.id] = block.javascript(ui);
+                    Blockly.Natural[block.id] = block.natural(ui);
+                });
             });
-            return ([{
-                    name: this.selectedUi.name,
-                    blocks: this.selectedUi.blocks,
-                    colour: this.selectedUi.colour
-                }]).concat(this.defaultCategories || []).filter((category) => category.blocks.length);
+
+            categories = this.uiElements.map((ui) => {
+                return {
+                    name: ui.name,
+                    blocks: ui.blocks,
+                    colour: ui.colour
+                };
+            });
+
+            return categories
+                    .concat(this.defaultCategories || [])
+                    .filter((category) => category.blocks.length);
         }
         addCode () {
             this.showPage('trigger');
@@ -354,6 +364,7 @@
                 }
                 case 'code': {
                     targetPage = 'trigger';
+                    this.saveCode();
                     break;
                 }
                 default: {

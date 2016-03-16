@@ -12,6 +12,6 @@ export default {
     cat,
     weather,
     //console,
-    camera,
+    //camera,
     global
 };

@@ -10,12 +10,14 @@ let CodeService;
  * @type {Object}
  */
 export default CodeService = {
-    run (code, store) {
-        // Extract the list of API modules names
-        let modulesNames = Object.keys(modules),
-        // Extract all the modules' methods
-            modulesArray = modulesNames.map((name) => modules[name].methods),
+    run (code, modulesNames, store) {
+        let modulesArray,
             wrapUserCode;
+
+        modulesNames.unshift('global');
+
+        modulesArray = modulesNames.map((name) => modules[name].methods);
+
         // Add the devices modules as first module
         modulesNames.unshift('devices');
         modulesArray.unshift(store);
@@ -50,45 +52,46 @@ export default CodeService = {
                             .filter(name => names.indexOf(name) !== -1),
         // Extract all the modules' methods
             modulesArray = modulesNames
-                    .map((name) => {
-                        // Copy the object to flatten it
-                        // And by that I mean extracting the methods and
-                        // lifecycle function to put the a the root
-                        // level
-                        let flattened = Object.assign({}, modules[name]);
-
-                        // Move the methods
-                        Object.keys(flattened.methods).forEach((methodName) => {
-                            flattened[methodName] = flattened.methods[methodName];
-                        });
-                        delete flattened.methods;
-
-                        // Move the lifecycle functions
-                        if (flattened.lifecycle) {
-                            flattened.start = flattened.lifecycle.start;
-                            flattened.stop = flattened.lifecycle.stop;
-
-                            delete flattened.lifecycle;
-                        }
-
-                        // Stringify the whole object
-                        let methodsString = Object.keys(flattened)
-                            .map((methodName) => {
-                                // Use stringify or to string accordingly
-                                let value = typeof flattened[methodName] === 'function' ?
-                                            flattened[methodName].toString() :
-                                            JSON.stringify(flattened[methodName]);
-                                // Build the method assignment
-                                return `${name}.${methodName} = ${value}`;
-                            }).join(';'),
-                            startString = '';
-                        // Add a call to the start function if it exists
-                        if (flattened.start) {
-                            startString = `${name}.start()`;
-                        }
-                        // Create the module and add its methods
-                        return `var ${name} = {};${methodsString};${startString}`;
-                    }).join(';');
+                    .map(CodeService.generateModuleCode).join(';');
         return modulesArray;
+    },
+    getStringifiedModule (name) {
+        // Copy the object to flatten it
+        // And by that I mean extracting the methods and
+        // lifecycle function to put the a the root
+        // level
+        let flattened = Object.assign({}, modules[name]);
+
+        // Move the methods
+        Object.keys(flattened.methods).forEach((methodName) => {
+            flattened[methodName] = flattened.methods[methodName];
+        });
+        delete flattened.methods;
+
+        // Move the lifecycle functions
+        if (flattened.lifecycle) {
+            flattened.start = flattened.lifecycle.start;
+            flattened.stop = flattened.lifecycle.stop;
+
+            delete flattened.lifecycle;
+        }
+
+        // Stringify the whole object
+        let methodsString = Object.keys(flattened)
+            .map((methodName) => {
+                // Use stringify or to string accordingly
+                let value = typeof flattened[methodName] === 'function' ?
+                            flattened[methodName].toString() :
+                            JSON.stringify(flattened[methodName]);
+                // Build the method assignment
+                return `${name}.${methodName} = ${value}`;
+            }).join(';'),
+            startString = '';
+        // Add a call to the start function if it exists
+        if (flattened.start) {
+            startString = `${name}.start()`;
+        }
+        // Create the module and add its methods
+        return `var ${name} = {};${methodsString};${startString}`;
     }
 };

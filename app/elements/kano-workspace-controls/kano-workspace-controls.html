@@ -73,6 +73,13 @@
     :host ::content pre[class*="language-"] {
     	background: var(--color-black, black);
     }
+    :host .parts {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+    }
+    :host .part {
+        padding: 3px;
+    }
     </style>
     <template>
         <button type="button" class="add-ui" on-tap="addTapped">+</button>
@@ -98,7 +105,16 @@
             <div class="tabs">
                 <iron-pages selected="{{selected}}">
                     <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
-                    <div>Parts</div>
+                    <div class="parts">
+                        <template is="dom-repeat"
+                                    items="{{parts}}"
+                                    as="part">
+                            <div class="part" style$="[[partStyle(part, selectedPart)]]">
+                                <kano-ui-item model="[[part]]"
+                                                on-tap="selectPart"></kano-ui-item>
+                            </div>
+                        </template>
+                    </div>
                 </iron-pages>
             </div>
         </div>
@@ -112,14 +128,50 @@
                 running: {
                     type: Boolean
                 },
+                selectedPart: {
+                    type: Object,
+                    notify: true
+                },
                 selected: {
                     type: Number,
-                    value: 0
+                    value: 1
                 },
                 code: {
                     type: String
+                },
+                parts: {
+                    type: Array
                 }
             };
+            this.listeners = {
+                'mouseenter': 'onMouseEnter',
+                'mouseleave': 'onMouseLeave',
+            };
+        }
+        attached () {
+            window.addEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        detached () {
+            window.removeEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        onKeyUp (e) {
+            // If the delete key is pressed and an element is selected
+            // and the workspace is focused, remove the element
+            if (e.keyCode === 8 &&
+                    this.selectedPart &&
+                    this.focused) {
+                e.preventDefault();
+                this.removePart(this.selectedPart.id);
+            }
+        }
+        removePart (id) {
+            this.fire('remove-part', id);
+        }
+        onMouseEnter () {
+            this.focused = true;
+        }
+        onMouseLeave () {
+            this.focused = false;
         }
         switchTab (e) {
             let buttons = this.querySelectorAll('.tab-nav button');
@@ -137,6 +189,18 @@
         }
         shareTapped () {
             this.fire('share-tap');
+        }
+        selectPart (e) {
+            this.set('selectedPart', e.model.get('part'));
+        }
+        partStyle (part, selectedPart) {
+            if (!selectedPart) {
+                return;
+            }
+            if (part.id === selectedPart.id) {
+                return `border: 1px dashed orange;
+                        border-radius: 3px;`;
+            }
         }
     }
     Polymer(KanoWorkspaceControls);

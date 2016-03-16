@@ -1,6 +1,6 @@
 import slug from 'speakingurl';
 import CodeService from './code';
-import ui from '../ui';
+import part from '../part';
 
 let componentStore;
 
@@ -153,8 +153,9 @@ class ComponentStore {
         let model,
             codeList;
         codeList = Object.keys(this.components)
-            // Exclude the components without code pieces
-            .filter((id) => Object.keys(this.components[id].model.codes).length)
+            .filter((id) => {
+                return this.components[id].model.partType === 'ui';
+            })
             .map((id) => {
                 model = this.components[id].model;
                 return this.generateComponentCode(model);
@@ -181,7 +182,6 @@ class ComponentStore {
     generateComponentCode (model) {
         let codes = model.codes,
             emitter;
-        console.log(model);
         return Object.keys(codes)
             .map((emitterId) => {
                 emitter = codes[emitterId];
@@ -189,15 +189,29 @@ class ComponentStore {
             })
             .join(';');
     }
+    generateModuleCode (model) {
+        return CodeService.getStringifiedModule(model.type);
+    }
+    getModules () {
+        return Object.keys(this.components)
+            .filter((id) => {
+                return this.components[id].model.partType === 'module';
+            })
+            .map((id) => {
+                return this.components[id].model.type;
+            });
+    }
     /**
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
     run () {
-        let code = this.generateCode();
+        let code = this.generateCode(),
+            modules;
+        modules = this.getModules();
         this.start();
         // Run the code using this store. Only expose the get function
-        CodeService.run(code, {
+        CodeService.run(code, modules, {
             get (id) {
                 return componentStore.get(id).model;
             }
@@ -246,7 +260,7 @@ class ComponentStore {
             component,
             modules;
 
-        modules = CodeService.getStringifiedModules();
+        modules = CodeService.getStringifiedModules(this.getModules());
 
         component = `
             <script>${modules};</script>
@@ -295,7 +309,7 @@ class ComponentStore {
     }
     loadAll (components) {
         Object.keys(components).forEach((id) => {
-            this.load(ui.fromSaved(components[id].model), components[id].codes);
+            this.load(part.fromSaved(components[id].model), components[id].codes);
         });
     }
     load (model, codes) {

@@ -1,5 +1,4 @@
 import natural from './natural';
-import catPicture from './cat-picture';
 import weather from './weather';
 import images from './images';
 import time from './time';
@@ -22,7 +21,6 @@ let registered = false,
         }
         // Register the modules
         natural.register(Blockly);
-        catPicture.register(Blockly);
         //weather.register(Blockly);
         //images.register(Blockly);
         //time.register(Blockly);
@@ -33,7 +31,6 @@ let registered = false,
     };
 
 let categories = [
-    catPicture.category,
     //weather.category,
     //images.category,
     //time.category,

@@ -60,31 +60,35 @@
                         name="default">
                     <span>Default</span>
                 </div>
-                <kano-sidebar ui-elements="{{uiElements}}"
+                <!--TODO rename ui-elements to parts-->
+                <kano-sidebar ui-elements="{{parts}}"
                             on-ui-ready="sidebarUiReady"
                             on-close="closeUiDrawer"
                             name="parts"></kano-sidebar>
                 <kano-ui-editor
                     id="block-editor"
-                    ui-elements="{{workspaceUiElements}}"
-                    selected-ui="{{selectedUi}}"
+                    ui-elements="{{addedParts}}"
+                    selected-ui="{{selectedPart}}"
                     on-code-change="codeChanged"
                     name="code"></kano-ui-editor>
             </iron-pages>
-            <div class="ui-edition">
+            <div class="ui-edition" id="rightPanel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
-                                ui-elements="{{workspaceUiElements}}"
-                                selected="{{selectedUi}}"
+                                ui-elements="{{uiAddedParts(addedParts.splices)}}"
+                                selected="{{selectedPart}}"
                                 running="{{running}}"></kano-workspace>
                 <button type="button"
                         class$="make-button {{computeRunningClass(running)}}"
                         on-tap="toggleRunning">M</button>
                 <kano-workspace-controls
+                    parts="{{addedParts}}"
                     running="{{running}}"
+                    selected-part="{{selectedPart}}"
                     on-save-tap="save"
                     on-share-tap="share"
-                    on-add-tap="showParts"></kano-workspace-controls>
+                    on-add-tap="showParts"
+                    on-remove-part="removePart"></kano-workspace-controls>
             </div>
         </section>
     </template>
@@ -95,7 +99,10 @@
         beforeRegister () {
             this.is = 'kano-view-workshop';
             this.properties = {
-                selectedUi: {
+                addedParts: {
+                    type: Array
+                },
+                selectedPart: {
                     type: Object
                 },
                 running: {
@@ -110,6 +117,21 @@
                     type: Object
                 }
             };
+        }
+        removePart (e) {
+            let id = e.detail,
+                parts = this.addedParts;
+            for (let i = 0, len = parts.length; i < len; i++) {
+                if (parts[i].id === id) {
+                    this.splice('addedParts', i, 1);
+                    return;
+                }
+            }
+        }
+        uiAddedParts () {
+            return this.addedParts.filter((part) => {
+                return part.partType === 'ui';
+            });
         }
         computeRunningClass () {
             return this.running ? 'stop' : 'run';
@@ -196,27 +218,29 @@
         }
         attached () {
             let trash = this.$.workspace.getTrashElement();
-            this.workspaceUiElements = [];
-            this.set('uiElements', app.ui.getAll());
+            this.addedParts = [];
+            this.set('parts', app.part.getAll());
             this.set('user', app.sdk.auth.getUser());
-            app.Interact(this.$.workspace).dropzone({
+            app.Interact(this.$.rightPanel).dropzone({
+                // TODO rename to kano-part-item
                 accept: 'kano-ui-item',
-                ondragenter: () => {
+                /*ondragenter: () => {
                     this.$.workspace.pulsing = true;
                 },
                 ondragleave: () => {
                     this.$.workspace.pulsing = false;
-                },
+                },*/
                 ondrop: (e) => {
                     let rect = e.relatedTarget.getBoundingClientRect(),
                         elemCenter = {
                             x: rect.left + (rect.width / 2),
                             y: rect.top + (rect.height / 2)
                         },
-                        model = app.ui.create(e.relatedTarget.model.type);
+                        model = app.part.create(e.relatedTarget.model.type);
                     app.components.add(model);
-                    this.$.workspace.addUi(model, elemCenter);
-                    this.$.workspace.pulsing = false;
+                    this.push('addedParts', model);
+                    this.set('selectedPart', model);
+                    //this.$.workspace.pulsing = false;
                 }
             });
             app.registerBlockly(window.Blockly);
