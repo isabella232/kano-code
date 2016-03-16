@@ -4,6 +4,7 @@ import giphy from './giphy';
 import cat from './cat';
 import weather from './weather';
 import camera from './camera';
+import global from './global';
 
 export default {
     time,
@@ -11,5 +12,6 @@ export default {
     cat,
     weather,
     //console,
-    camera
+    camera,
+    global
 };

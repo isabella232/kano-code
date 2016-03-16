@@ -53,7 +53,8 @@ class ComponentStore {
      *                          create this piece of code
      */
     setCode (id, emitter, event, code) {
-        let codes = this.get(id).model.codes;
+        let codes;
+        codes = this.get(id).model.codes;
         codes[emitter] = codes[emitter] || {};
         codes[emitter][event] = code;
     }
@@ -158,11 +159,14 @@ class ComponentStore {
                 model = this.components[id].model;
                 return this.generateComponentCode(model);
             });
+        codeList.push(`global.emit('start')`);
         return codeList.join(';');
     }
     generateEventCode (emitterId, eventId, code) {
-        return `devices.get('${emitterId}')
-                    .addEventListener('${eventId}',
+        let emitterString = emitterId === 'global' ?
+                            'global' :
+                            `devices.get('${emitterId}')`;
+        return `${emitterString}.addEventListener('${eventId}',
                         function (){
                             ${code.javascript}
                         })`;
@@ -177,6 +181,7 @@ class ComponentStore {
     generateComponentCode (model) {
         let codes = model.codes,
             emitter;
+        console.log(model);
         return Object.keys(codes)
             .map((emitterId) => {
                 emitter = codes[emitterId];
