@@ -6,7 +6,7 @@ export default class TextInput extends UI {
             type: 'text-input',
             label: 'Text input',
             image: 'assets/hw/text-input.png',
-            hue: 118
+            colour: '#3CAA36'
         });
         this.addBlock({
             id: 'input_text_get_value',

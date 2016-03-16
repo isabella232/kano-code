@@ -1,7 +1,7 @@
-<script src="../behaviors.js"></script>
-
+<link rel="import" href="../behaviors.html">
 <link rel="import" href="../kano-input-color/kano-input-color.html">
 <link rel="import" href="../kano-input-size/kano-input-size.html">
+<link rel="import" href="../kano-input-text/kano-input-text.html">
 
 <dom-module id="kano-input">
     <style>
@@ -25,11 +25,12 @@
             this.observers = [
                 'typeChanged(type)',
                 'valueChanged(value)',
-            ]
+            ];
         }
         typeChanged () {
             this.input = document.createElement(this.getTagName());
             this.input.value = this.value;
+            this.input.label = this.label;
             while (this.firstChild) {
                 this.removeChild(this.firstChild);
             }
@@ -41,9 +42,6 @@
             }
         }
         getTagName () {
-            if (this.type === 'text') {
-                return 'input';
-            }
             return `kano-input-${this.type}`;
         }
     }

@@ -1,28 +1,45 @@
-<script src="../behaviors.js"></script>
+<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-input-size">
     <style>
     :host {
         display: block;
+        @apply(--layout-vertical);
+    }
+    :host label .value {
+        font-weight: bold;
+    }
+    :host .inputs {
         @apply(--layout-horizontal);
     }
     </style>
     <template>
-        <input type="number" value="{{number::input}}" on-change="numberChanged">
-        <select value="{{unit::change}}">
-            <template is="dom-repeat" items="[[types]]" as="type">
-                <option value$="[[type.value]]">[[type.label]]</option>
-            </template>
-        </select>
+        <label>{{label}}: <span class="value">{{value}}</span></label>
+        <div class="inputs">
+            <input type="range"
+                    min="{{computeMin(unit)}}"
+                    max="{{computeMax(unit)}}"
+                    value="{{number::input}}"
+                    on-change="numberChanged">
+            <select value="{{unit::change}}">
+                <template is="dom-repeat" items="[[types]]" as="type">
+                    <option value$="[[type.value]]">[[type.label]]</option>
+                </template>
+            </select>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
     const SIZE_TYPES = [{
         label: 'Pixels',
-        value: 'px'
+        value: 'px',
+        min: 0,
+        max: 1024,
     },{
         label: 'Percent',
-        value: '%'
+        value: '%',
+        min: 0,
+        max: 100
     }];
     class KanoInputSize {
 
@@ -35,34 +52,65 @@
             this.properties = {
                 value: {
                     type: String,
-                    computed: 'computeValue(number, unit)',
                     observer: 'valueChanged'
                 },
                 unit: {
-                    type: String,
-                    value: SIZE_TYPES[0].value
+                    type: String
                 },
                 number: {
-                    type: Number,
-                    value: 0
+                    type: Number
                 }
             };
+            this.observers = [
+                'computeValue(number, unit)'
+            ];
         }
 
         computeValue () {
-            return `${this.number}${this.unit}`;
+            this.set('value', `${this.number}${this.unit}`);
         }
 
         valueChanged () {
+            let number,
+                unit;
+
+            if (!this.value) {
+                return;
+            }
+
+            number = parseInt(this.value, 10);
+            unit = this.value.replace(number.toString(), '');
+            this.set('number', number);
+            this.set('unit', this.getTypeByUnit(unit).value);
             this.fire('change');
         }
 
         attached () {
             this.types = SIZE_TYPES;
+            this.unit = SIZE_TYPES[0].value;
         }
 
         numberChanged (e) {
             e.stopPropagation();
+        }
+
+        getTypeByUnit (unit) {
+            if (!this.types) {
+                return {};
+            }
+            for (let i = 0, len = this.types.length; i < len; i++) {
+                if (unit === this.types[i].value) {
+                    return this.types[i];
+                }
+            }
+        }
+
+        computeMin () {
+            return this.getTypeByUnit(this.unit).min;
+        }
+
+        computeMax () {
+            return this.getTypeByUnit(this.unit).max;
         }
     }
     Polymer(KanoInputSize);

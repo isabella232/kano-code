@@ -23,10 +23,10 @@ let registered = false,
         // Register the modules
         natural.register(Blockly);
         catPicture.register(Blockly);
-        weather.register(Blockly);
-        images.register(Blockly);
-        time.register(Blockly);
-        cons.register(Blockly);
+        //weather.register(Blockly);
+        //images.register(Blockly);
+        //time.register(Blockly);
+        //cons.register(Blockly);
         giphy.register(Blockly);
         camera.register(Blockly);
         registered = true;
@@ -34,10 +34,10 @@ let registered = false,
 
 let categories = [
     catPicture.category,
-    weather.category,
-    images.category,
-    time.category,
-    cons.category,
+    //weather.category,
+    //images.category,
+    //time.category,
+    //cons.category,
     giphy.category,
     camera.category
 ].concat(basic.categories);

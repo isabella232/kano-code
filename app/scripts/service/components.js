@@ -46,14 +46,16 @@ class ComponentStore {
     }
     /**
      * Add a piece of code to a component
-     * @param {String} id   Component to which add the piece of code
-     * @param {String} code JS code
-     * @param {String} rule Natural language code
-     * @param {String} xml  Blockly representation of the blocks used to
-     *                      create this piece of code
+     * @param {String} id       Component to which add the piece of code
+     * @param {String} emitter  Id of the emitter component
+     * @param {Object} code     javascript, and natural code
+     * @param {String} xml      Blockly representation of the blocks used to
+     *                          create this piece of code
      */
-    setCode (id, event, code) {
-        this.get(id).model.codes[event] = code;
+    setCode (id, emitter, event, code) {
+        let codes = this.get(id).model.codes;
+        codes[emitter] = codes[emitter] || {};
+        codes[emitter][event] = code;
     }
     /**
      * Unregister a component
@@ -147,19 +149,40 @@ class ComponentStore {
         });
     }
     generateCode () {
-        let codeList = Object.keys(this.components)
+        let model,
+            codeList;
+        codeList = Object.keys(this.components)
             // Exclude the components without code pieces
             .filter((id) => Object.keys(this.components[id].model.codes).length)
             .map((id) => {
-                // Extract the JS code from the code pieces objects
-                return Object.keys(this.components[id].model.codes)
-                    .map((e) => {
-                        let code = this.components[id].model.codes[e].code;
-                        return `devices.get('${id}').addEventListener('${e}', function (){${code}})`;
-                    })
-                    .join(';');
+                model = this.components[id].model;
+                return this.generateComponentCode(model);
             });
         return codeList.join(';');
+    }
+    generateEventCode (emitterId, eventId, code) {
+        return `devices.get('${emitterId}')
+                    .addEventListener('${eventId}',
+                        function (){
+                            ${code.javascript}
+                        })`;
+    }
+    generateEmitterCode (emitterId, emitter) {
+        let eventCode;
+        return Object.keys(emitter).map((eventId) => {
+            eventCode = emitter[eventId];
+            return this.generateEventCode(emitterId, eventId, eventCode);
+        }).join(';');
+    }
+    generateComponentCode (model) {
+        let codes = model.codes,
+            emitter;
+        return Object.keys(codes)
+            .map((emitterId) => {
+                emitter = codes[emitterId];
+                return this.generateEmitterCode(emitterId, emitter);
+            })
+            .join(';');
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
@@ -225,7 +248,11 @@ class ComponentStore {
             <dom-module id="${id}">
                 <style></style>
                 <template>
-                    ${template}
+                    <kano-ui-viewport mode="scaled"
+                                view-width="1024"
+                                view-height="768">
+                        ${template}
+                    </kano-ui-viewport>
                 </template>
             </dom-module>
             <script>

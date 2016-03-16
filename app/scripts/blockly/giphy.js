@@ -1,4 +1,4 @@
-const COLOUR = 41;
+const COLOUR = '#F7999C';
 
 let register = (Blockly) => {
     Blockly.Blocks['random_giphy'] = {

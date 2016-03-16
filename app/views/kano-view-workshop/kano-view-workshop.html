@@ -20,10 +20,9 @@
     :host section .blocks-edition {
         @apply(--layout-flex);
         @apply(--layout-vertical);
+        background-color: var(--color-grey-lightest, grey);
     }
     :host .ui-edition kano-workspace {
-        /*width: 1024px;
-        height: 768px;*/
         @apply(--layout-flex);
     }
     :host .ui-edition kano-workspace-controls {
@@ -35,37 +34,58 @@
     :host #ui-drawer {
         z-index: 10;
     }
+    :host .make-button {
+        position: absolute;
+        top: -25px;
+        right: 25px;
+        @apply(--kano-round-button);
+        background-color: var(--color-green, green);
+    }
+    :host .make-button.stop {
+        background-color: var(--color-red, red);
+    }
+    :host .default {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-flex);
+    }
     </style>
     <template>
         <section id="section">
-            <div class="blocks-edition">
+            <iron-pages class="blocks-edition"
+                attr-for-selected="name"
+                selected="[[leftPanelView]]">
+                <div class="default"
+                        name="default">
+                    <span>Default</span>
+                </div>
+                <kano-sidebar ui-elements="{{uiElements}}"
+                            on-ui-ready="sidebarUiReady"
+                            on-close="closeUiDrawer"
+                            name="parts"></kano-sidebar>
                 <kano-ui-editor
                     id="block-editor"
                     ui-elements="{{workspaceUiElements}}"
                     selected-ui="{{selectedUi}}"
-                    code="{{code}}"
-                    on-code-change="codeChanged"></kano-ui-editor>
-            </div>
+                    on-code-change="codeChanged"
+                    name="code"></kano-ui-editor>
+            </iron-pages>
             <div class="ui-edition">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
                                 ui-elements="{{workspaceUiElements}}"
                                 selected="{{selectedUi}}"
                                 running="{{running}}"></kano-workspace>
+                <button type="button"
+                        class$="make-button {{computeRunningClass(running)}}"
+                        on-tap="toggleRunning">M</button>
                 <kano-workspace-controls
                     running="{{running}}"
-                    code="[[code]]"
-                    on-run-tap="toggleRunning"
                     on-save-tap="save"
                     on-share-tap="share"
-                    on-add-tap="openUiDrawer"></kano-workspace-controls>
+                    on-add-tap="showParts"></kano-workspace-controls>
             </div>
-            <kano-drawer position="left" overlap="48" id="ui-drawer">
-                <kano-sidebar class="drawer-content"
-                            ui-elements="{{uiElements}}"
-                            on-ui-ready="sidebarUiReady"
-                            on-close="closeUiDrawer"></kano-sidebar>
-            </kano-drawer>
         </section>
     </template>
 </dom-module>
@@ -81,8 +101,18 @@
                 running: {
                     type: Boolean,
                     value: false
+                },
+                leftPanelView: {
+                    type: String,
+                    value: 'default'
+                },
+                selectedTrigger: {
+                    type: Object
                 }
             };
+        }
+        computeRunningClass () {
+            return this.running ? 'stop' : 'run';
         }
         /**
          * When the current code changes, save it in the components store
@@ -91,7 +121,7 @@
         codeChanged (e) {
             let data = e.detail;
             // Add the new code and its rule to the components store
-            app.components.setCode(data.id, data.event, data.code);
+            app.components.setCode(data.id, data.emitter, data.event, data.code);
         }
         /**
          * Opens the sharing modal and share the app
@@ -158,8 +188,8 @@
             this.$.workspace.loadBatch(Object.keys(loadedComponents)
                                         .map(id => loadedComponents[id].model));
         }
-        openUiDrawer () {
-            this.$['ui-drawer'].opened = true;
+        showParts () {
+            this.set('leftPanelView', 'parts');
         }
         closeUiDrawer () {
             this.$['ui-drawer'].opened = false;
@@ -191,14 +221,15 @@
             });
             app.registerBlockly(window.Blockly);
             this.$['block-editor'].defaultCategories = app.defaultCategories;
+            window.addEventListener('resize', this.updateWorkspaceRect.bind(this));
+            this.updateWorkspaceRect();
             this.load();
         }
-        createId (type) {
-            let ids = this.uiElements.map((ui) => ui.id);
-            if (ids.indexOf(type) !== -1) {
-                return this.createId(`${type}-1`);
-            }
-            return type;
+        detached () {
+            window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
+        }
+        updateWorkspaceRect () {
+            app.dragAndDrop.setWorkspaceRect(this.$.workspace.getRect());
         }
         /**
          * When an element has been added on the sidebar
@@ -212,7 +243,7 @@
         sidebarUiReady (e) {
             let clone;
             app.Interact(e.detail).draggable({
-                onmove: app.dragMoveListener,
+                onmove: app.dragAndDrop.getDragMoveListener(),
                 restrict: {
                     restriction: this.$.section
                 },
@@ -259,7 +290,7 @@
             // Register the element in the service
             app.components.setElement(element.model.id, element.getUIElement());
             app.Interact(element).draggable({
-                onmove: app.dragMoveListener,
+                onmove: app.dragAndDrop.getDragMoveListener(true),
                 snap: {
                     targets: [gridTarget]
                 },
@@ -268,6 +299,7 @@
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 }
             });
+            this.set('leftPanelView', 'code');
         }
         /**
          * Toggle the running state of the current app

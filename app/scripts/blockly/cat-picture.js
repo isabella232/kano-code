@@ -1,4 +1,4 @@
-const COLOUR = 41;
+const COLOUR = '#F29120 url("http://a.deviantart.net/avatars/a/p/appoxity.gif")';
 
 let register = (Blockly) => {
     Blockly.Blocks['get_cat_picture'] = {
