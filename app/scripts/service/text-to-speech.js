@@ -122,7 +122,7 @@ class TextToSpeech {
             return rate;
         }
 
-        console.log("Inalid speech rate, falling back to 10.");
+        console.log("Invalid speech rate, falling back to 10.");
         return 10;
     }
 }
