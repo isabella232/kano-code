@@ -47,11 +47,11 @@ class TextToSpeech {
         };
 
         fetch(`${this.config.API_URL}/speak`, opts)
-            .then(function (res) {
+            .then((res) => {
                 if (!res.ok) {
                     console.log("Text-to-speech backend failed.");
                 }
-            }).catch(function (e) {
+            }).catch((e) => {
                 console.log(`Text-to-speech FAILED: ${e}`);
             });
     }
@@ -88,21 +88,20 @@ class TextToSpeech {
         url = this.config.VOICE_API_URL + "/?" + urlParams.join('&');
 
         fetch(url)
-            .then(function (res) {
+            .then((res) => {
                 if (res.ok) {
                     return res.blob();
                 } else {
                     console.log("Voice API request failed: " + res.status);
                     return;
                 }
-
-            }).then((function (blob) {
+            }).then((blob) => {
                 let objectUrl = URL.createObjectURL(blob);
                 this.playAudio(objectUrl);
                 if (!(text in this.cache)) {
                     this.cache[text] = objectUrl;
                 }
-            }).bind(this)).catch(function (err) {
+            }).catch((err) => {
                 console.log("Voice API request failed: " + err);
             });
     }
@@ -130,6 +129,6 @@ class TextToSpeech {
 
 let tts = new TextToSpeech();
 
-export default function (config) {
+export default (config) => {
     return tts.configure(config);
 };
