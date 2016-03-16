@@ -4,15 +4,14 @@
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import json
 from os import kill
 from os.path import abspath, dirname, expanduser, join, realpath
 import time
 import logging
 
-from kano.utils import ensure_dir
-from kano.utils import play_sound
+from kano.utils import ensure_dir, play_sound, run_cmd_bg
 from kano.logging import logger
 
 from .kano_content_utils import latest_content_object_assets
@@ -144,6 +143,58 @@ def play_sounds(filename):
     play_sound(sound_file)
 
     return ''
+
+
+def _error(msg):
+    return jsonify(status='error', message=msg), 400
+
+
+@server.route('/speak', methods=['POST'])
+def speak():
+    if not request.json:
+        return _error('No payload received')
+
+    req = request.json
+
+    if not req.get('text'):
+        return _error('Text is mandatory')
+
+    opts = []
+
+    if 'pitch' in req:
+        if req['pitch'] >= 0 and req['pitch'] <= 2:
+            p = int(req['pitch'] * 50)
+            if p >= 100:
+                p = 99
+
+            opts += "-p {}".format(p)
+        else:
+            return _error('Pitch must be a float between 0 and 2 (default 1)')
+
+    if 'rate' in req:
+        if req['rate'] >= 0 and req['rate'] <= 10:
+            r = int(req['rate'] * 160)
+            opts += "-p {}".format(r)
+        else:
+            return _error('Rate must be a float between 0 and 10 (default 1)')
+
+    supported_languages = {
+        "en-GB": "english_rp",
+        "en-US": "english-us",
+        "fr-FR": "french",
+        "de-DE": "german",
+        "it-IT": "italian"
+    }
+    if 'language' in req:
+        if req['language'] in supported_languages:
+            opts += "-v {}".format(supported_languages[req['language']])
+        else:
+            return _error('Unknown language')
+
+    cmd = "espeak {} \"{}\"".format(" ".join(opts), req['text'])
+    run_cmd_bg(cmd)
+
+    return jsonify(status='ok'), 200
 
 
 def start(parent_pid=None):
