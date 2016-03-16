@@ -70,7 +70,7 @@
             key: 'font-size',
             type: 'size',
             label: 'Font size'
-        },
+        }
     };
     class KanoWorkspace {
         beforeRegister () {
@@ -100,6 +100,19 @@
             this.observers = [
                 'selectedChanged(selected.*)'
             ];
+            this.listeners = {
+                'mouseenter': 'onMouseEnter',
+                'mouseleave': 'onMouseLeave'
+            };
+        }
+        attached () {
+            window.addEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        detached () {
+            window.removeEventListener('keyup', this.onKeyUp.bind(this));
+        }
+        onMouseEnter () {
+            this.focused = true;
         }
         selectedChanged (e) {
             let index,
