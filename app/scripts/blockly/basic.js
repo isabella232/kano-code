@@ -2,6 +2,30 @@ let register = (Blockly) => {
 
 };
 let categories = [{
+    name: 'Logic',
+    colour: '#7DC242',
+    blocks: [{
+        id: 'controls_if'
+    },{
+        id: 'controls_if_if'
+    },{
+        id: 'controls_if_elseif'
+    },{
+        id: 'controls_if_else'
+    },{
+        id: 'logic_compare'
+    },{
+        id: 'logic_operation'
+    },{
+        id: 'logic_negate'
+    },{
+        id: 'logic_boolean'
+    },{
+        id: 'logic_null'
+    },{
+        id: 'logic_ternary'
+    }]
+},{
     name: 'Math',
     colour: '#7DC242',
     blocks: [{

@@ -46,7 +46,7 @@
         position: absolute;
         top: 20px;
         right: 20px;
-        width: 50%;
+        width: calc(50% - 40px);
         padding: 10px;
         font-size: 1.3em;
         color: var(--color-white, white);
@@ -136,7 +136,7 @@
             <div name="trigger" class="trigger-select">
                 <h1>Choose your trigger</h1>
                 <kano-event-select
-                    parts="{{computeParts(uiElements.splices)}}"
+                    parts="{{computeParts(uiElements.*)}}"
                     on-selected="triggerSelected"></kano-event-select>
             </div>
             <kano-ui-configuration element="{{selectedUi}}"
@@ -304,17 +304,16 @@
             if (!this.selectedUi) {
                 return;
             }
-            this.uiElements.forEach((ui) => {
-                this.selectedUi.blocks.forEach((block) => {
-                    Blockly.Blocks[block.id] = {
-                        init: function () {
-                            block.colour = ui.colour;
-                            this.jsonInit(block);
-                        }
-                    };
-                    Blockly.JavaScript[block.id] = block.javascript(ui);
-                    Blockly.Natural[block.id] = block.natural(ui);
-                });
+            let ui = this.selectedUi;
+            ui.blocks.forEach((block) => {
+                Blockly.Blocks[block.id] = {
+                    init: function () {
+                        block.colour = ui.colour;
+                        this.jsonInit(block);
+                    }
+                };
+                Blockly.JavaScript[block.id] = block.javascript(ui);
+                Blockly.Natural[block.id] = block.natural(ui);
             });
             return ([{
                     name: this.selectedUi.name,
@@ -334,9 +333,6 @@
         previous () {
             let targetPage;
             switch (this.selectedPage) {
-                case 'default': {
-                    break;
-                }
                 case 'trigger':
                 case 'config': {
                     targetPage = 'default';
@@ -344,6 +340,10 @@
                 }
                 case 'code': {
                     targetPage = 'trigger';
+                    break;
+                }
+                default: {
+                    targetPage = this.selectedPage;
                     break;
                 }
             }

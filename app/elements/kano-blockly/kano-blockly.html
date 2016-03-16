@@ -207,6 +207,26 @@
         getCode (type) {
             return Blockly[type].workspaceToCode(this.workspace);
         }
+
+        getScreenshot () {
+            return new Promise((resolve, reject) => {
+                let svg = this.$$('svg'),
+                    canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d'),
+                    loader = new Image(),
+                    svgAsXML = (new XMLSerializer()).serializeToString(svg),
+                    rect = this.getBoundingClientRect(),
+                    offsetX = rect.width / 3;
+
+                loader.width = canvas.width = rect.width;
+                loader.height = canvas.height = rect.height;
+                loader.onload = () => {
+                    ctx.drawImage(loader, 0, 0, loader.width, loader.height);
+                    resolve(canvas.toDataURL());
+                };
+                loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+            });
+        }
     }
     Polymer(KanoBlockly);
 </script>
