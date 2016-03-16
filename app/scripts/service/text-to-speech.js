@@ -9,6 +9,11 @@
 class TextToSpeech {
     constructor() {
         this.backend = this.remote;
+
+        this.cache = {};
+
+        this.RSS_API_URL = 'http://api.voicerss.org';
+        this.RSS_TOKEN = '';
     }
 
     configure(config) {
@@ -23,11 +28,11 @@ class TextToSpeech {
         return this;
     }
 
-    speak(text, pitch=1, rate=1, language='en_GB') {
-        this.backend(text, pitch, rate, language);
+    speak(text, rate=1, language='en-GB') {
+        this.backend(text, rate, language);
     }
 
-    rpi(text, pitch, rate, language) {
+    rpi(text, rate, language) {
         let opts = {
             method: 'POST',
             headers: {
@@ -35,7 +40,7 @@ class TextToSpeech {
             },
             body: JSON.stringify({
                 text: text,
-                pitch: pitch,
+                pitch: 1,
                 rate: rate,
                 language: language,
             })
@@ -51,13 +56,75 @@ class TextToSpeech {
             });
     }
 
-    browser(text) {
+    browser(text, rate, language) {
         let msg = new SpeechSynthesisUtterance(text);
+        msg.pitch = 1;
+        msg.rate = rate;
+        msg.lang = language;
+
         window.speechSynthesis.speak(msg);
     }
 
-    remote(text) {
+    remote(text, rate, language) {
+        let params = {
+            key: this.config.VOICE_API_KEY,
+            src: text,
+            hl: language.toLowerCase(),
+            r: this.normaliseRateToRSS(rate),
+            c: 'OGG'
+        },
+        url,
+        urlParams = [];
 
+        if (text in this.cache) {
+            this.playAudio(this.cache[text]);
+            return;
+        }
+
+        for (let p of Object.keys(params)) {
+            urlParams.push(`${p}=${encodeURIComponent(params[p])}`);
+        }
+
+        url = this.config.VOICE_API_URL + "/?" + urlParams.join('&');
+
+        fetch(url)
+            .then(function (res) {
+                if (res.ok) {
+                    return res.blob();
+                } else {
+                    console.log("Voice API request failed: " + res.status);
+                    return;
+                }
+
+            }).then((function (blob) {
+                let objectUrl = URL.createObjectURL(blob);
+                this.playAudio(objectUrl);
+                if (!(text in this.cache)) {
+                    this.cache[text] = objectUrl;
+                }
+            }).bind(this)).catch(function (err) {
+                console.log("Voice API request failed: " + err);
+            });
+    }
+
+    playAudio(url) {
+        let audio = document.createElement('audio');
+        audio.src = url;
+        audio.load();
+        audio.play();
+    }
+
+    normaliseRateToRSS(rate) {
+        if (rate < 0) {
+            console.log("Invalid speech rate, falling back to 0.");
+        } else if (rate >= 0 && rate < 1) {
+            return (1 - rate) * (-10);
+        } else if (rate >= 1 && rate <= 10) {
+            return rate;
+        }
+
+        console.log("Inalid speech rate, falling back to 10.");
+        return 10;
     }
 }
 
