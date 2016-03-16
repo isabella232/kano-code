@@ -125,11 +125,11 @@
                 class="add-code"
                 on-tap="addCode">Add Code</button>
                 <template is="dom-repeat"
-                        items="{{computeCodes(selectedUi.codes.*)}}"
-                        as="code">
+                        items="{{computeEventRules(selectedUi.codes.*)}}"
+                        as="event">
                     <div class="saved-code" on-tap="editCode">
-                        <span class="code-trigger">{{code.code.rule.trigger}}</span>
-                        <span class="code-action">{{code.code.rule.action}}</span>
+                        <span class="code-trigger">{{event.rule.trigger}}</span>
+                        <span class="code-action">{{event.rule.action}}</span>
                     </div>
                 </template>
             </div>
@@ -198,18 +198,21 @@
             };
         }
         editCode (e) {
-            let code = e.model.get('code');
+            let event = e.model.get('event');
+            if (!this.selectedUi) {
+                return;
+            }
             this.trigger = {
-                emitter: code.emitter,
-                event: code.event,
-                text: code.code.rule.trigger
+                emitter: event.emitterId,
+                event: event.eventId,
+                text: event.rule.trigger
             };
-            if (!code.code.blocks) {
+            if (!event.blocks) {
                 this.$.blockly.clearWorkspace();
                 this.showPage('code');
                 return;
             }
-            this.set('blocks', code.code.blocks);
+            this.set('blocks', event.blocks);
             this.showPage('code');
         }
         isDefaultPage () {
@@ -226,13 +229,23 @@
                 codes: {}
             });
         }
-        computeCodes () {
+        computeEventRules () {
+            let codes,
+                emitter,
+                event,
+                rules;
             if (!this.selectedUi) {
                 return;
             }
-            return Object.keys(this.selectedUi.codes).map((emitter) => {
-                return this.selectedUi.codes[emitter];
-            });
+            codes = this.selectedUi.codes;
+            return Object.keys(codes).reduce((acc, emitterId) => {
+                emitter = codes[emitterId];
+                rules = Object.keys(emitter).map((eventId) => {
+                    event = emitter[eventId];
+                    return event;
+                });
+                return acc.concat(rules);
+            }, []);
         }
         triggerSelected (e) {
             this.set('trigger', e.detail);
@@ -241,24 +254,25 @@
         saveCode () {
             this.debounce('saveCode', () => {
                 let code = {},
-                label;
+                    codePath,
+                    label,
+                    trigger = this.trigger;
                 code.blocks = this.$.blockly.getBlocks();
                 code.rule = {
-                    trigger: this.trigger.text,
+                    trigger: trigger.text,
                     action: this.$.blockly.getCode('Natural')
                 };
                 code.javascript = this.$.blockly.getCode('JavaScript');
+                code.emitterId = trigger.emitter;
+                code.eventId = trigger.event;
                 this.fire('code-change', {
                     id: this.selectedUi.id,
-                    emitter: this.trigger.emitter,
-                    event: this.trigger.event,
+                    emitter: trigger.emitter,
+                    event: trigger.event,
                     code
                 });
-                this.set(`selectedUi.codes.${this.trigger.emitter}`, {
-                    emitter: this.trigger.emitter,
-                    event: this.trigger.event,
-                    code
-                });
+                codePath = `selectedUi.codes.${trigger.emitter}.${trigger.event}`;
+                this.set(codePath, code);
                 this.showPage('default');
             }, 300);
         }

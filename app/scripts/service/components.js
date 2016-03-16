@@ -52,8 +52,10 @@ class ComponentStore {
      * @param {String} xml      Blockly representation of the blocks used to
      *                          create this piece of code
      */
-    setCode (id, emitter, code) {
-        this.get(id).model.codes[emitter] = code;
+    setCode (id, emitter, event, code) {
+        let codes = this.get(id).model.codes;
+        codes[emitter] = codes[emitter] || {};
+        codes[emitter][event] = code;
     }
     /**
      * Unregister a component
@@ -147,20 +149,40 @@ class ComponentStore {
         });
     }
     generateCode () {
-        let codeList = Object.keys(this.components)
+        let model,
+            codeList;
+        codeList = Object.keys(this.components)
             // Exclude the components without code pieces
             .filter((id) => Object.keys(this.components[id].model.codes).length)
             .map((id) => {
-                // Extract the JS code from the code pieces objects
-                return Object.keys(this.components[id].model.codes)
-                    .map((emitterId) => {
-                        let code = this.components[id].model.codes[emitterId].code.javascript,
-                            event = this.components[id].model.codes[emitterId].event;
-                        return `devices.get('${emitterId}').addEventListener('${event}', function (){${code}})`;
-                    })
-                    .join(';');
+                model = this.components[id].model;
+                return this.generateComponentCode(model);
             });
         return codeList.join(';');
+    }
+    generateEventCode (emitterId, eventId, code) {
+        return `devices.get('${emitterId}')
+                    .addEventListener('${eventId}',
+                        function (){
+                            ${code.javascript}
+                        })`;
+    }
+    generateEmitterCode (emitterId, emitter) {
+        let eventCode;
+        return Object.keys(emitter).map((eventId) => {
+            eventCode = emitter[eventId];
+            return this.generateEventCode(emitterId, eventId, eventCode);
+        }).join(';');
+    }
+    generateComponentCode (model) {
+        let codes = model.codes,
+            emitter;
+        return Object.keys(codes)
+            .map((emitterId) => {
+                emitter = codes[emitterId];
+                return this.generateEmitterCode(emitterId, emitter);
+            })
+            .join(';');
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it

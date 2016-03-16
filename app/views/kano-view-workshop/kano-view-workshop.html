@@ -121,7 +121,7 @@
         codeChanged (e) {
             let data = e.detail;
             // Add the new code and its rule to the components store
-            app.components.setCode(data.id, data.emitter, data);
+            app.components.setCode(data.id, data.emitter, data.event, data.code);
         }
         /**
          * Opens the sharing modal and share the app
@@ -229,7 +229,7 @@
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
         }
         updateWorkspaceRect () {
-            app.workspaceRect = this.$.workspace.getRect();
+            app.dragAndDrop.setWorkspaceRect(this.$.workspace.getRect());
         }
         /**
          * When an element has been added on the sidebar
@@ -243,7 +243,7 @@
         sidebarUiReady (e) {
             let clone;
             app.Interact(e.detail).draggable({
-                onmove: app.dragMoveListener,
+                onmove: app.dragAndDrop.getDragMoveListener(),
                 restrict: {
                     restriction: this.$.section
                 },
@@ -290,7 +290,7 @@
             // Register the element in the service
             app.components.setElement(element.model.id, element.getUIElement());
             app.Interact(element).draggable({
-                onmove: app.dragMoveListenerScaled,
+                onmove: app.dragAndDrop.getDragMoveListener(true),
                 snap: {
                     targets: [gridTarget]
                 },
