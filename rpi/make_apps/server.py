@@ -11,7 +11,7 @@ from os.path import abspath, dirname, expanduser, join, realpath
 import time
 import logging
 
-from kano.utils import ensure_dir, play_sound, run_cmd_bg
+from kano.utils import ensure_dir, play_sound, run_bg
 from kano.logging import logger
 
 from .kano_content_utils import latest_content_object_assets
@@ -192,7 +192,7 @@ def speak():
             return _error('Unknown language')
 
     cmd = "espeak {} \"{}\"".format(" ".join(opts), req['text'])
-    run_cmd_bg(cmd)
+    run_bg(cmd)
 
     return jsonify(status='ok'), 200
 
