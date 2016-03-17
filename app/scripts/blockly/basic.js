@@ -41,7 +41,7 @@ let categories = [{
     }]
 },{
     name: 'Variables',
-    colour: '#1BA238',
+    colour: 'url("/assets/blockly/1-0.png") 0px 0px/20px 20px, linear-gradient(#34A836,#2C9929)',
     blocks: [{
         id: 'variables_set'
     },{

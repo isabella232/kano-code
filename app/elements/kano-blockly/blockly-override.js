@@ -1,7 +1,7 @@
 
 Blockly.Blocks.colour.HUE = '#ffff00';
 Blockly.Blocks.logic.HUE = '#7DC242';
-Blockly.Blocks.variables.HUE = '#ffff00';
+Blockly.Blocks.variables.HUE = '#34A836';
 Blockly.Blocks.loops.HUE = '#ffff00';
 Blockly.Blocks.math.HUE = '#ffff00';
 Blockly.Blocks.texts.HUE = '#ffff00';
@@ -126,9 +126,9 @@ Blockly.Toolbox.prototype.addColour_ = function(opt_tree) {
  */
 Blockly.Block.prototype.setColour = function(colour) {
     var hexReg = /^#[0-9a-fA-F]{6}$/;
-    var m = /#[0-9a-fA-F]{6}/.exec(colour);
-    if (m && m[0]) {
-        colour = m[0];
+    var m = /(#[0-9a-fA-F]{6})|linear-gradient((.+),.+)/.exec(colour);
+    if (m && m[1]) {
+        colour = m[1];
     }
     var hue = parseFloat(colour);
     if (!isNaN(hue)) {

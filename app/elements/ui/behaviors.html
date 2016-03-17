@@ -60,8 +60,8 @@ window.KanoBehaviors.AsyncConsumer = {
      * @return {Boolean}                Are we in an async case?
      */
     consume (data, callback) {
-        if (data.then && typeof data.then === 'function') {
-            data.then(callback.bind(this));
+        if (data.subscribe && typeof data.subscribe === 'function') {
+            data.subscribe(callback.bind(this));
             return true;
         }
         return false;
