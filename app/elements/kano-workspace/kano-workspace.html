@@ -31,8 +31,8 @@
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
-                    view-width="1024"
-                    view-height="768"
+                    view-width="[[size.width]]"
+                    view-height="[[size.height]]"
                     class="content"
                     id="content">
             <template is="dom-repeat" items="{{uiElements}}" as="model">
@@ -49,6 +49,9 @@
         beforeRegister () {
             this.is = 'kano-workspace';
             this.properties = {
+                size: {
+                    type: Object
+                },
                 uiElements: {
                     type: Array,
                     notify: true,
@@ -72,8 +75,13 @@
             ];
         }
         selectedChanged (e) {
-            let index = this.getPartIndexById(this.selected.id),
-                path = e.path.replace('selected', `uiElements.${index}`);
+            let index,
+                path;
+            if (!this.selected) {
+                return;
+            }
+            index = this.getPartIndexById(this.selected.id);
+            path = e.path.replace('selected', `uiElements.${index}`);
             this.set(path, e.value);
         }
         getPartIndexById (id) {
@@ -91,7 +99,10 @@
         }
         computePositionStyle (model) {
             if (!model.position) {
-                return;
+                model.position = {
+                    x: this.size.width / 2,
+                    y: this.size.height / 2
+                };
             }
             return `position: absolute;
                     left: ${model.position.x}px;

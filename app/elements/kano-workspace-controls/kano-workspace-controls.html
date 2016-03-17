@@ -59,11 +59,12 @@
     }
     :host .add-ui {
         @apply(--kano-round-button);
-        background-color: var(--color-green, green);
+        background: linear-gradient(#7DC243,#5BA928);
         color: var(--color-white, white);
         position: absolute;
         top: -25px;
         left: 5px;
+        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
     }
     :host .tabs {
         padding: 8px;
@@ -80,6 +81,12 @@
     :host .part {
         padding: 3px;
     }
+    :host .make-button {
+        background-color: var(--color-orange, orange);
+    }
+    :host .make-button.stop {
+        background-color: var(--color-red, red);
+    }
     </style>
     <template>
         <button type="button" class="add-ui" on-tap="addTapped">+</button>
@@ -87,10 +94,10 @@
             <div class="toolbar">
                 <div class="tab-nav">
                     <button on-tap="switchTab"
-                            id="0"
-                            class="selected">Instructions</button>
+                            id="0">Instructions</button>
                     <button on-tap="switchTab"
-                            id="1">Parts</button>
+                            id="1"
+                            class="selected">Parts</button>
                 </div>
                 <div class="controls">
                     <button type="button"
@@ -99,6 +106,9 @@
                     <button type="button"
                             class="share-button"
                             on-tap="shareTapped">share</button>
+                    <button type="button"
+                            class$="make-button {{computeRunningClass(running)}}"
+                            on-tap="makeTapped">make</button>
                 </div>
 
             </div>
@@ -160,8 +170,15 @@
             if (e.keyCode === 8 &&
                     this.selectedPart &&
                     this.focused) {
+                let partsCount;
                 e.preventDefault();
-                this.removePart(this.selectedPart.id);
+                this.removePart(this.selectedPart);
+                partsCount = this.parts.length;
+                if (partsCount) {
+                    this.set('selectedPart', this.parts[partsCount - 1]);
+                } else {
+                    this.set('selectedPart', null);
+                }
             }
         }
         removePart (id) {
@@ -172,6 +189,9 @@
         }
         onMouseLeave () {
             this.focused = false;
+        }
+        computeRunningClass () {
+            return this.running ? 'stop' : 'run';
         }
         switchTab (e) {
             let buttons = this.querySelectorAll('.tab-nav button');
@@ -189,6 +209,9 @@
         }
         shareTapped () {
             this.fire('share-tap');
+        }
+        makeTapped () {
+            this.fire('make-tap');
         }
         selectPart (e) {
             this.set('selectedPart', e.model.get('part'));

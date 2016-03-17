@@ -22,10 +22,10 @@
     :host header {
         @apply(--layout-horizontal);
         @apply(--layout-center);
-        background-color: var(--primary-color, orange);
+        background: linear-gradient(#FF842A,#FB7D36);
         color: var(--color-white, white);
         padding: 10px;
-        box-shadow: 0px 5px 0px 0px rgba(0,0,0,0.3);
+        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
     }
     :host header span {
         @apply(--layout-flex);
@@ -61,10 +61,13 @@
         @apply(--layout-center);
         @apply(--layout-center-justified);
     }
-    :host .add-code,
     :host .edit-config,
     :host .save button {
         background-color: var(--color-green, green);
+    }
+    :host .add-code {
+        background: linear-gradient(#7DC242,#7EBF4D);
+        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
     }
     :host .add-code {
         @apply(--kano-button);
@@ -105,16 +108,28 @@
     :host .trigger-select {
         text-align: center;
     }
+    :host .back {
+        background: url('/assets/icons/back-arrow-icon.png') no-repeat;
+        background-color: transparent;
+        border: 0px;
+        width: 10px;
+        height: 15px;
+    }
+    :host .back:hover {
+        cursor: pointer;
+    }
     </style>
     <template>
         <header>
-            <button type="button"
-                    on-tap="previous">B</button>
+            <button class="back"
+                    type="button"
+                    on-tap="previous"
+                    hidden$="[[isBackHidden(selectedPage)]]"></button>
             <span>[[computeTitle(selectedPage, selectedUi)]]</span>
             <button type="button"
                     class="edit-config"
                     on-tap="editConfig"
-                    hidden$="[[!isDefaultPage(selectedPage)]]">Edit</button>
+                    hidden$="[[isEditHidden(selectedPage, selectedUi)]]">Edit</button>
         </header>
         <iron-pages
             id="pages"
@@ -167,15 +182,18 @@
                 },
                 uiElements: {
                     type: Array,
-                    value: () => []
+                    value: () => {
+                        return [];
+                    }
                 },
                 toolbox: {
                     type: Array,
-                    computed: 'computeToolbox(uiElements.*, selectedUi)'
+                    computed: 'computeToolbox(uiElements.*)'
                 },
                 selectedUi: {
                     type: Object,
-                    notify: true
+                    notify: true,
+                    value: null
                 },
                 defaultCategories: {
                     type: Array,
@@ -198,6 +216,12 @@
                 'pages.iron-deselect': 'pageLeaved',
             };
         }
+        isBackHidden () {
+            return this.selectedPage === 'default';
+        }
+        isEditHidden () {
+            return this.selectedPage !== 'default' || !this.selectedUi;
+        }
         editCode (e) {
             let event = e.model.get('event');
             if (!this.selectedUi) {
@@ -215,9 +239,6 @@
             }
             this.set('blocks', event.blocks);
             this.showPage('code');
-        }
-        isDefaultPage () {
-            return this.selectedPage === 'default';
         }
         computeParts () {
             return this.uiElements.concat({
@@ -375,6 +396,9 @@
             this.showPage(targetPage);
         }
         computeTitle () {
+            if (!this.selectedUi) {
+                return 'My App';
+            }
             switch (this.selectedPage) {
                 case 'default':
                 case 'code': {

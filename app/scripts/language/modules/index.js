@@ -11,9 +11,6 @@ export default {
     time,
     giphy,
     cat,
-    weather,
-    //console,
-    //camera,
     global,
     twitter
 };
