@@ -273,7 +273,7 @@
             this.set('trigger', e.detail);
             this.showPage('code');
         }
-        saveCode () {
+        saveCode (redirect=true, clear=true) {
             this.debounce('saveCode', () => {
                 let code = {},
                     codePath,
@@ -295,7 +295,12 @@
                 });
                 codePath = `selectedUi.codes.${trigger.emitter}.${trigger.event}`;
                 this.set(codePath, code);
-                this.showPage('default');
+                if (redirect) {
+                    this.showPage('default');
+                }
+                if (clear) {
+                    this.$.blockly.clearWorkspace();
+                }
             }, 300);
         }
         computeTriggers () {
@@ -385,7 +390,7 @@
                 }
                 case 'code': {
                     targetPage = 'trigger';
-                    this.saveCode();
+                    this.saveCode(false);
                     break;
                 }
                 default: {

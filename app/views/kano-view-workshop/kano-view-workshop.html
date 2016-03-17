@@ -304,18 +304,11 @@
          * @param  {Event} e
          */
         workspaceUiReady (e) {
-            let element = e.detail,
-                gridTarget = app.Interact.createSnapGrid({
-                    x: 32,
-                    y: 32
-                });
+            let element = e.detail;
             // Register the element in the service
             app.components.setElement(element.model.id, element.getUIElement());
             app.Interact(element).draggable({
                 onmove: app.dragAndDrop.getDragMoveListener(true),
-                snap: {
-                    targets: [gridTarget]
-                },
                 restrict: {
                     restriction: this.$.workspace,
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
