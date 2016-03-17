@@ -1,4 +1,4 @@
-const COLOUR = 41;
+const COLOUR = '#00ffff';
 
 let register = (Blockly) => {
     Blockly.Blocks['every_x_seconds'] = {
@@ -27,7 +27,7 @@ let register = (Blockly) => {
             interval = Blockly.JavaScript.valueToCode(block, 'INTERVAL'),
             code = `time.setInterval(function () {
                         ${statement}
-                    }, ${interval});`;
+                    }, ${interval} * 1000);`;
         return code;
     };
 

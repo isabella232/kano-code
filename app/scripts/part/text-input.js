@@ -5,7 +5,7 @@ export default class TextInput extends UI {
         super({
             type: 'text-input',
             label: 'Text input',
-            image: 'assets/hw/text-input.png',
+            image: 'assets/part/text-field-icon.png',
             colour: '#3CAA36'
         });
         this.addBlock({
