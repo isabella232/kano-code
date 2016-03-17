@@ -6,7 +6,7 @@ export default class Speaker extends Module {
             type: 'speaker',
             label: 'Speaker',
             image: 'assets/hw/speaker.png',
-            hue: '#c0ffee'
+            colour: '#FFB347'
         });
         this.addBlock({
             id: 'say',
