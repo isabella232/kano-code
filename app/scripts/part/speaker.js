@@ -68,7 +68,4 @@ export default class Speaker extends Module {
             }
         });
     }
-    say (text, rate, lang) {
-        this.getElement().say(text, rate, lang);
-    }
 }
