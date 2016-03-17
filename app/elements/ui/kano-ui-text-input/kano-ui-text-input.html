@@ -56,7 +56,9 @@
             return this.value;
         }
         setValue (value) {
-            this.value = value;
+            if (!this.consume(value, this.setValue)) {
+                this.value = value;
+            }
         }
     }
     Polymer(KanoUiTextInput);

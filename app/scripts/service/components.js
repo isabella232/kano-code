@@ -239,12 +239,17 @@ class ComponentStore {
             code = this.generateCode(),
             id = 'kano-user-component',
             component,
-            modules;
+            modules,
+            componentsString = JSON.stringify(components).replace(/"/g, '\\"');
 
         modules = CodeService.getStringifiedModules();
 
+        // TODO This hack is to prevent crisper to extract code between the
+        // script tags
+        let scr = 'script';
+
         component = `
-            <script>${modules};</script>
+            <${scr}>${modules};</${scr}>
             <dom-module id="${id}">
                 <style></style>
                 <template>
@@ -255,13 +260,13 @@ class ComponentStore {
                     </kano-ui-viewport>
                 </template>
             </dom-module>
-            <script>
+            <${scr}>
                 Polymer({
                     is: '${id}',
                     properties: {
                         components: {
                             type: Object,
-                            value: JSON.parse('${JSON.stringify(components).replace(/'/g, "\\'")}'),
+                            value: JSON.parse("${componentsString}}"),
                             observer: 'componentsChanged'
                         }
                     },
@@ -283,7 +288,7 @@ class ComponentStore {
                         }.bind(this));
                     }
                 });
-            </script>
+            </${scr}>
         `;
 
         return component;
