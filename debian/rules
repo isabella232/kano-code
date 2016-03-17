@@ -10,6 +10,10 @@ override_dh_auto_build:
 	apt-get install --yes nodejs
 	npm install
 	node_modules/.bin/bower install --allow-root
+	npm -v
+	npm list
+	bower --allow-root -v
+	node_modules/.bin/bower list --allow-root
 	NODE_ENV=production DEPLOY=rpi ./node_modules/.bin/gulp build
 
 override_dh_auto_install override_dh_auto_test:
