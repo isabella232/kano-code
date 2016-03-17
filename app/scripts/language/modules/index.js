@@ -6,11 +6,13 @@ import weather from './weather';
 import camera from './camera';
 import global from './global';
 import twitter from './twitter';
+import speaker from './speaker';
 
 export default {
     time,
     giphy,
     cat,
     global,
-    twitter
+    twitter,
+    speaker
 };

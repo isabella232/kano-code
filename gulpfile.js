@@ -10,6 +10,7 @@ let gulp = require('gulp'),
     del = require('del'),
     auth = require('basic-auth'),
     path = require('path'),
+    config = require('./app/scripts/config'),
     bundler,
     utils;
 
@@ -35,6 +36,12 @@ utils = {
             .on('error', utils.notifyError)
             .pipe(source('app.js'))
             .pipe(gulp.dest('.tmp/app/scripts'));
+    },
+    getConfig () {
+        let env = process.env.NODE_ENV || 'development',
+            deploy = process.env.DEPLOY || 'web';
+
+        return Object.assign(config.common, config.deploy[deploy], config.env[env]);
     }
 };
 
@@ -78,7 +85,13 @@ gulp.task('js', ['babel', 'bundle'], () => {
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.htmlReplace({ base: `
             <base href="/" target="_blank">
-            ` }))
+            `,
+            config: `
+            <script type="text/javascript">
+                window.config = ${JSON.stringify(utils.getConfig())};
+            </script>
+            `
+         }))
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
 });

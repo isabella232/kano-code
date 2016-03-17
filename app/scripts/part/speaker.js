@@ -1,38 +1,71 @@
-import UI from './ui';
+import Module from './module';
 
-export default class Speaker extends UI {
+export default class Speaker extends Module {
     constructor () {
         super({
             type: 'speaker',
             label: 'Speaker',
             image: 'assets/hw/speaker.png',
-            hue: 200
+            colour: '#FFB347'
         });
         this.addBlock({
             id: 'say',
-            message0: 'say %1',
+            message0: 'say Text %1 Speed %2 Accent %3',
+            inputsInline: false,
             args0: [{
                 type: "input_value",
                 name: "TEXT"
+            },
+            {
+                 type: "input_value",
+                 name: "RATE",
+                 check: "Number"
+            },
+            {
+                type: "field_dropdown",
+                name: "LANGUAGE",
+                options: [
+                    [
+                        "British English",
+                        "en-GB"
+                    ],
+                    [
+                        "US English",
+                        "en-US"
+                    ],
+                    [
+                        "French",
+                        "fr-FR"
+                    ],
+                    [
+                        "German",
+                        "de-DE"
+                    ],
+                    [
+                        "Italian",
+                        "it-IT"
+                    ]
+                ]
             }],
             previousStatement: null,
-            javascript: (hw) => {
+            javascript: (part) => {
                 return function (block) {
                     let text = Blockly.JavaScript.valueToCode(block, 'TEXT'),
-                        code = `devices.get('${hw.id}').say(${text})`;
+                        rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
+                        lang = block.getFieldValue('LANGUAGE'),
+                        code = `${part.type}.say(${text}, ${rate}, "${lang}")`;
                     return code;
                 };
             },
-            natural: (hw) => {
+            natural: (part) => {
                 return function (block) {
                     let text = Blockly.Natural.valueToCode(block, 'TEXT'),
-                        code = `${hw.label} say ${text}`;
+                        rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
+                        lang = block.getFieldValue('LANGUAGE'),
+                        code = `${part.label} say ${text} (speed=${rate}, language=${lang})`;
                     return code;
                 };
             }
         });
-    }
-    say (text) {
-        this.getElement().say(text);
     }
 }
