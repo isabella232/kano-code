@@ -8,13 +8,8 @@ export PATH := /usr/local/bin/:$(PATH)
 override_dh_auto_build:
 	curl --silent --location https://deb.nodesource.com/setup_4.x | bash -
 	apt-get install --yes nodejs
-	npm install -g npm
 	npm install
 	node_modules/.bin/bower install --allow-root
-	npm -v
-	npm list
-	node_modules/.bin/bower --allow-root -v
-	node_modules/.bin/bower list --allow-root
 	NODE_ENV=production DEPLOY=rpi ./node_modules/.bin/gulp build
 
 override_dh_auto_install override_dh_auto_test:
