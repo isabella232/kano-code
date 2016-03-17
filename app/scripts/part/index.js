@@ -1,4 +1,4 @@
-//import Speaker from './speaker';
+import Speaker from './speaker';
 import TextInput from './text-input';
 import UiImage from './image';
 import Button from './button';
@@ -11,7 +11,7 @@ let part;
 
 // Group models by type
 let models = {
-    //'speaker': Speaker,
+    'speaker': Speaker,
     'text-input': TextInput,
     'image': UiImage,
     'button': Button,

@@ -1,12 +1,12 @@
-import UI from './ui';
+import Module from './module';
 
-export default class Speaker extends UI {
+export default class Speaker extends Module {
     constructor () {
         super({
             type: 'speaker',
             label: 'Speaker',
             image: 'assets/hw/speaker.png',
-            hue: 200
+            hue: '#c0ffee'
         });
         this.addBlock({
             id: 'say',
@@ -48,21 +48,21 @@ export default class Speaker extends UI {
                 ]
             }],
             previousStatement: null,
-            javascript: (hw) => {
+            javascript: (part) => {
                 return function (block) {
                     let text = Blockly.JavaScript.valueToCode(block, 'TEXT'),
                         rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
                         lang = block.getFieldValue('LANGUAGE'),
-                        code = `devices.get('${hw.id}').say(${text}, ${rate}, "${lang}")`;
+                        code = `${part.type}.say(${text}, ${rate}, "${lang}")`;
                     return code;
                 };
             },
-            natural: (hw) => {
+            natural: (part) => {
                 return function (block) {
                     let text = Blockly.Natural.valueToCode(block, 'TEXT'),
                         rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
                         lang = block.getFieldValue('LANGUAGE'),
-                        code = `${hw.label} say ${text} (speed=${rate}, language=${lang})`;
+                        code = `${part.label} say ${text} (speed=${rate}, language=${lang})`;
                     return code;
                 };
             }
