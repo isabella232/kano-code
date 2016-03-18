@@ -1,6 +1,6 @@
 import slug from 'speakingurl';
 import CodeService from './code';
-import ui from '../ui';
+import part from '../part';
 
 let componentStore;
 
@@ -53,7 +53,8 @@ class ComponentStore {
      *                          create this piece of code
      */
     setCode (id, emitter, event, code) {
-        let codes = this.get(id).model.codes;
+        let codes;
+        codes = this.get(id).model.codes;
         codes[emitter] = codes[emitter] || {};
         codes[emitter][event] = code;
     }
@@ -152,17 +153,21 @@ class ComponentStore {
         let model,
             codeList;
         codeList = Object.keys(this.components)
-            // Exclude the components without code pieces
-            .filter((id) => Object.keys(this.components[id].model.codes).length)
+            .filter((id) => {
+                return this.components[id].model.partType === 'ui';
+            })
             .map((id) => {
                 model = this.components[id].model;
                 return this.generateComponentCode(model);
             });
+        codeList.push(`global.emit('start')`);
         return codeList.join(';');
     }
     generateEventCode (emitterId, eventId, code) {
-        return `devices.get('${emitterId}')
-                    .addEventListener('${eventId}',
+        let emitterString = emitterId === 'global' ?
+                            'global' :
+                            `devices.get('${emitterId}')`;
+        return `${emitterString}.addEventListener('${eventId}',
                         function (){
                             ${code.javascript}
                         })`;
@@ -184,15 +189,29 @@ class ComponentStore {
             })
             .join(';');
     }
+    generateModuleCode (model) {
+        return CodeService.getStringifiedModule(model.type);
+    }
+    getModules () {
+        return Object.keys(this.components)
+            .filter((id) => {
+                return this.components[id].model.partType === 'module';
+            })
+            .map((id) => {
+                return this.components[id].model.type;
+            });
+    }
     /**
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
     run () {
-        let code = this.generateCode();
+        let code = this.generateCode(),
+            modules;
+        modules = this.getModules();
         this.start();
         // Run the code using this store. Only expose the get function
-        CodeService.run(code, {
+        CodeService.run(code, modules, {
             get (id) {
                 return componentStore.get(id).model;
             }
@@ -239,12 +258,17 @@ class ComponentStore {
             code = this.generateCode(),
             id = 'kano-user-component',
             component,
-            modules;
+            modules,
+            componentsString = JSON.stringify(components).replace(/"/g, '\\"');
 
-        modules = CodeService.getStringifiedModules();
+        modules = CodeService.getStringifiedModules(this.getModules());
+
+        // TODO This hack is to prevent crisper to extract code between the
+        // script tags
+        let scr = 'script';
 
         component = `
-            <script>${modules};</script>
+            <${scr}>${modules};</${scr}>
             <dom-module id="${id}">
                 <style></style>
                 <template>
@@ -255,13 +279,13 @@ class ComponentStore {
                     </kano-ui-viewport>
                 </template>
             </dom-module>
-            <script>
+            <${scr}>
                 Polymer({
                     is: '${id}',
                     properties: {
                         components: {
                             type: Object,
-                            value: JSON.parse('${JSON.stringify(components).replace(/'/g, "\\'")}'),
+                            value: JSON.parse("${componentsString}}"),
                             observer: 'componentsChanged'
                         }
                     },
@@ -283,14 +307,14 @@ class ComponentStore {
                         }.bind(this));
                     }
                 });
-            </script>
+            </${scr}>
         `;
 
         return component;
     }
     loadAll (components) {
         Object.keys(components).forEach((id) => {
-            this.load(ui.fromSaved(components[id].model), components[id].codes);
+            this.load(part.fromSaved(components[id].model), components[id].codes);
         });
     }
     load (model, codes) {

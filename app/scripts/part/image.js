@@ -5,7 +5,7 @@ export default class UIImage extends UI {
         super({
             type: 'image',
             label: 'Image',
-            image: 'assets/hw/canvas.png',
+            image: 'assets/part/picture-icon.png',
             colour: '#E73544',
             customizable: {
                 style: ['width', 'height']

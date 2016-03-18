@@ -1,20 +1,24 @@
-//import Speaker from './speaker';
+import Speaker from './speaker';
 import TextInput from './text-input';
 import UiImage from './image';
 import Button from './button';
 //import GifCreator from './gif-creator';
 import Video from './video';
+import Cat from './cat';
+import Twitter from './twitter';
 
-let ui;
+let part;
 
 // Group models by type
 let models = {
-    //'speaker': Speaker,
+    'speaker': Speaker,
     'text-input': TextInput,
     'image': UiImage,
     'button': Button,
     //'gif-creator': GifCreator,
-    'video': Video
+    'video': Video,
+    'cat': Cat,
+    'twitter': Twitter
 };
 
 // Get an array of each instance
@@ -22,7 +26,7 @@ let flattened = Object.keys(models).map((type) => {
     return new models[type]();
 });
 
-export default ui = {
+export default part = {
     /**
      * Create a new model based on the type
      */
@@ -31,7 +35,7 @@ export default ui = {
         return m;
     },
     fromSaved (plain) {
-        let newUi = ui.create(plain.type);
+        let newUi = part.create(plain.type);
         newUi.load(plain);
         return newUi;
     },
