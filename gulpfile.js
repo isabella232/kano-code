@@ -42,7 +42,7 @@ utils = {
             target = process.env.TARGET || 'web';
 
         return Object.assign(config.common, config.target[target],
-               config.env[env], {env, target});
+               config.env[env], {"ENV": env, "TARGET": target});
     }
 };
 
