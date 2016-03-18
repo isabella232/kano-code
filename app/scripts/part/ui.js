@@ -2,11 +2,33 @@ import ComponentStore from '../service/components';
 
 import Part from './part';
 
+const STYLE_CONF = {
+    'background-color': {
+        key: 'background-color',
+        type: 'color',
+        label: 'Background color'
+    },
+    'width': {
+        key: 'width',
+        type: 'size',
+        label: 'Width'
+    },
+    'height': {
+        key: 'height',
+        type: 'size',
+        label: 'Height'
+    },
+    'background': {
+        key: 'background',
+        type: 'color',
+        label: 'Background'
+    }
+};
+
 export default class UI extends Part {
     constructor (opts) {
         super(opts);
         this.customizable = opts.customizable || { style: [], properties: [] };
-        this.customizable.style = this.customizable.style || [];
         this.customizable.properties = this.customizable.properties || [];
         this.userStyle = opts.userStyle || {};
         this.userProperties = opts.userProperties || {};
@@ -27,5 +49,10 @@ export default class UI extends Part {
         this.userStyle = plain.userStyle;
         this.userProperties = plain.userProperties;
         this.position = plain.position;
+    }
+    setCustomizableStyles (properties) {
+        this.customizable.style = properties.map((key) => {
+            return STYLE_CONF[key];
+        });
     }
 }

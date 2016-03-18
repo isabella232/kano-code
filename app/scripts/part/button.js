@@ -6,8 +6,8 @@ export default class Button extends UI {
             type: 'button',
             label: 'Button',
             image: 'assets/part/buttons-icon.png',
+            description: 'A button that can trigger all sort of crazy stuff',
             customizable: {
-                style: ['background-color'],
                 properties: [{
                     key: 'text',
                     type: 'text',
@@ -22,6 +22,7 @@ export default class Button extends UI {
             label: 'is clicked',
             id: 'clicked'
         });
+        this.setCustomizableStyles(['background-color']);
     }
     addEventListener (name, callback) {
         super.addEventListener.apply(this, arguments);

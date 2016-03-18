@@ -7,14 +7,12 @@ export default class UIImage extends UI {
             label: 'Image',
             image: 'assets/part/picture-icon.png',
             colour: '#E73544',
-            customizable: {
-                style: ['width', 'height']
-            },
             userStyle: {
                 width: '200px',
                 height: '200px'
             }
         });
+        this.setCustomizableStyles(['width', 'height']);
         this.addBlock({
             id: 'draw_picture',
             message0: 'draw picture from %1',

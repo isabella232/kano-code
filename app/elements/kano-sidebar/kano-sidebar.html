@@ -5,15 +5,30 @@
     :host {
         display: block;
         position: relative;
-        @apply(--layout-horizontal);
-        background-color: var(--color-grey-dark);
-        padding-top: 15px;
+        @apply(--layout-vertical);
+        background-color: var(--color-grey-lighter, grey);
+    }
+    :host header {
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+        background: var(--green-gradient, green);
+        min-height: 60px;
+        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
+    }
+    :host header span {
+        color: var(--color-white, white);
+        font-size: 1.8em;
+        text-align: center;
     }
     :host kano-ui-list {
         @apply(--layout-flex);
+        padding-top: 15px;
     }
     </style>
     <template>
+        <header>
+            <span>Parts</span>
+        </header>
         <kano-ui-list id="list" items="{{uiElements}}"></kano-ui-list>
     </template>
 </dom-module>

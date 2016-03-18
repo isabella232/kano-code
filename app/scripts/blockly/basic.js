@@ -3,7 +3,7 @@ let register = (Blockly) => {
 };
 let categories = [{
     name: 'Logic',
-    colour: '#7DC242',
+    colour: '#7DC242 url("http://a.deviantart.net/avatars/b/l/black-matrix.gif")',
     blocks: [{
         id: 'controls_if'
     },{

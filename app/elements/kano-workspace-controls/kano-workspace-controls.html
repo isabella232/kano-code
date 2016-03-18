@@ -17,31 +17,6 @@
         padding: 5px;
         background-color: #212121;
     }
-    :host .toolbar .tab-nav {
-        @apply(--layout-flex);
-        padding-left: 60px;
-        color: var(--color-white, white);
-    }
-    :host .tab-nav button {
-        position: relative;
-        background-color: transparent;
-        border: 0px;
-        color: var(--color-white, white);
-        font-size: 1em;
-    }
-    :host .tab-nav button.selected::before {
-        content: ' ';
-        position: absolute;
-        left: calc(50% - 6px);
-        bottom: -6px;
-        border: 6px solid white;
-        border-left-color: transparent;
-        border-top: 0px;
-        border-right-color: transparent;
-    }
-    :host .tab-nav button:hover {
-        cursor: pointer;
-    }
     :host .toolbar .controls {
         @apply(--layout-flex);
         @apply(--layout-horizontal);
@@ -51,59 +26,58 @@
         @apply(--kano-button-small);
         margin-left: 5px;
     }
-    :host .share-button {
-        background-color: var(--color-blue, blue);
-    }
-    :host .save-button {
-        background-color: var(--color-green, green);
-    }
     :host .add-ui {
         @apply(--kano-round-button);
-        background: url('/assets/icons/plus-icon.png') center/25px 25px, linear-gradient(#7DC243,#5BA928);
-        background-repeat: no-repeat;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        background: linear-gradient(#7DC243,#358401);
         color: var(--color-white, white);
         position: absolute;
         top: -25px;
         left: 5px;
         box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
     }
-    :host .tabs {
-        padding: 8px;
-        color: var(--color-white, white);
+    :host .add-ui iron-image {
+        width: 25px;
+        height: 25px;
+        transition: all ease-out 200ms;
     }
-    :host ::content :not(pre) > code[class*="language-"],
-    :host ::content pre[class*="language-"] {
-    	background: var(--color-black, black);
+    :host .add-ui.opened {
+        background: var(--red-gradient, red);
+    }
+    :host .add-ui.opened iron-image {
+        transform: rotate(45deg);
     }
     :host .parts {
+        padding: 10px;
+        overflow-y: auto;
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
     }
     :host .part {
         padding: 3px;
     }
+    :host .share-button {
+        background: var(--blue-gradient, blue);
+    }
     :host .make-button {
-        background-color: var(--color-orange, orange);
+        background: var(--orange-gradient, orange);
     }
     :host .make-button.stop {
-        background-color: var(--color-red, red);
+        background: var(--red-gradient, red);
     }
     </style>
     <template>
-        <button type="button" class="add-ui" on-tap="addTapped"></button>
+        <button type="button"
+                class$="add-ui [[computeAddUiClass(opened)]]"
+                on-tap="addTapped">
+            <iron-image src="/assets/icons/plus-icon.png"
+                        sizing="contain"></iron-image>
+        </button>
         <div class="content">
             <div class="toolbar">
-                <div class="tab-nav">
-                    <button on-tap="switchTab"
-                            id="0">Instructions</button>
-                    <button on-tap="switchTab"
-                            id="1"
-                            class="selected">Parts</button>
-                </div>
                 <div class="controls">
-                    <button type="button"
-                            class="save-button"
-                            on-tap="saveTapped">save</button>
                     <button type="button"
                             class="share-button"
                             on-tap="shareTapped">share</button>
@@ -113,20 +87,16 @@
                 </div>
 
             </div>
-            <div class="tabs">
-                <iron-pages selected="{{selected}}">
-                    <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
-                    <div class="parts">
-                        <template is="dom-repeat"
-                                    items="{{parts}}"
-                                    as="part">
-                            <div class="part" style$="[[partStyle(part, selectedPart)]]">
-                                <kano-ui-item model="[[part]]"
-                                                on-tap="selectPart"></kano-ui-item>
-                            </div>
-                        </template>
+            <div class="parts">
+                <template is="dom-repeat"
+                            items="{{parts}}"
+                            as="part">
+                    <div class="part" style$="[[partStyle(part, selectedPart)]]">
+                        <kano-ui-item model="[[part]]"
+                                      on-tap="selectPart"
+                                      size="70"></kano-ui-item>
                     </div>
-                </iron-pages>
+                </template>
             </div>
         </div>
     </template>
@@ -152,6 +122,10 @@
                 },
                 parts: {
                     type: Array
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
                 }
             };
             this.listeners = {
@@ -205,9 +179,6 @@
         addTapped () {
             this.fire('add-tap');
         }
-        saveTapped () {
-            this.fire('save-tap');
-        }
         shareTapped () {
             this.fire('share-tap');
         }
@@ -225,6 +196,9 @@
                 return `border: 1px dashed orange;
                         border-radius: 3px;`;
             }
+        }
+        computeAddUiClass () {
+            return this.opened ? 'opened' : 'closed';
         }
     }
     Polymer(KanoWorkspaceControls);

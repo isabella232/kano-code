@@ -6,6 +6,9 @@ import cons from './console';
 import basic from './basic';
 import giphy from './giphy';
 import camera from './camera';
+import cat from './cat-picture';
+import twitter from './twitter';
+import speaker from './speaker';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -27,6 +30,9 @@ let registered = false,
         //cons.register(Blockly);
         giphy.register(Blockly);
         camera.register(Blockly);
+        cat.register(Blockly);
+        twitter.register(Blockly);
+        speaker.register(Blockly);
         registered = true;
     };
 
@@ -36,7 +42,10 @@ let categories = [
     time.category,
     //cons.category,
     giphy.category,
-    camera.category
+    camera.category,
+    cat.category,
+    twitter.category,
+    speaker.category
 ].concat(basic.categories);
 
 export default {

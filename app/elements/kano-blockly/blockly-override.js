@@ -160,8 +160,6 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
         // Add colours to child nodes which may have been collapsed and thus
         // not rendered.
         toolbox.addColour_(node);
-        var treeDiv = toolbox.HtmlDiv;
-        treeDiv.style.backgroundColor = lightenColor(hexColour, 0.5);
     }
     goog.ui.tree.TreeControl.prototype.setSelectedItem.call(this, node);
     if (node && node.blocks && node.blocks.length) {

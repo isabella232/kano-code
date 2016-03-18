@@ -22,12 +22,37 @@ let register = (Blockly) => {
         let code = `a random cat picture`;
         return [code];
     };
+
+    Blockly.Blocks['refresh_cat'] = {
+        init: function () {
+            let json = {
+                id: 'refresh_cat',
+                colour: COLOUR,
+                message0: 'refresh cats',
+                previousStatement: null,
+                nextStatement: null
+            };
+            this.jsonInit(json);
+        }
+    };
+
+    Blockly.JavaScript['refresh_cat'] = (block) => {
+        let code = `cat.refresh()`;
+        return [code];
+    };
+
+    Blockly.Natural['refresh_cat'] = (block) => {
+        let code = `refresh cats`;
+        return [code];
+    };
 };
 let category = {
     name: 'Cats',
     colour: COLOUR,
     blocks: [{
         id: 'get_cat_picture'
+    },{
+        id: 'refresh_cat'
     }]
 };
 

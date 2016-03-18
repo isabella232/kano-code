@@ -1,24 +1,16 @@
-import Speaker from './speaker';
 import TextInput from './text-input';
 import UiImage from './image';
 import Button from './button';
-//import GifCreator from './gif-creator';
 import Video from './video';
-import Cat from './cat';
-import Twitter from './twitter';
 
 let part;
 
 // Group models by type
 let models = {
-    'speaker': Speaker,
     'text-input': TextInput,
     'image': UiImage,
     'button': Button,
-    //'gif-creator': GifCreator,
-    'video': Video,
-    'cat': Cat,
-    'twitter': Twitter
+    'video': Video
 };
 
 // Get an array of each instance

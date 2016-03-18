@@ -5,7 +5,7 @@ export default class Speaker extends Module {
         super({
             type: 'speaker',
             label: 'Speaker',
-            image: 'assets/hw/speaker.png',
+            image: 'assets/part/speaker-part-icon.png',
             colour: '#FFB347'
         });
         this.addBlock({
@@ -17,9 +17,9 @@ export default class Speaker extends Module {
                 name: "TEXT"
             },
             {
-                 type: "input_value",
-                 name: "RATE",
-                 check: "Number"
+                type: "input_value",
+                name: "RATE",
+                check: "Number"
             },
             {
                 type: "field_dropdown",

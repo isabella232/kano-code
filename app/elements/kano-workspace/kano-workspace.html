@@ -3,7 +3,7 @@
     :host {
         position: relative;
         @apply(--layout-vertical);
-        background-color: var(--color-grey, grey);
+        background-color: var(--color-white, white);
         border: 0px;
         transition: box-shadow linear 100ms;
         box-shadow: 0px 0px 0px 4px transparent inset;
@@ -17,11 +17,13 @@
         overflow: auto;
         @apply(--layout-flex);
         --kano-ui-viewport: {
-            background-color: white;
+            border: 2px solid black;
         };
     }
-    :host .content.running {
-        border: 3px solid var(--color-red);
+    :host.running .content {
+        --kano-ui-viewport: {
+            border: none;
+        };
     }
     :host kano-ui {
         position: absolute;
@@ -59,12 +61,8 @@
                 },
                 running: {
                     type: Boolean,
-                    value: false
-                },
-                pulsing: {
-                    type: Boolean,
                     value: false,
-                    observer: 'pulsingChanged'
+                    observer: 'runningChanged'
                 },
                 selected: {
                     type: Object
@@ -73,6 +71,13 @@
             this.observers = [
                 'selectedChanged(selected.*)'
             ];
+        }
+        runningChanged () {
+            if (this.running) {
+                this.classList.add('running');
+            } else {
+                this.classList.remove('running');
+            }
         }
         selectedChanged (e) {
             let index,
@@ -119,20 +124,14 @@
                 }
             }
         }
-        pulsingChanged () {
-            this.toggleClass('pulsing', this.pulsing);
-        }
-        getTrashElement () {
-            return this.$.trash;
-        }
-        trashEnter () {
-            this.toggleClass('open', true, this.$.trash);
-        }
-        trashLeave () {
-            this.toggleClass('open', false, this.$.trash);
-        }
         getRect () {
             return this.$.content.getRect();
+        }
+        getViewport () {
+            return this.$.content;
+        }
+        resizeView () {
+            return this.$.content.resizeView();
         }
     }
     Polymer(KanoWorkspace);

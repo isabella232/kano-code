@@ -4,6 +4,7 @@ export default class Part {
     constructor (opts) {
         this.type = opts.type;
         this.label = opts.label;
+        this.description = opts.description;
         this.image = opts.image;
         this.colour = opts.colour;
         this.blocks = opts.blocks || [];
