@@ -31,4 +31,6 @@ es6Assign.polyfill();
     app.sdk = KanoWorldSdk(config);
     app.sdk.registerForms();
 
+    app.config = config;
+
 })(window.app = {});

@@ -249,8 +249,8 @@ class ComponentStore {
                 <style></style>
                 <template>
                     <kano-ui-viewport mode="scaled"
-                                view-width="1024"
-                                view-height="768">
+                                view-width="${app.config.WORKSPACE_FULL_SIZE.width}"
+                                view-height="${app.config.WORKSPACE_FULL_SIZE.height}">
                         ${template}
                     </kano-ui-viewport>
                 </template>

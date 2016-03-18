@@ -31,8 +31,8 @@
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
-                    view-width="1024"
-                    view-height="768"
+                    view-width="{{viewportSize.width}}"
+                    view-height="{{viewportSize.height}}"
                     class="content"
                     id="content"
                     on-tap="resetSelectedUiElement">
@@ -74,6 +74,13 @@
                     type: Object,
                     notify: true,
                     computed: 'computeSelected(selectedUiIndex)'
+                },
+                viewportSize: {
+                    type: Object,
+                    value : {
+                        width: app.config.WORKSPACE_FULL_SIZE.width,
+                        height: app.config.WORKSPACE_FULL_SIZE.height
+                    }
                 }
             };
             this.observers = [
