@@ -1,4 +1,5 @@
 /*
+ *
  * Speech synthesis service
  *
  *   Detects the capabilities of the client and choses the most suitable
@@ -6,33 +7,32 @@
  *
  */
 
+/* globals SpeechSynthesisUtterance*/
+
 class TextToSpeech {
-    constructor() {
+    constructor () {
         this.backend = this.remote;
 
         this.cache = {};
-
-        this.RSS_API_URL = 'http://api.voicerss.org';
-        this.RSS_TOKEN = '';
     }
 
-    configure(config) {
+    configure (config) {
         this.config = config;
 
-        if (config.TARGET == 'rpi') {
+        if (config.TARGET === 'rpi') {
             this.backend = this.rpi;
-        } else if (window && 'speechSynthesis' in window) {
+        } else if (window.speechSynthesis) {
             this.backend = this.browser;
         }
 
         return this;
     }
 
-    speak(text, rate=1, language='en-GB') {
+    speak (text, rate=1, language='en-GB') {
         this.backend(text, rate, language);
     }
 
-    rpi(text, rate, language) {
+    rpi (text, rate, language) {
         let opts = {
             method: 'POST',
             headers: {
@@ -42,7 +42,7 @@ class TextToSpeech {
                 text: text,
                 pitch: 1,
                 rate: rate,
-                language: language,
+                language: language
             })
         };
 
@@ -56,7 +56,7 @@ class TextToSpeech {
             });
     }
 
-    browser(text, rate, language) {
+    browser (text, rate, language) {
         let msg = new SpeechSynthesisUtterance(text);
         msg.pitch = 1;
         msg.rate = rate;
@@ -65,7 +65,7 @@ class TextToSpeech {
         window.speechSynthesis.speak(msg);
     }
 
-    remote(text, rate, language) {
+    remote (text, rate, language) {
         let params = {
             key: this.config.VOICE_API_KEY,
             src: text,
@@ -106,14 +106,14 @@ class TextToSpeech {
             });
     }
 
-    playAudio(url) {
+    playAudio (url) {
         let audio = document.createElement('audio');
         audio.src = url;
         audio.load();
         audio.play();
     }
 
-    normaliseRateToRSS(rate) {
+    normaliseRateToRSS (rate) {
         if (rate < 0) {
             console.log("Invalid speech rate, falling back to 0.");
         } else if (rate >= 0 && rate < 1) {
