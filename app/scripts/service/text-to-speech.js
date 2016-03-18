@@ -19,7 +19,7 @@ class TextToSpeech {
     configure(config) {
         this.config = config;
 
-        if (config.DEPLOY && config.DEPLOY == 'rpi') {
+        if (config.TARGET == 'rpi') {
             this.backend = this.rpi;
         } else if (window && 'speechSynthesis' in window) {
             this.backend = this.browser;

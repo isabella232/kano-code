@@ -17,14 +17,6 @@ es6Assign.polyfill();
 
     DragAndDrop.init({ workspaceFullSize: app.config.WORKSPACE_FULL_SIZE });
 
-    if ('DEPLOY' in process.env) {
-        config.DEPLOY = process.env.DEPLOY;
-    }
-
-    if ('VOICE_API_KEY' in process.env) {
-        config.VOICE_API_KEY = process.env.VOICE_API_KEY;
-    }
-
     app.registerBlockly = Blockly.register;
 
     app.Interact = Interact;

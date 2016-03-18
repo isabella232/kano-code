@@ -39,9 +39,10 @@ utils = {
     },
     getConfig () {
         let env = process.env.NODE_ENV || 'development',
-            deploy = process.env.DEPLOY || 'web';
+            target = process.env.TARGET || 'web';
 
-        return Object.assign(config.common, config.deploy[deploy], config.env[env]);
+        return Object.assign(config.common, config.deploy[deploy],
+               config.env[env], {env: env, target: target});
     }
 };
 
