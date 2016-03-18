@@ -41,7 +41,6 @@ def _get_static_dir():
 
     # Use local asets when not installed in /usr
     if not script_dir.startswith('/usr'):
-        print script_dir
         return abspath(join(script_dir, '..', 'www'))
 
     cobj_static_path = latest_content_object_assets()
@@ -92,8 +91,9 @@ def _save(data):
 
     return (filename, filepath)
 
-
-server = Flask(APP_NAME, static_folder=_get_static_dir(), static_url_path='/')
+assets_dir = _get_static_dir()
+logger.info("Serving files from {}".format(assets_dir))
+server = Flask(APP_NAME, static_folder=assets_dir, static_url_path='/')
 server_logger = logging.getLogger('werkzeug')
 server_logger.setLevel(logging.ERROR)
 
@@ -138,7 +138,6 @@ def page_not_found(err):
 
 @server.route('/play_sound/<path:filename>', methods=['POST'])
 def play_sounds(filename):
-    print realpath(join(_get_static_dir(), filename))
     sound_file = realpath(join(_get_static_dir(), filename))
     play_sound(sound_file)
 
@@ -167,27 +166,28 @@ def speak():
             if p >= 100:
                 p = 99
 
-            opts += "-p {}".format(p)
+            opts.append("-p {}".format(p))
         else:
             return _error('Pitch must be a float between 0 and 2 (default 1)')
 
     if 'rate' in req:
         if req['rate'] >= 0 and req['rate'] <= 10:
             r = int(req['rate'] * 160)
-            opts += "-p {}".format(r)
+            opts.append("-s {}".format(r))
         else:
             return _error('Rate must be a float between 0 and 10 (default 1)')
 
     supported_languages = {
-        "en-GB": "english_rp",
-        "en-US": "english-us",
-        "fr-FR": "french",
-        "de-DE": "german",
-        "it-IT": "italian"
+        "en-gb": "english_rp",
+        "en-us": "english-us",
+        "fr-fr": "french",
+        "de-de": "german",
+        "it-it": "italian"
     }
     if 'language' in req:
-        if req['language'] in supported_languages:
-            opts += "-v {}".format(supported_languages[req['language']])
+        l = req['language'].lower()
+        if l in supported_languages:
+            opts.append("-v {}".format(supported_languages[l]))
         else:
             return _error('Unknown language')
 
