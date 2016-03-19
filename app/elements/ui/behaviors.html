@@ -21,6 +21,12 @@ window.KanoBehaviors.UIBehavior = {
                 };
             },
             notify: true
+        },
+        listeners: {
+            type: Object,
+            value: () => {
+                return {};
+            }
         }
     },
     getPartialStyle (attrs) {
@@ -43,6 +49,21 @@ window.KanoBehaviors.UIBehavior = {
             x: rect.left,
             y: rect.top
         };
+    },
+    when (name, callback) {
+        if (!this.listeners[name]) {
+            this.listeners[name] = [];
+        }
+        this.listeners[name].push(callback);
+        this.addEventListener(name, callback);
+    },
+    stop () {
+        Object.keys(this.listeners).forEach((name) => {
+            this.listeners[name].forEach((callback) => {
+                this.removeEventListener(name, callback);
+            });
+        });
+        this.listeners = {};
     }
 };
 

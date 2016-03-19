@@ -14,8 +14,11 @@ export default CodeService = {
         let modulesArray,
             wrapUserCode;
 
+        modulesNames = modulesNames.filter((name) => {
+            return !!modules[name];
+        });
+
         modulesNames.unshift('global');
-        modulesNames.unshift('time');
 
         modulesArray = modulesNames.map((name) => modules[name].methods);
 

@@ -3,7 +3,7 @@ let glob;
 export default glob = {
     listeners: {},
     methods: {
-        addEventListener (name, callback) {
+        when (name, callback) {
             glob.listeners[name] = glob.listeners[name] || [];
             glob.listeners[name].push(callback);
         },

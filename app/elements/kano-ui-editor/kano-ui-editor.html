@@ -154,15 +154,15 @@
                 </button>
             </div>
             <div class="title">
-                <iron-image src="[[computeIcon(selectedPage, selectedUi)]]"
+                <iron-image src="[[computeIcon(selectedPage, selected)]]"
                             sizing="contain"></iron-image>
-                <span>[[computeTitle(selectedPage, selectedUi, background.name)]]</span>
+                <span>[[computeTitle(selectedPage, selectedPart.*, background.name)]]</span>
             </div>
             <div class="header-right">
                 <button type="button"
                         class="edit-config"
                         on-tap="editConfig"
-                        hidden$="[[isEditHidden(selectedPage, selectedUi)]]">E</button>
+                        hidden$="[[isEditHidden(selectedPage, selected)]]">E</button>
             </div>
         </header>
         <iron-pages
@@ -175,13 +175,13 @@
                                     user-values="{{background.userStyle}}"></kano-ui-customizer>
             </div>
             <div class="default" name="default">
-                <span>{{selectedUi.description}}</span>
+                <span>{{selectedPart.description}}</span>
                 <div class="code-list">
                     <button type="button"
                     class="add-code"
                     on-tap="addCode">Add Code</button>
                     <template is="dom-repeat"
-                            items="{{computeEventRules(selectedUi.codes.*)}}"
+                            items="{{computeEventRules(selectedPage)}}"
                             as="event">
                         <div class="saved-code" on-tap="editCode">
                             <span class="code-trigger">{{event.rule.trigger}}</span>
@@ -192,10 +192,10 @@
             </div>
             <div name="trigger" class="trigger-select">
                 <kano-event-select
-                    parts="{{computeParts(uiElements.*)}}"
+                    parts="{{computeParts(parts.*)}}"
                     on-selected="triggerSelected"></kano-event-select>
             </div>
-            <kano-ui-configuration element="{{selectedUi}}"
+            <kano-ui-configuration element="{{selectedPart}}"
                         name="config"></kano-ui-configuration>
             <div name="code" class="code-editor">
                 <kano-blockly id="blockly"
@@ -215,24 +215,32 @@
         beforeRegister () {
             this.is = 'kano-ui-editor';
             this.properties = {
+                modules: {
+                    type: Array,
+                    computed: 'computeModules(usedCategories.*)',
+                    notify: true
+                },
                 trigger: {
                     type: Object
                 },
-                uiElements: {
+                parts: {
                     type: Array,
                     value: () => {
                         return [];
-                    }
+                    },
+                    notify: true
                 },
                 toolbox: {
-                    type: Array,
-                    computed: 'computeToolbox(uiElements.*)'
+                    type: Array
                 },
-                selectedUi: {
-                    type: Object,
+                selected: {
+                    type: Number,
                     notify: true,
-                    value: null,
-                    observer: 'selectedUiChanged'
+                    observer: 'selectedChanged'
+                },
+                selectedPart: {
+                    type: Object,
+                    value: null
                 },
                 defaultCategories: {
                     type: Array,
@@ -260,38 +268,31 @@
                     notify: true
                 }
             };
+            this.observers = [
+                'selectedPartChanged(selectedPart.*)',
+                'computeToolbox(parts.*)',
+                'triggerChanged(trigger.*)',
+                'updateSelectedPart(parts.*)'
+            ];
             this.listeners = {
                 'pages.iron-select': 'pageEntered',
-                'pages.iron-deselect': 'pageLeaved',
+                'pages.iron-deselect': 'pageLeaved'
             };
         }
-        attached () {
-            this.set('backgroundOptions', [{
-                key: 'background',
-                type: 'background',
-                label: 'Background'
-            }]);
+        updateSelectedPart () {
+            this.set('selectedPart', this.parts[this.selected]);
         }
-        selectedUiChanged (newValue, oldValue) {
-            if (oldValue === null && newValue) {
-                this.showPage('default');
-            } else if (newValue === null) {
-                this.showPage('background');
+        triggerChanged () {
+            let trigger = this.trigger,
+                codes = this.parts[this.selected].codes,
+                event;
+            if (!codes[trigger.emitter]) {
+                codes[trigger.emitter] = {};
             }
-        }
-        isEditHidden () {
-            return this.selectedPage !== 'default' || !this.selectedUi;
-        }
-        editCode (e) {
-            let event = e.model.get('event');
-            if (!this.selectedUi) {
-                return;
+            if (!codes[trigger.emitter][trigger.event]) {
+                codes[trigger.emitter][trigger.event] = {};
             }
-            this.trigger = {
-                emitter: event.emitterId,
-                event: event.eventId,
-                text: event.rule.trigger
-            };
+            event = codes[trigger.emitter][trigger.event];
             if (!event.blocks) {
                 this.$.blockly.clearWorkspace();
                 this.showPage('code');
@@ -300,8 +301,53 @@
             this.set('blocks', event.blocks);
             this.showPage('code');
         }
+        /**
+         * Propagate changes from congiguration editor to the array
+         */
+        selectedPartChanged (e) {
+            if (!this.selected) {
+                return;
+            }
+            let path = e.path.replace('selectedPart', `parts.${this.selected}`);
+            this.set(path, e.value);
+        }
+        computeModules () {
+            return Object.keys(this.usedCategories).filter((name) => {
+                return !!this.usedCategories[name];
+            });
+        }
+        attached () {
+            this.set('backgroundOptions', [{
+                key: 'background',
+                type: 'background',
+                label: 'Background'
+            }]);
+            this.set('usedCategories', {});
+        }
+        selectedChanged (newValue, oldValue) {
+            this.updateSelectedPart();
+            if (oldValue === null && newValue !== null) {
+                this.showPage('default');
+            } else if (newValue === null) {
+                this.showPage('background');
+            }
+        }
+        isEditHidden () {
+            return this.selectedPage !== 'default' || !this.selectedPart;
+        }
+        editCode (e) {
+            let event = e.model.get('event');
+            if (!this.selected) {
+                return;
+            }
+            this.set('trigger', {
+                emitter: event.emitterId,
+                event: event.eventId,
+                text: event.rule.trigger
+            });
+        }
         computeParts () {
-            return this.uiElements.concat({
+            return this.parts.concat({
                 id: 'global',
                 name: 'Make',
                 events: [{
@@ -311,15 +357,18 @@
                 codes: {}
             });
         }
+        getUiParts () {
+            return this.parts.filter(ui => ui.partType === 'ui');
+        }
         computeEventRules () {
             let codes,
                 emitter,
                 event,
                 rules;
-            if (!this.selectedUi) {
+            if (!this.selected) {
                 return;
             }
-            codes = this.selectedUi.codes;
+            codes = this.selectedPart.codes;
             return Object.keys(codes).reduce((acc, emitterId) => {
                 emitter = codes[emitterId];
                 rules = Object.keys(emitter).map((eventId) => {
@@ -333,11 +382,36 @@
             this.set('trigger', e.detail);
             this.showPage('code');
         }
-        saveCode (redirect=false, clear=false) {
+        saveCode (e) {
+            let detail = e.detail,
+                blockType,
+                split,
+                categoryId;
+            // If a new block is created, increment the block counter
+            if (detail instanceof Blockly.Events.Create) {
+                blockType = detail.xml.getAttribute('type');
+                split = blockType.split('#');
+                if (split.length < 2) {
+                    return;
+                }
+                categoryId = split[0];
+                if (!this.usedCategories[categoryId]) {
+                    this.set(`usedCategories.${categoryId}`, 0);
+                }
+                this.set(`usedCategories.${categoryId}`, this.usedCategories[categoryId] + 1);
+            } else if (detail instanceof Blockly.Events.Delete) {
+                blockType = detail.oldXml.getAttribute('type');
+                split = blockType.split('#');
+                if (split.length < 2) {
+                    return;
+                }
+                categoryId = split[0];
+                this.set(`usedCategories.${categoryId}`, this.usedCategories[categoryId] - 1);
+            }
             this.debounce('saveCode', () => {
                 let code = {},
+                    emitterPath,
                     codePath,
-                    label,
                     trigger = this.trigger;
                 code.blocks = this.$.blockly.getBlocks();
                 code.rule = {
@@ -347,39 +421,39 @@
                 code.javascript = this.$.blockly.getCode('JavaScript');
                 code.emitterId = trigger.emitter;
                 code.eventId = trigger.event;
-                this.fire('code-change', {
-                    id: this.selectedUi.id,
-                    emitter: trigger.emitter,
-                    event: trigger.event,
-                    code
-                });
-                codePath = `selectedUi.codes.${trigger.emitter}.${trigger.event}`;
+                emitterPath = `selectedPart.codes.${trigger.emitter}`;
+                if (!this.parts[this.selected].codes[trigger.emitter]) {
+                    this.set(emitterPath, {});
+                }
+                codePath = `${emitterPath}.${trigger.event}`;
                 this.set(codePath, code);
             }, 300);
         }
         computeTriggers () {
-            return this.uiElements.filter((element) => this.hasEvents(element));
+            return this.parts.filter((element) => this.hasEvents(element));
         }
         pageEntered (e) {
             // Trigger a resize on blockly when we get back to the
             // code editor page
             if (e.detail.item.getAttribute('name') === 'code') {
-                let blocky = this.$.blockly;
-                blockly.showToolbox();
-                // Ugly but necessary. Blockly needs a resize to be triggered
-                // here because, its container was display none
-                blockly.resize();
+                this.showBlocklyToolbox();
             }
         }
         pageLeaved (e) {
             if (e.detail.item.getAttribute('name') === 'code') {
-                blockly.hideToolbox();
+                this.hideBlocklyToolbox();
             }
         }
-        hasEvents (selectedUi) {
-            return selectedUi &&
-                    selectedUi.events &&
-                    selectedUi.events.length;
+        hideBlocklyToolbox () {
+            this.$.blockly.hideToolbox();
+        }
+        showBlocklyToolbox () {
+            this.$.blockly.showToolbox();
+        }
+        hasEvents (selectedPart) {
+            return selectedPart &&
+                    selectedPart.events &&
+                    selectedPart.events.length;
         }
         getEventFromId (events, id) {
             for (let i in events) {
@@ -389,41 +463,49 @@
             }
         }
         getElement (id) {
-            for (let i = 0, len = this.uiElements.length; i < len; i++) {
-                if (this.uiElements[i].id === id) {
-                    return this.uiElements[i];
+            for (let i = 0, len = this.parts.length; i < len; i++) {
+                if (this.parts[i].id === id) {
+                    return this.parts[i];
                 }
             }
         }
         computeToolbox () {
-            let categories;
-            if (!this.uiElements) {
-                return;
-            }
-            this.uiElements.forEach((ui) => {
-                ui.blocks.forEach((block) => {
-                    Blockly.Blocks[block.id] = {
-                        init: function () {
-                            block.colour = ui.colour;
-                            this.jsonInit(block);
-                        }
+            this.debounce('computeToolbox', () => {
+                let categories,
+                    toolbox,
+                    parts = this.getUiParts(),
+                    blocks;
+                if (!parts) {
+                    return;
+                }
+                categories = parts.map((ui) => {
+                    blocks = ui.blocks.map((definition) => {
+                        let block = definition.block(ui);
+                        block.colour = ui.colour;
+                        block.id = `${ui.id}#${block.id}`;
+                        Blockly.Blocks[block.id] = {
+                            init: function () {
+                                this.jsonInit(block);
+                            }
+                        };
+                        Blockly.JavaScript[block.id] = definition.javascript(ui);
+                        Blockly.Natural[block.id] = definition.natural(ui);
+                        return {
+                            id: block.id
+                        };
+                    });
+                    return {
+                        name: ui.name,
+                        colour: ui.colour,
+                        blocks
                     };
-                    Blockly.JavaScript[block.id] = block.javascript(ui);
-                    Blockly.Natural[block.id] = block.natural(ui);
                 });
-            });
 
-            categories = this.uiElements.map((ui) => {
-                return {
-                    name: ui.name,
-                    blocks: ui.blocks,
-                    colour: ui.colour
-                };
-            });
-
-            return categories
+                toolbox = categories
                     .concat(this.defaultCategories || [])
                     .filter((category) => category.blocks.length);
+                this.set('toolbox', toolbox);
+            }, 10);
         }
         addCode () {
             this.showPage('trigger');
@@ -444,11 +526,10 @@
                 }
                 case 'code': {
                     targetPage = 'trigger';
-                    this.saveCode(false);
                     break;
                 }
                 case 'default': {
-                    this.set('selectedUi', null);
+                    this.set('selected', null);
                     break;
                 }
                 default: {
@@ -461,21 +542,21 @@
             }
         }
         computeIcon () {
-            if (!this.selectedUi) {
+            if (!this.selectedPart) {
                 return;
             }
             if (this.selectedPage === 'default' || this.selectedPage === 'code') {
-                return this.selectedUi.image;
+                return this.selectedPart.image;
             }
         }
         computeTitle () {
             switch (this.selectedPage) {
                 case 'default':
                 case 'code': {
-                    if (!this.selectedUi) {
+                    if (!this.selectedPart) {
                         return;
                     }
-                    return this.selectedUi.name;
+                    return this.selectedPart.name;
                 }
                 case 'config': {
                     return 'Edit Part';

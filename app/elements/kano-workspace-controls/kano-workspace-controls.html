@@ -111,11 +111,11 @@
                 },
                 selectedPart: {
                     type: Object,
-                    notify: true
+                    computed: 'computeSelectedPart(selected)'
                 },
                 selected: {
                     type: Number,
-                    value: 1
+                    notify: true
                 },
                 code: {
                     type: String
@@ -128,10 +128,19 @@
                     value: false
                 }
             };
+            this.observers = [
+                'partsChanged(parts.*)'
+            ];
             this.listeners = {
                 'mouseenter': 'onMouseEnter',
                 'mouseleave': 'onMouseLeave',
             };
+        }
+        partsChanged (e) {
+            //console.log(e);
+        }
+        computeSelectedPart () {
+            return this.parts[this.selected];
         }
         attached () {
             window.addEventListener('keyup', this.onKeyUp.bind(this));
@@ -150,9 +159,9 @@
                 this.removePart(this.selectedPart);
                 partsCount = this.parts.length;
                 if (partsCount) {
-                    this.set('selectedPart', this.parts[partsCount - 1]);
+                    this.set('selected', partsCount - 1);
                 } else {
-                    this.set('selectedPart', null);
+                    this.set('selected', null);
                 }
             }
         }
@@ -186,7 +195,7 @@
             this.fire('make-tap');
         }
         selectPart (e) {
-            this.set('selectedPart', e.model.get('part'));
+            this.set('selected', e.model.get('index'));
         }
         partStyle (part, selectedPart) {
             if (!selectedPart) {

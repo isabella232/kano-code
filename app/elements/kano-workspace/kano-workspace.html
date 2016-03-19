@@ -37,7 +37,7 @@
                     view-height="[[size.height]]"
                     class="content"
                     id="content">
-            <template is="dom-repeat" items="{{uiElements}}" as="model">
+            <template is="dom-repeat" items="{{parts}}" as="model">
                 <kano-ui model="{{model}}"
                         running="[[running]]"
                         style$="{{computePositionStyle(model)}}"></kano-ui>
@@ -54,7 +54,7 @@
                 size: {
                     type: Object
                 },
-                uiElements: {
+                parts: {
                     type: Array,
                     notify: true,
                     value: () => []
@@ -65,12 +65,20 @@
                     observer: 'runningChanged'
                 },
                 selected: {
-                    type: Object
+                    type: Number,
+                    notify: true
+                },
+                selectedPart: {
+                    type: Object,
+                    computed: 'computeSelectedPart(selected)'
                 }
             };
             this.observers = [
-                'selectedChanged(selected.*)'
+                'selectedPartChanged(selectedPart.*)'
             ];
+        }
+        computeSelectedPart () {
+            return this.parts[this.selected];
         }
         runningChanged () {
             if (this.running) {
@@ -79,18 +87,18 @@
                 this.classList.remove('running');
             }
         }
-        selectedChanged (e) {
+        selectedPartChanged (e) {
             let index,
                 path;
-            if (!this.selected) {
+            if (!this.selectedPart) {
                 return;
             }
-            index = this.getPartIndexById(this.selected.id);
-            path = e.path.replace('selected', `uiElements.${index}`);
+            index = this.getPartIndexById(this.selectedPart.id);
+            path = e.path.replace('selectedPart', `parts.${index}`);
             this.set(path, e.value);
         }
         getPartIndexById (id) {
-            let elements = this.uiElements;
+            let elements = this.parts;
             for (let i = 0, len = elements.length; i < len; i++) {
                 if (elements[i].id === id) {
                     return i;
@@ -99,7 +107,7 @@
         }
         loadBatch (models) {
             models.forEach((model) => {
-                this.push('uiElements', model);
+                this.push('parts', model);
             });
         }
         computePositionStyle (model) {
@@ -112,17 +120,6 @@
             return `position: absolute;
                     left: ${model.position.x}px;
                     top: ${model.position.y}px;`;
-        }
-        removeUi (id) {
-            for (let i in this.uiElements) {
-                if (this.uiElements[i].id === id) {
-                    this.splice('uiElements', i, 1);
-                    // i here will be a string since we use for in
-                    if (this.selectedUiIndex == i) {
-                        this.set('selectedUiIndex', null);
-                    }
-                }
-            }
         }
         getRect () {
             return this.$.content.getRect();

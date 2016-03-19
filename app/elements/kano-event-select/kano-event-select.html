@@ -41,7 +41,11 @@
                 return;
             }
             return this.parts.reduce((acc, part) => {
-                let events = part.events.map((event) => {
+                let events;
+                if (!part.events) {
+                    return acc;
+                }
+                events = part.events.map((event) => {
                     return {
                         emitter: part.id,
                         event: event.id,

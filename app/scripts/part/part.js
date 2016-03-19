@@ -1,5 +1,3 @@
-import ComponentStore from '../service/components';
-
 export default class Part {
     constructor (opts) {
         this.type = opts.type;
@@ -10,6 +8,7 @@ export default class Part {
         this.blocks = opts.blocks || [];
         this.events = opts.events || [];
         this.listeners = opts.listeners || [];
+        this.codes = {};
     }
     addBlock (block) {
         this.blocks.push(block);

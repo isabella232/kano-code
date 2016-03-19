@@ -3,8 +3,8 @@ Blockly.Blocks.colour.HUE = '#ffff00';
 Blockly.Blocks.logic.HUE = '#7DC242';
 Blockly.Blocks.variables.HUE = '#34A836';
 Blockly.Blocks.loops.HUE = '#ffff00';
-Blockly.Blocks.math.HUE = '#ffff00';
-Blockly.Blocks.texts.HUE = '#ffff00';
+Blockly.Blocks.math.HUE = '#7DC242';
+Blockly.Blocks.texts.HUE = '#9C27B0';
 Blockly.Blocks.lists.HUE = '#ffff00';
 Blockly.Blocks.procedures.HUE = '#ffff00';
 

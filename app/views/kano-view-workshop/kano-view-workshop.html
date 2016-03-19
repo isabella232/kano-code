@@ -4,78 +4,18 @@
         display: block;
         @apply(--layout-vertical);
     }
-    :host section {
-        @apply(--layout-horizontal);
-        @apply(--layout-align-stretch);
-    }
-    :host section {
-        @apply(--layout-horizontal);
-        @apply(--layout-flex);
-    }
-    :host section .ui-edition {
-        position: relative;
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-    }
-    :host section .blocks-edition {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        background-color: var(--color-grey-lightest, grey);
-    }
-    :host .ui-edition kano-workspace {
-        @apply(--layout-flex);
-    }
-    :host .ui-edition kano-workspace-controls {
-        min-height: 200px;
-    }
-    :host kano-ui-editor {
-        @apply(--layout-flex);
-    }
-    :host #ui-drawer {
-        z-index: 10;
-    }
-    :host kano-sidebar {
+    :host kano-app-editor {
         @apply(--layout-flex);
     }
     </style>
     <template>
-        <section id="section">
-            <iron-pages class="blocks-edition"
-                attr-for-selected="name"
-                selected="[[leftPanelView]]"
-                hidden$="[[!leftViewOpened]]">
-                <!--TODO rename ui-elements to parts-->
-                <kano-sidebar ui-elements="{{parts}}"
-                            on-ui-ready="sidebarUiReady"
-                            on-close="closeUiDrawer"
-                            name="parts"></kano-sidebar>
-                <kano-ui-editor
-                    id="block-editor"
-                    on-previous="previous"
-                    ui-elements="{{addedParts}}"
-                    selected-ui="{{selectedPart}}"
-                    on-code-change="codeChanged"
-                    background="{{background}}"
-                    name="code"></kano-ui-editor>
-            </iron-pages>
-            <div class="ui-edition" id="rightPanel">
-                <kano-workspace id="workspace"
-                                on-ui-ready="workspaceUiReady"
-                                ui-elements="{{uiAddedParts(addedParts.splices)}}"
-                                selected="{{selectedPart}}"
-                                running="{{running}}"
-                                style$="[[computeBackground(background.userStyle.*)]]"></kano-workspace>
-                <kano-workspace-controls
-                    parts="{{addedParts}}"
-                    opened="[[isPartsOpened(leftPanelView, leftViewOpened)]]"
-                    running="{{running}}"
-                    selected-part="{{selectedPart}}"
-                    on-share-tap="share"
-                    on-add-tap="toggleParts"
-                    on-make-tap="toggleRunning"
-                    on-remove-part="removePart"></kano-workspace-controls>
-            </div>
-        </section>
+        <kano-app-editor
+            id="editor"
+            running="{{running}}"
+            parts="{{parts}}"
+            added-parts="{{addedParts}}"
+            default-categories="[[defaultCategories]]"
+            ws-size="[[size]]"></kano-app-editor>
     </template>
 </dom-module>
 
@@ -85,56 +25,57 @@
             this.is = 'kano-view-workshop';
             this.properties = {
                 addedParts: {
-                    type: Array
-                },
-                selectedPart: {
-                    type: Object,
-                    observer: 'selectedPartChanged'
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
                 },
                 running: {
                     type: Boolean,
-                    value: false
+                    observer: 'runningChanged'
                 },
-                leftPanelView: {
-                    type: String,
-                    value: 'code'
-                },
-                selectedTrigger: {
-                    type: Object
-                },
-                leftViewOpened: {
-                    type: Boolean,
-                    value: true,
-                    observer: 'leftViewOpenedChanged'
-                },
-                background: {
+                usedBlocks: {
                     type: Object
                 }
             };
         }
-        selectedPartChanged (newValue, oldValue) {
-            if (newValue) {
-                if (!this.leftViewOpened) {
-                    this.toggleLeftView();
+        attached () {
+            let editor = this.$.editor;
+            this.set('parts', app.part);
+            this.set('user', app.sdk.auth.getUser());
+            this.set('size', app.config.WORKSPACE_FULL_SIZE);
+            app.registerBlockly(window.Blockly);
+            this.set('defaultCategories', app.defaultCategories);
+            editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
+            editor.addEventListener('share', this.shareApp.bind(this));
+            editor.addEventListener('new-part', this.addPart.bind(this));
+        }
+        addPart (e) {
+            let model = app.part.create(e.detail);
+            app.components.add(model);
+            this.push('addedParts', model);
+        }
+        updateWorkspaceRect (rect) {
+            app.dragAndDrop.setWorkspaceRect(rect);
+        }
+        shareApp () {
+            // Generates the standalone component
+            let workspaceRect = app.dragAndDrop.workspaceRect,
+                savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
+                file = new Blob([savedApp], { type: 'text/html' });
+
+            file.filename = 'code.html';
+            // Share by calling the API
+            app.sdk.api.share.post({
+                app: 'make-apps',
+                title: e.detail.title,
+                description: e.detail.description,
+                files: {
+                    attachment: file
                 }
-                this.set('leftPanelView', 'code');
-            }
-        }
-        computeBackground () {
-            let style = this.background.userStyle;
-            return Object.keys(style).reduce((acc, property) => {
-                acc += `${property}:${style[property]};`;
-                return acc;
-            }, '');
-        }
-        previous () {
-            this.set('leftViewOpened', false);
-        }
-        leftViewOpenedChanged () {
-            this.$.workspace.resizeView();
-        }
-        isPartsOpened () {
-            return this.leftViewOpened && this.leftPanelView === 'parts';
+            }).then(() => {
+                modal.close();
+            });
         }
         removePart (e) {
             let model = e.detail,
@@ -170,209 +111,14 @@
             // Add the new code and its rule to the components store
             app.components.setCode(data.id, data.emitter, data.event, data.code);
         }
-        /**
-         * Opens the sharing modal and share the app
-         */
-        share () {
-            // Create a modal and a view
-            let modal = document.createElement('kano-modal'),
-                view = document.createElement('kano-view');
-
-            // Load the view
-            view.viewName = 'kano-view-share-modal';
-
-            // Close the modal when the user dissmisses it
-            view.addEventListener('dismiss', () => {
-                modal.close();
-            });
-            // Share the app when the user confirms
-            view.addEventListener('confirm', (e) => {
-                // Generates the standalone component
-                let workspaceRect = this.$.workspace.getBoundingClientRect(),
-                    savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
-                    file = new Blob([savedApp], { type: 'text/html' });
-
-                file.filename = 'code.html';
-                // Share by calling the API
-                app.sdk.api.share.post({
-                    app: 'make-apps',
-                    title: e.detail.title,
-                    description: e.detail.description,
-                    files: {
-                        attachment: file
-                    }
-                }).then(() => {
-                    modal.close();
-                });
-            });
-            // Mount the view in the modal
-            modal.setContent(view);
-            modal.addEventListener('modal-close', () => {
-                this.removeChild(modal);
-            });
-            this.appendChild(modal);
-            modal.show();
-        }
-        /**
-         * Save the current work in the local storage
-         * TODO trigger that every 5sec or so if there is any changes
-         */
-        save () {
-            let workspaceRect = this.$.workspace.getBoundingClientRect(),
-                savedApp = app.components.saveAll(workspaceRect);
-            localStorage.setItem('savedApp', JSON.stringify(savedApp));
-        }
-        /**
-         * Load the saved work from the local storage
-         */
-        load () {
-            let savedApp = JSON.parse(localStorage.getItem('savedApp')),
-                loadedComponents;
-            if (!savedApp) {
-                return;
-            }
-            app.components.loadAll(savedApp);
-            loadedComponents = app.components.getAll();
-            this.$.workspace.loadBatch(Object.keys(loadedComponents)
-                                        .map(id => loadedComponents[id].model));
-        }
-        toggleParts () {
-            // Either just toggle the showed view or display/hide the whole
-            // leftView
-            if (!this.leftViewOpened) {
-                this.toggleLeftView();
-                this.set('leftPanelView', 'parts');
-                return;
-            }
-            this.set('leftPanelView', this.leftPanelView === 'parts' ? 'code' : 'parts');
-        }
-        toggleLeftView () {
-            if (this.running) {
-                return;
-            }
-            this.set('leftViewOpened', !this.leftViewOpened);
-            // If we just opened the leftView, show the parts page
-            if (this.leftViewOpened) {
-                this.set('selectedPage', 'parts');
-            }
-        }
-        closeUiDrawer () {
-            this.$['ui-drawer'].opened = false;
-        }
-        attached () {
-            this.set('addedParts', []);
-            this.set('parts', app.part.getAll());
-            this.set('user', app.sdk.auth.getUser());
-            this.$.workspace.size = app.config.WORKSPACE_FULL_SIZE;
-            app.Interact(this.$.rightPanel).dropzone({
-                // TODO rename to kano-part-item
-                accept: 'kano-ui-item',
-                ondrop: (e) => {
-                    let rect = e.relatedTarget.getBoundingClientRect(),
-                        elemCenter = {
-                            x: rect.left + (rect.width / 2),
-                            y: rect.top + (rect.height / 2)
-                        },
-                        model = app.part.create(e.relatedTarget.model.type);
-                    app.components.add(model);
-                    this.push('addedParts', model);
-                    this.set('selectedPart', model);
-                    if (model.partType === 'module') {
-                        for (let i = 0, len = this.parts.length; i < len; i++) {
-                            if (this.parts[i].type === model.type) {
-                                this.splice('parts', i, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
-            app.registerBlockly(window.Blockly);
-            this.$['block-editor'].defaultCategories = app.defaultCategories;
-            window.addEventListener('resize', this.updateWorkspaceRect.bind(this));
-            this.updateWorkspaceRect();
-            this.load();
-        }
         detached () {
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
         }
-        updateWorkspaceRect () {
-            app.dragAndDrop.setWorkspaceRect(this.$.workspace.getRect());
-        }
-        /**
-         * When an element has been added on the sidebar
-         * We should think about moving this in its own component
-         * (sidebar). If I did that in the first place it was to have
-         * the sidebar element completely agnostic of drag-and-drop
-         * actions
-         * @param  {Event} e
-         * @return {[type]}   [description]
-         */
-        sidebarUiReady (e) {
-            let clone;
-            app.Interact(e.detail).draggable({
-                onmove: app.dragAndDrop.getDragMoveListener(),
-                restrict: {
-                    restriction: this.$.section
-                },
-                onend: () => {
-                    this.$.section.removeChild(clone);
-                }
-            }).on('move', (event) => {
-                let interaction = event.interaction;
-
-                // if the pointer was moved while being held down
-                // and an interaction hasn't started yet
-                if (interaction.pointerIsDown && !interaction.interacting()) {
-                    let original = event.currentTarget,
-                    rect = original.getBoundingClientRect();
-
-                    // create a clone of the currentTarget element
-                    clone = Polymer.dom(original).cloneNode(true);
-                    clone.model = original.model;
-                    clone.style.position = 'absolute';
-                    clone.style.top = `${rect.top}px`;
-                    clone.style.left = `${rect.left}px`;
-                    clone.style.zIndex = 11;
-
-                    // insert the clone to the page
-                    this.$.section.appendChild(clone);
-
-                    // start a drag interaction targeting the clone
-                    interaction.start({ name: 'drag' },
-                                        event.interactable,
-                                        clone);
-                }
-            });
-        }
-        /**
-         * Add draggable properties to the added element in the workspace
-         * @param  {Event} e
-         */
-        workspaceUiReady (e) {
-            let element = e.detail;
-            // Register the element in the service
-            app.components.setElement(element.model.id, element.getUIElement());
-            app.Interact(element).draggable({
-                onmove: app.dragAndDrop.getDragMoveListener(true),
-                restrict: {
-                    restriction: this.$.workspace.getViewport(),
-                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-                }
-            });
-            this.set('leftPanelView', 'code');
-        }
-        /**
-         * Toggle the running state of the current app
-         */
-        toggleRunning () {
-            this.running = !this.running;
+        runningChanged () {
             if (this.running) {
-                app.components.run();
-                this.set('leftViewOpened', false);
+                app.components.run(this.addedParts, this.$.editor.modules);
             } else {
-                app.components.stop();
-                this.set('leftViewOpened', true);
+                app.components.stop(this.addedParts, this.$.editor.modules);
             }
         }
     }

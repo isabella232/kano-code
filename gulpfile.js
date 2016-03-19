@@ -10,6 +10,7 @@ let gulp = require('gulp'),
     del = require('del'),
     auth = require('basic-auth'),
     path = require('path'),
+    fs = require('fs'),
     config = require('./app/scripts/config'),
     bundler,
     utils;
@@ -160,6 +161,69 @@ gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
         .pipe(gulp.dest('www/css'));
+});
+
+function getImports(filePath) {
+    let found = [];
+
+    function crawlImports(filePath) {
+        return new Promise((resolve, reject) => {
+            let dir = path.dirname(filePath);
+            fs.readFile(filePath, (err, file) => {
+                if (err) {
+                    return reject(err);
+                }
+                found.push(filePath);
+                let content = file.toString(),
+                importRegex = /<link.*rel="import".*>/gi,
+                imports = content.match(importRegex),
+                fileRegex,
+                files,
+                tasks;
+                if (!imports) {
+                    return resolve();
+                }
+                fileRegex = /href="(.*)"/,
+                files = imports.map((importLine) => {
+                    let m = importLine.match(fileRegex);
+                    if (m && m[1]) {
+                        return path.join(dir, m[1]);
+                    }
+                    return null;
+                }).filter((f) => {
+                    if (!f) {
+                        return false;
+                    }
+                    if (found.indexOf(f) === -1) {
+                        return true;
+                    }
+                });
+                tasks = files.map((f) => {
+                    return crawlImports(f);
+                });
+                return Promise.all(tasks).then(() => {
+                    return resolve(found);
+                }).catch(reject);
+            });
+        });
+    }
+    return crawlImports(filePath);
+}
+
+
+gulp.task('t', () => {
+    getImports('.tmp/app/index.html').then((common) => {
+        common.shift();
+        return gulp.src('./app/views/kano-view-workshop/kano-view-workshop.html')
+                .pipe(utils.vulcanize({
+                    inlineScripts: true,
+                    excludes: common,
+                    stripExcludes: true
+                }))
+                .pipe(gulp.dest('tu'));
+    }).catch((e) => {
+        console.log(e);
+    });
 });
 
 gulp.task('dev', ['watch', 'serve']);

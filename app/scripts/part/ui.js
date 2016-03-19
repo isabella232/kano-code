@@ -30,9 +30,18 @@ export default class UI extends Part {
         super(opts);
         this.customizable = opts.customizable || { style: [], properties: [] };
         this.customizable.properties = this.customizable.properties || [];
+        if (opts.customizable && opts.customizable.style) {
+            this.customizable.style = opts.customizable.style.map((key) => {
+                return STYLE_CONF[key];
+            });
+        }
         this.userStyle = opts.userStyle || {};
         this.userProperties = opts.userProperties || {};
         this.partType = 'ui';
+        Part.typeCounter[this.type] = Part.typeCounter[this.type] || 0;
+        Part.typeCounter[this.type]++;
+        this.name = `${this.label} ${Part.typeCounter[this.type]}`;
+        this.id = `${this.type}-${Part.typeCounter[this.type]}`;
     }
     getElement () {
         return ComponentStore.get(this.id).element;
@@ -50,9 +59,6 @@ export default class UI extends Part {
         this.userProperties = plain.userProperties;
         this.position = plain.position;
     }
-    setCustomizableStyles (properties) {
-        this.customizable.style = properties.map((key) => {
-            return STYLE_CONF[key];
-        });
-    }
 }
+
+Part.typeCounter = {};
