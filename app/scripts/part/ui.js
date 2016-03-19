@@ -40,8 +40,12 @@ export default class UI extends Part {
         this.partType = 'ui';
         Part.typeCounter[this.type] = Part.typeCounter[this.type] || 0;
         Part.typeCounter[this.type]++;
-        this.name = `${this.label} ${Part.typeCounter[this.type]}`;
-        this.id = `${this.type}-${Part.typeCounter[this.type]}`;
+        if (!this.id) {
+            this.id = `${this.type}-${Part.typeCounter[this.type]}`;
+        }
+        if (!this.name) {
+            this.name = `${this.label} ${Part.typeCounter[this.type]}`;
+        }
     }
     getElement () {
         return ComponentStore.get(this.id).element;
@@ -51,6 +55,10 @@ export default class UI extends Part {
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
         plain.position = this.position;
+        plain.customizable = {
+            properties: this.customizable.properties,
+            style: this.customizable.style.map(style => style.key)
+        };
         return plain;
     }
     load (plain) {

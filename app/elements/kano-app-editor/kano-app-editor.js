@@ -115,6 +115,8 @@ class KanoAppEditor {
      * Opens the sharing modal and share the app
      */
     share () {
+        this.save();
+        return;
         // Create a modal and a view
         let modal = document.createElement('kano-modal'),
             view = document.createElement('kano-view');
@@ -143,23 +145,38 @@ class KanoAppEditor {
      * TODO trigger that every 5sec or so if there is any changes
      */
     save () {
-        let workspaceRect = this.$.workspace.getBoundingClientRect(),
-            savedApp = app.components.saveAll(workspaceRect);
+        let savedParts = this.addedParts.reduce((acc, part) => {
+            let savedPart = {};
+            savedPart.model = part.toJSON();
+            savedPart.codes = part.codes;
+            acc.push(savedPart);
+            return acc;
+        }, []),
+            savedApp = {};
+        savedApp.parts = savedParts;
+        savedApp.background = this.background;
+        savedApp.modules = this.modules;
+
         localStorage.setItem('savedApp', JSON.stringify(savedApp));
+
     }
     /**
      * Load the saved work from the local storage
      */
     load () {
         let savedApp = JSON.parse(localStorage.getItem('savedApp')),
-            loadedComponents;
+            addedParts;
         if (!savedApp) {
             return;
         }
-        app.components.loadAll(savedApp);
-        loadedComponents = app.components.getAll();
-        this.$.workspace.loadBatch(Object.keys(loadedComponents)
-                                    .map(id => loadedComponents[id].model));
+        addedParts = savedApp.parts.map((savedPart) => {
+            let part = new UI(savedPart.model);
+            part.codes = savedPart.codes;
+            return part;
+        });
+        this.set('addedParts', addedParts);
+        this.set('background', savedApp.background);
+        this.set('modules', savedApp.modules);
     }
     toggleParts () {
         // Either just toggle the showed view or display/hide the whole
@@ -188,7 +205,6 @@ class KanoAppEditor {
         this.$['ui-drawer'].opened = false;
     }
     attached () {
-        this.set('addedParts', []);
         this.$.workspace.size = this.wsSize;
         interact(this.$.rightPanel).dropzone({
             // TODO rename to kano-part-item
@@ -201,7 +217,6 @@ class KanoAppEditor {
         });
         window.addEventListener('resize', this.updateWorkspaceRect.bind(this));
         this.updateWorkspaceRect();
-        this.load();
     }
     detached () {
         window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));

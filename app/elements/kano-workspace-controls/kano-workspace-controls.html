@@ -121,23 +121,18 @@
                     type: String
                 },
                 parts: {
-                    type: Array
+                    type: Array,
+                    notify: true
                 },
                 opened: {
                     type: Boolean,
                     value: false
                 }
             };
-            this.observers = [
-                'partsChanged(parts.*)'
-            ];
             this.listeners = {
                 'mouseenter': 'onMouseEnter',
                 'mouseleave': 'onMouseLeave',
             };
-        }
-        partsChanged (e) {
-            //console.log(e);
         }
         computeSelectedPart () {
             return this.parts[this.selected];
@@ -156,7 +151,7 @@
                     this.focused) {
                 let partsCount;
                 e.preventDefault();
-                this.removePart(this.selectedPart);
+                this.splice('parts', this.selected, 1);
                 partsCount = this.parts.length;
                 if (partsCount) {
                     this.set('selected', partsCount - 1);
@@ -164,9 +159,6 @@
                     this.set('selected', null);
                 }
             }
-        }
-        removePart (id) {
-            this.fire('remove-part', id);
         }
         onMouseEnter () {
             this.focused = true;
