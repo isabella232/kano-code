@@ -13,6 +13,7 @@ export default CodeService = {
     run (code, modulesNames, store) {
         let modulesArray,
             wrapUserCode;
+        modulesNames = modulesNames || [];
 
         modulesNames = modulesNames.filter((name) => {
             return !!modules[name];

@@ -181,7 +181,7 @@
                     class="add-code"
                     on-tap="addCode">Add Code</button>
                     <template is="dom-repeat"
-                            items="{{computeEventRules(selectedPage)}}"
+                            items="{{computeEventRules(selectedPart)}}"
                             as="event">
                         <div class="saved-code" on-tap="editCode">
                             <span class="code-trigger">{{event.rule.trigger}}</span>
@@ -337,7 +337,7 @@
         }
         editCode (e) {
             let event = e.model.get('event');
-            if (!this.selected) {
+            if (!this.selectedPart) {
                 return;
             }
             this.set('trigger', {
@@ -365,7 +365,7 @@
                 emitter,
                 event,
                 rules;
-            if (!this.selected) {
+            if (!this.selectedPart) {
                 return;
             }
             codes = this.selectedPart.codes;

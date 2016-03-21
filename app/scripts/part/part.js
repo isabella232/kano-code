@@ -42,6 +42,7 @@ export default class Part {
         plain.label = this.label;
         plain.image = this.image;
         plain.colour = this.colour;
+        plain.events = this.events;
         return plain;
     }
     load (plain) {
