@@ -1,6 +1,6 @@
-import slug from 'speakingurl';
 import CodeService from './code';
 import part from '../part';
+import modules from '../language/modules';
 
 let componentStore;
 
@@ -56,10 +56,11 @@ class ComponentStore {
     generateEventCode (emitterId, eventId, code) {
         let emitterString = emitterId === 'global' ?
                             'global' :
-                            `devices.get('${emitterId}')`;
+                            `devices.get('${emitterId}')`,
+            javascript = code.snapshot.javascript || '';
         return `${emitterString}.when('${eventId}',
                         function (){
-                            ${code.javascript}
+                            ${javascript}
                         })`;
     }
     generateEmitterCode (emitterId, emitter) {
@@ -86,11 +87,11 @@ class ComponentStore {
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts, modules) {
+    run (parts) {
         let code = this.generateCode(parts);
         this.start(parts);
         // Run the code using this store. Only expose the get function
-        CodeService.run(code, modules, {
+        CodeService.run(code, {
             get (id) {
                 return document.querySelector(`#${id}`);
             }
@@ -127,33 +128,37 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (workspaceRect) {
-        let template = '',
-            components = Object.keys(this.components).reduce((acc, id) => {
-                acc[id] = this.save(id, workspaceRect).model;
-                template += this.get(id).element.save();
+    generateStandaloneComponent (parts, workspaceRect) {
+        let template = [],
+            components = parts.reduce((acc, part) => {
+                acc[part.id] = part.toJSON();
+                template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}"></kano-ui-${part.type}>`);
                 return acc;
             }, {}),
-            code = this.generateCode(),
+            code = this.generateCode(parts),
             id = 'kano-user-component',
             component,
-            modules,
-            componentsString = JSON.stringify(components).replace(/"/g, '\\"');
+            partsString = JSON.stringify(components).replace(/"/g, '\\"');
 
-        modules = CodeService.getStringifiedModules(this.getModules());
-
-        // TODO This hack is to prevent crisper to extract code between the
-        // script tags
-        let scr = 'script';
+        template = template.join('\n');
+        // TODO find a better way to avoid having this script tag swallowed by
+        // crisper
+        let scr = 'script',
+            moduleNames = Object.keys(modules),
+            moduleValues = moduleNames.map(m => `KanoModules.${m}`),
+            wrappedCode = `
+                (function (devices, ${moduleNames.join(', ')}) {
+                    ${code};
+                })(devices, ${moduleValues.join(', ')});
+            `;
 
         component = `
-            <${scr}>${modules};</${scr}>
             <dom-module id="${id}">
                 <style></style>
                 <template>
                     <kano-ui-viewport mode="scaled"
-                                view-width="${app.config.WORKSPACE_FULL_SIZE.width}"
-                                view-height="${app.config.WORKSPACE_FULL_SIZE.height}">
+                                view-width="${workspaceRect.width}"
+                                view-height="${workspaceRect.height}">
                         ${template}
                     </kano-ui-viewport>
                 </template>
@@ -162,10 +167,10 @@ class ComponentStore {
                 Polymer({
                     is: '${id}',
                     properties: {
-                        components: {
+                        parts: {
                             type: Object,
-                            value: JSON.parse("${componentsString}}"),
-                            observer: 'componentsChanged'
+                            value: JSON.parse("${partsString}}"),
+                            observer: 'partsChanged'
                         }
                     },
                     attached: function () {
@@ -174,15 +179,15 @@ class ComponentStore {
                                 return this.$$('#' + id);
                             }.bind(this)
                         };
-                        ${code};
+                        ${wrappedCode}
                     },
-                    componentsChanged () {
+                    partsChanged () {
                         var el;
-                        Object.keys(this.components).forEach(function (id) {
+                        Object.keys(this.parts).forEach(function (id) {
                             el = this.$$('#' + id);
                             el.style.position = 'absolute';
-                            el.style.left = this.components[id].position.x + 'px';
-                            el.style.top = this.components[id].position.y + 'px';
+                            el.style.left = this.parts[id].position.x + 'px';
+                            el.style.top = this.parts[id].position.y + 'px';
                         }.bind(this));
                     }
                 });

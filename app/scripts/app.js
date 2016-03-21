@@ -25,6 +25,9 @@ es6Assign.polyfill();
         // Loop through the modules and register every block
         Object.keys(modules).forEach((moduleName) => {
             mod = modules[moduleName];
+            if (mod.config && typeof mod.config === 'function') {
+                mod.config(app.config);
+            }
             if (!mod.blocks) {
                 return;
             }

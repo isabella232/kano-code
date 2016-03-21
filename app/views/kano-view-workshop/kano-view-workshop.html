@@ -1,3 +1,4 @@
+<link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <dom-module id="kano-view-workshop">
     <style>
     :host {
@@ -48,24 +49,28 @@
             this.set('defaultCategories', app.defaultCategories);
             editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             editor.addEventListener('share', this.shareApp.bind(this));
-            editor.addEventListener('new-part', this.addPart.bind(this));
+            editor.addEventListener('change', this.save.bind(this));
             editor.load();
-        }
-        addPart (e) {
-            let model = app.part.create(e.detail);
-            app.components.add(model);
-            this.push('addedParts', model);
         }
         updateWorkspaceRect (rect) {
             app.dragAndDrop.setWorkspaceRect(rect);
         }
+        save () {
+            // Save after 3secs without changes
+            this.debounce('save', () => {
+                let editor = this.$.editor;
+                editor.save();
+            }, 3000);
+        }
         shareApp () {
             // Generates the standalone component
-            let workspaceRect = app.dragAndDrop.workspaceRect,
-                savedApp = `${app.components.generateStandaloneComponent(workspaceRect)}`,
+            let savedApp = app.components.generateStandaloneComponent(this.addedParts, this.size),
                 file = new Blob([savedApp], { type: 'text/html' });
 
             file.filename = 'code.html';
+            // TODO (debug mode) remove this two lines to actually share the app
+            console.log(savedApp);
+            return;
             // Share by calling the API
             app.sdk.api.share.post({
                 app: 'make-apps',
@@ -117,9 +122,9 @@
         }
         runningChanged () {
             if (this.running) {
-                app.components.run(this.addedParts, this.$.editor.modules);
+                app.components.run(this.addedParts);
             } else {
-                app.components.stop(this.addedParts, this.$.editor.modules);
+                app.components.stop(this.addedParts);
             }
         }
     }

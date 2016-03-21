@@ -1,4 +1,5 @@
 <link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../kano-code-editor/kano-code-editor.html">
 <link rel="import" href="../kano-style/kano-style.html">
 
 <dom-module id="kano-ui-editor">
@@ -48,7 +49,8 @@
         width: 60px;
         height: 60px;
     }
-    :host kano-blockly {
+    :host kano-blockly,
+    :host kano-code-editor {
         @apply(--layout-flex);
     }
     :host .trigger {
@@ -181,11 +183,11 @@
                     class="add-code"
                     on-tap="addCode">Add Code</button>
                     <template is="dom-repeat"
-                            items="{{computeEventRules(selectedPart)}}"
+                            items="{{computeEventRules(selectedPart.*)}}"
                             as="event">
                         <div class="saved-code" on-tap="editCode">
-                            <span class="code-trigger">{{event.rule.trigger}}</span>
-                            <span class="code-action">{{event.rule.action}}</span>
+                            <span class="code-trigger">{{event.trigger}}</span>
+                            <span class="code-action">{{event.action}}</span>
                         </div>
                     </template>
                 </div>
@@ -198,11 +200,13 @@
             <kano-ui-configuration element="{{selectedPart}}"
                         name="config"></kano-ui-configuration>
             <div name="code" class="code-editor">
-                <kano-blockly id="blockly"
+                <!--<kano-blockly id="code-editor"
                         toolbox="[[toolbox]]"
-                        blocks="[[blocks]]"
                         code="{{code}}"
-                        on-change="saveCode"></kano-blockly>
+                        on-change="saveCode"></kano-blockly>-->
+                <kano-code-editor id="code-editor"
+                                  code="{{code}}"
+                                  on-change="saveCode"></kano-code-editor>
                 <div class="trigger">
                     <span>{{trigger.text}}</span>
                 </div>
@@ -215,10 +219,6 @@
         beforeRegister () {
             this.is = 'kano-ui-editor';
             this.properties = {
-                modules: {
-                    type: Array,
-                    notify: true
-                },
                 trigger: {
                     type: Object
                 },
@@ -249,9 +249,6 @@
                 code: {
                     type: String,
                     notify: true
-                },
-                blocks: {
-                    type: Object
                 },
                 background: {
                     type: Object,
@@ -293,12 +290,8 @@
                 codes[trigger.emitter][trigger.event] = {};
             }
             event = codes[trigger.emitter][trigger.event];
-            if (!event.blocks) {
-                this.$.blockly.clearWorkspace();
-                this.showPage('code');
-                return;
-            }
-            this.set('blocks', event.blocks);
+            event.snapshot = event.snapshot || {};
+            this.$['code-editor'].load(event.snapshot);
             this.showPage('code');
         }
         /**
@@ -343,7 +336,7 @@
             this.set('trigger', {
                 emitter: event.emitterId,
                 event: event.eventId,
-                text: event.rule.trigger
+                text: event.trigger
             });
         }
         computeParts () {
@@ -383,41 +376,25 @@
             this.showPage('code');
         }
         saveCode (e) {
-            let detail = e.detail,
-                blockType,
-                split,
-                categoryId;
-            // If a new block is created, increment the block counter
-            if (detail instanceof Blockly.Events.Create) {
-                blockType = detail.xml.getAttribute('type');
-                split = blockType.split('#');
-                if (split.length < 2) {
-                    return;
-                }
-                categoryId = split[0];
-                if (this.modules.indexOf(categoryId) === -1) {
-                    this.push('modules', categoryId);
-                }
-            }
             this.debounce('saveCode', () => {
                 let code = {},
+                    codeEditor = this.$['code-editor'],
+                    trigger = this.trigger,
                     emitterPath,
-                    codePath,
-                    trigger = this.trigger;
-                code.blocks = this.$.blockly.getBlocks();
-                code.rule = {
-                    trigger: trigger.text,
-                    action: this.$.blockly.getCode('Natural')
-                };
-                code.javascript = this.$.blockly.getCode('JavaScript');
-                code.emitterId = trigger.emitter;
-                code.eventId = trigger.event;
-                emitterPath = `selectedPart.codes.${trigger.emitter}`;
-                if (!this.parts[this.selected].codes[trigger.emitter]) {
-                    this.set(emitterPath, {});
-                }
-                codePath = `${emitterPath}.${trigger.event}`;
-                this.set(codePath, code);
+                    codePath;
+
+                codeEditor.save().then((snapshot) => {
+                    code.snapshot = snapshot;
+                    code.trigger = trigger.text;
+                    code.emitterId = trigger.emitter;
+                    code.eventId = trigger.event;
+                    emitterPath = `selectedPart.codes.${trigger.emitter}`;
+                    if (!this.parts[this.selected].codes[trigger.emitter]) {
+                        this.set(emitterPath, {});
+                    }
+                    codePath = `${emitterPath}.${trigger.event}`;
+                    this.set(codePath, code);
+                });
             }, 300);
         }
         computeTriggers () {
@@ -427,19 +404,19 @@
             // Trigger a resize on blockly when we get back to the
             // code editor page
             if (e.detail.item.getAttribute('name') === 'code') {
-                this.showBlocklyToolbox();
+                this.showCodeEditor();
             }
         }
         pageLeaved (e) {
             if (e.detail.item.getAttribute('name') === 'code') {
-                this.hideBlocklyToolbox();
+                this.hideCodeEditor();
             }
         }
-        hideBlocklyToolbox () {
-            this.$.blockly.hideToolbox();
+        hideCodeEditor () {
+            this.$['code-editor'].hide();
         }
-        showBlocklyToolbox () {
-            this.$.blockly.showToolbox();
+        showCodeEditor () {
+            this.$['code-editor'].show();
         }
         hasEvents (selectedPart) {
             return selectedPart &&

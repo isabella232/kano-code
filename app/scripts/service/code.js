@@ -10,16 +10,14 @@ let CodeService;
  * @type {Object}
  */
 export default CodeService = {
-    run (code, modulesNames, store) {
+    run (code, store) {
         let modulesArray,
-            wrapUserCode;
-        modulesNames = modulesNames || [];
+            wrapUserCode,
+            modulesNames = Object.keys(modules);
 
         modulesNames = modulesNames.filter((name) => {
             return !!modules[name];
         });
-
-        modulesNames.unshift('global');
 
         modulesArray = modulesNames.map((name) => modules[name].methods);
 

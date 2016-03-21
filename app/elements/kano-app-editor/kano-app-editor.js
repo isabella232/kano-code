@@ -2,9 +2,6 @@ class KanoAppEditor {
     beforeRegister () {
         this.is = 'kano-app-editor';
         this.properties = {
-            modules: {
-                type: Array
-            },
             parts: {
                 type: Array
             },
@@ -53,19 +50,19 @@ class KanoAppEditor {
         };
         this.listeners = {
             'pages.iron-select': 'pageEntered',
-            'pages.iron-deselect': 'pageLeaved'
+            'pages.iron-deselect': 'pageLeft'
         };
     }
     pageEntered (e) {
         // Trigger a resize on blockly when we get back to the
         // code editor page
         if (e.detail.item.getAttribute('name') === 'code') {
-            this.$['block-editor'].showBlocklyToolbox();
+            this.$['block-editor'].showCodeEditor();
         }
     }
-    pageLeaved (e) {
+    pageLeft (e) {
         if (e.detail.item.getAttribute('name') === 'code') {
-            this.$['block-editor'].hideBlocklyToolbox();
+            this.$['block-editor'].hideCodeEditor();
         }
     }
     computeSelectedPart () {
@@ -115,30 +112,14 @@ class KanoAppEditor {
      * Opens the sharing modal and share the app
      */
     share () {
-        this.save();
-        return;
-        // Create a modal and a view
-        let modal = document.createElement('kano-modal'),
-            view = document.createElement('kano-view');
-
-        // Load the view
-        view.viewName = 'kano-view-share-modal';
-
-        // Close the modal when the user dissmisses it
-        view.addEventListener('dismiss', () => {
-            modal.close();
-        });
-        // Share the app when the user confirms
-        view.addEventListener('confirm', () => {
+        let modal = this.$['share-modal'];
+        modal.open();
+    }
+    shareModalClosed (e) {
+        let reason = e.detail;
+        if (reason.confirmed) {
             this.fire('share');
-        });
-        // Mount the view in the modal
-        modal.setContent(view);
-        modal.addEventListener('modal-close', () => {
-            this.removeChild(modal);
-        });
-        this.appendChild(modal);
-        modal.show();
+        }
     }
     /**
      * Save the current work in the local storage
@@ -155,7 +136,6 @@ class KanoAppEditor {
             savedApp = {};
         savedApp.parts = savedParts;
         savedApp.background = this.background;
-        savedApp.modules = this.modules;
 
         localStorage.setItem('savedApp', JSON.stringify(savedApp));
 
@@ -176,7 +156,6 @@ class KanoAppEditor {
         });
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
-        this.set('modules', savedApp.modules);
     }
     toggleParts () {
         // Either just toggle the showed view or display/hide the whole
@@ -196,9 +175,9 @@ class KanoAppEditor {
         // If we just opened the leftView, show the parts page
         if (this.leftViewOpened) {
             this.set('selectedPage', 'parts');
-            this.$['block-editor'].showBlocklyToolbox();
+            this.$['block-editor'].showCodeEditor();
         } else {
-            this.$['block-editor'].hideBlocklyToolbox();
+            this.$['block-editor'].hideCodeEditor();
         }
     }
     closeUiDrawer () {
@@ -315,10 +294,10 @@ class KanoAppEditor {
         this.running = !this.running;
         if (this.running) {
             this.set('leftViewOpened', false);
-            this.$['block-editor'].hideBlocklyToolbox();
+            this.$['block-editor'].hideCodeEditor();
         } else {
             this.set('leftViewOpened', true);
-            this.$['block-editor'].showBlocklyToolbox();
+            this.$['block-editor'].showCodeEditor();
         }
     }
 }

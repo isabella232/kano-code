@@ -2,9 +2,8 @@
 <script src="../../assets/vendor/google-blockly/blocks_compressed.js"></script>
 <script src="../../assets/vendor/google-blockly/javascript_compressed.js"></script>
 <script src="../../assets/vendor/google-blockly/msg/js/en.js"></script>
-<script src="./blockly-override.js">
-
-</script>
+<script src="./blockly-override.js"></script>
+<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-blockly">
     <style>
@@ -30,6 +29,11 @@
 
 <script>
     class KanoBlockly {
+
+        get behaviors () {
+            return [KanoBehaviors.CodeEditorBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-blockly';
             this.properties = {
@@ -44,10 +48,6 @@
                 code: {
                     type: String,
                     notify: true
-                },
-                blocks: {
-                    type: String,
-                    observer: 'blocksChanged'
                 }
             };
         }
@@ -86,7 +86,7 @@
          * Needs to be done since these elements are added to the DOM
          * by Blockly
          */
-        hideToolbox () {
+        hide () {
             this.getToolboxElements().forEach((el) => {
                 el.style.visibility = 'hidden';
             });
@@ -96,7 +96,7 @@
          * Set the sisibility of all the toolbox elements to visible
          * Counteract the effects of `hideToolbox`
          */
-        showToolbox () {
+        show () {
             this.getToolboxElements().forEach((el) => {
                 el.style.visibility = 'visible';
             });
@@ -172,16 +172,6 @@
             this.workspace.clear();
         }
         /**
-         * Update the workspace and current code with the new blocks
-         */
-        blocksChanged () {
-            this.blocks = this.blocks || '<xml></xml>';
-            let xml = Blockly.Xml.textToDom(this.blocks);
-            this.clearWorkspace();
-            Blockly.Xml.domToWorkspace(this.workspace, xml);
-            this.set('code', this.getCode('JavaScript'));
-        }
-        /**
          * Update the code on any blockly change and
          * bubble up the event
          * @param  {Event} e    A Blockly event
@@ -210,6 +200,30 @@
             return Blockly[type].workspaceToCode(this.workspace);
         }
 
+        save () {
+            let javascript = this.getCode('JavaScript'),
+                natural = this.getCode('Natural'),
+                blocks = this.getBlocks();
+            return this.getScreenshot().then((screenshot) => {
+                let snapshot = {
+                    javascript,
+                    natural,
+                    screenshot,
+                    blocks
+                };
+                this.set('snapshot', snapshot);
+                return snapshot;
+            });
+        }
+
+        load (snapshot) {
+            let blocks = snapshot.blocks || '<xml></xml>';
+            let xml = Blockly.Xml.textToDom(blocks);
+            this.clearWorkspace();
+            Blockly.Xml.domToWorkspace(this.workspace, xml);
+            this.set('code', this.getCode('JavaScript'));
+        }
+
         getScreenshot () {
             return new Promise((resolve, reject) => {
                 let svg = this.$$('svg'),
@@ -218,12 +232,14 @@
                     loader = new Image(),
                     svgAsXML = (new XMLSerializer()).serializeToString(svg),
                     rect = this.getBoundingClientRect(),
-                    offsetX = rect.width / 3;
+                    offsetX = rect.width / 2;
 
-                loader.width = canvas.width = rect.width;
-                loader.height = canvas.height = rect.height;
+                loader.width = rect.width;
+                loader.height = rect.height;
+                canvas.width = loader.width - offsetX;
+                canvas.height = loader.height;
                 loader.onload = () => {
-                    ctx.drawImage(loader, 0, 0, loader.width, loader.height);
+                    ctx.drawImage(loader, offsetX, 0, canvas.width, loader.height, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL());
                 };
                 loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);

@@ -127,11 +127,17 @@ gulp.task('assets', ['scenes'], () => {
 });
 
 gulp.task('views', () => {
-    gulp.src('app/views/**/*.html')
-        .pipe(utils.vulcanize({ inlineScripts: true }))
-        .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-        .pipe(gulp.dest('www/views'));
+    // Get the elements common to the whole app to exclude them from the views
+    getImports('./app/elements/elements.html').then((common) => {
+        return gulp.src('app/views/**/*.html')
+            .pipe(utils.vulcanize({
+                inlineScripts: true,
+                stripExcludes: common
+            }))
+            .pipe($.crisper({ scriptInHead: false }))
+            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+            .pipe(gulp.dest('www/views'));
+    }).catch(utils.notifyError);
 });
 
 gulp.task('scenes', () => {
@@ -163,15 +169,16 @@ gulp.task('sass', () => {
         .pipe(gulp.dest('www/css'));
 });
 
-function getImports(filePath) {
+function getImports(filePath, opts) {
     let found = [];
+    opts = opts || {};
 
     function crawlImports(filePath) {
         return new Promise((resolve, reject) => {
             let dir = path.dirname(filePath);
             fs.readFile(filePath, (err, file) => {
                 if (err) {
-                    return reject(err);
+                    return resolve();
                 }
                 found.push(filePath);
                 let content = file.toString(),
@@ -207,24 +214,18 @@ function getImports(filePath) {
             });
         });
     }
-    return crawlImports(filePath);
-}
-
-
-gulp.task('t', () => {
-    getImports('.tmp/app/index.html').then((common) => {
-        common.shift();
-        return gulp.src('./app/views/kano-view-workshop/kano-view-workshop.html')
-                .pipe(utils.vulcanize({
-                    inlineScripts: true,
-                    excludes: common,
-                    stripExcludes: true
-                }))
-                .pipe(gulp.dest('tu'));
-    }).catch((e) => {
-        console.log(e);
+    return crawlImports(filePath).then((files) => {
+        files = files.filter((item, pos, self) => {
+            return self.indexOf(item) == pos;
+        });
+        if (opts.base) {
+            files = files.map((filePath) => {
+                return path.relative(opts.base, filePath);
+            });
+        }
+        return files;
     });
-});
+}
 
 gulp.task('dev', ['watch', 'serve']);
 

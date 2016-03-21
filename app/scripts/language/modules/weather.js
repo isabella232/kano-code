@@ -1,32 +1,74 @@
+import ObservableProducer from '../observable-producer';
 let weather;
 
 export default weather = {
+    name: 'Weather',
+    colour: '#cddc39',
+    observableProducer: new ObservableProducer(),
+    WEATHER_API_URL: 'http://api.openweathermap.org/data/2.5/weather',
+    getBaseUrl () {
+        return `${this.WEATHER_API_URL}?APPID=${this.WEATHER_API_KEY}`;
+    },
+    getTemperature (city) {
+        let url = `${this.getBaseUrl()}&q=${city}`;
+        return fetch(url)
+            .then(r => r.json())
+            .then((data) => {
+                return data.main.temp;
+            });
+    },
+    config (opts) {
+        this.WEATHER_API_KEY = opts.WEATHER_API_KEY;
+    },
     methods: {
-        weatherIn (city) {
-            let queryBegin = `select item.condition, wind, astronomy from weather.forecast where woeid in (select woeid from geo.places(1) where text="`,
-                queryEnd = `")`,
-                query = `${encodeURIComponent(queryBegin)}'+${city}+'${encodeURIComponent(queryEnd)}`,
-                env = `store://datatables.org/alltableswithkeys`,
-                url = `https://query.yahooapis.com/v1/public/yql?q=${query}&format=json&env=${encodeURIComponent(env)}`;
-            return fetch(url)
-                        .then((res) => res.json())
-                        .then((page) => {
-                            let condition = page.query.results.channel.item.condition,
-                                wind = page.query.results.channel.wind,
-                                astronomy = page.query.results.channel.astronomy;
-                            delete condition.code;
-                            delete condition.date;
-                            return {
-                                condition,
-                                wind,
-                                astronomy
-                            };
-                        });
+        getTemperature () {
+            let obs = weather.observableProducer
+                .createObservable(weather.getTemperature.bind(weather), arguments);
+            return obs;
+        },
+        refresh () {
+            weather.observableProducer.refresh();
         }
     },
     lifecycle: {
         stop () {
-
+            weather.observableProducer.clear();
         }
-    }
+    },
+    blocks: [{
+        block: {
+            id: 'get_temperature',
+            output: true,
+            message0: 'temperature in %1',
+            args0: [{
+                type: "input_value",
+                name: "CITY"
+            }]
+        },
+        javascript: (block) => {
+            let city = Blockly.JavaScript.valueToCode(block, 'CITY'),
+                code = `weather.getTemperature(${city})`;
+            return [code];
+        },
+        natural: (block) => {
+            let city = Blockly.Natural.valueToCode(block, 'CITY'),
+                code = `temperature in ${city}`;
+            return [code];
+        }
+    },{
+        block: {
+            id: 'refresh_weather',
+            message0: 'refresh weather',
+            previousStatement: null,
+            nextStatement: null
+        },
+        javascript: () => {
+            let code = `weather.refresh()`;
+            return code;
+        },
+        natural: () => {
+            let code = `refresh weather`;
+            return code;
+        }
+    }]
 };

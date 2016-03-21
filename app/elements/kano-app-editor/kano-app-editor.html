@@ -1,3 +1,12 @@
+<script src="../../bower_components/interact/interact.js"></script>
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../kano-sidebar/kano-sidebar.html">
+<link rel="import" href="../kano-workspace/kano-workspace.html">
+<link rel="import" href="../kano-event-select/kano-event-select.html">
+<link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
+<link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
+<link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+
 <dom-module id="kano-app-editor">
     <style>
     :host {
@@ -37,6 +46,13 @@
     :host kano-sidebar {
         @apply(--layout-flex);
     }
+    :host #share-modal ::content button {
+        @apply(--kano-button-small);
+        margin-left: 5px;
+    }
+    :host #share-modal ::content button.share {
+        background: var(--green-gradient, green);
+    }
     </style>
     <template>
         <section id="section">
@@ -53,7 +69,6 @@
                     id="block-editor"
                     on-previous="previous"
                     parts="{{addedParts}}"
-                    modules="{{modules}}"
                     selected="{{selected}}"
                     background="{{background}}"
                     default-categories="{{defaultCategories}}"
@@ -77,6 +92,16 @@
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
         </section>
+        <paper-dialog id="share-modal"
+                      on-iron-overlay-closed="shareModalClosed"
+                      with-backdrop>
+            <kano-view view-name="kano-view-share-modal"></kano-view>
+                <div class="buttons">
+                    <button dialog-dismiss>Cancel</button>
+                    <button dialog-confirm
+                            class="share">Share</button>
+                </div>
+        </paper-dialog>
     </template>
 </dom-module>
 
