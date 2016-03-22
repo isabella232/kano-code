@@ -16,6 +16,8 @@ import time
 import atexit
 import subprocess
 
+from requests import post, RequestException
+
 if __name__ == '__main__' and __package__ is None:
     DIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -63,6 +65,16 @@ def _kill_lingering_processes():
 def _at_exit_hook():
     """ Ensure that the two subprocesses are killed before this process exits
     """
+    if SERVER_PROC.is_alive():
+        try:
+            post(
+                'http://localhost:{}/shutdown'.format(
+                    make_apps.server.DEFAULT_PORT,
+                    timeout=1
+                )
+            )
+        except RequestException:
+            pass
     _kill_subprocess(UI_PROC)
     # Give the server subprocess 5 secs to die
     SERVER_PROC.join(5)
@@ -70,6 +82,7 @@ def _at_exit_hook():
     _kill_multiprocessing_process(SERVER_PROC)
     # Cleanup the lingering processes (usually produced by omxplayer)
     _kill_lingering_processes()
+    logger.debug('Goodbye')
 
 
 # At this point cleaning up just exits. This is triggered once the server
@@ -82,10 +95,7 @@ signal.signal(signal.SIGINT, cleanup)
 
 APP_PID = os.getpid()
 # Initialise the local server
-SERVER_PROC = multiprocessing.Process(target=make_apps.server.start,
-                                      kwargs={
-                                          'parent_pid': APP_PID
-                                      })
+SERVER_PROC = multiprocessing.Process(target=make_apps.server.start)
 SERVER_PROC.start()
 
 # Init the web app
@@ -94,7 +104,7 @@ if len(sys.argv) > 1:
     kwargs['load_path'] = sys.argv[1]
 
 URL = "http://localhost:{}".format(make_apps.server.DEFAULT_PORT)
-UI_PROC = subprocess.Popen(['chromium-browser', '--kiosk', URL])
+UI_PROC = subprocess.Popen(['kano-web-view', '--title', 'Make Apps', URL])
 
 
 # This process is really a factory/watchdog process. It launches the UI and
