@@ -8,7 +8,7 @@ npm install
 bower install
 npm build
 
-DEST_IP='10.0.0.231'
+DEST_IP='10.0.0.114'
 DEST_USER='kano'
 
 SOURCE_DIR="$(pwd)/"
