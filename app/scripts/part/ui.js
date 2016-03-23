@@ -55,7 +55,6 @@ export default class UI extends Part {
             x: size.width / 2,
             y: size.height / 2
         };
-
     }
     getElement () {
         return ComponentStore.get(this.id).element;

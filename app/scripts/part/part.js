@@ -43,7 +43,7 @@ export default class Part {
     }
     getUniqueName (value, inc=0) {
         let newName = inc ? `${value} ${inc}` : value;
-        if (Part.nameRegistery[this.type][newName]) {
+        if (Part.nameRegistry[this.type][newName]) {
             return this.getUniqueName(value, inc + 1);
         }
         return newName;
