@@ -209,8 +209,6 @@ class KanoAppEditor {
      */
     workspaceUiReady (e) {
         let element = e.detail;
-        // Register the element in the service
-        //app.components.setElement(element.model.id, element.getUIElement());
         interact(element).draggable({
             onmove: this.getDragMoveListener(true),
             restrict: {
@@ -267,15 +265,17 @@ class KanoAppEditor {
             // and an interaction hasn't started yet
             if (interaction.pointerIsDown && !interaction.interacting()) {
                 let original = event.currentTarget,
-                rect = original.getBoundingClientRect();
+                    rect = original.getBoundingClientRect(),
+                    style;
 
                 // create a clone of the currentTarget element
                 clone = Polymer.dom(original).cloneNode(true);
+                style = clone.style;
                 clone.model = original.model;
-                clone.style.position = 'absolute';
-                clone.style.top = `${rect.top}px`;
-                clone.style.left = `${rect.left}px`;
-                clone.style.zIndex = 11;
+                style.position = 'absolute';
+                style.top = `${rect.top}px`;
+                style.left = `${rect.left}px`;
+                style.zIndex = 11;
 
                 // insert the clone to the page
                 this.$.section.appendChild(clone);

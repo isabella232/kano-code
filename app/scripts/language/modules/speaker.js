@@ -10,7 +10,7 @@ export default speaker = {
     },
     methods: {
         say (text, rate, language) {
-            if (text.subscribe && typeof text.subscribe === 'function') {
+            if (typeof text.subscribe === 'function') {
                 return text.subscribe((result) => {
                     speaker.say(result, rate, language);
                 });

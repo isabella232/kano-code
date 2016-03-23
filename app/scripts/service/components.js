@@ -36,7 +36,7 @@ class ComponentStore {
                 return;
             }
             element = document.querySelector(`#${part.id}`);
-            if (element && element[func] && typeof element[func] == 'function') {
+            if (element && typeof element[func] == 'function') {
                 element[func]();
             }
         });

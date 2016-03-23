@@ -200,13 +200,13 @@
             <kano-ui-configuration element="{{selectedPart}}"
                         name="config"></kano-ui-configuration>
             <div name="code" class="code-editor">
-                <!--<kano-blockly id="code-editor"
+                <kano-blockly id="code-editor"
                         toolbox="[[toolbox]]"
                         code="{{code}}"
-                        on-change="saveCode"></kano-blockly>-->
-                <kano-code-editor id="code-editor"
+                        on-change="saveCode"></kano-blockly>
+                <!--<kano-code-editor id="code-editor"
                                   code="{{code}}"
-                                  on-change="saveCode"></kano-code-editor>
+                                  on-change="saveCode"></kano-code-editor>-->
                 <div class="trigger">
                     <span>{{trigger.text}}</span>
                 </div>
@@ -273,7 +273,7 @@
             ];
             this.listeners = {
                 'pages.iron-select': 'pageEntered',
-                'pages.iron-deselect': 'pageLeaved'
+                'pages.iron-deselect': 'pageLeft'
             };
         }
         updateSelectedPart () {
@@ -407,7 +407,7 @@
                 this.showCodeEditor();
             }
         }
-        pageLeaved (e) {
+        pageLeft (e) {
             if (e.detail.item.getAttribute('name') === 'code') {
                 this.hideCodeEditor();
             }
@@ -427,13 +427,6 @@
             for (let i in events) {
                 if (events[i].id === id) {
                     return events[i];
-                }
-            }
-        }
-        getElement (id) {
-            for (let i = 0, len = this.parts.length; i < len; i++) {
-                if (this.parts[i].id === id) {
-                    return this.parts[i];
                 }
             }
         }

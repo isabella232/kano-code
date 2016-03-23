@@ -19,13 +19,14 @@ es6Assign.polyfill();
     app.defaultCategories = [];
     app.registerBlockly = (Blockly) => {
         let mod,
+            block,
             category;
         // Register default blockly modules
         blockly.register(Blockly);
         // Loop through the modules and register every block
         Object.keys(modules).forEach((moduleName) => {
             mod = modules[moduleName];
-            if (mod.config && typeof mod.config === 'function') {
+            if (typeof mod.config === 'function') {
                 mod.config(app.config);
             }
             if (!mod.blocks) {
@@ -37,16 +38,17 @@ es6Assign.polyfill();
                 blocks: []
             };
             mod.blocks.forEach((definition) => {
-                definition.block.id = `${moduleName}#${definition.block.id}`;
-                definition.block.colour = mod.colour;
-                Blockly.Blocks[definition.block.id] = {
+                block = definition.block;
+                block.id = `${moduleName}#${definition.block.id}`;
+                block.colour = mod.colour;
+                Blockly.Blocks[block.id] = {
                     init: function () {
-                        this.jsonInit(definition.block);
+                        this.jsonInit(block);
                     }
                 };
-                Blockly.JavaScript[definition.block.id] = definition.javascript;
-                Blockly.Natural[definition.block.id] = definition.natural;
-                category.blocks.push({ id: definition.block.id });
+                Blockly.JavaScript[block.id] = definition.javascript;
+                Blockly.Natural[block.id] = definition.natural;
+                category.blocks.push({ id: block.id });
             });
             app.defaultCategories.push(category);
         });
