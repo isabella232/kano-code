@@ -149,10 +149,10 @@ class KanoAppEditor {
     /**
      * Load the saved work from the local storage
      */
-    load () {
+    load (Parts) {
         let savedApp = JSON.parse(localStorage.getItem('savedApp')),
             addedParts,
-            part
+            part;
         if (!savedApp) {
             return;
         }
@@ -212,7 +212,6 @@ class KanoAppEditor {
                     part;
                 model.position = null;
                 part = new UI(model, this.wsSize);
-                console.log(part);
                 this.push('addedParts', part);
                 this.set('selected', this.addedParts.length - 1);
             }

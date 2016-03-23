@@ -4,22 +4,18 @@ export default class Part {
 
     set name (value) {
         let oldName = this.name,
-            names = Part.nameRegistery[this.type],
+            names = Part.nameRegistry[this.type],
             newName,
             index;
         if (!value) {
             this.uniqueName = value;
             return;
         }
-        index = names.indexOf(oldName);
-        if (index !== -1) {
-            // Remove the old value from the registery
-            names.splice(index, 1);
-        }
+        names[oldName] = false;
         // Generate a unique name
         newName = this.getUniqueName(value);
         // Add it to the registery
-        names.push(newName);
+        names[newName] = true;
         this.uniqueName = newName;
         this.id = slug(this.uniqueName);
     }
@@ -30,13 +26,11 @@ export default class Part {
 
     constructor (opts) {
         this.type = opts.type;
-        Part.nameRegistery[this.type] = Part.nameRegistery[this.type] || [];
+        Part.nameRegistry[this.type] = Part.nameRegistry[this.type] || {};
         this.id = opts.id;
         this.name = opts.name;
         this.label = opts.label;
-        if (!this.name) {
-            this.name = this.label;
-        }
+        this.name = this.name || this.label;
         this.description = opts.description;
         this.image = opts.image;
         this.colour = opts.colour;
@@ -49,7 +43,7 @@ export default class Part {
     }
     getUniqueName (value, inc=0) {
         let newName = inc ? `${value} ${inc}` : value;
-        if (Part.nameRegistery[this.type].indexOf(newName) !== -1) {
+        if (Part.nameRegistery[this.type][newName]) {
             return this.getUniqueName(value, inc + 1);
         }
         return newName;
@@ -66,7 +60,7 @@ export default class Part {
     start () {
 
     }
-    addEventListener (name, callback) {
+    addEventListener () {
         this.listeners.push(arguments);
     }
     removeListeners () {
@@ -91,4 +85,4 @@ export default class Part {
     }
 }
 
-Part.nameRegistery = {};
+Part.nameRegistry = {};

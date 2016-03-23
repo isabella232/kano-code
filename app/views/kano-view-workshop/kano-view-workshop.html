@@ -50,7 +50,7 @@
             editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             editor.addEventListener('share', this.shareApp.bind(this));
             editor.addEventListener('change', this.save.bind(this));
-            editor.load();
+            editor.load(app.part);
         }
         updateWorkspaceRect (rect) {
             app.dragAndDrop.setWorkspaceRect(rect);
@@ -58,7 +58,6 @@
         save () {
             // Save after 3secs without changes
             this.debounce('save', () => {
-                console.log('save');
                 let editor = this.$.editor;
                 editor.save();
             }, 3000);

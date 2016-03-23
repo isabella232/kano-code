@@ -44,8 +44,7 @@ export default class UI extends Part {
                 let style = STYLE_CONF[key];
                 if (style.boundTo === 'width') {
                     style.max = size.width;
-                }
-                if (style.boundTo === 'height') {
+                } else if (style.boundTo === 'height') {
                     style.max = size.height;
                 }
                 return style;

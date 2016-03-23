@@ -10,4 +10,3 @@ let part;
 export default part = [Button, Frame, TextInput, Label, Map];
 
 window.UI = UI;
-window.Parts = part;
