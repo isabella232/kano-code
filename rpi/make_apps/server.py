@@ -19,7 +19,6 @@ from .kano_content_utils import latest_content_object_assets
 
 APP_NAME = 'make-apps'
 DEFAULT_PORT = 8000
-PARENT_PID = None
 
 CHALLENGE_DIR = expanduser('~/Make-Apps-content')
 STATIC_ASSET_DIR = join('/usr', 'share', 'make-apps')
@@ -113,8 +112,7 @@ def static_proxy(path):
 
 @server.route('/shutdown', methods=['POST'])
 def _shutdown():
-    import signal
-
+    logger.debug('Called shutdown endopoint')
     try:
         server_shutdown = request.environ.get('werkzeug.server.shutdown')
         if server_shutdown is not None:
@@ -124,9 +122,6 @@ def _shutdown():
         logger.error(
             'Error while trying to shut down the server: [{}]'.format(exc)
         )
-
-    # Send signal to parent to initiate shutdown
-    kill(PARENT_PID, signal.SIGINT)
 
 
 @server.errorhandler(404)
@@ -197,14 +192,12 @@ def speak():
     return jsonify(status='ok'), 200
 
 
-def start(parent_pid=None):
+def start():
     """
     The server process will receive any requests to shutdown but
     the app that runs this as a daemon will be unaware of this
     request so store the PID of the parent.
     """
-    global PARENT_PID
-    PARENT_PID = parent_pid
 
     # Run the server
     try:

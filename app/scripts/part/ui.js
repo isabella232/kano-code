@@ -22,6 +22,11 @@ const STYLE_CONF = {
         key: 'background',
         type: 'color',
         label: 'Background'
+    },
+    'font-size': {
+        key: 'font-size',
+        type: 'size',
+        label: 'Font size'
     }
 };
 
