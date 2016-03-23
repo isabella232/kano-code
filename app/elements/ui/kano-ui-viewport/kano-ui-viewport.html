@@ -101,22 +101,27 @@ the content out of proportions to make it fit inside the available space.
                     value: false
                 }
             };
+            this.observers = [
+                'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
+            ];
         }
 
         resizeView () {
-            switch (this.mode) {
-                case "responsive":
-                    this.resize();
-                    break;
-                case "stretched":
-                    this.stretch();
-                    break;
-                case "scaled":
-                    this.fit();
-                    break;
-                default:
-                    console.log('Mode "' + this.mode + '" not supported.');
-            }
+            this.debounce('resizeView', () => {
+                switch (this.mode) {
+                    case "responsive":
+                        this.resize();
+                        break;
+                    case "stretched":
+                        this.stretch();
+                        break;
+                    case "scaled":
+                        this.fit();
+                        break;
+                    default:
+                        console.log('Mode "' + this.mode + '" not supported.');
+                }
+            }, 10);
         }
 
         resize () {
@@ -181,6 +186,8 @@ the content out of proportions to make it fit inside the available space.
 
             /* Transform the element to the appropriate scale */
             style.transform = 'scale(' + xScale + ', ' + yScale + ')';
+
+            this.fire('viewport-resize', this.$.view.getBoundingClientRect());
         }
 
         parseAspectRatio (aspect) {
@@ -193,8 +200,6 @@ the content out of proportions to make it fit inside the available space.
         }
 
         attached () {
-            var self = this;
-
             /* If not set, initialise the view dimensions to max possible. */
             this.viewWidth = this.viewWidth || this.offsetWidth;
             this.viewHeight = this.viewHeight || this.offsetHeight;
@@ -203,20 +208,12 @@ the content out of proportions to make it fit inside the available space.
                 this.toggleClass('debug', true, this.$.view);
             }
 
-            this.resizeView(self);
-            this.listener = function (event) {
-                self.resizeView();
-            };
-
-            window.addEventListener('resize', this.listener);
+            window.addEventListener('resize', this.resizeView.bind(this));
+            this.resizeView();
         }
 
         detached () {
-            window.addEventListener('resize', this.listener);
-        }
-
-        getRect () {
-            return this.$.view.getBoundingClientRect();
+            window.addEventListener('resize', this.resizeView.bind(this));
         }
     }
     Polymer(KanoUiViewport);

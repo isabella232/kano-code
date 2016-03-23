@@ -19,7 +19,6 @@ es6Assign.polyfill();
     app.defaultCategories = [];
     app.registerBlockly = (Blockly) => {
         let mod,
-            block,
             category;
         // Register default blockly modules
         blockly.register(Blockly);
@@ -38,8 +37,8 @@ es6Assign.polyfill();
                 blocks: []
             };
             mod.blocks.forEach((definition) => {
-                block = definition.block;
-                block.id = `${moduleName}#${definition.block.id}`;
+                let block = definition.block;
+                block.id = `${moduleName}#${block.id}`;
                 block.colour = mod.colour;
                 Blockly.Blocks[block.id] = {
                     init: function () {

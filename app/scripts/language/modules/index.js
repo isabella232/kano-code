@@ -5,6 +5,7 @@ import global from './global';
 import twitter from './twitter';
 import speaker from './speaker';
 import weather from './weather';
+import space from './space';
 
 export default {
     time,
@@ -13,5 +14,6 @@ export default {
     global,
     twitter,
     speaker,
-    weather
+    weather,
+    space
 };
