@@ -149,7 +149,7 @@ class KanoAppEditor {
     /**
      * Load the saved work from the local storage
      */
-    load (Parts) {
+    load (parts) {
         let savedApp = JSON.parse(localStorage.getItem('savedApp')),
             addedParts,
             part;
@@ -157,9 +157,9 @@ class KanoAppEditor {
             return;
         }
         addedParts = savedApp.parts.map((savedPart) => {
-            for (let i = 0, len = Parts.length; i < len; i++) {
-                if (Parts[i].type === savedPart.model.type) {
-                    savedPart.model = Object.assign({}, Parts[i], savedPart.model);
+            for (let i = 0, len = parts.length; i < len; i++) {
+                if (parts[i].type === savedPart.model.type) {
+                    savedPart.model = Object.assign({}, parts[i], savedPart.model);
                     break;
                 }
             }
