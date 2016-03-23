@@ -1,8 +1,6 @@
 import natural from './natural';
 import weather from './weather';
 import images from './images';
-import time from './time';
-import cons from './console';
 import basic from './basic';
 import giphy from './giphy';
 import camera from './camera';
@@ -23,7 +21,6 @@ let registered = false,
         natural.register(Blockly);
         //weather.register(Blockly);
         //images.register(Blockly);
-        time.register(Blockly);
         //cons.register(Blockly);
         giphy.register(Blockly);
         camera.register(Blockly);
@@ -33,7 +30,6 @@ let registered = false,
 let categories = [
     //weather.category,
     //images.category,
-    time.category,
     //cons.category,
     giphy.category,
     camera.category

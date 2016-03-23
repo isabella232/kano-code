@@ -1,0 +1,108 @@
+<script src="../../bower_components/interact/interact.js"></script>
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../kano-sidebar/kano-sidebar.html">
+<link rel="import" href="../kano-workspace/kano-workspace.html">
+<link rel="import" href="../kano-event-select/kano-event-select.html">
+<link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
+<link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
+<link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+
+<dom-module id="kano-app-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host section {
+        @apply(--layout-horizontal);
+        @apply(--layout-align-stretch);
+    }
+    :host section {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+    }
+    :host section .ui-edition {
+        position: relative;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host section .blocks-edition {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        background-color: var(--color-grey-lightest, grey);
+    }
+    :host .ui-edition kano-workspace {
+        @apply(--layout-flex);
+    }
+    :host .ui-edition kano-workspace-controls {
+        min-height: 200px;
+    }
+    :host kano-ui-editor {
+        @apply(--layout-flex);
+    }
+    :host #ui-drawer {
+        z-index: 10;
+    }
+    :host kano-sidebar {
+        @apply(--layout-flex);
+    }
+    :host #share-modal ::content button {
+        @apply(--kano-button-small);
+        margin-left: 5px;
+    }
+    :host #share-modal ::content button.share {
+        background: var(--green-gradient, green);
+    }
+    </style>
+    <template>
+        <section id="section">
+            <iron-pages class="blocks-edition"
+                attr-for-selected="name"
+                selected="[[leftPanelView]]"
+                hidden$="[[!leftViewOpened]]"
+                id="pages">
+                <!--TODO rename ui-elements to parts-->
+                <kano-sidebar ui-elements="{{parts}}"
+                            name="parts"
+                            on-ui-ready="sidebarUiReady"></kano-sidebar>
+                <kano-ui-editor
+                    id="block-editor"
+                    on-previous="previous"
+                    parts="{{addedParts}}"
+                    selected="{{selected}}"
+                    background="{{background}}"
+                    default-categories="{{defaultCategories}}"
+                    name="code"></kano-ui-editor>
+            </iron-pages>
+            <div class="ui-edition" id="rightPanel">
+                <kano-workspace id="workspace"
+                                on-ui-ready="workspaceUiReady"
+                                parts="{{addedParts}}"
+                                selected="{{selected}}"
+                                running="{{running}}"
+                                style$="[[computeBackground(background.userStyle.*)]]"></kano-workspace>
+                <kano-workspace-controls
+                    parts="{{addedParts}}"
+                    opened="[[isPartsOpened(leftPanelView, leftViewOpened)]]"
+                    running="{{running}}"
+                    selected="{{selected}}"
+                    on-share-tap="share"
+                    on-add-tap="toggleParts"
+                    on-make-tap="toggleRunning"
+                    on-remove-part="removePart"></kano-workspace-controls>
+            </div>
+        </section>
+        <paper-dialog id="share-modal"
+                      on-iron-overlay-closed="shareModalClosed"
+                      with-backdrop>
+            <kano-view view-name="kano-view-share-modal"></kano-view>
+                <div class="buttons">
+                    <button dialog-dismiss>Cancel</button>
+                    <button dialog-confirm
+                            class="share">Share</button>
+                </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script src="./kano-app-editor.js"></script>

@@ -1,14 +1,16 @@
-import ComponentStore from '../service/components';
-
 export default class Part {
     constructor (opts) {
+        this.id = opts.id;
+        this.name = opts.name;
         this.type = opts.type;
         this.label = opts.label;
+        this.description = opts.description;
         this.image = opts.image;
         this.colour = opts.colour;
         this.blocks = opts.blocks || [];
         this.events = opts.events || [];
         this.listeners = opts.listeners || [];
+        this.codes = {};
     }
     addBlock (block) {
         this.blocks.push(block);
@@ -36,6 +38,11 @@ export default class Part {
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
         plain.position = this.position;
+        plain.description = this.description;
+        plain.label = this.label;
+        plain.image = this.image;
+        plain.colour = this.colour;
+        plain.events = this.events;
         return plain;
     }
     load (plain) {

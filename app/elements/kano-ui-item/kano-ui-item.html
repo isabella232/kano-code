@@ -16,12 +16,11 @@
         background-color: var(--kano-ui-item-background-color, transparent);
     }
     :host iron-image {
-        width: 70px;
-        height: 70px;
         margin: 10px;
     }
     :host label {
         font-size: 1.2em;
+        text-align: center;
     }
     /* Smartphones (portrait and landscape) ----------- */
     @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
@@ -34,7 +33,12 @@
     <template>
         <div class="container">
             <div class="img-container">
-                <iron-image src="{{model.image}}" preload fade sizing="contain"></iron-image>
+                <iron-image src="{{model.image}}"
+                            preload
+                            fade
+                            sizing="contain"
+                            width="[[size]]"
+                            height="[[size]]"></iron-image>
             </div>
             <label>{{computeLabel(model.*)}}</label>
         </div>
@@ -51,6 +55,10 @@
                     value: () => {
                         return {};
                     }
+                },
+                size: {
+                    type: Number,
+                    value: 140
                 }
             };
         }

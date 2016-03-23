@@ -10,6 +10,7 @@ let gulp = require('gulp'),
     del = require('del'),
     auth = require('basic-auth'),
     path = require('path'),
+    fs = require('fs'),
     config = require('./app/scripts/config'),
     bundler,
     utils;
@@ -126,11 +127,17 @@ gulp.task('assets', ['scenes'], () => {
 });
 
 gulp.task('views', () => {
-    gulp.src('app/views/**/*.html')
-        .pipe(utils.vulcanize({ inlineScripts: true }))
-        .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-        .pipe(gulp.dest('www/views'));
+    // Get the elements common to the whole app to exclude them from the views
+    getImports('./app/elements/elements.html').then((common) => {
+        return gulp.src('app/views/**/*.html')
+            .pipe(utils.vulcanize({
+                inlineScripts: true,
+                stripExcludes: common
+            }))
+            .pipe($.crisper({ scriptInHead: false }))
+            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+            .pipe(gulp.dest('www/views'));
+    }).catch(utils.notifyError);
 });
 
 gulp.task('scenes', () => {
@@ -161,6 +168,64 @@ gulp.task('sass', () => {
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
         .pipe(gulp.dest('www/css'));
 });
+
+function getImports(filePath, opts) {
+    let found = [];
+    opts = opts || {};
+
+    function crawlImports(filePath) {
+        return new Promise((resolve, reject) => {
+            let dir = path.dirname(filePath);
+            fs.readFile(filePath, (err, file) => {
+                if (err) {
+                    return resolve();
+                }
+                found.push(filePath);
+                let content = file.toString(),
+                importRegex = /<link.*rel="import".*>/gi,
+                imports = content.match(importRegex),
+                fileRegex,
+                files,
+                tasks;
+                if (!imports) {
+                    return resolve();
+                }
+                fileRegex = /href="(.*)"/,
+                files = imports.map((importLine) => {
+                    let m = importLine.match(fileRegex);
+                    if (m && m[1]) {
+                        return path.join(dir, m[1]);
+                    }
+                    return null;
+                }).filter((f) => {
+                    if (!f) {
+                        return false;
+                    }
+                    if (found.indexOf(f) === -1) {
+                        return true;
+                    }
+                });
+                tasks = files.map((f) => {
+                    return crawlImports(f);
+                });
+                return Promise.all(tasks).then(() => {
+                    return resolve(found);
+                }).catch(reject);
+            });
+        });
+    }
+    return crawlImports(filePath).then((files) => {
+        files = files.filter((item, pos, self) => {
+            return self.indexOf(item) == pos;
+        });
+        if (opts.base) {
+            files = files.map((filePath) => {
+                return path.relative(opts.base, filePath);
+            });
+        }
+        return files;
+    });
+}
 
 gulp.task('dev', ['watch', 'serve']);
 

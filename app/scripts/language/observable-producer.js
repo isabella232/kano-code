@@ -16,7 +16,8 @@ export default class ObservableProducer {
     refresh () {
         // Loop through the registered
         this.currentObs.forEach((ob) => {
-            let result = ob.method.apply({}, ob.args);
+            let result;
+            result = ob.method.apply({}, ob.args);
 
             if (result.then && typeof result.then === 'function') {
                 result.then((data) => {

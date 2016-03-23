@@ -17,7 +17,7 @@
     }
     </style>
     <template>
-        <template is="dom-repeat" items="{{computeTriggers(parts)}}" as="trigger">
+        <template is="dom-repeat" items="{{computeTriggers(parts.*)}}" as="trigger">
             <div class="trigger"
                 on-tap="selectTrigger">
                 <span>[[trigger.text]]</span>
@@ -31,8 +31,7 @@
             this.is = 'kano-event-select';
             this.properties = {
                 parts: {
-                    type: Array,
-                    value: () => []
+                    type: Array
                 }
             };
         }
@@ -41,7 +40,11 @@
                 return;
             }
             return this.parts.reduce((acc, part) => {
-                let events = part.events.map((event) => {
+                let events;
+                if (!part.events) {
+                    return acc;
+                }
+                events = part.events.map((event) => {
                     return {
                         emitter: part.id,
                         event: event.id,

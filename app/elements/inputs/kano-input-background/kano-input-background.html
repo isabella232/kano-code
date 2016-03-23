@@ -1,0 +1,36 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-background">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    </style>
+    <template>
+        <label>{{label}}</label>
+        <div>
+            <kano-input-color value="{{color}}"></kano-input-color>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoInputBackground {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-background';
+            this.observers = [
+                'computeValue(color)'
+            ];
+        }
+
+        computeValue () {
+            this.set('value', this.color);
+        }
+    }
+    Polymer(KanoInputBackground);
+</script>
