@@ -11,12 +11,14 @@ const STYLE_CONF = {
     'width': {
         key: 'width',
         type: 'size',
-        label: 'Width'
+        label: 'Width',
+        boundTo: 'width'
     },
     'height': {
         key: 'height',
         type: 'size',
-        label: 'Height'
+        label: 'Height',
+        boundTo: 'height'
     },
     'background': {
         key: 'background',
@@ -31,35 +33,36 @@ const STYLE_CONF = {
 };
 
 export default class UI extends Part {
-    constructor (opts) {
+
+    constructor (opts, size) {
         super(opts);
-        this.customizable = opts.customizable || { style: [], properties: [] };
+        this.position = opts.position;
+        this.customizable = Object.assign({}, opts.customizable) || { style: [], properties: [] };
         this.customizable.properties = this.customizable.properties || [];
         if (opts.customizable && opts.customizable.style) {
             this.customizable.style = opts.customizable.style.map((key) => {
-                return STYLE_CONF[key];
+                let style = STYLE_CONF[key];
+                if (style.boundTo === 'width') {
+                    style.max = size.width;
+                }
+                if (style.boundTo === 'height') {
+                    style.max = size.height;
+                }
+                return style;
             });
         }
-        this.userStyle = opts.userStyle || {};
-        this.userProperties = opts.userProperties || {};
         this.partType = 'ui';
-        Part.typeCounter[this.type] = Part.typeCounter[this.type] || 0;
-        Part.typeCounter[this.type]++;
-        if (!this.id) {
-            this.id = `${this.type}-${Part.typeCounter[this.type]}`;
-        }
-        if (!this.name) {
-            this.name = `${this.label} ${Part.typeCounter[this.type]}`;
-        }
+        this.position = this.position || {
+            x: size.width / 2,
+            y: size.height / 2
+        };
+
     }
     getElement () {
         return ComponentStore.get(this.id).element;
     }
     toJSON () {
         let plain = super.toJSON.call(this);
-        plain.userStyle = this.userStyle;
-        plain.userProperties = this.userProperties;
-        plain.position = this.position;
         plain.customizable = {
             properties: this.customizable.properties,
             style: this.customizable.style.map(style => style.key)
@@ -68,10 +71,5 @@ export default class UI extends Part {
     }
     load (plain) {
         super.load(plain);
-        this.userStyle = plain.userStyle;
-        this.userProperties = plain.userProperties;
-        this.position = plain.position;
     }
 }
-
-Part.typeCounter = {};

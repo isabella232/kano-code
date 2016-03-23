@@ -15,10 +15,9 @@
     }
     :host .content {
         position: relative;
-        overflow: auto;
         @apply(--layout-flex);
         --kano-ui-viewport: {
-            border: 2px solid black;
+            @apply(--kano-shadow);
         };
     }
     :host.running .content {
@@ -26,10 +25,9 @@
             border: none;
         };
     }
-    :host kano-ui {
-        position: absolute;
-        top: 0px;
-        left: 0px;
+    :host ::content #dropzone {
+        width: 100%;
+        height: 100%;
     }
     </style>
     <template>
@@ -38,11 +36,12 @@
                     view-height="[[size.height]]"
                     class="content"
                     id="content">
-            <template is="dom-repeat" items="{{parts}}" as="model">
-                <kano-ui model="{{model}}"
-                        running="[[running]]"
-                        style$="{{computePositionStyle(model)}}"></kano-ui>
-            </template>
+            <div id="dropzone">
+                <template is="dom-repeat" items="{{parts}}" as="model">
+                    <kano-ui model="{{model}}"
+                            running="[[running]]"></kano-ui>
+                </template>
+            </div>
         </kano-ui-viewport>
     </template>
 </dom-module>
@@ -105,30 +104,8 @@
                 }
             }
         }
-        loadBatch (models) {
-            models.forEach((model) => {
-                this.push('parts', model);
-            });
-        }
-        computePositionStyle (model) {
-            if (!model.position) {
-                model.position = {
-                    x: this.size.width / 2,
-                    y: this.size.height / 2
-                };
-            }
-            return `position: absolute;
-                    left: ${model.position.x}px;
-                    top: ${model.position.y}px;`;
-        }
-        getRect () {
-            return this.$.content.getRect();
-        }
         getViewport () {
-            return this.$.content;
-        }
-        resizeView () {
-            return this.$.content.resizeView();
+            return this.$.dropzone;
         }
     }
     Polymer(KanoWorkspace);

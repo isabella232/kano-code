@@ -17,30 +17,15 @@
         <label>{{label}}: <span class="value">{{value}}</span></label>
         <div class="inputs">
             <input type="range"
-                    min="{{computeMin(unit)}}"
-                    max="{{computeMax(unit)}}"
+                    min="{{min}}"
+                    max="{{max}}"
                     value="{{number::input}}"
                     on-change="numberChanged">
-            <select value="{{unit::change}}">
-                <template is="dom-repeat" items="[[types]]" as="type">
-                    <option value$="[[type.value]]">[[type.label]]</option>
-                </template>
-            </select>
+            px
         </div>
     </template>
 </dom-module>
 <script type="text/javascript">
-    const SIZE_TYPES = [{
-        label: 'Pixels',
-        value: 'px',
-        min: 0,
-        max: 1024,
-    },{
-        label: 'Percent',
-        value: '%',
-        min: 0,
-        max: 100
-    }];
     class KanoInputSize {
 
         get behaviors () {
@@ -62,55 +47,28 @@
                 }
             };
             this.observers = [
-                'computeValue(number, unit)'
+                'computeValue(number)'
             ];
         }
 
         computeValue () {
-            this.set('value', `${this.number}${this.unit}`);
+            this.set('value', `${this.number}px`);
         }
 
         valueChanged () {
-            let number,
-                unit;
+            let number;
 
             if (!this.value) {
                 return;
             }
 
             number = parseInt(this.value, 10);
-            unit = this.value.replace(number.toString(), '');
             this.set('number', number);
-            this.set('unit', this.getTypeByUnit(unit).value);
             this.fire('change');
-        }
-
-        attached () {
-            this.types = SIZE_TYPES;
-            this.unit = SIZE_TYPES[0].value;
         }
 
         numberChanged (e) {
             e.stopPropagation();
-        }
-
-        getTypeByUnit (unit) {
-            if (!this.types) {
-                return {};
-            }
-            for (let i = 0, len = this.types.length; i < len; i++) {
-                if (unit === this.types[i].value) {
-                    return this.types[i];
-                }
-            }
-        }
-
-        computeMin () {
-            return this.getTypeByUnit(this.unit).min;
-        }
-
-        computeMax () {
-            return this.getTypeByUnit(this.unit).max;
         }
     }
     Polymer(KanoInputSize);

@@ -7,12 +7,12 @@
 <link rel="import" href="../kano-ui-video/kano-ui-video.html">
 <link rel="import" href="../kano-ui-viewport/kano-ui-viewport.html">
 <link rel="import" href="../kano-ui-label/kano-ui-label.html">
+<link rel="import" href="../kano-ui-map/kano-ui-map.html">
 
 <dom-module id="kano-ui">
     <style>
     :host {
         display: inline-block;
-        animation: zoom-in 150ms ease-out;
     }
     :host .content {
         @apply(--layout-horizontal);
@@ -91,7 +91,12 @@
         attached () {
             // Create the related ui component and place it in the ui container
             let uiContainer = this.$['ui-container'],
-                ui = document.createElement(`kano-ui-${this.model.type}`);
+                ui = document.createElement(`kano-ui-${this.model.type}`),
+                position = this.model.position;
+
+            this.setAttribute('data-x', position.x);
+            this.setAttribute('data-y', position.y);
+
             ui.model = this.model;
             ui.setAttribute('id', this.model.id);
             while(uiContainer.firstChild) {
@@ -101,7 +106,7 @@
             this.ui = ui;
             this.fire('ui-ready', this);
         }
-        addRuleTapped (ev) {
+        addRuleTapped () {
             this.fire('add-rule-tapped', this);
         }
         runningChanged (running) {
@@ -120,6 +125,9 @@
             if (this.ui) {
                 this.ui.set(e.path, e.value);
             }
+            this.style.webkitTransform =
+            this.style.transform =
+                    `translate(${this.model.position.x}px, ${this.model.position.y}px)`;
         }
         getUIElement () {
             return this.ui;

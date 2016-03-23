@@ -1,0 +1,66 @@
+<link rel="import" href="../../../bower_components/google-map/google-map.html">
+<link rel="import" href="../behaviors.html">
+<dom-module id="kano-ui-map">
+    <style>
+    :host {
+        display: block;
+    }
+    :host iron-image {
+        border: 2px solid var(--color-primary);
+    }
+    </style>
+    <template>
+        <google-map id="map"
+                    latitude="{{position.latitude}}" longitude="{{position.longitude}}"
+                    style$="[[computeMapStyle(model.userStyle.*)]]"
+                    api-key="AIzaSyBEEqGElf1RWRS0vkoia0Vs_o0Tpni43UM"
+                    map="{{map}}">
+            <google-map-marker latitude="{{position.latitude}}" longitude="{{position.longitude}}"
+              draggable="true" title="ISS Space station"></google-map-marker>
+        </google-map>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoUiMap {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-map';
+            this.properties = {
+                coordinates: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
+                }
+            };
+        }
+        showMarker (pos) {
+            if (!this.consume(pos, this.showMarker)) {
+                if (!this.poly) {
+                    this.poly = new google.maps.Polyline({
+                        path: [],
+                        geodesic: true,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 2
+                    });
+                    this.poly.setMap(this.map);
+                }
+                let path = this.poly.getPath();
+                path.push(new google.maps.LatLng(pos.latitude, pos.longitude));
+
+                this.push('coordinates', pos);
+                this.set('position', pos);
+            }
+        }
+        computeMapStyle () {
+            return this.getPartialStyle(['width', 'height']);
+        }
+    }
+    Polymer(KanoUiMap);
+</script>

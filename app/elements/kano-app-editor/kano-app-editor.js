@@ -48,10 +48,16 @@ class KanoAppEditor {
                 type: Object
             }
         };
+        this.observers = [
+            'addedPartsChanged(addedParts.*)'
+        ];
         this.listeners = {
             'pages.iron-select': 'pageEntered',
             'pages.iron-deselect': 'pageLeft'
         };
+    }
+    addedPartsChanged () {
+        this.fire('change');
     }
     pageEntered (e) {
         // Trigger a resize on blockly when we get back to the
@@ -87,7 +93,7 @@ class KanoAppEditor {
         this.set('leftViewOpened', false);
     }
     leftViewOpenedChanged () {
-        this.$.workspace.resizeView();
+        this.triggerResize();
     }
     isPartsOpened () {
         return this.leftViewOpened && this.leftPanelView === 'parts';
@@ -145,12 +151,19 @@ class KanoAppEditor {
      */
     load () {
         let savedApp = JSON.parse(localStorage.getItem('savedApp')),
-            addedParts;
+            addedParts,
+            part
         if (!savedApp) {
             return;
         }
         addedParts = savedApp.parts.map((savedPart) => {
-            let part = new UI(savedPart.model);
+            for (let i = 0, len = Parts.length; i < len; i++) {
+                if (Parts[i].type === savedPart.model.type) {
+                    savedPart.model = Object.assign({}, Parts[i], savedPart.model);
+                    break;
+                }
+            }
+            part = new UI(savedPart.model, this.wsSize);
             part.codes = savedPart.codes;
             return part;
         });
@@ -183,25 +196,31 @@ class KanoAppEditor {
     closeUiDrawer () {
         this.$['ui-drawer'].opened = false;
     }
+    triggerResize () {
+        window.dispatchEvent(new Event('resize'));
+    }
     attached () {
         this.$.workspace.size = this.wsSize;
+        setTimeout(() => {
+            this.triggerResize();
+        }, 200);
         interact(this.$.rightPanel).dropzone({
             // TODO rename to kano-part-item
             accept: 'kano-ui-item',
             ondrop: (e) => {
-                let part = new UI(e.relatedTarget.model)
+                let model = e.relatedTarget.model,
+                    part;
+                model.position = null;
+                part = new UI(model, this.wsSize);
+                console.log(part);
                 this.push('addedParts', part);
                 this.set('selected', this.addedParts.length - 1);
             }
         });
-        window.addEventListener('resize', this.updateWorkspaceRect.bind(this));
-        this.updateWorkspaceRect();
+        this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
     }
-    detached () {
-        window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
-    }
-    updateWorkspaceRect () {
-        this.set('workspaceRect', this.$.workspace.getRect());
+    updateWorkspaceRect (e) {
+        this.set('workspaceRect', e.detail);
     }
     /**
      * Add draggable properties to the added element in the workspace
@@ -221,28 +240,37 @@ class KanoAppEditor {
     getDragMoveListener (scale=false) {
         return (event) => {
             let target = event.target,
-                // keep the dragged position in the data-x/data-y attributes
-                x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-                y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy,
-                pos = { x, y };
+                pos = {
+                    x: (parseFloat(target.getAttribute('data-x')) || 0),
+                    y: (parseFloat(target.getAttribute('data-y')) || 0)
+                },
+                delta = {
+                    x: event.dx,
+                    y: event.dy
+                };
 
             if (scale) {
-                pos = this.scaleToWorkspace(pos);
+                delta = this.scaleToWorkspace(delta);
             }
 
-            // translate the element
+            pos.x += delta.x;
+            pos.y += delta.y;
+
             target.style.webkitTransform =
             target.style.transform =
-            'translate(' + pos.x + 'px, ' + pos.y + 'px)';
+                    `translate(${pos.x}px, ${pos.y}px)`;
 
-            // update the posiion attributes
-            target.setAttribute('data-x', x);
-            target.setAttribute('data-y', y);
+            target.set('model.position', pos);
+
+            target.setAttribute('data-x', pos.x);
+            target.setAttribute('data-y', pos.y);
+            this.fire('change');
         };
     }
     scaleToWorkspace (point) {
         let rect = this.workspaceRect,
             fullSize = this.wsSize;
+
         return {
             x: point.x / rect.width * fullSize.width,
             y: point.y / rect.height * fullSize.height
