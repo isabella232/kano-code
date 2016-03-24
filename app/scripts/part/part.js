@@ -226,6 +226,70 @@ export default class Part {
                 };
             }
         });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_show_hide',
+                    message0: `${ui.name} %1`,
+                    args0: [{
+                        type: "field_dropdown",
+                        name: "VISIBILITY",
+                        options: [
+                            [
+                                "Show",
+                                "show"
+                            ],
+                            [
+                                "Hide",
+                                "hide"
+                            ]
+                        ]
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let visibility = block.getFieldValue('VISIBILITY'),
+                        code;
+                    visibility = visibility === 'show' ? 'true' : 'false';
+                    code = `devices.get('${ui.id}').show(${visibility});\n`;
+                    return code;
+                };
+            },
+            natural: (ui) => {
+                return function (block) {
+                    let visibility = block.getFieldValue('VISIBILITY'),
+                        code;
+                    code = `${visibility} ${ui.name}\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_toggle_visibility',
+                    message0: `toggle ${ui.name}'s' visibility`,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    let code = `devices.get('${ui.id}').toggleVisibility();\n`;
+                    return code;
+                };
+            },
+            natural: (ui) => {
+                return function () {
+                    let code = `toggle ${ui.name}'s vicibility\n`;
+                    return code;
+                };
+            }
+        });
     }
     getUniqueName (value, inc=0) {
         let newName = inc ? `${value} ${inc}` : value;

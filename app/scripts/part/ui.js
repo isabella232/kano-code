@@ -64,6 +64,7 @@ export default class UI extends Part {
         };
         this.rotation = opts.rotation || 0;
         this.scale = opts.scale || 1;
+        this.visible = opts.visible || true;
     }
     toJSON () {
         let plain = super.toJSON.call(this);
@@ -71,6 +72,9 @@ export default class UI extends Part {
             properties: this.customizable.properties,
             style: this.customizable.style.map(style => style.key)
         };
+        plain.rotation = this.rotation;
+        plain.scale = this.scale;
+        plain.visible = this.visible;
         return plain;
     }
 }
