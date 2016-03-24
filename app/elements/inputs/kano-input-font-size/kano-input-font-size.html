@@ -26,7 +26,7 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    const FONT_REGEXP = /(\d+\.\d+)em/;
+    const FONT_REGEXP = /(\d*\.\d+)em/;
     class KanoInputFontSize {
 
         get behaviors () {
@@ -57,13 +57,14 @@
         }
 
         valueChanged () {
-            let number;
+            let number,
+                m;
 
             if (!this.value) {
                 return;
             }
 
-            let m = this.value.match(FONT_REGEXP);
+            m = this.value.match(FONT_REGEXP);
             if (m && m[1]) {
                 this.set('number', parseFloat(m[1]));
             }
