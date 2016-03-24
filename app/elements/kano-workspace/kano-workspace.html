@@ -36,12 +36,7 @@
                     view-height="[[size.height]]"
                     class="content"
                     id="content">
-            <div id="dropzone">
-                <template is="dom-repeat" items="{{parts}}" as="model">
-                    <kano-ui model="{{model}}"
-                            running="[[running]]"></kano-ui>
-                </template>
-            </div>
+            <div id="dropzone"></div>
         </kano-ui-viewport>
     </template>
 </dom-module>
@@ -73,8 +68,81 @@
                 }
             };
             this.observers = [
-                'selectedPartChanged(selectedPart.*)'
+                'selectedPartChanged(selectedPart.*)',
+                'partsChanged(parts.*)'
             ];
+        }
+        ready () {
+            this.elements = {};
+        }
+        partsChanged (e) {
+            let path;
+            if (!e) {
+                return;
+            }
+            path = e.path;
+            if (path === 'parts.splices') {
+                let splices = e.value.keySplices;
+                splices.forEach((splice) => {
+                    splice.added.forEach(this.insertPart.bind(this));
+                    splice.removed.forEach(this.removePart.bind(this));
+                });
+            } else if (path === 'parts') {
+                if (this.elements) {
+                    // Clean the dropzone
+                    Object.keys(this.elements).forEach(this.removePart.bind(this));
+                }
+                // Insert the elements from the models
+                this.parts.forEach((model, index) => {
+                    this.insertPart(`#${index}`);
+                });
+            } else if (path === 'parts.length'){
+                return;
+            } else {
+                let pieces = path.split('.'),
+                    key = pieces[1],
+                    subPath;
+                if (!key) {
+                    return;
+                }
+                subPath = pieces.slice(2, pieces.length);
+                subPath.unshift('model');
+                subPath = subPath.join('.');
+                this.propagateChange(key, subPath, e.value);
+            }
+        }
+        propagateChange (key, path, value) {
+            let element = this.elements[key];
+            if (!element) {
+                return;
+            }
+            element.set(path, value);
+        }
+        insertPart (key) {
+            let model = this.get(`parts.${key}`),
+                element = document.createElement(`kano-ui-${model.type}`);
+            element.setAttribute('id', model.id);
+            element.addEventListener('model-changed', (e) => {
+                let detail = e.detail,
+                    path;
+                if (!detail.path) {
+                    path = `parts.${key}`;
+                } else {
+                    path = detail.path.replace('model', `parts.${key}`);
+                }
+                this.set(path, detail.value);
+            });
+            element.model = model;
+            this.elements[key] = element;
+            this.$.dropzone.appendChild(element);
+        }
+        removePart (key) {
+            let element = this.elements[key];
+            if (!element) {
+                return;
+            }
+            this.$.dropzone.removeChild(element);
+            delete this.elements[key];
         }
         computeSelectedPart () {
             return this.parts[this.selected];

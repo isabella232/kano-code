@@ -50,7 +50,7 @@ export default cat = {
             nextStatement: null
         },
         javascript: () => {
-            let code = `cat.refresh()`;
+            let code = `cat.refresh();\n`;
             return code;
         },
         natural: () => {

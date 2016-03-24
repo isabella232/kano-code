@@ -6,12 +6,12 @@ export default time = {
     timeouts: [],
     intervals: [],
     methods: {
-        setTimeout () {
-            let id = setTimeout.apply(window, arguments);
+        later (delay, callback) {
+            let id = setTimeout(callback, Math.max(1, delay) * 1000);
             time.timeouts.push(id);
         },
-        setInterval () {
-            let id = setInterval.apply(window, arguments);
+        every (interval, callback) {
+            let id = setInterval(callback, Math.max(1, interval) * 1000);
             time.intervals.push(id);
         }
     },
@@ -39,15 +39,15 @@ export default time = {
         javascript: (block) => {
             let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
                 interval = parseInt(Blockly.JavaScript.valueToCode(block, 'INTERVAL')) || 5,
-                code = `time.setInterval(function () {
+                code = `time.every(${interval}, function () {
                             ${statement}
-                        }, ${interval} * 1000)\n`;
+                        });\n`;
             return code;
         },
         natural: (block) => {
             let statement = Blockly.Natural.statementToCode(block, 'DO'),
                 interval = parseInt(Blockly.Natural.valueToCode(block, 'INTERVAL')) || 5,
-                code = `Every ${interval} seconds, ${statement} do`;
+                code = `Every ${interval} seconds, do ${statement}`;
             return code;
         }
     },{
@@ -68,15 +68,15 @@ export default time = {
         javascript: (block) => {
             let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
                 delay = parseInt(Blockly.JavaScript.valueToCode(block, 'DELAY')) || 5,
-                code = `time.setTimeout(function () {
+                code = `time.later(${delay}, function () {
                             ${statement}
-                        }, ${delay} * 1000)`;
+                        })`;
             return code;
         },
         natural: (block) => {
             let statement = Blockly.Natural.statementToCode(block, 'DO'),
                 delay = parseInt(Blockly.Natural.valueToCode(block, 'DELAY')) || 5,
-                code = `${delay} seconds later, ${statement} do`;
+                code = `${delay} seconds later, do ${statement}`;
             return code;
         }
     }]

@@ -1,11 +1,14 @@
 <dom-module id='kano-ui-label'>
+    <style>
+        :host {
+            display: inline-block;
+        }
+    </style>
     <template>
-        <div
-            id='label'
-            style$='[[computeLabelStyle(model.userStyle.*)]]'
-        >
+        <span id='label'
+            style$='[[computeLabelStyle(model.userStyle.*)]]'>
             {{model.userProperties.text}}
-        </div>
+        </span>
     </template>
 </dom-module>
 
@@ -19,18 +22,8 @@
             this.is = 'kano-ui-label';
         }
 
-        attached () {
-            this.set('model.userProperties.text', 'This is THE Label');
-            this.set('model.userStyle.background-color',
-                this.$.label.style.backgroundColor);
-            this.set('model.userStyle.color',
-                this.$.label.style.color);
-            this.set('model.userStyle.font-size',
-                this.$.label.style.fontSize);
-        }
-
         computeLabelStyle () {
-            return this.getPartialStyle(['background-color', 'color', 'font-size']);
+            return this.getPartialStyle(['font-weight', 'color', 'font-size']);
         }
 
         setValue (value) {

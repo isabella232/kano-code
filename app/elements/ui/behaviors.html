@@ -14,12 +14,6 @@ window.KanoBehaviors.UIBehavior = {
         // Called userStyle to avoid conflict with DOM `style` attribute
         model: {
             type: Object,
-            value: () => {
-                return {
-                    userStyle: {},
-                    userProperties: {}
-                };
-            },
             notify: true
         },
         listeners: {
@@ -29,26 +23,21 @@ window.KanoBehaviors.UIBehavior = {
             }
         }
     },
+    observers: [
+        'applyTransform(model.*)'
+    ],
+    attached () {
+        this.fire('ui-ready', this);
+    },
     getPartialStyle (attrs) {
+        if (!this.model) {
+            return '';
+        }
         attrs = attrs || Object.keys(this.model.userStyle);
         return attrs.reduce((acc, key) => {
             acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
             return acc;
         }, '');
-    },
-    save () {
-        let tagName = this.tagName.toLowerCase();
-        return `<${tagName}
-                    id="${this.model.id}"
-                    model="{{components.${this.model.id}}}">
-                </${tagName}>`;
-    },
-    getPosition () {
-        let rect = this.getBoundingClientRect();
-        return {
-            x: rect.left,
-            y: rect.top
-        };
     },
     when (name, callback) {
         if (!this.listeners[name]) {
@@ -57,13 +46,59 @@ window.KanoBehaviors.UIBehavior = {
         this.listeners[name].push(callback);
         this.addEventListener(name, callback);
     },
+    start () {
+        this.savedState = {
+            position: {
+                x: this.model.position.x,
+                y: this.model.position.y
+            },
+            rotation: this.model.rotation,
+            scale: this.model.scale
+        };
+    },
     stop () {
+        let savedState = this.savedState;
         Object.keys(this.listeners).forEach((name) => {
             this.listeners[name].forEach((callback) => {
                 this.removeEventListener(name, callback);
             });
         });
         this.listeners = {};
+        this.set('model.position.x', savedState.position.x);
+        this.set('model.position.y', savedState.position.y);
+        this.set('model.rotation', savedState.rotation);
+        this.set('model.scale', savedState.scale);
+    },
+    move (x, y) {
+        let position = this.model.position;
+        // Set separate values otherwise, the reference is compared and
+        // change triggers are not fired
+        this.set('model.position.x', position.x + x);
+        this.set('model.position.y', position.y + y);
+    },
+    setX (x) {
+        this.set('model.position.x', x);
+    },
+    setY (y) {
+        this.set('model.position.y', y);
+    },
+    rotate (deg) {
+        let rotation = this.model.rotation;
+        this.set('model.rotation', parseInt(rotation) + parseInt(deg));
+    },
+    scale (factor) {
+        this.set('model.scale', factor);
+    },
+    applyTransform () {
+        if (!this.model) {
+            return;
+        }
+        let position = this.model.position,
+            rotation = this.model.rotation || 0,
+            scale = this.model.scale || 1,
+            transform;
+        transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
+        this.style.webkitTransform = this.style.transform = transform;
     }
 };
 

@@ -1,5 +1,3 @@
-import ComponentStore from '../service/components';
-
 import Part from './part';
 
 const STYLE_CONF = {
@@ -7,6 +5,11 @@ const STYLE_CONF = {
         key: 'background-color',
         type: 'color',
         label: 'Background color'
+    },
+    'color': {
+        key: 'color',
+        type: 'color',
+        label: 'Color'
     },
     'width': {
         key: 'width',
@@ -27,8 +30,13 @@ const STYLE_CONF = {
     },
     'font-size': {
         key: 'font-size',
-        type: 'size',
-        label: 'Font size'
+        type: 'font-size',
+        label: 'Text size'
+    },
+    'font-weight': {
+        key: 'font-weight',
+        type: 'font-weight',
+        label: 'Text weight'
     }
 };
 
@@ -36,7 +44,6 @@ export default class UI extends Part {
 
     constructor (opts, size) {
         super(opts);
-        this.position = opts.position;
         this.customizable = Object.assign({}, opts.customizable) || { style: [], properties: [] };
         this.customizable.properties = this.customizable.properties || [];
         if (opts.customizable && opts.customizable.style) {
@@ -51,13 +58,12 @@ export default class UI extends Part {
             });
         }
         this.partType = 'ui';
-        this.position = this.position || {
-            x: size.width / 2,
-            y: size.height / 2
+        this.position = opts.position || {
+            x: 0,
+            y: 0
         };
-    }
-    getElement () {
-        return ComponentStore.get(this.id).element;
+        this.rotation = opts.rotation || 0;
+        this.scale = opts.scale || 1;
     }
     toJSON () {
         let plain = super.toJSON.call(this);
@@ -66,8 +72,5 @@ export default class UI extends Part {
             style: this.customizable.style.map(style => style.key)
         };
         return plain;
-    }
-    load (plain) {
-        super.load(plain);
     }
 }

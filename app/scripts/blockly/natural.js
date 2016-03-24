@@ -26,7 +26,7 @@ let register = (Blockly) => {
     };
     Blockly.Natural.finish = (a) => {
         if (a.replace) {
-            a = a.replace(/\s+/g, ' ');
+            a = a.replace(/ +/g, ' ');
         }
         return a;
     };

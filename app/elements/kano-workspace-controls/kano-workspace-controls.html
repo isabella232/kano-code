@@ -91,7 +91,7 @@
                 <template is="dom-repeat"
                             items="{{parts}}"
                             as="part">
-                    <div class="part" style$="[[partStyle(part, selectedPart)]]">
+                    <div class="part" style$="[[partStyle(part, selected)]]">
                         <kano-ui-item model="[[part]]"
                                       on-tap="selectPart"
                                       size="70"></kano-ui-item>
@@ -99,6 +99,7 @@
                 </template>
             </div>
         </div>
+        <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -109,12 +110,8 @@
                 running: {
                     type: Boolean
                 },
-                selectedPart: {
-                    type: Object,
-                    computed: 'computeSelectedPart(selected)'
-                },
                 selected: {
-                    type: Number,
+                    type: Object,
                     notify: true
                 },
                 code: {
@@ -134,9 +131,6 @@
                 'mouseleave': 'onMouseLeave'
             };
         }
-        computeSelectedPart () {
-            return this.parts[this.selected];
-        }
         attached () {
             window.addEventListener('keyup', this.onKeyUp.bind(this));
         }
@@ -149,16 +143,18 @@
             // If the delete key is pressed and an element is selected
             // and the workspace is focused, remove the element
             if (e.keyCode === 8 &&
-                    this.selectedPart &&
+                    this.selected &&
                     this.focused) {
-                let partsCount;
+                let partsCount,
+                    index;
                 e.preventDefault();
-                this.splice('parts', this.selected, 1);
+                index = this.parts.indexOf(this.selected);
+                this.splice('parts', index, 1);
                 partsCount = this.parts.length;
                 if (partsCount) {
-                    this.set('selected', partsCount - 1);
+                    this.$.selector.select(this.parts[partsCount - 1]);
                 } else {
-                    this.set('selected', null);
+                    this.$.selector.clearSelection();
                 }
                 this.fire('change');
             }
@@ -178,7 +174,6 @@
                 buttons[i].classList.remove('selected');
             }
             e.target.classList.add('selected');
-            this.selected = e.target.getAttribute('id');
         }
         addTapped () {
             this.fire('add-tap');
@@ -190,13 +185,13 @@
             this.fire('make-tap');
         }
         selectPart (e) {
-            this.set('selected', e.model.get('index'));
+            this.$.selector.select(e.model.get('part'));
         }
-        partStyle (part, selectedPart) {
-            if (!selectedPart) {
+        partStyle (part, selected) {
+            if (!selected) {
                 return;
             }
-            if (part.id === selectedPart.id) {
+            if (part.id === selected.id) {
                 return `border: 1px dashed orange;
                         border-radius: 3px;`;
             }

@@ -1,63 +1,50 @@
-import UI from './ui';
+let label;
 
-export default class Label extends UI {
-    constructor () {
-        super({
-            type: 'label',
-            label: 'The Label',
-            image: 'https://placeholdit.imgix.net/~text?txtsize=9&txt=100%C3%97100&w=100&h=100',
-            hue: 118,
-            customizable: {
-                style: ['background-color', 'color', 'font-size'],
-                properties: [{
-                    key: 'text',
-                    type: 'text',
-                    label: 'Text'
-                }]
+export default label = {
+    type: 'label',
+    label: 'Label',
+    image: '/assets/part/text-icon.png',
+    colour: '#607d8b',
+    customizable: {
+        style: ['color', 'font-size', 'font-weight'],
+        properties: [{
+            key: 'text',
+            type: 'text',
+            label: 'Text'
+        }]
+    },
+    userStyle: {
+        color: 'black',
+        'font-size': '1em',
+        'font-weight': '400'
+    },
+    userProperties: {
+        text: 'My text'
+    },
+    blocks: [{
+        block: (ui) => {
+            return {
+                id: 'label_text_set_value',
+                message0: `set ${ui.name} to %1`,
+                args0: [{
+                    type: "input_value",
+                    name: "INPUT"
+                }],
+                nextStatement: null,
+                previousStatement: null
             }
-        });
-
-        this.addBlock({
-            id: 'label_text_set_value',
-            output: false,
-            message0: 'set label value to %1',
-            args0: [{
-                type: "input_value",
-                name: "INPUT"
-            }],
-
-            javascript: (hw) => {
-                return function (block) {
-                    let value = Blockly.JavaScript.valueToCode(block, 'INPUT');
-
-                    return [`devices.get('${hw.id}').setValue(${value});`];
-                };
-            },
-            natural: (hw) => {
-                return function (block) {
-                    return [`input set value`];
-                };
-            }
-        });
-    }
-
-
-    setValue (value) {
-        this.getElement().setValue(value);
-    }
-
-    addEventListener () {
-        let element;
-        super.addEventListener.apply(this, arguments);
-        element = this.getElement();
-        return element.addEventListener.apply(element, arguments);
-    }
-
-    removeListeners () {
-        let element = this.getElement();
-        this.listeners.forEach((listener) => {
-            element.removeEventListener.apply(element, listener);
-        });
-        super.removeListeners();
-    }
-}
+        },
+        javascript: (ui) => {
+            return function (block) {
+                let value = Blockly.JavaScript.valueToCode(block, 'INPUT');
+                return `devices.get('${ui.id}').setValue(${value});`;
+            };
+        },
+        natural: (ui) => {
+            return function (block) {
+                let value = Blockly.Natural.valueToCode(block, 'INPUT');
+                return `set ${ui.name} to ${value}`;
+            };
+        }
+    }]
+};
