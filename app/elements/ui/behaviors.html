@@ -53,7 +53,8 @@ window.KanoBehaviors.UIBehavior = {
                 y: this.model.position.y
             },
             rotation: this.model.rotation,
-            scale: this.model.scale
+            scale: this.model.scale,
+            visible: this.model.visible
         };
     },
     stop () {
@@ -68,6 +69,7 @@ window.KanoBehaviors.UIBehavior = {
         this.set('model.position.y', savedState.position.y);
         this.set('model.rotation', savedState.rotation);
         this.set('model.scale', savedState.scale);
+        this.set('model.visible', savedState.visible);
     },
     move (x, y) {
         let position = this.model.position;
@@ -89,16 +91,25 @@ window.KanoBehaviors.UIBehavior = {
     scale (factor) {
         this.set('model.scale', factor);
     },
+    show (visibility) {
+        this.set('model.visible', visibility);
+    },
+    toggleVisibility () {
+        this.set('model.visible', !this.model.visible);
+    },
     applyTransform () {
         if (!this.model) {
             return;
         }
-        let position = this.model.position,
+        let position = this.model.position || { x: 0, y: 0 },
             rotation = this.model.rotation || 0,
             scale = this.model.scale || 1,
-            transform;
+            transform,
+            visibility;
         transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
+        visibility = this.model.visible ? 'visible' : 'hidden';
         this.style.webkitTransform = this.style.transform = transform;
+        this.style.visibility = visibility;
     }
 };
 

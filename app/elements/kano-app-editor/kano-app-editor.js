@@ -14,7 +14,7 @@ class KanoAppEditor {
             },
             selected: {
                 type: Object,
-                observer: 'selectedPartChanged',
+                observer: 'selectedChanged',
                 value: null
             },
             running: {
@@ -67,7 +67,7 @@ class KanoAppEditor {
             this.$['block-editor'].hideCodeEditor();
         }
     }
-    selectedPartChanged (newValue) {
+    selectedChanged (newValue) {
         if (newValue) {
             if (!this.leftViewOpened) {
                 this.toggleLeftView();
@@ -206,7 +206,7 @@ class KanoAppEditor {
                 model.position = null;
                 part = new UI(model, this.wsSize);
                 this.push('addedParts', part);
-                this.set('selected', this.addedParts.length - 1);
+                this.set('selected', part);
             }
         });
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));

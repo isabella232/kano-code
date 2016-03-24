@@ -5,6 +5,10 @@ export default input = {
     label: 'Text input',
     image: 'assets/part/text-field-icon.png',
     colour: '#3CAA36',
+    customizable: {
+        style: [],
+        properties: []
+    },
     blocks: [{
         block: (ui) => {
             return {

@@ -59,16 +59,11 @@
                     observer: 'runningChanged'
                 },
                 selected: {
-                    type: Number,
-                    notify: true
-                },
-                selectedPart: {
                     type: Object,
-                    computed: 'computeSelectedPart(selected)'
+                    notify: true
                 }
             };
             this.observers = [
-                'selectedPartChanged(selectedPart.*)',
                 'partsChanged(parts.*)'
             ];
         }
@@ -144,25 +139,12 @@
             this.$.dropzone.removeChild(element);
             delete this.elements[key];
         }
-        computeSelectedPart () {
-            return this.parts[this.selected];
-        }
         runningChanged () {
             if (this.running) {
                 this.classList.add('running');
             } else {
                 this.classList.remove('running');
             }
-        }
-        selectedPartChanged (e) {
-            let index,
-                path;
-            if (!this.selectedPart) {
-                return;
-            }
-            index = this.getPartIndexById(this.selectedPart.id);
-            path = e.path.replace('selectedPart', `parts.${index}`);
-            this.set(path, e.value);
         }
         getPartIndexById (id) {
             let elements = this.parts;
