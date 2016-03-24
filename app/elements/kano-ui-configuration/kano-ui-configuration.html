@@ -12,10 +12,37 @@
     :host kano-ui-customizer {
         margin-top: 10px;
     }
+    :host .input-line {
+        margin-top: 5px;
+    }
+    :host .label {
+        display: block;
+    }
+    :host .value {
+        font-weight: bold;
+    }
     </style>
     <template>
         <div class="name-edit">
             <input type="text" name="name" value="{{element.name::change}}">
+        </div>
+        <div class="input-line">
+            <span class="label">Position: <span class="value">{{roundPosition.x}}, {{roundPosition.y}}</span></span>
+        </div>
+        <div class="input-line">
+            <span class="label">Rotation: <span class="value">{{element.rotation}}°</span></span>
+            <input type="range"
+                    min="0"
+                    max="360"
+                    value="{{element.rotation::input}}">
+        </div>
+        <div class="input-line">
+            <span class="label">Scale: <span class="value">{{element.scale}}°</span></span>
+            <input type="range"
+                    min="1"
+                    max="5"
+                    step="0.1"
+                    value="{{element.scale::input}}">
         </div>
         <kano-ui-customizer
             customizable="{{element.customizable.properties}}"
@@ -37,8 +64,25 @@
                 element: {
                     type: Object,
                     notify: true
+                },
+                roundPosition: {
+                    type: Object
                 }
             };
+            this.observers = [
+                'computeRoundPosition(element.position.*)'
+            ];
+        }
+        computeRoundPosition () {
+            let pos;
+            if (!this.element) {
+                return;
+            }
+            pos = this.element.position;
+            this.set('roundPosition',{
+                x: Math.ceil(pos.x) || 0,
+                y: Math.ceil(pos.y) || 0
+            });
         }
     }
     Polymer(KanoUIConfiguration);

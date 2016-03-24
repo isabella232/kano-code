@@ -36,7 +36,7 @@ export default frame = {
         natural: (ui) => {
             return function (block) {
                 let pic = Blockly.Natural.valueToCode(block, 'PICTURE'),
-                    code = `draw picture on ${ui.name} of ${pic}`;
+                    code = `show ${pic} on ${ui.name}\n`;
                 return code;
             };
         }

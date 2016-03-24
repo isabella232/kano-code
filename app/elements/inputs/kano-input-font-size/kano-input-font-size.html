@@ -1,6 +1,6 @@
 <link rel="import" href="../behaviors.html">
 
-<dom-module id="kano-input-size">
+<dom-module id="kano-input-font-size">
     <style>
     :host {
         display: block;
@@ -17,22 +17,24 @@
         <label>{{label}}: <span class="value">{{value}}</span></label>
         <div class="inputs">
             <input type="range"
-                    min="{{min}}"
-                    max="{{max}}"
+                    min="0.8"
+                    max="4"
+                    step="0.1"
                     value="{{number::input}}"
                     on-change="numberChanged">
         </div>
     </template>
 </dom-module>
 <script type="text/javascript">
-    class KanoInputSize {
+    const FONT_REGEXP = /(\d+\.\d+)em/;
+    class KanoInputFontSize {
 
         get behaviors () {
             return [KanoBehaviors.Input];
         }
 
         beforeRegister () {
-            this.is = 'kano-input-size';
+            this.is = 'kano-input-font-size';
             this.properties = {
                 value: {
                     type: String,
@@ -51,7 +53,7 @@
         }
 
         computeValue () {
-            this.set('value', `${this.number}px`);
+            this.set('value', `${this.number}em`);
         }
 
         valueChanged () {
@@ -61,8 +63,11 @@
                 return;
             }
 
-            number = parseInt(this.value, 10);
-            this.set('number', number);
+            let m = this.value.match(FONT_REGEXP);
+            if (m && m[1]) {
+                this.set('number', parseFloat(m[1]));
+            }
+
             this.fire('change');
         }
 
@@ -70,5 +75,5 @@
             e.stopPropagation();
         }
     }
-    Polymer(KanoInputSize);
+    Polymer(KanoInputFontSize);
 </script>

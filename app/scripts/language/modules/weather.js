@@ -6,11 +6,22 @@ export default weather = {
     colour: '#cddc39',
     observableProducer: new ObservableProducer(),
     WEATHER_API_URL: 'http://api.openweathermap.org/data/2.5/weather',
+    defaultParams: {
+        units: 'metric'
+    },
     getBaseUrl () {
         return `${this.WEATHER_API_URL}?APPID=${this.WEATHER_API_KEY}`;
     },
+    buildUrl (params) {
+        let urlParams = Object.assign({}, params, this.defaultParams),
+            paramsString = Object.keys(urlParams).reduce((acc, key) => {
+                acc.push(`${key}=${urlParams[key]}`);
+                return acc;
+            }, []).join('&');
+        return `${this.WEATHER_API_URL}?${paramsString}`;
+    },
     getTemperature (city) {
-        let url = `${this.getBaseUrl()}&q=${city}`;
+        let url = this.buildUrl({ q: city});
         return fetch(url)
             .then(r => r.json())
             .then((data) => {
@@ -18,7 +29,7 @@ export default weather = {
             });
     },
     config (opts) {
-        this.WEATHER_API_KEY = opts.WEATHER_API_KEY;
+        this.defaultParams.APPID = opts.WEATHER_API_KEY;
     },
     methods: {
         getTemperature () {

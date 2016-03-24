@@ -12,13 +12,9 @@ class KanoAppEditor {
                 },
                 notify: true
             },
-            selectedPart: {
-                type: Object,
-                computed: 'computeSelectedPart(selected)',
-                observer: 'selectedPartChanged'
-            },
             selected: {
-                type: Number,
+                type: Object,
+                observer: 'selectedPartChanged',
                 value: null
             },
             running: {
@@ -70,9 +66,6 @@ class KanoAppEditor {
         if (e.detail.item.getAttribute('name') === 'code') {
             this.$['block-editor'].hideCodeEditor();
         }
-    }
-    computeSelectedPart () {
-        return this.addedParts[this.selected];
     }
     selectedPartChanged (newValue) {
         if (newValue) {
@@ -239,14 +232,16 @@ class KanoAppEditor {
     getDragMoveListener (scale=false) {
         return (event) => {
             let target = event.target,
-                pos = {
-                    x: (parseFloat(target.getAttribute('data-x')) || 0),
-                    y: (parseFloat(target.getAttribute('data-y')) || 0)
-                },
+                pos = target.model.position,
                 delta = {
                     x: event.dx,
                     y: event.dy
                 };
+
+            // Do not move when running
+            if (this.running) {
+                return;
+            }
 
             if (scale) {
                 delta = this.scaleToWorkspace(delta);
@@ -255,14 +250,9 @@ class KanoAppEditor {
             pos.x += delta.x;
             pos.y += delta.y;
 
-            target.style.webkitTransform =
-            target.style.transform =
-                    `translate(${pos.x}px, ${pos.y}px)`;
+            target.set('model.position.x', pos.x);
+            target.set('model.position.y', pos.y);
 
-            target.set('model.position', pos);
-
-            target.setAttribute('data-x', pos.x);
-            target.setAttribute('data-y', pos.y);
             this.fire('change');
         };
     }
@@ -278,7 +268,21 @@ class KanoAppEditor {
     sidebarUiReady (e) {
         let clone;
         interact(e.detail).draggable({
-            onmove: this.getDragMoveListener(),
+            onmove: (event) => {
+                var target = event.target,
+                    // keep the dragged position in the data-x/data-y attributes
+                    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                // translate the element
+                target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+
+                // update the posiion attributes
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            },
             restrict: {
                 restriction: this.$.section
             },
