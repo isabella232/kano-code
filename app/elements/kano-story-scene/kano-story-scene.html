@@ -11,22 +11,31 @@
     <template>
         <kano-view location="[[location]]"
                 view-name="[[name]]"
-                attributes="[[attributes]]"></kano-view>
+                attributes="{{attributes}}"></kano-view>
     </template>
 </dom-module>
 <script type="text/javascript">
-    window.Kano = window.Kano || {};
-    Kano.SceneComponentBehavior = {
+    window.KanoBehaviors = window.KanoBehaviors || {};
+    KanoBehaviors.SceneComponentBehavior = {
 
         properties: {
             scene: Object,
-            value: () => {
-                return {};
+            store: {
+                type: Object,
+                notify: true
             }
         },
 
         finish () {
             this.fire('done');
+        },
+
+        addToStore (id, data) {
+            this.store[id] = data;
+        },
+
+        fromStore (id) {
+            return this.store[id];
         }
 
     };
@@ -37,7 +46,7 @@
                 scene: {
                     type: Object,
                     value: () => {
-                        return {}
+                        return {};
                     }
                 },
                 location: {
@@ -47,18 +56,18 @@
                     type: String
                 },
                 attributes: {
+                    type: Object
+                },
+                store: {
                     type: Object,
-                    computed: 'computeAttributes(scene.data.*)'
+                    value: () => {
+                        return {};
+                    }
                 }
             };
             this.observers = [
                 'componentChanged(scene.component)'
             ];
-        }
-        computeAttributes () {
-            return {
-                scene: this.scene.data
-            };
         }
         componentChanged () {
             if (!this.scene.component) {
@@ -71,6 +80,10 @@
             // Join back the first pieces to get the location
                 loc = pieces.join('/');
             this.set('location', `assets/stories/${loc}`),
+            this.set('attributes', {
+                scene: this.scene.data,
+                store: this.store
+            });
             this.set('name', `kano-scene-${name}`);
         }
         sceneFinished () {

@@ -41,7 +41,8 @@
             };
         }
         attached () {
-            let editor = this.$.editor;
+            let editor = this.$.editor,
+                saveApp = JSON.parse(localStorage.getItem('savedApp'));
             this.set('parts', app.part);
             this.set('user', app.sdk.auth.getUser());
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
@@ -50,7 +51,7 @@
             editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             editor.addEventListener('share', this.shareApp.bind(this));
             editor.addEventListener('change', this.save.bind(this));
-            editor.load(app.part);
+            editor.load(savedApp, app.part);
         }
         updateWorkspaceRect (rect) {
             app.dragAndDrop.setWorkspaceRect(rect);
@@ -58,8 +59,9 @@
         save () {
             // Save after 3secs without changes
             this.debounce('save', () => {
-                let editor = this.$.editor;
-                editor.save();
+                let editor = this.$.editor,
+                    savedApp = editor.save();
+                localStorage.setItem('savedApp', JSON.stringify(savedApp));
             }, 3000);
         }
         shareApp () {
@@ -82,26 +84,6 @@
             }).then(() => {
                 modal.close();
             });
-        }
-        removePart (e) {
-            let model = e.detail,
-                parts = this.addedParts;
-            if (model.id === 'background') {
-                return;
-            }
-            for (let i = 0, len = parts.length; i < len; i++) {
-                if (parts[i].id === model.id) {
-                    this.splice('addedParts', i, 1);
-                    app.components.remove(model.id);
-                    if (model.partType === 'module') {
-                        this.push('parts', model);
-                    }
-                    if (!this.addedParts.length) {
-                        this.set('leftPanelView', 'parts');
-                    }
-                    return;
-                }
-            }
         }
         uiAddedParts () {
             return this.addedParts.filter((part) => {

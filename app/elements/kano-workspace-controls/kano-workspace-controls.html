@@ -185,7 +185,12 @@
             this.fire('make-tap');
         }
         selectPart (e) {
-            this.$.selector.select(e.model.get('part'));
+            let part = e.model.get('part');
+            this.$.selector.select(part);
+            this.fire('change', {
+                type: 'select-part',
+                part
+            });
         }
         partStyle (part, selected) {
             if (!selected) {

@@ -31,7 +31,7 @@
     class KanoBlockly {
 
         get behaviors () {
-            return [KanoBehaviors.CodeEditorBehavior];
+            return [KanoBehaviors.CodeEditorBehavior, KanoBehaviors.AppEditorBehavior];
         }
 
         beforeRegister () {
@@ -179,7 +179,9 @@
          */
         onBlocklyChange (e) {
             this.set('code', this.getCode('JavaScript'));
-            this.fire('change', e);
+            this.notifyChange('blockly', {
+                event: e
+            });
         }
         /**
          * Generate a XML string representation of the blocks

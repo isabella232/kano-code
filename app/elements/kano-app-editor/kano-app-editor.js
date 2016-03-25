@@ -1,4 +1,9 @@
 class KanoAppEditor {
+
+    get behaviors () {
+        return [KanoBehaviors.AppEditorBehavior];
+    }
+
     beforeRegister () {
         this.is = 'kano-app-editor';
         this.properties = {
@@ -45,21 +50,34 @@ class KanoAppEditor {
             }
         };
         this.observers = [
-            'addedPartsChanged(addedParts.*)'
+            'addedPartsChanged(addedParts.*)',
+            'selectedPartChanged(selected.*)'
         ];
         this.listeners = {
             'pages.iron-select': 'pageEntered',
             'pages.iron-deselect': 'pageLeft'
         };
     }
+    selectedPartChanged (e) {
+        let property = e.path.split('.');
+        property.shift();
+        property = property.join('.');
+        this.notifyChange('selected-part-change', {
+            property,
+            value: e.value
+        });
+    }
     addedPartsChanged () {
         this.fire('change');
     }
     pageEntered (e) {
+        let name = e.detail.item.getAttribute('name');
         // Trigger a resize on blockly when we get back to the
         // code editor page
-        if (e.detail.item.getAttribute('name') === 'code') {
+        if (name === 'code') {
             this.$['block-editor'].showCodeEditor();
+        } else if (name === 'parts') {
+            this.fire('change', { type: 'open-parts' });
         }
     }
     pageLeft (e) {
@@ -135,16 +153,15 @@ class KanoAppEditor {
             savedApp = {};
         savedApp.parts = savedParts;
         savedApp.background = this.background;
+        savedApp.blockEditorPage = this.$['block-editor'].selectedPage;
 
-        localStorage.setItem('savedApp', JSON.stringify(savedApp));
-
+        return savedApp;
     }
     /**
      * Load the saved work from the local storage
      */
-    load (parts) {
-        let savedApp = JSON.parse(localStorage.getItem('savedApp')),
-            addedParts,
+    load (savedApp, parts) {
+        let addedParts,
             part;
         if (!savedApp) {
             return;
@@ -162,6 +179,7 @@ class KanoAppEditor {
         });
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
+        this.$['block-editor'].showPage(savedApp.blockEditorPage);
     }
     toggleParts () {
         // Either just toggle the showed view or display/hide the whole
@@ -206,7 +224,10 @@ class KanoAppEditor {
                 model.position = null;
                 part = new UI(model, this.wsSize);
                 this.push('addedParts', part);
-                this.set('selected', part);
+                this.fire('change', {
+                    type: 'add-part',
+                    part
+                });
             }
         });
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
@@ -222,6 +243,13 @@ class KanoAppEditor {
         let element = e.detail;
         interact(element).draggable({
             onmove: this.getDragMoveListener(true),
+            onend: (e) => {
+                let model = e.target.model;
+                this.fire('change', {
+                    type: 'move-part',
+                    part: model
+                });
+            },
             restrict: {
                 restriction: this.$.workspace.getViewport(),
                 elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
@@ -252,8 +280,6 @@ class KanoAppEditor {
 
             target.set('model.position.x', pos.x);
             target.set('model.position.y', pos.y);
-
-            this.fire('change');
         };
     }
     scaleToWorkspace (point) {
@@ -330,6 +356,9 @@ class KanoAppEditor {
             this.set('leftViewOpened', true);
             this.$['block-editor'].showCodeEditor();
         }
+        this.notifyChange('running', {
+            value: this.running
+        });
     }
 }
 Polymer(KanoAppEditor);

@@ -1,103 +1,123 @@
 {
+    "parts": ["label"],
     "steps": [{
-        "instruction": "Pick the 'every' block in the 'Time' section",
+        "instruction": "To make your app nice and shinny, pick a background color",
         "validation": {
-            "create": {
-                "type": "every_x_seconds",
-                "id": "interval"
+            "background": {
+                "property": "userStyle.background"
             }
         }
     },{
-        "instruction": "Add a number to the every block",
+        "instruction": "Open the parts tray by clicking the '+' button",
         "validation": {
-            "create": {
-                "type": "math_number",
-                "id": "interval_number"
+            "open-parts": true
+        }
+    },{
+        "instruction": "Add a 'Label to your app using drag and drop'",
+        "validation": {
+            "add-part": {
+                "type": "label",
+                "id": "label_1"
             }
         }
     },{
-        "instruction": "Add a number to the every block",
+        "instruction": "Select the label you added by clicking on it in the part tray",
         "validation": {
-            "connect": {
-                "target": "interval_number",
-                "parent": "interval"
+            "select-part": {
+                "target": "label_1"
             }
         }
     },{
-        "instruction": "Set the number to 5",
+        "instruction": "You can tweak you label by clicking on the edit button",
         "validation": {
-            "value": {
-                "target": "interval_number",
-                "value": 5
+            "open-part-config": true
+        }
+    },{
+        "instruction": "In the config panel, you can change many thing on your label. Try to make it bigger by using the 'Text size' slider",
+        "validation": {
+            "selected-part-change": {
+                "target": "label_1",
+                "property": "userStyle.font-size"
             }
         }
     },{
-        "instruction": "Create a block to get the weather",
+        "instruction": "Nice, now, to make your app look nice, move the text in the middle",
         "validation": {
-            "create": {
-                "type": "get_current_conditions",
-                "id": "get_weather"
+            "selected-part-change": {
+                "target": "label_1",
+                "property": "position.*"
             }
         }
     },{
-        "instruction": "Add the block inside the every loop",
+        "instruction": "Now, it is time to code your app, click on the button at the top left of the screen to go back",
         "validation": {
-            "connect": {
-                "target": "get_weather",
-                "parent": "interval"
+            "open-part-default": true
+        }
+    },{
+        "instruction": "Click on the big 'Add code' button",
+        "validation": {
+            "open-part-trigger": true
+        }
+    },{
+        "instruction": "Choose 'When make is clicked' to add code that will run when your app starts",
+        "validation": {
+            "trigger": {
+                "emitter": "global",
+                "event": "start"
             }
         }
     },{
-        "instruction": "Create a block to add text",
+        "instruction": "To change what the text says, you can use the 'set Label to' block.\n You can find the block in the 'Label' category on the top left",
         "validation": {
-            "create": {
-                "type": "text",
-                "id": "city_text"
+            "blockly": {
+                "create": {
+                    "target": "label_1",
+                    "type": "set_value",
+                    "id": "set_text_block_1"
+                }
             }
         }
     },{
-        "instruction": "Add it to the block that get the weather",
+        "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
-            "connect": {
-                "target": "city_text",
-                "parent": "get_weather"
+            "blockly": {
+                "create": {
+                    "type": "text",
+                    "id": "text_block_1"
+                }
             }
         }
     },{
-        "instruction": "Type your favorite city in the input",
+        "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
-            "value": {
-                "target": "city_text",
-                "minLength": 3
+            "blockly": {
+                "connect": {
+                    "parent": "set_text_block_1",
+                    "target": "text_block_1"
+                }
             }
         }
     },{
-        "instruction": "Now, create a number block",
+        "instruction": "Now, you can type in the text you want to be displayed. Just to see if it works, type in your name",
         "validation": {
-            "create": "math_number"
+            "blockly": {
+                "value": {
+                    "target": "text_block_1",
+                    "minLength": 4
+                }
+            }
         }
+    },{
+        "instruction": "Let's see if your test program works, hit the 'make' button on the bottom right of the screen",
+        "validation": {
+            "running": {
+                "value": true
+            }
+        }
+    },{
+        "instruction": "Yay, we can control the text to display what we want! Next step, displaying the temperature",
+        "next_button": true,
+        "save_app": "app_1"
     }],
-    "toolbox": [{
-        "name": "Time",
-        "blocks": [{
-            "id": "every_x_seconds"
-        }]
-    },{
-        "name": "Weather",
-        "blocks": [{
-            "id": "get_current_conditions"
-        },{
-            "id": "get_stored_weather"
-        }]
-    },{
-        "name": "Math",
-        "blocks": [{
-            "id": "math_number"
-        }]
-    },{
-        "name": "Text",
-        "blocks": [{
-            "id": "text"
-        }]
-    }]
+    "modules": ["Text"]
 }

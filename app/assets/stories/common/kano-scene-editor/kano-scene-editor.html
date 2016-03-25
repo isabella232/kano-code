@@ -1,0 +1,79 @@
+<dom-module id="kano-scene-editor">
+  <style>
+    :host {
+      display: block;
+      @apply(--layout-vertical);
+    }
+    :host kano-app-challenge {
+        @apply(--layout-flex);
+    }
+    :host kano-app-editor {
+        @apply(--layout-flex);
+    }
+  </style>
+  <template>
+      <kano-app-challenge steps="[[scene.steps]]" on-save="saveApp" on-load="loadApp">
+          <kano-app-editor id="editor"
+                            parts="[[computeParts(scene.*)]]"
+                            default-categories="[[computeCategories(scene.*)]]"
+                            class="editor"
+                            ws-size="[[size]]"
+                            running="{{running}}"></kano-app-editor>
+      </kano-app-challenge>
+  </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoSceneVideo {
+
+        get behaviors () {
+            return [KanoBehaviors.SceneComponentBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-scene-editor';
+            this.properties = {
+                running: {
+                    type: Boolean,
+                    observer: 'runningChanged'
+                }
+            };
+        }
+
+        attached () {
+            this.set('size', app.config.WORKSPACE_FULL_SIZE);
+            this.isAttached = true;
+            this.fire('attached');
+        }
+
+        computeParts () {
+            return app.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+        }
+
+        computeCategories () {
+            return app.defaultCategories.filter(category => this.scene.modules.indexOf(category.name) !== -1)
+        }
+
+        runningChanged () {
+            if (this.running) {
+                app.components.run(this.$.editor.addedParts);
+            } else {
+                app.components.stop(this.$.editor.addedParts);
+            }
+        }
+        saveApp (e) {
+            let id = e.detail,
+                app = this.$.editor.save();
+            this.addToStore(id, app);
+        }
+        loadApp (e) {
+            let id = e.detail;
+            // Prevent the loading of the saved app before the store is initialized
+            if (!this.isAttached) {
+                this.addEventListener('attached', this.loadApp.bind(this, e));
+                return;
+            }
+            this.$.editor.load(this.fromStore(id), this.computeParts());
+        }
+    }
+    Polymer(KanoSceneVideo);
+</script>

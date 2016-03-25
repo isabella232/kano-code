@@ -1,0 +1,184 @@
+<link rel="import" href="../behaviors.html">
+<dom-module id="kano-app-challenge">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host .instruction-overlay {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        padding: 5px;
+    }
+    :host button {
+        @apply(--kano-button-small);
+        background: var(--green-gradient, green);
+        margin-left: 10px;
+    }
+    :host content {
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <div class="instruction-overlay">
+            <h3>{{instruction}}</h3>
+            <button type="button"
+                    hidden$="[[isNextHidden(step)]]"
+                    on-tap="nextStep">Next</button>
+        </div>
+        <content select=".editor" id="content"></content>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoAppChallenge {
+
+        get behaviors () {
+            return [KanoBehaviors.ValidatorBehavior, KanoBehaviors.BlocklyValidatorBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-app-challenge';
+            this.observers = [
+                'stepChanged(steps, step)'
+            ];
+        }
+        /**
+         * Find the blockly element and listens to the change event
+         */
+        attached () {
+            let node = Polymer.dom(this.$.content).getDistributedNodes()[0];
+            node.addEventListener('change', this.editorChanged.bind(this));
+            this.validators = {
+                "background": this.matchProperty.bind(this),
+                "add-part": this.matchAddPart.bind(this),
+                "select-part": this.matchPartTarget.bind(this),
+                "selected-part-change": this.matchPartChange.bind(this),
+                "trigger": this.matchTrigger.bind(this),
+                "running": this.matchValue.bind(this)
+            };
+        }
+        stepChanged () {
+            let step;
+            if (!this.steps) {
+                return;
+            }
+            step = this.steps[this.step];
+            if (!step) {
+                return;
+            }
+            if (step.load_app) {
+                this.fire('load', step.load_app);
+            }
+            if (step.save_app) {
+                this.fire('save', step.save_app);
+            }
+        }
+        isNextHidden () {
+            let currentStep;
+            if (!this.steps) {
+                return true;
+            }
+            currentStep = this.steps[this.step];
+            if (!currentStep) {
+                return true;
+            }
+            return !currentStep.next_button;
+        }
+        matchTrigger (validation, event) {
+            return validation.emitter === event.trigger.emitter &&
+                    validation.event === event.trigger.event;
+        }
+        matchPartChange (validation, event) {
+            if (!this.matchPartTarget(validation, event)) {
+                return false;
+            }
+            return this.matchProperty(validation, event);
+        }
+        matchPartTarget (validation, event) {
+            let target = this.stepIds[validation.target];
+            // Match if there is not target defined or if the target matches
+            return validation.target || target === event.part.id;
+        }
+        /**
+         * Will tell if a property defined in a validation and an event matches
+         * Example:
+         * The validation says: 'userStyle.background' and the event says
+         * 'userStyle.background', the properties match
+         * The story creator can define a step that just wait for a vague action
+         * to be made:
+         * validation: 'position.*' will match things like 'position.x' and
+         * 'position.y'
+         */
+        matchProperty (validation, event) {
+            // Split the properties paths
+            let validationParts = validation.property.split('.'),
+                eventParts = event.property.split('.');
+            // Loop through the smallest part
+            for (let i = 0, len = validationParts.length; i < len; i++) {
+                // If the validation used the joker, the remaining parts are accepted
+                if (validationParts[i] === '*') {
+                    break;
+                }
+                // If the part doesn't match, stop
+                if (validationParts[i] !== eventParts[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        matchValue (validation, event) {
+            return validation.value === event.value;
+        }
+        matchAddPart (validation, event) {
+            // Check the type of the added part
+            if (!this.matchPartType(validation, event)) {
+                return false;
+            }
+            // If an id is provided, save the id of the added part
+            if (validation.id) {
+                this.stepIds[validation.id] = event.part.id;
+            }
+            return true;
+        }
+        matchPartType (validation, event) {
+            return validation.type === event.part.type;
+        }
+        isStepTarget (validation, id) {
+            let target = this.stepIds[validation.target];
+            return target === id;
+        }
+        isStepEvent (step, type, event) {
+            return step[type] && event.type === type;
+        }
+        /**
+         * Try to match the blockly event to the current step
+         * @param  {Event} e  A blockyl change event
+         */
+        editorChanged (e) {
+            // Store current step object
+            let step = this.steps[this.step],
+                detail = e.detail;
+
+            Object.keys(step.validation).forEach((type) => {
+                let validation;
+                if (type !== detail.type) {
+                    return;
+                }
+                validation = step.validation[type];
+                if (validation === true) {
+                    return this.nextStep();
+                }
+                if (type === 'blockly') {
+                    return this.handleBlocklyChange(validation, detail.event);
+                }
+                if (typeof this.validators[type] === 'function' &&
+                        this.validators[type](validation, detail)) {
+                    this.nextStep();
+                }
+            });
+        }
+    }
+    Polymer(KanoAppChallenge);
+</script>
