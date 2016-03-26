@@ -1,7 +1,11 @@
 {
     "parts": ["label"],
     "steps": [{
+        "instruction": "Welcome to the app editor, I will guide you through the interface, and help you make your own weather app",
+        "modal": true
+    },{
         "instruction": "To make your app nice and shinny, pick a background color",
+        "focus": "block-editor.background_style",
         "validation": {
             "background": {
                 "property": "userStyle.background"
@@ -9,6 +13,7 @@
         }
     },{
         "instruction": "Open the parts tray by clicking the '+' button",
+        "focus": "workspace-controls.add-part",
         "validation": {
             "open-parts": true
         }
@@ -22,6 +27,10 @@
         }
     },{
         "instruction": "Select the label you added by clicking on it in the part tray",
+        "focus": {
+            "path": "workspace-controls",
+            "part": "label_1"
+        },
         "validation": {
             "select-part": {
                 "target": "label_1"
@@ -31,7 +40,8 @@
         "instruction": "You can tweak you label by clicking on the edit button",
         "validation": {
             "open-part-config": true
-        }
+        },
+        "focus": "block-editor.look-button"
     },{
         "instruction": "In the config panel, you can change many thing on your label. Try to make it bigger by using the 'Text size' slider",
         "validation": {
@@ -39,7 +49,8 @@
                 "target": "label_1",
                 "property": "userStyle.font-size"
             }
-        }
+        },
+        "focus": "block-editor.look.style.font-size"
     },{
         "instruction": "Nice, now, to make your app look nice, move the text in the middle",
         "validation": {
@@ -47,12 +58,14 @@
                 "target": "label_1",
                 "property": "position.*"
             }
-        }
+        },
+        "focus": "workspace"
     },{
         "instruction": "Now, it is time to code your app, click on the button at the top left of the screen to go back",
         "validation": {
             "open-part-default": true
-        }
+        },
+        "focus": "block-editor.back-button"
     },{
         "instruction": "Click on the big 'Add code' button",
         "validation": {
@@ -76,7 +89,8 @@
                     "id": "set_text_block_1"
                 }
             }
-        }
+        },
+        "focus": "block-editor"
     },{
         "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
@@ -86,7 +100,8 @@
                     "id": "text_block_1"
                 }
             }
-        }
+        },
+        "focus": "block-editor"
     },{
         "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
@@ -96,7 +111,8 @@
                     "target": "text_block_1"
                 }
             }
-        }
+        },
+        "focus": "block-editor"
     },{
         "instruction": "Now, you can type in the text you want to be displayed. Just to see if it works, type in your name",
         "validation": {
@@ -106,14 +122,16 @@
                     "minLength": 4
                 }
             }
-        }
+        },
+        "focus": "block-editor"
     },{
         "instruction": "Let's see if your test program works, hit the 'make' button on the bottom right of the screen",
         "validation": {
             "running": {
                 "value": true
             }
-        }
+        },
+        "focus": "workspace-controls.make-button"
     },{
         "instruction": "Yay, we can control the text to display what we want! Next step, displaying the temperature",
         "next_button": true,

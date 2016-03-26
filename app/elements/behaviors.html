@@ -78,6 +78,14 @@
     };
 
     window.KanoBehaviors.BlocklyValidatorBehavior = {
+        properties: {
+            blockIds: {
+                type: Object,
+                value: () => {
+                    return {};
+                }
+            }
+        },
         attached () {
             this.eventsMap = {
                 create: 'Create',
@@ -91,7 +99,6 @@
                 'value': this.matchValue.bind(this),
                 'delete': this.matchDelete.bind(this)
             };
-            this.blockIds = {};
         },
         matchBlockType (type, event) {
             return event.xml.getAttribute('type') === type;

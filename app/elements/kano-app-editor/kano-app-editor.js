@@ -54,8 +54,8 @@ class KanoAppEditor {
             'selectedPartChanged(selected.*)'
         ];
         this.listeners = {
-            'pages.iron-select': 'pageEntered',
-            'pages.iron-deselect': 'pageLeft'
+            'left-panel.iron-select': 'pageEntered',
+            'left-panel.iron-deselect': 'pageLeft'
         };
     }
     selectedPartChanged (e) {
@@ -142,7 +142,7 @@ class KanoAppEditor {
      * Save the current work in the local storage
      * TODO trigger that every 5sec or so if there is any changes
      */
-    save () {
+    save (snapshot=false) {
         let savedParts = this.addedParts.reduce((acc, part) => {
             let savedPart = {};
             savedPart.model = part.toJSON();
@@ -153,7 +153,12 @@ class KanoAppEditor {
             savedApp = {};
         savedApp.parts = savedParts;
         savedApp.background = this.background;
-        savedApp.blockEditorPage = this.$['block-editor'].selectedPage;
+        if (snapshot) {
+            savedApp.snapshot = true;
+            savedApp.selectedPart = this.addedParts.indexOf(this.selected);
+            savedApp.blockEditorPage = this.$['block-editor'].selectedPage;
+            savedApp.selectedTrigger = this.$['block-editor'].trigger;
+        }
 
         return savedApp;
     }
@@ -179,7 +184,11 @@ class KanoAppEditor {
         });
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
-        this.$['block-editor'].showPage(savedApp.blockEditorPage);
+        if (savedApp.snapshot) {
+            this.$['workspace-controls'].selectPart(addedParts[savedApp.selectedPart]);
+            this.$['block-editor'].set('trigger', savedApp.selectedTrigger);
+            this.$['block-editor'].showPage(savedApp.blockEditorPage);
+        }
     }
     toggleParts () {
         // Either just toggle the showed view or display/hide the whole
@@ -215,7 +224,7 @@ class KanoAppEditor {
         setTimeout(() => {
             this.triggerResize();
         }, 200);
-        interact(this.$.rightPanel).dropzone({
+        interact(this.$['right-panel']).dropzone({
             // TODO rename to kano-part-item
             accept: 'kano-ui-item',
             ondrop: (e) => {
@@ -231,6 +240,9 @@ class KanoAppEditor {
             }
         });
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
+    }
+    detached () {
+        UI.clear();
     }
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);

@@ -1,3 +1,4 @@
+<link rel="import" href="../kano-focus-on/kano-focus-on.html">
 <link rel="import" href="../behaviors.html">
 <dom-module id="kano-app-challenge">
     <style>
@@ -19,15 +20,34 @@
     :host content {
         @apply(--layout-flex);
     }
+    :host #modal {
+        border-radius: 4px;
+    }
+    :host .modal-content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    :host .modal-content button {
+        @apply(--kano-button);
+    }
     </style>
     <template>
-        <div class="instruction-overlay">
+        <div class="instruction-overlay" id="top-bar">
             <h3>{{instruction}}</h3>
             <button type="button"
                     hidden$="[[isNextHidden(step)]]"
                     on-tap="nextStep">Next</button>
         </div>
         <content select=".editor" id="content"></content>
+        <kano-focus-on id="focus" breathe></kano-focus-on>
+        <paper-dialog id="modal"
+                      with-backdrop>
+            <div class="modal-content">
+                <div>{{instruction}}</div>
+                <button type="button" on-tap="nextStep">Next</button>
+            </div>
+        </paper-dialog>
     </template>
 </dom-module>
 
@@ -43,13 +63,14 @@
             this.observers = [
                 'stepChanged(steps, step)'
             ];
+            this.listeners = {
+                'change': 'editorChanged'
+            };
         }
         /**
          * Find the blockly element and listens to the change event
          */
-        attached () {
-            let node = Polymer.dom(this.$.content).getDistributedNodes()[0];
-            node.addEventListener('change', this.editorChanged.bind(this));
+        ready () {
             this.validators = {
                 "background": this.matchProperty.bind(this),
                 "add-part": this.matchAddPart.bind(this),
@@ -58,22 +79,72 @@
                 "trigger": this.matchTrigger.bind(this),
                 "running": this.matchValue.bind(this)
             };
+            this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
+            this.focus = this.$.focus;
+            this.modal = this.$.modal;
+        }
+        attached () {
+            this.isAttached = true;
+            this.fire('attached');
         }
         stepChanged () {
-            let step;
-            if (!this.steps) {
+            let step,
+                focusString;
+            // Prevent the loading of the saved app before the store is initialized
+            if (!this.isAttached) {
+                this.addEventListener('attached', this.stepChanged.bind(this));
                 return;
             }
-            step = this.steps[this.step];
-            if (!step) {
-                return;
-            }
-            if (step.load_app) {
-                this.fire('load', step.load_app);
-            }
-            if (step.save_app) {
-                this.fire('save', step.save_app);
-            }
+            this.debounce('stepChanged', () => {
+                if (!this.steps) {
+                    return;
+                }
+                step = this.steps[this.step];
+                if (!step) {
+                    return;
+                }
+                if (step.load_app) {
+                    this.fire('load', step.load_app);
+                }
+                if (step.save_app) {
+                    this.fire('save', {
+                        id: step.save_app,
+                        stepIds: this.stepIds,
+                        blockIds: this.blockIds
+                    });
+                }
+                if (step.focus) {
+                    focusString = JSON.stringify(step.focus);
+                    if (focusString !== this.previousFocus) {
+                        this.focus.hide();
+                        this.deepFocus(step.focus);
+                        this.previousFocus = JSON.stringify(step.focus);
+                    }
+                } else {
+                    this.focus.hide();
+                }
+                this.modal.close();
+                if (step.modal) {
+                    this.modal.open();
+                }
+            }, 10);
+        }
+        deepFocus (selector) {
+            let parts,
+                targets;
+            targets = Array.isArray(targets) ? selector : [selector];
+            targets = targets.map((target) => {
+                let element = this.editor;
+                if (typeof target == 'object') {
+                    target = `${target.path}.${this.stepIds[target.part]}`;
+                }
+                parts = target.split('.');
+                for (let i = 0, len = parts.length; i < len; i++) {
+                    element = element.$$(`#${parts[i]}`);
+                }
+                return element;
+            });
+            this.focus.show(targets);
         }
         isNextHidden () {
             let currentStep;
@@ -161,6 +232,9 @@
             let step = this.steps[this.step],
                 detail = e.detail;
 
+            if (!step || !step.validation) {
+                return;
+            }
             Object.keys(step.validation).forEach((type) => {
                 let validation;
                 if (type !== detail.type) {

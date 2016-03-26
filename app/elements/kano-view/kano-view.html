@@ -33,6 +33,9 @@
                 'attributesChanged(attributes.*)'
             ];
         }
+        getComponent () {
+            return this.viewComponent;
+        }
         /**
          * Apply the attributes to the loaded component
          */
@@ -61,12 +64,15 @@
         }
         displayView () {
             let view = this.create(this.viewName, this.attributes);
-            view.style.flex = 1;
+            this.mountComponent(view);
+        }
+        mountComponent (component) {
+            component.style.flex = 1;
             while (this.firstChild) {
                 this.removeChild(this.firstChild);
             }
-            this.appendChild(view);
-            this.viewComponent = view;
+            this.appendChild(component);
+            this.viewComponent = component;
         }
         /**
          * Import the view component
