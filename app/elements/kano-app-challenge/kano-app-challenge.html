@@ -32,12 +32,30 @@
     :host .modal-content button {
         @apply(--kano-button);
     }
+    :host .tooltip-content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+    }
+    :host .tooltip-text {
+        font-size: 1.2em;
+        font-weight: 400;
+    }
+    :host .tooltip-content button {
+        margin-top: 7px;
+    }
     </style>
     <template>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
-            <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">[[tooltip.text]]</kano-tooltip>
+            <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">
+                <div class="tooltip-content">
+                    <div class="tooltip-text">
+                        [[tooltip.text]]
+                    </div>
+                    <button type="button" on-tap="nextStep" hidden$="[[!tooltip.next_button]]">Next</button>
+                </div>
+            </kano-tooltip>
         </template>
         <paper-dialog id="modal"
                       with-backdrop>
@@ -164,7 +182,7 @@
         }
         deepFocus (selector) {
             let targets;
-            targets = Array.isArray(targets) ? selector : [selector];
+            targets = Array.isArray(selector) ? selector : [selector];
             targets = targets.map(this.getDeepElement.bind(this));
             this.focus.show(targets);
         }

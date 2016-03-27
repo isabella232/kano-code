@@ -17,11 +17,15 @@
             }
         }
     },{
-        "instruction": "Open the parts tray by clicking the '+' button",
         "focus": "workspace-controls.add-part",
         "validation": {
             "open-parts": true
-        }
+        },
+        "tooltips": [{
+            "location": "workspace-controls.add-part",
+            "position": "left",
+            "text": "Click on this button to see the parts you can add to your app"
+        }]
     },{
         "instruction": "Add a 'Label to your app using drag and drop'",
         "validation": {
@@ -31,7 +35,6 @@
             }
         }
     },{
-        "instruction": "Select the label you added by clicking on it in the part tray",
         "focus": {
             "path": "workspace-controls",
             "part": "label_1"
@@ -40,52 +43,93 @@
             "select-part": {
                 "target": "label_1"
             }
-        }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "label_1"
+            },
+            "position": "right",
+            "text": "Select the part you added by clicking on it"
+        }]
     },{
-        "instruction": "You can tweak you label by clicking on the edit button",
         "validation": {
             "open-part-config": true
         },
-        "focus": "block-editor.look-button"
+        "focus": "block-editor.look-button",
+        "tooltips": [{
+            "location": "block-editor.look-button",
+            "position": "right",
+            "text": "This button allows you to add style to the parts of your app"
+        }]
     },{
-        "instruction": "In the config panel, you can change many thing on your label. Try to make it bigger by using the 'Text size' slider",
+        "focus": "block-editor.look",
+        "tooltips": [{
+            "location": "block-editor.look",
+            "position": "right",
+            "text": "Each part can be styled in its own way within this panel.",
+            "next_button": true
+        }]
+    },{
         "validation": {
             "selected-part-change": {
                 "target": "label_1",
                 "property": "userStyle.font-size"
             }
         },
-        "focus": "block-editor.look.style.font-size"
+        "focus": ["block-editor.look.style.font-size", "workspace"],
+        "tooltips": [{
+            "location": "block-editor.look.style.font-size",
+            "position": "right",
+            "text": "Try to make it bigger by using this slider"
+        }]
     },{
-        "instruction": "Nice, now, to make your app look nice, move the text in the middle",
         "validation": {
             "selected-part-change": {
                 "target": "label_1",
                 "property": "position.*"
             }
         },
-        "focus": "workspace"
+        "focus": "workspace",
+        "tooltips": [{
+            "location": "workspace",
+            "position": "left",
+            "text": "Nice, now, to make your app look nice, move the text in the middle"
+        }]
     },{
-        "instruction": "Now, it is time to code your app, click on the button at the top left of the screen to go back",
         "validation": {
             "open-part-default": true
         },
-        "focus": "block-editor.back-button"
+        "focus": "block-editor.back-button",
+        "tooltips": [{
+            "location": "block-editor.back-button",
+            "position": "right",
+            "text": "Now, it is time to code your app, click on the button at the top left of the screen to go back"
+        }]
     },{
-        "instruction": "Click on the big 'Add code' button",
         "validation": {
             "open-part-trigger": true
-        }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Click on the big 'Add code' button"
+        }]
     },{
-        "instruction": "Choose 'When make is clicked' to add code that will run when your app starts",
         "validation": {
             "trigger": {
                 "emitter": "global",
                 "event": "start"
             }
-        }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Choose 'When make is clicked' to add code that will run when your app starts"
+        }]
     },{
-        "instruction": "To change what the text says, you can use the 'set Label to' block.\n You can find the block in the 'Label' category on the top left",
         "validation": {
             "blockly": {
                 "create": {
@@ -95,9 +139,13 @@
                 }
             }
         },
-        "focus": "block-editor"
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "To change what the text says, you can use the 'set Label to' block.\n You can find the block in the 'Label' category on the top left"
+        }]
     },{
-        "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
             "blockly": {
                 "create": {
@@ -106,9 +154,13 @@
                 }
             }
         },
-        "focus": "block-editor"
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created"
+        }]
     },{
-        "instruction": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created",
         "validation": {
             "blockly": {
                 "connect": {
@@ -117,9 +169,13 @@
                 }
             }
         },
-        "focus": "block-editor"
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "The block you just added need another block that tell what to write.\n Take the text block in the text section and plug it in the block you just created"
+        }]
     },{
-        "instruction": "Now, you can type in the text you want to be displayed. Just to see if it works, type in your name",
         "validation": {
             "blockly": {
                 "value": {
@@ -128,18 +184,37 @@
                 }
             }
         },
-        "focus": "block-editor"
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Now, you can type in the text you want to be displayed. Just to see if it works, type in your name"
+        }]
     },{
-        "instruction": "Let's see if your test program works, hit the 'make' button on the bottom right of the screen",
         "validation": {
             "running": {
                 "value": true
             }
         },
-        "focus": "workspace-controls.make-button"
+        "focus": "workspace-controls.make-button",
+        "tooltips": [{
+            "location": "workspace-controls.make-button",
+            "position": "left",
+            "text": "Let's see if your test program works, hit the 'make' button"
+        }]
     },{
         "instruction": "Yay, we can control the text to display what we want! Next step, displaying the temperature",
-        "next_button": true,
+        "tooltips": [{
+            "location": "workspace",
+            "position": "bottom",
+            "text": "The text now changes to what you defined",
+            "next_button": true
+        }]
+    },{
+        "modal": {
+            "text": "Yay, we can control the text to display what we want! Next step, displaying the temperature",
+            "next_button": true
+        },
         "save_app": "app_1"
     }],
     "modules": ["Text"]

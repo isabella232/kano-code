@@ -20,12 +20,12 @@
     :host .tooltip.top:before,
     :host .tooltip.bottom:before {
         margin-left: -10px;
-        left: 0px;
+        left: 50%;
     }
     :host .tooltip.right:before,
     :host .tooltip.left:before {
         margin-top: -10px;
-        top: 0px;
+        top: 50%;
     }
     :host .tooltip.top:before {
         border-top-color: var(--kano-tooltip-color, white);
@@ -42,6 +42,9 @@
     :host .tooltip.left:before {
         border-left-color: var(--kano-tooltip-color, white);
         left: 100%;
+    }
+    :host .wrapper {
+        position: relative;
     }
     </style>
     <template>
@@ -65,46 +68,56 @@
                 }
             };
             this.observers = [
-                'targetChanged(target.*, position)'
+                'updatePosition(target.*, position)'
             ];
         }
-        targetChanged () {
-            let target = this.target,
+        ready () {
+            let observer = new MutationObserver(() => {
+                this.updatePosition();
+            });
+            observer.observe(this, { childList: true, subtree: true, characterData: true });
+            window.addEventListener('resize', this.updatePosition.bind(this));
+        }
+        detached () {
+            window.removeEventListener('resize', this.updatePosition.bind(this));
+        }
+        updatePosition () {
+            this.debounce('updatePosition', () => {
+                let target = this.target,
+                tooltip,
                 rect,
                 style,
                 tooltipStyle,
                 widthCenter,
                 heightCenter;
 
-            if (!target) {
-                return;
-            }
-            style = this.style;
-            tooltipStyle = this.$.tooltip.style;
-            rect = this.getBoundingClientRect();
+                if (!target) {
+                    return;
+                }
+                style = this.style;
+                tooltip = this.$.tooltip;
+                tooltipStyle = tooltip.style;
+                rect = tooltip.getBoundingClientRect();
 
-            widthCenter = target.left + (target.width / 2);
-            heightCenter = target.top + (target.height / 2);
+                widthCenter = target.left + (target.width / 2) - (rect.width / 2);
+                heightCenter = target.top + (target.height / 2) - (rect.height / 2);
 
-            if (['top', 'bottom'].indexOf(this.position) !== -1) {
-                style.left = `${widthCenter}px`;
-                tooltipStyle.marginLeft = '-50%';
-                tooltipStyle.marginRight = '50%';
-            } else {
-                style.top = `${heightCenter}px`;
-                tooltipStyle.marginTop = '-25%';
-                tooltipStyle.marginBottom = '25%';
-            }
+                if (['top', 'bottom'].indexOf(this.position) !== -1) {
+                    style.left = `${widthCenter}px`;
+                } else {
+                    style.top = `${heightCenter}px`;
+                }
 
-            if (this.position === 'top') {
-                style.bottom = `${window.innerHeight - target.top + 20}px`;
-            } else if (this.position === 'bottom') {
-                style.top = `${target.bottom + 20}px`;
-            } else if (this.position === 'right') {
-                style.left = `${target.right + 20}px`;
-            } else if (this.position === 'left') {
-                style.right = `${window.innerWidth - target.left + 20}px`;
-            }
+                if (this.position === 'top') {
+                    style.top = `${target.top - rect.height - 20}px`;
+                } else if (this.position === 'bottom') {
+                    style.top = `${target.bottom + 20}px`;
+                } else if (this.position === 'right') {
+                    style.left = `${target.right + 20}px`;
+                } else if (this.position === 'left') {
+                    style.left = `${target.left - rect.width - 20}px`;
+                }
+            }, 10);
         }
         hide () {
 
