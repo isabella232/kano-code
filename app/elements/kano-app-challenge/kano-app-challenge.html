@@ -1,5 +1,6 @@
 <link rel="import" href="../kano-focus-on/kano-focus-on.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<link rel="import" href="../kano-arrow/kano-arrow.html">
 <link rel="import" href="../behaviors.html">
 <dom-module id="kano-app-challenge">
     <style>
@@ -28,25 +29,31 @@
         @apply(--layout-vertical);
         @apply(--layout-center);
         @apply(--layout-center-justified);
+        font-family: var(--font-body, Arial);
+        font-weight: 500;
+        font-size: 1.4em;
+        color: black;
     }
     :host .modal-content button {
         @apply(--kano-button);
+        margin-top: 15px;
     }
     :host .tooltip-content {
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
     :host .tooltip-text {
-        font-size: 1.2em;
+        font-size: 1.4em;
         font-weight: 400;
     }
     :host .tooltip-content button {
-        margin-top: 7px;
+        margin-top: 10px;
     }
     </style>
     <template>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]"></kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
             <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">
                 <div class="tooltip-content">
@@ -60,7 +67,7 @@
         <paper-dialog id="modal"
                       with-backdrop>
             <div class="modal-content">
-                <div>{{selectedStep.modal.text}}</div>
+                <div class="text">{{selectedStep.modal.text}}</div>
                 <button type="button" on-tap="nextStep">Next</button>
             </div>
         </paper-dialog>
@@ -83,6 +90,9 @@
                 selectedStep: {
                     type: Object,
                     computed: 'computeSelectedStep(steps, step)'
+                },
+                arrow: {
+                    type: Object
                 }
             };
             this.observers = [
@@ -107,6 +117,7 @@
                 "trigger": this.matchTrigger.bind(this),
                 "running": this.matchValue.bind(this)
             };
+            this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.focus = this.$.focus;
             this.modal = this.$.modal;
@@ -124,6 +135,20 @@
                 return tooltip;
             });
             this.set('tooltips', tooltips);
+        }
+        computeArrow (step) {
+            let source, target;
+            if (!step.arrow) {
+                return this.set('arrow', null);
+            }
+            source = this.getDeepElement(step.arrow.source);
+            target = this.getDeepElement(step.arrow.target);
+            source = source.getBoundingClientRect();
+            target = target.getBoundingClientRect();
+            this.set('arrow', {
+                source,
+                target
+            });
         }
         stepChanged () {
             let step,
@@ -166,13 +191,14 @@
                     this.modal.open();
                 }
                 this.computeTooltips(step);
+                this.computeArrow(step);
             }, 10);
         }
         getDeepElement (selector) {
             let pieces,
                 element = this.editor;
             if (typeof selector == 'object') {
-                selector = `${selector.path}.${this.stepIds[selector.part]}`;
+                selector = `${selector.path}.part-${this.stepIds[selector.part]}`;
             }
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
@@ -225,7 +251,8 @@
         matchProperty (validation, event) {
             // Split the properties paths
             let validationParts = validation.property.split('.'),
-                eventParts = event.property.split('.');
+                eventParts = event.property.split('.'),
+                count = this.changeCounts[this.step];
             // Loop through the smallest part
             for (let i = 0, len = validationParts.length; i < len; i++) {
                 // If the validation used the joker, the remaining parts are accepted
@@ -234,6 +261,11 @@
                 }
                 // If the part doesn't match, stop
                 if (validationParts[i] !== eventParts[i]) {
+                    return false;
+                }
+            }
+            if (validation.count) {
+                if (count < validation.count) {
                     return false;
                 }
             }
@@ -284,6 +316,7 @@
                 if (validation === true) {
                     return this.nextStep();
                 }
+                this.changeCounts[this.step] = this.changeCounts[this.step] + 1 || 1;
                 if (type === 'blockly') {
                     return this.handleBlocklyChange(validation, detail.event);
                 }
