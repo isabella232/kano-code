@@ -1,4 +1,5 @@
 <link rel="import" href="../kano-focus-on/kano-focus-on.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../behaviors.html">
 <dom-module id="kano-app-challenge">
     <style>
@@ -33,18 +34,15 @@
     }
     </style>
     <template>
-        <div class="instruction-overlay" id="top-bar">
-            <h3>{{instruction}}</h3>
-            <button type="button"
-                    hidden$="[[isNextHidden(step)]]"
-                    on-tap="nextStep">Next</button>
-        </div>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
+        <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
+            <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">[[tooltip.text]]</kano-tooltip>
+        </template>
         <paper-dialog id="modal"
                       with-backdrop>
             <div class="modal-content">
-                <div>{{instruction}}</div>
+                <div>{{selectedStep.modal.text}}</div>
                 <button type="button" on-tap="nextStep">Next</button>
             </div>
         </paper-dialog>
@@ -60,12 +58,24 @@
 
         beforeRegister () {
             this.is = 'kano-app-challenge';
+            this.properties = {
+                tooltips: {
+                    type: Array
+                },
+                selectedStep: {
+                    type: Object,
+                    computed: 'computeSelectedStep(steps, step)'
+                }
+            };
             this.observers = [
                 'stepChanged(steps, step)'
             ];
             this.listeners = {
                 'change': 'editorChanged'
             };
+        }
+        computeSelectedStep () {
+            return this.steps[this.step];
         }
         /**
          * Find the blockly element and listens to the change event
@@ -86,6 +96,16 @@
         attached () {
             this.isAttached = true;
             this.fire('attached');
+        }
+        computeTooltips (step) {
+            let tooltips = step.tooltips || [];
+            tooltips = tooltips.map((tooltip) => {
+                let target = this.getDeepElement(tooltip.location),
+                    rect = target.getBoundingClientRect();
+                tooltip.target = rect;
+                return tooltip;
+            });
+            this.set('tooltips', tooltips);
         }
         stepChanged () {
             let step,
@@ -127,23 +147,25 @@
                 if (step.modal) {
                     this.modal.open();
                 }
+                this.computeTooltips(step);
             }, 10);
         }
+        getDeepElement (selector) {
+            let pieces,
+                element = this.editor;
+            if (typeof selector == 'object') {
+                selector = `${selector.path}.${this.stepIds[selector.part]}`;
+            }
+            pieces = selector.split('.');
+            for (let i = 0, len = pieces.length; i < len; i++) {
+                element = element.$$(`#${pieces[i]}`);
+            }
+            return element;
+        }
         deepFocus (selector) {
-            let parts,
-                targets;
+            let targets;
             targets = Array.isArray(targets) ? selector : [selector];
-            targets = targets.map((target) => {
-                let element = this.editor;
-                if (typeof target == 'object') {
-                    target = `${target.path}.${this.stepIds[target.part]}`;
-                }
-                parts = target.split('.');
-                for (let i = 0, len = parts.length; i < len; i++) {
-                    element = element.$$(`#${parts[i]}`);
-                }
-                return element;
-            });
+            targets = targets.map(this.getDeepElement.bind(this));
             this.focus.show(targets);
         }
         isNextHidden () {
