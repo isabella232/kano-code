@@ -20,10 +20,13 @@
             @apply(--kano-shadow);
         };
     }
-    :host.running .content {
-        --kano-ui-viewport: {
-            border: none;
-        };
+    :host #dropzone {
+        background-size: calc(50% + 2px) calc(50% + 2px);
+        background-position: -1px -1px;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.45) 1px, transparent 1px)
+    }
+    :host.running #dropzone {
+        background: none;
     }
     :host ::content #dropzone {
         width: 100%;
@@ -141,9 +144,9 @@
         }
         runningChanged () {
             if (this.running) {
-                this.classList.add('running');
+                this.toggleClass('running', true);
             } else {
-                this.classList.remove('running');
+                this.toggleClass('running', false);
             }
         }
         getPartIndexById (id) {
