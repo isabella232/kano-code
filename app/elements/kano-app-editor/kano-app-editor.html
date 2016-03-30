@@ -6,6 +6,7 @@
 <link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-app-editor">
     <style>
@@ -60,9 +61,10 @@
                 attr-for-selected="name"
                 selected="[[leftPanelView]]"
                 hidden$="[[!leftViewOpened]]"
-                id="pages">
+                id="left-panel">
                 <!--TODO rename ui-elements to parts-->
-                <kano-sidebar ui-elements="{{parts}}"
+                <kano-sidebar id="sidebar"
+                            ui-elements="{{parts}}"
                             name="parts"
                             on-ui-ready="sidebarUiReady"></kano-sidebar>
                 <kano-ui-editor
@@ -74,7 +76,7 @@
                     default-categories="{{defaultCategories}}"
                     name="code"></kano-ui-editor>
             </iron-pages>
-            <div class="ui-edition" id="rightPanel">
+            <div class="ui-edition" id="right-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
@@ -82,6 +84,7 @@
                                 running="{{running}}"
                                 style$="[[computeBackground(background.userStyle.*)]]"></kano-workspace>
                 <kano-workspace-controls
+                    id="workspace-controls"
                     parts="{{addedParts}}"
                     opened="[[isPartsOpened(leftPanelView, leftViewOpened)]]"
                     running="{{running}}"
