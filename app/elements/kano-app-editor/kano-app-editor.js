@@ -132,11 +132,13 @@ class KanoAppEditor {
         let modal = this.$['share-modal'];
         modal.open();
     }
-    shareModalClosed (e) {
-        let reason = e.detail;
-        if (reason.confirmed) {
-            this.fire('share');
-        }
+    confirmShare (e) {
+        this.fire('share', e.detail);
+        this.dismissShare();
+    }
+    dismissShare () {
+        let modal = this.$['share-modal'];
+        modal.close();
     }
     /**
      * Save the current work in the local storage

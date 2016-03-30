@@ -47,13 +47,6 @@
     :host kano-sidebar {
         @apply(--layout-flex);
     }
-    :host #share-modal ::content button {
-        @apply(--kano-button-small);
-        margin-left: 5px;
-    }
-    :host #share-modal ::content button.share {
-        background: var(--green-gradient, green);
-    }
     </style>
     <template>
         <section id="section">
@@ -95,15 +88,8 @@
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
         </section>
-        <paper-dialog id="share-modal"
-                      on-iron-overlay-closed="shareModalClosed"
-                      with-backdrop>
-            <kano-view view-name="kano-view-share-modal"></kano-view>
-                <div class="buttons">
-                    <button dialog-dismiss>Cancel</button>
-                    <button dialog-confirm
-                            class="share">Share</button>
-                </div>
+        <paper-dialog id="share-modal" accesskey=""with-backdrop>
+            <kano-view view-name="kano-view-share-modal" on-confirm="confirmShare" on-dismiss="dismissShare"></kano-view>
         </paper-dialog>
     </template>
 </dom-module>
