@@ -4,8 +4,7 @@ import cat from './cat';
 import global from './global';
 import twitter from './twitter';
 import speaker from './speaker';
-import weather from './weather';
-import space from './space';
+import data from './data';
 
 export default {
     time,
@@ -14,6 +13,5 @@ export default {
     global,
     twitter,
     speaker,
-    weather,
-    space
+    data
 };

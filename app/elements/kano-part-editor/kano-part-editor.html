@@ -1,0 +1,69 @@
+<link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+<link rel="import" href="../kano-data-editor/kano-data-editor.html">
+<dom-module id="kano-part-editor">
+    <style>
+    :host {
+        display: block;
+    }
+    :host kano-ui-editor,
+    :host kano-data-editor {
+        width: 100%;
+        height: 100%;
+    }
+    </style>
+    <template>
+        <template is="dom-if" if="[[isModelType(selected, 'ui')]]">
+            <kano-ui-editor parts="{{parts}}"
+                            selected="{{selected}}"
+                            background="{{background}}"
+                            default-categories="{{defaultCategories}}"></kano-ui-editor>
+        </template>
+        <template is="dom-if" if="[[isModelType(selected, 'data')]]">
+            <kano-data-editor selected="{{selected}}"></kano-data-editor>
+        </template>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoPartEditor {
+
+        beforeRegister () {
+            this.is = 'kano-part-editor';
+            this.properties = {
+                parts: {
+                    type: Array,
+                    notify: true
+                },
+                selected: {
+                    type: Object,
+                    notify: true
+                },
+                defaultCategories: {
+                    type: Array,
+                    value: () => []
+                },
+                background: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            name: 'My app',
+                            userStyle: {}
+                        };
+                    },
+                    notify: true
+                }
+            };
+        }
+        isModelType (selected, type) {
+            return selected && selected.partType === type;
+        }
+        showCodeEditor () {
+
+        }
+        hideCodeEditor () {
+
+        }
+    }
+    Polymer(KanoPartEditor);
+</script>

@@ -1,6 +1,7 @@
 let frame;
 
 export default frame = {
+    partType: 'ui',
     type: 'frame',
     label: 'Frame',
     image: 'assets/part/picture-icon.png',

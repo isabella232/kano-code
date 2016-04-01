@@ -1,6 +1,7 @@
 <link rel="import" href="../kano-blockly/kano-blockly.html">
 <link rel="import" href="../kano-code-editor/kano-code-editor.html">
 <link rel="import" href="../kano-style/kano-style.html">
+<link rel="import" href="../kano-nav-header/kano-nav-header.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-ui-editor">
@@ -19,36 +20,6 @@
         position: relative;
         @apply(--layout-vertical);
         @apply(--layout-flex);
-    }
-    :host header {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        background: linear-gradient(#FF842A,#FB7D36);
-        color: var(--color-white, white);
-        height: 60px;
-        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
-    }
-    :host header div {
-        @apply(--layout-horizontal);
-    }
-    :host header .title {
-        @apply(--layout-flex);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        text-align: center;
-        font-size: 1.9em;
-    }
-    :host header .title span {
-        margin-left: 5px;
-    }
-    :host header .title iron-image {
-        width: 40px;
-        height: 40px;
-    }
-    :host header .header-right,
-    :host header .header-left {
-        width: 60px;
-        height: 60px;
     }
     :host kano-blockly,
     :host kano-code-editor {
@@ -124,63 +95,19 @@
         @apply(--kano-dotted-background);
         @apply(--layout-flex);
     }
-    :host .back {
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        background-color: transparent;
-        border: 0px;
-        width: 100%;
-        height: 100%;
-    }
-    :host .back iron-image {
-        width: 10px;
-        height: 15px;
-    }
-    :host .back:hover {
-        cursor: pointer;
-    }
-    :host .background {
-        padding: 25px;
-    }
-    :host .background input {
-        @apply(--kano-light-input);
-        font-size: 1.4em;
-    }
     </style>
     <template>
-        <header>
-            <div class="header-left">
-                <button id="back-button"
-                        class="back"
-                        type="button"
-                        on-tap="previous">
-                    <iron-image src="/assets/icons/back-arrow-icon.png" sizing="contain"></iron-image>
-                </button>
-            </div>
-            <div class="title">
-                <iron-image src="[[computeIcon(selectedPage, selected)]]"
-                            sizing="contain"></iron-image>
-                <span>[[title]]</span>
-            </div>
-            <div class="header-right">
-                <button id="look-button"
-                        type="button"
-                        class="edit-config"
-                        on-tap="editConfig"
-                        hidden$="[[isEditHidden(selectedPage, selected)]]">E</button>
-            </div>
-        </header>
+        <kano-nav-header icon="[[computeIcon(selectedPage, selected)]]" title="[[title]]" on-previous="previous">
+            <button id="look-button"
+                    type="button"
+                    class="right-button edit-config"
+                    on-tap="editConfig"
+                    hidden$="[[isEditHidden(selectedPage, selected)]]">E</button>
+        </kano-nav-header>
         <iron-pages
             id="pages"
             attr-for-selected="name"
             selected="{{selectedPage}}">
-            <div name="background" class="background" id="background">
-                <input type="text" value="{{background.name::keyup}}" id="background_name">
-                <kano-ui-customizer id="background_style"
-                                    customizable="{{backgroundOptions}}"
-                                    user-values="{{background.userStyle}}"></kano-ui-customizer>
-            </div>
             <div class="default" name="default">
                 <span>{{selected.description}}</span>
                 <div class="code-list">
@@ -221,6 +148,10 @@
     </template>
 </dom-module>
 <script type="text/javascript">
+    /* globals Polymer */
+    /* globals KanoBehaviors */
+    /* globals Blockly */
+
     class KanoUiEditor {
 
         get behaviors () {
@@ -251,20 +182,10 @@
                 },
                 selectedPage: {
                     type: String,
-                    value: 'background'
+                    value: 'default'
                 },
                 code: {
                     type: String,
-                    notify: true
-                },
-                background: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            name: 'My app',
-                            userStyle: {}
-                        };
-                    },
                     notify: true
                 },
                 title: {
@@ -274,22 +195,12 @@
             this.observers = [
                 'computeToolbox(parts.*)',
                 'triggerChanged(trigger.*, selected.name)',
-                'computeTitle(selectedPage, background.name, selected.*)',
-                'backgroundChanged(background.*)'
+                'computeTitle(selectedPage, selected.*)'
             ];
             this.listeners = {
                 'pages.iron-select': 'pageEntered',
                 'pages.iron-deselect': 'pageLeft'
             };
-        }
-        backgroundChanged (e) {
-            let property = e.path.split('.');
-            property.shift();
-            property = property.join('.');
-            this.notifyChange('background', {
-                property,
-                value: e.value
-            });
         }
         triggerChanged () {
             let trigger = this.trigger,
@@ -311,18 +222,11 @@
             this.showPage('code');
         }
         attached () {
-            this.set('backgroundOptions', [{
-                key: 'background',
-                type: 'background',
-                label: 'Background'
-            }]);
             this.set('usedCategories', {});
         }
         selectedChanged (newValue, oldValue) {
             if (oldValue === null && newValue !== null) {
                 this.showPage('default');
-            } else if (newValue === null) {
-                this.showPage('background');
             }
         }
         isEditHidden () {
@@ -475,8 +379,9 @@
                 type: `open-part-${page}`
             });
         }
-        previous () {
+        previous (e) {
             let targetPage;
+            e.stopPropagation();
             switch (this.selectedPage) {
                 case 'trigger':
                 case 'config': {
@@ -489,6 +394,7 @@
                 }
                 case 'default': {
                     this.set('selected', null);
+                    this.fire('previous');
                     break;
                 }
                 default: {
@@ -525,10 +431,6 @@
                 }
                 case 'trigger': {
                     title = 'Choose trigger';
-                    break;
-                }
-                case 'background': {
-                    title = this.background.name;
                     break;
                 }
             }

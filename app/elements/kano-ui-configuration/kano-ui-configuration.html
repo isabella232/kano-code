@@ -26,17 +26,17 @@
         <div class="name-edit">
             <input type="text" name="name" value="{{element.name::change}}">
         </div>
-        <div class="input-line">
+        <div class="input-line" hidden$="[[element.positionDisabled]]">
             <span class="label">Position: <span class="value">{{roundPosition.x}}, {{roundPosition.y}}</span></span>
         </div>
-        <div class="input-line">
+        <div class="input-line" hidden$="[[element.rotationDisabled]]">
             <span class="label">Rotation: <span class="value">{{element.rotation}}°</span></span>
             <input type="range"
                     min="0"
                     max="360"
                     value="{{element.rotation::input}}">
         </div>
-        <div class="input-line">
+        <div class="input-line" hidden$="[[element.scaleDisabled]]">
             <span class="label">Scale: <span class="value">{{element.scale}}°</span></span>
             <input type="range"
                     min="1"
@@ -56,6 +56,7 @@
 </dom-module>
 
 <script type="text/javascript">
+    /* globals Polymer */
     class KanoUIConfiguration {
 
         beforeRegister () {
@@ -79,6 +80,9 @@
                 return;
             }
             pos = this.element.position;
+            if (!pos) {
+                return;
+            }
             this.set('roundPosition',{
                 x: Math.ceil(pos.x) || 0,
                 y: Math.ceil(pos.y) || 0

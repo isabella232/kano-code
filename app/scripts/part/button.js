@@ -1,6 +1,7 @@
 let button;
 
 export default button = {
+    partType: 'ui',
     type: 'button',
     label: 'Button',
     image: 'assets/part/buttons-icon.png',

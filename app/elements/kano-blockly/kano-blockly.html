@@ -28,6 +28,10 @@
 </dom-module>
 
 <script>
+    /* globals Polymer */
+    /* globals KanoBehaviors */
+    /* globals Blockly */
+
     class KanoBlockly {
 
         get behaviors () {
@@ -119,7 +123,6 @@
         onResize () {
             this.debounce('resize', () => {
                 let workspace = this.$.workspace;
-                    rows = document.querySelectorAll('.blocklyTreeRow');
                 workspace.style.top = '0px';
                 workspace.style.bottom = '0px';
                 workspace.style.left = '0px';
@@ -133,13 +136,13 @@
          * @param  {Object} toolbox A JSON toolbox definition
          * @return {String}         A XML toolbox definition
          */
-        computeToolboxXml (toolbox) {
+        computeToolboxXml () {
             // Force default toolbox if empty since blockly is not able
             // to switch from empty to category mode
             if (!this.toolbox || !this.toolbox.length) {
                 this.toolbox = [{ name: 'Category', blocks: [] }];
             }
-            let xml;
+            let xml,
                 categoriesXml = this.toolbox.map((category) => {
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
@@ -224,7 +227,7 @@
         }
 
         getScreenshot () {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 let svg = this.$$('svg'),
                     canvas = document.createElement('canvas'),
                     ctx = canvas.getContext('2d'),

@@ -1,6 +1,30 @@
 <script type="text/javascript">
     window.KanoBehaviors = window.KanoBehaviors || {};
 
+    window.KanoBehaviors.SceneComponentBehavior = {
+
+        properties: {
+            scene: Object,
+            store: {
+                type: Object,
+                notify: true
+            }
+        },
+
+        finish () {
+            this.fire('done');
+        },
+
+        addToStore (id, data) {
+            this.store[id] = data;
+        },
+
+        fromStore (id) {
+            return this.store[id];
+        }
+
+    };
+
     window.KanoBehaviors.CodeEditorBehavior = {
         properties: {
             code: {
@@ -26,6 +50,19 @@
         notifyChange (type, data) {
             data.type = type;
             this.fire('change', data);
+        }
+    };
+
+    window.KanoBehaviors.PartEditorBehavior = {
+        properties: {
+            selected: {
+                type: Object,
+                notify: true
+            },
+            data: {
+                type: Object,
+                notify: true
+            }
         }
     };
 

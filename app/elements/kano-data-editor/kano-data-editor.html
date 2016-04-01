@@ -1,0 +1,168 @@
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../kano-data-display/kano-data-display.html">
+<dom-module id="kano-data-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host .content {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    :host .content .config,
+    :host .content .data-browser {
+        @apply(--layout-flex);
+    }
+    :host .cover {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        color: white;
+        background-size: cover;
+        padding: 20px;
+    }
+    :host .cover span {
+        font-size: 1.2em;
+    }
+    :host .cover h1 {
+        font-size: 1.5em;
+        margin-top: 0px;
+    }
+    :host .config {
+        padding: 15px;
+    }
+    :host .line {
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+    }
+    :host .refresh-button {
+        @apply(--kano-button);
+        background: var(--green-gradient, green);
+        width: 100%;
+        height: 100%;
+        box-shadow: 0px 0px;
+    }
+    :host .data-browser {
+        @apply(--layout-flex);
+        position: relative;
+    }
+    :host .loading-overlay {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+    :host paper-spinner-lite {
+        --paper-spinner-color: var(--primary-color, orange);
+    }
+    :host .line {
+        margin-top: 12px;
+        margin-bottom: 20px;
+    }
+    :host .data-browser {
+        background-color: #263238;
+        box-shadow: inset 0px 2px 6px 0px rgba(0,0,0,0.5);
+        @apply(--layout-vertical);
+    }
+    :host ::content kano-input-text {
+        --kano-input-text-size: 1.4em;
+    }
+    :host kano-data-display {
+        @apply(--layout-flex);
+    }
+    :host .param-description {
+        font-style: italic;
+    }
+    </style>
+    <template>
+        <kano-nav-header icon="[[selected.image]]" title="[[selected.name]]">
+            <button type="button" class="refresh-button right-button" on-tap="refresh">R</button>
+        </kano-nav-header>
+        <div class="cover" style$="[[computeBackgroundImage(selected)]]">
+            <span>[[selected.description]]</span>
+        </div>
+        <div class="content">
+            <div class="config">
+                <template is="dom-repeat" items="[[selected.parameters]]" as="param">
+                    <div class="line">
+                        <kano-input type="[[param.type]]" label="[[param.label]]" options="[[param.options]]" value="[[param.value]]" on-change="paramChanged"></kano-input>
+                        <span class="param-description">[[param.description]]</span>
+                    </div>
+                </template>
+                <div class="line">
+                    <paper-toggle-button checked="{{selected.refreshEnabled}}" noink>Refresh</paper-toggle-button>
+                </div>
+                <div class="line">
+                    <paper-dropdown-menu label="Refresh every" disabled="{{!selected.refreshEnabled}}" noink no-animations>
+                        <paper-menu class="dropdown-content" selected="{{selected.refreshFreq}}" attr-for-selected="value">
+                            <paper-item value="5">5 seconds</paper-item>
+                            <paper-item value="30">30 seconds</paper-item>
+                            <paper-item value="60">minute</paper-item>
+                            <paper-item value="3600">hour</paper-item>
+                        </paper-menu>
+                    </paper-dropdown-menu>
+                </div>
+            </div>
+            <div class="data-browser">
+                <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[computeDataSample(selected.data.*)]]"></kano-data-display>
+                <div class="loading-overlay" hidden$="[[!loading]]">
+                    <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
+                </div>
+            </div>
+        </div>
+
+    </template>
+</dom-module>
+<script type="text/javascript">
+
+    /* globals Polymer */
+
+    class KanoDataEditor {
+        beforeRegister () {
+            this.is = 'kano-data-editor';
+            this.properties = {
+                selected: {
+                    type: Object,
+                    notify: true
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
+                }
+            };
+        }
+        computeBackgroundImage () {
+            if (!this.selected) {
+                return;
+            }
+            return `background: ${this.selected.colour}`;
+        }
+        refresh () {
+            this.loading = true;
+            this.selected.refresh().then((data) => {
+                this.set('selected.data', data);
+                this.loading = false;
+            });
+        }
+        paramChanged (e) {
+            let key = e.model.get('param').key;
+            this.set(`selected.config.${key}`, e.target.value);
+        }
+        computeDataSample () {
+            if (!this.selected || !this.selected.data) {
+                return;
+            }
+            return this.selected.dataType === 'list' ? this.selected.data[0] : this.selected.data;
+        }
+    }
+    Polymer(KanoDataEditor);
+</script>

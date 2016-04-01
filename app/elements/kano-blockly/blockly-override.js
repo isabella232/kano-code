@@ -1,3 +1,4 @@
+/* globals Blockly */
 
 Blockly.Blocks.colour.HUE = '#ffff00';
 Blockly.Blocks.logic.HUE = '#7DC242';
@@ -13,7 +14,7 @@ Blockly.Scrollbar.scrollbarThickness = 5;
 Blockly.Flyout.prototype.autoClose = false;
 
 
-function lightenColor (hex, lum) {
+function lightenColor(hex, lum) {
 
 	// validate hex string
 	hex = String(hex).replace(/[^0-9a-f]/gi, '');

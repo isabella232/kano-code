@@ -1,3 +1,8 @@
+/* globals Polymer */
+/* globals KanoBehaviors */
+/* globals interact */
+/* globals Part */
+
 class KanoAppEditor {
 
     get behaviors () {
@@ -29,7 +34,7 @@ class KanoAppEditor {
             },
             leftPanelView: {
                 type: String,
-                value: 'code'
+                value: 'parts'
             },
             selectedTrigger: {
                 type: Object
@@ -51,12 +56,22 @@ class KanoAppEditor {
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
-            'selectedPartChanged(selected.*)'
+            'selectedPartChanged(selected.*)',
+            'backgroundChanged(background.*)'
         ];
         this.listeners = {
             'left-panel.iron-select': 'pageEntered',
             'left-panel.iron-deselect': 'pageLeft'
         };
+    }
+    backgroundChanged (e) {
+        let property = e.path.split('.');
+        property.shift();
+        property = property.join('.');
+        this.notifyChange('background', {
+            property,
+            value: e.value
+        });
     }
     selectedPartChanged (e) {
         let property = e.path.split('.');
@@ -101,7 +116,11 @@ class KanoAppEditor {
         }, '');
     }
     previous () {
-        this.set('leftViewOpened', false);
+        if (this.leftPanelView === 'background') {
+            this.set('leftViewOpened', false);
+        } else {
+            this.set('leftPanelView', 'background');
+        }
     }
     leftViewOpenedChanged () {
         this.triggerResize();
@@ -178,7 +197,7 @@ class KanoAppEditor {
                     break;
                 }
             }
-            part = new UI(savedPart.model, this.wsSize);
+            part = Part.create(savedPart.model, this.wsSize);
             part.codes = savedPart.codes;
             return part;
         });
@@ -191,6 +210,7 @@ class KanoAppEditor {
         }
     }
     toggleParts () {
+        let fallbackView = 'background';
         // Either just toggle the showed view or display/hide the whole
         // leftView
         if (!this.leftViewOpened) {
@@ -198,7 +218,10 @@ class KanoAppEditor {
             this.set('leftPanelView', 'parts');
             return;
         }
-        this.set('leftPanelView', this.leftPanelView === 'parts' ? 'code' : 'parts');
+        if (this.selected) {
+            fallbackView = 'code';
+        }
+        this.set('leftPanelView', this.leftPanelView === 'parts' ? fallbackView : 'parts');
     }
     toggleLeftView () {
         if (this.running) {
@@ -207,7 +230,7 @@ class KanoAppEditor {
         this.set('leftViewOpened', !this.leftViewOpened);
         // If we just opened the leftView, show the parts page
         if (this.leftViewOpened) {
-            this.set('selectedPage', 'parts');
+            this.set('leftPanelView', 'parts');
             this.$['block-editor'].showCodeEditor();
         } else {
             this.$['block-editor'].hideCodeEditor();
@@ -231,7 +254,7 @@ class KanoAppEditor {
                 let model = e.relatedTarget.model,
                     part;
                 model.position = null;
-                part = new UI(model, this.wsSize);
+                part = Part.create(model, this.wsSize);
                 this.push('addedParts', part);
                 this.fire('change', {
                     type: 'add-part',
@@ -242,7 +265,7 @@ class KanoAppEditor {
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
     }
     detached () {
-        UI.clear();
+        Part.clear();
     }
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
@@ -267,7 +290,6 @@ class KanoAppEditor {
                 elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
             }
         });
-        this.set('leftPanelView', 'code');
     }
     getDragMoveListener (scale=false) {
         return (event) => {
@@ -307,7 +329,7 @@ class KanoAppEditor {
         let clone;
         interact(e.detail).draggable({
             onmove: (event) => {
-                var target = event.target,
+                let target = event.target,
                     // keep the dragged position in the data-x/data-y attributes
                     x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
                     y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;

@@ -48,7 +48,9 @@ es6Assign.polyfill();
                 Blockly.Natural[block.id] = definition.natural;
                 category.blocks.push({ id: block.id });
             });
-            app.defaultCategories.push(category);
+            if (category.blocks) {
+                app.defaultCategories.push(category);
+            }
         });
     };
 
@@ -62,5 +64,7 @@ es6Assign.polyfill();
 
     app.sdk = KanoWorldSdk(app.config);
     app.sdk.registerForms();
+
+    window.KanoModules = modules;
 
 })(window.app = {});

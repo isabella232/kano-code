@@ -1,3 +1,6 @@
+/* globals Polymer */
+/* globals app */
+/* globals Blockly */
 class KanoViewStory {
     beforeRegister () {
         this.is = 'kano-view-story';
