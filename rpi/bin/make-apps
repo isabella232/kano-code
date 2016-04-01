@@ -1,4 +1,4 @@
-#!/usr/bin/kano-splash /usr/share/make-apps/media/splash.png /usr/bin/env python
+#!/usr/bin/env python
 
 # make-apps
 #
@@ -30,6 +30,8 @@ kanotracker = Tracker()
 from kano.utils import run_cmd
 from kano.logging import logger
 import make_apps.server
+
+from kano.network import is_internet
 
 SERVER_PROC = None
 UI_PROC = None
@@ -77,7 +79,8 @@ def _at_exit_hook():
             pass
     _kill_subprocess(UI_PROC)
     # Give the server subprocess 5 secs to die
-    SERVER_PROC.join(5)
+    if SERVER_PROC.is_alive():
+        SERVER_PROC.join(5)
     # Now kill it anyway
     _kill_multiprocessing_process(SERVER_PROC)
     # Cleanup the lingering processes (usually produced by omxplayer)
@@ -96,22 +99,45 @@ signal.signal(signal.SIGINT, cleanup)
 APP_PID = os.getpid()
 # Initialise the local server
 SERVER_PROC = multiprocessing.Process(target=make_apps.server.start)
-SERVER_PROC.start()
+
+# TODO: Don't start the server for now, since we won't be using the local
+# version ;-)
+# SERVER_PROC.start()
+
+
+if not is_internet():
+    msg = 'kano-dialog title="Oh No" description="You need to be connected to the Internet to launch Make Apps. Click on the OK button to set up your WiFi" button="OK,color:green,return_value:0" button="QUIT,color:red,return_value:1" no-taskbar'
+    ret, dummy1, dummy2 = run_cmd(msg)
+    if "1" == ret.strip():
+        sys.exit(0)
+
+    run_cmd('sudo kano-settings wifi')
+
+    if not is_internet():
+        msg2 = 'kano-dialog title="Oh No" description="It looks like something went wrong. Your Kano kit is still not connected to the Internet. Unfortunately Make Apps can\'t be launched offline" button="QUIT,color:red,return_value:1" no-taskbar'
+        run_cmd(msg2)
+        sys.exit(0)
+
 
 # Init the web app
 kwargs = {}
 if len(sys.argv) > 1:
     kwargs['load_path'] = sys.argv[1]
 
-URL = "http://localhost:{}".format(make_apps.server.DEFAULT_PORT)
-UI_PROC = subprocess.Popen(['kano-web-view', '--title', 'Make Apps', URL])
+# TODO: Temporarily we will use the online version
+# URL = "http://localhost:{}".format(make_apps.server.DEFAULT_PORT)
+URL = "http://make-apps-kit.kano.me"
+UI_PROC = subprocess.Popen(['kano-web-view', '--title', 'Make Apps', '--decorate', URL])
 
 
 # This process is really a factory/watchdog process. It launches the UI and
 # server processes as children and makes sure to terminate both once they have
 # one of them has been terminated
 try:
-    while UI_PROC.poll() is None and SERVER_PROC.is_alive():
+    # TODO: Don't check if the server is still running, we are not using it for
+    # Now
+    # while UI_PROC.poll() is None and SERVER_PROC.is_alive():
+    while UI_PROC.poll() is None:
         time.sleep(3)
     sys.exit(0)
 except Exception as exc:
