@@ -254,26 +254,9 @@ class KanoAppEditor {
      * @param  {Event} e
      */
     workspaceUiReady (e) {
-        let element = e.detail,
-            workspace = this.$.workspace,
-            viewport = workspace.getViewport();
+        let element = e.detail;
         interact(element).draggable({
             onmove: this.getDragMoveListener(true),
-            snap: {
-                targets: [
-                    (x) => {
-                        let rect = this.workspaceRect;
-                        return {x, y: rect.top + (rect.height / 2), range: 10}
-                    },
-                    (x, y) => {
-                        let rect = this.workspaceRect;
-                        return {x: rect.left + (rect.width / 2), y, range: 10}
-                    }
-                ],
-                relativePoints: [
-                    { x: 0.5, y: 0.5 }
-                ]
-            },
             onend: (e) => {
                 let model = e.target.model;
                 this.fire('change', {
@@ -282,7 +265,7 @@ class KanoAppEditor {
                 });
             },
             restrict: {
-                restriction: viewport,
+                restriction: this.$.workspace.getViewport(),
                 elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
             }
         });

@@ -20,13 +20,10 @@
             @apply(--kano-shadow);
         };
     }
-    :host #dropzone {
-        background-size: calc(50% + 2px) calc(50% + 2px);
-        background-position: -1px -1px;
-        background-image: linear-gradient(rgba(0, 0, 0, 0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.45) 1px, transparent 1px)
-    }
-    :host.running #dropzone {
-        background: none;
+    :host.running .content {
+        --kano-ui-viewport: {
+            border: none;
+        };
     }
     :host ::content #dropzone {
         width: 100%;
@@ -143,7 +140,11 @@
             delete this.elements[key];
         }
         runningChanged () {
-            this.toggleClass('running', this.running);
+            if (this.running) {
+                this.classList.add('running');
+            } else {
+                this.classList.remove('running');
+            }
         }
         getPartIndexById (id) {
             let elements = this.parts;
