@@ -10,6 +10,22 @@ export default data = {
             });
             return method(config);
         },
+        kano: {
+            getShares () {
+                return fetch('http://api.kano.me/share')
+                    .then(r => r.json())
+                    .then(data => {
+                        return data.entries.map(share => {
+                            return {
+                                title: share.title,
+                                likes: share.likes.length,
+                                user: share.user.username,
+                                image: share.cover_url
+                            };
+                        });
+                    });
+            }
+        },
         weather: {
             getWeather (config) {
                 return fetch(`http://api.openweathermap.org/data/2.5/weather?APPID=79f483fba81614f1e7d1fea5a28b9750&q=${config.location}&units=${config.units}`)
