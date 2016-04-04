@@ -94,7 +94,7 @@
             <div class="config">
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
                     <div class="line">
-                        <kano-input type="[[param.type]]" label="[[param.label]]" options="[[param.options]]" value="[[param.value]]" on-change="paramChanged"></kano-input>
+                        <kano-input type="[[param.type]]" label="[[param.label]]" options="[[param.options]]" value="[[param.value]]" on-value-changed="paramChanged"></kano-input>
                         <span class="param-description">[[param.description]]</span>
                     </div>
                 </template>
@@ -102,7 +102,7 @@
                     <paper-toggle-button checked="{{selected.refreshEnabled}}" noink>Refresh</paper-toggle-button>
                 </div>
                 <div class="line">
-                    <paper-dropdown-menu label="Refresh every" disabled="{{!selected.refreshEnabled}}" noink no-animations>
+                    <paper-dropdown-menu label="Refresh every" disabled="[[!selected.refreshEnabled]]" noink no-animations>
                         <paper-menu class="dropdown-content" selected="{{selected.refreshFreq}}" attr-for-selected="value">
                             <paper-item value="5">5 seconds</paper-item>
                             <paper-item value="30">30 seconds</paper-item>

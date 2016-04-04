@@ -62,20 +62,7 @@ gulp.task('serve-prod', () => {
     return $.connect.server({
         root: 'www',
         port: process.env.PORT,
-        fallback: './www/index.html',
-        middleware: (connect, opt) => {
-            return [(req, res, next) => {
-                let credentials = auth(req);
-
-                if (!credentials || credentials.name !== 'kano-member' || credentials.pass !== 'Gb0yZGMb') {
-                    res.statusCode = 401;
-                    res.setHeader('WWW-Authenticate', 'Basic realm="example"');
-                    res.end('Access denied');
-                } else {
-                    next();
-                }
-            }];
-        }
+        fallback: './www/index.html'
     });
 });
 

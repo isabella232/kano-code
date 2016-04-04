@@ -66,15 +66,12 @@
                 localStorage.setItem('savedApp', JSON.stringify(savedApp));
             }, 3000);
         }
-        shareApp () {
+        shareApp (e) {
             // Generates the standalone component
             let savedApp = app.components.generateStandaloneComponent(this.addedParts, this.size),
                 file = new Blob([savedApp], { type: 'text/html' });
 
             file.filename = 'code.html';
-            // TODO (debug mode) remove this two lines to actually share the app
-            console.log(savedApp);
-            return;
             // Share by calling the API
             app.sdk.api.share.post({
                 app: 'make-apps',
