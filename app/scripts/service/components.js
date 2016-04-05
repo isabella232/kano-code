@@ -145,7 +145,7 @@ class ComponentStore {
         // crisper
         let scr = 'script',
             moduleNames = Object.keys(modules),
-            moduleValues = moduleNames.map(m => `KanoModules.${m}`),
+            moduleValues = moduleNames.map(m => `KanoModules.${m}.methods`),
             wrappedCode = `
                 (function (devices, ${moduleNames.join(', ')}) {
                     ${code};
@@ -169,7 +169,7 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}}"),
+                            value: JSON.parse("${partsString}"),
                             observer: 'partsChanged'
                         }
                     },
