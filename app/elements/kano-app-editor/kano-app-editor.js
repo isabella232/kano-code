@@ -421,8 +421,8 @@ class KanoAppEditor {
      * Restore the editor style
      */
     clearEditorStyle () {
-        this.$$('#left-panel').style.maxWidth = 'none';
-        this.$$('#right-panel').style.maxWidth = 'none';
+        this.$['left-panel'].style.maxWidth = 'none';
+        this.$['right-panel'].style.maxWidth = 'none';
     }
 }
 Polymer(KanoAppEditor);
