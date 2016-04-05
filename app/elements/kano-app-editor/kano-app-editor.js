@@ -398,9 +398,9 @@ class KanoAppEditor {
      * Mouse moved handler
      */
     mouseMoved (e) {
-        let leftPanel = this.$$('#left-panel'),
-            rightPanel = this.$$('#right-panel'),
-            container = this.$$('#section'),
+        let leftPanel = this.$['left-panel'],
+            rightPanel = this.$['right-panel'],
+            container = this.$['section'],
             offsetRightPanel,
             offsetLeftPanel;
 
@@ -408,7 +408,7 @@ class KanoAppEditor {
             return;
         }
 
-        offsetLeftPanel = e.clientX;
+        offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
         offsetRightPanel = container.offsetWidth - offsetLeftPanel;
         leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
         rightPanel.style.maxWidth = `${offsetRightPanel}px`;
