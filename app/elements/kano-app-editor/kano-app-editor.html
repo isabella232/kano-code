@@ -49,9 +49,18 @@
     :host kano-sidebar {
         @apply(--layout-flex);
     }
+
+    :host #resize{
+        position: absolute;
+        left: -4px;
+        top: 0;
+        bottom: 0;
+        width: 8px;
+        cursor: ew-resize;
+    };
     </style>
     <template>
-        <section id="section">
+        <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <iron-pages class="blocks-edition"
                 attr-for-selected="name"
                 selected="[[leftPanelView]]"
@@ -69,6 +78,7 @@
                     name="code"></kano-part-editor>
             </iron-pages>
             <div class="ui-edition" id="right-panel">
+                <div id="resize" on-mousedown="resizeWorkspace"></div>
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
