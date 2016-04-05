@@ -47,6 +47,10 @@ class KanoAppEditor {
             },
             wsSize: {
                 type: Object
+            },
+            isResizing: {
+                type: Boolean,
+                value: false
             }
         };
         this.observers = [
@@ -55,7 +59,8 @@ class KanoAppEditor {
         ];
         this.listeners = {
             'left-panel.iron-select': 'pageEntered',
-            'left-panel.iron-deselect': 'pageLeft'
+            'left-panel.iron-deselect': 'pageLeft',
+            'previous': 'clearEditorStyle'
         };
     }
     selectedPartChanged (e) {
@@ -373,6 +378,51 @@ class KanoAppEditor {
         this.notifyChange('running', {
             value: this.running
         });
+    }
+
+    /**
+     * Resize the workspace
+     */
+    resizeWorkspace () {
+        this.isResizing = true;
+    }
+
+    /**
+     * Completed the resize action
+     */
+    completedResizing () {
+        this.isResizing = false;
+    }
+
+    /**
+     * Mouse moved handler
+     */
+    mouseMoved (e) {
+        let leftPanel = this.$['left-panel'],
+            rightPanel = this.$['right-panel'],
+            container = this.$['section'],
+            offsetRightPanel,
+            offsetLeftPanel;
+
+        if (!this.isResizing) {
+            return;
+        }
+
+        offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
+        offsetRightPanel = container.offsetWidth - offsetLeftPanel;
+        leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
+        rightPanel.style.maxWidth = `${offsetRightPanel}px`;
+
+        //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    /**
+     * Restore the editor style
+     */
+    clearEditorStyle () {
+        this.$['left-panel'].style.maxWidth = 'none';
+        this.$['right-panel'].style.maxWidth = 'none';
     }
 }
 Polymer(KanoAppEditor);
