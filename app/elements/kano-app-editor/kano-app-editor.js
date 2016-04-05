@@ -34,7 +34,7 @@ class KanoAppEditor {
             },
             leftPanelView: {
                 type: String,
-                value: 'parts'
+                value: 'background'
             },
             selectedTrigger: {
                 type: Object
@@ -95,14 +95,14 @@ class KanoAppEditor {
         // Trigger a resize on blockly when we get back to the
         // code editor page
         if (name === 'code') {
-            this.$['block-editor'].showCodeEditor();
+            this.$['part-editor'].showCodeEditor();
         } else if (name === 'parts') {
             this.fire('change', { type: 'open-parts' });
         }
     }
     pageLeft (e) {
         if (e.detail.item.getAttribute('name') === 'code') {
-            this.$['block-editor'].hideCodeEditor();
+            this.$['part-editor'].hideCodeEditor();
         }
     }
     selectedChanged (newValue) {
@@ -182,8 +182,8 @@ class KanoAppEditor {
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
-            savedApp.blockEditorPage = this.$['block-editor'].selectedPage;
-            savedApp.selectedTrigger = this.$['block-editor'].trigger;
+            savedApp.blockEditorPage = this.$['part-editor'].selectedPage;
+            savedApp.selectedTrigger = this.$['part-editor'].trigger;
         }
 
         return savedApp;
@@ -212,8 +212,8 @@ class KanoAppEditor {
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {
             this.$['workspace-controls'].selectPart(addedParts[savedApp.selectedPart]);
-            this.$['block-editor'].set('trigger', savedApp.selectedTrigger);
-            this.$['block-editor'].showPage(savedApp.blockEditorPage);
+            this.$['part-editor'].set('trigger', savedApp.selectedTrigger);
+            this.$['part-editor'].showPage(savedApp.blockEditorPage);
         }
     }
     toggleParts () {
@@ -238,9 +238,9 @@ class KanoAppEditor {
         // If we just opened the leftView, show the parts page
         if (this.leftViewOpened) {
             this.set('leftPanelView', 'parts');
-            this.$['block-editor'].showCodeEditor();
+            this.$['part-editor'].showCodeEditor();
         } else {
-            this.$['block-editor'].hideCodeEditor();
+            this.$['part-editor'].hideCodeEditor();
         }
     }
     closeUiDrawer () {
@@ -392,10 +392,10 @@ class KanoAppEditor {
         this.running = !this.running;
         if (this.running) {
             this.set('leftViewOpened', false);
-            this.$['block-editor'].hideCodeEditor();
+            this.$['part-editor'].hideCodeEditor();
         } else {
             this.set('leftViewOpened', true);
-            this.$['block-editor'].showCodeEditor();
+            this.$['part-editor'].showCodeEditor();
         }
         this.notifyChange('running', {
             value: this.running

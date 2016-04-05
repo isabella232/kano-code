@@ -1,4 +1,5 @@
 <link rel="import" href="../behaviors.html">
+<link rel="import" href="../kano-data-visualizer/kano-data-visualizer.html">
 <dom-module id="kano-workspace-controls">
     <style>
     :host {
@@ -57,7 +58,15 @@
         @apply(--layout-wrap);
     }
     :host .part {
+        position: relative;
         padding: 3px;
+    }
+    :host kano-data-visualizer {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
     }
     :host kano-ui-item {
         --kano-ui-item-color: var(--color-white, white);
@@ -98,6 +107,7 @@
                             items="{{parts}}"
                             as="part">
                     <div class="part" style$="[[partStyle(part, selected)]]">
+                        <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                         <kano-ui-item model="[[part]]"
                                       on-tap="partTapped"
                                       size="70"

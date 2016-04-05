@@ -13,13 +13,14 @@
     </style>
     <template>
         <template is="dom-if" if="[[isModelType(selected, 'ui')]]">
-            <kano-ui-editor parts="{{parts}}"
+            <kano-ui-editor id="ui-editor"
+                            parts="{{parts}}"
                             selected="{{selected}}"
                             background="{{background}}"
                             default-categories="{{defaultCategories}}"></kano-ui-editor>
         </template>
-        <template is="dom-if" if="[[isModelType(selected, 'data')]]" restamp>
-            <kano-data-editor selected="{{selected}}"></kano-data-editor>
+        <template is="dom-if" if="[[isModelType(selected, 'data')]]">
+            <kano-data-editor id="data-editor" selected="{{selected}}"></kano-data-editor>
         </template>
     </template>
 </dom-module>
@@ -59,10 +60,25 @@
             return selected && selected.partType === type;
         }
         showCodeEditor () {
-
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.showCodeEditor();
         }
         hideCodeEditor () {
-
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.hideCodeEditor();
+        }
+        showPage (page) {
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.showPage(page);
         }
     }
     Polymer(KanoPartEditor);

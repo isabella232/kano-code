@@ -8,7 +8,6 @@ import Label from './label';
 import Map from './map';
 import ISS from './data/space/iss';
 import Weather from './data/weather/weather';
-import List from './data/list/list';
 import Share from './data/kano/share';
 
 let part,

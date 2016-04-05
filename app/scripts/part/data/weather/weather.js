@@ -5,6 +5,7 @@ export default weather = {
     type: 'weather',
     label: 'Weather',
     colour: '#cddc39',
+    image: '/assets/part/weather-icon.svg',
     description: 'All around the world, people installed small boxes full of sensors to record the temperature, wind speed and much more about the weather. Thanks to them, you can get the current weather in any part of the world!',
     parameters: [{
         label: 'Location',

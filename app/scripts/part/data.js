@@ -185,7 +185,7 @@ export default class Data extends Part {
         }
     }
     refresh () {
-        return modules.data.methods.generateRequest(this.method, this.config);
+        return modules.data.methods.generateRequest(this.id, this.method, this.config);
     }
     toJSON () {
         let plain = super.toJSON.call(this);

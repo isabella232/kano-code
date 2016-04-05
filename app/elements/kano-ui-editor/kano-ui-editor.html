@@ -97,7 +97,7 @@
     }
     </style>
     <template>
-        <kano-nav-header icon="[[computeIcon(selectedPage, selected)]]" title="[[title]]" on-previous="previous">
+        <kano-nav-header id="navbar" icon="[[computeIcon(selectedPage, selected)]]" title="[[title]]" on-previous="previous">
             <button id="look-button"
                     type="button"
                     class="right-button edit-config"
@@ -233,15 +233,18 @@
             return this.selectedPage !== 'default' || !this.selected;
         }
         editCode (e) {
-            let event = e.model.get('event');
+            let event = e.model.get('event'),
+                trigger;
             if (!this.selected) {
                 return;
             }
-            this.set('trigger', {
+            trigger = {
                 emitter: event.emitterId,
                 event: event.eventId,
                 text: event.trigger
-            });
+            };
+            this.set('trigger', trigger);
+            this.notifyChange('trigger', trigger);
         }
         computeParts () {
             return this.parts.concat({

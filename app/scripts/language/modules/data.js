@@ -1,18 +1,36 @@
 let data;
 
 export default data = {
+    fetch (id, opts) {
+        let event = new Event('request');
+        event.detail = {
+            id,
+            opts
+        };
+        document.dispatchEvent(event);
+        return fetch(opts)
+            .then((r) => {
+                let event = new Event('response');
+                event.detail = {
+                    id,
+                    res: r.clone()
+                };
+                document.dispatchEvent(event);
+                return r;
+            });
+    },
     methods: {
-        generateRequest (methodPath, config) {
+        generateRequest (id, methodPath, config) {
             let pieces = methodPath.split('.'),
                 method = data.methods;
             pieces.forEach((key) => {
                 method = method[key];
             });
-            return method(config);
+            return method(id, config);
         },
         kano: {
-            getShares () {
-                return fetch('http://api.kano.me/share')
+            getShares (id) {
+                return data.fetch(id, 'http://api.kano.me/share')
                     .then(r => r.json())
                     .then(data => {
                         return data.entries.map(share => {
@@ -27,8 +45,8 @@ export default data = {
             }
         },
         weather: {
-            getWeather (config) {
-                return fetch(`http://api.openweathermap.org/data/2.5/weather?APPID=79f483fba81614f1e7d1fea5a28b9750&q=${config.location}&units=${config.units}`)
+            getWeather (id, config) {
+                return data.fetch(id, `http://api.openweathermap.org/data/2.5/weather?APPID=79f483fba81614f1e7d1fea5a28b9750&q=${config.location}&units=${config.units}`)
                     .then((res) => res.json())
                     .then((data) => {
                         return {
@@ -41,13 +59,13 @@ export default data = {
             }
         },
         space: {
-            getISSStatus () {
-                return fetch('https://api.wheretheiss.at/v1/satellites/25544')
+            getISSStatus (id) {
+                return data.fetch(id, 'https://api.wheretheiss.at/v1/satellites/25544')
                     .then((res) => res.json());
             }
         },
         list: {
-            getData () {
+            getData (id) {
                 return Promise.resolve([{
                     title: 'List item 1',
                     content: 'Content 1'

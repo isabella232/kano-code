@@ -1,127 +1,210 @@
 {
-    "parts": ["label"],
+    "parts": ["label", "weather"],
     "steps": [{
         "modal": {
             "text": "Using the set text block allows you to change what is the text displayed. Now we will see how to get the temperature from the Internet",
             "next_button": true
         }
     },{
-        "validation": {
-            "blockly": {
-                "delete": "text_block_1"
-            }
-        },
         "load_app": "app_1",
-        "focus": "block-editor",
+        "focus": "workspace-controls.add-part",
+        "validation": {
+            "open-parts": true
+        },
         "tooltips": [{
-            "location": "block-editor",
+            "location": "workspace-controls.add-part",
+            "position": "left",
+            "text": "Open the **Parts** page again"
+        }]
+    },{
+        "validation": {
+            "add-part": {
+                "type": "weather",
+                "id": "weather_1"
+            }
+        },
+        "arrow": {
+            "source": "sidebar.parts.part-weather",
+            "target": "right-panel"
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-weather",
             "position": "right",
-            "text": "Select the text block with your name inside and remove it. Tip: you can remove blocks by hitting backspace on your keyboard or by dropping them on the trash bin"
+            "text": "Drag the `Weather` part..."
+        },{
+            "location": "right-panel",
+            "position": "left",
+            "text": "...and drop it in here"
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "weather_1"
+        },
+        "validation": {
+            "select-part": {
+                "target": "weather_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "weather_1"
+            },
+            "position": "right",
+            "text": "Select the weather part to configure it"
+        }]
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "You can configure the way you want to get the weather in this panel",
+            "next_button": true
+        }]
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor.data-editor.refresh-button",
+            "position": "right",
+            "text": "If you hit this button, you will get the current weather"
+        }],
+        "validation": {
+            "refresh-data": true
+        }
+    },{
+        "focus": "part-editor.data-editor.data-browser",
+        "tooltips": [{
+            "location": "part-editor.data-editor.data-browser",
+            "position": "top",
+            "text": "Here you can see how the data looks like",
+            "next_button": true
+        }]
+    },{
+        "focus": "part-editor.data-editor.refresh-toggle",
+        "tooltips": [{
+            "location": "part-editor.data-editor.refresh-toggle",
+            "position": "top",
+            "text": "Click on this button to enable the automatic refresh of the weather"
+        }],
+        "validation": {
+            "selected-part-change": {
+                "target": "weather_1",
+                "property": "refreshEnabled",
+                "value": true
+            }
+        }
+    },{
+        "focus": "part-editor.data-editor.location",
+        "tooltips": [{
+            "location": "part-editor.data-editor.location",
+            "position": "right",
+            "text": "And here you can choose which city to lookup, go ahead and type any"
+        }],
+        "validation": {
+            "selected-part-change": {
+                "target": "weather_1",
+                "property": "config.location",
+                "count": 4
+            }
+        }
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Your data source is configured. Now let's use it in the code",
+            "next_button": true
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "label_1"
+        },
+        "validation": {
+            "select-part": {
+                "target": "label_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "label_1"
+            },
+            "position": "right",
+            "text": "Click on the label, this is where your previous code is"
+        }]
+    },{
+        "validation": {
+            "open-part-trigger": true
+        },
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Click on the big 'Add code' button"
+        }]
+    },{
+        "focus": "part-editor",
+        "validation": {
+            "trigger": {
+                "emitter": {
+                    "part": "weather_1"
+                },
+                "event": "update"
+            }
+        },
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Choose *When Weather updated*"
         }]
     },{
         "validation": {
             "blockly": {
                 "create": {
-                    "type": "get_temperature",
-                    "id": "temp_block_1"
+                    "target": "label_1",
+                    "type": "set_value",
+                    "id": "set_value_1"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "part-editor",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "part-editor",
             "position": "right",
-            "text": "In the 'Weather' section grab the temperture block and put it where your name was before"
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "target": "temp_block_1",
-                    "parent": "set_text_block_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "In the 'Weather' section grab the temperture block and put it where your name was before"
+            "text": "Get the *set Label value* block"
         }]
     },{
         "validation": {
             "blockly": {
                 "create": {
-                    "id": "city_block_1",
-                    "type": "text"
+                    "target": "weather_1",
+                    "type": "get_value",
+                    "id": "get_weather_value"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "part-editor",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "part-editor",
             "position": "right",
-            "text": "As you can see, the temperature block needs another block. This block will tell to the temperature block what city we want the temperature from. Grab a text block and plug it to the temperature block"
+            "text": "Now, grab a *get Weather's* block and connect it to the block you added before"
         }]
     },{
         "validation": {
             "blockly": {
                 "connect": {
-                    "target": "city_block_1",
-                    "parent": "temp_block_1"
+                    "target": "get_weather_value",
+                    "parent": "set_value_1"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "part-editor",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "part-editor",
             "position": "right",
-            "text": "As you can see, the temperature block needs another block. This block will tell to the temperature block what city we want the temperature from. Grab a text block and plug it to the temperature block"
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "value": {
-                    "target": "city_block_1",
-                    "minLength": 3
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "Now enter in the block you just added the name of a city"
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "create": {
-                    "type": "refresh_weather",
-                    "id": "refresh_temp_block_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "Your app is almost done, we need a last thing. You now need to tell your app to get the weather from the web. To do that, grab the refresh block in the Weather section and add it underneath your blocks"
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "target": "refresh_temp_block_1",
-                    "parent": "set_text_block_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "Your app is almost done, we need a last thing. You now need to tell your app to get the weather from the web. To do that, grab the refresh block in the Weather section and add it underneath your blocks"
+            "text": "Now, grab a *get Weather's* block and connect it to the block you added before"
         }]
     },{
         "validation": {
@@ -136,6 +219,20 @@
             "text": "Your app is ready, let's see if it works. Hit the make button"
         }]
     },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "weather_1"
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "weather_1"
+            },
+            "position": "right",
+            "text": "Everytime your app update the weather, you can see the data go through this part",
+            "next_button": true
+        }]
+    },{
         "tooltips": [{
             "location": "workspace",
             "position": "bottom",
@@ -143,5 +240,5 @@
             "next_button": true
         }]
     }],
-    "modules": ["Weather", "Time", "Text"]
+    "modules": []
 }

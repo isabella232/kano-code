@@ -6,7 +6,7 @@ export default map = {
     partType: 'ui',
     type: 'map',
     label: 'Map',
-    image: 'assets/part/picture-icon.png',
+    image: '/assets/part/map-icon.svg',
     colour: '#E73544',
     customizable: {
         style: ['width', 'height']

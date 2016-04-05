@@ -4,7 +4,7 @@ export default frame = {
     partType: 'ui',
     type: 'frame',
     label: 'Frame',
-    image: 'assets/part/picture-icon.png',
+    image: '/assets/part/picture-icon.png',
     colour: '#E73544',
     customizable: {
         style: ['width', 'height']

@@ -187,6 +187,7 @@
                     });
                 }
                 if (step.focus) {
+                    console.log(step.focus);
                     focusString = JSON.stringify(step.focus);
                     if (focusString !== this.previousFocus) {
                         this.focus.hide();
@@ -234,6 +235,10 @@
             return !currentStep.next_button;
         }
         matchTrigger (validation, event) {
+            if (validation.emitter.part) {
+                validation.emitter = this.stepIds[validation.emitter.part];
+            }
+            console.log(validation, event);
             return validation.emitter === event.trigger.emitter &&
                     validation.event === event.trigger.event;
         }
