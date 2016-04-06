@@ -6,7 +6,27 @@ class Stories {
         return Promise.resolve([{
             name: 'Weather',
             id: 'weather',
-            image: 'https://www.mikeafford.com/store/store-images/ms02_example_heavy_rain_showers.png'
+            image: '/assets/stories/weather/weather.svg'
+        },{
+            name: 'Space tracker',
+            id: 'space_tracker',
+            image: '/assets/stories/space_tracker/space-tracker.svg'
+        },{
+            name: 'AI Robot',
+            id: 'ai_robot',
+            image: '/assets/stories/ai-robot.svg'
+        },{
+            name: 'Cat Factory',
+            id: 'cat_factory',
+            image: '/assets/stories/cat-factory.svg'
+        },{
+            name: 'Petri Programmer',
+            id: 'petri_programmer',
+            image: '/assets/stories/petri-programmer.svg'
+        },{
+            name: 'Umbrella Time',
+            id: 'ai_robot',
+            image: '/assets/stories/umbrella-time.svg'
         }]);
     }
     getById (id) {

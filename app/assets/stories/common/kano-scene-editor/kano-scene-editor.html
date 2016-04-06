@@ -15,6 +15,7 @@
       <kano-app-challenge id="challenge"
                             steps="[[scene.steps]]"
                             on-save="saveApp"
+                            on-save-to-storage="saveToStorage"
                             on-load="loadApp">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*)]]"
@@ -71,6 +72,10 @@
                 blockIds,
                 stepIds
             });
+        }
+        saveToStorage () {
+            let app = this.$.editor.save();
+            localStorage.setItem('savedApp', JSON.stringify(app));
         }
         loadApp (e) {
             let id = e.detail,
