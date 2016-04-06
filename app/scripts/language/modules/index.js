@@ -1,4 +1,5 @@
 import time from './time';
+import loop from './loops';
 import giphy from './giphy';
 import cat from './cat';
 import global from './global';
@@ -9,6 +10,7 @@ import space from './space';
 
 export default {
     time,
+    loop,
     giphy,
     cat,
     global,
