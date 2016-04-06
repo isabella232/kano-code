@@ -7,6 +7,10 @@ class Stories {
             name: 'Weather',
             id: 'weather',
             image: 'https://www.mikeafford.com/store/store-images/ms02_example_heavy_rain_showers.png'
+        },{
+            name: 'Space tracker',
+            id: 'space_tracker',
+            image: '/assets/part/ISS-icon.svg'
         }]);
     }
     getById (id) {

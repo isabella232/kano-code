@@ -11,6 +11,9 @@
     </style>
     <template>
         <google-map id="map"
+                    disable-default-ui zoom="4"
+                    disable-zoom
+                    additional-map-options="[[mapOptions]]"
                     latitude="{{position.latitude}}" longitude="{{position.longitude}}"
                     style$="[[computeMapStyle(model.userStyle.*)]]"
                     api-key="AIzaSyBEEqGElf1RWRS0vkoia0Vs_o0Tpni43UM"
@@ -37,6 +40,12 @@
                         return [];
                     }
                 }
+            };
+        }
+        attached () {
+            this.mapOptions = {
+                draggable: false,
+                scrollWheel: false
             };
         }
         showMarker (pos) {

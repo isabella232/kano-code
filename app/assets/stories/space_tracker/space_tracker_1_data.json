@@ -1,0 +1,278 @@
+{
+    "parts": ["map"],
+    "modules": ["Space", "Time", "Math"],
+    "steps": [{
+        "modal": {
+            "text": "Welcome to the **App Editor**, I will guide you through the interface, and help you make your own space tracker app"
+        }
+    },{
+        "focus": "workspace-controls.add-part",
+        "validation": {
+            "open-parts": true
+        },
+        "tooltips": [{
+            "location": "workspace-controls.add-part",
+            "position": "left",
+            "text": "Click on this button to see the parts you can add to your app"
+        }]
+    },{
+        "validation": {
+            "add-part": {
+                "type": "map",
+                "id": "map_1"
+            }
+        },
+        "arrow": {
+            "source": "sidebar.parts.part-map",
+            "target": "right-panel"
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-map",
+            "position": "right",
+            "text": "Drag the `Map` part..."
+        },{
+            "location": "right-panel",
+            "position": "left",
+            "text": "...and drop it in here"
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "map_1"
+        },
+        "validation": {
+            "select-part": {
+                "target": "map_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "map_1"
+            },
+            "position": "right",
+            "text": "Select the part you added by clicking on it"
+        }]
+    },{
+        "validation": {
+            "open-part-config": true
+        },
+        "focus": "block-editor.look-button",
+        "tooltips": [{
+            "location": "block-editor.look-button",
+            "position": "right",
+            "text": "This button allows you to add style to the parts of your app"
+        }]
+    },{
+        "focus": "block-editor.look",
+        "tooltips": [{
+            "location": "block-editor.look",
+            "position": "right",
+            "text": "Each part can be styled in its own way within this panel. Try changing the size",
+            "next_button": true
+        }]
+    },{
+        "validation": {
+            "open-part-default": true
+        },
+        "focus": "block-editor.back-button",
+        "tooltips": [{
+            "location": "block-editor.back-button",
+            "position": "right",
+            "text": "Now, it is time to code your app, click on the button at the top left of the screen to go back"
+        }]
+    },{
+        "validation": {
+            "open-part-trigger": true
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Click on the big 'Add code' button"
+        }]
+    },{
+        "validation": {
+            "trigger": {
+                "emitter": "global",
+                "event": "start"
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Choose 'When make is clicked' to add code that will run when your app starts"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "map_1",
+                    "type": "show_marker",
+                    "id": "show_marker_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "To display a marker on the map, use the move marker to block"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "type": "get_iss_location",
+                    "id": "get_iss_location_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Create get iss block"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "show_marker_1",
+                    "target": "get_iss_location_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Connect the blocks together"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "type": "every_x_seconds",
+                    "id": "repeat_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Create time stuff"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "repeat_1",
+                    "parent": "show_marker_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Connect the blocks together"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "type": "math_number",
+                    "id": "number_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Create a number block"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "number_1",
+                    "parent": "repeat_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Connect the blocks"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "number_1",
+                    "value": 5
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Type 5 in the block"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "type": "refresh_space",
+                    "id": "refresh_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Create refresh block..."
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "refresh_1",
+                    "parent": "repeat_1"
+                }
+            }
+        },
+        "focus": "block-editor",
+        "tooltips": [{
+            "location": "block-editor",
+            "position": "right",
+            "text": "Create refresh block...and connect it to the time block"
+        }]
+    },{
+        "validation": {
+            "running": {
+                "value": true
+            }
+        },
+        "focus": "workspace-controls.make-button",
+        "tooltips": [{
+            "location": "workspace-controls.make-button",
+            "position": "left",
+            "text": "Let's see if your app works, hit the 'make' button"
+        }]
+    },{
+        "tooltips": [{
+            "location": "workspace",
+            "position": "bottom",
+            "text": "Yay the app is done",
+            "next_button": true
+        }]
+    }]
+}
