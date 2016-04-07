@@ -135,6 +135,9 @@ class KanoAppEditor {
      */
     share () {
         let modal = this.$['share-modal'];
+        html2canvas(document.body).then(function (canvas) {
+            document.body.appendChild(canvas);
+        });
         modal.open();
     }
     confirmShare (e) {
