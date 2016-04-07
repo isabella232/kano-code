@@ -93,3 +93,13 @@ If you'd like to quickly try things out, there's a test station in the office:
 You can ssh/vnc into it and try things out. There's a cron job that keeps our nightly
 builds of Make Apps up-to-date on it if you just want to check that `master` works.
 For testing features you're working on, see the workflow above.
+
+
+# Testing & Deployment
+
+### Staging
+Master is automatically deployed to Heroku. May be found here: http://kano-make-apps-again.herokuapp.com/
+
+### Production
+Production is served from S3. May be found here: http://apps-site.kano.me
+In order to deploy please use jenkins.kano.me and select `make-apps` from the deploy project.
