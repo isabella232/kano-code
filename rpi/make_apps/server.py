@@ -122,6 +122,7 @@ def _shutdown():
         logger.error(
             'Error while trying to shut down the server: [{}]'.format(exc)
         )
+    return ''
 
 
 @server.errorhandler(404)
