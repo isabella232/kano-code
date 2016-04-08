@@ -72,9 +72,7 @@ gulp.task('js', ['babel', 'bundle', 'dom-util'], () => {
     gulp.src('./.tmp/app/index.html')
         .pipe(utils.vulcanize({ inlineScripts: true }))
         .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.htmlReplace({ base: `
-            <base href="/" target="_blank">
-            `,
+        .pipe($.htmlReplace({
             config: `
             <script type="text/javascript">
                 window.config = ${JSON.stringify(utils.getConfig())};
