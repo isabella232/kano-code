@@ -154,7 +154,11 @@ class ComponentStore {
 
         component = `
             <dom-module id="${id}">
-                <style></style>
+                <style>
+                    :host kano-ui-viewport * {
+                        position: absolute;
+                    }
+                </style>
                 <template>
                     <kano-ui-viewport mode="scaled"
                                 view-width="${workspaceRect.width}"
@@ -169,8 +173,7 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}"),
-                            observer: 'partsChanged'
+                            value: JSON.parse("${partsString}")
                         }
                     },
                     attached: function () {
@@ -180,15 +183,6 @@ class ComponentStore {
                             }.bind(this)
                         };
                         ${wrappedCode}
-                    },
-                    partsChanged () {
-                        var el;
-                        Object.keys(this.parts).forEach(function (id) {
-                            el = this.$$('#' + id);
-                            el.style.position = 'absolute';
-                            el.style.left = this.parts[id].position.x + 'px';
-                            el.style.top = this.parts[id].position.y + 'px';
-                        }.bind(this));
                     }
                 });
             </${scr}>
