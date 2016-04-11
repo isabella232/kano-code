@@ -110,24 +110,29 @@
                 retObj;
 
             if (window.app.config === 'osonline' && isPi) {
-                xmlHttp.open("GET", "http://localhost:8000/gettoken", true);
 
-                xmlHttp.onreadystatechange = () => {
-                    if (xmlHttp.readyState === 4) {
-                        if ( xmlHttp.status === 200 ) {
-                            retObj = JSON.parse(xmlHttp.response);
-
-                            if (retObj && retObj.hasOwnProperty('token')) {
-                                app.sdk.auth.setToken(retObj['token']);
-                            }
-                        }
-
-                        app.sdk.auth.initSession(() => {
-                            this.user = app.sdk.auth.getUser();
-                        });
+                fetch(window.app.config.TOKEN_ENDPOINT)
+                .then( (response) => {
+                    if (response.ok) {
+                        // The API has responded, need to set the token
+                        return response.json();
                     }
-                };
-                xmlHttp.send(null);
+                })
+                .then( (retObj) => {
+                    if (retObj.hasOwnProperty('token')) {
+                        app.sdk.auth.setToken(retObj['token']);
+                    }
+                    app.sdk.auth.initSession(() => {
+                        this.user = app.sdk.auth.getUser();
+                    });
+                })
+                .catch( (error) => {
+                    // Server responded with 401 or some other error occurred
+                    // still need to initialise the SDK
+                    app.sdk.auth.initSession(() => {
+                        this.user = app.sdk.auth.getUser();
+                    });
+                });
             } else {
                 app.sdk.auth.initSession(() => {
                     this.user = app.sdk.auth.getUser();
