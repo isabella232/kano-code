@@ -68,7 +68,7 @@ gulp.task('serve-prod', () => {
 
 // For a build with cordova, add this to html replace
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
-gulp.task('js', ['babel', 'bundle', 'dom-util'], () => {
+gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
     gulp.src('./.tmp/app/index.html')
         .pipe(utils.vulcanize({ inlineScripts: true }))
         .pipe($.crisper({ scriptInHead: false }))
@@ -219,6 +219,16 @@ gulp.task('dom-util', () => {
     DOMUtilBundler.bundle()
         .on('error', utils.notifyError)
         .pipe(source('dom.js'))
+        .pipe(gulp.dest('.tmp/app/scripts/util/'));
+});
+
+let ClientUtilBundler = browserify('app/scripts/util/client.js', { standalone: 'ClientUtil' })
+                        .transform(babelify.configure({ presets: ['es2015'] }));
+
+gulp.task('client-util', () => {
+    ClientUtilBundler .bundle()
+        .on('error', utils.notifyError)
+        .pipe(source('client.js'))
         .pipe(gulp.dest('.tmp/app/scripts/util/'));
 });
 
