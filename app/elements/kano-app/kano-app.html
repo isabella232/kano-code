@@ -111,7 +111,7 @@
                 });
             };
 
-            if (window.app.config === 'osonline' && ClientUtil.isPi()) {
+            if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
 
                 fetch(window.app.config.TOKEN_ENDPOINT)
                 .then( (response) => {
@@ -130,7 +130,6 @@
                 .catch( (error) => {
                     // Server responded with 401 or some other error occurred
                     // still need to initialise the SDK
-
                     initialiseSDK();
                 });
             } else {
