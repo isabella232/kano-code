@@ -112,7 +112,7 @@ def static_proxy(path):
 
 @server.route('/shutdown', methods=['POST'])
 def _shutdown():
-    logger.debug('Called shutdown endopoint')
+    logger.debug('Called shutdown endpoint')
     try:
         server_shutdown = request.environ.get('werkzeug.server.shutdown')
         if server_shutdown is not None:
@@ -122,6 +122,7 @@ def _shutdown():
         logger.error(
             'Error while trying to shut down the server: [{}]'.format(exc)
         )
+    return ''
 
 
 @server.errorhandler(404)
@@ -190,6 +191,18 @@ def speak():
     run_bg(cmd)
 
     return jsonify(status='ok'), 200
+
+
+@server.route('/gettoken', methods=['GET'])
+def gettoken():
+    from kano_world.functions import get_token
+
+    token = get_token()
+
+    if not token:
+        return jsonify(status="Not logged in", token=""), 401
+    else:
+        return jsonify(status="ok", token=token), 200
 
 
 def start():
