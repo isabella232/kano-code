@@ -6,7 +6,7 @@ set -e
 echo "Rebuilding and pushing to Pi"
 npm install
 bower install
-npm build
+NODE_ENV=production TARGET=rpi gulp build
 
 DEST_IP='10.0.0.114'
 DEST_USER='kano'
