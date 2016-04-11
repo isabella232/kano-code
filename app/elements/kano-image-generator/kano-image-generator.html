@@ -79,11 +79,11 @@
                         temp_child.rotate = parseFloat(rotate_regex.exec(inner_transform)[0].replace(/rotate\(/g, ''));
                         temp_child.internal_scale_factor = parseFloat(internal_scale_factor_regex.exec(inner_transform)[0].replace(/scale\(/g, ''));
                         temp_child.color = this.getStyle(temp_child.inner_element, 'color');
+
+                        //computing element and font size
                         temp_child.size.width = temp_dom_child.offsetWidth * external_scale_factor * temp_child.internal_scale_factor;
                         temp_child.size.height = temp_dom_child.offsetHeight * external_scale_factor * temp_child.internal_scale_factor;
                         temp_child.font_size = this.getStyle(temp_child.inner_element, 'font-size').replace(/px/g, '') * external_scale_factor * temp_child.internal_scale_factor;
-
-                        console.log(temp_child);
                         this.drawElementOnCanvas(temp_child, ctx);
                     }
 
@@ -137,13 +137,27 @@
                     let background_color = this.getStyle(element.inner_element, 'background-color'),
                         text_color = this.getStyle(element.inner_element, 'color');
                     context.beginPath();
+                    //drawing background
                     context.fillStyle = background_color;
                     context.fillRect(0, 0, element.size.width, element.size.height);
                     context.fillStyle = text_color;
 
+                    //drawing text inside button
                     context.textAlign = 'center';
                     context.fillText(element.inner_element.innerHTML.trim(), (element.size.width)/2, (element.size.height)/2);
                     context.stroke();
+                    break;
+
+                case 'KANO-UI-MAP':
+                    let img = new Image();
+                    img.onload = function () {
+                        context.beginPath();
+                        context.rect(element.position.left, element.position.top, element.size.width, element.size.height);
+                        context.stroke();
+                        context.drawImage(img, element.position.left, element.position.top, element.size.width, element.size.height);
+                    };
+                    img.src = '/assets/part/map-icon.svg';
+
                     break;
 
                 default:
