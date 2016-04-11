@@ -10,6 +10,7 @@ export default class Data extends Part {
         this.partType = 'data';
         this.tagName = 'kano-part-data';
         this.dataType = opts.dataType || 'object';
+        this.dataLength = opts.dataLength || 1;
         this.parameters = opts.parameters || [];
         this.config = this.parameters.reduce((acc, param) => {
             acc[param.key] = param.value;

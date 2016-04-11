@@ -1,0 +1,103 @@
+<dom-module id="kano-what-is-json">
+    <style>
+    :host {
+        display: block;
+    }
+    :host .modal-content {
+        font-size: 1.2em;
+    }
+    :host paper-dialog h2 {
+        text-align: center;
+    }
+    :host paper-dialog .buttons {
+        @apply(--layout-center-justified);
+    }
+    :host .info-button:hover {
+        cursor: pointer;
+    }
+    :host .close-modal {
+        @apply(--kano-button);
+        background: var(--green-gradient);
+    }
+    :host .info-button {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        line-height: 15px;
+        border: 1px solid grey;
+        background-color: var(--color-white, white);
+    }
+    :host .modal-content .code-sample {
+        font-family: monospace;
+        color: #aabbc3;
+        line-height: 1.7em;
+        font-size: 1.2em;
+        background-color: #263238;
+        overflow-y: auto;
+    }
+    :host .modal-content {
+        @apply(--layout-vertical);
+    }
+    :host .line {
+        padding-left: 20px;
+    }
+    :host .line .key {
+        color: #80cbc4;
+    }
+    :host .line .value {
+        color: orange;
+    }
+    :host .line .colon {
+        color: #ae94dd;
+    }
+    :host .line .comment {
+        color: #49656f;
+    }
+    </style>
+    <template>
+        <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
+        <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
+        <paper-dialog id="modal" with-backdrop>
+            <h2>What is JSON?</h2>
+            <div class="modal-content">
+                <marked-element>
+                    <script type="text/markdown">
+                    What you see in this box, is called a **JSON object**. It is one of the many formats that computers use to exchange information.
+
+                    The curly brackets are like an envelope that will contain the data.
+                    </script>
+                </marked-element>
+                <div class="code-sample">
+                    <code>
+                        <div class="line">
+                            <span class="key">&lt;key&gt;</span>
+                            <span class="colon">:</span>
+                            <span class="value">&lt;value&gt;</span>
+                            <span class="comma">,</span>
+                        </div>
+                    </code>
+                </div>
+                <marked-element>
+                    <script type="text/markdown">
+                    Inside, each line represent one information. The key is a like a name for the computer to use to access the value.
+                    </script>
+                </marked-element>
+            </div>
+            <div class="buttons">
+                <button class="close-modal" dialog-dismiss>Close</button>
+            </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+    class KanoWhatIsJson {
+        beforeRegister () {
+            this.is = 'kano-what-is-json';
+        }
+        openJsonInfo () {
+            this.$.modal.open();
+        }
+    }
+    Polymer(KanoWhatIsJson);
+</script>

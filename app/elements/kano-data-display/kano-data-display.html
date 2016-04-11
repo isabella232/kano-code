@@ -9,22 +9,13 @@
         @apply(--layout-center-justified);
         padding-left: 25px;
     }
-    :host .modal-content {
-        font-size: 1.2em;
-    }
-    :host paper-dialog h2 {
-        text-align: center;
-    }
-    :host paper-dialog .buttons {
-        @apply(--layout-center-justified);
-    }
-    :host code,
-    :host .modal-content .code-sample {
+    :host code {
         font-family: monospace;
         color: #aabbc3;
         line-height: 1.7em;
         font-size: 1.2em;
         background-color: #263238;
+        overflow-y: auto;
     }
     :host .modal-content {
         @apply(--layout-vertical);
@@ -44,24 +35,6 @@
     :host .line .comment {
         color: #49656f;
     }
-    :host .info-button {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        line-height: 15px;
-        border: 1px solid grey;
-        background-color: var(--color-white, white);
-    }
-    :host .info-button:hover {
-        cursor: pointer;
-    }
-    :host .close-modal {
-        @apply(--kano-button);
-        background: var(--green-gradient);
-    }
     </style>
     <template>
         <code>
@@ -75,40 +48,8 @@
                     <span class="comment">//&nbsp;[[property.description]]</span>
                 </div>
             </template>
-            <div>}</div>
+            <div><span>}</span><span hidden$="[[!trailingComma]]">,</span></div>
         </code>
-        <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
-        <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
-        <paper-dialog id="modal" with-backdrop>
-            <h2>What is JSON?</h2>
-            <div class="modal-content">
-                <marked-element>
-                    <script type="text/markdown">
-                        What you see in this box, is called a **JSON object**. It is one of the many formats that computers use to exchange information.
-
-                        The curly brackets are like an envelope that will contain the data.
-                    </script>
-                </marked-element>
-                <div class="code-sample">
-                    <code>
-                        <div class="line">
-                            <span class="key">&lt;key&gt;</span>
-                            <span class="colon">:</span>
-                            <span class="value">&lt;value&gt;</span>
-                            <span class="comma">,</span>
-                        </div>
-                    </code>
-                </div>
-                <marked-element>
-                    <script type="text/markdown">
-                        Inside, each line represent one information. The key is a like a name for the computer to use to access the value.
-                    </script>
-                </marked-element>
-            </div>
-            <div class="buttons">
-                <button class="close-modal" dialog-dismiss>Close</button>
-            </div>
-        </paper-dialog>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -127,7 +68,8 @@
                     value: () => {
                         return {};
                     }
-                }
+                },
+                trailingComma: Boolean
             };
             this.observers = [
                 'computeValues(dataValues.*)',
@@ -142,9 +84,6 @@
                 let value = this.dataValues && typeof this.dataValues[property.key] !== 'undefined' ? this.dataValues[property.key] : `<${property.label}>`;
                 this.set(`dataDefinition.${index}.value`, value);
             });
-        }
-        openJsonInfo () {
-            this.$.modal.open();
         }
     }
     Polymer(KanoDataDisplay);

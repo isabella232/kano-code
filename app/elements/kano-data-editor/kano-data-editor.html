@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../kano-data-display/kano-data-display.html">
+<link rel="import" href="./kano-what-is-json.html">
 <link rel="import" href="../behaviors.html">
 <dom-module id="kano-data-editor">
     <style>
@@ -60,6 +61,8 @@
     :host .data-browser {
         @apply(--layout-flex);
         position: relative;
+        overflow-y: auto;
+        padding-top: 15px;
     }
     :host .loading-overlay {
         position: absolute;
@@ -82,7 +85,6 @@
     :host .data-browser {
         background-color: #263238;
         box-shadow: inset 0px 2px 6px 0px rgba(0,0,0,0.5);
-        @apply(--layout-vertical);
     }
     :host ::content kano-input-text {
         --kano-input-text-size: 1.4em;
@@ -92,6 +94,11 @@
     }
     :host .param-description {
         font-style: italic;
+    }
+    :host kano-what-is-json {
+        position: absolute;
+        top: 15px;
+        right: 15px;
     }
     </style>
     <template>
@@ -126,7 +133,10 @@
                 </div>
             </div>
             <div class="data-browser" id="data-browser">
-                <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[computeDataSample(selected.data.*)]]"></kano-data-display>
+                <template is="dom-repeat" items="[[dataArray]]" as="value">
+                    <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[value]]" trailing-comma="[[!isLastItem(dataArray, index)]]"></kano-data-display>
+                </template>
+                <kano-what-is-json></kano-what-is-json>
                 <div class="loading-overlay" hidden$="[[!loading]]">
                     <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                 </div>
@@ -151,7 +161,8 @@
             this.properties = {
                 selected: {
                     type: Object,
-                    notify: true
+                    notify: true,
+                    observer: 'computeDataArray'
                 },
                 loading: {
                     type: Boolean,
@@ -159,6 +170,19 @@
                     observer: 'loadingChanged'
                 }
             };
+            this.observers = [
+                'computeDataArray(selected.data.*)'
+            ];
+        }
+        computeDataArray () {
+            if (!this.selected) {
+                return;
+            }
+            if (!this.selected.data) {
+                this.dataArray = new Array(this.selected.dataLength);
+                return;
+            }
+            this.dataArray = Array.isArray(this.selected.data) ? this.selected.data : [this.selected.data];
         }
         loadingChanged () {
             this.toggleClass('loading', this.loading);
@@ -186,6 +210,9 @@
                 return;
             }
             return this.selected.dataType === 'list' ? this.selected.data[0] : this.selected.data;
+        }
+        isLastItem(array, index) {
+            return (array.length - 1) === index;
         }
     }
     Polymer(KanoDataEditor);
