@@ -1,0 +1,184 @@
+<dom-module id="kano-image-generator">
+    <style>
+    </style>
+    <template>
+    </template>
+</dom-module>
+
+<script>
+    class KanoImageGenerator {
+        beforeRegister () {
+            this.is = 'kano-image-generator';
+            this.properties = {
+                elementName : {
+                    type : String,
+                    observer: 'updateElementName'
+                },
+                canvas : {
+                    type: Object
+                }
+            };
+        }
+
+        updateElementName () {
+            setTimeout(()=> {
+                let workspace = window.document.getElementsByTagName(this.elementName)[0],
+                    viewport = workspace.childNodes[1],
+                    view = viewport.childNodes[1],
+                    el_container = view.childNodes[2];
+
+
+                console.log('ELEMENTS', viewport, view, el_container);
+
+                if (el_container) {
+                    let parent_rect = el_container.getBoundingClientRect(),
+                        temp_child,
+                        temp_dom_child,
+                        ctx,
+                        background_color = this.getStyle(workspace, 'background-color'),
+                        transform = this.getStyle(view, 'transform'),
+                        float_regex = /([+-]?\d*\.*\d+)/g,
+                        external_scale_factor = parseFloat(float_regex.exec(transform)[0]);
+
+                    this.canvas = document.createElement('canvas');
+                    ctx = this.canvas.getContext('2d');
+
+                    this.canvas.id = 'screenshot';
+                    this.canvas.width  = parent_rect.width;
+                    this.canvas.height = parent_rect.height;
+
+                    //setting background color
+                    ctx.fillStyle = background_color;
+                    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    for (let i = 0; i <  el_container.childNodes.length; i++) {
+                        temp_dom_child = el_container.childNodes[i];
+
+                        //can be declared as DOM child Object
+                        temp_child = {};
+                        temp_child.position = {};
+                        temp_child.size = {};
+                        temp_child.DOM_element = temp_dom_child;
+                        temp_child.inner_element = temp_dom_child.childNodes[1];
+
+                        temp_child.name = temp_dom_child.tagName;
+
+                        temp_child.position.top = temp_dom_child.getBoundingClientRect().top - parent_rect.top;
+                        temp_child.position.left = temp_dom_child.getBoundingClientRect().left - parent_rect.left;
+
+                        temp_child.size.width = temp_dom_child.offsetWidth * external_scale_factor;
+                        temp_child.size.height = temp_dom_child.offsetHeight * external_scale_factor;
+
+                        console.log(temp_child);
+                        this.drawElementOnCanvas(temp_child, ctx, external_scale_factor);
+                    }
+
+                    document.body.appendChild(this.canvas);
+                }
+            }, 3000);
+        }
+
+
+        /**
+         * Draw the element on the canvas
+         * @param  {Object} element element you want to draw
+         * @param  {Object} context context needed to draw
+          * @param  {Float} external_scale_factor scale factor applied to kano workspace element
+         */
+        drawElementOnCanvas (element, context, external_scale_factor) {
+
+            let font_size = this.getStyle(element.inner_element, 'font-size').replace(/px/g, '') * external_scale_factor,
+                transform = element.DOM_element.style.transform,
+                rotate_regex = /rotate\((\d+)/g,
+                internal_scale_factor_regex = /scale\(([+-]?\d*\.*\d+)/g,
+                rotate = parseFloat(rotate_regex.exec(transform)[0].replace(/rotate\(/g, '')),
+                internal_scale_factor = parseFloat(internal_scale_factor_regex.exec(transform)[0].replace(/scale\(/g, '')),
+                color = this.getStyle(element.inner_element, 'color');
+
+            context.save();
+            context.translate(element.position.left, element.position.top);
+            context.rotate(rotate*Math.PI/180);
+
+            if (internal_scale_factor) {
+                context.font = `${font_size * internal_scale_factor}px Bariol`;
+            } else {
+                context.font = `${font_size}px Bariol`;
+            }
+
+            switch (element.name) {
+                case 'KANO-UI-LABEL':
+                    context.textAlign = 'center';
+                    console.log('element.inner_element.innerHTML', element.inner_element.innerHTML.trim());
+                    context.fillStyle = color;
+                    context.fillText(element.inner_element.innerHTML.trim(),  (element.size.width * internal_scale_factor)/2,  (element.size.height * internal_scale_factor) / 2);
+                    break;
+
+                case 'KANO-UI-TEXT-INPUT':
+                    let placeholder = element.inner_element.getAttribute('placeholder');
+
+                    context.beginPath();
+                    context.fillStyle = "#FFFFFF";
+                    context.fillRect(0, 0, element.size.width, element.size.height);
+                    context.fillStyle = "#AAAAAA";
+                    context.strokeRect(0, 0, element.size.width, element.size.height);
+                    context.textAlign = 'right';
+                    context.fillText(placeholder, (element.size.width)/2, (element.size.height)/2);
+                    context.stroke();
+                    break;
+
+                case 'KANO-UI-FRAME':
+                    context.beginPath();
+                    context.lineWidth = 2;
+                    context.strokeRect(0, 0, element.size.width, element.size.height);
+                    context.stroke();
+                    break;
+
+                case 'KANO-UI-BUTTON':
+                    let background_color = this.getStyle(element.inner_element, 'background-color'),
+                        text_color = this.getStyle(element.inner_element, 'color');
+                    context.beginPath();
+                    context.fillStyle = background_color;
+                    context.fillRect(0, 0, element.size.width, element.size.height);
+                    context.fillStyle = text_color;
+
+                    context.textAlign = 'center';
+                    context.fillText(element.inner_element.innerHTML.trim(), (element.size.width)/2, (element.size.height)/2);
+                    context.stroke();
+                    break;
+
+                default:
+                    context.beginPath();
+                    context.rect(0, 0, element.size.width, element.size.height);
+                    context.stroke();
+                    break;
+            }
+
+            //restoring original context rotation
+            context.restore();
+
+        }
+
+        /**
+         * Helper to get style from element
+         * @param  {Object} element  DOM element you want to inspect
+         * @param  {String} css_rule CSS rule you want to get
+         * @return {String} value of the css_rule for the DOM element
+         */
+        getStyle (element, css_rule) {
+            var strValue = "";
+            if(document.defaultView && document.defaultView.getComputedStyle){
+                strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
+            }
+            else if(element.currentStyle){
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1){
+                    return p1.toUpperCase();
+                });
+                strValue = element.currentStyle[css_rule];
+            }
+            return strValue;
+        }
+
+    }
+    Polymer(KanoImageGenerator);
+
+</script>
