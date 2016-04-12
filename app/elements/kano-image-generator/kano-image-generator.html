@@ -11,8 +11,7 @@
             this.is = 'kano-image-generator';
             this.properties = {
                 elementName : {
-                    type : String,
-                    observer: 'updateElementName'
+                    type : String
                 },
                 canvas : {
                     type: Object
@@ -20,15 +19,22 @@
             };
         }
 
-        updateElementName () {
-            setTimeout(()=> {
-                let workspace = window.document.getElementsByTagName(this.elementName)[0],
-                    viewport = workspace.childNodes[1],
-                    view = viewport.childNodes[1],
-                    el_container = view.childNodes[2];
+        /**
+         * Get image from elementName
+         * @return {Object} promise resolving the generation of the image
+         */
+        getImage() {
 
 
-                console.log('ELEMENTS', viewport, view, el_container);
+
+            let workspace = window.document.getElementsByTagName(this.elementName)[0],
+                viewport = workspace.childNodes[1],
+                view = viewport.childNodes[1],
+                el_container = view.childNodes[2],
+                image,
+                promise;
+
+            promise = new Promise((resolve, reject) => {
 
                 if (el_container) {
                     let parent_rect = el_container.getBoundingClientRect(),
@@ -40,11 +46,10 @@
                         float_regex = /([+-]?\d*\.*\d+)/g,
                         external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
                         inner_transform,
-                        rotate_regex = /rotate\(([+-]?\d*\.*\d+)/g,
-                        internal_scale_factor_regex = /scale\(([+-]?\d*\.*\d+)/g,
-                        internal_scale_factor;
+                        rotate_regex,
+                        internal_scale_factor_regex;
 
-
+                    //creating canvas
                     this.canvas = document.createElement('canvas');
                     ctx = this.canvas.getContext('2d');
 
@@ -61,7 +66,7 @@
                         rotate_regex = /rotate\(([+-]?\d*\.*\d+)/g;
                         internal_scale_factor_regex = /scale\(([+-]?\d*\.*\d+)/g;
 
-                        //can be declared as DOM child Object
+                        //creating element to be passed to draw function
                         temp_child = {};
                         temp_child.position = {};
                         temp_child.size = {};
@@ -87,9 +92,16 @@
                         this.drawElementOnCanvas(temp_child, ctx);
                     }
 
-                    document.body.appendChild(this.canvas);
-                }
-            }, 3000);
+                    //converting canvas to Image
+                    image = new Image();
+                    image.src = this.canvas.toDataURL();
+
+                    resolve(image);
+
+                } else reject(Error("Problem while generating image"));
+            });
+
+            return promise;
         }
 
 

@@ -134,8 +134,13 @@ class KanoAppEditor {
      * Opens the sharing modal and share the app
      */
     share () {
-        let modal = this.$['share-modal'];
-        modal.open();
+        let modal = this.$['share-modal'],
+            image_generator = this.$['image_generator'];
+
+        image_generator.getImage().then((image) => {
+            this.fire('imagegenerated', {image: image});
+            modal.open();
+        });
     }
     confirmShare (e) {
         this.fire('share', e.detail);

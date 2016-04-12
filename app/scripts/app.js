@@ -6,6 +6,7 @@ import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
+import FileUtils from './util/file';
 
 import es6Assign from 'es6-object-assign';
 
@@ -63,4 +64,5 @@ es6Assign.polyfill();
     app.sdk = KanoWorldSdk(app.config);
     app.sdk.registerForms();
 
+    app.file_utils = FileUtils;
 })(window.app = {});

@@ -21,6 +21,7 @@
         <textarea rows="8"
                 cols="40"
                 value="{{description::change}}"></textarea>
+        <img src="{{imageUrl}}">
         <div class="buttons">
             <button on-tap="dismiss">Cancel</button>
             <button on-tap="share" class="share">Share</button>
@@ -38,17 +39,30 @@
                 },
                 description: {
                     type: String
+                },
+                imageUrl: {
+                    type: String,
+                    notify: true
                 }
             };
+        }
+
+        ready () {
+            //set the imageUrl when the image has been generated
+            document.addEventListener('imagegenerated', (e) => {
+                this.imageUrl = e.detail.image.src;
+            });
         }
 
         share () {
             this.fire('confirm', {
                 title: this.title,
-                description: this.description
+                description: this.description,
+                image: this.imageUrl
             });
         }
-        cancel () {
+
+        dimiss () {
             this.fire('dismiss');
         }
     }
