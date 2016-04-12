@@ -141,6 +141,15 @@
             <button dialog-confirm class="confirm">Confirm</button>
           </div>
         </paper-dialog>
+        <paper-dialog id="external-use-warning" with-backdrop>
+          <h2>Delete Part</h2>
+          <div class="modal-content">
+              <div>You can't delete '[[selected.name]]' because it is used in another part</div>
+          </div>
+          <div class="buttons">
+            <button dialog-dismiss class="cancel">Cancel</button>
+          </div>
+        </paper-dialog>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -196,7 +205,45 @@
                 this.openDeleteModal();
             }
         }
+        checkBlockDependency () {
+            let part, emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces;
+            // Loop through all the parts
+            for (let i in this.parts) {
+                part = this.parts[i];
+                // Ignore the selected one, since we want to remove it
+                if (part.id === this.selected.id) {
+                    continue;
+                }
+                // Loop through all the pieces of code
+                for (let j in part.codes) {
+                    emitter = part.codes[j];
+                    for (let k in emitter) {
+                        event = emitter[k];
+                        // Get the blockly xml and parse it
+                        xmlString = event.snapshot.blocks;
+                        parser = new DOMParser();
+                        xml = parser.parseFromString(xmlString, 'text/xml');
+                        // Get all the 'block' elements
+                        blocks = xml.getElementsByTagName('block');
+                        // Check for every one of them...
+                        for (let l = 0, len = blocks.length; l < len; l++) {
+                            block = blocks[l];
+                            blockId = block.getAttribute('type');
+                            pieces = blockId.split('#');
+                            // ...if the type of the block is the part we're trying to delete
+                            if (pieces[0] === this.selected.id) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
         openDeleteModal () {
+            if (this.checkBlockDependency()) {
+                return this.$['external-use-warning'].open();
+            }
             this.$['confirm-delete'].open();
         }
         modalClosed (e) {
