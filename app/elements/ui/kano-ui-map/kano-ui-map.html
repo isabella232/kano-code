@@ -33,7 +33,7 @@
     class KanoUiMap {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+            return [KanoBehaviors.UIBehavior];
         }
 
         beforeRegister () {
@@ -54,25 +54,20 @@
             };
         }
         showMarker (latitude, longitude) {
-            let pos = { latitude, longitude };
-            if (!this.consume(pos, this.showMarker)) {
-                if (!this.poly) {
-                    this.poly = new google.maps.Polyline({
-                        path: [],
-                        geodesic: true,
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 1.0,
-                        strokeWeight: 2
-                    });
-                    this.poly.setMap(this.map);
-                }
-                let path = this.poly.getPath();
-                path.push(new google.maps.LatLng(pos.latitude, pos.longitude));
-
-                this.push('coordinates', pos);
-                this.set('position', pos);
+            let pos = { latitude, longitude },
+                path;
+            if (!this.poly) {
+                this.poly = new google.maps.Polyline({
+                    path: [],
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                this.poly.setMap(this.map);
             }
-            let path = this.poly.getPath();
+
+            path = this.poly.getPath();
             path.push(new google.maps.LatLng(pos.latitude, pos.longitude));
 
             this.push('coordinates', pos);

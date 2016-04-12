@@ -17,9 +17,9 @@
     /* globals KanoBehaviors */
 
     class KanoUiLabel {
-        
+
         get behaviors () {
-            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+            return [KanoBehaviors.UIBehavior];
         }
 
         beforeRegister () {
@@ -31,9 +31,7 @@
         }
 
         setValue (value) {
-            if (!this.consume(value, this.setValue)) {
-                this.set('model.userProperties.text', value);
-            }
+            this.set('model.userProperties.text', value);
         }
     }
     Polymer(KanoUiLabel);

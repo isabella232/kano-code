@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../kano-data-visualizer/kano-data-visualizer.html">
+<link rel="import" href="../../bower_components/Sortable/Sortable.html">
 <dom-module id="kano-workspace-controls">
     <style>
     :host {
@@ -52,10 +53,13 @@
         transform: rotate(45deg);
     }
     :host .parts {
-        padding: 10px;
+        padding: 0px 10px;
         overflow-y: auto;
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
+
+        align-items: center;
+        flex: 1;
     }
     :host .part {
         position: relative;
@@ -102,7 +106,7 @@
                 </div>
 
             </div>
-            <div class="parts" id="parts-tray">
+            <sortable-js class="parts" id="parts-tray">
                 <template is="dom-repeat"
                             items="{{parts}}"
                             as="part">

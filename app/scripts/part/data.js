@@ -210,6 +210,7 @@ export default class Data extends Part {
         let plain = super.toJSON.call(this);
         plain.refreshFreq = this.refreshFreq;
         plain.refreshEnabled = this.refreshEnabled;
+        plain.method = this.method;
         return plain;
     }
 }

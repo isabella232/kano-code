@@ -18,20 +18,18 @@
 <script type="text/javascript">
     /* globals Polymer */
     /* globals KanoBehaviors */
-    
+
     class KanoUiFrame {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+            return [KanoBehaviors.UIBehavior];
         }
 
         beforeRegister () {
             this.is = 'kano-ui-frame';
         }
         drawPicture (pic) {
-            if (!this.consume(pic, this.drawPicture)) {
-                this.$.image.src = pic;
-            }
+            this.$.image.src = pic;
         }
         computeImageStyle () {
             return this.getPartialStyle(['width', 'height']);

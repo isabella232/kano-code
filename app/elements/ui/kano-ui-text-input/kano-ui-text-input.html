@@ -33,11 +33,11 @@
 <script type="text/javascript">
     /* globals Polymer */
     /* globals KanoBehaviors */
-    
+
     class KanoUiTextInput {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior, KanoBehaviors.AsyncConsumer];
+            return [KanoBehaviors.UIBehavior];
         }
 
         beforeRegister () {
@@ -58,9 +58,7 @@
             return this.value;
         }
         setValue (value) {
-            if (!this.consume(value, this.setValue)) {
-                this.value = value;
-            }
+            this.value = value;
         }
     }
     Polymer(KanoUiTextInput);
