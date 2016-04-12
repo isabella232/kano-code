@@ -1,4 +1,4 @@
-<dom-module id="kano-image-generator">
+<dom-module id="kano-cover-generator">
     <style>
     </style>
     <template>
@@ -6,9 +6,9 @@
 </dom-module>
 
 <script>
-    class KanoImageGenerator {
+    class KanoCoverGenerator {
         beforeRegister () {
-            this.is = 'kano-image-generator';
+            this.is = 'kano-cover-generator';
             this.properties = {
                 elementName : {
                     type : String
@@ -21,7 +21,7 @@
 
         /**
          * Get image from elementName
-         * @return {Object} promise resolving the generation of the image
+         * @return {Object} image generated
          */
         getImage() {
 
@@ -29,77 +29,73 @@
                 viewport = workspace.childNodes[1],
                 view = viewport.childNodes[1],
                 el_container = view.childNodes[2],
-                image,
-                promise;
+                image;
 
-            promise = new Promise((resolve, reject) => {
+            if (!el_container) {
+                console.error("Problem while generating image");
+                return;
+            }
 
-                if (el_container) {
-                    let parent_rect = el_container.getBoundingClientRect(),
-                        temp_child,
-                        temp_dom_child,
-                        ctx,
-                        background_color = this.getStyle(workspace, 'background-color'),
-                        transform = this.getStyle(view, 'transform'),
-                        float_regex = /([+-]?\d*\.*\d+)/g,
-                        external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
-                        inner_transform,
-                        rotate_regex,
-                        internal_scale_factor_regex;
+            let parent_rect = el_container.getBoundingClientRect(),
+                ctx,
+                background_color = this.getStyle(workspace, 'background-color'),
+                transform = this.getStyle(view, 'transform'),
+                float_regex = /([+-]?\d*\.*\d+)/g,
+                external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
+                components = el_container.childNodes,
+                el;
 
-                    //creating canvas
-                    this.canvas = document.createElement('canvas');
-                    ctx = this.canvas.getContext('2d');
+            //creating canvas
+            this.canvas = document.createElement('canvas');
+            ctx = this.canvas.getContext('2d');
 
-                    this.canvas.id = 'screenshot';
-                    this.canvas.width  = parent_rect.width;
-                    this.canvas.height = parent_rect.height;
+            this.canvas.id = 'screenshot';
+            this.canvas.width  = parent_rect.width;
+            this.canvas.height = parent_rect.height;
 
-                    //setting background color
-                    ctx.fillStyle = background_color;
-                    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            //setting background color
+            ctx.fillStyle = background_color;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-                    for (let i = 0; i <  el_container.childNodes.length; i++) {
-                        temp_dom_child = el_container.childNodes[i];
-                        rotate_regex = /rotate\(([+-]?\d*\.*\d+)/g;
-                        internal_scale_factor_regex = /scale\(([+-]?\d*\.*\d+)/g;
+            for (let i = 0; i <  components.length; i++) {
+                el = this.createElement(components[i], parent_rect, external_scale_factor);
+                this.drawElementOnCanvas(el, ctx);
+            }
 
-                        //creating element to be passed to draw function
-                        temp_child = {};
-                        temp_child.position = {};
-                        temp_child.size = {};
-                        temp_child.DOM_element = temp_dom_child;
-                        temp_child.inner_element = temp_dom_child.childNodes[1];
+            //converting canvas to Image
+            image = new Image();
+            image.src = this.canvas.toDataURL();
 
-                        temp_child.name = temp_dom_child.tagName;
+            return image;
 
-                        temp_child.position.top = temp_dom_child.getBoundingClientRect().top - parent_rect.top;
-                        temp_child.position.left = temp_dom_child.getBoundingClientRect().left - parent_rect.left;
+        }
 
-                        //computing style properties
-                        inner_transform = temp_child.DOM_element.style.transform;
+        createElement(component, parent_rect, external_scale_factor) {
+            let component_model = component.model,
+            el = {};
 
-                        temp_child.rotate = parseFloat(rotate_regex.exec(inner_transform)[0].replace(/rotate\(/g, ''));
-                        temp_child.internal_scale_factor = parseFloat(internal_scale_factor_regex.exec(inner_transform)[0].replace(/scale\(/g, ''));
-                        temp_child.color = this.getStyle(temp_child.inner_element, 'color');
+            //creating element to be passed to draw function
+            el.position = {};
+            el.size = {};
+            el.DOM_element = component;
+            el.inner_element = component.childNodes[1];
 
-                        //computing element and font size
-                        temp_child.size.width = temp_dom_child.offsetWidth * external_scale_factor * temp_child.internal_scale_factor;
-                        temp_child.size.height = temp_dom_child.offsetHeight * external_scale_factor * temp_child.internal_scale_factor;
-                        temp_child.font_size = this.getStyle(temp_child.inner_element, 'font-size').replace(/px/g, '') * external_scale_factor * temp_child.internal_scale_factor;
-                        this.drawElementOnCanvas(temp_child, ctx);
-                    }
+            el.name = component.tagName;
 
-                    //converting canvas to Image
-                    image = new Image();
-                    image.src = this.canvas.toDataURL();
+            el.position.top = component.getBoundingClientRect().top - parent_rect.top;
+            el.position.left = component.getBoundingClientRect().left - parent_rect.left;
 
-                    resolve(image);
+            //computing style properties
+            el.rotate = component_model.rotation;
+            el.internal_scale_factor = component_model.scale;
+            el.color = component_model.colour;
 
-                } else reject(Error("Problem while generating image"));
-            });
+            //computing element and font size
+            el.size.width = component.offsetWidth * external_scale_factor * el.internal_scale_factor;
+            el.size.height = component.offsetHeight * external_scale_factor * el.internal_scale_factor;
+            el.font_size = this.getStyle(el.inner_element, 'font-size').replace(/px/g, '') * external_scale_factor * el.internal_scale_factor;
 
-            return promise;
+            return el;
         }
 
 
@@ -203,6 +199,6 @@
         }
 
     }
-    Polymer(KanoImageGenerator);
+    Polymer(KanoCoverGenerator);
 
 </script>

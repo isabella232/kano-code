@@ -135,12 +135,12 @@ class KanoAppEditor {
      */
     share () {
         let modal = this.$['share-modal'],
-            image_generator = this.$['image_generator'];
+            image_generator = this.$['image_generator'],
+            image;
 
-        image_generator.getImage().then((image) => {
-            this.fire('imagegenerated', {image: image});
-            modal.open();
-        });
+        image = image_generator.getImage();
+        this.fire('image-generated', {image});
+        modal.open();
     }
     confirmShare (e) {
         this.fire('share', e.detail);
