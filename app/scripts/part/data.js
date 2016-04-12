@@ -2,6 +2,20 @@
 import Part from './part';
 import modules from '../language/modules';
 
+/**
+ * Check if a block is the ancestor of another one
+ */
+function checkAncestor(block, type) {
+    let parent = block.parentBlock_;
+    if (!parent) {
+        return false;
+    }
+    if (parent.type == type) {
+        return true;
+    }
+    return checkAncestor(parent, type);
+}
+
 export default class Data extends Part {
     constructor (opts) {
         super(opts);
@@ -106,10 +120,14 @@ export default class Data extends Part {
                             output: true
                         };
                     },
-                    javascript: () => {
+                    javascript: (part) => {
                         return function (block) {
                             let key = block.getFieldValue('KEY'),
-                            code = `item.${key}`;
+                                code = `item.${key}`;
+                            // If the block is not in his part's for each loop
+                            if (!checkAncestor(block, `${part.id}#for_each`)) {
+                                code = `devices.get('${part.id}').getData()[0].${key}`;
+                            }
                             return [code];
                         };
                     },
