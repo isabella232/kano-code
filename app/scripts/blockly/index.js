@@ -4,6 +4,7 @@ import images from './images';
 import basic from './basic';
 import giphy from './giphy';
 import camera from './camera';
+import math from './math';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -24,6 +25,7 @@ let registered = false,
         //cons.register(Blockly);
         giphy.register(Blockly);
         camera.register(Blockly);
+        math.register(Blockly);
         registered = true;
     };
 
@@ -32,7 +34,8 @@ let categories = [
     //images.category,
     //cons.category,
     giphy.category,
-    camera.category
+    camera.category,
+    math.category
 ].concat(basic.categories);
 
 export default {
