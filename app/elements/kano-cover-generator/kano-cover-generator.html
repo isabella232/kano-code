@@ -1,0 +1,205 @@
+<dom-module id="kano-cover-generator">
+    <style>
+    </style>
+    <template>
+    </template>
+</dom-module>
+
+<script>
+    class KanoCoverGenerator {
+        beforeRegister () {
+            this.is = 'kano-cover-generator';
+            this.properties = {
+                elementName : {
+                    type : String
+                },
+                canvas : {
+                    type: Object
+                }
+            };
+        }
+
+        /**
+         * Get image from elementName
+         * @return {Object} image generated
+         */
+        getImage() {
+
+            let workspace = window.document.getElementsByTagName(this.elementName)[0],
+                viewport = workspace.childNodes[1],
+                view = viewport.childNodes[1],
+                el_container = view.childNodes[2],
+                image;
+
+            if (!el_container) {
+                console.error("Problem while generating image");
+                return;
+            }
+
+            let parent_rect = el_container.getBoundingClientRect(),
+                ctx,
+                background_color = this.getStyle(workspace, 'background-color'),
+                transform = this.getStyle(view, 'transform'),
+                float_regex = /([+-]?\d*\.*\d+)/g,
+                external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
+                components = el_container.childNodes,
+                el;
+
+            //creating canvas
+            this.canvas = document.createElement('canvas');
+            ctx = this.canvas.getContext('2d');
+
+            this.canvas.id = 'screenshot';
+            this.canvas.width  = parent_rect.width;
+            this.canvas.height = parent_rect.height;
+
+            //setting background color
+            ctx.fillStyle = background_color;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            for (let i = 0; i <  components.length; i++) {
+                el = this.createElement(components[i], parent_rect, external_scale_factor);
+                this.drawElementOnCanvas(el, ctx);
+            }
+
+            //converting canvas to Image
+            image = new Image();
+            image.src = this.canvas.toDataURL();
+
+            return image;
+
+        }
+
+        createElement(component, parent_rect, external_scale_factor) {
+            let component_model = component.model,
+            el = {};
+
+            //creating element to be passed to draw function
+            el.position = {};
+            el.size = {};
+            el.DOM_element = component;
+            el.inner_element = component.childNodes[1];
+
+            el.name = component.tagName;
+
+            el.position.top = component.getBoundingClientRect().top - parent_rect.top;
+            el.position.left = component.getBoundingClientRect().left - parent_rect.left;
+
+            //computing style properties
+            el.rotate = component_model.rotation;
+            el.internal_scale_factor = component_model.scale;
+            el.color = component_model.userStyle.color;
+            el.text = component_model.userProperties.text;
+
+            //computing element and font size
+            el.size.width = component.offsetWidth * external_scale_factor * el.internal_scale_factor;
+            el.size.height = component.offsetHeight * external_scale_factor * el.internal_scale_factor;
+            el.font_size = this.getStyle(el.inner_element, 'font-size').replace(/px/g, '') * external_scale_factor * el.internal_scale_factor;
+
+            return el;
+        }
+
+
+        /**
+         * Draw the element on the canvas
+         * @param  {Object} element element you want to draw
+         * @param  {Object} context context needed to draw
+         */
+        drawElementOnCanvas (element, context) {
+            context.save();
+            context.translate(element.position.left, element.position.top);
+            context.rotate(element.rotate*Math.PI/180);
+
+            context.font = `${element.font_size}px Bariol`;
+
+
+            switch (element.name) {
+                case 'KANO-UI-LABEL':
+                    context.textAlign = 'center';
+                    context.fillStyle = element.color;
+                    context.fillText(element.text,  (element.size.width)/2,  (element.size.height) / 2);
+                    break;
+
+                case 'KANO-UI-TEXT-INPUT':
+                    let placeholder = element.inner_element.getAttribute('placeholder');
+
+                    context.beginPath();
+                    context.fillStyle = "#FFFFFF";
+                    context.fillRect(0, 0, element.size.width, element.size.height);
+                    context.fillStyle = "#AAAAAA";
+                    context.strokeRect(0, 0, element.size.width, element.size.height);
+                    context.textAlign = 'right';
+                    context.fillText(placeholder, (element.size.width)/2, (element.size.height)/2);
+                    context.stroke();
+                    break;
+
+                case 'KANO-UI-FRAME':
+                    context.beginPath();
+                    context.lineWidth = 2;
+                    context.strokeRect(0, 0, element.size.width, element.size.height);
+                    context.stroke();
+                    break;
+
+                case 'KANO-UI-BUTTON':
+                    let background_color = this.getStyle(element.inner_element, 'background-color'),
+                        text_color = this.getStyle(element.inner_element, 'color');
+                    context.beginPath();
+                    //drawing background
+                    context.fillStyle = background_color;
+                    context.fillRect(0, 0, element.size.width, element.size.height);
+                    context.fillStyle = text_color;
+
+                    //drawing text inside button
+                    context.textAlign = 'center';
+                    context.fillText(element.text, (element.size.width)/2, (element.size.height + (element.font_size / 2)) / 2);
+                    context.stroke();
+                    break;
+
+                case 'KANO-UI-MAP':
+                    let img = new Image();
+                    img.onload = function () {
+                        context.beginPath();
+                        context.rect(element.position.left, element.position.top, element.size.width, element.size.height);
+                        context.stroke();
+                        context.drawImage(img, element.position.left, element.position.top, element.size.width, element.size.height);
+                    };
+                    img.src = '/assets/part/map-icon.svg';
+
+                    break;
+
+                default:
+                    context.beginPath();
+                    context.rect(0, 0, element.size.width, element.size.height);
+                    context.stroke();
+                    break;
+            }
+
+            //restoring original context
+            context.restore();
+
+        }
+
+        /**
+         * Helper to get style from element
+         * @param  {Object} element  DOM element you want to inspect
+         * @param  {String} css_rule CSS rule you want to get
+         * @return {String} value of the css_rule for the DOM element
+         */
+        getStyle (element, css_rule) {
+            var strValue = "";
+            if(document.defaultView && document.defaultView.getComputedStyle){
+                strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
+            }
+            else if(element.currentStyle){
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1){
+                    return p1.toUpperCase();
+                });
+                strValue = element.currentStyle[css_rule];
+            }
+            return strValue;
+        }
+
+    }
+    Polymer(KanoCoverGenerator);
+
+</script>
