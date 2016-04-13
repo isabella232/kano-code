@@ -37,12 +37,18 @@
                 },
                 usedBlocks: {
                     type: Object
+                },
+                remixMode: {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
         attached () {
             let editor = this.$.editor,
-                savedApp = JSON.parse(localStorage.getItem('savedApp'));
+                appToLoad,
+                slug = app.ctx.params.slug;
+
             this.set('parts', app.part);
             this.set('user', app.sdk.auth.getUser());
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
@@ -51,18 +57,39 @@
             editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             editor.addEventListener('share', this.shareApp.bind(this));
             editor.addEventListener('change', this.save.bind(this));
-            editor.load(savedApp, app.part);
+
+            if (slug) {
+                this.remixMode = true;
+                //loading component for remixing, we need to get data from the slug
+                app.sdk.api.share.get.bySlug({ slug }).then(res => {
+                    //getting the workspace info from the share
+                    if (res.body.item.workspace_info_url) {
+                        fetch(res.body.item.workspace_info_url)
+                        .then(function(response) {
+                            return response.json();
+                        }).then(function(json) {
+                            editor.load(json, app.part);
+                        })
+                    }
+                });
+            } else {
+                appToLoad = JSON.parse(localStorage.getItem('savedApp'))
+                editor.load(appToLoad, app.part);
+            }
+
         }
         updateWorkspaceRect (rect) {
             app.dragAndDrop.setWorkspaceRect(rect);
         }
         save () {
             // Save after 3secs without changes
-            this.debounce('save', () => {
-                let editor = this.$.editor,
-                    savedApp = editor.save();
-                localStorage.setItem('savedApp', JSON.stringify(savedApp));
-            }, 3000);
+            if (!this.remixMode) {
+                this.debounce('save', () => {
+                    let editor = this.$.editor,
+                        savedApp = editor.save();
+                    localStorage.setItem('savedApp', JSON.stringify(savedApp));
+                }, 3000);
+            }
         }
         shareApp (e) {
             // Generates the standalone component
