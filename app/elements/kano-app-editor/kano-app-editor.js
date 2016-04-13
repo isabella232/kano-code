@@ -17,6 +17,10 @@ class KanoAppEditor {
                 },
                 notify: true
             },
+            codes: {
+                type: Object,
+                notify: true
+            },
             selected: {
                 type: Object,
                 observer: 'selectedChanged',
@@ -158,14 +162,12 @@ class KanoAppEditor {
      */
     save (snapshot=false) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            let savedPart = {};
-            savedPart.model = part.toJSON();
-            savedPart.codes = part.codes;
-            acc.push(savedPart);
+            acc.push(part.toJSON());
             return acc;
         }, []),
             savedApp = {};
         savedApp.parts = savedParts;
+        savedApp.codes = this.codes;
         savedApp.background = this.background;
         if (snapshot) {
             savedApp.snapshot = true;
@@ -187,15 +189,15 @@ class KanoAppEditor {
         }
         addedParts = savedApp.parts.map((savedPart) => {
             for (let i = 0, len = parts.length; i < len; i++) {
-                if (parts[i].type === savedPart.model.type) {
-                    savedPart.model = Object.assign({}, parts[i], savedPart.model);
+                if (parts[i].type === savedPart.type) {
+                    savedPart = Object.assign({}, parts[i], savedPart);
                     break;
                 }
             }
-            part = new UI(savedPart.model, this.wsSize);
-            part.codes = savedPart.codes;
+            part = new UI(savedPart, this.wsSize);
             return part;
         });
+        this.set('codes', savedApp.codes);
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {

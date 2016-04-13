@@ -11,6 +11,7 @@
         @apply(--layout-vertical);
         background-color: var(--color-grey-mid, grey);
     }
+    :host .content,
     :host iron-pages {
         @apply(--layout-flex);
         @apply(--layout-vertical);
@@ -73,18 +74,13 @@
         @apply(--layout-center);
         @apply(--kano-dotted-background);
     }
-    :host .default span {
-        padding: 20px;
-        font-style: italic;
-        font-size: 1.2em;
-    }
     :host .default .code-list {
-        @apply(--layout-center-justified);
-        @apply(--layout-center);
-        @apply(--layout-vertical);
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-start);
         @apply(--layout-flex);
+        width: 100%;
     }
-    :host .edit-config,
     :host .save button {
         background: var(--green-gradient, green);
     }
@@ -96,28 +92,23 @@
         @apply(--kano-button-big);
     }
     :host .saved-code {
+        @apply(--kano-shadow);
         @apply(--layout-vertical);
         @apply(--layout-stretch);
-        font-size: 1.4em;
-        margin-top: 20px;
-    }
-    :host .saved-code:hover {
-        cursor: pointer;
+        font-size: 1.2em;
+        margin: 20px;
     }
     :host .code-trigger {
-        padding: 10px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-justified);
+        padding: 5px 10px;
         background-color: var(--color-grey-light, grey);
     }
     :host .code-action {
         font-size: 1em;
         padding: 10px;
         background-color: var(--color-grey-dark, grey);
-    }
-    :host .edit-config {
-        @apply(--kano-button);
-        width: 100%;
-        height: 100%;
-        box-shadow: 0px 0px;
     }
     :host .trigger-select {
         text-align: center;
@@ -153,7 +144,23 @@
     :host #back-button:hover {
         background: linear-gradient(90deg, #FF842A, rgba(193, 91, 0, 0.74));
     }
-
+    :host .open-dropdown {
+        @apply(--kano-button-small);
+        width: 100%;
+        height: 100%;
+        box-shadow: 0px 0px;
+        background: var(--green-gradient, green);
+    }
+    :host kano-event-select {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        background: var(--color-white, white);
+    }
+    :host .edit-code-button {
+        @apply(--kano-button);
+        margin-left: 5px;
+    }
     </style>
     <template>
         <header>
@@ -166,65 +173,60 @@
                 </button>
             </div>
             <div class="title">
-                <iron-image src="[[computeIcon(selectedPage, selected)]]"
-                            sizing="contain"></iron-image>
-                <span>[[title]]</span>
+                <span>Code</span>
             </div>
             <div class="header-right">
-                <button id="look-button"
-                        type="button"
-                        class="edit-config"
-                        on-tap="editConfig"
-                        hidden$="[[isEditHidden(selectedPage, selected)]]">E</button>
+                <iron-pages attr-for-selected="name"
+                            selected="{{selectedPage}}">
+                  <button type="button" on-tap="toggleEventSelectOpen" class="open-dropdown" name="default">+</button>
+                  <button type="button" on-tap="doneEditing" class="open-dropdown" name="code">Done</button>
+                </iron-pages>
             </div>
         </header>
-        <iron-pages
-            id="pages"
-            attr-for-selected="name"
-            selected="{{selectedPage}}">
-            <div name="background" class="background" id="background">
-                <input type="text" value="{{background.name::keyup}}" id="background_name">
-                <kano-ui-customizer id="background_style"
-                                    customizable="{{backgroundOptions}}"
-                                    user-values="{{background.userStyle}}"></kano-ui-customizer>
-            </div>
-            <div class="default" name="default">
-                <span>{{selected.description}}</span>
-                <div class="code-list">
-                    <button type="button"
-                    class="add-code"
-                    on-tap="addCode">Add Code</button>
-                    <template is="dom-repeat"
-                            items="{{computeEventRules(selected.*)}}"
-                            as="event">
-                        <div class="saved-code" on-tap="editCode">
-                            <span class="code-trigger">{{event.trigger}}</span>
-                            <span class="code-action">{{event.snapshot.natural}}</span>
-                        </div>
-                    </template>
+        <div class="content">
+            <kano-event-select
+                hidden$="[[!eventSelectOpen]]"
+                parts="{{computeParts(parts.*)}}"
+                on-selected="triggerSelected"></kano-event-select>
+            <iron-pages
+                id="pages"
+                attr-for-selected="name"
+                selected="{{selectedPage}}">
+                <div name="background" class="background" id="background">
+                    <input type="text" value="{{background.name::keyup}}" id="background_name">
+                    <kano-ui-customizer id="background_style"
+                                        customizable="{{backgroundOptions}}"
+                                        user-values="{{background.userStyle}}"></kano-ui-customizer>
                 </div>
-            </div>
-            <div name="trigger" class="trigger-select">
-                <kano-event-select
-                    parts="{{computeParts(parts.*)}}"
-                    on-selected="triggerSelected"></kano-event-select>
-            </div>
-            <kano-ui-configuration id="look"
-                        element="{{selected}}"
-                        name="config"></kano-ui-configuration>
-            <div name="code" class="code-editor">
-                <kano-blockly id="code-editor"
-                        toolbox="[[toolbox]]"
-                        code="{{code}}"
-                        on-change="saveCode"></kano-blockly>
-                <!--<kano-code-editor id="code-editor"
-                                  code="{{code}}"
-                                  on-change="saveCode"></kano-code-editor>-->
-                <div class="trigger">
-                    <span>{{trigger.text}}</span>
+                <div class="default" name="default">
+                    <div class="code-list">
+                        <template is="dom-repeat"
+                                items="{{computeEventRules(codes.*)}}"
+                                as="event">
+                            <div class="saved-code">
+                                <div class="code-trigger">
+                                    <span>{{event.trigger}}</span>
+                                    <button type="button" on-tap="editCode" class="edit-code-button">E</button>
+                                </div>
+                                <span class="code-action">{{event.snapshot.natural}}</span>
+                            </div>
+                        </template>
+                    </div>
                 </div>
-            </div>
-        </iron-pages>
+                <kano-ui-configuration id="look"
+                            element="{{selected}}"
+                            name="config"></kano-ui-configuration>
+                <div name="code" class="code-editor">
+                    <kano-blockly id="code-editor"
+                            toolbox="[[toolbox]]"
+                            code="{{code}}"
+                            on-change="saveCode"></kano-blockly>
+                    <div class="trigger">
+                        <span>{{trigger.text}}</span>
+                    </div>
+                </div>
+            </iron-pages>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -258,11 +260,18 @@
                 },
                 selectedPage: {
                     type: String,
-                    value: 'background'
+                    value: 'default'
                 },
                 code: {
                     type: String,
                     notify: true
+                },
+                codes: {
+                    type: Object,
+                    notify: true,
+                    value: () => {
+                        return {};
+                    }
                 },
                 background: {
                     type: Object,
@@ -289,6 +298,9 @@
                 'pages.iron-deselect': 'pageLeft'
             };
         }
+        doneEditing () {
+            this.showPage('default');
+        }
         backgroundChanged (e) {
             let property = e.path.split('.');
             property.shift();
@@ -302,10 +314,7 @@
             let trigger = this.trigger,
                 codes,
                 event;
-            if (!this.selected) {
-                return;
-            }
-            codes = this.selected.codes;
+            codes = this.codes;
             if (!codes[trigger.emitter]) {
                 codes[trigger.emitter] = {};
             }
@@ -324,12 +333,19 @@
                 label: 'Background'
             }]);
             this.set('usedCategories', {});
+            this.eventSelectOpen = false;
+        }
+        toggleEventSelectOpen () {
+            this.eventSelectOpen = !this.eventSelectOpen;
+        }
+        closeEventSelect () {
+            this.eventSelectOpen = false;
         }
         selectedChanged (newValue, oldValue) {
             if (oldValue === null && newValue !== null) {
-                this.showPage('default');
+                this.showPage('config');
             } else if (newValue === null) {
-                this.showPage('background');
+                this.showPage('default');
             }
         }
         isEditHidden () {
@@ -337,14 +353,12 @@
         }
         editCode (e) {
             let event = e.model.get('event');
-            if (!this.selected) {
-                return;
-            }
             this.set('trigger', {
                 emitter: event.emitterId,
                 event: event.eventId,
                 text: event.trigger
             });
+            this.showPage('code');
         }
         computeParts () {
             return this.parts.concat({
@@ -362,10 +376,7 @@
                 emitter,
                 event,
                 rules;
-            if (!this.selected) {
-                return;
-            }
-            codes = this.selected.codes;
+            codes = this.codes;
             return Object.keys(codes).reduce((acc, emitterId) => {
                 emitter = codes[emitterId];
                 rules = Object.keys(emitter).map((eventId) => {
@@ -386,13 +397,13 @@
                     trigger = this.trigger;
 
                 codeEditor.save().then((snapshot) => {
-                    let emitterPath = `selected.codes.${trigger.emitter}`,
+                    let emitterPath = `codes.${trigger.emitter}`,
                         codePath = `${emitterPath}.${trigger.event}`;
                     code.snapshot = snapshot;
                     code.trigger = trigger.text;
                     code.emitterId = trigger.emitter;
                     code.eventId = trigger.event;
-                    if (!this.selected.codes[trigger.emitter]) {
+                    if (!this.get(emitterPath)) {
                         this.set(emitterPath, {});
                     }
                     this.set(codePath, code);
@@ -477,6 +488,7 @@
             this.showPage('config');
         }
         showPage (page) {
+            this.closeEventSelect();
             this.set('selectedPage', page);
             this.fire('change', {
                 type: `open-part-${page}`
@@ -485,16 +497,16 @@
         previous () {
             let targetPage;
             switch (this.selectedPage) {
-                case 'trigger':
                 case 'config': {
                     targetPage = 'default';
                     break;
                 }
                 case 'code': {
-                    targetPage = 'trigger';
+                    targetPage = 'default';
                     break;
                 }
                 case 'default': {
+                    targetPage = 'background';
                     this.set('selected', null);
                     break;
                 }

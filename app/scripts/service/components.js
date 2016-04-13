@@ -41,14 +41,13 @@ class ComponentStore {
             }
         });
     }
-    generateCode (parts) {
-        let codeList;
-        codeList = parts
-            .filter((part) => {
-                return part.partType && part.partType === 'ui';
-            })
-            .map((part) => {
-                return this.generateComponentCode(part);
+    generateCode (codes) {
+        let codeList,
+            emitter;
+        codeList = Object.keys(codes)
+            .map((emitterId) => {
+                emitter = codes[emitterId];
+                return this.generateEmitterCode(emitterId, emitter);
             });
         codeList.push(`global.emit('start')`);
         return codeList.join(';');
@@ -70,16 +69,6 @@ class ComponentStore {
             return this.generateEventCode(emitterId, eventId, eventCode);
         }).join(';');
     }
-    generateComponentCode (model) {
-        let codes = model.codes,
-            emitter;
-        return Object.keys(codes)
-            .map((emitterId) => {
-                emitter = codes[emitterId];
-                return this.generateEmitterCode(emitterId, emitter);
-            })
-            .join(';');
-    }
     generateModuleCode (model) {
         return CodeService.getStringifiedModule(model.type);
     }
@@ -87,8 +76,8 @@ class ComponentStore {
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts) {
-        let code = this.generateCode(parts);
+    run (parts, codes) {
+        let code = this.generateCode(codes);
         this.start(parts);
         // Run the code using this store. Only expose the get function
         CodeService.run(code, {

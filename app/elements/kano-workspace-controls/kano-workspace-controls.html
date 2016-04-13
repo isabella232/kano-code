@@ -173,6 +173,7 @@
                 code: {
                     type: String
                 },
+                codes: Object,
                 parts: {
                     type: Array,
                     notify: true
@@ -206,34 +207,25 @@
             }
         }
         checkBlockDependency () {
-            let part, emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces;
-            // Loop through all the parts
-            for (let i in this.parts) {
-                part = this.parts[i];
-                // Ignore the selected one, since we want to remove it
-                if (part.id === this.selected.id) {
-                    continue;
-                }
-                // Loop through all the pieces of code
-                for (let j in part.codes) {
-                    emitter = part.codes[j];
-                    for (let k in emitter) {
-                        event = emitter[k];
-                        // Get the blockly xml and parse it
-                        xmlString = event.snapshot.blocks;
-                        parser = new DOMParser();
-                        xml = parser.parseFromString(xmlString, 'text/xml');
-                        // Get all the 'block' elements
-                        blocks = xml.getElementsByTagName('block');
-                        // Check for every one of them...
-                        for (let l = 0, len = blocks.length; l < len; l++) {
-                            block = blocks[l];
-                            blockId = block.getAttribute('type');
-                            pieces = blockId.split('#');
-                            // ...if the type of the block is the part we're trying to delete
-                            if (pieces[0] === this.selected.id) {
-                                return true;
-                            }
+            let emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces;
+            for (let i in this.codes) {
+                emitter = this.codes[i];
+                for (let j in emitter) {
+                    event = emitter[j];
+                    // Get the blockly xml and parse it
+                    xmlString = event.snapshot.blocks;
+                    parser = new DOMParser();
+                    xml = parser.parseFromString(xmlString, 'text/xml');
+                    // Get all the 'block' elements
+                    blocks = xml.getElementsByTagName('block');
+                    // Check for every one of them...
+                    for (let k = 0, len = blocks.length; k < len; k++) {
+                        block = blocks[k];
+                        blockId = block.getAttribute('type');
+                        pieces = blockId.split('#');
+                        // ...if the type of the block is the part we're trying to delete
+                        if (pieces[0] === this.selected.id) {
+                            return true;
                         }
                     }
                 }
