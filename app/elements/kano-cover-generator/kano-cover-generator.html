@@ -88,7 +88,8 @@
             //computing style properties
             el.rotate = component_model.rotation;
             el.internal_scale_factor = component_model.scale;
-            el.color = component_model.colour;
+            el.color = component_model.userStyle.color;
+            el.text = component_model.userProperties.text;
 
             //computing element and font size
             el.size.width = component.offsetWidth * external_scale_factor * el.internal_scale_factor;
@@ -116,7 +117,7 @@
                 case 'KANO-UI-LABEL':
                     context.textAlign = 'center';
                     context.fillStyle = element.color;
-                    context.fillText(element.inner_element.innerHTML.trim(),  (element.size.width)/2,  (element.size.height) / 2);
+                    context.fillText(element.text,  (element.size.width)/2,  (element.size.height) / 2);
                     break;
 
                 case 'KANO-UI-TEXT-INPUT':
@@ -150,7 +151,7 @@
 
                     //drawing text inside button
                     context.textAlign = 'center';
-                    context.fillText(element.inner_element.innerHTML.trim(), (element.size.width)/2, (element.size.height + (element.font_size / 2)) / 2);
+                    context.fillText(element.text, (element.size.width)/2, (element.size.height + (element.font_size / 2)) / 2);
                     context.stroke();
                     break;
 
