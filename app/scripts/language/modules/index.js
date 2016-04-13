@@ -1,15 +1,15 @@
 import time from './time';
 import loop from './loops';
-import cat from './cat';
+import data from './data';
 import global from './global';
 import speaker from './speaker';
-import data from './data';
+import math from './math';
 
 export default {
     time,
     loop,
-    cat,
     global,
     speaker,
-    data
+    data,
+    math
 };

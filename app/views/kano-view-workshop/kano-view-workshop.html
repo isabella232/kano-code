@@ -69,16 +69,20 @@
         shareApp (e) {
             // Generates the standalone component
             let savedApp = app.components.generateStandaloneComponent(this.addedParts, this.size),
-                file = new Blob([savedApp], { type: 'text/html' });
+                attachment = new Blob([savedApp], { type: 'text/html' }),
+                cover = app.file_utils.dataURItoBlob(e.detail.image);
 
-            file.filename = 'code.html';
+            attachment.filename = 'code.html';
+            cover.filename = 'cover.png';
+
             // Share by calling the API
             app.sdk.api.share.post({
                 app: 'make-apps',
                 title: e.detail.title,
                 description: e.detail.description,
                 files: {
-                    attachment: file
+                    attachment: attachment,
+                    cover: cover
                 }
             }).then(() => {
                 modal.close();
