@@ -4,7 +4,7 @@ let speaker;
 
 export default speaker = {
     name: 'Speaker',
-    colour: 'url("/assets/part/speaker-part-icon.png") no-repeat center/contain, #FFB347',
+    colour: '#FFB347',
     say (text, rate, language) {
         speaker.tts.speak(text, rate, language);
     },
