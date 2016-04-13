@@ -68,19 +68,22 @@
             // Generates the standalone component
             let savedApp = app.components.generateStandaloneComponent(this.addedParts, this.size),
                 attachment = new Blob([savedApp], { type: 'text/html' }),
-                cover = app.file_utils.dataURItoBlob(e.detail.image);
+                cover = app.file_utils.dataURItoBlob(e.detail.image),
+                workspace_info = new Blob([e.detail.workspace_info], { type: 'application/json' });
 
             attachment.filename = 'code.html';
             cover.filename = 'cover.png';
+            workspace_info.filename = 'workspace_info.json';
 
-            // Share by calling the API
+            //Share by calling the API
             app.sdk.api.share.post({
                 app: 'make-apps',
                 title: e.detail.title,
                 description: e.detail.description,
                 files: {
                     attachment: attachment,
-                    cover: cover
+                    cover: cover,
+                    workspace_info: workspace_info
                 }
             }).then(() => {
                 modal.close();
