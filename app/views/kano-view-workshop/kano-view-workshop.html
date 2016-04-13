@@ -66,7 +66,12 @@
         }
         shareApp (e) {
             // Generates the standalone component
-            let savedApp = app.components.generateStandaloneComponent(this.addedParts, this.size),
+            let editor = this.$.editor,
+                savedApp = app.components.generateStandaloneComponent(
+                    this.addedParts,
+                    editor.computeBackground(),
+                    this.size
+                ),
                 attachment = new Blob([savedApp], { type: 'text/html' }),
                 cover = app.file_utils.dataURItoBlob(e.detail.image),
                 workspace_info = new Blob([e.detail.workspace_info], { type: 'application/json' });
