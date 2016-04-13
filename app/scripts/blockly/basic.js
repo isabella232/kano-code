@@ -26,12 +26,6 @@ let categories = [{
         id: 'logic_ternary'
     }]
 },{
-    name: 'Math',
-    colour: '#7DC242',
-    blocks: [{
-        id: 'math_number'
-    }]
-},{
     name: 'Text',
     colour: '#9C27B0',
     blocks: [{
