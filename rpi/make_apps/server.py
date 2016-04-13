@@ -196,13 +196,23 @@ def speak():
 @server.route('/gettoken', methods=['GET'])
 def gettoken():
     from kano_world.functions import get_token
+    ALLOWED_ORIGINS = [
+        'http://make-apps-kit.kano.me',
+        'https://make-apps-kit.kano.me'
+    ]
 
     token = get_token()
 
     if not token:
-        return jsonify(status="Not logged in", token=""), 401
+        ret = jsonify(status="Not logged in", token="")
+        ret.status_code = 401
     else:
-        return jsonify(status="ok", token=token), 200
+        ret = jsonify(status="ok", token=token)
+        ret.status_code = 200
+
+    if request.headers.get('Origin') in ALLOWED_ORIGINS:
+        ret.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin')
+    return ret
 
 
 def start():
