@@ -1,8 +1,8 @@
 import natural from './natural';
-import weather from './weather';
-import images from './images';
+//import weather from './weather';
+//import images from './images';
 import basic from './basic';
-import giphy from './giphy';
+//import giphy from './giphy';
 import camera from './camera';
 
 /**
@@ -22,7 +22,7 @@ let registered = false,
         //weather.register(Blockly);
         //images.register(Blockly);
         //cons.register(Blockly);
-        giphy.register(Blockly);
+        //giphy.register(Blockly);
         camera.register(Blockly);
         registered = true;
     };
@@ -31,7 +31,7 @@ let categories = [
     //weather.category,
     //images.category,
     //cons.category,
-    giphy.category,
+    //giphy.category,
     camera.category
 ].concat(basic.categories);
 

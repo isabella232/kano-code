@@ -1,7 +1,7 @@
 import ObservableProducer from '../observable-producer';
 let space;
 
-const COLOUR = '#1f1f1f url("http://i.huffpost.com/gadgets/slideshows/290159/slide_290159_2299290_sq50.jpg")';
+const COLOUR = '#1f1f1f';
 
 export default space = {
     name: 'Space',

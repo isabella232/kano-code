@@ -3,7 +3,7 @@ let register = (Blockly) => {
 };
 let categories = [{
     name: 'Logic',
-    colour: '#7DC242 url("http://a.deviantart.net/avatars/b/l/black-matrix.gif")',
+    colour: '#7DC242',
     blocks: [{
         id: 'controls_if'
     },{
@@ -41,7 +41,7 @@ let categories = [{
     }]
 },{
     name: 'Variables',
-    colour: 'url("/assets/blockly/1-0.png") 0px 0px/20px 20px, linear-gradient(#34A836,#2C9929)',
+    colour: 'linear-gradient(#34A836,#2C9929)',
     blocks: [{
         id: 'variables_set'
     },{
