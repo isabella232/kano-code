@@ -352,7 +352,7 @@
             };
             this.observers = [
                 'computeToolbox(parts.*)',
-                'triggerChanged(trigger.*, selected.name)',
+                'triggerChanged(trigger.*)',
                 'computeTitle(selectedPage, background.name, selected.*)',
                 'backgroundChanged(background.*)'
             ];
@@ -380,14 +380,9 @@
             let trigger = this.trigger,
                 codes,
                 event;
+            console.log(trigger);
             codes = this.codes;
-            if (!codes[trigger.emitter]) {
-                codes[trigger.emitter] = {};
-            }
-            if (!codes[trigger.emitter][trigger.event]) {
-                codes[trigger.emitter][trigger.event] = {};
-            }
-            event = codes[trigger.emitter][trigger.event];
+            event = codes[trigger.emitter][trigger.event][trigger.index];
             event.snapshot = event.snapshot || {};
             this.showPage('code');
             this.$['code-editor'].load(event.snapshot);
@@ -422,7 +417,8 @@
             this.set('trigger', {
                 emitter: event.emitterId,
                 event: event.eventId,
-                text: event.trigger
+                text: event.trigger,
+                index: event.index
             });
             this.showPage('code');
         }
@@ -445,15 +441,30 @@
             codes = this.codes;
             return Object.keys(codes).reduce((acc, emitterId) => {
                 emitter = codes[emitterId];
-                rules = Object.keys(emitter).map((eventId) => {
+                rules = Object.keys(emitter).reduce((acc, eventId) => {
                     event = emitter[eventId];
-                    return event;
-                });
+                    return acc.concat(event);
+                }, []);
                 return acc.concat(rules);
             }, []);
         }
         triggerSelected (e) {
-            this.set('trigger', e.detail);
+            let trigger = Object.assign({}, e.detail),
+                emitter,
+                event,
+                index;
+            emitter = this.codes[trigger.emitter];
+            if (!emitter) {
+                this.codes[trigger.emitter] = {};
+            }
+            event = this.codes[trigger.emitter][trigger.event];
+            if (!event) {
+                this.codes[trigger.emitter][trigger.event] = [];
+            }
+            index = this.codes[trigger.emitter][trigger.event].length;
+            this.codes[trigger.emitter][trigger.event].push({ index });
+            trigger.index = index;
+            this.set('trigger', trigger);
             this.showPage('code');
         }
         saveCode () {
@@ -464,11 +475,12 @@
 
                 codeEditor.save().then((snapshot) => {
                     let emitterPath = `codes.${trigger.emitter}`,
-                        codePath = `${emitterPath}.${trigger.event}`;
+                        codePath = `${emitterPath}.${trigger.event}.${trigger.index}`;
                     code.snapshot = snapshot;
                     code.trigger = trigger.text;
                     code.emitterId = trigger.emitter;
                     code.eventId = trigger.event;
+                    code.index = trigger.index;
                     if (!this.get(emitterPath)) {
                         this.set(emitterPath, {});
                     }

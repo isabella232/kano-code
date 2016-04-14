@@ -52,15 +52,17 @@ class ComponentStore {
         codeList.push(`global.emit('start')`);
         return codeList.join(';');
     }
-    generateEventCode (emitterId, eventId, code) {
-        let emitterString = emitterId === 'global' ?
-                            'global' :
-                            `devices.get('${emitterId}')`,
-            javascript = code.snapshot.javascript || '';
-        return `${emitterString}.when('${eventId}',
-                        function (){
-                            ${javascript}
-                        })`;
+    generateEventCode (emitterId, eventId, codes) {
+        return codes.map((code) => {
+            let emitterString = emitterId === 'global' ?
+                                'global' :
+                                `devices.get('${emitterId}')`,
+                javascript = code.snapshot.javascript || '';
+            return `${emitterString}.when('${eventId}',
+                            function (){
+                                ${javascript}
+                            })`;
+        }).join('\n');
     }
     generateEmitterCode (emitterId, emitter) {
         let eventCode;
