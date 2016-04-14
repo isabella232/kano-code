@@ -237,11 +237,11 @@
             return !currentStep.next_button;
         }
         matchTrigger (validation, event) {
-            if (validation.emitter.part) {
-                validation.emitter = this.stepIds[validation.emitter.part];
+            let emitter = validation.emitter;
+            if (emitter.part) {
+                emitter = this.stepIds[emitter.part];
             }
-            console.log(validation, event);
-            return validation.emitter === event.trigger.emitter &&
+            return emitter === event.trigger.emitter &&
                     validation.event === event.trigger.event;
         }
         matchPartChange (validation, event) {

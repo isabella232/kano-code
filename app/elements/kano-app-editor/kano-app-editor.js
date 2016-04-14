@@ -1,7 +1,4 @@
-/* globals Polymer */
-/* globals KanoBehaviors */
-/* globals interact */
-/* globals Part */
+/* globals Polymer, KanoBehaviors, interact, Part */
 
 class KanoAppEditor {
 
