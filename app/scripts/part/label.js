@@ -41,10 +41,10 @@ export default label = {
                 return `devices.get('${ui.id}').setValue(${value});`;
             };
         },
-        natural: (ui) => {
+        pseudo: (ui) => {
             return function (block) {
-                let value = Blockly.Natural.valueToCode(block, 'INPUT');
-                return `set ${ui.name} to ${value}`;
+                let value = Blockly.Pseudo.valueToCode(block, 'INPUT');
+                return `${ui.id}.setText(${value});\n`;
             };
         }
     }]

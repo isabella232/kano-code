@@ -62,9 +62,9 @@ export default class Data extends Part {
                     return code;
                 };
             },
-            natural: (part) => {
+            pseudo: (part) => {
                 return () => {
-                    let code = `refresh ${part.name} data`;
+                    let code = `${part.id}.refresh();\n`;
                     return code;
                 };
             }
@@ -95,11 +95,11 @@ export default class Data extends Part {
                         return code;
                     };
                 },
-                natural: (part) => {
+                pseudo: (part) => {
                     return function (block) {
-                        let value = Blockly.Natural.valueToCode(block, 'VALUE'),
+                        let value = Blockly.Pseudo.valueToCode(block, 'VALUE'),
                         param = block.getFieldValue('PARAM'),
-                        code = `${part.name} set ${param} to ${value}\n`;
+                        code = `${part.id}.${param} = ${value};\n`;
                         return code;
                     };
                 }
@@ -131,10 +131,10 @@ export default class Data extends Part {
                             return [code];
                         };
                     },
-                    natural: (part) => {
+                    pseudo: (part) => {
                         return function (block) {
                             let key = block.getFieldValue('KEY'),
-                            code = `${part.name}'s ${key}\n`;
+                            code = `item.${key}`;
                             return [code];
                         };
                     }
@@ -160,10 +160,10 @@ export default class Data extends Part {
                             return [code];
                         };
                     },
-                    natural: (part) => {
+                    pseudo: (part) => {
                         return function (block) {
                             let key = block.getFieldValue('KEY'),
-                            code = `${part.name}'s ${key}\n`;
+                            code = `${part.id}.${key}`;
                             return [code];
                         };
                     }
@@ -194,9 +194,12 @@ export default class Data extends Part {
                         return code;
                     };
                 },
-                natural: (part) => {
-                    return function () {
-                        let code = `for each item in ${part.name}, do\n`;
+                pseudo: (part) => {
+                    return function (block) {
+                        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                            code = `for(let item in ${part.id}) {
+                                    ${statement}
+                            }`;
                         return code;
                     };
                 }

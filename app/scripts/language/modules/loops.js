@@ -1,3 +1,4 @@
+/* globals Blockly */
 let loop;
 
 export default loop = {
@@ -42,10 +43,12 @@ export default loop = {
                         });\n`;
             return code;
         },
-        natural: (block) => {
-            let statement = Blockly.Natural.statementToCode(block, 'DO'),
-                interval = parseInt(Blockly.Natural.valueToCode(block, 'INTERVAL')) || 5,
-                code = `Do forever ${statement}`;
+        pseudo: (block) => {
+            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                interval = parseInt(Blockly.Pseudo.valueToCode(block, 'INTERVAL')) || 5,
+                code = `loop.forever(function () {
+                            ${statement}
+                        });\n`;
             return code;
         }
     }]

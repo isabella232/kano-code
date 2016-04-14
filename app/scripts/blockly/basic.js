@@ -7,12 +7,6 @@ let categories = [{
     blocks: [{
         id: 'controls_if'
     },{
-        id: 'controls_if_if'
-    },{
-        id: 'controls_if_elseif'
-    },{
-        id: 'controls_if_else'
-    },{
         id: 'logic_compare'
     },{
         id: 'logic_operation'

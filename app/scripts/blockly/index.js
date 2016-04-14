@@ -1,4 +1,4 @@
-import natural from './natural';
+import pseudo from './pseudo';
 import basic from './basic';
 import math from './math';
 
@@ -15,7 +15,7 @@ let registered = false,
             return;
         }
         // Register the modules
-        natural.register(Blockly);
+        pseudo.register(Blockly);
         math.register(Blockly);
         registered = true;
     };

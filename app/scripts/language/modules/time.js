@@ -44,10 +44,12 @@ export default time = {
                         });\n`;
             return code;
         },
-        natural: (block) => {
-            let statement = Blockly.Natural.statementToCode(block, 'DO'),
-                interval = parseInt(Blockly.Natural.valueToCode(block, 'INTERVAL')) || 5,
-                code = `Every ${interval} seconds, do ${statement}`;
+        pseudo: (block) => {
+            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                interval = parseInt(Blockly.Pseudo.valueToCode(block, 'INTERVAL')) || 5,
+                code = `time.every(${interval}, function () {
+                            ${statement}
+                        });\n`;
             return code;
         }
     },{
@@ -73,10 +75,12 @@ export default time = {
                         })`;
             return code;
         },
-        natural: (block) => {
-            let statement = Blockly.Natural.statementToCode(block, 'DO'),
-                delay = parseInt(Blockly.Natural.valueToCode(block, 'DELAY')) || 5,
-                code = `${delay} seconds later, do ${statement}`;
+        pseudo: (block) => {
+            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                delay = parseInt(Blockly.Pseudo.valueToCode(block, 'DELAY')) || 5,
+                code = `time.later(${delay}, function () {
+                            ${statement}
+                        })`;
             return code;
         }
     }]

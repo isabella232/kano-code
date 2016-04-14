@@ -24,8 +24,8 @@ export default cat = {
             let code = `cat.random()`;
             return [code];
         },
-        natural: () => {
-            let code = `a random cat picture`;
+        pseudo: () => {
+            let code = `cat.random()`;
             return [code];
         }
     }]
