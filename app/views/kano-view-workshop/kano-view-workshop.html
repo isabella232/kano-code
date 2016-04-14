@@ -8,6 +8,12 @@
     :host kano-app-editor {
         @apply(--layout-flex);
     }
+    :host #error-dialog .title {
+        color: red;
+    };
+    :host #error-dialog .description {
+        text-align: center;
+    };
     </style>
     <template>
         <kano-app-editor
@@ -17,6 +23,11 @@
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
             ws-size="[[size]]"></kano-app-editor>
+        <paper-dialog id='error-dialog' with-backdrop>
+            <h2 class="title">{{error.title}}</h2>
+            <p class="description">{{error.description}}</p>
+        </paper-dialog>
+
     </template>
 </dom-module>
 
@@ -41,6 +52,14 @@
                 remixMode: {
                     type: Boolean,
                     value: false
+                },
+                error: {
+                    type: Object,
+                    value: {
+                        title: '',
+                        description: ''
+                    },
+                    notify: true
                 }
             };
         }
@@ -65,10 +84,15 @@
                     //getting the workspace info from the share
                     if (res.body.item.workspace_info_url) {
                         fetch(res.body.item.workspace_info_url)
-                        .then(function(response) {
+                        .then(response => {
                             return response.json();
-                        }).then(function(json) {
+                        }).then(json => {
                             editor.load(json, app.part);
+                        }).catch(err => {
+                            console.error('loading failed', err);
+                            this.set('error.title', 'Loading failed');
+                            this.set('error.description', 'Couldn\'t load share');
+                            this.$['error-dialog'].open();
                         })
                     }
                 });
