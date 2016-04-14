@@ -158,8 +158,16 @@
         background: var(--color-white, white);
     }
     :host .edit-code-button {
-        @apply(--kano-button);
+        @apply(--kano-icon-button);
         margin-left: 5px;
+    }
+    :host .edit-code-button:hover {
+        cursor: pointer;
+    }
+    :host .edit-code-button iron-image {
+        width: 24px;
+        height: 24px;
+        transform: rotate(45deg);
     }
     </style>
     <template>
@@ -206,7 +214,9 @@
                             <div class="saved-code">
                                 <div class="code-trigger">
                                     <span>{{event.trigger}}</span>
-                                    <button type="button" on-tap="editCode" class="edit-code-button">E</button>
+                                    <button type="button" on-tap="editCode" class="edit-code-button">
+                                        <iron-image src="/assets/icons/edit.png" sizing="contain"></iron-image>
+                                    </button>
                                 </div>
                                 <span class="code-action">{{event.snapshot.natural}}</span>
                             </div>
