@@ -39,11 +39,15 @@
             };
         }
         attached () {
+            let input = this.$.background_name;
             this.set('backgroundOptions', [{
                 key: 'background',
                 type: 'background',
                 label: 'Background'
             }]);
+            input.addEventListener('change', () => {
+                this.set('background.name', input.value);
+            });
         }
     }
     Polymer(KanoBackgroundEditor);
