@@ -372,19 +372,21 @@
         }
         triggerSelected (e) {
             let trigger = Object.assign({}, e.detail),
+                emitterId = trigger.emitter,
+                eventId = trigger.event,
                 emitter,
                 event,
                 index;
-            emitter = this.codes[trigger.emitter];
+            emitter = this.codes[emitterId];
             if (!emitter) {
-                this.codes[trigger.emitter] = {};
+                emitter = this.codes[emitterId] = {};
             }
-            event = this.codes[trigger.emitter][trigger.event];
+            event = emitter[eventId];
             if (!event) {
-                this.codes[trigger.emitter][trigger.event] = [];
+                event = emitter[eventId] = [];
             }
-            index = this.codes[trigger.emitter][trigger.event].length;
-            this.codes[trigger.emitter][trigger.event].push({ index });
+            index = event.length;
+            event.push({ index });
             trigger.index = index;
             this.set('trigger', trigger);
             this.showPage('code');
