@@ -305,12 +305,12 @@
         triggerChanged () {
             let trigger = this.trigger,
                 codes,
-                event;
+                ev;
             codes = this.codes;
-            event = codes[trigger.emitter][trigger.event][trigger.index];
-            event.snapshot = event.snapshot || {};
+            ev = codes[trigger.emitter][trigger.event][trigger.index];
+            ev.snapshot = ev.snapshot || {};
             this.showPage('code');
-            this.$['code-editor'].load(event.snapshot);
+            this.$['code-editor'].load(ev.snapshot);
         }
         attached () {
             this.set('usedCategories', {});
@@ -333,12 +333,12 @@
             return this.selectedPage !== 'default' || !this.selected;
         }
         editCode (e) {
-            let event = e.model.get('event'),
+            let ev = e.model.get('event'),
                 trigger = {
-                    emitter: event.emitterId,
-                    event: event.eventId,
-                    text: event.trigger,
-                    index: event.index
+                    emitter: ev.emitterId,
+                    event: ev.eventId,
+                    text: ev.trigger,
+                    index: ev.index
                 };
             this.set('trigger', trigger);
             this.showPage('code');
@@ -358,14 +358,14 @@
         computeEventRules () {
             let codes,
                 emitter,
-                event,
+                ev,
                 rules;
             codes = this.codes;
             return Object.keys(codes).reduce((acc, emitterId) => {
                 emitter = codes[emitterId];
                 rules = Object.keys(emitter).reduce((acc, eventId) => {
-                    event = emitter[eventId];
-                    return acc.concat(event);
+                    ev = emitter[eventId];
+                    return acc.concat(ev);
                 }, []);
                 return acc.concat(rules);
             }, []);
@@ -375,18 +375,18 @@
                 emitterId = trigger.emitter,
                 eventId = trigger.event,
                 emitter,
-                event,
+                ev,
                 index;
             emitter = this.codes[emitterId];
             if (!emitter) {
                 emitter = this.codes[emitterId] = {};
             }
-            event = emitter[eventId];
-            if (!event) {
-                event = emitter[eventId] = [];
+            ev = emitter[eventId];
+            if (!ev) {
+                ev = emitter[eventId] = [];
             }
-            index = event.length;
-            event.push({ index });
+            index = ev.length;
+            ev.push({ index });
             trigger.index = index;
             this.set('trigger', trigger);
             this.showPage('code');
