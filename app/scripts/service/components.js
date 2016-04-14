@@ -117,7 +117,7 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (parts, workspaceRect) {
+    generateStandaloneComponent (parts, backgroundStyle, workspaceRect) {
         let template = [],
             components = parts.reduce((acc, part) => {
                 acc[part.id] = part.toJSON();
@@ -146,6 +146,10 @@ class ComponentStore {
                 <style>
                     :host kano-ui-viewport * {
                         position: absolute;
+                    }
+
+                    :host kano-ui-viewport {
+                        ${backgroundStyle}
                     }
                 </style>
                 <template>
