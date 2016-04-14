@@ -6,27 +6,42 @@
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
+    :host .content {
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+    }
     :host .trigger {
+        @apply(--kano-shadow);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
         margin: 15px;
         padding: 20px;
         color: var(--color-white, white);
-        background-color: var(--color-red, red);
+        background: var(--red-gradient, red);
         font-size: 1.2em;
+    }
+    :host .trigger iron-image {
+        margin-right: 15px;
     }
     :host .trigger:hover {
         cursor: pointer;
     }
     </style>
     <template>
-        <template is="dom-repeat" items="{{computeTriggers(parts.*)}}" as="trigger">
-            <div class="trigger"
+        <div class="content">
+            <template is="dom-repeat" items="{{computeTriggers(parts.*)}}" as="trigger">
+                <div class="trigger"
                 on-tap="selectTrigger">
+                <iron-image src="[[trigger.icon]]" width="30" height="30" sizing="contain" preload fade></iron-image>
                 <span>[[trigger.text]]</span>
             </div>
         </template>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
     class KanoEventSelect {
 
         get behaviors () {
@@ -42,10 +57,11 @@
             };
         }
         computeTriggers () {
+            let triggers;
             if (!this.parts) {
                 return;
             }
-            return this.parts.reduce((acc, part) => {
+            triggers =  this.parts.reduce((acc, part) => {
                 let events;
                 if (!part.events) {
                     return acc;
@@ -54,11 +70,28 @@
                     return {
                         emitter: part.id,
                         event: event.id,
-                        text: `When ${part.name} ${event.label}`
+                        text: `When ${part.name} ${event.label}`,
+                        icon: part.image
                     };
                 });
                 return acc.concat(events);
             }, []);
+            if (this.parts.some((part) => part.partType === 'data')) {
+                triggers.push({
+                    text: 'When data updated',
+                    emitter: 'global',
+                    event: 'data-update',
+                    icon: '/assets/part/data-part-icon.png'
+                });
+            }
+            return triggers.sort((a, b) => {
+                if (a.emitter === 'global' && b.emitter !== 'global') {
+                    return -1;
+                } else if (b.emitter === 'global' && a.emitter !== 'global') {
+                    return 1;
+                }
+                return 0;
+            });
         }
         selectTrigger (e) {
             let trigger = e.model.get('trigger');

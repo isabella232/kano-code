@@ -11,7 +11,6 @@ window.KanoBehaviors = window.KanoBehaviors || {};
  */
 window.KanoBehaviors.UIBehavior = {
     properties: {
-        // Called userStyle to avoid conflict with DOM `style` attribute
         model: {
             type: Object,
             notify: true
@@ -110,28 +109,6 @@ window.KanoBehaviors.UIBehavior = {
         visibility = this.model.visible ? 'visible' : 'hidden';
         this.style.webkitTransform = this.style.transform = transform;
         this.style.visibility = visibility;
-    }
-};
-
-/**
- * Consumer behavior
- * @type {Object}
- */
-window.KanoBehaviors.AsyncConsumer = {
-    /**
-     * Helps having sync like apis while processing async tasks
-     * @param  {Promise|any}   data     Any kind of data you need or a Promise
-     *                                  that will resolve this data
-     * @param  {Function}      callback The function to call if and when the
-     *                                  promise resolves
-     * @return {Boolean}                Are we in an async case?
-     */
-    consume (data, callback) {
-        if (data.subscribe && typeof data.subscribe === 'function') {
-            data.subscribe(callback.bind(this));
-            return true;
-        }
-        return false;
     }
 };
 

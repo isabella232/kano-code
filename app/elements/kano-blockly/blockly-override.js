@@ -1,3 +1,4 @@
+/* globals Blockly */
 
 Blockly.Blocks.colour.HUE = '#ffff00';
 Blockly.Blocks.logic.HUE = '#7DC242';

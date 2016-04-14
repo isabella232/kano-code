@@ -82,6 +82,9 @@
 </dom-module>
 
 <script type="text/javascript">
+    /* globals Polymer */
+    /* globals KanoBehaviors */
+
     class KanoAppChallenge {
 
         get behaviors () {
@@ -234,7 +237,11 @@
             return !currentStep.next_button;
         }
         matchTrigger (validation, event) {
-            return validation.emitter === event.trigger.emitter &&
+            let emitter = validation.emitter;
+            if (emitter.part) {
+                emitter = this.stepIds[emitter.part];
+            }
+            return emitter === event.trigger.emitter &&
                     validation.event === event.trigger.event;
         }
         matchPartChange (validation, event) {

@@ -70,7 +70,7 @@ gulp.task('serve-prod', () => {
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
 gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
     gulp.src('./.tmp/app/index.html')
-        .pipe(utils.vulcanize({ inlineScripts: true }))
+        .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.htmlReplace({
             config: `
@@ -151,7 +151,7 @@ gulp.task('watch', () => {
 gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
-        .pipe(gulp.dest('www/css'));
+        .pipe(gulp.dest('.tmp/app/css'));
 });
 
 function getImports(filePath, opts) {

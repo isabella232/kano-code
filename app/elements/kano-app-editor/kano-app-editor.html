@@ -5,7 +5,8 @@
 <link rel="import" href="../kano-event-select/kano-event-select.html">
 <link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
-<link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+<link rel="import" href="../kano-part-editor/kano-part-editor.html">
+<link rel="import" href="../kano-background-editor/kano-background-editor.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-app-editor">
@@ -31,6 +32,7 @@
         @apply(--layout-flex);
         @apply(--layout-vertical);
         background-color: var(--color-grey-lightest, grey);
+        max-width: 50%;
     }
     :host .ui-edition kano-workspace {
         @apply(--layout-flex);
@@ -38,7 +40,7 @@
     :host .ui-edition kano-workspace-controls {
         min-height: 200px;
     }
-    :host kano-ui-editor {
+    :host kano-part-editor {
         @apply(--layout-flex);
     }
     :host #ui-drawer {
@@ -65,18 +67,15 @@
                 hidden$="[[!leftViewOpened]]"
                 id="left-panel">
                 <!--TODO rename ui-elements to parts-->
-                <kano-sidebar id="sidebar"
-                            ui-elements="{{parts}}"
-                            name="parts"
-                            on-ui-ready="sidebarUiReady"></kano-sidebar>
-                <kano-ui-editor
-                    id="block-editor"
+                <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-ui-ready="sidebarUiReady"></kano-sidebar>
+                <kano-background-editor id="background-editor" background="{{background}}" name="background" on-previous="previous"></kano-background-editor>
+                <kano-part-editor
+                    id="part-editor"
                     on-previous="previous"
                     parts="{{addedParts}}"
                     selected="{{selected}}"
-                    background="{{background}}"
                     default-categories="{{defaultCategories}}"
-                    name="code"></kano-ui-editor>
+                    name="code"></kano-part-editor>
             </iron-pages>
             <div class="ui-edition" id="right-panel">
                 <div id="resize" on-mousedown="resizeWorkspace"></div>
@@ -100,7 +99,7 @@
                     element-name="kano-workspace"></kano-cover-generator>
             </div>
         </section>
-        <paper-dialog id="share-modal" accesskey=""with-backdrop>
+        <paper-dialog id="share-modal" with-backdrop>
             <kano-view view-name="kano-view-share-modal" on-confirm="confirmShare" on-dismiss="dismissShare"></kano-view>
         </paper-dialog>
     </template>

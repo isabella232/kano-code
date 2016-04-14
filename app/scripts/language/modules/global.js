@@ -20,8 +20,12 @@ export default glob = {
         }
     },
     lifecycle: {
+        start () {
+            document.addEventListener('update', glob.methods.emit('data-update'));
+        },
         stop () {
             glob.listeners = {};
+            document.removeEventListener('update', glob.methods.emit('data-update'));
         }
     }
 };
