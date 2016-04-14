@@ -2,20 +2,27 @@
 
 <dom-module id="kano-sidebar">
     <style>
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
     :host {
         display: block;
         position: relative;
         @apply(--layout-vertical);
-        background-color: var(--color-grey-lighter, grey);
+        @apply(--layout-center);
+        animation: fade-in linear 200ms;
     }
     :host header {
         @apply(--layout-vertical);
         @apply(--layout-center-justified);
-        background: var(--green-gradient, green);
         min-height: 60px;
-        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
     }
-    :host header span {
+    :host header h1 {
         color: var(--color-white, white);
         font-size: 1.8em;
         text-align: center;
@@ -24,12 +31,18 @@
         @apply(--layout-flex);
         padding-top: 15px;
     }
+    :host .done-button {
+        @apply(--kano-button-big);
+        background: var(--green-gradient, green);
+        margin: 15px 0px 15px;
+    }
     </style>
     <template>
         <header>
-            <span>Parts</span>
+            <h1>Add Parts</h1>
         </header>
-        <kano-ui-list id="parts" items="{{uiElements}}"></kano-ui-list>
+        <kano-ui-list id="parts" items="{{uiElements}}" selected="{{selected}}"></kano-ui-list>
+        <button type="button" class="done-button" on-tap="done">Done</button>
     </template>
 </dom-module>
 
@@ -47,6 +60,10 @@
         }
         handleTapped () {
             this.fire('close');
+        }
+        done () {
+            this.fire('done', this.selected);
+            this.$.parts.clearSelection();
         }
     }
     Polymer(KanoSidebar);
