@@ -17,7 +17,8 @@
                             parts="{{parts}}"
                             selected="{{selected}}"
                             background="{{background}}"
-                            default-categories="{{defaultCategories}}"></kano-ui-editor>
+                            default-categories="{{defaultCategories}}"
+                            codes="{{codes}}"></kano-ui-editor>
         </template>
         <template is="dom-if" if="[[isModelType(selected, 'data')]]">
             <kano-data-editor id="data-editor" selected="{{selected}}"></kano-data-editor>
@@ -44,6 +45,10 @@
                     type: Array,
                     value: () => []
                 },
+                codes: {
+                    type: Object,
+                    notify: true
+                },
                 background: {
                     type: Object,
                     value: () => {
@@ -57,6 +62,9 @@
             };
         }
         isModelType (selected, type) {
+            if (!selected && type === 'ui') {
+                return true;
+            }
             return selected && selected.partType === type;
         }
         showCodeEditor () {

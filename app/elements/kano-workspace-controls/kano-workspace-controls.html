@@ -184,6 +184,10 @@
                 code: {
                     type: String
                 },
+                codes: {
+                    type: Object,
+                    notify: true
+                },
                 parts: {
                     type: Array,
                     notify: true
@@ -217,28 +221,22 @@
             }
         }
         checkBlockDependency () {
-            let part, emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces;
-            // Loop through all the parts
-            for (let i in this.parts) {
-                part = this.parts[i];
-                // Ignore the selected one, since we want to remove it
-                if (part.id === this.selected.id) {
-                    continue;
-                }
-                // Loop through all the pieces of code
-                for (let j in part.codes) {
-                    emitter = part.codes[j];
-                    for (let k in emitter) {
-                        event = emitter[k];
+            let emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces, code;
+            for (let i in this.codes) {
+                emitter = this.codes[i];
+                for (let j in emitter) {
+                    event = emitter[j];
+                    for (let index in event) {
+                        code = event[index];
                         // Get the blockly xml and parse it
-                        xmlString = event.snapshot.blocks;
+                        xmlString = code.snapshot.blocks;
                         parser = new DOMParser();
                         xml = parser.parseFromString(xmlString, 'text/xml');
                         // Get all the 'block' elements
                         blocks = xml.getElementsByTagName('block');
                         // Check for every one of them...
-                        for (let l = 0, len = blocks.length; l < len; l++) {
-                            block = blocks[l];
+                        for (let k = 0, len = blocks.length; k < len; k++) {
+                            block = blocks[k];
                             blockId = block.getAttribute('type');
                             pieces = blockId.split('#');
                             // ...if the type of the block is the part we're trying to delete
@@ -265,6 +263,8 @@
         removeSelected () {
             let index = this.parts.indexOf(this.selected),
                 partsCount;
+            // Remove the pieces of code matching the part removed
+            this.set(`codes.${this.selected.id}`, {});
             this.splice('parts', index, 1);
             partsCount = this.parts.length;
             if (partsCount) {

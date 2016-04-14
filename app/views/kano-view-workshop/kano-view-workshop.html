@@ -20,6 +20,7 @@
             id="editor"
             running="{{running}}"
             parts="{{parts}}"
+            codes="{{codes}}"
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
             ws-size="[[size]]"></kano-app-editor>
@@ -42,6 +43,12 @@
                     type: Array,
                     value: () => {
                         return [];
+                    }
+                },
+                codes: {
+                    type: Object,
+                    value: () => {
+                        return {};
                     }
                 },
                 running: {
@@ -166,9 +173,9 @@
         }
         runningChanged () {
             if (this.running) {
-                app.components.run(this.addedParts);
+                app.components.run(this.addedParts, this.codes);
             } else {
-                app.components.stop(this.addedParts);
+                app.components.stop(this.addedParts, this.codes);
             }
         }
     }
