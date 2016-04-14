@@ -1,9 +1,8 @@
 import time from './time';
 import loop from './loops';
+import data from './data';
 import global from './global';
 import speaker from './speaker';
-import weather from './weather';
-import space from './space';
 import math from './math';
 
 export default {
@@ -11,7 +10,6 @@ export default {
     loop,
     global,
     speaker,
-    weather,
-    space,
+    data,
     math
 };

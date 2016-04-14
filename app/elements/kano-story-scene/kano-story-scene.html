@@ -16,30 +16,8 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    window.KanoBehaviors = window.KanoBehaviors || {};
-    KanoBehaviors.SceneComponentBehavior = {
+    /* globals Polymer */
 
-        properties: {
-            scene: Object,
-            store: {
-                type: Object,
-                notify: true
-            }
-        },
-
-        finish () {
-            this.fire('done');
-        },
-
-        addToStore (id, data) {
-            this.store[id] = data;
-        },
-
-        fromStore (id) {
-            return this.store[id];
-        }
-
-    };
     class KanoStoryScene {
         beforeRegister () {
             this.is = 'kano-story-scene';
@@ -72,7 +50,9 @@
         }
         componentChanged () {
             let scene = this.scene,
-                pieces;
+                pieces,
+                name,
+                loc;
             if (!scene.component && !scene.load) {
                 return;
             }
@@ -83,10 +63,10 @@
             // Cut using '/'
             pieces = scene.component.split('/');
             // Extract the last piece
-                name = pieces.pop(),
+            name = pieces.pop();
             // Join back the first pieces to get the location
-                loc = pieces.join('/');
-            this.set('location', `assets/stories/${loc}`),
+            loc = pieces.join('/');
+            this.set('location', `assets/stories/${loc}`);
             this.set('attributes', {
                 scene: scene.data,
                 store: this.store

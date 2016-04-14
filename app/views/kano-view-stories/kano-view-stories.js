@@ -1,3 +1,5 @@
+/* globals Polymer */
+/* globals app */
 class KanoViewStories {
     beforeRegister () {
         this.is = 'kano-view-stories';

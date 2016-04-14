@@ -1,0 +1,54 @@
+<dom-module id="kano-background-editor">
+    <style>
+    :host {
+        display: block;
+    }
+    :host .background {
+        padding: 25px;
+    }
+    :host .background input {
+        @apply(--kano-light-input);
+        font-size: 1.4em;
+    }
+    </style>
+    <template>
+        <kano-nav-header title="[[background.name]]" back-enabled="false"></kano-nav-header>
+        <div name="background" class="background" id="background">
+            <input type="text" value="{{background.name::keyup}}" id="background_name">
+            <kano-ui-customizer id="background_style" customizable="{{backgroundOptions}}" user-values="{{background.userStyle}}"></kano-ui-customizer>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoBackgroundEditor {
+        beforeRegister () {
+            this.is = 'kano-background-editor';
+            this.properties = {
+                background: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            name: 'My app',
+                            userStyle: {}
+                        };
+                    },
+                    notify: true
+                }
+            };
+        }
+        attached () {
+            let input = this.$.background_name;
+            this.set('backgroundOptions', [{
+                key: 'background',
+                type: 'background',
+                label: 'Background'
+            }]);
+            input.addEventListener('change', () => {
+                this.set('background.name', input.value);
+            });
+        }
+    }
+    Polymer(KanoBackgroundEditor);
+</script>

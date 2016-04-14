@@ -8,6 +8,10 @@
     :host label {
         display: block;
     }
+    :host input {
+        @apply(--kano-light-input);
+        font-size: var(--kano-input-text-size);
+    }
     </style>
     <template>
         <label>{{label}}</label>
@@ -15,7 +19,9 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    class KanoInputtext {
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoInputText {
 
         get behaviors () {
             return [KanoBehaviors.Input];
@@ -23,7 +29,13 @@
 
         beforeRegister () {
             this.is = 'kano-input-text';
+            this.observers = [
+                'valueChanged(value)'
+            ];
+        }
+        valueChanged () {
+            this.fire('change');
         }
     }
-    Polymer(KanoInputtext);
+    Polymer(KanoInputText);
 </script>

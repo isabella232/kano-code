@@ -1,9 +1,10 @@
 let input;
 
 export default input = {
+    partType: 'ui',
     type: 'text-input',
     label: 'Text input',
-    image: 'assets/part/text-field-icon.png',
+    image: '/assets/part/text-field-icon.png',
     colour: '#3CAA36',
     customizable: {
         style: [],

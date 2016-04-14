@@ -37,6 +37,9 @@
         top: 0px;
         left: 0px
     }
+    :host ::content #dropzone>* {
+        position: absolute;
+    }
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
@@ -50,6 +53,7 @@
 </dom-module>
 
 <script type="text/javascript">
+    /* globals Polymer */
     class KanoWorkspace {
         beforeRegister () {
             this.is = 'kano-workspace';
@@ -123,7 +127,10 @@
         }
         insertPart (key) {
             let model = this.get(`parts.${key}`),
-                element = document.createElement(`kano-ui-${model.type}`);
+                tagName,
+                element;
+            tagName = model.tagName ? model.tagName : `kano-ui-${model.type}`;
+            element = document.createElement(tagName);
             element.setAttribute('id', model.id);
             element.addEventListener('model-changed', (e) => {
                 let detail = e.detail,

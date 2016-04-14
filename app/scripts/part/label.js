@@ -1,6 +1,7 @@
 let label;
 
 export default label = {
+    partType: 'ui',
     type: 'label',
     label: 'Label',
     image: '/assets/part/text-icon.png',

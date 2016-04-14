@@ -35,7 +35,7 @@ class ComponentStore {
             if (!part.id) {
                 return;
             }
-            element = document.querySelector(`#${part.id}`);
+            element = document.querySelector(`kano-workspace #${part.id}`);
             if (element && typeof element[func] == 'function') {
                 element[func]();
             }
@@ -84,7 +84,7 @@ class ComponentStore {
         // Run the code using this store. Only expose the get function
         CodeService.run(code, {
             get (id) {
-                return document.querySelector(`#${id}`);
+                return document.querySelector(`kano-workspace #${id}`);
             }
         });
     }

@@ -1,33 +1,19 @@
-import ObservableProducer from '../observable-producer';
+import cats from './cats.json';
 let cat;
 
-const COLOUR = '#F29120 url("http://a.deviantart.net/avatars/a/p/appoxity.gif")';
+const COLOUR = '#F29120 url("http://a.deviantart.net/avatars/a/p/appoxity.gif")',
+      CAT_API_PREFIX = 'http://random.cat/i/';
 
 export default cat = {
     name: 'Cats',
     colour: COLOUR,
-    observableProducer: new ObservableProducer(),
-    random () {
-        return fetch('http://random.cat/meow')
-            .then((res) => res.json())
-            .then((j) => j.file);
-    },
     methods: {
         random () {
-            let obs = cat.observableProducer
-                .createObservable(cat.random.bind(cat), arguments);
-            cat.observableProducer.refresh();
-            return obs;
-        },
-        refresh () {
-            cat.observableProducer.refresh();
+            let index = Math.floor(Math.random() * cats.length);
+            return `${CAT_API_PREFIX}${cats[index]}`;
         }
     },
-    lifecycle: {
-        stop () {
-            cat.observableProducer.clear();
-        }
-    },
+    lifecycle: {},
     blocks: [{
         block: {
             id: 'get_cat_picture',
@@ -41,21 +27,6 @@ export default cat = {
         natural: () => {
             let code = `a random cat picture`;
             return [code];
-        }
-    },{
-        block: {
-            id: 'refresh_cat',
-            message0: 'refresh cats',
-            previousStatement: null,
-            nextStatement: null
-        },
-        javascript: () => {
-            let code = `cat.refresh();\n`;
-            return code;
-        },
-        natural: () => {
-            let code = `refresh cats`;
-            return code;
         }
     }]
 };
