@@ -64,6 +64,17 @@
     :host .part {
         position: relative;
         padding: 3px;
+        position: relative;
+    }
+    :host .part.selected {
+        border: 2px dotted white;
+    }
+    :host .part .trash {
+        width: 25px;
+        height: 25px;
+        position: absolute;
+        right: 2px;
+        bottom: 4px;
     }
     :host kano-data-visualizer {
         position: absolute;
@@ -82,6 +93,13 @@
         background: var(--orange-gradient, orange);
     }
     :host .make-button.stop {
+        background: var(--red-gradient, red);
+    }
+    :host paper-dialog .buttons button {
+        @apply(--kano-button);
+        margin-left: 5px;
+    }
+    :host paper-dialog .buttons .confirm {
         background: var(--red-gradient, red);
     }
     </style>
@@ -110,22 +128,44 @@
                 <template is="dom-repeat"
                             items="{{parts}}"
                             as="part">
-                    <div class="part" style$="[[partStyle(part, selected)]]">
+                    <div class$="part [[partClass(part, selected)]]">
                         <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                         <kano-ui-item model="[[part]]"
                                       on-tap="partTapped"
                                       size="70"
                                       id$="part-[[part.id]]"></kano-ui-item>
+                        <iron-image src="/assets/icons/bin.svg" class="trash" sizing="contain" hidden$="[[!isSelected(part, selected)]]" on-tap="openDeleteModal"></iron-image>
                     </div>
                 </template>
             </div>
         </div>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
+        <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
+          <h2>Delete Part</h2>
+          <div class="modal-content">
+              <div>You are about to delete '[[selected.name]]'</div>
+              <div>Are you sure you want to do this?</div>
+          </div>
+          <div class="buttons">
+            <button dialog-dismiss class="cancel">Cancel</button>
+            <button dialog-confirm class="confirm">Confirm</button>
+          </div>
+        </paper-dialog>
+        <paper-dialog id="external-use-warning" with-backdrop>
+          <h2>Delete Part</h2>
+          <div class="modal-content">
+              <div>You can't delete '[[selected.name]]' because it is used in another part</div>
+          </div>
+          <div class="buttons">
+            <button dialog-dismiss class="cancel">Cancel</button>
+          </div>
+        </paper-dialog>
     </template>
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer */
     /* globals KanoBehaviors */
+
     class KanoWorkspaceControls {
 
         get behaviors () {
@@ -173,19 +213,67 @@
             if (e.keyCode === 8 &&
                     this.selected &&
                     this.focused) {
-                let partsCount,
-                    index;
                 e.preventDefault();
-                index = this.parts.indexOf(this.selected);
-                this.splice('parts', index, 1);
-                partsCount = this.parts.length;
-                if (partsCount) {
-                    this.$.selector.select(this.parts[partsCount - 1]);
-                } else {
-                    this.$.selector.clearSelection();
-                }
-                this.fire('change');
+                this.openDeleteModal();
             }
+        }
+        checkBlockDependency () {
+            let part, emitter, event, xmlString, xml, parser, blocks, block, blockId, pieces;
+            // Loop through all the parts
+            for (let i in this.parts) {
+                part = this.parts[i];
+                // Ignore the selected one, since we want to remove it
+                if (part.id === this.selected.id) {
+                    continue;
+                }
+                // Loop through all the pieces of code
+                for (let j in part.codes) {
+                    emitter = part.codes[j];
+                    for (let k in emitter) {
+                        event = emitter[k];
+                        // Get the blockly xml and parse it
+                        xmlString = event.snapshot.blocks;
+                        parser = new DOMParser();
+                        xml = parser.parseFromString(xmlString, 'text/xml');
+                        // Get all the 'block' elements
+                        blocks = xml.getElementsByTagName('block');
+                        // Check for every one of them...
+                        for (let l = 0, len = blocks.length; l < len; l++) {
+                            block = blocks[l];
+                            blockId = block.getAttribute('type');
+                            pieces = blockId.split('#');
+                            // ...if the type of the block is the part we're trying to delete
+                            if (pieces[0] === this.selected.id) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        openDeleteModal () {
+            if (this.checkBlockDependency()) {
+                return this.$['external-use-warning'].open();
+            }
+            this.$['confirm-delete'].open();
+        }
+        modalClosed (e) {
+            if (e.detail.confirmed) {
+                this.removeSelected();
+            }
+        }
+        removeSelected () {
+            let index = this.parts.indexOf(this.selected),
+                partsCount;
+            this.splice('parts', index, 1);
+            partsCount = this.parts.length;
+            if (partsCount) {
+                this.$.selector.select(this.parts[partsCount - 1]);
+            } else {
+                this.$.selector.clearSelection();
+            }
+            this.fire('change');
         }
         onMouseEnter () {
             this.focused = true;
@@ -220,14 +308,14 @@
             this.$.selector.select(part);
             this.notifyChange('select-part', { part });
         }
-        partStyle (part, selected) {
-            if (!selected) {
-                return;
+        isSelected (part, selected) {
+            return selected && part.id === selected.id;
+        }
+        partClass (part, selected) {
+            if (this.isSelected(part, selected)) {
+                return 'selected';
             }
-            if (part.id === selected.id) {
-                return `border: 1px dashed orange;
-                        border-radius: 3px;`;
-            }
+            return '';
         }
         computeAddUiClass () {
             return this.opened ? 'opened' : 'closed';

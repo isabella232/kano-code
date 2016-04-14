@@ -77,14 +77,19 @@
                 imageUrl: {
                     type: String,
                     notify: true
+                },
+                workspaceInfo: {
+                    type: Object,
+                    value: {}
                 }
             };
         }
 
         ready () {
             //set the imageUrl when the image has been generated
-            document.addEventListener('image-generated', (e) => {
+            document.addEventListener('data-generated', (e) => {
                 this.imageUrl = e.detail.image.src;
+                this.workspaceInfo = e.detail.workspace_info;
             });
         }
 
@@ -92,7 +97,8 @@
             this.fire('confirm', {
                 title: this.title,
                 description: this.description,
-                image: this.imageUrl
+                image: this.imageUrl,
+                workspace_info: this.workspaceInfo
             });
         }
 
