@@ -322,59 +322,6 @@ class KanoAppEditor {
             y: point.y / rect.height * fullSize.height
         };
     }
-    sidebarUiReady (e) {
-        let clone;
-        interact(e.detail).draggable({
-            onmove: (event) => {
-                let target = event.target,
-                    // keep the dragged position in the data-x/data-y attributes
-                    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-                    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                // translate the element
-                target.style.webkitTransform =
-                target.style.transform =
-                    'translate(' + x + 'px, ' + y + 'px)';
-
-                // update the posiion attributes
-                target.setAttribute('data-x', x);
-                target.setAttribute('data-y', y);
-            },
-            restrict: {
-                restriction: this.$.section
-            },
-            onend: () => {
-                this.$.section.removeChild(clone);
-            }
-        }).on('move', (event) => {
-            let interaction = event.interaction;
-
-            // if the pointer was moved while being held down
-            // and an interaction hasn't started yet
-            if (interaction.pointerIsDown && !interaction.interacting()) {
-                let original = event.currentTarget,
-                    rect = original.getBoundingClientRect(),
-                    style;
-
-                // create a clone of the currentTarget element
-                clone = Polymer.dom(original).cloneNode(true);
-                style = clone.style;
-                clone.model = original.model;
-                style.position = 'absolute';
-                style.top = `${rect.top}px`;
-                style.left = `${rect.left}px`;
-                style.zIndex = 11;
-
-                // insert the clone to the page
-                this.$.section.appendChild(clone);
-
-                // start a drag interaction targeting the clone
-                interaction.start({ name: 'drag' },
-                                    event.interactable,
-                                    clone);
-            }
-        });
-    }
     /**
      * Toggle the running state of the current app
      */
@@ -421,9 +368,11 @@ class KanoAppEditor {
         }
 
         offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
+        // Limit to 60%
+        offsetLeftPanel = Math.min(container.offsetWidth * 0.8, offsetLeftPanel);
         offsetRightPanel = container.offsetWidth - offsetLeftPanel;
         leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
-        rightPanel.style.maxWidth = `${offsetRightPanel}px`;
+        //rightPanel.style.maxWidth = `${offsetRightPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
@@ -433,8 +382,8 @@ class KanoAppEditor {
      * Restore the editor style
      */
     clearEditorStyle () {
-        this.$['left-panel'].style.maxWidth = 'none';
-        this.$['right-panel'].style.maxWidth = 'none';
+        this.$['left-panel'].style.maxWidth = '80%';
+        //this.$['right-panel'].style.maxWidth = 'none';
     }
 }
 Polymer(KanoAppEditor);
