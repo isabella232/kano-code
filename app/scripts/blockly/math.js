@@ -153,10 +153,13 @@ let register = (Blockly) => {
     };
 
     Blockly.Pseudo.math_arithmetic = Blockly.JavaScript.math_arithmetic;
-
+    Blockly.Pseudo.math_single = Blockly.JavaScript.math_single;
     Blockly.Pseudo.math_trig = Blockly.JavaScript.math_trig;
-
     Blockly.Pseudo.math_round = Blockly.JavaScript.math_round;
+    Blockly.Pseudo.math_constant = Blockly.JavaScript.math_constant;
+    Blockly.Pseudo.math_number_property = Blockly.JavaScript.math_number_property;
+    Blockly.Pseudo.math_modulo = Blockly.JavaScript.math_modulo;
+    Blockly.Pseudo.math_constrain = Blockly.JavaScript.math_constrain;
 };
 
 let category = {
