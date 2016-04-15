@@ -131,9 +131,6 @@ class KanoAppEditor {
     leftViewOpenedChanged () {
         this.triggerResize();
     }
-    isPartsOpened () {
-        return this.leftViewOpened && this.leftPanelView === 'parts';
-    }
     removePart (e) {
         let model = e.detail,
             parts = this.addedParts;
@@ -144,7 +141,7 @@ class KanoAppEditor {
                     this.push('parts', model);
                 }
                 if (!this.addedParts.length) {
-                    this.set('leftPanelView', 'parts');
+                    this.set('leftPanelView', 'code');
                 }
                 return;
             }
@@ -222,59 +219,46 @@ class KanoAppEditor {
             this.$['part-editor'].showPage(savedApp.blockEditorPage);
         }
     }
-    toggleParts () {
-        let fallbackView = 'background';
-        // Either just toggle the showed view or display/hide the whole
-        // leftView
-        if (!this.leftViewOpened) {
-            this.toggleLeftView();
-            this.set('leftPanelView', 'parts');
+    openParts () {
+        this.partsOpened = true;
+    }
+    closeParts (e) {
+        let parts = e.detail;
+        this.partsOpened = false;
+        if (!Array.isArray(parts)) {
             return;
         }
-        if (this.selected) {
-            fallbackView = 'code';
-        }
-        this.set('leftPanelView', this.leftPanelView === 'parts' ? fallbackView : 'parts');
+        parts.forEach((model) => {
+            let part = Part.create(model, this.wsSize);
+            this.push('addedParts', part);
+            this.fire('change', {
+                type: 'add-part',
+                part
+            });
+        });
     }
     toggleLeftView () {
         if (this.running) {
             return;
         }
         this.set('leftViewOpened', !this.leftViewOpened);
-        // If we just opened the leftView, show the parts page
+        // If we just opened the leftView, show the code page
         if (this.leftViewOpened) {
-            this.set('leftPanelView', 'parts');
+            this.set('leftPanelView', 'code');
             this.$['part-editor'].showCodeEditor();
         } else {
             this.$['part-editor'].hideCodeEditor();
         }
     }
-    closeUiDrawer () {
-        this.$['ui-drawer'].opened = false;
-    }
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
     }
     attached () {
+        this.partsOpened = false;
         this.$.workspace.size = this.wsSize;
         setTimeout(() => {
             this.triggerResize();
         }, 200);
-        interact(this.$['right-panel']).dropzone({
-            // TODO rename to kano-part-item
-            accept: 'kano-ui-item',
-            ondrop: (e) => {
-                let model = e.relatedTarget.model,
-                    part;
-                model.position = null;
-                part = Part.create(model, this.wsSize);
-                this.push('addedParts', part);
-                this.fire('change', {
-                    type: 'add-part',
-                    part
-                });
-            }
-        });
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
     }
     detached () {

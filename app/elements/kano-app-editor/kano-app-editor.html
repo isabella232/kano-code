@@ -47,9 +47,21 @@
         z-index: 10;
     }
     :host kano-sidebar {
-        @apply(--layout-flex);
+        display: flex !important;
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        background-color: rgba(0, 0, 0, 0.55);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity linear 200ms;
     }
-
+    :host kano-sidebar[hidden] {
+        visibility: hidden;
+        opacity: 0;
+    }
     :host #resize{
         position: absolute;
         left: -4px;
@@ -67,7 +79,6 @@
                 hidden$="[[!leftViewOpened]]"
                 id="left-panel">
                 <!--TODO rename ui-elements to parts-->
-                <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-ui-ready="sidebarUiReady"></kano-sidebar>
                 <kano-background-editor id="background-editor" background="{{background}}" name="background" on-previous="previous"></kano-background-editor>
                 <kano-part-editor
                     id="part-editor"
@@ -89,18 +100,21 @@
                 <kano-workspace-controls
                     id="workspace-controls"
                     parts="{{addedParts}}"
-                    opened="[[isPartsOpened(leftPanelView, leftViewOpened)]]"
+                    opened="[[partsOpened]]"
                     running="{{running}}"
                     selected="{{selected}}"
                     codes="{{codes}}"
                     on-share-tap="share"
-                    on-add-tap="toggleParts"
+                    on-add-tap="openParts"
                     on-make-tap="toggleRunning"
                     on-remove-part="removePart"></kano-workspace-controls>
                 <kano-cover-generator id="image_generator"
                     element-name="kano-workspace"></kano-cover-generator>
             </div>
         </section>
+        <template is="dom-if" if="[[partsOpened]]" restamp>
+            <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts"></kano-sidebar>
+        </template>
         <paper-dialog id="share-modal" with-backdrop>
             <kano-view view-name="kano-view-share-modal" on-confirm="confirmShare" on-dismiss="dismissShare"></kano-view>
         </paper-dialog>

@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
 <dom-module id="kano-ui-list">
     <style>
@@ -10,12 +11,26 @@
     }
     :host kano-ui-item {
         --kano-ui-item-background-color: #CCC;
+        --kano-ui-item-color: var(--color-white, white);
         margin: 10px;
+    }
+    :host .part {
+        position: relative;
+    }
+    :host .part paper-checkbox {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        --paper-checkbox-size: 36px;
     }
     </style>
     <template>
-        <template is="dom-repeat" items="{{items}}">
-            <kano-ui-item model="{{item}}" id$="part-[[item.type]]"></kano-ui-item>
+        <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
+        <template is="dom-repeat" items="{{items}}" id="partsList">
+            <div class="part">
+                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection"></kano-ui-item>
+                <paper-checkbox checked noink hidden$="[[!isPartSelected(item, selected.*)]]"></paper-checkbox>
+            </div>
         </template>
     </template>
 </dom-module>
@@ -29,8 +44,22 @@
                 items: {
                     type: Array,
                     value: () => []
+                },
+                selected: {
+                    type: Array,
+                    notify: true
                 }
             };
+        }
+        toggleSelection (e) {
+            let item = this.items[this.$.partsList.indexForElement(e.target)];
+            this.$.selector.select(item);
+        }
+        isPartSelected (part) {
+            return this.$.selector.isSelected(part);
+        }
+        clearSelection () {
+            this.$.selector.clearSelection();
         }
     }
     Polymer(KanoUiList);
