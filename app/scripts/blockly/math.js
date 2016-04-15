@@ -161,9 +161,19 @@ let category = {
     }, {
         id: 'math_arithmetic'
     }, {
+        id: 'math_single'
+    }, {
         id: 'math_trig'
     }, {
+        id: 'math_constant'
+    }, {
+        id: 'math_number_property'
+    }, {
         id: 'math_round'
+    }, {
+        id: 'math_modulo'
+    }, {
+        id: 'math_constrain'
     }, {
         id: 'math_max'
     }, {
