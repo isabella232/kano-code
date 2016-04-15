@@ -102,7 +102,7 @@ let register = (Blockly) => {
 
     Blockly.Pseudo.math_sign = (block) => {
         let arg = Blockly.JavaScript.valueToCode(block, 'ARG'),
-            code = `${arg}.sign`;
+            code = `Math.sign(${arg})`;
         return [code];
     };
 
