@@ -131,9 +131,6 @@ class KanoAppEditor {
     leftViewOpenedChanged () {
         this.triggerResize();
     }
-    isPartsOpened () {
-        return this.leftViewOpened && this.leftPanelView === 'parts';
-    }
     removePart (e) {
         let model = e.detail,
             parts = this.addedParts;
@@ -144,7 +141,7 @@ class KanoAppEditor {
                     this.push('parts', model);
                 }
                 if (!this.addedParts.length) {
-                    this.set('leftPanelView', 'parts');
+                    this.set('leftPanelView', 'code');
                 }
                 return;
             }
@@ -222,59 +219,46 @@ class KanoAppEditor {
             this.$['part-editor'].showPage(savedApp.blockEditorPage);
         }
     }
-    toggleParts () {
-        let fallbackView = 'background';
-        // Either just toggle the showed view or display/hide the whole
-        // leftView
-        if (!this.leftViewOpened) {
-            this.toggleLeftView();
-            this.set('leftPanelView', 'parts');
+    openParts () {
+        this.partsOpened = true;
+    }
+    closeParts (e) {
+        let parts = e.detail;
+        this.partsOpened = false;
+        if (!Array.isArray(parts)) {
             return;
         }
-        if (this.selected) {
-            fallbackView = 'code';
-        }
-        this.set('leftPanelView', this.leftPanelView === 'parts' ? fallbackView : 'parts');
+        parts.forEach((model) => {
+            let part = Part.create(model, this.wsSize);
+            this.push('addedParts', part);
+            this.fire('change', {
+                type: 'add-part',
+                part
+            });
+        });
     }
     toggleLeftView () {
         if (this.running) {
             return;
         }
         this.set('leftViewOpened', !this.leftViewOpened);
-        // If we just opened the leftView, show the parts page
+        // If we just opened the leftView, show the code page
         if (this.leftViewOpened) {
-            this.set('leftPanelView', 'parts');
+            this.set('leftPanelView', 'code');
             this.$['part-editor'].showCodeEditor();
         } else {
             this.$['part-editor'].hideCodeEditor();
         }
     }
-    closeUiDrawer () {
-        this.$['ui-drawer'].opened = false;
-    }
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
     }
     attached () {
+        this.partsOpened = false;
         this.$.workspace.size = this.wsSize;
         setTimeout(() => {
             this.triggerResize();
         }, 200);
-        interact(this.$['right-panel']).dropzone({
-            // TODO rename to kano-part-item
-            accept: 'kano-ui-item',
-            ondrop: (e) => {
-                let model = e.relatedTarget.model,
-                    part;
-                model.position = null;
-                part = Part.create(model, this.wsSize);
-                this.push('addedParts', part);
-                this.fire('change', {
-                    type: 'add-part',
-                    part
-                });
-            }
-        });
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
     }
     detached () {
@@ -338,59 +322,6 @@ class KanoAppEditor {
             y: point.y / rect.height * fullSize.height
         };
     }
-    sidebarUiReady (e) {
-        let clone;
-        interact(e.detail).draggable({
-            onmove: (event) => {
-                let target = event.target,
-                    // keep the dragged position in the data-x/data-y attributes
-                    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-                    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                // translate the element
-                target.style.webkitTransform =
-                target.style.transform =
-                    'translate(' + x + 'px, ' + y + 'px)';
-
-                // update the posiion attributes
-                target.setAttribute('data-x', x);
-                target.setAttribute('data-y', y);
-            },
-            restrict: {
-                restriction: this.$.section
-            },
-            onend: () => {
-                this.$.section.removeChild(clone);
-            }
-        }).on('move', (event) => {
-            let interaction = event.interaction;
-
-            // if the pointer was moved while being held down
-            // and an interaction hasn't started yet
-            if (interaction.pointerIsDown && !interaction.interacting()) {
-                let original = event.currentTarget,
-                    rect = original.getBoundingClientRect(),
-                    style;
-
-                // create a clone of the currentTarget element
-                clone = Polymer.dom(original).cloneNode(true);
-                style = clone.style;
-                clone.model = original.model;
-                style.position = 'absolute';
-                style.top = `${rect.top}px`;
-                style.left = `${rect.left}px`;
-                style.zIndex = 11;
-
-                // insert the clone to the page
-                this.$.section.appendChild(clone);
-
-                // start a drag interaction targeting the clone
-                interaction.start({ name: 'drag' },
-                                    event.interactable,
-                                    clone);
-            }
-        });
-    }
     /**
      * Toggle the running state of the current app
      */
@@ -437,9 +368,11 @@ class KanoAppEditor {
         }
 
         offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
+        // Limit to 60%
+        offsetLeftPanel = Math.min(container.offsetWidth * 0.8, offsetLeftPanel);
         offsetRightPanel = container.offsetWidth - offsetLeftPanel;
         leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
-        rightPanel.style.maxWidth = `${offsetRightPanel}px`;
+        //rightPanel.style.maxWidth = `${offsetRightPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
@@ -449,8 +382,8 @@ class KanoAppEditor {
      * Restore the editor style
      */
     clearEditorStyle () {
-        this.$['left-panel'].style.maxWidth = 'none';
-        this.$['right-panel'].style.maxWidth = 'none';
+        this.$['left-panel'].style.maxWidth = '80%';
+        //this.$['right-panel'].style.maxWidth = 'none';
     }
 }
 Polymer(KanoAppEditor);

@@ -1,17 +1,12 @@
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../kano-data-visualizer/kano-data-visualizer.html">
+<link rel="import" href="../kano-carousel/kano-carousel.html">
 <link rel="import" href="../../bower_components/Sortable/Sortable.html">
 <dom-module id="kano-workspace-controls">
     <style>
     :host {
         display: block;
         position: relative;
-        max-height: 40%;
-        min-height: 70px;
-        @apply(--layout-vertical);
-    }
-    :host .content {
-        @apply(--layout-flex);
         @apply(--layout-vertical);
         background-color: var(--color-black, black);
     }
@@ -29,42 +24,15 @@
         @apply(--kano-button-small);
         margin-left: 5px;
     }
-    :host .add-ui {
-        @apply(--kano-round-button);
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        background: linear-gradient(#7DC243,#358401);
-        color: var(--color-white, white);
-        position: absolute;
-        top: -25px;
-        left: 5px;
-        box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
-    }
-    :host .add-ui iron-image {
-        width: 25px;
-        height: 25px;
-        transition: all ease-out 200ms;
-    }
-    :host .add-ui.opened {
-        background: var(--red-gradient, red);
-    }
-    :host .add-ui.opened iron-image {
-        transform: rotate(45deg);
-    }
     :host .parts {
-        padding: 0px 10px;
-        overflow-y: auto;
-        @apply(--layout-horizontal);
-        @apply(--layout-wrap);
-
-        align-items: center;
+        min-height: 130px;
         flex: 1;
+        @apply(--layout-horizontal);
     }
     :host .part {
         position: relative;
         padding: 3px;
-        position: relative;
+        border: 2px solid transparent;
     }
     :host .part.selected {
         border: 2px dotted white;
@@ -89,12 +57,6 @@
     :host .share-button {
         background: var(--blue-gradient, blue);
     }
-    :host .make-button {
-        background: var(--orange-gradient, orange);
-    }
-    :host .make-button.stop {
-        background: var(--red-gradient, red);
-    }
     :host paper-dialog .buttons button {
         @apply(--kano-button);
         margin-left: 5px;
@@ -102,43 +64,37 @@
     :host paper-dialog .buttons .confirm {
         background: var(--red-gradient, red);
     }
+    :host kano-carousel {
+        overflow: hidden;
+        --kano-carousel-button {
+            background: red;
+        }
+    }
     </style>
     <template>
-        <button id="add-part"
-                type="button"
-                class$="add-ui [[computeAddUiClass(opened)]]"
-                on-tap="addTapped">
-            <iron-image src="/assets/icons/plus-icon.png"
-                        sizing="contain"></iron-image>
-        </button>
-        <div class="content">
-            <div class="toolbar">
-                <div class="controls">
-                    <button type="button"
-                            class="share-button"
-                            on-tap="shareTapped">share</button>
-                    <button id="make-button"
-                            type="button"
-                            class$="make-button {{computeRunningClass(running)}}"
-                            on-tap="makeTapped">make</button>
-                </div>
-
+        <div class="toolbar">
+            <div class="controls">
+                <button type="button"
+                        class="share-button"
+                        on-tap="shareTapped">share</button>
             </div>
-            <sortable-js class="parts" id="parts-tray">
+        </div>
+        <kano-carousel>
+            <sortable-js id="parts-tray" class="parts">
                 <template is="dom-repeat"
-                            items="{{parts}}"
-                            as="part">
+                    items="{{parts}}"
+                    as="part">
                     <div class$="part [[partClass(part, selected)]]">
                         <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                         <kano-ui-item model="[[part]]"
-                                      on-tap="partTapped"
-                                      size="70"
-                                      id$="part-[[part.id]]"></kano-ui-item>
+                        on-tap="partTapped"
+                        size="70"
+                        id$="part-[[part.id]]"></kano-ui-item>
                         <iron-image src="/assets/icons/bin.svg" class="trash" sizing="contain" hidden$="[[!isSelected(part, selected)]]" on-tap="openDeleteModal"></iron-image>
                     </div>
                 </template>
-            </div>
-        </div>
+            </sortable-js>
+        </kano-carousel>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
           <h2>Delete Part</h2>
@@ -280,24 +236,8 @@
         onMouseLeave () {
             this.focused = false;
         }
-        computeRunningClass () {
-            return this.running ? 'stop' : 'run';
-        }
-        switchTab (e) {
-            let buttons = this.querySelectorAll('.tab-nav button');
-            for (let i = 0, len = buttons.length; i < len; i++) {
-                buttons[i].classList.remove('selected');
-            }
-            e.target.classList.add('selected');
-        }
-        addTapped () {
-            this.fire('add-tap');
-        }
         shareTapped () {
             this.fire('share-tap');
-        }
-        makeTapped () {
-            this.fire('make-tap');
         }
         partTapped (e) {
             let part = e.model.get('part');
@@ -315,9 +255,6 @@
                 return 'selected';
             }
             return '';
-        }
-        computeAddUiClass () {
-            return this.opened ? 'opened' : 'closed';
         }
     }
     Polymer(KanoWorkspaceControls);
