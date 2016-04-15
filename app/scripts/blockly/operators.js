@@ -1,6 +1,7 @@
 const COLOUR = '#7DC242'; //41
 
 let register = (Blockly) => {
+    console.log(Blockly.Blocks.text_join);
     /* --- max(x, y) */
     Blockly.Blocks.math_max = {
         init: function () {

@@ -26,7 +26,7 @@ let register = (Blockly) => {
     };
     Blockly.Pseudo.finish = (a) => {
         if (a.replace) {
-            a = a.replace(/ +/g, ' ');
+            //a = a.replace(/ +/g, ' ');
         }
         return a;
     };
