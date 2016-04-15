@@ -1,6 +1,7 @@
 import pseudo from './pseudo';
-import basic from './basic';
-import math from './math';
+import operators from './operators';
+import control from './control';
+import variables from './variables';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -16,13 +17,17 @@ let registered = false,
         }
         // Register the modules
         pseudo.register(Blockly);
-        math.register(Blockly);
+        control.register(Blockly);
+        operators.register(Blockly);
+        variables.register(Blockly);
         registered = true;
     };
 
 let categories = [
-    math.category
-].concat(basic.categories);
+    control.category,
+    operators.category,
+    variables.category
+];
 
 export default {
     register,

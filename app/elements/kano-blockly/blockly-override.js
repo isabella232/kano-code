@@ -123,9 +123,9 @@ Blockly.Toolbox.prototype.addColour_ = function(opt_tree) {
  */
 Blockly.Block.prototype.setColour = function(colour) {
     var hexReg = /^#[0-9a-fA-F]{6}$/;
-    var m = /(#[0-9a-fA-F]{6})|linear-gradient((.+),.+)/.exec(colour);
-    if (m && m[1]) {
-        colour = m[1];
+    var m = /(#[0-9a-fA-F]{6})|linear-gradient\((.+),.+\)/.exec(colour);
+    if (m) {
+        colour = m[1] || m[2];
     }
     var hue = parseFloat(colour);
     if (!isNaN(hue)) {

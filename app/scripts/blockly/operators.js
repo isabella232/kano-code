@@ -262,12 +262,12 @@ let register = (Blockly) => {
 };
 
 let category = {
-    name: 'Math',
+    name: 'Operators',
     colour: COLOUR,
     blocks: [{
-        id: 'math_number'
-    }, {
         id: 'math_arithmetic'
+    }, {
+        id: 'text_join'
     }, {
         id: 'math_single'
     }, {
