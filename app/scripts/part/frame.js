@@ -34,10 +34,10 @@ export default frame = {
                 return code;
             };
         },
-        natural: (ui) => {
+        pseudo: (ui) => {
             return function (block) {
-                let pic = Blockly.Natural.valueToCode(block, 'PICTURE'),
-                    code = `show ${pic} on ${ui.name}\n`;
+                let pic = Blockly.Pseudo.valueToCode(block, 'PICTURE'),
+                    code = `${ui.id}.drawPicture(${pic});\n`;
                 return code;
             };
         }

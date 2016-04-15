@@ -90,11 +90,11 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Natural.valueToCode(block, 'X')) || 0,
-                        y = parseInt(Blockly.Natural.valueToCode(block, 'Y')) || 0,
-                        code = `move ${ui.name} by ${x}, ${y}\n`;
+                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
+                        y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
+                        code = `${ui.id}.move(${x}, ${y});\n`;
                     return code;
                 };
             }
@@ -136,13 +136,13 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
-                    let deg = parseInt(Blockly.Natural.valueToCode(block, 'DEG')) || 0,
+                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
                         direction = block.getFieldValue('DIRECTION'),
                         code;
                     direction = direction === 'clockwise' ? 'clockwise' : 'counter clockwise';
-                    code = `turn ${ui.name} ${direction} by ${deg} deg\n`;
+                    code = `${ui.id}.rotate('${direction}', ${deg});\n`;
                     return code;
                 };
             }
@@ -184,12 +184,12 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
-                    let factor = parseInt(Blockly.Natural.valueToCode(block, 'FACTOR')) || 0,
+                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
                         direction = block.getFieldValue('DIRECTION'),
                         code;
-                    code = `scale ${ui.name} ${direction} by ${factor}\n`;
+                    code = `${ui.id}.scale('${direction}', ${factor});\n`;
                     return code;
                 };
             }
@@ -215,10 +215,10 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Natural.valueToCode(block, 'X')) || 0,
-                        code = `set ${ui.name} x to ${x}\n`;
+                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
+                        code = `${ui.id}.x = ${x};\n`;
                     return code;
                 };
             }
@@ -244,10 +244,10 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
-                    let y = parseInt(Blockly.Natural.valueToCode(block, 'Y')) || 0,
-                        code = `set ${ui.name} y to ${y}\n`;
+                    let y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
+                        code = `${ui.id}.y = ${y};\n`;
                     return code;
                 };
             }
@@ -285,11 +285,11 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function (block) {
                     let visibility = block.getFieldValue('VISIBILITY'),
                         code;
-                    code = `${visibility} ${ui.name}\n`;
+                    code = `${ui.id}.${visibility}();\n`;
                     return code;
                 };
             }
@@ -309,9 +309,9 @@ export default class UI extends Part {
                     return code;
                 };
             },
-            natural: (ui) => {
+            pseudo: (ui) => {
                 return function () {
-                    let code = `toggle ${ui.name}'s vicibility\n`;
+                    let code = `${ui.id}.toggleVisibility();\n`;
                     return code;
                 };
             }

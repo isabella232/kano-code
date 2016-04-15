@@ -46,7 +46,7 @@ es6Assign.polyfill();
                     }
                 };
                 Blockly.JavaScript[block.id] = definition.javascript;
-                Blockly.Natural[block.id] = definition.natural;
+                Blockly.Pseudo[block.id] = definition.pseudo;
                 category.blocks.push({ id: block.id });
             });
             if (category.blocks) {

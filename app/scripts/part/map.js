@@ -40,11 +40,11 @@ export default map = {
                 return code;
             };
         },
-        natural: (ui) => {
+        pseudo: (ui) => {
             return function (block) {
-                let latitude = Blockly.Natural.valueToCode(block, 'LATITUDE'),
-                    longitude = Blockly.Natural.valueToCode(block, 'LONGITUDE'),
-                    code = `${ui.name} move marker to ${latitude}, ${longitude}`;
+                let latitude = Blockly.Pseudo.valueToCode(block, 'LATITUDE'),
+                    longitude = Blockly.Pseudo.valueToCode(block, 'LONGITUDE'),
+                    code = `${ui.id}.moveMarkerTo(${latitude}, ${longitude});\n`;
                 return code;
             };
         }

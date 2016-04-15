@@ -1,3 +1,4 @@
+/* globals Blockly */
 let input;
 
 export default input = {
@@ -23,32 +24,34 @@ export default input = {
                 return [`devices.get('${ui.id}').getValue()`];
             };
         },
-        natural: () => {
+        pseudo: (ui) => {
             return function () {
-                return [`input value`];
+                return [`${ui.id}.value`];
             };
         }
     },{
         block: (ui) => {
             return {
                 id: 'input_text_set_value',
-                output: false,
                 message0: `set ${ui.name} to %1`,
                 args0: [{
                     type: "input_value",
                     name: "INPUT"
-                }]
+                }],
+                previousStatement: null,
+                nextStatement: null
             };
         },
         javascript: (ui) => {
             return function (block) {
                 let value = Blockly.JavaScript.valueToCode(block, 'INPUT');
-                return [`devices.get('${ui.id}').setValue(${value});`];
+                return `devices.get('${ui.id}').setValue(${value});`;
             };
         },
-        natural: () => {
-            return function () {
-                return [`input set value`];
+        pseudo: (ui) => {
+            return function (block) {
+                let value = Blockly.Pseudo.valueToCode(block, 'INPUT') || `''`;
+                return `${ui.id}.value = ${value};\n`;
             };
         }
     }],

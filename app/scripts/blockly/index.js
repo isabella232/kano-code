@@ -1,6 +1,7 @@
-import natural from './natural';
-import basic from './basic';
-import math from './math';
+import pseudo from './pseudo';
+import operators from './operators';
+import control from './control';
+import variables from './variables';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -15,14 +16,18 @@ let registered = false,
             return;
         }
         // Register the modules
-        natural.register(Blockly);
-        math.register(Blockly);
+        pseudo.register(Blockly);
+        control.register(Blockly);
+        operators.register(Blockly);
+        variables.register(Blockly);
         registered = true;
     };
 
 let categories = [
-    math.category
-].concat(basic.categories);
+    control.category,
+    operators.category,
+    variables.category
+];
 
 export default {
     register,

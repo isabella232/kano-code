@@ -1,3 +1,4 @@
+/* globals Blockly */
 import TextToSpeech from '../../service/text-to-speech';
 
 let speaker;
@@ -70,20 +71,18 @@ export default speaker = {
             nextStatement: null
         },
         javascript: (block) => {
-            let text = Blockly.JavaScript.valueToCode(block, 'TEXT'),
+            let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
                 rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
                 lang = block.getFieldValue('LANGUAGE'),
-                code = `speaker.say(${text}, ${rate}, "${lang}")`;
+                code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
             return code;
         },
-        natural: (block) => {
-            return function (block) {
-                let text = Blockly.Natural.valueToCode(block, 'TEXT'),
-                    rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
-                    lang = block.getFieldValue('LANGUAGE'),
-                    code = `speaker say ${text} (speed=${rate}, language=${lang})`;
-                return code;
-            };
+        pseudo: (block) => {
+            let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || `''`,
+                rate = Blockly.Pseudo.valueToCode(block, 'RATE') || 1,
+                lang = block.getFieldValue('LANGUAGE'),
+                code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
+            return code;
         }
     }]
 };
