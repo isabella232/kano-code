@@ -69,13 +69,10 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_move_by',
-                    message0: `move ${ui.name} by %1 %2`,
+                    message0: `move ${ui.name} %1 pixels`,
                     args0: [{
                         type: 'input_value',
-                        name: 'X'
-                    },{
-                        type: 'input_value',
-                        name: 'Y'
+                        name: 'pixels'
                     }],
                     inputsInline: true,
                     previousStatement: null,
@@ -84,17 +81,15 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'X')) || 0,
-                        y = parseInt(Blockly.JavaScript.valueToCode(block, 'Y')) || 0,
-                        code = `devices.get('${ui.id}').move(${x}, ${y});\n`;
+                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'pixels')) || 0,
+                        code = `devices.get('${ui.id}').moveAlong(${x});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
-                        y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
-                        code = `${ui.id}.move(${x}, ${y});\n`;
+                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'pixels')) || 0,
+                        code = `${ui.id}.move(${x});\n`;
                     return code;
                 };
             }

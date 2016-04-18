@@ -70,6 +70,12 @@ window.KanoBehaviors.UIBehavior = {
         this.set('model.scale', savedState.scale);
         this.set('model.visible', savedState.visible);
     },
+    moveAlong(distance) {
+        let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
+            alongY = Math.round(parseInt(distance) * Math.sin(direction)),
+            alongX = Math.round(parseInt(distance) * Math.cos(direction));
+        this.move(alongX, alongY);
+    },
     move (x, y) {
         let position = this.model.position;
         // Set separate values otherwise, the reference is compared and
