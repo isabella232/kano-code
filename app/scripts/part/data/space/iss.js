@@ -5,7 +5,7 @@ export default iss = {
     type: 'iss',
     label: 'ISS',
     image: '/assets/part/ISS-icon.svg',
-    colour: '#1f1f1f url("http://i.huffpost.com/gadgets/slideshows/290159/slide_290159_2299290_sq50.jpg")',
+    colour: '#1f1f1f',
     description: 'The ISS (*International Space Station*) is the largest artificial body in orbit. Scientists use it to conduct experiments in **zero gravity**. Here, you can track its position in real time',
     parameters: [],
     refreshFreq: 5,

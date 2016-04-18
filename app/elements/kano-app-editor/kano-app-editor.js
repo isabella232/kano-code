@@ -65,10 +65,15 @@ class KanoAppEditor {
             'backgroundChanged(background.*)'
         ];
         this.listeners = {
-            'left-panel.iron-select': 'pageEntered',
-            'left-panel.iron-deselect': 'pageLeft',
             'previous': 'clearEditorStyle'
         };
+    }
+    openPartEditor (e) {
+        this.partEditorTarget = e.detail;
+        this.partEditorOpened = true;
+    }
+    closePartEditor () {
+        this.partEditorOpened = false;
     }
     backgroundChanged (e) {
         let property = e.path.split('.');
@@ -90,21 +95,6 @@ class KanoAppEditor {
     }
     addedPartsChanged () {
         this.fire('change');
-    }
-    pageEntered (e) {
-        let name = e.detail.item.getAttribute('name');
-        // Trigger a resize on blockly when we get back to the
-        // code editor page
-        if (name === 'code') {
-            this.$['part-editor'].showCodeEditor();
-        } else if (name === 'parts') {
-            this.fire('change', { type: 'open-parts' });
-        }
-    }
-    pageLeft (e) {
-        if (e.detail.item.getAttribute('name') === 'code') {
-            this.$['part-editor'].hideCodeEditor();
-        }
     }
     selectedChanged (newValue) {
         if (newValue) {
@@ -255,14 +245,23 @@ class KanoAppEditor {
     }
     attached () {
         this.partsOpened = false;
+        this.partEditorOpened = false;
         this.$.workspace.size = this.wsSize;
         setTimeout(() => {
             this.triggerResize();
         }, 200);
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
+        window.addEventListener('resize', this.onWindowResize.bind(this));
+        this.onWindowResize();
+    }
+    onWindowResize () {
+        let rect = this.$['left-panel'].getBoundingClientRect();
+        this.$['part-editor'].leftBound = rect.left + 10;
+        this.$['part-editor'].rightBound = rect.left + rect.width - 10;
     }
     detached () {
         Part.clear();
+        window.removeEventListener('resize', this.onWindowResize.bind(this));
     }
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
@@ -384,6 +383,10 @@ class KanoAppEditor {
     clearEditorStyle () {
         this.$['left-panel'].style.maxWidth = '80%';
         //this.$['right-panel'].style.maxWidth = 'none';
+    }
+    computePartEditorStyle () {
+        let controls = this.$['workspace-controls'].getBoundingClientRect();
+        return `bottom: ${window.innerHeight - controls.top + 15}px`;
     }
 }
 Polymer(KanoAppEditor);
