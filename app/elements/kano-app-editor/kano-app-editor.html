@@ -79,10 +79,13 @@
         @apply(--kano-button-big);
     }
     :host .add-part-button {
-        background: var(--green-gradient, green);
+        background: var(--color-green, green);
     }
     :host .make-button {
-        background: var(--orange-gradient, orange);
+        background: var(--color-orange, orange);
+    }
+    :host .make-button-running {
+        background: var(--color-red, orange);
     }
     </style>
     <template>
@@ -122,7 +125,7 @@
                                 running="{{running}}"></kano-workspace>
                 <div class="controls">
                     <button type="button" class="add-part-button" on-tap="openParts">Add Part</button>
-                    <button type="button" class="make-button" on-tap="toggleRunning">Make</button>
+                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning">{{getMakeButtonLabel(running)}}</button>
                 </div>
                 <kano-cover-generator id="image_generator"
                     element-name="kano-workspace"></kano-cover-generator>

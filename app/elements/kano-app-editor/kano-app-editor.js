@@ -327,16 +327,25 @@ class KanoAppEditor {
      */
     toggleRunning () {
         this.running = !this.running;
-        if (this.running) {
-            this.set('leftViewOpened', false);
-            this.$['part-editor'].hideCodeEditor();
-        } else {
-            this.set('leftViewOpened', true);
-            this.$['part-editor'].showCodeEditor();
-        }
         this.notifyChange('running', {
             value: this.running
         });
+    }
+
+    getMakeButtonClass () {
+        if (this.running) {
+            return 'make-button-running';
+        }
+
+        return 'make-button';
+    }
+
+    getMakeButtonLabel () {
+        if (this.running) {
+            return 'Stop';
+        }
+
+        return 'Make';
     }
 
     /**
