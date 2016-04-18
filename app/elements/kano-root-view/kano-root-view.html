@@ -9,7 +9,7 @@
     :host {
         display: block;
         @apply(--layout-vertical);
-        background-color: var(--color-grey-mid, grey);
+        background-color: var(--color-grey-darker, grey);
     }
     :host .content,
     :host iron-pages {
@@ -43,7 +43,6 @@
         @apply(--layout-flex);
         @apply(--layout-vertical);
         @apply(--layout-center);
-        @apply(--kano-dotted-background);
     }
     :host .default .code-list {
         @apply(--layout-horizontal);
@@ -62,23 +61,23 @@
         font-size: 1.2em;
         margin: 20px;
     }
-    :host .code-trigger {
+    :host .code-trigger-title {
         @apply(--layout-horizontal);
         @apply(--layout-center);
         @apply(--layout-justified);
+    }
+    :host .code-trigger {
+        @apply(--layout-vertical);
         padding: 5px 10px;
-        background-color: var(--color-grey-light, grey);
+        background-color: #263238;
+        color: #aabbc3;
+        font-family: monospace;
     }
     :host .code-action {
         font-size: 1em;
     }
     :host .code-action kano-pseudo-code {
-        padding: 10px;
-    }
-    :host .trigger-select {
-        text-align: center;
-        @apply(--kano-dotted-background);
-        @apply(--layout-flex);
+        padding: 0px 10px 10px 10px;
     }
     :host .back {
         @apply(--layout-vertical);
@@ -164,14 +163,12 @@
     :host .edit-code-button {
         @apply(--kano-icon-button);
         margin-left: 5px;
+        color: #aabbc3;
+        font-size: 1.2em;
+        font-family: monospace;
     }
     :host .edit-code-button:hover {
         cursor: pointer;
-    }
-    :host .edit-code-button iron-image {
-        width: 24px;
-        height: 24px;
-        transform: rotate(45deg);
     }
     :host .right-button>div {
         height: 100%;
@@ -207,10 +204,11 @@
                                 as="event">
                             <div class="saved-code">
                                 <div class="code-trigger">
-                                    <span>{{event.trigger}}</span>
-                                    <button type="button" on-tap="editCode" class="edit-code-button">
-                                        <iron-image src="/assets/icons/edit.png" sizing="contain"></iron-image>
-                                    </button>
+                                    <div class="code-trigger-title">
+                                        <span>{{event.trigger}}</span>
+                                        <button type="button" on-tap="editCode" class="edit-code-button">&gt;</button>
+                                    </div>
+                                    <div>=======================================</div>
                                 </div>
                                 <span class="code-action">
                                     <kano-pseudo-code code="[[event.snapshot.pseudo]]"></kano-pseudo-code>
@@ -224,9 +222,6 @@
                             toolbox="[[toolbox]]"
                             code="{{code}}"
                             on-change="saveCode"></kano-blockly>
-                    <div class="trigger">
-                        <span>{{trigger.text}}</span>
-                    </div>
                 </div>
             </iron-pages>
             <kano-event-select
