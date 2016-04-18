@@ -63,7 +63,7 @@ export default class UI extends Part {
             y: 0
         };
         this.rotation = opts.rotation || 0;
-        this.scale = opts.scale || 1;
+        this.scale = opts.scale || 100;
         this.visible = opts.visible || true;
         this.blocks.push({
             block: (ui) => {
@@ -151,21 +151,8 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_scale',
-                    message0: `scale ${ui.name} %1 by %2`,
+                    message0: `set ${ui.name} size to %1 %`,
                     args0: [{
-                        type: "field_dropdown",
-                        name: "DIRECTION",
-                        options: [
-                            [
-                                "Up",
-                                "up"
-                            ],
-                            [
-                                "Down",
-                                "down"
-                            ]
-                        ]
-                    },{
                         type: 'input_value',
                         name: 'FACTOR'
                     }],
@@ -177,10 +164,8 @@ export default class UI extends Part {
             javascript: (ui) => {
                 return function (block) {
                     let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
                         code;
-                    direction = direction === 'up' ? '' : '-';
-                    code = `devices.get('${ui.id}').scale(${direction}${factor});\n`;
+                    code = `devices.get('${ui.id}').scale(${factor});\n`;
                     return code;
                 };
             },
@@ -189,7 +174,39 @@ export default class UI extends Part {
                     let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
                         direction = block.getFieldValue('DIRECTION'),
                         code;
-                    code = `${ui.id}.scale('${direction}', ${factor});\n`;
+                    code = `${ui.id}.setSizeTo(${factor});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_scale_rel',
+                    message0: `change ${ui.name} size by %1 %`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'FACTOR'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').resize(${factor});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
+                        direction = block.getFieldValue('DIRECTION'),
+                        code;
+                    code = `${ui.id}.changeSizeBy(${factor});\n`;
                     return code;
                 };
             }
