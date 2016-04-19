@@ -63,17 +63,173 @@ export default class UI extends Part {
             y: 0
         };
         this.rotation = opts.rotation || 0;
-        this.scale = opts.scale || 1;
+        this.scale = opts.scale || 100;
         this.visible = opts.visible || true;
         this.blocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_move_by',
-                    message0: `move ${ui.name} by %1 %2`,
+                    message0: `move ${ui.name} %1 pixels`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'pixels'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'pixels')) || 0,
+                        code = `devices.get('${ui.id}').moveAlong(${x});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'pixels')) || 0,
+                        code = `${ui.id}.move(${x});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_rotate_clockwise',
+                    message0: `turn \u21BB ${ui.name} %1 degrees`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'DEG'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let deg = parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `${ui.id}.turnClockwise(${deg});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_rotate_counter_clockwise',
+                    message0: `turn \u21BA ${ui.name} %1 degrees`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'DEG'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let deg = -1 * parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `${ui.id}.turnCounterClockwise(${deg});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_scale',
+                    message0: `set ${ui.name} size to %1 %`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'FACTOR'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').scale(${factor});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
+                        direction = block.getFieldValue('DIRECTION'),
+                        code;
+                    code = `${ui.id}.setSizeTo(${factor});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_scale_rel',
+                    message0: `change ${ui.name} size by %1 %`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'FACTOR'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').resize(${factor});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
+                        direction = block.getFieldValue('DIRECTION'),
+                        code;
+                    code = `${ui.id}.changeSizeBy(${factor});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_set_x_y',
+                    message0: `move ${ui.name} to x %1, y %2`,
                     args0: [{
                         type: 'input_value',
                         name: 'X'
-                    },{
+                    },
+                    {
                         type: 'input_value',
                         name: 'Y'
                     }],
@@ -86,7 +242,7 @@ export default class UI extends Part {
                 return function (block) {
                     let x = parseInt(Blockly.JavaScript.valueToCode(block, 'X')) || 0,
                         y = parseInt(Blockly.JavaScript.valueToCode(block, 'Y')) || 0,
-                        code = `devices.get('${ui.id}').move(${x}, ${y});\n`;
+                        code = `devices.get('${ui.id}').setXY(${x},${y});\n`;
                     return code;
                 };
             },
@@ -94,102 +250,7 @@ export default class UI extends Part {
                 return function (block) {
                     let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
                         y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
-                        code = `${ui.id}.move(${x}, ${y});\n`;
-                    return code;
-                };
-            }
-        });
-        this.blocks.push({
-            block: (ui) => {
-                return {
-                    id: 'ui_rotate',
-                    message0: `turn ${ui.name} %1 by %2`,
-                    args0: [{
-                        type: "field_dropdown",
-                        name: "DIRECTION",
-                        options: [
-                            [
-                                "Clockwise",
-                                "clockwise"
-                            ],
-                            [
-                                "Counter Clockwise",
-                                "counterclockwise"
-                            ]
-                        ]
-                    },{
-                        type: 'input_value',
-                        name: 'DEG'
-                    }],
-                    inputsInline: true,
-                    previousStatement: null,
-                    nextStatement: null
-                };
-            },
-            javascript: (ui) => {
-                return function (block) {
-                    let deg = parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
-                        code;
-                    direction = direction === 'clockwise' ? '' : '-';
-                    code = `devices.get('${ui.id}').rotate(${direction}${deg});\n`;
-                    return code;
-                };
-            },
-            pseudo: (ui) => {
-                return function (block) {
-                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
-                        code;
-                    direction = direction === 'clockwise' ? 'clockwise' : 'counter clockwise';
-                    code = `${ui.id}.rotate('${direction}', ${deg});\n`;
-                    return code;
-                };
-            }
-        });
-        this.blocks.push({
-            block: (ui) => {
-                return {
-                    id: 'ui_scale',
-                    message0: `scale ${ui.name} %1 by %2`,
-                    args0: [{
-                        type: "field_dropdown",
-                        name: "DIRECTION",
-                        options: [
-                            [
-                                "Up",
-                                "up"
-                            ],
-                            [
-                                "Down",
-                                "down"
-                            ]
-                        ]
-                    },{
-                        type: 'input_value',
-                        name: 'FACTOR'
-                    }],
-                    inputsInline: true,
-                    previousStatement: null,
-                    nextStatement: null
-                };
-            },
-            javascript: (ui) => {
-                return function (block) {
-                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
-                        code;
-                    direction = direction === 'up' ? '' : '-';
-                    code = `devices.get('${ui.id}').scale(${direction}${factor});\n`;
-                    return code;
-                };
-            },
-            pseudo: (ui) => {
-                return function (block) {
-                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
-                        code;
-                    code = `${ui.id}.scale('${direction}', ${factor});\n`;
+                        code = `${ui.id}.moveTo(${x}, ${y});\n`;
                     return code;
                 };
             }
@@ -218,7 +279,7 @@ export default class UI extends Part {
             pseudo: (ui) => {
                 return function (block) {
                     let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
-                        code = `${ui.id}.x = ${x};\n`;
+                        code = `${ui.id}.setX(${x});\n`;
                     return code;
                 };
             }
@@ -247,7 +308,7 @@ export default class UI extends Part {
             pseudo: (ui) => {
                 return function (block) {
                     let y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
-                        code = `${ui.id}.y = ${y};\n`;
+                        code = `${ui.id}.setY(${y});\n`;
                     return code;
                 };
             }
@@ -316,6 +377,46 @@ export default class UI extends Part {
                 };
             }
         });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_x',
+                    message0: `${ui.name} x position`,
+                    output: 'Number',
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getX()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.x`];
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_y',
+                    message0: `${ui.name} y position`,
+                    output: 'Number',
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getY()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.y`];
+                };
+            }
+        });
+
+
     }
     toJSON () {
         let plain = super.toJSON.call(this);
