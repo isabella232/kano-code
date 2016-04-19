@@ -9,11 +9,12 @@ import Map from './map';
 import ISS from './data/space/iss';
 import Weather from './data/weather/weather';
 import Share from './data/kano/share';
+import Image from './image';
 
 let part,
     partTypes;
 
-export default part = [Button, Frame, TextInput, Label, Map, ISS, Weather, Share];
+export default part = [Button, Frame, TextInput, Label, Map, ISS, Weather, Share, Image];
 
 partTypes = {
     'ui': UI,
