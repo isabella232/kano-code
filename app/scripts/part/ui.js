@@ -1,3 +1,4 @@
+/* globals Blockly */
 import Part from './part';
 
 const STYLE_CONF = {
@@ -271,14 +272,14 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'X')) || 0,
+                    let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                         code = `devices.get('${ui.id}').setX(${x});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
+                    let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
                         code = `${ui.id}.setX(${x});\n`;
                     return code;
                 };
@@ -300,14 +301,14 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let y = parseInt(Blockly.JavaScript.valueToCode(block, 'Y')) || 0,
+                    let y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
                         code = `devices.get('${ui.id}').setY(${y});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
+                    let y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
                         code = `${ui.id}.setY(${y});\n`;
                     return code;
                 };
@@ -382,7 +383,7 @@ export default class UI extends Part {
                 return {
                     id: 'ui_x',
                     message0: `${ui.name} x position`,
-                    output: 'Number',
+                    output: 'Number'
                 };
             },
             javascript: (ui) => {
@@ -401,7 +402,7 @@ export default class UI extends Part {
                 return {
                     id: 'ui_y',
                     message0: `${ui.name} y position`,
-                    output: 'Number',
+                    output: 'Number'
                 };
             },
             javascript: (ui) => {

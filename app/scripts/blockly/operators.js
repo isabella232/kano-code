@@ -140,15 +140,15 @@ let register = (Blockly) => {
         let min = Blockly.JavaScript.valueToCode(block, 'MIN') || 0,
             max = Blockly.JavaScript.valueToCode(block, 'MAX') || 0,
             type = Blockly.JavaScript.valueToCode(block, 'TYPE'),
-            code = `math.random(${min}, ${max}, ${type === 'float'}})`;
-        return code;
+            code = `math.random(${min}, ${max}, ${type === 'float'})`;
+        return [code];
     };
 
     Blockly.Pseudo.math_random = (block) => {
-        let min = Blockly.JavaScript.valueToCode(block, 'MIN') || 0,
-            max = Blockly.JavaScript.valueToCode(block, 'MAX') || 100,
+        let min = Blockly.Pseudo.valueToCode(block, 'MIN') || 0,
+            max = Blockly.Pseudo.valueToCode(block, 'MAX') || 100,
             code = `random(${min}, ${max})`;
-        return code;
+        return [code];
     };
 
     Blockly.Pseudo.math_single = (block) => {

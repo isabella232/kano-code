@@ -1,4 +1,4 @@
-/* globasl Blockly */
+/* globals Blockly */
 
 let image;
 
@@ -9,6 +9,11 @@ export default image = {
     image: '/assets/part/picture-icon.png',
     colour: '#E73544',
     customizable: {
+        properties: [{
+            key: 'src',
+            type: 'image',
+            label: 'Image'
+        }],
         style: ['width', 'height']
     },
     userStyle: {
@@ -64,48 +69,6 @@ export default image = {
             return function () {
                 let code = `${ui.id}.source`;
                 return [code];
-            };
-        }
-    },{
-        block: (ui) => {
-            return {
-                id: 'to_grayscale',
-                message0: `convert ${ui.name} to grayscale`,
-                previousStatement: null,
-                nextStatement: null
-            };
-        },
-        javascript: (ui) => {
-            return function () {
-                let code = `devices.get('${ui.id}').toGrayscale();\n`;
-                return code;
-            };
-        },
-        pseudo: (ui) => {
-            return function () {
-                let code = `${ui.id}.toGrayscale();\n`;
-                return code;
-            };
-        }
-    },{
-        block: (ui) => {
-            return {
-                id: 'blur',
-                message0: `blur ${ui.name}`,
-                previousStatement: null,
-                nextStatement: null
-            };
-        },
-        javascript: (ui) => {
-            return function () {
-                let code = `devices.get('${ui.id}').blur();\n`;
-                return code;
-            };
-        },
-        pseudo: (ui) => {
-            return function () {
-                let code = `${ui.id}.blur();\n`;
-                return code;
             };
         }
     }]

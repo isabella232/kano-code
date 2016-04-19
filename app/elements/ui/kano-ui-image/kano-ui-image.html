@@ -10,8 +10,8 @@
     }
     </style>
     <template>
-
         <iron-image id="image"
+                    src="[[model.userProperties.src]]"
                     style$="[[computeImageStyle(model.userStyle.*)]]"
                     sizing="cover"></iron-image>
     </template>
@@ -28,9 +28,18 @@
 
         beforeRegister () {
             this.is = 'kano-ui-image';
+            this.observers = [
+                'onPropertiesChange(model.userProperties.*)'
+            ];
         }
-        drawPicture (pic) {
-            this.$.image.src = pic;
+        setImage (pic) {
+            this.set('model.userProperties.src', pic);
+        }
+        getSource () {
+            return this.get('model.userProperties.src');
+        }
+        onPropertiesChange () {
+
         }
         computeImageStyle () {
             return this.getPartialStyle(['width', 'height']);
