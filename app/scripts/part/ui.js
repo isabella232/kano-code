@@ -97,22 +97,9 @@ export default class UI extends Part {
         this.blocks.push({
             block: (ui) => {
                 return {
-                    id: 'ui_rotate',
-                    message0: `turn ${ui.name} %1 by %2`,
+                    id: 'ui_rotate_clockwise',
+                    message0: `turn \u21BB ${ui.name} %1 degrees`,
                     args0: [{
-                        type: "field_dropdown",
-                        name: "DIRECTION",
-                        options: [
-                            [
-                                "Clockwise",
-                                "clockwise"
-                            ],
-                            [
-                                "Counter Clockwise",
-                                "counterclockwise"
-                            ]
-                        ]
-                    },{
                         type: 'input_value',
                         name: 'DEG'
                     }],
@@ -124,20 +111,47 @@ export default class UI extends Part {
             javascript: (ui) => {
                 return function (block) {
                     let deg = parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
                         code;
-                    direction = direction === 'clockwise' ? '' : '-';
-                    code = `devices.get('${ui.id}').rotate(${direction}${deg});\n`;
+                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
                     let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
                         code;
-                    direction = direction === 'clockwise' ? 'clockwise' : 'counter clockwise';
-                    code = `${ui.id}.rotate('${direction}', ${deg});\n`;
+                    code = `${ui.id}.turnClockwise(${deg});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_rotate_counter_clockwise',
+                    message0: `turn \u21BA ${ui.name} %1 degrees`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'DEG'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let deg = -1 * parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
+                        code;
+                    code = `${ui.id}.turnCounterClockwise(${deg});\n`;
                     return code;
                 };
             }
