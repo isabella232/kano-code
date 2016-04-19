@@ -50,6 +50,10 @@
 
 <script type="text/javascript">
     /* globals Polymer */
+
+    const IMAGE_PADDING = 20;
+    const DEFAULT_BACKGROUND = '#CCC';
+
     class KanoUiItem {
         beforeRegister () {
             this.is = 'kano-ui-item';
@@ -77,10 +81,10 @@
             return this.model.name || this.model.label;
         }
         computeContainerStyle (selected) {
-            let colour = selected ? this.model.colour : '#CCC';
+            let colour = selected ? this.model.colour : DEFAULT_BACKGROUND;
             return `background-color: ${colour};
-                    width: ${this.size + 20}px;
-                    height: ${this.size + 20}px;`;
+                    width: ${this.size + IMAGE_PADDING}px;
+                    height: ${this.size + IMAGE_PADDING}px;`;
         }
     }
     Polymer(KanoUiItem);

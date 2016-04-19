@@ -8,7 +8,7 @@
         display: block;
         position: relative;
         @apply(--layout-vertical);
-        background-color: var(--color-black, black);
+        background-color: var(--color-dark, black);
     }
     :host .content {
         @apply(--layout-horizontal);
@@ -80,21 +80,38 @@
     :host .add-part-button:hover {
         cursor: pointer;
     }
+    :host .background-item {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        color: white;
+    }
+    :host .background-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: var(--color-white, white);
+    }
     </style>
     <template>
         <div class="content">
             <kano-carousel id="carousel">
                 <sortable-js id="parts-tray" class="parts">
+                    <div class="part">
+                        <kano-ui-item model="[[backgroundPart]]"
+                            on-tap="backgroundTapped"
+                            size="50"
+                            id="background"></kano-ui-item>
+                    </div>
                     <template is="dom-repeat"
                     items="{{parts}}"
                     as="part">
                     <div class="part">
                         <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                         <kano-ui-item model="[[part]]"
-                        selected="[[isSelected(part, selected)]]"
-                        on-tap="partTapped"
-                        size="50"
-                        id$="part-[[part.id]]"></kano-ui-item>
+                            selected="[[isSelected(part, selected)]]"
+                            on-tap="partTapped"
+                            size="50"
+                            id$="part-[[part.id]]"></kano-ui-item>
                         <iron-image src="/assets/icons/bin.svg" class="trash" sizing="contain" hidden$="[[!isSelected(part, selected)]]" on-tap="openDeleteModal"></iron-image>
                     </div>
                 </template>
@@ -169,6 +186,10 @@
             };
         }
         attached () {
+            this.backgroundPart = {
+                name: 'Background',
+                colour: 'orange'
+            };
             window.addEventListener('keyup', this.onKeyUp.bind(this));
         }
 
@@ -254,6 +275,10 @@
                 rect = e.target.getBoundingClientRect();
             this.selectPart(part);
             this.fire('part-tap', rect);
+        }
+        backgroundTapped (e) {
+            let rect = e.target.getBoundingClientRect();
+            this.fire('background-tap', rect);
         }
         selectPart (part) {
             this.$.selector.select(part);
