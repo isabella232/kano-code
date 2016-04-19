@@ -48,6 +48,7 @@
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
         @apply(--layout-start);
+        @apply(--layout-center-justified);
         @apply(--layout-flex);
         width: 100%;
     }
@@ -60,6 +61,7 @@
         @apply(--layout-stretch);
         font-size: 1.2em;
         margin: 20px;
+        width: calc(50% - 40px);
     }
     :host .code-trigger-title {
         @apply(--layout-horizontal);
@@ -72,6 +74,9 @@
         background-color: #263238;
         color: #aabbc3;
         font-family: monospace;
+    }
+    :host .code-trigger .separator {
+        overflow-x: hidden;
     }
     :host .code-action {
         font-size: 1em;
@@ -213,7 +218,7 @@
                                         <span>{{event.trigger}}</span>
                                         <button type="button" on-tap="editCode" class="edit-code-button">&gt;</button>
                                     </div>
-                                    <div>=======================================</div>
+                                    <div class="separator">=======================================</div>
                                 </div>
                                 <span class="code-action">
                                     <kano-pseudo-code code="[[event.snapshot.pseudo]]"></kano-pseudo-code>

@@ -384,8 +384,7 @@ class KanoAppEditor {
      */
     mouseMoved (e) {
         let leftPanel = this.$['left-panel'],
-            rightPanel = this.$['right-panel'],
-            container = this.$['section'],
+            container = this.$.section,
             offsetRightPanel,
             offsetLeftPanel;
 
@@ -398,7 +397,6 @@ class KanoAppEditor {
         offsetLeftPanel = Math.min(container.offsetWidth * 0.8, offsetLeftPanel);
         offsetRightPanel = container.offsetWidth - offsetLeftPanel;
         leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
-        //rightPanel.style.maxWidth = `${offsetRightPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
