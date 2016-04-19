@@ -69,11 +69,22 @@ class KanoAppEditor {
         };
     }
     openPartEditor (e) {
+        let controls = this.$['workspace-controls'].getBoundingClientRect();
+        this.$['part-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.partEditorTarget = e.detail;
         this.partEditorOpened = true;
     }
+    openBackgroundEditor (e) {
+        let controls = this.$['workspace-controls'].getBoundingClientRect();
+        this.$['background-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
+        this.backgroundEditorTarget = e.detail;
+        this.backgroundEditorOpened = true;
+    }
     closePartEditor () {
         this.partEditorOpened = false;
+    }
+    closeBackgroundEditor () {
+        this.backgroundEditorOpened = false;
     }
     backgroundChanged (e) {
         let property = e.path.split('.');
@@ -246,6 +257,7 @@ class KanoAppEditor {
     attached () {
         this.partsOpened = false;
         this.partEditorOpened = false;
+        this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;
         setTimeout(() => {
             this.triggerResize();
@@ -255,9 +267,13 @@ class KanoAppEditor {
         this.onWindowResize();
     }
     onWindowResize () {
-        let rect = this.$['left-panel'].getBoundingClientRect();
-        this.$['part-editor'].leftBound = rect.left + 10;
-        this.$['part-editor'].rightBound = rect.left + rect.width - 10;
+        let rect = this.$['left-panel'].getBoundingClientRect(),
+            partEditor = this.$['part-editor'],
+            backgroundEditor = this.$['background-editor'];
+        backgroundEditor.leftBound = rect.left + 10;
+        backgroundEditor.rightBound = rect.left + rect.width - 10;
+        partEditor.leftBound = rect.left + 10;
+        partEditor.rightBound = rect.left + rect.width - 10;
     }
     detached () {
         Part.clear();
@@ -395,6 +411,7 @@ class KanoAppEditor {
     }
     computePartEditorStyle () {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
+        console.log(controls);
         return `bottom: ${window.innerHeight - controls.top + 15}px`;
     }
 }
