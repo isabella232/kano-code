@@ -6,6 +6,8 @@
 <link rel="import" href="../kano-input-font-weight/kano-input-font-weight.html">
 <link rel="import" href="../kano-input-background/kano-input-background.html">
 <link rel="import" href="../kano-input-list/kano-input-list.html">
+<link rel="import" href="../kano-input-toggle/kano-input-toggle.html">
+<link rel="import" href="../kano-input-image/kano-input-image.html">
 
 <dom-module id="kano-input">
     <style>
@@ -40,6 +42,10 @@
             input.min = this.min;
             input.max = this.max;
             input.options = this.options;
+
+            input.addEventListener('value-changed', (e) => {
+                this.notifyPath('value', e.detail.value);
+            });
 
             this.input = input;
             while (this.firstChild) {

@@ -31,7 +31,7 @@
                 <kano-input type="{{property.type}}"
                         name="name"
                         label="{{property.label}}"
-                        on-change="propertyChanged"
+                        on-value-changed="propertyChanged"
                         value$="[[computeValue(property.key)]]"
                         min="[[property.min]]"
                         max="[[property.max]]">
@@ -59,7 +59,7 @@
         }
         propertyChanged (e) {
             let propertyName = e.model.get('property.key');
-            this.set(`userValues.${propertyName}`, e.target.value);
+            this.set(`userValues.${propertyName}`, e.detail.value);
         }
         computeValue (propertyName) {
             return this.userValues[propertyName];
