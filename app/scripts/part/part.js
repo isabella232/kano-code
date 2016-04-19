@@ -33,9 +33,9 @@ export default class Part {
         this.description = opts.description;
         this.image = opts.image;
         this.colour = opts.colour;
-        this.blocks = opts.blocks || [];
-        this.events = opts.events || [];
-        this.listeners = opts.listeners || [];
+        this.blocks = Array.isArray(opts.blocks) ? opts.blocks.slice(0) : [];
+        this.events = Array.isArray(opts.events) ? opts.listeners.slice(0) : [];
+        this.listeners = Array.isArray(opts.listeners) ? opts.listeners.slice(0) : [];
         this.codes = {};
         this.userStyle = Object.assign({}, opts.userStyle);
         this.userProperties = Object.assign({}, opts.userProperties);
