@@ -28,14 +28,14 @@ let register = (Blockly) => {
         let arg1 = Blockly.JavaScript.valueToCode(block, 'ARG1') || 0,
             arg2 = Blockly.JavaScript.valueToCode(block, 'ARG2') || 0,
             code = `Math.max(${arg1}, ${arg2})`;
-        return code;
+        return [code];
     };
 
     Blockly.Pseudo.math_max = (block) => {
-        let arg1 = Blockly.JavaScript.valueToCode(block, 'ARG1') || 0,
-            arg2 = Blockly.JavaScript.valueToCode(block, 'ARG2') || 0,
+        let arg1 = Blockly.Pseudo.valueToCode(block, 'ARG1') || 0,
+            arg2 = Blockly.Pseudo.valueToCode(block, 'ARG2') || 0,
             code = `maximum(${arg1}, ${arg2})`;
-        return code;
+        return [code];
     };
 
     /* --- min(x, y) */
@@ -65,14 +65,14 @@ let register = (Blockly) => {
         let arg1 = Blockly.JavaScript.valueToCode(block, 'ARG1') || 0,
             arg2 = Blockly.JavaScript.valueToCode(block, 'ARG2') || 0,
             code = `Math.min(${arg1}, ${arg2})`;
-        return code;
+        return [code];
     };
 
     Blockly.Pseudo.math_min = (block) => {
-        let arg1 = Blockly.JavaScript.valueToCode(block, 'ARG1') || 0,
-            arg2 = Blockly.JavaScript.valueToCode(block, 'ARG2') || 0,
+        let arg1 = Blockly.Pseudo.valueToCode(block, 'ARG1') || 0,
+            arg2 = Blockly.Pseudo.valueToCode(block, 'ARG2') || 0,
             code = `minimum(${arg1}, ${arg2})`;
-        return code;
+        return [code];
     };
 
     /* --- sign(x) */
@@ -101,7 +101,7 @@ let register = (Blockly) => {
     };
 
     Blockly.Pseudo.math_sign = (block) => {
-        let arg = Blockly.JavaScript.valueToCode(block, 'ARG'),
+        let arg = Blockly.Pseudo.valueToCode(block, 'ARG'),
             code = `sign(${arg})`;
         return [code];
     };
@@ -140,15 +140,15 @@ let register = (Blockly) => {
         let min = Blockly.JavaScript.valueToCode(block, 'MIN') || 0,
             max = Blockly.JavaScript.valueToCode(block, 'MAX') || 0,
             type = Blockly.JavaScript.valueToCode(block, 'TYPE'),
-            code = `math.random(${min}, ${max}, ${type === 'float'}})`;
-        return code;
+            code = `math.random(${min}, ${max}, ${type === 'float'})`;
+        return [code];
     };
 
     Blockly.Pseudo.math_random = (block) => {
-        let min = Blockly.JavaScript.valueToCode(block, 'MIN') || 0,
-            max = Blockly.JavaScript.valueToCode(block, 'MAX') || 100,
+        let min = Blockly.Pseudo.valueToCode(block, 'MIN') || 0,
+            max = Blockly.Pseudo.valueToCode(block, 'MAX') || 100,
             code = `random(${min}, ${max})`;
-        return code;
+        return [code];
     };
 
     Blockly.Pseudo.math_single = (block) => {
