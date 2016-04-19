@@ -4,50 +4,83 @@
     :host {
         position: relative;
         display: block;
-        @apply(--layout-horizontal);
-        padding: 5px 5px 5px 35px;
-        @apply(--kano-shadow);
+        margin-right: 5px;
+    }
+    :host .triangle {
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 20px solid #505760;
+
+        position: absolute;
+        right: 20px
     }
     :host .content {
-        @apply(--layout-vertical);
-        @apply(--layout-start);
+        /*@apply(--layout-vertical);
+        @apply(--layout-start);*/
+        border-radius: 5px;
+
+        margin-top: 20px;
+        @apply(--shadow-elevation-6dp);
+    }
+    :host .content .head {
+        background: #505760;
+        margin: 0px;
+        padding: 20px;
+        color: white;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+    }
+    :host .content .head .title {
+        padding-top: 5px;
+        font-size: 1.4em;
     }
     :host .trigger {
         @apply(--layout-horizontal);
         @apply(--layout-justified);
-        padding: 15px 5px 15px;
-        font-size: 1.4em;
+        padding: 15px 15px 15px;
+        font-size: 1.0em;
     }
     :host .trigger iron-image {
         margin-right: 15px;
     }
     :host .trigger:hover {
+        background-color: #e5e5e5;
         cursor: pointer;
     }
     :host .trigger:not(:last-of-type) {
         border-bottom: 1px solid var(--color-grey-light, grey);
     }
+    :host .trigger:last-of-type {
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
     :host .triggers {
+        background: var(--color-white, white);
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
         @apply(--layout-vertical);
         @apply(--layout-center-justified);
         @apply(--layout-flex);
     }
-    :host .title {
-        padding-top: 15px;
-        font-size: 1.4em;
-        font-weight: 600;
-    }
     </style>
     <template>
-        <div class="title">Select a Trigger:</div>
-        <div class="triggers">
-            <template is="dom-repeat" items="{{computeTriggers(parts.*)}}" as="trigger">
-                <div class="trigger"
-                    on-tap="selectTrigger">
-                    <span>[[trigger.text]]</span>
-                    <span>&gt;</span>
-                </div>
-            </template>
+        <div class="triangle"></div>
+        <div class="content">
+            <div class="head">
+                <div class="title">Write New Code</div>
+                <div class="subtitle">Select a Trigger</div>
+            </div>
+            <div class="triggers">
+                <template is="dom-repeat" items="{{computeTriggers(parts.*)}}" as="trigger">
+                    <div class="trigger"
+                        on-tap="selectTrigger">
+                        <span>[[trigger.text]]</span>
+                        <span>&gt;</span>
+                    </div>
+                </template>
+            </div>
         </div>
     </template>
 </dom-module>

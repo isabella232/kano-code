@@ -1,4 +1,5 @@
 /* globals Blockly */
+
 import Part from './part';
 
 const STYLE_CONF = {
@@ -82,14 +83,14 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'pixels')) || 0,
+                    let x = Blockly.JavaScript.valueToCode(block, 'pixels') || 0,
                         code = `devices.get('${ui.id}').moveAlong(${x});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'pixels')) || 0,
+                    let x = Blockly.Pseudo.valueToCode(block, 'pixels') || 0,
                         code = `${ui.id}.move(${x});\n`;
                     return code;
                 };
@@ -111,7 +112,7 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let deg = parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
+                    let deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
                         code;
                     code = `devices.get('${ui.id}').rotate(${deg});\n`;
                     return code;
@@ -119,7 +120,7 @@ export default class UI extends Part {
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
+                    let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
                         code;
                     code = `${ui.id}.turnClockwise(${deg});\n`;
                     return code;
@@ -142,15 +143,15 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let deg = -1 * parseInt(Blockly.JavaScript.valueToCode(block, 'DEG')) || 0,
+                    let deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
                         code;
-                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
+                    code = `devices.get('${ui.id}').rotate(-1 * ${deg});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let deg = parseInt(Blockly.Pseudo.valueToCode(block, 'DEG')) || 0,
+                    let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
                         code;
                     code = `${ui.id}.turnCounterClockwise(${deg});\n`;
                     return code;
@@ -173,7 +174,7 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
+                    let factor = Blockly.JavaScript.valueToCode(block, 'FACTOR') || 0,
                         code;
                     code = `devices.get('${ui.id}').scale(${factor});\n`;
                     return code;
@@ -181,8 +182,7 @@ export default class UI extends Part {
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
+                    let factor = Blockly.Pseudo.valueToCode(block, 'FACTOR') || 0,
                         code;
                     code = `${ui.id}.setSizeTo(${factor});\n`;
                     return code;
@@ -205,7 +205,7 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let factor = parseInt(Blockly.JavaScript.valueToCode(block, 'FACTOR')) || 0,
+                    let factor = Blockly.JavaScript.valueToCode(block, 'FACTOR') || 0,
                         code;
                     code = `devices.get('${ui.id}').resize(${factor});\n`;
                     return code;
@@ -213,8 +213,7 @@ export default class UI extends Part {
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let factor = parseInt(Blockly.Pseudo.valueToCode(block, 'FACTOR')) || 0,
-                        direction = block.getFieldValue('DIRECTION'),
+                    let factor = Blockly.Pseudo.valueToCode(block, 'FACTOR') || 0,
                         code;
                     code = `${ui.id}.changeSizeBy(${factor});\n`;
                     return code;
@@ -241,16 +240,16 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'X')) || 0,
-                        y = parseInt(Blockly.JavaScript.valueToCode(block, 'Y')) || 0,
+                    let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
+                        y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
                         code = `devices.get('${ui.id}').setXY(${x},${y});\n`;
                     return code;
                 };
             },
             pseudo: (ui) => {
                 return function (block) {
-                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
-                        y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
+                    let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
+                        y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
                         code = `${ui.id}.moveTo(${x}, ${y});\n`;
                     return code;
                 };
