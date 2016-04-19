@@ -473,9 +473,12 @@
                     };
                 });
 
-                toolbox = categories
-                    .concat(this.defaultCategories || [])
-                    .filter((category) => category.blocks.length);
+                categories = categories || [];
+                categories = categories.filter((category) => category.blocks.length);
+
+                toolbox = this.defaultCategories
+                    .concat({ type: 'separator' })
+                    .concat(categories);
                 this.set('toolbox', toolbox);
             }, 500);
         }

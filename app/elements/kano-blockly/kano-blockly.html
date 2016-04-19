@@ -142,6 +142,9 @@
             }
             let xml,
                 categoriesXml = this.toolbox.map((category) => {
+                    if (category.type === 'separator') {
+                        return '<sep gap="8"></sep>';
+                    }
                     let blocksXml = category.blocks.map((block) => {
                         return `<block type="${block.id}"></block>`;
                     }).join(''),
