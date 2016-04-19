@@ -223,6 +223,41 @@ export default class UI extends Part {
         this.blocks.push({
             block: (ui) => {
                 return {
+                    id: 'ui_set_x_y',
+                    message0: `move ${ui.name} to x %1, y %2`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'X'
+                    },
+                    {
+                        type: 'input_value',
+                        name: 'Y'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let x = parseInt(Blockly.JavaScript.valueToCode(block, 'X')) || 0,
+                        y = parseInt(Blockly.JavaScript.valueToCode(block, 'Y')) || 0,
+                        code = `devices.get('${ui.id}').setXY(${x},${y});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
+                        y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
+                        code = `${ui.id}.moveTo(${x}, ${y});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
                     id: 'ui_set_x',
                     message0: `set ${ui.name} x to %1`,
                     args0: [{
