@@ -377,6 +377,46 @@ export default class UI extends Part {
                 };
             }
         });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_x',
+                    message0: `${ui.name} x position`,
+                    output: 'Number',
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getX()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.x`];
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_y',
+                    message0: `${ui.name} y position`,
+                    output: 'Number',
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getY()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.y`];
+                };
+            }
+        });
+
+
     }
     toJSON () {
         let plain = super.toJSON.call(this);
