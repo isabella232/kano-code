@@ -70,6 +70,12 @@ window.KanoBehaviors.UIBehavior = {
         this.set('model.scale', savedState.scale);
         this.set('model.visible', savedState.visible);
     },
+    moveAlong(distance) {
+        let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
+            alongY = Math.round(parseInt(distance) * Math.sin(direction)),
+            alongX = Math.round(parseInt(distance) * Math.cos(direction));
+        this.move(alongX, alongY);
+    },
     move (x, y) {
         let position = this.model.position;
         // Set separate values otherwise, the reference is compared and
@@ -77,11 +83,21 @@ window.KanoBehaviors.UIBehavior = {
         this.set('model.position.x', position.x + x);
         this.set('model.position.y', position.y + y);
     },
+    setXY (x, y) {
+        let pos = {x: x, y: y};
+        this.set('model.position', pos);
+    },
     setX (x) {
         this.set('model.position.x', x);
     },
     setY (y) {
         this.set('model.position.y', y);
+    },
+    getX () {
+        return this.get('model.position.x');
+    },
+    getY () {
+        return this.get('model.position.y');
     },
     rotate (deg) {
         let rotation = this.model.rotation;
@@ -89,6 +105,10 @@ window.KanoBehaviors.UIBehavior = {
     },
     scale (factor) {
         this.set('model.scale', factor);
+    },
+    resize (factor) {
+        let curFactor = this.get('model.scale') || 100;
+        this.set('model.scale', curFactor * factor / 100);
     },
     show (visibility) {
         this.set('model.visible', visibility);
@@ -102,7 +122,7 @@ window.KanoBehaviors.UIBehavior = {
         }
         let position = this.model.position || { x: 0, y: 0 },
             rotation = this.model.rotation || 0,
-            scale = this.model.scale || 1,
+            scale = this.model.scale / 100 || 1,
             transform,
             visibility;
         transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
