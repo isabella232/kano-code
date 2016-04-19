@@ -1,5 +1,7 @@
 /* globals Polymer, KanoBehaviors, interact, Part */
 
+const TOOLTIP_PADDING = 10;
+
 class KanoAppEditor {
 
     get behaviors () {
@@ -270,10 +272,10 @@ class KanoAppEditor {
         let rect = this.$['left-panel'].getBoundingClientRect(),
             partEditor = this.$['part-editor'],
             backgroundEditor = this.$['background-editor'];
-        backgroundEditor.leftBound = rect.left + 10;
-        backgroundEditor.rightBound = rect.left + rect.width - 10;
-        partEditor.leftBound = rect.left + 10;
-        partEditor.rightBound = rect.left + rect.width - 10;
+        backgroundEditor.leftBound = rect.left + TOOLTIP_PADDING;
+        backgroundEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
+        partEditor.leftBound = rect.left + TOOLTIP_PADDING;
+        partEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
     }
     detached () {
         Part.clear();
