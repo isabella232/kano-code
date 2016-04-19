@@ -7,11 +7,13 @@
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
 <link rel="import" href="../kano-part-editor/kano-part-editor.html">
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
+<link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-app-editor">
     <style>
     :host {
+        position: relative;
         display: block;
         @apply(--layout-vertical);
     }
@@ -38,7 +40,7 @@
     :host .ui-edition kano-workspace-controls {
         min-height: 200px;
     }
-    :host kano-part-editor {
+    :host kano-root-view {
         @apply(--layout-flex);
     }
     :host kano-sidebar {
@@ -48,7 +50,7 @@
         bottom: 0px;
         right: 0px;
         left: 0px;
-        background-color: rgba(0, 0, 0, 0.55);
+        background-color: rgba(0, 0, 0, 0.7);
         opacity: 1;
         visibility: visible;
         transition: opacity linear 200ms;
@@ -66,8 +68,14 @@
         cursor: ew-resize;
     };
     :host .editor {
+        position: relative;
         @apply(--layout-flex);
         @apply(--layout-vertical);
+    }
+    :host .root-view-wrapper {
+        position: relative;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
     }
     :host .controls {
         margin: 20px 0px 20px;
@@ -78,8 +86,8 @@
     :host .controls button {
         @apply(--kano-button-big);
     }
-    :host .add-part-button {
-        background: var(--color-green, green);
+    :host .share-button {
+        background: var(--blue-gradient, blue);
     }
     :host .make-button {
         background: var(--color-orange, orange);
@@ -87,35 +95,37 @@
     :host .make-button-running {
         background: var(--color-red, orange);
     }
+    :host kano-part-editor {
+        @apply(--shadow-elevation-16dp);
+        position: absolute;
+        top: 70px;
+        bottom: 10px;
+        min-width: 300px;
+        min-height: 100px;
+    }
+
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <iron-pages class="blocks-edition"
-                attr-for-selected="name"
-                selected="[[leftPanelView]]"
-                hidden$="[[!leftViewOpened]]"
-                id="left-panel">
-                <!--TODO rename ui-elements to parts-->
-                <kano-background-editor id="background-editor" background="{{background}}" name="background" on-previous="previous"></kano-background-editor>
-                <div name="code" class="editor">
-                    <kano-part-editor
-                        id="part-editor"
-                        on-previous="previous"
-                        parts="{{addedParts}}"
-                        codes="{{codes}}"
-                        selected="{{selected}}"
-                        default-categories="{{defaultCategories}}"></kano-part-editor>
-                    <kano-workspace-controls
-                        id="workspace-controls"
-                        parts="{{addedParts}}"
-                        opened="[[partsOpened]]"
-                        running="{{running}}"
-                        selected="{{selected}}"
-                        codes="{{codes}}"
-                        on-share-tap="share"
-                        on-remove-part="removePart"></kano-workspace-controls>
-                </div>
-            </iron-pages>
+            <kano-background-editor hidden id="background-editor" background="{{background}}" name="background" on-previous="previous"></kano-background-editor>
+            <div name="code" class="editor" id="left-panel">
+                <kano-root-view
+                    id="part-editor"
+                    on-previous="previous"
+                    parts="{{addedParts}}"
+                    codes="{{codes}}"
+                    default-categories="{{defaultCategories}}"></kano-root-view>
+                <kano-workspace-controls
+                    id="workspace-controls"
+                    parts="{{addedParts}}"
+                    opened="[[partsOpened]]"
+                    running="{{running}}"
+                    selected="{{selected}}"
+                    codes="{{codes}}"
+                    on-part-tap="openPartEditor"
+                    on-add-part-tap="openParts"
+                    on-remove-part="removePart"></kano-workspace-controls>
+            </div>
             <div class="ui-edition" id="right-panel" style$="[[computeBackground(background.userStyle.*)]]">
                 <div id="resize" on-mousedown="resizeWorkspace"></div>
                 <kano-workspace id="workspace"
@@ -124,13 +134,14 @@
                                 selected="{{selected}}"
                                 running="{{running}}"></kano-workspace>
                 <div class="controls">
-                    <button type="button" class="add-part-button" on-tap="openParts">Add Part</button>
+                    <button type="button" class="share-button" on-tap="share">Share</button>
                     <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning">{{getMakeButtonLabel(running)}}</button>
                 </div>
                 <kano-cover-generator id="image_generator"
                     element-name="kano-workspace"></kano-cover-generator>
             </div>
         </section>
+        <kano-part-editor id="part-editor" selected="{{selected}}" style$="[[computePartEditorStyle(partEditorTarget)]]" target="[[partEditorTarget]]" hidden$="[[!partEditorOpened]]" on-close="closePartEditor"></kano-part-editor>
         <template is="dom-if" if="[[partsOpened]]" restamp>
             <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts"></kano-sidebar>
         </template>

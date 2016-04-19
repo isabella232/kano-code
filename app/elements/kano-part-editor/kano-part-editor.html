@@ -4,62 +4,127 @@
     <style>
     :host {
         display: block;
+        position: relative;
+        border-radius: 6px;
+    }
+    :host .content {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        z-index: 0;
+        overflow-y: auto;
+        position: relative;
+        background-color: var(--color-grey-mid, grey);
+        @apply(--layout-vertical);
+    }
+    :host iron-pages {
+        @apply(--layout-flex);
         @apply(--layout-vertical);
     }
     :host kano-ui-editor,
     :host kano-data-editor {
+        overflow-y: auto;
+        height: 100%;
         @apply(--layout-flex);
+    }
+    :host header h1 {
+        margin-left: 20px;
+        font-weight: 200;
+    }
+    :host header {
+        height: 60px;
+        @apply(--layout-horizontal);
+        @apply(--layout-start-justified);
+        @apply(--layout-center);
+        color: var(--color-white, white);
+    }
+    :host .close-button {
+        font-weight: 100 !important;
+        @apply(--kano-icon-button);
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 3em;
+        line-height: 0.9em;
+        color: var(--color-white, white);
+    }
+    :host .close-button:hover {
+        cursor: pointer;
+    }
+    :host .triangle {
+        position: absolute;
+        top: 100%;
+        border: 20px solid transparent;
+        border-top: 15px solid var(--color-grey-mid, grey);
+    }
+    :host .overlay {
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        background-color: transparent;
     }
     </style>
     <template>
-        <template is="dom-if" if="[[isModelType(selected, 'ui')]]">
-            <kano-ui-editor id="ui-editor"
-                            parts="{{parts}}"
-                            selected="{{selected}}"
-                            background="{{background}}"
-                            default-categories="{{defaultCategories}}"
-                            codes="{{codes}}"></kano-ui-editor>
-        </template>
-        <template is="dom-if" if="[[isModelType(selected, 'data')]]">
-            <kano-data-editor id="data-editor" selected="{{selected}}"></kano-data-editor>
-        </template>
+        <div class="overlay" on-tap="close"></div>
+        <div class="content">
+            <header style$="[[computeHeaderStyle(selected)]]">
+                <h1>[[selected.name]]</h1>
+                <button type="button" class="close-button" on-tap="close">&times;</button>
+            </header>
+            <iron-pages selected="[[selected.partType]]" attr-for-selected="name">
+                <kano-ui-editor id="ui-editor" selected="{{selected}}" name="ui"></kano-ui-editor>
+                <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
+            </iron-pages>
+        </div>
+        <div class="triangle" style$="left: [[caretLeft]]px"></div>
     </template>
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer */
+
+    const CARET_WIDTH = 20;
 
     class KanoPartEditor {
 
         beforeRegister () {
             this.is = 'kano-part-editor';
             this.properties = {
-                parts: {
-                    type: Array,
-                    notify: true
-                },
                 selected: {
                     type: Object,
                     notify: true
                 },
-                defaultCategories: {
-                    type: Array,
-                    value: () => []
+                target: {
+                    type: Number,
+                    value: 0
                 },
-                codes: {
-                    type: Object,
-                    notify: true
+                leftBound: {
+                    type: Number
                 },
-                background: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            name: 'My app',
-                            userStyle: {}
-                        };
-                    },
-                    notify: true
+                rightBound: {
+                    type: Number
                 }
             };
+            this.observers = [
+                'updateStyle(target, leftBound, rightBound)'
+            ];
+        }
+        updateStyle () {
+            // Let the external styles be applied before
+            this.async(() => {
+                let rect = this.getBoundingClientRect(),
+                    target = this.target,
+                    center = target.left + (target.width / 2),
+                    left = center - (rect.width / 2);
+                if (left + rect.width > this.rightBound) {
+                    left += this.rightBound - (left + rect.width);
+                }
+                left = Math.max(this.leftBound, left);
+                this.style.marginLeft = `${left}px`;
+                this.style.maxWidth = `${this.rightBound - this.leftBound}px`;
+                this.caretLeft = center - left - CARET_WIDTH;
+            });
         }
         isModelType (selected, type) {
             if (!selected && type === 'ui') {
@@ -87,6 +152,15 @@
                 return;
             }
             uiEditor.showPage(page);
+        }
+        close () {
+            this.fire('close');
+        }
+        computeHeaderStyle (part) {
+            if (!part) {
+                return;
+            }
+            return `background: ${part.colour};`;
         }
     }
     Polymer(KanoPartEditor);

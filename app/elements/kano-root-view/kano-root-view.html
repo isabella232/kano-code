@@ -1,0 +1,522 @@
+<link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../kano-style/kano-style.html">
+<link rel="import" href="../kano-nav-header/kano-nav-header.html">
+<link rel="import" href="../kano-pseudo-code/kano-pseudo-code.html">
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-root-view">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        background-color: var(--color-grey-mid, grey);
+    }
+    :host .content,
+    :host iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        position: relative;
+    }
+    :host .code-editor {
+        position: relative;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    :host kano-blockly,
+    :host kano-code-editor {
+        @apply(--layout-flex);
+    }
+    :host .trigger {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: calc(50% - 40px);
+        padding: 10px;
+        font-size: 1.3em;
+        color: var(--color-white, white);
+        background-color: var(--color-red, red);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    :host .default {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--kano-dotted-background);
+    }
+    :host .default .code-list {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-start);
+        @apply(--layout-flex);
+        width: 100%;
+    }
+    :host .save button {
+        background: var(--green-gradient, green);
+    }
+    :host .saved-code {
+        @apply(--shadow-elevation-2dp);
+        @apply(--layout-vertical);
+        @apply(--layout-stretch);
+        font-size: 1.2em;
+        margin: 20px;
+    }
+    :host .code-trigger {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-justified);
+        padding: 5px 10px;
+        background-color: var(--color-grey-light, grey);
+    }
+    :host .code-action {
+        font-size: 1em;
+    }
+    :host .code-action kano-pseudo-code {
+        padding: 10px;
+    }
+    :host .trigger-select {
+        text-align: center;
+        @apply(--kano-dotted-background);
+        @apply(--layout-flex);
+    }
+    :host .back {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        background-color: transparent;
+        border: 0px;
+        width: 100%;
+        height: 100%;
+    }
+    :host .back iron-image {
+        width: 10px;
+        height: 15px;
+    }
+    :host .back:hover {
+        cursor: pointer;
+    }
+    :host .background {
+        padding: 25px;
+    }
+    :host .background input {
+        @apply(--kano-light-input);
+        font-size: 1.4em;
+    }
+    :host #back-button {
+        background: linear-gradient(90deg, #FF842A, rgba(193, 91, 0, 0.27));
+    }
+    :host #back-button:hover {
+        background: linear-gradient(90deg, #FF842A, rgba(193, 91, 0, 0.74));
+    }
+    :host .open-dropdown {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--kano-button-small);
+        width: 100%;
+        height: 100%;
+        box-shadow: 0px 0px;
+        background: var(--green-gradient, green);
+    }
+    :host .open-dropdown .rotating-button {
+        width: 24px;
+        height: 24px;
+        transition: all ease-in-out 200ms;
+    }
+    :host .rotating-button {
+        width: 24px;
+        height: 24px;
+        position: relative;
+    }
+    :host .rotating-button .v-bar,
+    :host .rotating-button .h-bar {
+        background-color: white;
+        position: absolute;
+        transition: all ease-in-out 200ms;
+    }
+    :host .rotating-button .v-bar {
+        height: 100%;
+        width: 5px;
+        left: calc(50% - 2.5px);
+    }
+    :host .rotating-button .h-bar {
+        width: 100%;
+        height: 5px;
+        top: calc(50% - 2.5px);
+    }
+    :host .open-dropdown.opened .rotating-button {
+        transform: rotate(225deg);
+    }
+    :host .open-dropdown.opened .rotating-button .v-bar {
+        height: calc(50% + 2.5px);
+    }
+    :host .open-dropdown.opened .rotating-button .h-bar {
+        width: calc(50% + 2.5px);
+    }
+    :host kano-event-select {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        background: var(--color-white, white);
+    }
+    :host .edit-code-button {
+        @apply(--kano-icon-button);
+        margin-left: 5px;
+    }
+    :host .edit-code-button:hover {
+        cursor: pointer;
+    }
+    :host .edit-code-button iron-image {
+        width: 24px;
+        height: 24px;
+        transform: rotate(45deg);
+    }
+    :host .right-button {
+        @apply(--layout-vertical);
+    }
+    :host .right-button>div {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    </style>
+    <template>
+        <kano-nav-header id="navbar" title="[[title]]" on-previous="previous" back-enabled="[[isPageCode(selectedPage)]]">
+            <iron-pages attr-for-selected="name"
+                        selected="{{selectedPage}}"
+                        class="right-button">
+                <div name="default">
+                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]">
+                        <div class="rotating-button">
+                            <div class="v-bar"></div>
+                            <div class="h-bar"></div>
+                        </div>
+                    </button>
+                </div>
+                <div name="code">
+                    <button type="button" on-tap="doneEditing" class="open-dropdown">Done</button>
+                </div>
+            </iron-pages>
+        </kano-nav-header>
+        <div class="content">
+            <iron-pages
+                id="pages"
+                attr-for-selected="name"
+                selected="{{selectedPage}}">
+                <div class="default" name="default">
+                    <div class="code-list">
+                        <template is="dom-repeat"
+                                items="{{computeEventRules(codes.*)}}"
+                                as="event">
+                            <div class="saved-code">
+                                <div class="code-trigger">
+                                    <span>{{event.trigger}}</span>
+                                    <button type="button" on-tap="editCode" class="edit-code-button">
+                                        <iron-image src="/assets/icons/edit.png" sizing="contain"></iron-image>
+                                    </button>
+                                </div>
+                                <span class="code-action">
+                                    <kano-pseudo-code code="[[event.snapshot.pseudo]]"></kano-pseudo-code>
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div name="code" class="code-editor">
+                    <kano-blockly id="code-editor"
+                            toolbox="[[toolbox]]"
+                            code="{{code}}"
+                            on-change="saveCode"></kano-blockly>
+                    <div class="trigger">
+                        <span>{{trigger.text}}</span>
+                    </div>
+                </div>
+            </iron-pages>
+            <kano-event-select
+                hidden$="[[!eventSelectOpen]]"
+                parts="{{computeParts(parts.*)}}"
+                on-selected="triggerSelected"></kano-event-select>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors, Blockly */
+
+    class KanoRootView {
+
+        get behaviors () {
+            return [KanoBehaviors.AppEditorBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-root-view';
+            this.properties = {
+                trigger: {
+                    type: Object
+                },
+                parts: {
+                    type: Array,
+                    notify: true
+                },
+                toolbox: {
+                    type: Array
+                },
+                defaultCategories: {
+                    type: Array,
+                    value: () => []
+                },
+                selectedPage: {
+                    type: String,
+                    value: 'default'
+                },
+                code: {
+                    type: String,
+                    notify: true
+                },
+                codes: {
+                    type: Object,
+                    notify: true,
+                    value: () => {
+                        return {};
+                    }
+                },
+                title: {
+                    type: String
+                }
+            };
+            this.observers = [
+                'computeToolbox(parts.*)',
+                'triggerChanged(trigger.*)',
+                'computeTitle(selectedPage)'
+            ];
+            this.listeners = {
+                'pages.iron-select': 'pageEntered',
+                'pages.iron-deselect': 'pageLeft'
+            };
+        }
+        computeDropdownClass (eventSelectOpen) {
+            return eventSelectOpen ? 'opened' : 'closed';
+        }
+        isPageCode () {
+            return this.selectedPage === 'code';
+        }
+        doneEditing () {
+            this.showPage('default');
+        }
+        triggerChanged () {
+            let trigger = this.trigger,
+                codes,
+                ev;
+            codes = this.codes;
+            ev = codes[trigger.emitter][trigger.event][trigger.index];
+            ev.snapshot = ev.snapshot || {};
+            this.showPage('code');
+            this.$['code-editor'].load(ev.snapshot);
+        }
+        attached () {
+            this.set('usedCategories', {});
+            this.eventSelectOpen = false;
+        }
+        toggleEventSelectOpen () {
+            this.eventSelectOpen = !this.eventSelectOpen;
+        }
+        closeEventSelect () {
+            this.eventSelectOpen = false;
+        }
+        isEditHidden () {
+            return this.selectedPage !== 'default' || !this.selected;
+        }
+        editCode (e) {
+            let ev = e.model.get('event'),
+                trigger = {
+                    emitter: ev.emitterId,
+                    event: ev.eventId,
+                    text: ev.trigger,
+                    index: ev.index
+                };
+            this.set('trigger', trigger);
+            this.showPage('code');
+            this.notifyChange('trigger', trigger);
+        }
+        computeParts () {
+            return this.parts.concat({
+                id: 'global',
+                name: 'Make',
+                events: [{
+                    id: 'start',
+                    label: 'is clicked'
+                }],
+                codes: {}
+            });
+        }
+        computeEventRules () {
+            let codes,
+                emitter,
+                ev,
+                rules;
+            codes = this.codes;
+            return Object.keys(codes).reduce((acc, emitterId) => {
+                emitter = codes[emitterId];
+                rules = Object.keys(emitter).reduce((acc, eventId) => {
+                    ev = emitter[eventId];
+                    return acc.concat(ev);
+                }, []);
+                return acc.concat(rules);
+            }, []);
+        }
+        triggerSelected (e) {
+            let trigger = Object.assign({}, e.detail),
+                emitterId = trigger.emitter,
+                eventId = trigger.event,
+                emitter,
+                ev,
+                index;
+            emitter = this.codes[emitterId];
+            if (!emitter) {
+                emitter = this.codes[emitterId] = {};
+            }
+            ev = emitter[eventId];
+            if (!ev) {
+                ev = emitter[eventId] = [];
+            }
+            index = ev.length;
+            ev.push({ index });
+            trigger.index = index;
+            this.set('trigger', trigger);
+            this.showPage('code');
+        }
+        saveCode () {
+            this.debounce('saveCode', () => {
+                let code = {},
+                    codeEditor = this.$['code-editor'],
+                    trigger = this.trigger;
+
+                codeEditor.save().then((snapshot) => {
+                    let emitterPath = `codes.${trigger.emitter}`,
+                        codePath = `${emitterPath}.${trigger.event}.${trigger.index}`;
+                    code.snapshot = snapshot;
+                    code.trigger = trigger.text;
+                    code.emitterId = trigger.emitter;
+                    code.eventId = trigger.event;
+                    code.index = trigger.index;
+                    if (!this.get(emitterPath)) {
+                        this.set(emitterPath, {});
+                    }
+                    this.set(codePath, code);
+                });
+            }, 300);
+        }
+        computeTriggers () {
+            return this.parts.filter((element) => this.hasEvents(element));
+        }
+        pageEntered (e) {
+            // Trigger a resize on blockly when we get back to the
+            // code editor page
+            if (e.detail.item.getAttribute('name') === 'code') {
+                this.showCodeEditor();
+            }
+        }
+        pageLeft (e) {
+            if (e.detail.item.getAttribute('name') === 'code') {
+                this.hideCodeEditor();
+            }
+        }
+        hideCodeEditor () {
+            this.$['code-editor'].hide();
+        }
+        showCodeEditor () {
+            this.$['code-editor'].show();
+        }
+        hasEvents (selected) {
+            return selected &&
+                    selected.events &&
+                    selected.events.length;
+        }
+        getEventFromId (events, id) {
+            for (let i in events) {
+                if (events[i].id === id) {
+                    return events[i];
+                }
+            }
+        }
+        computeToolbox () {
+            this.debounce('computeToolbox', () => {
+                let categories,
+                    toolbox,
+                    parts = this.parts,
+                    blocks;
+                if (!parts) {
+                    return;
+                }
+                categories = parts.map((ui) => {
+                    blocks = ui.blocks.map((definition) => {
+                        let block = definition.block(ui);
+                        block.colour = ui.colour;
+                        block.id = `${ui.id}#${block.id}`;
+                        Blockly.Blocks[block.id] = {
+                            init: function () {
+                                this.jsonInit(block);
+                            }
+                        };
+                        Blockly.JavaScript[block.id] = definition.javascript(ui);
+                        Blockly.Pseudo[block.id] = definition.pseudo(ui);
+                        return {
+                            id: block.id
+                        };
+                    });
+                    return {
+                        name: ui.name,
+                        colour: ui.colour,
+                        blocks
+                    };
+                });
+
+                toolbox = categories
+                    .concat(this.defaultCategories || [])
+                    .filter((category) => category.blocks.length);
+                this.set('toolbox', toolbox);
+            }, 500);
+        }
+        showPage (page) {
+            this.closeEventSelect();
+            this.set('selectedPage', page);
+            this.fire('change', {
+                type: `open-part-${page}`
+            });
+        }
+        previous (e) {
+            let targetPage;
+            e.stopPropagation();
+            switch (this.selectedPage) {
+                case 'code': {
+                    targetPage = 'default';
+                    break;
+                }
+                default: {
+                    this.fire('previous');
+                    break;
+                }
+            }
+            if (targetPage) {
+                this.showPage(targetPage);
+            }
+        }
+        computeTitle () {
+            let title;
+            switch (this.selectedPage) {
+                case 'code': {
+                    title = this.trigger.text;
+                    break;
+                }
+                case 'default': {
+                    title = 'Code';
+                    break;
+                }
+            }
+            this.set('title', title);
+        }
+    }
+    Polymer(KanoRootView);
+</script>

@@ -10,32 +10,18 @@
         @apply(--layout-vertical);
         background-color: var(--color-black, black);
     }
-    :host .toolbar {
+    :host .content {
         @apply(--layout-horizontal);
-        padding: 5px;
-        background-color: #212121;
-    }
-    :host .toolbar .controls {
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
-        @apply(--layout-end-justified);
-    }
-    :host .toolbar .controls button {
-        @apply(--kano-button-small);
-        margin-left: 5px;
     }
     :host .parts {
-        min-height: 130px;
         flex: 1;
         @apply(--layout-horizontal);
+        @apply(--layout-flex);
     }
     :host .part {
         position: relative;
         padding: 3px;
         border: 2px solid transparent;
-    }
-    :host .part.selected {
-        border: 2px dotted white;
     }
     :host .part .trash {
         width: 25px;
@@ -54,9 +40,6 @@
     :host kano-ui-item {
         --kano-ui-item-color: var(--color-white, white);
     }
-    :host .share-button {
-        background: var(--blue-gradient, blue);
-    }
     :host paper-dialog .buttons button {
         @apply(--kano-button);
         margin-left: 5px;
@@ -65,36 +48,63 @@
         background: var(--red-gradient, red);
     }
     :host kano-carousel {
+        @apply(--layout-flex);
         overflow: hidden;
         --kano-carousel-button {
             background: red;
         }
     }
+    :host sortable-js {
+        padding: 0px 20px;
+    }
+    :host .add-part-section {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        padding: 7px;
+        border-left: 2px solid var(--color-grey-mid, grey);
+    }
+    :host .add-part-section label {
+        text-transform: uppercase;
+        color: var(--color-white, white);
+    }
+    :host .add-part-button {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: var(--color-white, white);
+        color: black;
+        font-size: 2em;
+        font-weight: 100;
+        border: 0px;
+    }
+    :host .add-part-button:hover {
+        cursor: pointer;
+    }
     </style>
     <template>
-        <div class="toolbar">
-            <div class="controls">
-                <button type="button"
-                        class="share-button"
-                        on-tap="shareTapped">share</button>
-            </div>
-        </div>
-        <kano-carousel>
-            <sortable-js id="parts-tray" class="parts">
-                <template is="dom-repeat"
+        <div class="content">
+            <kano-carousel id="carousel">
+                <sortable-js id="parts-tray" class="parts">
+                    <template is="dom-repeat"
                     items="{{parts}}"
                     as="part">
-                    <div class$="part [[partClass(part, selected)]]">
+                    <div class="part">
                         <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                         <kano-ui-item model="[[part]]"
+                        selected="[[isSelected(part, selected)]]"
                         on-tap="partTapped"
-                        size="70"
+                        size="50"
                         id$="part-[[part.id]]"></kano-ui-item>
                         <iron-image src="/assets/icons/bin.svg" class="trash" sizing="contain" hidden$="[[!isSelected(part, selected)]]" on-tap="openDeleteModal"></iron-image>
                     </div>
                 </template>
             </sortable-js>
         </kano-carousel>
+        <div class="add-part-section">
+            <button type="button" class="add-part-button" on-tap="addPartTapped">+</button>
+            <label>Add Parts</label>
+        </div>
+        </div>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
           <h2>Delete Part</h2>
@@ -236,12 +246,14 @@
         onMouseLeave () {
             this.focused = false;
         }
-        shareTapped () {
-            this.fire('share-tap');
+        addPartTapped () {
+            this.fire('add-part-tap');
         }
         partTapped (e) {
-            let part = e.model.get('part');
+            let part = e.model.get('part'),
+                rect = e.target.getBoundingClientRect();
             this.selectPart(part);
+            this.fire('part-tap', rect);
         }
         selectPart (part) {
             this.$.selector.select(part);
@@ -249,12 +261,6 @@
         }
         isSelected (part, selected) {
             return selected && part.id === selected.id;
-        }
-        partClass (part, selected) {
-            if (this.isSelected(part, selected)) {
-                return 'selected';
-            }
-            return '';
         }
     }
     Polymer(KanoWorkspaceControls);

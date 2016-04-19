@@ -15,30 +15,10 @@
         @apply(--layout-vertical);
     }
     :host .content {
-        @apply(--layout-vertical);
         @apply(--layout-flex);
-    }
-    :host .content .config,
-    :host .content .data-browser {
-        @apply(--layout-flex);
-    }
-    :host .cover {
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        color: white;
-        background-size: cover;
-        padding: 20px;
-        text-align: center;
-    }
-    :host .cover span {
-        font-size: 1.2em;
-    }
-    :host .cover h1 {
-        font-size: 1.5em;
-        margin-top: 0px;
     }
     :host .config {
-        padding: 15px;
+        padding: 15px 22px;
     }
     :host .line {
         @apply(--layout-vertical);
@@ -48,11 +28,8 @@
         @apply(--layout-vertical);
         @apply(--layout-center);
         @apply(--layout-center-justified);
-        @apply(--kano-button);
-        background: var(--green-gradient, green);
-        width: 100%;
-        height: 100%;
-        box-shadow: 0px 0px;
+        @apply(--kano-icon-button);
+        margin-left: 22px;
     }
     :host.loading .refresh-button iron-image {
         transform-origin: 46% 50%;
@@ -61,7 +38,6 @@
     :host .data-browser {
         @apply(--layout-flex);
         position: relative;
-        overflow-y: auto;
         padding-top: 15px;
     }
     :host .loading-overlay {
@@ -83,14 +59,13 @@
         margin-bottom: 20px;
     }
     :host .data-browser {
+        @apply(--layout-vertical);
+        @apply(--layout-start);
         background-color: #263238;
         box-shadow: inset 0px 2px 6px 0px rgba(0,0,0,0.5);
     }
     :host ::content kano-input-text {
         --kano-input-text-size: 1.4em;
-    }
-    :host kano-data-display {
-        @apply(--layout-flex);
     }
     :host .param-description {
         font-style: italic;
@@ -102,14 +77,6 @@
     }
     </style>
     <template>
-        <kano-nav-header icon="[[selected.image]]" title="[[selected.name]]">
-            <button type="button" class="refresh-button right-button" on-tap="refresh" id="refresh-button">
-                <iron-image src="/assets/icons/refresh-icon.svg" width="24" height="24" sizing="contain"></iron-image>
-            </button>
-        </kano-nav-header>
-        <div class="cover" style$="[[computeBackgroundImage(selected)]]">
-            <marked-element markdown="[[selected.description]]"></marked-element>
-        </div>
         <div class="content">
             <div class="config">
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
@@ -133,6 +100,9 @@
                 </div>
             </div>
             <div class="data-browser" id="data-browser">
+                <button type="button" class="refresh-button" on-tap="refresh" id="refresh-button">
+                    <iron-image src="/assets/icons/refresh-icon.svg" width="24" height="24" sizing="contain"></iron-image>
+                </button>
                 <template is="dom-repeat" items="[[dataArray]]" as="value">
                     <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[value]]" trailing-comma="[[!isLastItem(dataArray, index)]]"></kano-data-display>
                 </template>
@@ -185,12 +155,6 @@
         }
         loadingChanged () {
             this.toggleClass('loading', this.loading);
-        }
-        computeBackgroundImage () {
-            if (!this.selected) {
-                return;
-            }
-            return `background: ${this.selected.colour}`;
         }
         refresh () {
             this.loading = true;

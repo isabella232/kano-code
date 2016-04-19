@@ -10,10 +10,12 @@
     }
     :host .container {
         @apply(--layout-vertical);
+        @apply(--layout-wrap);
+        @apply(--layout-center);
     }
     :host .img-container {
-        border-radius: 2px;
-        background-color: var(--kano-ui-item-background-color, transparent);
+        border-radius: 50%;
+        background-color: #CCC;
     }
     :host iron-image {
         margin: 10px;
@@ -33,7 +35,7 @@
     </style>
     <template>
         <div class="container">
-            <div class="img-container">
+            <div class="img-container" style$="[[computeContainerStyle(selected)]]">
                 <iron-image src="{{model.image}}"
                             preload
                             fade
@@ -61,6 +63,10 @@
                 size: {
                     type: Number,
                     value: 140
+                },
+                selected: {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
@@ -69,6 +75,12 @@
         }
         computeLabel () {
             return this.model.name || this.model.label;
+        }
+        computeContainerStyle (selected) {
+            let colour = selected ? this.model.colour : '#CCC';
+            return `background-color: ${colour};
+                    width: ${this.size + 20}px;
+                    height: ${this.size + 20}px;`;
         }
     }
     Polymer(KanoUiItem);
