@@ -1,9 +1,9 @@
-let label;
+let text;
 
-export default label = {
+export default text = {
     partType: 'ui',
-    type: 'label',
-    label: 'Label',
+    type: 'text',
+    label: 'Text',
     image: '/assets/part/text-icon.png',
     colour: '#607d8b',
     customizable: {
@@ -26,7 +26,7 @@ export default label = {
         block: (ui) => {
             return {
                 id: 'set_value',
-                message0: `set ${ui.name} to %1`,
+                message0: `set ${ui.name}'s text to %1`,
                 args0: [{
                     type: "input_value",
                     name: "INPUT"
