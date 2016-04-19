@@ -411,10 +411,5 @@ class KanoAppEditor {
         this.$['left-panel'].style.maxWidth = '80%';
         //this.$['right-panel'].style.maxWidth = 'none';
     }
-    computePartEditorStyle () {
-        let controls = this.$['workspace-controls'].getBoundingClientRect();
-        console.log(controls);
-        return `bottom: ${window.innerHeight - controls.top + 15}px`;
-    }
 }
 Polymer(KanoAppEditor);
