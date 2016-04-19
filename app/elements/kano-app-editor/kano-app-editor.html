@@ -6,6 +6,7 @@
 <link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
 <link rel="import" href="../kano-part-editor/kano-part-editor.html">
+<link rel="import" href="../kano-content-tooltip/kano-content-tooltip.html">
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../behaviors.html">
@@ -95,19 +96,16 @@
     :host .make-button-running {
         background: var(--color-red, orange);
     }
-    :host kano-part-editor {
+    :host kano-content-tooltip {
         @apply(--shadow-elevation-16dp);
         position: absolute;
         top: 70px;
-        bottom: 10px;
         min-width: 300px;
         min-height: 100px;
     }
-
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <kano-background-editor hidden id="background-editor" background="{{background}}" name="background" on-previous="previous"></kano-background-editor>
             <div name="code" class="editor" id="left-panel">
                 <kano-root-view
                     id="part-editor"
@@ -123,6 +121,7 @@
                     selected="{{selected}}"
                     codes="{{codes}}"
                     on-part-tap="openPartEditor"
+                    on-background-tap="openBackgroundEditor"
                     on-add-part-tap="openParts"
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
@@ -141,7 +140,22 @@
                     element-name="kano-workspace"></kano-cover-generator>
             </div>
         </section>
-        <kano-part-editor id="part-editor" selected="{{selected}}" style$="[[computePartEditorStyle(partEditorTarget)]]" target="[[partEditorTarget]]" hidden$="[[!partEditorOpened]]" on-close="closePartEditor"></kano-part-editor>
+        <kano-content-tooltip id="part-editor"
+            target="[[partEditorTarget]]"
+            hidden$="[[!partEditorOpened]]"
+            on-close="closePartEditor"
+            colour="[[selected.colour]]"
+            title="[[selected.name]]">
+            <kano-part-editor selected="{{selected}}" class="tooltip-content"></kano-part-editor>
+        </kano-content-tooltip>
+        <kano-content-tooltip id="background-editor"
+            target="[[backgroundEditorTarget]]"
+            hidden$="[[!backgroundEditorOpened]]"
+            on-close="closeBackgroundEditor"
+            colour="orange"
+            title="Background">
+            <kano-background-editor class="tooltip-content" id="background-editor" background="{{background}}" name="background"></kano-background-editor>
+        </kano-content-tooltip>
         <template is="dom-if" if="[[partsOpened]]" restamp>
             <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts"></kano-sidebar>
         </template>
