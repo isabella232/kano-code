@@ -279,7 +279,7 @@ export default class UI extends Part {
             pseudo: (ui) => {
                 return function (block) {
                     let x = parseInt(Blockly.Pseudo.valueToCode(block, 'X')) || 0,
-                        code = `${ui.id}.x = ${x};\n`;
+                        code = `${ui.id}.setX(${x});\n`;
                     return code;
                 };
             }
@@ -308,7 +308,7 @@ export default class UI extends Part {
             pseudo: (ui) => {
                 return function (block) {
                     let y = parseInt(Blockly.Pseudo.valueToCode(block, 'Y')) || 0,
-                        code = `${ui.id}.y = ${y};\n`;
+                        code = `${ui.id}.setY(${y});\n`;
                     return code;
                 };
             }
