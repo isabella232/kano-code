@@ -58,13 +58,13 @@ let register = (Blockly) => {
 
     Blockly.JavaScript.every_x_seconds = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            interval = parseInt(Blockly.JavaScript.valueToCode(block, 'INTERVAL')) || 5,
+            interval = Blockly.JavaScript.valueToCode(block, 'INTERVAL') || 5,
             code = `time.every(${interval}, function () {\n${statement}});\n`;
         return code;
     };
     Blockly.Pseudo.every_x_seconds = (block) => {
         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-            interval = parseInt(Blockly.Pseudo.valueToCode(block, 'INTERVAL')) || 5,
+            interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
             code = `every ${interval} seconds, do {\n${statement}}\n`;
         return code;
     };
@@ -92,13 +92,13 @@ let register = (Blockly) => {
 
     Blockly.JavaScript.repeat_x_times = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            n = parseInt(Blockly.JavaScript.valueToCode(block, 'N')) || 2,
+            n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
             code = `for (var i = 0; i < ${n}, i++) {\n${statement}}\n`;
         return code;
     };
     Blockly.Pseudo.repeat_x_times = (block) => {
         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-            n = parseInt(Blockly.Pseudo.valueToCode(block, 'N')) || 2,
+            n = Blockly.Pseudo.valueToCode(block, 'N') || 2,
             code = `for (var i = 0; i < ${n}, i++) {\n${statement}}\n`;
         return code;
     };
