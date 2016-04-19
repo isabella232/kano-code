@@ -24,7 +24,6 @@ partTypes = {
 
 window.Part = {
     create (model, size) {
-        console.log(model.partType);
         return new partTypes[model.partType](model, size);
     },
     clear () {
