@@ -260,8 +260,7 @@
                 'computeTitle(selectedPage)'
             ];
             this.listeners = {
-                'pages.iron-select': 'pageEntered',
-                'pages.iron-deselect': 'pageLeft'
+                'pages.iron-select': 'pageEntered'
             };
         }
         computeDropdownClass (eventSelectOpen) {
@@ -383,19 +382,8 @@
             // Trigger a resize on blockly when we get back to the
             // code editor page
             if (e.detail.item.getAttribute('name') === 'code') {
-                this.showCodeEditor();
+                this.$['code-editor'].resize();
             }
-        }
-        pageLeft (e) {
-            if (e.detail.item.getAttribute('name') === 'code') {
-                this.hideCodeEditor();
-            }
-        }
-        hideCodeEditor () {
-            this.$['code-editor'].hide();
-        }
-        showCodeEditor () {
-            this.$['code-editor'].show();
         }
         hasEvents (selected) {
             return selected &&

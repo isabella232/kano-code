@@ -117,6 +117,7 @@ gulp.task('views', () => {
         return gulp.src('app/views/**/*.html')
             .pipe(utils.vulcanize({
                 inlineScripts: true,
+                inlineCss: true,
                 stripExcludes: common
             }))
             .pipe($.crisper({ scriptInHead: false }))
@@ -127,7 +128,7 @@ gulp.task('views', () => {
 
 gulp.task('scenes', () => {
     gulp.src('app/assets/stories/**/*.html')
-        .pipe(utils.vulcanize({ inlineScripts: true }))
+        .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('www/assets/stories'));
