@@ -42,7 +42,7 @@ Blockly.Flyout.prototype.position = function () {
         // Hidden components will return null.
         return;
     }
-    var edgeWidth = (metrics.viewWidth / 5) * 2;
+    var edgeWidth = this.width_ - this.CORNER_RADIUS + 10;
     if (this.RTL) {
         edgeWidth *= -1;
     }
@@ -83,12 +83,19 @@ Blockly.Flyout.prototype.position = function () {
 Blockly.Toolbox.prototype.init = function() {
   var workspace = this.workspace_,
     svg = workspace.getParentSvg(),
-    container = svg.parentNode;
+    container = svg.parentNode,
+    triangle = document.createElement('div');
+
+  triangle.className = 'blocklyTriangle';
+  triangle.setAttribute('id', 'blocklyTriangle');
 
   // Create an HTML container for the Toolbox menu.
   this.HtmlDiv = goog.dom.createDom('div', 'blocklyToolboxDiv');
   this.HtmlDiv.setAttribute('dir', workspace.RTL ? 'RTL' : 'LTR');
   container.appendChild(this.HtmlDiv);
+  container.appendChild(triangle);
+
+  this.triangle = triangle;
 
   // Clicking on toolbar closes popups.
   Blockly.bindEvent_(this.HtmlDiv, 'mousedown', this,
@@ -147,8 +154,9 @@ Blockly.Toolbox.prototype.position = function() {
     } else {
         treeDiv.style.left = svgPosition.x + 'px';
     }
-    treeDiv.style.height = svgSize.height + 'px';
+    treeDiv.style.bottom = '0px';
     treeDiv.style.top = '0px';
+    treeDiv.style.width = '120px';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
         // For some reason the LTR toolbox now reports as 1px too wide.
@@ -198,13 +206,29 @@ Blockly.Block.prototype.setColour = function(colour) {
  */
 Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     Blockly.removeAllRanges();
-    var toolbox = this.toolbox_;
+    var toolbox = this.toolbox_,
+        triangle = toolbox.triangle,
+        hexColour,
+        containerRect,
+        rect,
+        rowElement;
     if (node == this.selectedItem_ || node == toolbox.tree_) {
         return;
     }
+    if (toolbox.lastCategory_) {
+
+    }
     if (node) {
-        var hexColour = node.hexColour || '#57e';
-        node.getRowElement().style.background = hexColour;
+        rowElement = node.getRowElement();
+        hexColour = node.hexColour || '#57e';
+        containerRect = toolbox.HtmlDiv.getBoundingClientRect();
+        rect = rowElement.getBoundingClientRect();
+        rowElement.style.background = hexColour;
+        rowElement.className += ' selected';
+        triangle.style.display = 'block';
+        triangle.style.top = `${rect.top - containerRect.top - 8 + (rect.height / 2)}px`;
+        triangle.style.borderLeftColor = hexColour;
+
         // Add colours to child nodes which may have been collapsed and thus
         // not rendered.
         toolbox.addColour_(node);
@@ -219,6 +243,7 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     } else {
         // Hide the flyout.
         toolbox.flyout_.hide();
+        triangle.style.display = 'none';
     }
     if (node) {
         toolbox.lastCategory_ = node;
