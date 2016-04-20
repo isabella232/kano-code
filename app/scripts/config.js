@@ -40,13 +40,12 @@ var COMMON = {
     },
     config;
 
-function getConfig() {
-    var env = process.env.NODE_ENV || 'development',
-        target = process.env.TARGET || 'web';
+function getConfig(env, target) {
+    env = env || 'development';
+    target = target || 'web';
 
     return Object.assign(COMMON, TARGET[target],
            ENV[env], {"ENV": env, "TARGET": target});
 }
 
-config = getConfig();
-module.exports = config;
+module.exports = getConfig;

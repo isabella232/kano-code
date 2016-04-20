@@ -68,7 +68,8 @@ gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
         .pipe($.htmlReplace({
             config: `
             <script type="text/javascript">
-                window.config = ${JSON.stringify(config)};
+                window.config = ${JSON.stringify(config(process.env.NODE_ENV,
+                                                        process.env.TARGET))};
             </script>
             `
          }))
