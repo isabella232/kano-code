@@ -26,18 +26,21 @@
         position: relative;
         @apply(--layout-vertical);
         @apply(--layout-flex);
+        @apply(--kano-inset-box-shadow)
         min-width: 38%;
         max-width: 62%;
     }
     :host section #left-panel {
         position: relative;
         @apply(--layout-vertical);
+        @apply(--kano-box-shadow);
         max-width: 62%;
         width: 62%;
         min-width: 38%;
     }
     :host #right-panel kano-workspace {
         @apply(--layout-flex);
+        padding: 10px;
     }
     :host .ui-edition kano-workspace-controls {
         min-height: 200px;
@@ -66,8 +69,8 @@
         width: 8px;
         cursor: ew-resize;
         background-color: #3c3c3c;
-        height: 100%;
     }
+    
     :host #resize::before {
         content: '';
         background-color: var(--color-white, white);
@@ -88,9 +91,11 @@
         @apply(--layout-horizontal);
         @apply(--layout-around-justified);
         width: 100%;
+
     }
     :host .controls button {
         @apply(--kano-button-big);
+        @apply(--kano-box-shadow);
     }
     :host .share-button {
         background: var(--blue-gradient, blue);
@@ -108,6 +113,7 @@
         min-width: 300px;
         min-height: 100px;
     }
+
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
@@ -131,7 +137,7 @@
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
             <div id="resize" on-mousedown="resizeWorkspace"></div>
-            <div class="ui-edition" id="right-panel" style$="[[computeBackground(background.userStyle.*)]]">
+            <div class="ui-edition" id="right-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
