@@ -39,6 +39,11 @@ const STYLE_CONF = {
         key: 'font-weight',
         type: 'font-weight',
         label: 'Text weight'
+    },
+    'font-family': {
+        key: 'font-family',
+        type: 'font-family',
+        label: 'Text font'
     }
 };
 

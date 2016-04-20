@@ -1,4 +1,4 @@
-<dom-module id='kano-ui-label'>
+<dom-module id='kano-ui-text'>
     <style>
         :host {
             display: inline-block;
@@ -6,6 +6,7 @@
     </style>
     <template>
         <span id='label'
+            on-tap="textClicked"
             style$='[[computeLabelStyle(model.userStyle.*)]]'>
             {{model.userProperties.text}}
         </span>
@@ -15,24 +16,32 @@
 <script type="text/javascript">
     /* globals Polymer, KanoBehaviors */
 
-    class KanoUiLabel {
+    class KanoUiText {
 
         get behaviors () {
             return [KanoBehaviors.UIBehavior];
         }
 
         beforeRegister () {
-            this.is = 'kano-ui-label';
+            this.is = 'kano-ui-text';
         }
 
         computeLabelStyle () {
-            return this.getPartialStyle(['font-weight', 'color', 'font-size']);
+            return this.getPartialStyle(['font-size', 'color', 'font-family']);
         }
 
         setValue (value) {
             this.set('model.userProperties.text', value);
         }
+
+        getValue () {
+            return this.get('model.userProperties.text');
+        }
+
+        textClicked () {
+            this.fire('clicked');
+        }
     }
-    Polymer(KanoUiLabel);
+    Polymer(KanoUiText);
 
 </script>

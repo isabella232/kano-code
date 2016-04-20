@@ -4,7 +4,7 @@ import Data from './data';
 import Button from './button';
 import Frame from './frame';
 import TextInput from './text-input';
-import Label from './label';
+import Text from './text';
 import Map from './map';
 import ISS from './data/space/iss';
 import Weather from './data/weather/weather';
@@ -14,7 +14,8 @@ import Image from './image';
 let part,
     partTypes;
 
-export default part = [Button, Frame, TextInput, Label, Map, ISS, Weather, Share, Image];
+export default part = [Button, Frame, TextInput, Text, Map, ISS, Weather, Share, Image];
+
 
 partTypes = {
     'ui': UI,
