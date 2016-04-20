@@ -47,5 +47,24 @@ export default text = {
                 return `${ui.id}.setText(${value});\n`;
             };
         }
+    },
+    {
+        block: (ui) => {
+            return {
+                id: 'get_text',
+                message0: `${ui.name}'s text`,
+                output: true
+            }
+        },
+        javascript: (ui) => {
+            return function (block) {
+                return [`devices.get('${ui.id}').getValue()`];
+            };
+        },
+        pseudo: (ui) => {
+            return function (block) {
+                return [`${ui.id}.text`];
+            };
+        }
     }]
 };
