@@ -66,5 +66,9 @@ export default text = {
                 return [`${ui.id}.text`];
             };
         }
+    }],
+    events: [{
+        label: 'is clicked',
+        id: 'clicked'
     }]
 };
