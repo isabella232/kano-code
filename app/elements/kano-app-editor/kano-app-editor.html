@@ -26,6 +26,7 @@
         position: relative;
         @apply(--layout-vertical);
         @apply(--layout-flex);
+        @apply(--kano-inset-box-shadow)
         min-width: 20%;
     }
     :host section .blocks-edition {
@@ -37,6 +38,7 @@
     }
     :host .ui-edition kano-workspace {
         @apply(--layout-flex);
+        padding: 10px;
     }
     :host .ui-edition kano-workspace-controls {
         min-height: 200px;
@@ -72,6 +74,7 @@
         position: relative;
         @apply(--layout-flex);
         @apply(--layout-vertical);
+        @apply(--kano-box-shadow);
     }
     :host .root-view-wrapper {
         position: relative;
@@ -83,9 +86,11 @@
         @apply(--layout-horizontal);
         @apply(--layout-around-justified);
         width: 100%;
+
     }
     :host .controls button {
         @apply(--kano-button-big);
+        @apply(--kano-box-shadow);
     }
     :host .share-button {
         background: var(--blue-gradient, blue);
@@ -125,7 +130,7 @@
                     on-add-part-tap="openParts"
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
-            <div class="ui-edition" id="right-panel" style$="[[computeBackground(background.userStyle.*)]]">
+            <div class="ui-edition" id="right-panel">
                 <div id="resize" on-mousedown="resizeWorkspace"></div>
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"

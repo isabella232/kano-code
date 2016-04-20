@@ -10,9 +10,6 @@
     :host .content {
         position: relative;
         @apply(--layout-flex);
-        --kano-ui-viewport: {
-            @apply(--kano-shadow);
-        };
     }
     :host.running .content {
         --kano-ui-viewport: {
@@ -20,9 +17,10 @@
         };
     }
     :host ::content #dropzone {
-        width: 100%;
-        height: 100%;
-
+        width: calc(100% - 10px);
+        height: calc(100% - 10px);
+        box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
+        margin: auto;
         position: relative;
     }
 
@@ -162,6 +160,9 @@
         }
         getViewport () {
             return this.$.dropzone;
+        }
+        setBackgroundColor (color) {
+            this.$.dropzone.style.background = color;
         }
     }
     Polymer(KanoWorkspace);

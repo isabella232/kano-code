@@ -92,6 +92,7 @@ class KanoAppEditor {
         let property = e.path.split('.');
         property.shift();
         property = property.join('.');
+        this.$.workspace.setBackgroundColor(e.value);
         this.notifyChange('background', {
             property,
             value: e.value
