@@ -7,7 +7,7 @@ export default text = {
     image: '/assets/part/text-icon.png',
     colour: '#607d8b',
     customizable: {
-        style: ['color', 'font-size', 'font-weight'],
+        style: ['color', 'font-size', 'font-family'],
         properties: [{
             key: 'text',
             type: 'text',
@@ -17,7 +17,7 @@ export default text = {
     userStyle: {
         color: 'black',
         'font-size': '1em',
-        'font-weight': '400'
+        'font-family': 'Bariol'
     },
     userProperties: {
         text: 'My text'
