@@ -22,20 +22,21 @@
         @apply(--layout-horizontal);
         @apply(--layout-flex);
     }
-    :host section .ui-edition {
+    :host section #right-panel {
         position: relative;
         @apply(--layout-vertical);
         @apply(--layout-flex);
-        min-width: 20%;
+        min-width: 38%;
+        max-width: 62%;
     }
-    :host section .blocks-edition {
+    :host section #left-panel {
+        position: relative;
         @apply(--layout-vertical);
-        background-color: var(--color-grey-lightest, grey);
-        max-width: 80%;
-        min-width: 20%;
-        width: 60%;
+        max-width: 62%;
+        width: 62%;
+        min-width: 38%;
     }
-    :host .ui-edition kano-workspace {
+    :host #right-panel kano-workspace {
         @apply(--layout-flex);
     }
     :host .ui-edition kano-workspace-controls {
@@ -60,18 +61,22 @@
         visibility: hidden;
         opacity: 0;
     }
-    :host #resize{
-        position: absolute;
-        left: -4px;
-        top: 0;
-        bottom: 0;
+    :host #resize {
+        position: relative;
         width: 8px;
         cursor: ew-resize;
-    };
-    :host .editor {
-        position: relative;
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        background-color: #3c3c3c;
+        height: 100%;
+    }
+    :host #resize::before {
+        content: '';
+        background-color: var(--color-white, white);
+        width: 2px;
+        height: 16px;
+        position: absolute;
+        top: calc(50% - 6px);
+        left: calc(50% - 1px);
+        border-radius: 1px;
     }
     :host .root-view-wrapper {
         position: relative;
@@ -125,8 +130,8 @@
                     on-add-part-tap="openParts"
                     on-remove-part="removePart"></kano-workspace-controls>
             </div>
+            <div id="resize" on-mousedown="resizeWorkspace"></div>
             <div class="ui-edition" id="right-panel" style$="[[computeBackground(background.userStyle.*)]]">
-                <div id="resize" on-mousedown="resizeWorkspace"></div>
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
