@@ -350,7 +350,15 @@
                 ev = emitter[eventId] = [];
             }
             index = ev.length;
-            ev.push({ index });
+            this.push(`codes.${emitterId}.${eventId}`, {
+                index,
+                trigger: trigger.text,
+                emitterId,
+                eventId,
+                snapshot: {
+                    pseudo: '// Edit me to add code'
+                }
+            });
             trigger.index = index;
             this.set('trigger', trigger);
             this.showPage('code');
@@ -364,6 +372,7 @@
                 codeEditor.save().then((snapshot) => {
                     let emitterPath = `codes.${trigger.emitter}`,
                         codePath = `${emitterPath}.${trigger.event}.${trigger.index}`;
+                    snapshot.pseudo = snapshot.pseudo.trim().length ? snapshot.pseudo : '// Edit me to add code';
                     code.snapshot = snapshot;
                     code.trigger = trigger.text;
                     code.emitterId = trigger.emitter;
