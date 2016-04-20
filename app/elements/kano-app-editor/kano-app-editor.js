@@ -70,8 +70,8 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
-    isPartDeletionEnabled () {
-        return this.partEditorOpened || this.backgroundEditorOpened;
+    isPartDeletionDisabled () {
+        return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
