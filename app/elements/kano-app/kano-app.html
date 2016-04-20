@@ -59,6 +59,28 @@ Example:
         @apply(--layout-end-justified);
         padding-right: 5px;
     }
+    :host iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host iron-pages > div {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host .logged-out {
+        align-items: center;
+        background: #ff842a;
+        color: white;
+        font-size: 1.3em;
+    }
+    :host .access-denied {
+        justify-content: center;
+        align-items: center;
+        background: #ff842a;
+        color: white;
+        font-size: 1.3em;
+
+    }
     :host kano-routing {
         @apply(--layout-flex);
     }
@@ -85,7 +107,18 @@ Example:
                 </template>
             </div>
         </header>
-        <kano-routing ctx="{{ctx}}" name="app"></kano-routing>
+        <iron-pages selected="{{accessState(user)}}" attr-for-selected="name">
+            <div name="logged-out" class="logged-out">
+                <span>Please Login</span>
+            </div>
+            <div name="not-allowed" class="access-denied">
+                <span>Make Apps while it is still in private beta, thank you for your interest!</span>
+                <span> Redirecting to Kano World</span>
+            </div>
+            <div name="allowed">
+                <kano-routing ctx="{{ctx}}" name="app"></kano-routing>
+            </div>
+        </iron-pages>
     </template>
 </dom-module>
 <script>
@@ -100,7 +133,8 @@ Example:
                 }
             };
             this.observers = [
-                'ctxChanged(ctx.*)'
+                'ctxChanged(ctx.*)',
+                'launchLogin(user)'
             ];
         }
         /**
@@ -111,6 +145,36 @@ Example:
         }
         isUserLoggedIn () {
             return !!this.user;
+        }
+        userCanHandleMakeApps () {
+            let buckets;
+            if (window.app.config.ENV === 'development') {
+                return true;
+            }
+            if (this.isUserLoggedIn() && this.user.buckets && this.user.buckets.indexOf('make-apps-beta') !== -1) {
+                return true;
+            }
+            return false;
+        }
+        accessState () {
+            if (!this.isUserLoggedIn()) {
+                return 'logged-out';
+            }
+
+            if (!this.userCanHandleMakeApps()) {
+                this.redirectToKanoWorld();
+                return 'not-allowed';
+            }
+
+            return 'allowed';
+        }
+        launchLogin () {
+            if (!this.isUserLoggedIn()) {
+                this.login();
+            }
+        }
+        redirectToKanoWorld () {
+            setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
         }
         attached () {
             let initialiseSDK = () => {
