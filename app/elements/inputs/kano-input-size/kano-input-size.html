@@ -1,0 +1,76 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-size">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host label .value {
+        font-weight: bold;
+    }
+    :host .inputs {
+        @apply(--layout-horizontal);
+    }
+    </style>
+    <template>
+        <label>{{label}}: <span class="value">{{value}}</span></label>
+        <div class="inputs">
+            <input type="range"
+                    min="{{min}}"
+                    max="{{max}}"
+                    value="{{number::input}}"
+                    on-change="numberChanged">
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoInputSize {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-size';
+            this.properties = {
+                value: {
+                    type: String,
+                    observer: 'valueChanged'
+                },
+                unit: {
+                    type: String
+                },
+                number: {
+                    type: Number
+                }
+            };
+            this.observers = [
+                'computeValue(number)'
+            ];
+        }
+
+        computeValue () {
+            this.set('value', `${this.number}px`);
+        }
+
+        valueChanged () {
+            let number;
+
+            if (!this.value) {
+                return;
+            }
+
+            number = parseInt(this.value, 10);
+            this.set('number', number);
+            this.fire('change');
+        }
+
+        numberChanged (e) {
+            e.stopPropagation();
+        }
+    }
+    Polymer(KanoInputSize);
+</script>

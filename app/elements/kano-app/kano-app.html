@@ -1,11 +1,18 @@
 <script src="../../scripts/app.js"></script>
+<script src="../../scripts/util/client.js"></script>
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-style/kano-style.html">
-
+<!--
+`kano-app` provides the whole Make apps app.
+Example:
+    <kano-app></kano-app>
+@group Kano Elements
+@element kano-app
+-->
 <dom-module id="kano-app">
     <style>
     :host {
@@ -15,28 +22,167 @@
         @apply(--layout-vertical);
         font-family: var(--font-body);
     }
+    :host button,
+    :host header .link {
+        @apply(--kano-button-small);
+        text-decoration: none;
+        background-color: var(--primary-color);
+    }
+    :host header {
+        background-color: var(--color-header, black);
+        color: white;
+        @apply(--kano-header);
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-center);
+        height: 62px;
+    }
+    :host header div {
+        @apply(--layout-flex);
+    }
+    :host header .logged {
+        @apply(--layout-vertical);
+    }
+    :host .user-info {
+        margin-left: 5px;
+    }
+    :host header iron-image {
+        height: 42px;
+        width: 155px;
+        margin-left: 15px;
+    }
+    :host header button {
+        margin-right: 15px;
+    }
+    :host header .links {
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        padding-right: 5px;
+    }
     :host kano-routing {
         @apply(--layout-flex);
     }
     </style>
     <template>
         <style include="kano-style"></style>
+        <header>
+            <div class="user-info">
+                <div hidden$="{{!isUserLoggedIn(user)}}" class="logged">
+                    <label>{{user.username}}</label>
+                    <a href="#" on-tap="logout">Logout</a>
+                </div>
+                <button type="button"
+                    class="login-button"
+                    hidden$="{{isUserLoggedIn(user)}}"
+                    on-tap="login">Login</button>
+            </div>
+            <iron-image src="../../assets/logo.png"
+                        preload
+                        sizing="contain"></iron-image>
+            <div class="links">
+                <template is="dom-repeat" items="{{ctx.links}}" as="link">
+                    <a href$="[[link.url]]" class="link">[[link.label]]</a>
+                </template>
+            </div>
+        </header>
         <kano-routing ctx="{{ctx}}"></kano-routing>
     </template>
 </dom-module>
 <script>
+    /* globals Polymer, app */
+
     class KanoApp {
         beforeRegister () {
             this.is = 'kano-app';
+            this.properties = {
+                user: {
+                    type: Object
+                }
+            };
             this.observers = [
                 'ctxChanged(ctx.*)'
-            ]
+            ];
         }
         /**
          * When the router changes the ctx, we update it in the app
          */
         ctxChanged () {
             app.ctx = this.ctx;
+        }
+        isUserLoggedIn () {
+            return !!this.user;
+        }
+        attached () {
+            let initialiseSDK = () => {
+                app.sdk.auth.initSession(() => {
+                    this.user = app.sdk.auth.getUser();
+                });
+            };
+
+            if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
+
+                fetch(window.app.config.TOKEN_ENDPOINT)
+                .then( (response) => {
+                    if (response.ok) {
+                        // The API has responded, need to set the token
+                        return response.json();
+                    }
+                })
+                .then( (retObj) => {
+                    if (retObj.hasOwnProperty('token')) {
+                        app.sdk.auth.setToken(retObj['token']);
+                    }
+
+                    initialiseSDK();
+                })
+                .catch( (error) => {
+                    // Server responded with 401 or some other error occurred
+                    // still need to initialise the SDK
+                    initialiseSDK();
+                });
+            } else {
+                initialiseSDK();
+            }
+        }
+        logout (e) {
+            e.preventDefault();
+            app.sdk.auth.setToken(null);
+            this.user = null;
+        }
+        login () {
+            let modal;
+
+            const handleSwitch = (ev) => {
+                if (ev.target.localName === 'kano-login-form') {
+                    modal.setContent(document.createElement('kano-signup-form'));
+                    document.querySelector('#already-signedup-button')
+                        .addEventListener('click', handleSwitch);
+                }
+                if (ev.target.id === 'already-signedup-button') {
+                    modal.setContent(document.createElement('kano-login-form'));
+                    document.querySelector('kano-login-form')
+                        .addEventListener('signup-click', handleSwitch);
+                }
+            };
+
+            const handleLogin = (data) => {
+                this.user = data.details.user;
+                app.sdk.auth.setToken(data.details.token);
+                modal.close();
+            };
+
+            modal = document.createElement('kano-modal');
+            modal.setContent(document.createElement('kano-login-form'));
+            modal.show(() => {
+                let loginForm = document.querySelector('kano-login-form');
+                loginForm.addEventListener('signup-click', handleSwitch);
+                loginForm.addEventListener('success', handleLogin);
+            });
+
+            modal.addEventListener('modal-close', () => {
+                this.removeChild(modal);
+            });
+            this.appendChild(modal);
         }
     }
     Polymer(KanoApp);

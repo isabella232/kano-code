@@ -1,0 +1,174 @@
+<script>var time = {};time.timeouts = [];time.intervals = [];time.setTimeout = function () {
+            var id = setTimeout.apply(window, arguments);
+            time.timeouts.push(id);
+        };time.setInterval = function () {
+            var id = setInterval.apply(window, arguments);
+            time.intervals.push(id);
+        };time.start = undefined;time.stop = function stop() {
+            time.timeouts.forEach(function (id) {
+                return clearTimeout(id);
+            });
+            time.intervals.forEach(function (id) {
+                return clearInterval(id);
+            });
+        };;var giphy = {};giphy.random = function random() {
+            return fetch('http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&rating=y').then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                return res.data.image_url;
+            });
+        };giphy.start = undefined;giphy.stop = function stop() {};;var cat = {};cat.random = function random() {
+            return fetch('http://random.cat/meow').then(function (res) {
+                return res.json();
+            }).then(function (j) {
+                return j.file;
+            });
+        };cat.start = undefined;cat.stop = function stop() {};;var weather = {};weather.weatherIn = function weatherIn(city) {
+            var queryBegin = "select item.condition, wind, astronomy from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"",
+                queryEnd = "\")",
+                query = encodeURIComponent(queryBegin) + "'+" + city + "+'" + encodeURIComponent(queryEnd),
+                env = "store://datatables.org/alltableswithkeys",
+                url = "https://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json&env=" + encodeURIComponent(env);
+            return fetch(url).then(function (res) {
+                return res.json();
+            }).then(function (page) {
+                var condition = page.query.results.channel.item.condition,
+                    wind = page.query.results.channel.wind,
+                    astronomy = page.query.results.channel.astronomy;
+                delete condition.code;
+                delete condition.date;
+                return {
+                    condition: condition,
+                    wind: wind,
+                    astronomy: astronomy
+                };
+            });
+        };weather.start = undefined;weather.stop = function stop() {};;var console = {};console.log = function log(message) {
+            if (message instanceof Promise) {
+                message.then(cons.methods.log);
+            } else {
+                console.log(message);
+            }
+        };;var camera = {};camera.video = {};camera.canvas = {};camera.stream = {};camera.width = 300;camera.height = 225;camera.onStreamReady = function onStreamReady(stream) {
+        var streaming = false,
+            vendorURL = window.URL || window.webkitURL;
+        camera.stream = stream;
+        if (!camera.video) {
+            camera.video = document.createElement('video');
+            camera.video.style.display = 'none';
+        }
+        if (!camera.canvas) {
+            camera.canvas = document.createElement('canvas');
+            camera.canvas.style.display = 'none';
+        }
+        if (navigator.mozGetUserMedia) {
+            camera.video.mozSrcObject = this.stream;
+        } else {
+            camera.video.src = vendorURL.createObjectURL(camera.stream);
+        }
+        camera.video.play();
+        camera.video.addEventListener('canplay', function (ev) {
+            if (!streaming) {
+                camera.height = camera.video.videoHeight / (camera.video.videoWidth / camera.width);
+
+                // Firefox currently has a bug where the height can't be read from
+                // the video, so we will make assumptions if this happens.
+
+                if (isNaN(camera.height)) {
+                    camera.height = camera.width / (4 / 3);
+                }
+
+                camera.video.setAttribute('width', camera.width);
+                camera.video.setAttribute('height', camera.height);
+                camera.canvas.setAttribute('width', camera.width);
+                camera.canvas.setAttribute('height', camera.height);
+                streaming = true;
+            }
+        }, false);
+    };camera.onStreamError = function onStreamError(e) {
+        console.error(e);
+    };camera.takePicture = function takePicture() {
+            var context = camera.canvas.getContext('2d'),
+                picture = undefined;
+            context.drawImage(camera.video, 0, 0, camera.width, camera.height);
+            picture = camera.canvas.toDataURL();
+            return Promise.resolve(picture);
+        };camera.getVideoStream = function getVideoStream() {
+            return Promise.resolve(camera.stream);
+        };camera.start = function start() {
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            navigator.getUserMedia.call(navigator, {
+                video: true
+            }, camera.onStreamReady, camera.onStreamError);
+        };camera.stop = function stop() {
+            camera.video.pause();
+            camera.stream.getVideoTracks()[0].stop();
+        };camera.start();</script>
+            <dom-module id="kano-user-component">
+                <style></style>
+                <template>
+                    <kano-ui-button
+                    id="button"
+                    model="{{components.button}}">
+                </kano-ui-button><kano-ui-image
+                    id="image"
+                    model="{{components.image}}">
+                </kano-ui-image>
+                </template>
+            </dom-module>
+            <script>
+                Polymer({
+                    is: 'kano-user-component',
+                    properties: {
+                        components: {
+                            type: Object,
+                            value: JSON.parse('{"button":{"id":"button","name":"Button","type":"button","userStyle":{"background-color":"#59b3d0"},"userProperties":{"text":"Click me"},"position":{"x":91.125,"y":316}},"image":{"id":"image","name":"Image","type":"image","userStyle":{"width":"200px","height":"200px"},"userProperties":{},"position":{"x":47.515625,"y":48}}}'),
+                            observer: 'componentsChanged'
+                        }
+                    },
+                    attached: function () {
+                        var devices = {
+                            get: function (id) {
+                                return this.$$('#' + id);
+                            }.bind(this)
+                        };
+                        devices.get('button').addEventListener('clicked', function (){devices.get('image').drawPicture(cat.random())});
+                    },
+                    componentsChanged () {
+                        var el;
+                        Object.keys(this.components).forEach(function (id) {
+                            el = this.$$('#' + id);
+                            el.style.position = 'absolute';
+                            el.style.left = this.components[id].position.x + 'px';
+                            el.style.top = this.components[id].position.y + 'px';
+                        }.bind(this));
+                    }
+                });
+            </script>
+
+
+
+<dom-module id="kano-view-preview">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            @apply(--layout-vertical);
+        }
+        :host kano-user-component {
+            @apply(--layout-flex);
+        }
+    </style>
+    <template>
+        <kano-user-component></kano-user-component>
+    </template>
+</dom-module>
+
+<script>
+    class KanoViewPreview {
+        beforeRegister () {
+            this.is = 'kano-view-preview';
+        }
+    }
+    Polymer(KanoViewPreview);
+</script>

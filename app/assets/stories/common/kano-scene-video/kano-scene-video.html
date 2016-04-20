@@ -1,0 +1,28 @@
+<dom-module id="kano-scene-video">
+  <style>
+    :host {
+      display: block;
+      @apply(--layout-vertical);
+    }
+    :host #video {
+        width: 100%;
+    }
+  </style>
+  <template>
+      <video autoplay id="video" on-ended="finish">
+          <source src$="[[scene.src]]" type="video/mp4">
+      </video>
+  </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoSceneVideo {
+        get behaviors () {
+            return [KanoBehaviors.SceneComponentBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-scene-video';
+        }
+    }
+    Polymer(KanoSceneVideo);
+</script>

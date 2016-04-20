@@ -1,219 +1,181 @@
+<link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <dom-module id="kano-view-workshop">
     <style>
     :host {
         display: block;
         @apply(--layout-vertical);
     }
-    :host section {
-        @apply(--layout-horizontal);
-        @apply(--layout-align-stretch);
-    }
-    :host header {
-        background-color: var(--color-header, black);
-        color: white;
-        @apply(--kano-header);
-        @apply(--layout-horizontal);
-        @apply(--layout-justify-around);
-        @apply(--layout-center);
-        height: 62px;
-    }
-    :host header iron-image {
-        height: 42px;
-        width: 155px;
-        margin-left: 15px;
-    }
-    :host header h1 {
+    :host kano-app-editor {
         @apply(--layout-flex);
     }
-    :host header button {
-        @apply(--kano-button);
-        background-color: var(--primary-color);
-        margin-right: 15px;
-    }
-    :host header .make-button.running {
-        background-color: var(--color-red);
-    }
-    :host section {
-        @apply(--layout-flex);
-    }
-    :host section kano-sidebar {
-        @apply(--layout-flex-3);
-    }
-    :host section kano-workspace {
-        @apply(--layout-flex-9);
-    }
+    :host #error-dialog .title {
+        color: red;
+    };
+    :host #error-dialog .description {
+        text-align: center;
+    };
     </style>
     <template>
-        <header>
-            <iron-image src="../../assets/make-apps-logo.png" preload sizing="contain"></iron-image>
-            <h1></h1>
-            <button type="button" class$="make-button {{running}}" on-tap="toggleMake">{{buttonAction}}</button>
-        </header>
-        <section id="section">
-            <kano-sidebar hws="{{hws}}" on-hw-ready="sidebarHwReady"></kano-sidebar>
-            <kano-workspace id="workspace"
-                            on-hw-ready="workspaceHwReady"
-                            on-add-rule-tapped="openModal"
-                            hws="{{workspaceHws}}"
-                            running="{{isRunning}}"></kano-workspace>
-        </section>
-        <kano-device-discovery devices="{{devices}}" hws="{{hws}}"></kano-device-discovery>
+        <kano-app-editor
+            id="editor"
+            running="{{running}}"
+            parts="{{parts}}"
+            codes="{{codes}}"
+            added-parts="{{addedParts}}"
+            default-categories="[[defaultCategories]]"
+            ws-size="[[size]]"></kano-app-editor>
+        <paper-dialog id='error-dialog' with-backdrop>
+            <h2 class="title">{{error.title}}</h2>
+            <p class="description">{{error.description}}</p>
+        </paper-dialog>
+
     </template>
 </dom-module>
 
 <script type="text/javascript">
+    /* globals Polymer */
+    /* globals app */
     class KanoViewWorkshop {
         beforeRegister () {
             this.is = 'kano-view-workshop';
             this.properties = {
+                addedParts: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
+                },
+                codes: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                },
                 running: {
-                    type: String,
-                    computed: 'computeRunning(isRunning)'
+                    type: Boolean,
+                    observer: 'runningChanged'
                 },
-                buttonAction: {
-                    type: String,
-                    computed: 'computeButtonAction(isRunning)'
+                usedBlocks: {
+                    type: Object
                 },
-                slave: {
+                remixMode: {
                     type: Boolean,
                     value: false
+                },
+                error: {
+                    type: Object,
+                    value: {
+                        title: '',
+                        description: ''
+                    },
+                    notify: true
                 }
             };
-            this.observers = [
-                'workspaceHwsChanged(workspaceHws.splices)'
-            ];
-        }
-        computeRunning (running) {
-            return running ? 'running' : '';
-        }
-        computeButtonAction (running) {
-            return running ? 'stop' : 'make';
         }
         attached () {
-            let trash = this.$.workspace.getTrashElement();
-            this.workspaceHws = [];
-            this.isRunning = false;
-            this.set('devices', app.getHws());
-            app.Interact(this.$.workspace).dropzone({
-                accept: 'kano-hw-item',
-                ondragenter: () => {
-                    this.$.workspace.pulsing = true;
-                },
-                ondragleave: () => {
-                    this.$.workspace.pulsing = false;
-                },
-                ondrop: (e) => {
-                    let rect = e.relatedTarget.getBoundingClientRect(),
-                        elemCenter = {
-                            x: rect.left + (rect.width / 2),
-                            y: rect.top + (rect.height / 2)
-                        },
-                        model = app.hardware.create(e.relatedTarget.model.type);
-                    model.id = this.createId(model.type);
-                    this.$.workspace.addHw(model, elemCenter);
-                    this.$.workspace.pulsing = false;
-                }
-            });
-            app.Interact(trash).dropzone({
-                accept: 'kano-hw',
-                overlap: 0.01,
-                ondrop: (e) => {
-                    let id = e.relatedTarget.model.id
-                    this.$.workspace.removeHw(id);
-                    app.devices.remove(id);
-                    app.codes.remove(id);
-                }
-            });
-        }
-        createId (type) {
-            let ids = this.hws.map((hw) => hw.id);
-            if (ids.indexOf(type) !== -1) {
-                return this.createId(`${type}-1`);
-            }
-            return type;
-        }
-        sidebarHwReady (e) {
-            let clone;
-            app.Interact(e.detail).draggable({
-                onmove: app.dragMoveListener,
-                restrict: {
-                    restriction: this.$.section
-                },
-                onend: () => {
-                    this.$.section.removeChild(clone);
-                }
-            }).on('move', (event) => {
-                let interaction = event.interaction;
+            let editor = this.$.editor,
+                appToLoad,
+                slug = app.ctx.params.slug;
 
-                // if the pointer was moved while being held down
-                // and an interaction hasn't started yet
-                if (interaction.pointerIsDown && !interaction.interacting()) {
-                    let original = event.currentTarget,
-                    rect = original.getBoundingClientRect();
-
-                    // create a clone of the currentTarget element
-                    clone = Polymer.dom(original).cloneNode(true);
-                    clone.model = original.model;
-                    clone.style.position = 'absolute';
-                    clone.style.top = `${rect.top}px`;
-                    clone.style.left = `${rect.left}px`;
-
-                    // insert the clone to the page
-                    this.$.section.appendChild(clone);
-
-                    // start a drag interaction targeting the clone
-                    interaction.start({ name: 'drag' },
-                                        event.interactable,
-                                        clone);
-                }
-            });
-        }
-        workspaceHwReady (e) {
-            let element = e.detail;
-            // Register the element in the service
-            app.elements.add(element.model.id, element.getHw());
-            app.Interact(element).draggable({
-                onmove: app.dragMoveListener,
-                restrict: {
-                    restriction: this.$.workspace,
-                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-                }
-            });
-        }
-        openModal (e) {
-            let modal = document.createElement('kano-modal'),
-                editor = document.createElement('kano-hw-editor'),
-                appElement = document.querySelector('kano-app');
-            modal.height = '98%';
-            modal.width = '98%';
-            modal.addEventListener('modal-close', () => {
-                app.codes.add(editor.selectedHw.id, editor.code, editor.rule, editor.getBlocklyXml());
-                e.detail.rules = app.codes.getRulesFor(editor.selectedHw.id);
-                appElement.removeChild(modal);
-            });
+            this.set('parts', app.part);
+            this.set('user', app.sdk.auth.getUser());
+            this.set('size', app.config.WORKSPACE_FULL_SIZE);
             app.registerBlockly(window.Blockly);
-            editor.defaultCategories = app.defaultCategories;
-            editor.selectedHw = e.detail.model;
-            editor.hws = this.workspaceHws;
-            appElement.appendChild(modal);
-            modal.addEventListener('animation-finished', () => {
-                modal.setContent(editor);
-            });
-            modal.show();
-        }
-        workspaceHwsChanged () {
-            let groupedHws = this.workspaceHws.reduce((acc, hw) => {
-                acc[hw.id] = hw;
-                return acc;
-            }, {});
-            app.devices.setDevices(groupedHws);
-        }
-        toggleMake () {
-            this.isRunning = !this.isRunning;
-            if (this.isRunning) {
-                app.codes.run();
+            this.set('defaultCategories', app.defaultCategories);
+            editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
+            editor.addEventListener('share', this.shareApp.bind(this));
+            editor.addEventListener('change', this.save.bind(this));
+
+            if (slug) {
+                this.remixMode = true;
+                //loading component for remixing, we need to get data from the slug
+                app.sdk.api.share.get.bySlug({ slug }).then(res => {
+                    //getting the workspace info from the share
+                    if (res.body.item.workspace_info_url) {
+                        fetch(res.body.item.workspace_info_url)
+                        .then(response => {
+                            return response.json();
+                        }).then(json => {
+                            editor.load(json, app.part);
+                        }).catch(err => {
+                            console.error('loading failed', err);
+                            this.set('error.title', 'Loading failed');
+                            this.set('error.description', 'Couldn\'t load share');
+                            this.$['error-dialog'].open();
+                        })
+                    }
+                });
             } else {
-                app.codes.stop();
+                appToLoad = JSON.parse(localStorage.getItem('savedApp'))
+                editor.load(appToLoad, app.part);
+            }
+
+        }
+        updateWorkspaceRect (rect) {
+            app.dragAndDrop.setWorkspaceRect(rect);
+        }
+        save () {
+            // Save after 3secs without changes
+            if (!this.remixMode) {
+                this.debounce('save', () => {
+                    let editor = this.$.editor,
+                        savedApp = editor.save();
+                    localStorage.setItem('savedApp', JSON.stringify(savedApp));
+                }, 3000);
+            }
+        }
+        shareApp (e) {
+            // Generates the standalone component
+            let editor = this.$.editor,
+                savedApp = app.components.generateStandaloneComponent(
+                    this.addedParts,
+                    editor.computeBackground(),
+                    this.size
+                ),
+                attachment = new Blob([savedApp], { type: 'text/html' }),
+                cover = app.file_utils.dataURItoBlob(e.detail.image),
+                workspace_info = new Blob([e.detail.workspace_info], { type: 'application/json' });
+
+            attachment.filename = 'code.html';
+            cover.filename = 'cover.png';
+            workspace_info.filename = 'workspace_info.json';
+
+            //Share by calling the API
+            app.sdk.api.share.post({
+                app: 'make-apps',
+                title: e.detail.title,
+                description: e.detail.description,
+                files: {
+                    attachment: attachment,
+                    cover: cover,
+                    workspace_info: workspace_info
+                }
+            }).then(() => {
+                modal.close();
+            });
+        }
+        uiAddedParts () {
+            return this.addedParts.filter((part) => {
+                return part.partType === 'ui';
+            });
+        }
+        /**
+         * When the current code changes, save it in the components store
+         * @param  {Event} e  Informations about the code updated
+         */
+        codeChanged (e) {
+            let data = e.detail;
+            // Add the new code and its rule to the components store
+            app.components.setCode(data.id, data.emitter, data.event, data.code);
+        }
+        detached () {
+            window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
+        }
+        runningChanged () {
+            if (this.running) {
+                app.components.run(this.addedParts, this.codes);
+            } else {
+                app.components.stop(this.addedParts, this.codes);
             }
         }
     }

@@ -1,0 +1,59 @@
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
+
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-font-family">
+    <style>
+    </style>
+    <template>
+        <paper-dropdown-menu label="[[label]]" noink no-animations>
+            <paper-menu class="dropdown-content" selected="{{value}}" attr-for-selected="value">
+                <template is="dom-repeat" items="[[fontFamilies]]" as="option">
+                    <paper-item value="[[option.value]]">[[option.label]]</paper-item>
+                </template>
+            </paper-menu>
+        </paper-dropdown-menu>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoInputFontFamily {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-font-family';
+            this.observers = [
+                'valueChanged(value)'
+            ];
+        }
+
+        attached () {
+            this.fontFamilies = [
+                {
+                    value: 'Bariol',
+                    label: 'Bariol'
+                },
+                {
+                    value: 'serif',
+                    label: 'serif'
+                },
+                {
+                    value: 'monospace',
+                    label: 'monospace'
+                }
+            ];
+        }
+
+        valueChanged () {
+            this.fire('change');
+        }
+
+    }
+    Polymer(KanoInputFontFamily);
+</script>

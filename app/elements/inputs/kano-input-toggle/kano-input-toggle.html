@@ -1,0 +1,34 @@
+<link rel="import" href="../../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-toggle">
+    <style>
+    :host {
+        display: block;
+    }
+    </style>
+    <template>
+        <paper-toggle-button checked="{{value}}" noink>[[label]]</paper-toggle-button>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoInputToggle {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-toggle';
+            this.observers = [
+                'valueChanged(value)'
+            ];
+        }
+        valueChanged () {
+            this.notifyPath('value', this.value);
+        }
+    }
+    Polymer(KanoInputToggle);
+</script>

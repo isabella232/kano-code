@@ -1,0 +1,244 @@
+{
+    "parts": ["label", "weather"],
+    "steps": [{
+        "modal": {
+            "text": "Using the set text block allows you to change what is the text displayed. Now we will see how to get the temperature from the Internet",
+            "next_button": true
+        }
+    },{
+        "load_app": "app_1",
+        "focus": "workspace-controls.add-part",
+        "validation": {
+            "open-parts": true
+        },
+        "tooltips": [{
+            "location": "workspace-controls.add-part",
+            "position": "left",
+            "text": "Open the **Parts** page again"
+        }]
+    },{
+        "validation": {
+            "add-part": {
+                "type": "weather",
+                "id": "weather_1"
+            }
+        },
+        "arrow": {
+            "source": "sidebar.parts.part-weather",
+            "target": "right-panel"
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-weather",
+            "position": "right",
+            "text": "Drag the `Weather` part..."
+        },{
+            "location": "right-panel",
+            "position": "left",
+            "text": "...and drop it in here"
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "weather_1"
+        },
+        "validation": {
+            "select-part": {
+                "target": "weather_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "weather_1"
+            },
+            "position": "right",
+            "text": "Select the weather part to configure it"
+        }]
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "You can configure the way you want to get the weather in this panel",
+            "next_button": true
+        }]
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor.data-editor.refresh-button",
+            "position": "right",
+            "text": "If you hit this button, you will get the current weather"
+        }],
+        "validation": {
+            "refresh-data": true
+        }
+    },{
+        "focus": "part-editor.data-editor.data-browser",
+        "tooltips": [{
+            "location": "part-editor.data-editor.data-browser",
+            "position": "top",
+            "text": "Here you can see how the data looks like",
+            "next_button": true
+        }]
+    },{
+        "focus": "part-editor.data-editor.refresh-toggle",
+        "tooltips": [{
+            "location": "part-editor.data-editor.refresh-toggle",
+            "position": "top",
+            "text": "Click on this button to enable the automatic refresh of the weather"
+        }],
+        "validation": {
+            "selected-part-change": {
+                "target": "weather_1",
+                "property": "refreshEnabled",
+                "value": true
+            }
+        }
+    },{
+        "focus": "part-editor.data-editor.location",
+        "tooltips": [{
+            "location": "part-editor.data-editor.location",
+            "position": "right",
+            "text": "And here you can choose which city to lookup, go ahead and type any"
+        }],
+        "validation": {
+            "selected-part-change": {
+                "target": "weather_1",
+                "property": "config.location",
+                "count": 4
+            }
+        }
+    },{
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Your data source is configured. Now let's use it in the code",
+            "next_button": true
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "label_1"
+        },
+        "validation": {
+            "select-part": {
+                "target": "label_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "label_1"
+            },
+            "position": "right",
+            "text": "Click on the label, this is where your previous code is"
+        }]
+    },{
+        "validation": {
+            "open-part-trigger": true
+        },
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Click on the big 'Add code' button"
+        }]
+    },{
+        "focus": "part-editor",
+        "validation": {
+            "trigger": {
+                "emitter": {
+                    "part": "weather_1"
+                },
+                "event": "update"
+            }
+        },
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Choose *When Weather updated*"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "label_1",
+                    "type": "set_value",
+                    "id": "set_value_1"
+                }
+            }
+        },
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Get the *set Label value* block"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "weather_1",
+                    "type": "get_value",
+                    "id": "get_weather_value"
+                }
+            }
+        },
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Now, grab a *get Weather's* block and connect it to the block you added before"
+        }]
+    },{
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "get_weather_value",
+                    "parent": "set_value_1"
+                }
+            }
+        },
+        "focus": "part-editor",
+        "tooltips": [{
+            "location": "part-editor",
+            "position": "right",
+            "text": "Now, grab a *get Weather's* block and connect it to the block you added before"
+        }]
+    },{
+        "validation": {
+            "running": {
+                "value": true
+            }
+        },
+        "focus": "workspace-controls.make-button",
+        "tooltips": [{
+            "location": "workspace-controls.make-button",
+            "position": "left",
+            "text": "Your app is ready, let's see if it works. Hit the make button"
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "weather_1"
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "weather_1"
+            },
+            "position": "right",
+            "text": "Everytime your app update the weather, you can see the data go through this part",
+            "next_button": true
+        }]
+    },{
+        "tooltips": [{
+            "location": "workspace",
+            "position": "bottom",
+            "text": "Yay, your app works!",
+            "next_button": true
+        }]
+    }],
+    "modules": []
+}

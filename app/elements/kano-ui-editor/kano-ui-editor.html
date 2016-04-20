@@ -1,0 +1,40 @@
+<link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-ui-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        position: relative;
+    }
+    </style>
+    <template>
+        <div class="content">
+            <kano-ui-configuration id="look"
+                        element="{{selected}}"
+                        name="config"></kano-ui-configuration>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoUiEditor {
+
+        get behaviors () {
+            return [KanoBehaviors.AppEditorBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-editor';
+            this.properties = {
+                selected: {
+                    type: Object,
+                    notify: true
+                }
+            };
+        }
+    }
+    Polymer(KanoUiEditor);
+</script>

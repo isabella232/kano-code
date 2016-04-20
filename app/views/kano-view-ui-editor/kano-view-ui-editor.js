@@ -1,3 +1,5 @@
+/* globals Polymer */
+/* globals app */
 class KanoViewUiEditor {
     beforeRegister () {
         this.is = 'kano-view-ui-editor';

@@ -1,121 +1,167 @@
+<link rel="import" href="../ui/kano-ui/kano-ui.html">
 <dom-module id="kano-workspace">
     <style>
     :host {
         position: relative;
         @apply(--layout-vertical);
-        background-color: #2196F3;
-        background-image: linear-gradient(#2196F3, #3F51B5);
         border: 0px;
-        transition: box-shadow linear 100ms;
-        box-shadow: 0px 0px 0px 4px transparent inset;
         overflow: hidden;
     }
-    :host.pulsing {
-        box-shadow: 0px 0px 0px 4px var(--primary-color) inset;
-    }
     :host .content {
+        position: relative;
         @apply(--layout-flex);
-        background-color: transparent;
-        background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+        --kano-ui-viewport: {
+            @apply(--kano-shadow);
+        };
+    }
+    :host.running .content {
+        --kano-ui-viewport: {
+            border: none;
+        };
+    }
+    :host ::content #dropzone {
+        width: 100%;
         height: 100%;
-        background-size: 50px 50px;
-        overflow: auto;
+
+        position: relative;
     }
-    :host .content.running {
-        border: 3px solid var(--color-red);
-    }
-    :host kano-hw {
+
+    :host ::content div#dropzone > * {
         position: absolute;
         top: 0px;
-        left: 0px;
-    }
-    :host .trash {
-        position: absolute;
-        right: -150px;
-        bottom: -150px;
-        width: 300px;
-        height: 300px;
-        transition: all 100ms ease-out;
-        background: radial-gradient(rgba(255, 255, 255, 0.3), transparent);
-        border-radius: 50%;
-    }
-    :host .trash.open {
-        width: 500px;
-        height: 500px;
-        right: -250px;
-        bottom: -250px;
+        left: 0px
     }
     </style>
     <template>
-        <div class="content" id="content"></div>
-        <div class="trash" id="trash" on-mouseenter="trashEnter" on-mouseleave="trashLeave"></div>
+        <kano-ui-viewport mode="scaled"
+                    view-width="[[size.width]]"
+                    view-height="[[size.height]]"
+                    class="content"
+                    id="content">
+            <div id="dropzone"></div>
+        </kano-ui-viewport>
     </template>
 </dom-module>
 
 <script type="text/javascript">
+    /* globals Polymer */
     class KanoWorkspace {
         beforeRegister () {
             this.is = 'kano-workspace';
             this.properties = {
-                hws: {
+                size: {
+                    type: Object
+                },
+                parts: {
                     type: Array,
                     notify: true
                 },
                 running: {
                     type: Boolean,
                     value: false,
-                    observer: 'updateRunning'
+                    observer: 'runningChanged'
                 },
-                pulsing: {
-                    type: Boolean,
-                    value: false,
-                    observer: 'pulsingChanged'
+                selected: {
+                    type: Object,
+                    notify: true
                 }
-            }
+            };
+            this.observers = [
+                'partsChanged(parts.*)'
+            ];
         }
-        attached () {
-            this.hws = [];
+        ready () {
+            this.elements = {};
         }
-        addHw (model, position) {
-            let rect = this.getBoundingClientRect(),
-                el;
-            position.x = position.x - rect.left;
-            position.y = position.y - rect.top;
-            el = document.createElement('kano-hw');
-            el.model = model;
-            el.style.position = 'absolute';
-            el.style.left = `${position.x}px`;
-            el.style.top = `${position.y}px`;
-            el.setAttribute('id', model.id);
-            this.$.content.appendChild(el);
-            this.push('hws', model);
-        }
-        removeHw (id) {
-            for (let i in this.hws) {
-                if (this.hws[i].id === id) {
-                    this.splice('hws', i, 1);
-                }
-            }
-            this.$.content.removeChild(this.$.content.querySelector(`#${id}`));
-        }
-        updateRunning () {
-            let children = this.$.content.children;
-            if (!children) {
+        partsChanged (e) {
+            let path;
+            if (!e) {
                 return;
             }
-            [].slice.call(children).forEach((el) => el.running = this.running);
+            path = e.path;
+            if (path === 'parts.splices') {
+                let splices = e.value.keySplices;
+                splices.forEach((splice) => {
+                    splice.added.forEach(this.insertPart.bind(this));
+                    splice.removed.forEach(this.removePart.bind(this));
+                });
+            } else if (path === 'parts') {
+                if (this.elements) {
+                    // Clean the dropzone
+                    Object.keys(this.elements).forEach(this.removePart.bind(this));
+                }
+                // Insert the elements from the models
+                this.parts.forEach((model, index) => {
+                    this.insertPart(`#${index}`);
+                });
+            } else if (path === 'parts.length'){
+                return;
+            } else {
+                let pieces = path.split('.'),
+                    key = pieces[1],
+                    subPath;
+                if (!key) {
+                    return;
+                }
+                subPath = pieces.slice(2, pieces.length);
+                subPath.unshift('model');
+                subPath = subPath.join('.');
+                this.propagateChange(key, subPath, e.value);
+            }
         }
-        pulsingChanged () {
-            this.toggleClass('pulsing', this.pulsing);
+        propagateChange (key, path, value) {
+            let element = this.elements[key];
+            if (!element) {
+                return;
+            }
+            element.set(path, value);
         }
-        getTrashElement () {
-            return this.$.trash;
+        insertPart (key) {
+            let model = this.get(`parts.${key}`),
+                tagName,
+                element;
+            tagName = model.tagName ? model.tagName : `kano-ui-${model.type}`;
+            element = document.createElement(tagName);
+            element.setAttribute('id', model.id);
+            element.addEventListener('model-changed', (e) => {
+                let detail = e.detail,
+                    path;
+                if (!detail.path) {
+                    path = `parts.${key}`;
+                } else {
+                    path = detail.path.replace('model', `parts.${key}`);
+                }
+                this.set(path, detail.value);
+            });
+            element.model = model;
+            this.elements[key] = element;
+            this.$.dropzone.appendChild(element);
         }
-        trashEnter () {
-            this.toggleClass('open', true, this.$.trash);
+        removePart (key) {
+            let element = this.elements[key];
+            if (!element) {
+                return;
+            }
+            this.$.dropzone.removeChild(element);
+            delete this.elements[key];
         }
-        trashLeave () {
-            this.toggleClass('open', false, this.$.trash);
+        runningChanged () {
+            if (this.running) {
+                this.classList.add('running');
+            } else {
+                this.classList.remove('running');
+            }
+        }
+        getPartIndexById (id) {
+            let elements = this.parts;
+            for (let i = 0, len = elements.length; i < len; i++) {
+                if (elements[i].id === id) {
+                    return i;
+                }
+            }
+        }
+        getViewport () {
+            return this.$.dropzone;
         }
     }
     Polymer(KanoWorkspace);

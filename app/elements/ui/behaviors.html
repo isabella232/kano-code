@@ -1,0 +1,142 @@
+<script type="text/javascript">
+
+
+window.KanoBehaviors = window.KanoBehaviors || {};
+
+/**
+ * Behavior common to all UI components
+ * Adds the style object that can be used to give the user
+ * customization features
+ * @type {Object}
+ */
+window.KanoBehaviors.UIBehavior = {
+    properties: {
+        model: {
+            type: Object,
+            notify: true
+        },
+        listeners: {
+            type: Object,
+            value: () => {
+                return {};
+            }
+        }
+    },
+    observers: [
+        'applyTransform(model.*)'
+    ],
+    attached () {
+        this.isRunning = false;
+        this.fire('ui-ready', this);
+    },
+    getPartialStyle (attrs) {
+        if (!this.model) {
+            return '';
+        }
+        attrs = attrs || Object.keys(this.model.userStyle);
+        return attrs.reduce((acc, key) => {
+            acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
+            return acc;
+        }, '');
+    },
+    when (name, callback) {
+        if (!this.listeners[name]) {
+            this.listeners[name] = [];
+        }
+        this.listeners[name].push(callback);
+        this.addEventListener(name, callback);
+    },
+    start () {
+        this.savedState = {
+            position: {
+                x: this.model.position.x,
+                y: this.model.position.y
+            },
+            rotation: this.model.rotation,
+            scale: this.model.scale,
+            visible: this.model.visible,
+            userProperties: Object.assign({}, this.model.userProperties),
+            userStyle: Object.assign({}, this.model.userStyle)
+        };
+        this.isRunning = true;
+    },
+    stop () {
+        let savedState = this.savedState;
+        Object.keys(this.listeners).forEach((name) => {
+            this.listeners[name].forEach((callback) => {
+                this.removeEventListener(name, callback);
+            });
+        });
+        this.listeners = {};
+        this.set('model.position.x', savedState.position.x);
+        this.set('model.position.y', savedState.position.y);
+        this.set('model.rotation', savedState.rotation);
+        this.set('model.scale', savedState.scale);
+        this.set('model.visible', savedState.visible);
+        this.set('model.userProperties', savedState.userProperties);
+        this.set('model.userStyle', savedState.userStyle);
+        this.isRunning = false;
+    },
+    moveAlong(distance) {
+        let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
+            alongY = Math.round(parseInt(distance) * Math.sin(direction)),
+            alongX = Math.round(parseInt(distance) * Math.cos(direction));
+        this.move(alongX, alongY);
+    },
+    move (x, y) {
+        let position = this.model.position;
+        // Set separate values otherwise, the reference is compared and
+        // change triggers are not fired
+        this.set('model.position.x', position.x + x);
+        this.set('model.position.y', position.y + y);
+    },
+    setXY (x, y) {
+        let pos = {x: x, y: y};
+        this.set('model.position', pos);
+    },
+    setX (x) {
+        this.set('model.position.x', x);
+    },
+    setY (y) {
+        this.set('model.position.y', y);
+    },
+    getX () {
+        return this.get('model.position.x');
+    },
+    getY () {
+        return this.get('model.position.y');
+    },
+    rotate (deg) {
+        let rotation = this.model.rotation;
+        this.set('model.rotation', parseInt(rotation) + parseInt(deg));
+    },
+    scale (factor) {
+        this.set('model.scale', factor);
+    },
+    resize (factor) {
+        let curFactor = this.get('model.scale') || 100;
+        this.set('model.scale', curFactor * factor / 100);
+    },
+    show (visibility) {
+        this.set('model.visible', visibility);
+    },
+    toggleVisibility () {
+        this.set('model.visible', !this.model.visible);
+    },
+    applyTransform () {
+        if (!this.model) {
+            return;
+        }
+        let position = this.model.position || { x: 0, y: 0 },
+            rotation = this.model.rotation || 0,
+            scale = this.model.scale / 100 || 1,
+            transform,
+            visibility;
+        transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
+        visibility = this.model.visible ? 'visible' : 'hidden';
+        this.style.webkitTransform = this.style.transform = transform;
+        this.style.visibility = visibility;
+    }
+};
+
+</script>

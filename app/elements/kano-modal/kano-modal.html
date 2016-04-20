@@ -40,6 +40,7 @@
         color: var(--color-black);
         font-size: 2em;
         line-height: 20px;
+        z-index: 1;
     }
     :host .modal header button:hover {
         cursor: pointer;
@@ -52,7 +53,7 @@
     </style>
     <template>
         <style include="kano-style"></style>
-        <div class="modal" style$="[[size]]">
+        <div class="modal" style$="[[size]]" id="modal">
             <header>
                 <div class="title">{{title}}</div>
                 <button type="button" on-tap="close">&times;</button>
@@ -62,6 +63,8 @@
     </template>
 </dom-module>
 <script type="text/javascript">
+    /* globals Polymer */
+
     class KanoModal {
         beforeRegister () {
             this.is = 'kano-modal';
@@ -95,14 +98,15 @@
         computeSize () {
             return `height: ${this.height}; width: ${this.width}`;
         }
-        show (callback) {
+        show (callback=(()=>{})) {
             this.style.visibility = 'visible';
             setTimeout(() => {
                 this.fire('animation-finished');
+                callback();
             }, 150);
         }
         hide (callback) {
-            this.style.animation = 'zoom-out 150ms ease-out';
+            this.$.modal.style.animation = 'zoom-out 150ms ease-out';
             setTimeout(() => {
                 this.style.visibility = 'hidden';
                 callback();

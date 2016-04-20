@@ -1,56 +1,72 @@
-import Interact from 'interact.js';
-import Devices from './service/devices';
-import Codes from './service/codes';
-import Elements from './service/elements';
-import Challenges from './service/challenges';
-import Hardware from './hardware';
-import Blockly from './blockly/blockly';
+import modules from './language/modules';
+import blockly from './blockly';
+import Stories from './service/stories';
+import Components from './service/components';
+import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
+import ModelManager from './service/modelManager';
+import DragAndDrop from './drag-and-drop';
+import FileUtils from './util/file';
 
 import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
-let config = {
-    API_URL     : 'https://api.kano.me',
-    WORLD_URL   : 'http://world.kano.me'
-};
-
 (function (app) {
+    app.config = window.config;
 
-    app.registerBlockly = Blockly.register;
+    DragAndDrop.init({ workspaceFullSize: app.config.WORKSPACE_FULL_SIZE });
 
-    app.Interact = Interact;
-
-    app.dragMoveListener = (event) => {
-        let target = event.target,
-            // keep the dragged position in the data-x/data-y attributes
-            x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-            y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-        // translate the element
-        target.style.webkitTransform =
-        target.style.transform =
-        'translate(' + x + 'px, ' + y + 'px)';
-
-        // update the posiion attributes
-        target.setAttribute('data-x', x);
-        target.setAttribute('data-y', y);
+    app.defaultCategories = [];
+    app.registerBlockly = (Blockly) => {
+        let mod,
+            category;
+        // Register default blockly modules
+        blockly.register(Blockly);
+        // Loop through the modules and register every block
+        Object.keys(modules).forEach((moduleName) => {
+            mod = modules[moduleName];
+            if (typeof mod.config === 'function') {
+                mod.config(app.config);
+            }
+            if (!mod.blocks) {
+                return;
+            }
+            category = {
+                name: mod.name,
+                colour: mod.colour,
+                blocks: []
+            };
+            mod.blocks.forEach((definition) => {
+                let block = definition.block;
+                block.colour = mod.colour;
+                Blockly.Blocks[block.id] = {
+                    init: function () {
+                        this.jsonInit(block);
+                    }
+                };
+                Blockly.JavaScript[block.id] = definition.javascript;
+                Blockly.Pseudo[block.id] = definition.pseudo;
+                category.blocks.push({ id: block.id });
+            });
+            if (category.blocks) {
+                app.defaultCategories.push(category);
+            }
+        });
     };
 
-    app.devices = Devices;
-    app.codes = Codes;
-    app.hardware = Hardware;
-    app.elements = Elements;
-    app.challenges = Challenges;
+    app.part = Part;
+    app.stories = Stories;
+    app.components = Components;
+    app.modelManager = ModelManager;
+    app.dragAndDrop = DragAndDrop;
 
-    app.getHws = () => {
-        return app.hardware.getAll();
-    };
+    app.defaultCategories = app.defaultCategories.concat(blockly.categories);
 
-    app.defaultCategories = Blockly.categories;
-
-    app.sdk = KanoWorldSdk(config);
+    app.sdk = KanoWorldSdk(app.config);
     app.sdk.registerForms();
 
+    window.KanoModules = modules;
+
+    app.file_utils = FileUtils;
 })(window.app = {});

@@ -1,0 +1,44 @@
+<dom-module id="kano-background-editor">
+    <style>
+    :host {
+        display: block;
+    }
+    :host .background {
+        padding: 25px;
+    }
+    </style>
+    <template>
+        <div name="background" class="background" id="background">
+            <kano-ui-customizer id="background_style" customizable="{{backgroundOptions}}" user-values="{{background.userStyle}}"></kano-ui-customizer>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoBackgroundEditor {
+        beforeRegister () {
+            this.is = 'kano-background-editor';
+            this.properties = {
+                background: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            name: 'My app',
+                            userStyle: {}
+                        };
+                    },
+                    notify: true
+                }
+            };
+        }
+        attached () {
+            this.set('backgroundOptions', [{
+                key: 'background',
+                type: 'background',
+                label: 'Background'
+            }]);
+        }
+    }
+    Polymer(KanoBackgroundEditor);
+</script>

@@ -1,0 +1,52 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-ui-button">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    :host button {
+        @apply(--kano-button-big);
+        background: var(--color-green);
+    }
+    </style>
+    <template>
+        <button id="button"
+                type="button"
+                on-tap="buttonClicked"
+                style$="[[computeButtonStyle(model.userStyle.*)]]">
+            [[model.userProperties.label]]
+        </button>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+    class KanoUiButton {
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+        beforeRegister () {
+            this.is = 'kano-ui-button';
+        }
+        buttonClicked () {
+            this.fire('clicked');
+        }
+        computeButtonStyle () {
+            return this.getPartialStyle(['background-color', 'color']);
+        }
+        getLabel () {
+            return this.get('model.userProperties.label');
+        }
+        setLabel (label) {
+            this.set('model.userProperties.label', label);
+        }
+        setBackgroundColour (color) {
+            this.set('model.userStyle.background-color', color);
+        }
+        setColour (color) {
+            this.set('model.userStyle.color', color);
+        }
+    }
+    Polymer(KanoUiButton);
+</script>

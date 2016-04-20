@@ -1,0 +1,78 @@
+<dom-module id="kano-story-scene">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host * {
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <kano-view id="view"
+                location="[[location]]"
+                view-name="[[name]]"
+                attributes="{{attributes}}"></kano-view>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoStoryScene {
+        beforeRegister () {
+            this.is = 'kano-story-scene';
+            this.properties = {
+                scene: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                },
+                location: {
+                    type: String
+                },
+                name: {
+                    type: String
+                },
+                attributes: {
+                    type: Object
+                },
+                store: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
+                }
+            };
+            this.observers = [
+                'componentChanged(scene.component)'
+            ];
+        }
+        componentChanged () {
+            let scene = this.scene,
+                pieces,
+                name,
+                loc;
+            if (!scene.component && !scene.load) {
+                return;
+            }
+            if (scene.load) {
+                this.$.view.mountComponent(this.savedScenes[scene.load]);
+                return;
+            }
+            // Cut using '/'
+            pieces = scene.component.split('/');
+            // Extract the last piece
+            name = pieces.pop();
+            // Join back the first pieces to get the location
+            loc = pieces.join('/');
+            this.set('location', `assets/stories/${loc}`);
+            this.set('attributes', {
+                scene: scene.data,
+                store: this.store
+            });
+            this.set('name', `kano-scene-${name}`);
+        }
+    }
+    Polymer(KanoStoryScene);
+</script>

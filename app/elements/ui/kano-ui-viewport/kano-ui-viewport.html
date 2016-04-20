@@ -1,0 +1,222 @@
+<!--
+
+## kano-ui-viewport component usage
+
+The component can work in three different modes:
+
+  * responsive
+  * scaled
+  * stretched
+
+
+### Responsive mode
+
+In this mode, the view container will be forced into certain aspect ratio
+where you can position your elements as you wish. You need to specify the
+aspect ratio (defaults to the current ratio of the container).
+
+    <kano-ui-viewport mode="responsive" aspect-ratio="16:9">
+        ... your content ...
+    </kano-ui-viewport>
+
+
+### Scaled mode
+
+This mode lets you to scale an arbitrary element of specific dimensions that
+you know beforehand to fit any viewport while maintaining the original aspect
+ratio. You'll need to pass the original size of your content using the
+`view-width` and `view-height` arguments.
+
+    <kano-ui-viewport mode="scaled" view-width="500" view-height="500">
+        ... your content ...
+    </kano-ui-viewport>
+
+Behind the scenes, the container uses CSS transforms to make your content fit.
+
+
+### Stretched
+
+This mode works exactly the same way as the 'scaled' mode, except it stretches
+the content out of proportions to make it fit inside the available space.
+
+-->
+
+<dom-module id="kano-ui-viewport">
+    <style>
+        :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #view {
+            position: absolute;
+            transform-origin: 0 0 0;
+            overflow: hidden;
+            background-color: transparent;
+            @apply(--kano-ui-viewport);
+        }
+
+        .debug {
+            background-color: red;
+            box-sizing: border-box;
+            border: 1px solid red;
+        }
+    </style>
+
+    <template>
+        <div id="view">
+            <content></content>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer */
+
+    class KanoUiViewport {
+        beforeRegister () {
+            this.is = 'kano-ui-viewport';
+            this.properties = {
+                viewWidth: {
+                    type: Number,
+                    value: 0,
+                    reflectToAttribute: true
+                },
+                viewHeight: {
+                    type: Number,
+                    value: 0,
+                    reflectToAttribute: true
+                },
+                mode: {
+                    type: String,
+                    value: 'responsive'
+                },
+                aspectRatio: {
+                    type: String,
+                    value: 'auto'
+                },
+                debug: {
+                    type: Boolean,
+                    value: false
+                }
+            };
+            this.observers = [
+                'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
+            ];
+        }
+
+        resizeView () {
+            this.debounce('resizeView', () => {
+                switch (this.mode) {
+                    case "responsive":
+                        this.resize();
+                        break;
+                    case "stretched":
+                        this.stretch();
+                        break;
+                    case "scaled":
+                        this.fit();
+                        break;
+                    default:
+                        console.log('Mode "' + this.mode + '" not supported.');
+                }
+            }, 10);
+        }
+
+        resize () {
+            var scale = this.parseAspectRatio(this.aspectRatio);
+
+            if (scale >= 1) {
+                this.viewWidth = this.offsetWidth;
+                this.viewHeight = this.offsetWidth * (1/scale);
+            } else {
+                this.viewHeight = this.offsetHeight;
+                this.viewWidth = this.offsetHeight * scale;
+            }
+
+            var s = this.getScale();
+            scale = Math.min(s.x, s.y);
+
+            this.viewHeight = this.viewHeight * scale;
+            this.viewWidth = this.viewWidth * scale;
+
+            /* Resize the view without scaling it */
+            this.doResize(1, 1);
+        }
+
+        stretch () {
+            var s = this.getScale();
+            this.doResize(s.x, s.y);
+        }
+
+        fill () {
+            var s = this.getScale(),
+                scale = Math.max(s.x, s.y);
+
+            this.doResize(scale, scale);
+        }
+
+        fit () {
+            var s = this.getScale(),
+                scale = Math.min(s.x, s.y);
+
+            this.doResize(scale, scale);
+        }
+
+        getScale () {
+            var xScale = this.offsetWidth / this.viewWidth,
+                yScale = this.offsetHeight / this.viewHeight;
+
+            return {x: xScale, y: yScale};
+        }
+
+        doResize (xScale, yScale) {
+            var xOffset = (this.offsetWidth - this.viewWidth * xScale) / 2,
+                yOffset = (this.offsetHeight - this.viewHeight * yScale) / 2,
+                style = this.$.view.style;
+
+            /* Set the boundaries */
+            style.width = this.viewWidth + 'px';
+            style.height = this.viewHeight + 'px';
+
+            /* Center the view on the screen */
+            style.top = yOffset + 'px';
+            style.left = xOffset + 'px';
+
+            /* Transform the element to the appropriate scale */
+            style.transform = 'scale(' + xScale + ', ' + yScale + ')';
+
+            this.fire('viewport-resize', this.$.view.getBoundingClientRect());
+        }
+
+        parseAspectRatio (aspect) {
+            if (aspect === 'auto') {
+                return this.offsetWidth / this.offsetHeight;
+            } else {
+                var numbers = aspect.split(':');
+                return parseInt(numbers[0]) / parseInt(numbers[1]);
+            }
+        }
+
+        attached () {
+            /* If not set, initialise the view dimensions to max possible. */
+            this.viewWidth = this.viewWidth || this.offsetWidth;
+            this.viewHeight = this.viewHeight || this.offsetHeight;
+
+            if (this.debug) {
+                this.toggleClass('debug', true, this.$.view);
+            }
+
+            window.addEventListener('resize', this.resizeView.bind(this));
+            this.resizeView();
+        }
+
+        detached () {
+            window.addEventListener('resize', this.resizeView.bind(this));
+        }
+    }
+    Polymer(KanoUiViewport);
+</script>

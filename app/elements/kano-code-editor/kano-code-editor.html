@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/juicy-ace-editor/juicy-ace-editor.html">
+<link rel="import" href="../behaviors.html">
+<script src="../../bower_components/ace-builds/src-min-noconflict/mode-javascript.js"></script>
+<script src="../../bower_components/ace-builds/src-min-noconflict/theme-dawn.js"></script>
+
+<dom-module id="kano-code-editor">
+    <style>
+    :host {
+        @apply(--layout-vertical);
+    }
+    :host juicy-ace-editor {
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <juicy-ace-editor id="editor"
+                          value="{{code::change}}"
+                          on-change="changed"
+                          theme="ace/theme/dawn"
+                          mode="ace/mode/javascript"></juicy-ace-editor>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, KanoBehaviors */
+    class KanoCodeEditor {
+
+        get behaviors () {
+            return [KanoBehaviors.CodeEditorBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-code-editor';
+        }
+
+        save () {
+            let snapshot = {
+                javascript: this.code
+            };
+            this.set('snapshot', snapshot);
+            return Promise.resolve(snapshot);
+        }
+
+        load (snapshot) {
+            let code = snapshot.javascript || '';
+            this.set('code', code);
+            this.$.editor.value = code;
+        }
+
+        changed () {
+            this.fire('change');
+        }
+    }
+
+    Polymer(KanoCodeEditor);
+</script>

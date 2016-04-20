@@ -1,0 +1,69 @@
+<link rel="import" href="../inputs/kano-input/kano-input.html">
+<dom-module id="kano-ui-customizer">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+        transition: all linear 100ms;
+    }
+    :host .line {
+        margin-top: 5px;
+        @apply(--layout-vertical);
+    }
+    :host .line label {
+        font-size: 1.1em;
+        font-weight: 400;
+        color: var(--color-grey-darker, grey);
+    }
+    :host kano-input ::content input[type="text"] {
+        @apply(--kano-light-input);
+    }
+    :host kano-input ::content select {
+        @apply(--kano-light-select);
+    }
+    </style>
+    <template>
+        <template is="dom-repeat"
+                items="{{customizable}}"
+                as="property">
+            <div class="line" id$="[[property.key]]">
+                <kano-input type="{{property.type}}"
+                        name="name"
+                        label="{{property.label}}"
+                        on-value-changed="propertyChanged"
+                        value$="[[computeValue(property.key)]]"
+                        min="[[property.min]]"
+                        max="[[property.max]]">
+                </kano-input>
+            </div>
+        </template>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer */
+    class KanoUiCustomizer {
+        beforeRegister () {
+            this.is = 'kano-ui-customizer';
+            this.properties = {
+                userValues: {
+                    type: Object,
+                    notify: true
+                },
+                customizable: {
+                    type: Array,
+                    value: () => []
+                }
+            };
+        }
+        propertyChanged (e) {
+            let propertyName = e.model.get('property.key');
+            this.set(`userValues.${propertyName}`, e.detail.value);
+        }
+        computeValue (propertyName) {
+            return this.userValues[propertyName];
+        }
+    }
+    Polymer(KanoUiCustomizer);
+</script>

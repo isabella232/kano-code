@@ -1,0 +1,66 @@
+<link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
+<link rel="import" href="../kano-data-editor/kano-data-editor.html">
+<dom-module id="kano-part-editor">
+    <style>
+    :host {
+        display: block;
+        position: relative;
+        border-radius: 6px;
+        @apply(--layout-vertical);
+    }
+    :host iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host kano-ui-editor,
+    :host kano-data-editor {
+        overflow-y: auto;
+        height: 100%;
+        @apply(--layout-flex);
+    }
+    </style>
+    <template>
+        <iron-pages selected="[[selected.partType]]" attr-for-selected="name">
+            <kano-ui-editor id="ui-editor" selected="{{selected}}" name="ui"></kano-ui-editor>
+            <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
+        </iron-pages>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoPartEditor {
+
+        beforeRegister () {
+            this.is = 'kano-part-editor';
+            this.properties = {
+                selected: {
+                    type: Object,
+                    notify: true
+                }
+            };
+        }
+        showCodeEditor () {
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.showCodeEditor();
+        }
+        hideCodeEditor () {
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.hideCodeEditor();
+        }
+        showPage (page) {
+            let uiEditor = this.$$('#ui-editor');
+            if (!uiEditor) {
+                return;
+            }
+            uiEditor.showPage(page);
+        }
+    }
+    Polymer(KanoPartEditor);
+</script>
