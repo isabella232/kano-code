@@ -37,13 +37,6 @@ utils = {
             .on('error', utils.notifyError)
             .pipe(source('app.js'))
             .pipe(gulp.dest('.tmp/app/scripts'));
-    },
-    getConfig () {
-        let env = process.env.NODE_ENV || 'development',
-            target = process.env.TARGET || 'web';
-
-        return Object.assign(config.common, config.target[target],
-               config.env[env], {"ENV": env, "TARGET": target});
     }
 };
 
@@ -75,7 +68,7 @@ gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
         .pipe($.htmlReplace({
             config: `
             <script type="text/javascript">
-                window.config = ${JSON.stringify(utils.getConfig())};
+                window.config = ${JSON.stringify(config)};
             </script>
             `
          }))
