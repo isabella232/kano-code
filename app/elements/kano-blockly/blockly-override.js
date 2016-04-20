@@ -78,6 +78,58 @@ Blockly.Flyout.prototype.position = function () {
 };
 
 /**
+ * Initializes the toolbox.
+ */
+Blockly.Toolbox.prototype.init = function() {
+  var workspace = this.workspace_,
+    svg = workspace.getParentSvg(),
+    container = svg.parentNode;
+
+  // Create an HTML container for the Toolbox menu.
+  this.HtmlDiv = goog.dom.createDom('div', 'blocklyToolboxDiv');
+  this.HtmlDiv.setAttribute('dir', workspace.RTL ? 'RTL' : 'LTR');
+  container.appendChild(this.HtmlDiv);
+
+  // Clicking on toolbar closes popups.
+  Blockly.bindEvent_(this.HtmlDiv, 'mousedown', this,
+      function(e) {
+        if (Blockly.isRightButton(e) || e.target == this.HtmlDiv) {
+          // Close flyout.
+          Blockly.hideChaff(false);
+        } else {
+          // Just close popups.
+          Blockly.hideChaff(true);
+        }
+      });
+  var workspaceOptions = {
+    disabledPatternId: workspace.options.disabledPatternId,
+    parentWorkspace: workspace,
+    RTL: workspace.RTL
+  };
+  /**
+   * @type {!Blockly.Flyout}
+   * @private
+   */
+  this.flyout_ = new Blockly.Flyout(workspaceOptions);
+  goog.dom.insertSiblingAfter(this.flyout_.createDom(), workspace.svgGroup_);
+  this.flyout_.init(workspace);
+
+  this.CONFIG_['cleardotPath'] = workspace.options.pathToMedia + '1x1.gif';
+  this.CONFIG_['cssCollapsedFolderIcon'] =
+      'blocklyTreeIconClosed' + (workspace.RTL ? 'Rtl' : 'Ltr');
+  var tree = new Blockly.Toolbox.TreeControl(this, this.CONFIG_);
+  this.tree_ = tree;
+  tree.setShowRootNode(false);
+  tree.setShowLines(false);
+  tree.setShowExpandIcons(false);
+  tree.setSelectedItem(null);
+  this.populate_(workspace.options.languageTree);
+  tree.render(this.HtmlDiv);
+  this.addColour_();
+  this.position();
+};
+
+/**
  * Move the toolbox to the edge.
  */
 Blockly.Toolbox.prototype.position = function() {
@@ -96,8 +148,7 @@ Blockly.Toolbox.prototype.position = function() {
         treeDiv.style.left = svgPosition.x + 'px';
     }
     treeDiv.style.height = svgSize.height + 'px';
-    treeDiv.style.width = svgSize.width / 6 + 'px';
-    treeDiv.style.top = svgPosition.y + 'px';
+    treeDiv.style.top = '0px';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
         // For some reason the LTR toolbox now reports as 1px too wide.

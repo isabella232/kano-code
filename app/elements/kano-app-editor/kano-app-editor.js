@@ -70,6 +70,9 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
+    isPartDeletionEnabled () {
+        return this.partEditorOpened || this.backgroundEditorOpened;
+    }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
         this.$['part-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
@@ -369,7 +372,8 @@ class KanoAppEditor {
     /**
      * Resize the workspace
      */
-    resizeWorkspace () {
+    resizeWorkspace (e) {
+        this.pauseEvent(e);
         this.isResizing = true;
     }
 
@@ -379,6 +383,20 @@ class KanoAppEditor {
     completedResizing () {
         this.isResizing = false;
     }
+    /**
+     * Used to prevent text selection when dragging
+     */
+    pauseEvent (e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+    }
 
     /**
      * Mouse moved handler
@@ -386,18 +404,16 @@ class KanoAppEditor {
     mouseMoved (e) {
         let leftPanel = this.$['left-panel'],
             container = this.$.section,
-            offsetRightPanel,
             offsetLeftPanel;
 
         if (!this.isResizing) {
             return;
         }
+        this.pauseEvent(e);
 
         offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
-        // Limit to 60%
-        offsetLeftPanel = Math.min(container.offsetWidth * 0.8, offsetLeftPanel);
-        offsetRightPanel = container.offsetWidth - offsetLeftPanel;
-        leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
+        offsetLeftPanel = offsetLeftPanel;
+        leftPanel.style.width = `${offsetLeftPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
@@ -407,8 +423,7 @@ class KanoAppEditor {
      * Restore the editor style
      */
     clearEditorStyle () {
-        this.$['left-panel'].style.maxWidth = '80%';
-        //this.$['right-panel'].style.maxWidth = 'none';
+        this.$['left-panel'].style.maxWidth = '62%';
     }
 }
 Polymer(KanoAppEditor);
