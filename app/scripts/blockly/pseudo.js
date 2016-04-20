@@ -66,6 +66,8 @@ let register = (Blockly) => {
     Blockly.Pseudo.logic_boolean = Blockly.JavaScript.logic_boolean;
     Blockly.Pseudo.logic_null = Blockly.JavaScript.logic_null;
     Blockly.Pseudo.logic_ternary = Blockly.JavaScript.logic_ternary;
+
+    Blockly.Pseudo.colour_picker = Blockly.JavaScript.colour_picker;
 };
 
 export default {
