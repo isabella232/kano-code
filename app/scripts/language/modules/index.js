@@ -4,6 +4,7 @@ import data from './data';
 import global from './global';
 import speaker from './speaker';
 import math from './math';
+import colour from './colour';
 
 export default {
     time,
@@ -11,5 +12,6 @@ export default {
     global,
     speaker,
     data,
-    math
+    math,
+    colour
 };
