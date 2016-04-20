@@ -175,7 +175,7 @@
                     type: Array,
                     notify: true
                 },
-                opened: {
+                deletionDisabled: {
                     type: Boolean,
                     value: false
                 }
@@ -204,6 +204,9 @@
                     this.selected &&
                     this.focused) {
                 e.preventDefault();
+                if (this.deletionDisabled) {
+                    return;
+                }
                 this.openDeleteModal();
             }
         }

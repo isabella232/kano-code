@@ -70,6 +70,9 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
+    isPartDeletionEnabled () {
+        return this.partEditorOpened || this.backgroundEditorOpened;
+    }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
         this.$['part-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
