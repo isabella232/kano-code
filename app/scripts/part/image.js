@@ -56,7 +56,7 @@ export default image = {
             return {
                 id: 'source',
                 message0: `${ui.name} source`,
-                output: true
+                output: 'String'
             };
         },
         javascript: (ui) => {

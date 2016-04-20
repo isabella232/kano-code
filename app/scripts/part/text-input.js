@@ -30,7 +30,7 @@ export default input = {
         block: (ui) => {
             return {
                 id: 'input_text_get_value',
-                output: true,
+                output: 'String',
                 message0: `${ui.name} value`
             };
         },
@@ -48,7 +48,7 @@ export default input = {
         block: (ui) => {
             return {
                 id: 'input_text_get_placeholder',
-                output: true,
+                output: 'String',
                 message0: `${ui.name} placeholder`
             };
         },
