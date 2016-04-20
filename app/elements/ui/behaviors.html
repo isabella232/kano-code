@@ -26,6 +26,7 @@ window.KanoBehaviors.UIBehavior = {
         'applyTransform(model.*)'
     ],
     attached () {
+        this.isRunning = false;
         this.fire('ui-ready', this);
     },
     getPartialStyle (attrs) {
@@ -53,8 +54,11 @@ window.KanoBehaviors.UIBehavior = {
             },
             rotation: this.model.rotation,
             scale: this.model.scale,
-            visible: this.model.visible
+            visible: this.model.visible,
+            userProperties: Object.assign({}, this.model.userProperties),
+            userStyle: Object.assign({}, this.model.userStyle)
         };
+        this.isRunning = true;
     },
     stop () {
         let savedState = this.savedState;
@@ -69,6 +73,9 @@ window.KanoBehaviors.UIBehavior = {
         this.set('model.rotation', savedState.rotation);
         this.set('model.scale', savedState.scale);
         this.set('model.visible', savedState.visible);
+        this.set('model.userProperties', savedState.userProperties);
+        this.set('model.userStyle', savedState.userStyle);
+        this.isRunning = false;
     },
     moveAlong(distance) {
         let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
