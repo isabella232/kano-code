@@ -1,7 +1,7 @@
 let data;
 
 import fetchData from '../../util/fetch-data';
-import * as appConfig from '../../config';
+import appConfig from '../../config';
 
 export default data = {
     get (id, fetchImpl) {

@@ -1,9 +1,10 @@
+import config from '../config';
 
 /**
  * A wrapper around the fetch API for our data proxy.
  */
 function fetchData (srcId, queryParams) {
-    var baseUrl = app.config.DATA_API_URL + '/data-src/' + srcId + '/',
+    var baseUrl = config.DATA_API_URL + '/data-src/' + srcId + '/',
         queryString = '';
 
     if (queryParams) {
