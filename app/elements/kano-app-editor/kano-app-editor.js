@@ -71,7 +71,7 @@ class KanoAppEditor {
         };
     }
     isPartDeletionDisabled () {
-        return this.partEditorOpened || this.backgroundEditorOpened;
+        return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
