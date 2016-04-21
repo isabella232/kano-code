@@ -10,12 +10,12 @@ import ISS from './data/space/iss';
 import Weather from './data/weather/weather';
 import Share from './data/kano/share';
 import Image from './image';
+import ScrollingText from './scrolling-text';
 
 let part,
     partTypes;
 
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image];
-
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText];
 
 partTypes = {
     'ui': UI,
