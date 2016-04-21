@@ -112,7 +112,11 @@
                             on-tap="partTapped"
                             size="50"
                             id$="part-[[part.id]]"></kano-ui-item>
-                        <iron-image src="/assets/icons/bin.svg" class="trash" sizing="contain" hidden$="[[!isSelected(part, selected)]]" on-tap="openDeleteModal"></iron-image>
+                        <iron-image src="/assets/icons/bin.svg"
+                                    class="trash"
+                                    sizing="contain"
+                                    hidden$="[[isTrashHidden(part, selected, running)]]"
+                                    on-tap="openDeleteModal"></iron-image>
                     </div>
                 </template>
             </sortable-js>
@@ -204,9 +208,6 @@
                     this.selected &&
                     this.focused) {
                 e.preventDefault();
-                if (this.deletionDisabled) {
-                    return;
-                }
                 this.openDeleteModal();
             }
         }
@@ -240,6 +241,9 @@
             return false;
         }
         openDeleteModal () {
+            if (this.deletionDisabled) {
+                return;
+            }
             if (this.checkBlockDependency()) {
                 return this.$['external-use-warning'].open();
             }
@@ -290,6 +294,9 @@
         }
         isSelected (part, selected) {
             return selected && part.id === selected.id;
+        }
+        isTrashHidden (part, selected, running) {
+            return !this.isSelected(part, selected) || running;
         }
     }
     Polymer(KanoWorkspaceControls);
