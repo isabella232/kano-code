@@ -7,15 +7,16 @@ import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import FileUtils from './util/file';
+import config from './config'
 
 import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
 (function (app) {
-    app.config = window.config;
+    app.config = config;
 
-    DragAndDrop.init({ workspaceFullSize: app.config.WORKSPACE_FULL_SIZE });
+    DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
     app.defaultCategories = [];
     app.registerBlockly = (Blockly) => {
@@ -27,7 +28,7 @@ es6Assign.polyfill();
         Object.keys(modules).forEach((moduleName) => {
             mod = modules[moduleName];
             if (typeof mod.config === 'function') {
-                mod.config(app.config);
+                mod.config(config);
             }
             if (!mod.blocks) {
                 return;
@@ -63,7 +64,7 @@ es6Assign.polyfill();
 
     app.defaultCategories = app.defaultCategories.concat(blockly.categories);
 
-    app.sdk = KanoWorldSdk(app.config);
+    app.sdk = KanoWorldSdk(config);
     app.sdk.registerForms();
 
     window.KanoModules = modules;
