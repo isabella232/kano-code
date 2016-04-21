@@ -1,4 +1,4 @@
-const COLOUR = 'linear-gradient(#34A836,#2C9929)';
+const COLOUR = '#34A836';
 
 let register = (Blockly) => {
     Blockly.Blocks.random_colour = {

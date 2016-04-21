@@ -70,7 +70,7 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
-    isPartDeletionEnabled () {
+    isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened;
     }
     openPartEditor (e) {
