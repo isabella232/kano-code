@@ -4,7 +4,7 @@ export default box = {
     partType: 'ui',
     type: 'box',
     label: 'Box',
-    image: '/assets/part/picture-icon.png',
+    image: '/assets/part/box.svg',
     colour: '#E73544',
     customizable: {
         style: ['width', 'height']

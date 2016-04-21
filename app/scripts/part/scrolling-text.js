@@ -6,7 +6,7 @@ export default scrollingText = {
     partType: 'ui',
     type: 'scrolling-text',
     label: 'Scrolling Text',
-    image: '/assets/part/text-icon.png',
+    image: '/assets/part/scrolling-text.svg',
     colour: '#E73544',
     customizable: {
         properties: [{

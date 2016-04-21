@@ -6,7 +6,7 @@ export default image = {
     partType: 'ui',
     type: 'image',
     label: 'Image',
-    image: '/assets/part/picture-icon.png',
+    image: '/assets/part/image.svg',
     colour: '#E73544',
     customizable: {
         properties: [{
