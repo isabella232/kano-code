@@ -13,7 +13,8 @@
         <iron-image id="image"
                     src="[[model.userProperties.src]]"
                     style$="[[computeImageStyle(model.userStyle.*)]]"
-                    sizing="cover"></iron-image>
+                    sizing="cover"
+                    on-tap="tapped"></iron-image>
     </template>
 </dom-module>
 
@@ -40,6 +41,9 @@
         }
         computeImageStyle () {
             return this.getPartialStyle(['width', 'height']);
+        }
+        tapped () {
+            this.fire('clicked');
         }
     }
     Polymer(KanoUiImage);
