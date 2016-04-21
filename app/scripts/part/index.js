@@ -2,7 +2,7 @@ import Part from './part';
 import UI from './ui';
 import Data from './data';
 import Button from './button';
-import Frame from './frame';
+import Box from './box';
 import TextInput from './text-input';
 import Text from './text';
 import Map from './map';
@@ -14,7 +14,7 @@ import Image from './image';
 let part,
     partTypes;
 
-export default part = [Button, Frame, TextInput, Text, Map, ISS, Weather, Share, Image];
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image];
 
 
 partTypes = {
