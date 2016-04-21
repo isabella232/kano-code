@@ -5,14 +5,9 @@
     :host {
         display: inline-block;
     }
-    :host iron-image {
-        border: 2px solid var(--color-primary);
-    }
     </style>
     <template>
-        <iron-image id="image"
-                    style$="[[computeImageStyle(model.userStyle.*)]]"
-                    sizing="cover"></iron-image>
+        <div style$="[[computeImageStyle(model.userStyle.*, model.userProperties.*)]]" on-tapped="tapped"></div>
     </template>
 </dom-module>
 
@@ -28,11 +23,27 @@
         beforeRegister () {
             this.is = 'kano-ui-box';
         }
-        drawPicture (pic) {
-            this.$.image.src = pic;
+
+        setBackgroundColor (color) {
+            this.set('model.userStyle.background-color', color);
         }
+
+        setStrokeColor (color) {
+            this.set('model.userProperties.strokeColor', color);
+        }
+
+        setStrokeSize (size) {
+            this.set('model.userProperties.strokeSize', size);
+        }
+
+        tapped () {
+            this.fire('clicked');
+        }
+
         computeImageStyle () {
-            return this.getPartialStyle(['width', 'height']);
+            let style = this.getPartialStyle(['width', 'height', 'background-color']);
+            style += `border: ${this.model.userProperties.strokeSize}px solid ${this.model.userProperties.strokeColor};`;
+            return style;
         }
     }
     Polymer(KanoUiBox);
