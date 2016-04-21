@@ -30,8 +30,8 @@ export default class Data extends Part {
             acc[param.key] = param.value;
             return acc;
         }, {});
-        // Generate the list of options for blockly
-        setConfigOptions = this.parameters.map((param) => {
+        // Generate the list of options for blockly, excludes the param whose type is list
+        setConfigOptions = this.parameters.filter(param => param.type !== 'list').map((param) => {
             return [
                 param.label,
                 param.key
