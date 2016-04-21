@@ -27,6 +27,9 @@
   </template>
 </dom-module>
 <script type="text/javascript">
+
+    /* globals app, Polymer, KanoBehaviors */
+
     class KanoSceneVideo {
 
         get behaviors () {
@@ -52,14 +55,15 @@
         }
 
         computeCategories () {
-            return app.defaultCategories.filter(category => this.scene.modules.indexOf(category.name) !== -1)
+            return app.defaultCategories.filter(category => this.scene.modules.indexOf(category.name) !== -1);
         }
 
         runningChanged () {
+            let editor = this.$.editor;
             if (this.running) {
-                app.components.run(this.$.editor.addedParts);
+                app.components.run(editor.addedParts, editor.codes);
             } else {
-                app.components.stop(this.$.editor.addedParts);
+                app.components.stop(editor.addedParts, editor.codes);
             }
         }
         saveApp (e) {

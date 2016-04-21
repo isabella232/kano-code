@@ -1,6 +1,6 @@
 {
-    "parts": ["map"],
-    "modules": ["Space", "Time", "Math"],
+    "parts": ["map", "iss"],
+    "modules": ["Control", "Variables", "Operators"],
     "steps": [{
         "modal": {
             "text": "Welcome to the **App Editor**, I will guide you through the interface, and help you make your own space tracker app"
@@ -17,31 +17,52 @@
         }]
     },{
         "validation": {
+            "select-new-part": {
+                "type": "map"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-map",
+            "position": "right",
+            "text": "Select the map part"
+        }]
+    },{
+        "validation": {
+            "select-new-part": {
+                "type": "iss"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-iss",
+            "position": "right",
+            "text": "Select the ISS part"
+        }]
+    },{
+        "validation": {
             "add-part": {
                 "type": "map",
                 "id": "map_1"
             }
         },
-        "arrow": {
-            "source": "sidebar.parts.part-map",
-            "target": "right-panel"
-        },
         "tooltips": [{
-            "location": "sidebar.parts.part-map",
-            "position": "right",
-            "text": "Drag the `Map` part..."
-        },{
-            "location": "right-panel",
-            "position": "left",
-            "text": "...and drop it over here"
+            "location": "sidebar.done",
+            "position": "top",
+            "text": "Click on the button to add them"
         }]
+    },{
+        "validation": {
+            "add-part": {
+                "type": "iss",
+                "id": "iss_1"
+            }
+        }
     },{
         "focus": {
             "path": "workspace-controls",
             "part": "map_1"
         },
         "validation": {
-            "select-part": {
+            "open-part-config": {
                 "target": "map_1"
             }
         },
@@ -54,55 +75,107 @@
             "text": "Select the map you made"
         }]
     },{
-        "validation": {
-            "open-part-config": true
-        },
-        "focus": "block-editor.look-button",
+        "focus": "part-editor-tooltip",
         "tooltips": [{
-            "location": "block-editor.look-button",
-            "position": "right",
-            "text": "With the map selected, you can change how it looks with this button."
-        }]
-    },{
-        "focus": "block-editor.look",
-        "tooltips": [{
-            "location": "block-editor.look",
+            "location": "part-editor-tooltip",
             "position": "right",
             "text": "Style your map with the sliders. Try changing the size to fill the window.",
             "next_button": true
         }]
     },{
         "validation": {
-            "open-part-default": true
+            "close-part-editor": true
         },
-        "focus": "block-editor.back-button",
+        "focus": "part-editor-tooltip",
         "tooltips": [{
-            "location": "block-editor.back-button",
+            "location": "part-editor-tooltip.close-button",
             "position": "right",
-            "text": "Now it’s time to code your app. This button goes back."
+            "text": "Now it’s time to configure the data source. This button goes back."
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "iss_1"
+        },
+        "validation": {
+            "open-part-config": {
+                "target": "iss_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "iss_1"
+            },
+            "position": "right",
+            "text": "Select the ISS part"
         }]
     },{
         "validation": {
-            "open-part-trigger": true
+            "enable-refresh": {
+                "target": "iss_1"
+            }
         },
-        "focus": "block-editor",
+        "focus": "part-editor-tooltip",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "part-editor-tooltip",
             "position": "right",
-            "text": "Click on the big 'Add code' button"
+            "text": "Here you can ask go get the new data every 5 seconds/30 seconds/An hour... Click on the refresh to enable that"
+        }]
+    },{
+        "validation": {
+            "manual-refresh": {
+                "target": "iss_1"
+            }
+        },
+        "focus": "part-editor.data-editor.refresh-button",
+        "tooltips": [{
+            "location": "part-editor.data-editor.refresh-button",
+            "position": "right",
+            "text": "If you click on this button you can ask to see the data"
+        }]
+    },{
+        "focus": "part-editor.data-editor.data-browser",
+        "tooltips": [{
+            "location": "part-editor.data-editor.data-browser",
+            "position": "right",
+            "text": "Here you see the last values",
+            "next_button": true
+        }]
+    },{
+        "validation": {
+            "close-part-editor": true
+        },
+        "focus": "part-editor-tooltip",
+        "tooltips": [{
+            "location": "part-editor-tooltip.close-button",
+            "position": "right",
+            "text": "We're done with the configuration, let's add some code!"
+        }]
+    },{
+        "validation": {
+            "open-trigger-dropdown": true
+        },
+        "focus": "root-view.open-dropdown",
+        "tooltips": [{
+            "location": "root-view.open-dropdown",
+            "position": "bottom",
+            "text": "Click here to choose what will trigger your code"
         }]
     },{
         "validation": {
             "trigger": {
-                "emitter": "global",
-                "event": "start"
+                "emitter": {
+                    "part": "iss_1"
+                },
+                "event": "update"
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view.trigger-dropdown",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view.trigger-dropdown",
             "position": "right",
-            "text": "For this app, we only need one trigger: 'When Make is clicked'. Select it now."
+            "text": "For this app, we only need one trigger: 'When ISS updated'. Select it now."
         }]
     },{
         "validation": {
@@ -110,13 +183,13 @@
                 "create": {
                     "target": "map_1",
                     "type": "show_marker",
-                    "id": "show_marker_1"
+                    "id": "show_marker"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
             "text": "We need a marker on the map to show where the Space Station is. You can find a 'move marker to' block in the Map drawer."
         }]
@@ -124,29 +197,30 @@
         "validation": {
             "blockly": {
                 "create": {
-                    "type": "get_iss_location",
-                    "id": "get_iss_location_1"
+                    "target": "iss_1",
+                    "type": "get_value",
+                    "id": "get_iss_latitude"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
-            "text": "Find the ISS location block in the Space drawer ..."
+            "text": "Find the ISS get block in the ISS drawer ..."
         }]
     },{
         "validation": {
             "blockly": {
                 "connect": {
-                    "parent": "show_marker_1",
-                    "target": "get_iss_location_1"
+                    "parent": "show_marker",
+                    "target": "get_iss_latitude"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
             "text": "... and connect it to our 'move marker' block."
         }]
@@ -154,124 +228,65 @@
         "validation": {
             "blockly": {
                 "create": {
-                    "type": "every_x_seconds",
-                    "id": "repeat_1"
+                    "target": "iss_1",
+                    "type": "get_value",
+                    "id": "get_iss_longitude"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
-            "text": "Nice! We’re telling our marker where the space station is. But it's moving fast. We’ll need to refresh its location. Find the 'every __ seconds' block in the Time drawer."
+            "text": "Find another ISS get block in the ISS drawer ..."
         }]
     },{
         "validation": {
             "blockly": {
                 "connect": {
-                    "target": "repeat_1",
-                    "parent": "show_marker_1"
+                    "parent": "show_marker",
+                    "target": "get_iss_longitude"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
-            "text": "Connect it under the maps block."
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "create": {
-                    "type": "math_number",
-                    "id": "number_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "We need a number block (try the Math tray)."
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "target": "number_1",
-                    "parent": "repeat_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "It slots in to your time block."
+            "text": "... and connect it to our 'move marker' block."
         }]
     },{
         "validation": {
             "blockly": {
                 "value": {
-                    "target": "number_1",
-                    "value": 2
+                    "target": "get_iss_longitude",
+                    "value": "longitude"
                 }
             }
         },
-        "focus": "block-editor",
+        "focus": "root-view",
         "tooltips": [{
-            "location": "block-editor",
+            "location": "root-view",
             "position": "right",
-            "text": "Click on your number block and set it to 2."
+            "text": "Choose longitude."
         }]
     },{
-        "validation": {
-            "blockly": {
-                "create": {
-                    "type": "refresh_space",
-                    "id": "refresh_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "Back in your Space tray, find the 'refresh' block ..."
-        }]
-    },{
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "target": "refresh_1",
-                    "parent": "repeat_1"
-                }
-            }
-        },
-        "focus": "block-editor",
-        "tooltips": [{
-            "location": "block-editor",
-            "position": "right",
-            "text": "... and connect it so that we refresh the space station location every 2 seconds."
-        }]
-    },{
-        "save_to_storage": true,
         "validation": {
             "running": {
                 "value": true
             }
         },
-        "focus": "workspace-controls.make-button",
+        "focus": "make-button",
         "tooltips": [{
-            "location": "workspace-controls.make-button",
+            "location": "make-button",
             "position": "left",
             "text": "Let's see if your app works, hit the ‘make’ button."
         }]
     },{
+        "save_to_storage": true,
         "tooltips": [{
             "location": "workspace",
-            "position": "bottom",
+            "position": "left",
             "text": "You’ve completed your first app. High five!",
             "next_button": true
         }]

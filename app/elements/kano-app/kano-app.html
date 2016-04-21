@@ -85,7 +85,7 @@ Example:
                 </template>
             </div>
         </header>
-        <kano-routing ctx="{{ctx}}"></kano-routing>
+        <kano-routing ctx="{{ctx}}" name="app"></kano-routing>
     </template>
 </dom-module>
 <script>
@@ -154,7 +154,7 @@ Example:
 
             const handleSwitch = (ev) => {
                 if (ev.target.localName === 'kano-login-form') {
-                    modal.setContent(document.createElement('kano-signup-form'));
+                    modal.appendChild(document.createElement('kano-signup-form'));
                     document.querySelector('#already-signedup-button')
                         .addEventListener('click', handleSwitch);
                 }
@@ -171,9 +171,9 @@ Example:
                 modal.close();
             };
 
-            modal = document.createElement('kano-modal');
-            modal.setContent(document.createElement('kano-login-form'));
-            modal.show(() => {
+            modal = document.createElement('paper-dialog');
+            modal.appendChild(document.createElement('kano-login-form'));
+            modal.open(() => {
                 let loginForm = document.querySelector('kano-login-form');
                 loginForm.addEventListener('signup-click', handleSwitch);
                 loginForm.addEventListener('success', handleLogin);

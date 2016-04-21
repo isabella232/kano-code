@@ -121,7 +121,7 @@
                 </template>
             </sortable-js>
         </kano-carousel>
-        <div class="add-part-section">
+        <div class="add-part-section" id="add-part">
             <button type="button" class="add-part-button" on-tap="addPartTapped">+</button>
             <label>Add Parts</label>
         </div>
@@ -276,6 +276,7 @@
         }
         addPartTapped () {
             this.fire('add-part-tap');
+            this.notifyChange('open-parts', {});
         }
         partTapped (e) {
             let part = e.model.get('part'),
