@@ -1,5 +1,5 @@
 {
-    "parts": ["map"],
+    "parts": ["map", "iss"],
     "modules": ["Space", "Time", "Math"],
     "steps": [{
         "modal": {
@@ -17,24 +17,45 @@
         }]
     },{
         "validation": {
-            "add-part": {
-                "type": "map",
-                "id": "map_1"
+            "select-new-part": {
+                "type": "map"
             }
-        },
-        "arrow": {
-            "source": "sidebar.parts.part-map",
-            "target": "right-panel"
         },
         "tooltips": [{
             "location": "sidebar.parts.part-map",
             "position": "right",
-            "text": "Drag the `Map` part..."
-        },{
-            "location": "right-panel",
-            "position": "left",
-            "text": "...and drop it over here"
+            "text": "Select the map part"
         }]
+    },{
+        "validation": {
+            "select-new-part": {
+                "type": "iss"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.parts.part-iss",
+            "position": "right",
+            "text": "Select the ISS part"
+        }]
+    },{
+        "validation": {
+            "app-part": {
+                "type": "map",
+                "id": "map_1"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.done",
+            "position": "top",
+            "text": "Click on the button to add them"
+        }]
+    },{
+        "validation": {
+            "app-part": {
+                "type": "iss",
+                "id": "iss_1"
+            }
+        }
     },{
         "focus": {
             "path": "workspace-controls",

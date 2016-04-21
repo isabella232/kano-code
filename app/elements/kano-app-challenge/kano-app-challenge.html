@@ -125,7 +125,8 @@
                 "select-part": this.matchPartTarget.bind(this),
                 "selected-part-change": this.matchPartChange.bind(this),
                 "trigger": this.matchTrigger.bind(this),
-                "running": this.matchValue.bind(this)
+                "running": this.matchValue.bind(this),
+                "select-new-part": this.matchPartType.bind(this)
             };
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
@@ -173,6 +174,7 @@
                     return;
                 }
                 step = this.steps[this.step];
+                console.log(step);
                 if (!step) {
                     return;
                 }
@@ -210,6 +212,7 @@
         getDeepElement (selector) {
             let pieces,
                 element = this.editor;
+            console.log(selector);
             if (typeof selector == 'object') {
                 selector = `${selector.path}.part-${this.stepIds[selector.part]}`;
             }
