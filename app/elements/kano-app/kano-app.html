@@ -130,6 +130,9 @@ Example:
             this.properties = {
                 user: {
                     type: Object
+                },
+                redirectTimer: {
+                    type: Object
                 }
             };
             this.observers = [
@@ -157,6 +160,7 @@ Example:
             return false;
         }
         accessState () {
+            clearTimeout(this.redirectTimer);
             if (!this.isUserLoggedIn()) {
                 return 'logged-out';
             }
@@ -174,7 +178,7 @@ Example:
             }
         }
         redirectToKanoWorld () {
-            setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
+            this.redirectTimer = setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
         }
         attached () {
             let initialiseSDK = () => {
