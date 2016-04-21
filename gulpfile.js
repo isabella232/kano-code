@@ -11,7 +11,6 @@ let gulp = require('gulp'),
     auth = require('basic-auth'),
     path = require('path'),
     fs = require('fs'),
-    config = require('./app/scripts/config'),
     bundler,
     utils;
 
@@ -38,12 +37,17 @@ utils = {
             .pipe(source('app.js'))
             .pipe(gulp.dest('.tmp/app/scripts'));
     },
-    getConfig () {
-        let env = process.env.NODE_ENV || 'development',
-            target = process.env.TARGET || 'web';
+    getEnvVars () {
+        var code = '';
+        if (process.env.NODE_ENV) {
+            code += "window.ENV = '" + process.env.NODE_ENV + "';\n";
+        }
 
-        return Object.assign(config.common, config.target[target],
-               config.env[env], {"ENV": env, "TARGET": target});
+        if (process.env.TARGET) {
+            code += "window.TARGET = '" + process.env.TARGET + "';\n";
+        }
+
+        return code;
     }
 };
 
@@ -75,7 +79,7 @@ gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
         .pipe($.htmlReplace({
             config: `
             <script type="text/javascript">
-                window.config = ${JSON.stringify(utils.getConfig())};
+                ${utils.getEnvVars()}
             </script>
             `
          }))

@@ -27,7 +27,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'get_label',
-                output: true,
+                output: "String",
                 message0: `${ui.name} label`
             };
         },

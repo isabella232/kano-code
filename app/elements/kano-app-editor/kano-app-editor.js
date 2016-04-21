@@ -70,23 +70,25 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
-    isPartDeletionEnabled () {
-        return this.partEditorOpened || this.backgroundEditorOpened;
+    isPartDeletionDisabled () {
+        return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['part-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
+        this.$['part-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.partEditorTarget = e.detail;
         this.partEditorOpened = true;
+        this.notifyChange('open-part-config', { part: this.selected });
     }
     openBackgroundEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['background-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
+        this.$['background-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.backgroundEditorTarget = e.detail;
         this.backgroundEditorOpened = true;
     }
     closePartEditor () {
         this.partEditorOpened = false;
+        this.notifyChange('close-part-editor', {});
     }
     closeBackgroundEditor () {
         this.backgroundEditorOpened = false;
@@ -95,6 +97,7 @@ class KanoAppEditor {
         let property = e.path.split('.');
         property.shift();
         property = property.join('.');
+        this.$.workspace.setBackgroundColor(e.value);
         this.notifyChange('background', {
             property,
             value: e.value
@@ -191,8 +194,8 @@ class KanoAppEditor {
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
-            savedApp.blockEditorPage = this.$['part-editor'].selectedPage;
-            savedApp.selectedTrigger = this.$['part-editor'].trigger;
+            savedApp.blockEditorPage = this.$['part-editor-tooltip'].selectedPage;
+            savedApp.selectedTrigger = this.$['part-editor-tooltip'].trigger;
         }
 
         return savedApp;
@@ -221,8 +224,8 @@ class KanoAppEditor {
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {
             this.$['workspace-controls'].selectPart(addedParts[savedApp.selectedPart]);
-            this.$['part-editor'].set('trigger', savedApp.selectedTrigger);
-            this.$['part-editor'].showPage(savedApp.blockEditorPage);
+            this.$['part-editor-tooltip'].set('trigger', savedApp.selectedTrigger);
+            this.$['part-editor-tooltip'].showPage(savedApp.blockEditorPage);
         }
     }
     openParts () {
@@ -237,10 +240,7 @@ class KanoAppEditor {
         parts.forEach((model) => {
             let part = Part.create(model, this.wsSize);
             this.push('addedParts', part);
-            this.fire('change', {
-                type: 'add-part',
-                part
-            });
+            this.notifyChange('add-part', { part });
         });
     }
     toggleLeftView () {
@@ -251,9 +251,9 @@ class KanoAppEditor {
         // If we just opened the leftView, show the code page
         if (this.leftViewOpened) {
             this.set('leftPanelView', 'code');
-            this.$['part-editor'].showCodeEditor();
+            this.$['part-editor-tooltip'].showCodeEditor();
         } else {
-            this.$['part-editor'].hideCodeEditor();
+            this.$['part-editor-tooltip'].hideCodeEditor();
         }
     }
     triggerResize () {
@@ -273,8 +273,8 @@ class KanoAppEditor {
     }
     onWindowResize () {
         let rect = this.$['left-panel'].getBoundingClientRect(),
-            partEditor = this.$['part-editor'],
-            backgroundEditor = this.$['background-editor'];
+            partEditor = this.$['part-editor-tooltip'],
+            backgroundEditor = this.$['background-editor-tooltip'];
         backgroundEditor.leftBound = rect.left + TOOLTIP_PADDING;
         backgroundEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
         partEditor.leftBound = rect.left + TOOLTIP_PADDING;
@@ -371,7 +371,8 @@ class KanoAppEditor {
     /**
      * Resize the workspace
      */
-    resizeWorkspace () {
+    resizeWorkspace (e) {
+        this.pauseEvent(e);
         this.isResizing = true;
     }
 
@@ -381,6 +382,20 @@ class KanoAppEditor {
     completedResizing () {
         this.isResizing = false;
     }
+    /**
+     * Used to prevent text selection when dragging
+     */
+    pauseEvent (e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+    }
 
     /**
      * Mouse moved handler
@@ -388,18 +403,16 @@ class KanoAppEditor {
     mouseMoved (e) {
         let leftPanel = this.$['left-panel'],
             container = this.$.section,
-            offsetRightPanel,
             offsetLeftPanel;
 
         if (!this.isResizing) {
             return;
         }
+        this.pauseEvent(e);
 
         offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
-        // Limit to 60%
-        offsetLeftPanel = Math.min(container.offsetWidth * 0.8, offsetLeftPanel);
-        offsetRightPanel = container.offsetWidth - offsetLeftPanel;
-        leftPanel.style.maxWidth = `${offsetLeftPanel}px`;
+        offsetLeftPanel = offsetLeftPanel;
+        leftPanel.style.width = `${offsetLeftPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
@@ -409,8 +422,7 @@ class KanoAppEditor {
      * Restore the editor style
      */
     clearEditorStyle () {
-        this.$['left-panel'].style.maxWidth = '80%';
-        //this.$['right-panel'].style.maxWidth = 'none';
+        this.$['left-panel'].style.maxWidth = '62%';
     }
 }
 Polymer(KanoAppEditor);

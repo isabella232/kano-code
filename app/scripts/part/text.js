@@ -53,7 +53,7 @@ export default text = {
             return {
                 id: 'get_text',
                 message0: `${ui.name}'s text`,
-                output: true
+                output: 'String'
             }
         },
         javascript: (ui) => {

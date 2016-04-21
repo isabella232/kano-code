@@ -1,14 +1,16 @@
 let data;
 
+import fetchData from '../../util/fetch-data';
+import appConfig from '../../config';
+
 export default data = {
-    fetch (id, opts) {
+    get (id, fetchImpl) {
         let event = new Event('request');
         event.detail = {
-            id,
-            opts
+            id
         };
         document.dispatchEvent(event);
-        return fetch(opts)
+        return fetchImpl
             .then((r) => {
                 let event = new Event('response');
                 event.detail = {
@@ -30,7 +32,7 @@ export default data = {
         },
         kano: {
             getShares (id) {
-                return data.fetch(id, 'http://api.kano.me/share')
+                return data.get(id, fetch(appConfig.API_URL + "/share"))
                     .then(r => r.json())
                     .then(data => {
                         return data.entries.map(share => {
@@ -46,8 +48,10 @@ export default data = {
         },
         weather: {
             getWeather (id, config) {
-                return data.fetch(id, `http://api.openweathermap.org/data/2.5/weather?APPID=79f483fba81614f1e7d1fea5a28b9750&q=${config.location}&units=${config.units}`)
-                    .then((res) => res.json())
+                return data.get(id, fetchData('weather-city',
+                                              {q: config.location,
+                                               units: config.units}))
+                    .then(r => r.json())
                     .then((data) => {
                         return {
                             temperature: data.main.temp,
@@ -60,8 +64,8 @@ export default data = {
         },
         space: {
             getISSStatus (id) {
-                return data.fetch(id, 'https://api.wheretheiss.at/v1/satellites/25544')
-                    .then((res) => res.json());
+                return data.get(id, fetchData('iss'))
+                    .then(r => r.json());
             }
         },
         list: {

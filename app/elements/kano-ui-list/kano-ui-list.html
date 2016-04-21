@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
+<link rel="import" href="../behaviors.html">
 <dom-module id="kano-ui-list">
     <style>
     :host {
@@ -36,8 +37,13 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, KanoBehaviors */
     class KanoUiList {
+
+        get behaviors () {
+            return [KanoBehaviors.AppEditorBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-ui-list';
             this.properties = {
@@ -54,6 +60,9 @@
         toggleSelection (e) {
             let item = this.items[this.$.partsList.indexForElement(e.target)];
             this.$.selector.select(item);
+            if (this.$.selector.isSelected(item)) {
+                this.notifyChange('select-new-part', { part: item });
+            }
         }
         isPartSelected (part) {
             return this.$.selector.isSelected(part);

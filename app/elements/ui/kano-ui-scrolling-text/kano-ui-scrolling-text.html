@@ -1,0 +1,84 @@
+<dom-module id='kano-ui-scrolling-text'>
+    <style>
+        :host {
+            display: inline-block;
+        }
+        :host .container {
+            overflow: auto;
+            position: relative;
+        }
+        :host #label {
+            white-space: nowrap;
+            position: absolute;
+            top: -2%;
+        }
+    </style>
+    <template>
+        <div class="container" style$="[[computeContainerStyle(model.userStyle.*)]]">
+            <span id="label"
+                on-tap="textClicked"
+                style$="[[computeLabelStyle(model.userStyle.*)]]">
+                {{model.userProperties.text}}
+            </span>
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoUiScrollingText {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-scrolling-text';
+            this.stack = [];
+            this.scrolling = false;
+        }
+
+        computeLabelStyle () {
+            let style = this.getPartialStyle(['color', 'font-family']);
+            style += `font-size: ${this.model.userStyle.height};`;
+            style +=  `line-height: calc(${this.model.userStyle.height} * 0.8);`;
+            return style;
+        }
+
+        computeContainerStyle () {
+            return this.getPartialStyle(['width', 'height']);
+        }
+
+        scroll (value) {
+            this.stack.push(value);
+            if (!this.scrolling) {
+                this.scrollNext();
+            }
+        }
+        scrollNext () {
+            let value = this.stack.shift(),
+                rect,
+                duration;
+            if (!value) {
+                this.scrolling = false;
+                return;
+            }
+            this.scrolling = true;
+            this.set('model.userProperties.text', value);
+            this.$.label.style.transition = 'none';
+            this.$.label.style.left = '100%';
+            // Get the bounding rect of the label, but also triggers a layout on the browser
+            // that will update the transitions
+            rect = this.$.label.getBoundingClientRect();
+            duration = rect.width / rect.height * 300;
+            this.$.label.style.transition = `left linear ${duration}ms`;
+            this.$.label.style.left = `-${rect.width}px`;
+            setTimeout(() => {
+                this.scrollNext();
+            }, duration);
+        }
+    }
+    Polymer(KanoUiScrollingText);
+
+</script>

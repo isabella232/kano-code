@@ -1,9 +1,9 @@
-let frame;
+let box;
 
-export default frame = {
+export default box = {
     partType: 'ui',
-    type: 'frame',
-    label: 'Frame',
+    type: 'box',
+    label: 'Box',
     image: '/assets/part/picture-icon.png',
     colour: '#E73544',
     customizable: {

@@ -161,7 +161,7 @@
                         selected="{{selectedPage}}"
                         class="right-button">
                 <div name="default">
-                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]">
+                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]" id="open-dropdown">
                         <img src="/assets/icons/edit-icon.png" alt="Edit" class="edit-icon"/>
                     </button>
                 </div>
@@ -203,6 +203,7 @@
                 </div>
             </iron-pages>
             <kano-event-select
+                id="trigger-dropdown"
                 hidden$="[[!eventSelectOpen]]"
                 parts="{{computeParts(parts.*)}}"
                 on-selected="triggerSelected"></kano-event-select>
@@ -288,6 +289,11 @@
         }
         toggleEventSelectOpen () {
             this.eventSelectOpen = !this.eventSelectOpen;
+            if (this.eventSelectOpen) {
+                this.notifyChange('open-trigger-dropdown', {});
+            } else {
+                this.notifyChange('close-trigger-dropdown', {});
+            }
         }
         closeEventSelect () {
             this.eventSelectOpen = false;

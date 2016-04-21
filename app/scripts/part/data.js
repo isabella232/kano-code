@@ -117,7 +117,7 @@ export default class Data extends Part {
                                 name: "KEY",
                                 options: getValueOptions
                             }],
-                            output: true
+                            output: 'Array'
                         };
                     },
                     javascript: (part) => {
@@ -150,7 +150,7 @@ export default class Data extends Part {
                                 name: "KEY",
                                 options: getValueOptions
                             }],
-                            output: true
+                            output: null
                         };
                     },
                     javascript: (part) => {

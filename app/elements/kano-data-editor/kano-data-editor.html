@@ -140,8 +140,16 @@
                 }
             };
             this.observers = [
-                'computeDataArray(selected.data.*)'
+                'computeDataArray(selected.data.*)',
+                'refreshEnabledChanged(selected.refreshEnabled)'
             ];
+        }
+        refreshEnabledChanged (enabled) {
+            if (enabled) {
+                this.notifyChange('enable-refresh', { part: this.selected });
+            } else {
+                this.notifyChange('disable-refresh', { part: this.selected });
+            }
         }
         computeDataArray () {
             if (!this.selected) {
@@ -162,7 +170,7 @@
                 this.set('selected.data', data);
                 this.loading = false;
             });
-            this.notifyChange('refresh-data', {});
+            this.notifyChange('manual-refresh', {});
         }
         paramChanged (e) {
             let key = e.model.get('param').key;
