@@ -29,7 +29,6 @@
         height: 100%;
         border-radius: 6px;
         z-index: 0;
-        overflow: hidden;
         position: relative;
         background-color: var(--color-grey-mid, grey);
         @apply(--layout-vertical);
@@ -43,6 +42,9 @@
         font-weight: 200;
     }
     :host header {
+        overflow: hidden;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
         height: 60px;
         @apply(--layout-horizontal);
         @apply(--layout-start-justified);
@@ -82,7 +84,7 @@
         <div class="content">
             <header style$="[[computeHeaderStyle(colour)]]">
                 <h1>[[title]]</h1>
-                <button type="button" class="close-button" on-tap="close">&times;</button>
+                <button type="button" class="close-button" on-tap="close" id="close-button">&times;</button>
             </header>
             <content select=".tooltip-content"></content>
         </div>

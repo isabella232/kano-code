@@ -4,7 +4,7 @@ export default text = {
     partType: 'ui',
     type: 'text',
     label: 'Text',
-    image: '/assets/part/text-icon.png',
+    image: '/assets/part/text.svg',
     colour: '#607d8b',
     customizable: {
         style: ['color', 'font-size', 'font-family'],

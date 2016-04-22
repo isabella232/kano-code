@@ -11,7 +11,6 @@ let gulp = require('gulp'),
     auth = require('basic-auth'),
     path = require('path'),
     fs = require('fs'),
-    config = require('./app/scripts/config'),
     bundler,
     utils;
 
@@ -37,6 +36,18 @@ utils = {
             .on('error', utils.notifyError)
             .pipe(source('app.js'))
             .pipe(gulp.dest('.tmp/app/scripts'));
+    },
+    getEnvVars () {
+        var code = '';
+        if (process.env.NODE_ENV) {
+            code += "window.ENV = '" + process.env.NODE_ENV + "';\n";
+        }
+
+        if (process.env.TARGET) {
+            code += "window.TARGET = '" + process.env.TARGET + "';\n";
+        }
+
+        return code;
     }
 };
 

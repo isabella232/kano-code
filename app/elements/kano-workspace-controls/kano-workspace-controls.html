@@ -100,7 +100,8 @@
                         <kano-ui-item model="[[backgroundPart]]"
                             on-tap="backgroundTapped"
                             size="50"
-                            id="background"></kano-ui-item>
+                            id="background"
+                            instance></kano-ui-item>
                     </div>
                     <template is="dom-repeat"
                     items="{{parts}}"
@@ -111,7 +112,8 @@
                             selected="[[isSelected(part, selected)]]"
                             on-tap="partTapped"
                             size="50"
-                            id$="part-[[part.id]]"></kano-ui-item>
+                            id$="part-[[part.id]]"
+                            instance></kano-ui-item>
                         <iron-image src="/assets/icons/bin.svg"
                                     class="trash"
                                     sizing="contain"
@@ -121,7 +123,7 @@
                 </template>
             </sortable-js>
         </kano-carousel>
-        <div class="add-part-section">
+        <div class="add-part-section" id="add-part">
             <button type="button" class="add-part-button" on-tap="addPartTapped">+</button>
             <label>Add Parts</label>
         </div>
@@ -276,6 +278,7 @@
         }
         addPartTapped () {
             this.fire('add-part-tap');
+            this.notifyChange('open-parts', {});
         }
         partTapped (e) {
             let part = e.model.get('part'),

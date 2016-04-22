@@ -1,0 +1,50 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-ui-box">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    </style>
+    <template>
+        <div style$="[[computeImageStyle(model.userStyle.*, model.userProperties.*)]]" on-tapped="tapped"></div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoUiBox {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-ui-box';
+        }
+
+        setBackgroundColor (color) {
+            this.set('model.userStyle.background-color', color);
+        }
+
+        setStrokeColor (color) {
+            this.set('model.userProperties.strokeColor', color);
+        }
+
+        setStrokeSize (size) {
+            this.set('model.userProperties.strokeSize', size);
+        }
+
+        tapped () {
+            this.fire('clicked');
+        }
+
+        computeImageStyle () {
+            let style = this.getPartialStyle(['width', 'height', 'background-color']);
+            style += `border: ${this.model.userProperties.strokeSize}px solid ${this.model.userProperties.strokeColor};`;
+            return style;
+        }
+    }
+    Polymer(KanoUiBox);
+</script>

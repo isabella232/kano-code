@@ -1,7 +1,7 @@
 let data;
 
 import fetchData from '../../util/fetch-data';
-import * as appConfig from '../../config';
+import appConfig from '../../config';
 
 export default data = {
     get (id, fetchImpl) {
@@ -80,6 +80,18 @@ export default data = {
                     title: 'List item 3',
                     content: 'Content 3'
                 }]);
+            }
+        },
+        rss: {
+            getFeed (id, config) {
+                return data.get(id, fetchData('rss',
+                                              { src: config.src }))
+                    .then(r => r.json())
+                    .then((data) => {
+                        return {
+                            title: data.title
+                        };
+                    });
             }
         }
     },
