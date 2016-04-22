@@ -93,6 +93,18 @@ export default data = {
                         };
                     });
             }
+        },
+        sports: {
+            getResults (id, config) {
+                return data.get(id, fetchData('rss-sports',
+                                              { src: config.src }))
+                    .then(r => r.json())
+                    .then((data) => {
+                        return {
+                            title: data.title
+                        };
+                    });
+            }
         }
     },
     lifecycle: {
