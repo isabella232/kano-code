@@ -1,6 +1,7 @@
 <script src="../../scripts/app.js"></script>
 <script src="../../scripts/util/client.js"></script>
 
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
@@ -15,7 +16,7 @@ Example:
 -->
 <dom-module id="kano-app">
     <style>
-    :host {
+    :host, :host .main {
         display: block;
         width: 100%;
         height: 100%;
@@ -23,12 +24,12 @@ Example:
         font-family: var(--font-body);
     }
     :host button,
-    :host header .link {
+    :host .main header .link {
         @apply(--kano-button-small);
         text-decoration: none;
         background-color: var(--primary-color);
     }
-    :host header {
+    :host .main header {
         background-color: var(--color-header, black);
         color: white;
         @apply(--kano-header);
@@ -37,55 +38,63 @@ Example:
         @apply(--layout-center);
         height: 62px;
     }
-    :host header div {
+    :host .main header div {
         @apply(--layout-flex);
     }
-    :host header .logged {
+    :host .main header .logged {
         @apply(--layout-vertical);
     }
     :host .user-info {
         margin-left: 5px;
     }
-    :host header iron-image {
+    :host .main header iron-image {
         height: 42px;
         width: 155px;
         margin-left: 15px;
     }
-    :host header button {
+    :host .main header button {
         margin-right: 15px;
     }
-    :host header .links {
+    :host .main header .links {
         @apply(--layout-horizontal);
         @apply(--layout-end-justified);
         padding-right: 5px;
     }
-    :host kano-routing {
+    :host paper-drawer-panel {
+        @apply(--layout-flex);
+    }
+    :host .main kano-routing {
         @apply(--layout-flex);
     }
     </style>
     <template>
         <style include="kano-style"></style>
-        <header>
-            <div class="user-info">
-                <div hidden$="{{!isUserLoggedIn(user)}}" class="logged">
-                    <label>{{user.username}}</label>
-                    <a href="#" on-tap="logout">Logout</a>
-                </div>
-                <button type="button"
-                    class="login-button"
-                    hidden$="{{isUserLoggedIn(user)}}"
-                    on-tap="login">Login</button>
+        <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
+            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu"></kano-side-menu>
+            <div class="main" main>
+                <!--<header>
+                    <div class="user-info">
+                        <div hidden$="{{!isUserLoggedIn(user)}}" class="logged">
+                            <label>{{user.username}}</label>
+                            <a href="#" on-tap="logout">Logout</a>
+                        </div>
+                        <button type="button"
+                            class="login-button"
+                            hidden$="{{isUserLoggedIn(user)}}"
+                            on-tap="login">Login</button>
+                    </div>
+                    <iron-image src="../../assets/logo.png"
+                                preload
+                                sizing="contain"></iron-image>
+                    <div class="links">
+                        <template is="dom-repeat" items="{{ctx.links}}" as="link">
+                            <a href$="[[link.url]]" class="link">[[link.label]]</a>
+                        </template>
+                    </div>
+                </header>-->
+                <kano-routing ctx="{{ctx}}" on-toggle-menu="toggleMenu" main></kano-routing>
             </div>
-            <iron-image src="../../assets/logo.png"
-                        preload
-                        sizing="contain"></iron-image>
-            <div class="links">
-                <template is="dom-repeat" items="{{ctx.links}}" as="link">
-                    <a href$="[[link.url]]" class="link">[[link.label]]</a>
-                </template>
-            </div>
-        </header>
-        <kano-routing ctx="{{ctx}}"></kano-routing>
+        </paper-drawer-panel>
     </template>
 </dom-module>
 <script>
@@ -108,9 +117,6 @@ Example:
          */
         ctxChanged () {
             app.ctx = this.ctx;
-        }
-        isUserLoggedIn () {
-            return !!this.user;
         }
         attached () {
             let initialiseSDK = () => {
@@ -183,6 +189,9 @@ Example:
                 this.removeChild(modal);
             });
             this.appendChild(modal);
+        }
+        toggleMenu () {
+            this.$.drawer.togglePanel();
         }
     }
     Polymer(KanoApp);
