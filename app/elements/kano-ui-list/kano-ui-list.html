@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
+<link rel="import" href="../behaviors.html">
 <dom-module id="kano-ui-list">
     <style>
     :host {
@@ -28,16 +29,20 @@
         <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
         <template is="dom-repeat" items="{{items}}" id="partsList">
             <div class="part">
-                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection"></kano-ui-item>
-                <paper-checkbox checked noink hidden$="[[!isPartSelected(item, selected.*)]]"></paper-checkbox>
+                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection" selected="[[isPartSelected(item, selected.*)]]"></kano-ui-item>
             </div>
         </template>
     </template>
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, KanoBehaviors */
     class KanoUiList {
+
+        get behaviors () {
+            return [KanoBehaviors.AppEditorBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-ui-list';
             this.properties = {
@@ -54,6 +59,9 @@
         toggleSelection (e) {
             let item = this.items[this.$.partsList.indexForElement(e.target)];
             this.$.selector.select(item);
+            if (this.$.selector.isSelected(item)) {
+                this.notifyChange('select-new-part', { part: item });
+            }
         }
         isPartSelected (part) {
             return this.$.selector.isSelected(part);

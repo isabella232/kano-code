@@ -1,8 +1,4 @@
-/*
- * WARNING: ES5 only as this is imported from the gulp file
- */
-
-var COMMON = {
+let COMMON = {
         "WORKSPACE_FULL_SIZE": {
             "width": 512,
             "height": 384
@@ -48,4 +44,6 @@ function getConfig(env, target) {
            ENV[env], {"ENV": env, "TARGET": target});
 }
 
-module.exports = getConfig;
+/* These window.* variables are exported in both make and play apps. */
+config = getConfig(window.ENV, window.TARGET);
+export default config;

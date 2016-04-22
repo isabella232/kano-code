@@ -63,7 +63,29 @@ Example:
     :host paper-drawer-panel {
         @apply(--layout-flex);
     }
-    :host .main kano-routing {
+    :host .main iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host .main iron-pages > div {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    :host .logged-out {
+        align-items: center;
+        background: #ff842a;
+        color: white;
+        font-size: 1.3em;
+    }
+    :host .access-denied {
+        justify-content: center;
+        align-items: center;
+        background: #ff842a;
+        color: white;
+        font-size: 1.3em;
+
+    }
+    :host kano-routing {
         @apply(--layout-flex);
     }
     </style>
@@ -92,7 +114,18 @@ Example:
                         </template>
                     </div>
                 </header>-->
-                <kano-routing ctx="{{ctx}}" on-toggle-menu="toggleMenu" main></kano-routing>
+                <iron-pages selected="{{accessState(user)}}" attr-for-selected="name">
+                    <div name="logged-out" class="logged-out">
+                        <span>Please Login</span>
+                    </div>
+                    <div name="not-allowed" class="access-denied">
+                        <span>Make Apps while it is still in private beta, thank you for your interest!</span>
+                        <span> Redirecting to Kano World</span>
+                    </div>
+                    <div name="allowed">
+                        <kano-routing ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu"></kano-routing>
+                    </div>
+                </iron-pages>
             </div>
         </paper-drawer-panel>
     </template>
@@ -106,10 +139,14 @@ Example:
             this.properties = {
                 user: {
                     type: Object
+                },
+                redirectTimer: {
+                    type: Object
                 }
             };
             this.observers = [
-                'ctxChanged(ctx.*)'
+                'ctxChanged(ctx.*)',
+                'launchLogin(user)'
             ];
         }
         /**
@@ -117,6 +154,40 @@ Example:
          */
         ctxChanged () {
             app.ctx = this.ctx;
+        }
+        isUserLoggedIn () {
+            return !!this.user;
+        }
+        userCanHandleMakeApps () {
+            let buckets;
+            if (window.app.config.ENV === 'development') {
+                return true;
+            }
+            if (this.isUserLoggedIn() && this.user.buckets && this.user.buckets.indexOf('make-apps-beta') !== -1) {
+                return true;
+            }
+            return false;
+        }
+        accessState () {
+            clearTimeout(this.redirectTimer);
+            if (!this.isUserLoggedIn()) {
+                return 'logged-out';
+            }
+
+            if (!this.userCanHandleMakeApps()) {
+                this.redirectToKanoWorld();
+                return 'not-allowed';
+            }
+
+            return 'allowed';
+        }
+        launchLogin () {
+            if (!this.isUserLoggedIn()) {
+                this.login();
+            }
+        }
+        redirectToKanoWorld () {
+            this.redirectTimer = setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
         }
         attached () {
             let initialiseSDK = () => {
@@ -160,14 +231,24 @@ Example:
 
             const handleSwitch = (ev) => {
                 if (ev.target.localName === 'kano-login-form') {
-                    modal.setContent(document.createElement('kano-signup-form'));
+                    modal.replaceChild(
+                        document.createElement('kano-signup-form'),
+                        modal.querySelector('kano-login-form')
+                    );
                     document.querySelector('#already-signedup-button')
                         .addEventListener('click', handleSwitch);
+                    modal.refit();
                 }
                 if (ev.target.id === 'already-signedup-button') {
-                    modal.setContent(document.createElement('kano-login-form'));
+                    modal.replaceChild(
+                        document.createElement('kano-login-form'),
+                        modal.querySelector('kano-signup-form')
+                    );
                     document.querySelector('kano-login-form')
                         .addEventListener('signup-click', handleSwitch);
+                    document.querySelector('kano-login-form')
+                        .addEventListener('success', handleLogin);
+                    modal.refit();
                 }
             };
 
@@ -175,19 +256,19 @@ Example:
                 this.user = data.details.user;
                 app.sdk.auth.setToken(data.details.token);
                 modal.close();
+                this.removeChild(modal);
             };
 
-            modal = document.createElement('kano-modal');
-            modal.setContent(document.createElement('kano-login-form'));
-            modal.show(() => {
+            modal = document.createElement('paper-dialog');
+            modal.appendChild(document.createElement('kano-login-form'));
+            modal.addEventListener('iron-overlay-opened', () => {
                 let loginForm = document.querySelector('kano-login-form');
                 loginForm.addEventListener('signup-click', handleSwitch);
                 loginForm.addEventListener('success', handleLogin);
             });
+            modal.modal = true;
+            modal.open();
 
-            modal.addEventListener('modal-close', () => {
-                this.removeChild(modal);
-            });
             this.appendChild(modal);
         }
         toggleMenu () {

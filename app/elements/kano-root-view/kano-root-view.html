@@ -63,6 +63,9 @@
         margin: 20px;
         width: calc(50% - 40px);
     }
+    :host .saved-code:hover {
+        cursor: pointer;
+    }
     :host .code-trigger-title {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -144,9 +147,6 @@
         font-size: 1.2em;
         font-family: monospace;
     }
-    :host .edit-code-button:hover {
-        cursor: pointer;
-    }
     :host .right-button {
         @apply(--layout-vertical);
     }
@@ -161,7 +161,7 @@
                         selected="{{selectedPage}}"
                         class="right-button">
                 <div name="default">
-                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]">
+                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]" id="open-dropdown">
                         <img src="/assets/icons/edit-icon.png" alt="Edit" class="edit-icon"/>
                     </button>
                 </div>
@@ -180,11 +180,11 @@
                         <template is="dom-repeat"
                                 items="{{computeEventRules(codes.*)}}"
                                 as="event">
-                            <div class="saved-code">
+                            <div class="saved-code" on-tap="editCode">
                                 <div class="code-trigger">
                                     <div class="code-trigger-title">
                                         <span>{{event.trigger}}</span>
-                                        <button type="button" on-tap="editCode" class="edit-code-button">&gt;</button>
+                                        <button type="button" class="edit-code-button">&gt;</button>
                                     </div>
                                     <div class="separator">=======================================</div>
                                 </div>
@@ -203,6 +203,7 @@
                 </div>
             </iron-pages>
             <kano-event-select
+                id="trigger-dropdown"
                 hidden$="[[!eventSelectOpen]]"
                 parts="{{computeParts(parts.*)}}"
                 on-selected="triggerSelected"></kano-event-select>
@@ -288,6 +289,11 @@
         }
         toggleEventSelectOpen () {
             this.eventSelectOpen = !this.eventSelectOpen;
+            if (this.eventSelectOpen) {
+                this.notifyChange('open-trigger-dropdown', {});
+            } else {
+                this.notifyChange('close-trigger-dropdown', {});
+            }
         }
         closeEventSelect () {
             this.eventSelectOpen = false;

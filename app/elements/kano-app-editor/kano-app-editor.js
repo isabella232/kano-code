@@ -75,18 +75,20 @@ class KanoAppEditor {
     }
     openPartEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['part-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
+        this.$['part-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.partEditorTarget = e.detail;
         this.partEditorOpened = true;
+        this.notifyChange('open-part-config', { part: this.selected });
     }
     openBackgroundEditor (e) {
         let controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['background-editor'].style.bottom = `${window.innerHeight - controls.top}px`;
+        this.$['background-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.backgroundEditorTarget = e.detail;
         this.backgroundEditorOpened = true;
     }
     closePartEditor () {
         this.partEditorOpened = false;
+        this.notifyChange('close-part-editor', {});
     }
     closeBackgroundEditor () {
         this.backgroundEditorOpened = false;
@@ -192,8 +194,8 @@ class KanoAppEditor {
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
-            savedApp.blockEditorPage = this.$['part-editor'].selectedPage;
-            savedApp.selectedTrigger = this.$['part-editor'].trigger;
+            savedApp.blockEditorPage = this.$['part-editor-tooltip'].selectedPage;
+            savedApp.selectedTrigger = this.$['part-editor-tooltip'].trigger;
         }
 
         return savedApp;
@@ -222,8 +224,8 @@ class KanoAppEditor {
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {
             this.$['workspace-controls'].selectPart(addedParts[savedApp.selectedPart]);
-            this.$['part-editor'].set('trigger', savedApp.selectedTrigger);
-            this.$['part-editor'].showPage(savedApp.blockEditorPage);
+            this.$['part-editor-tooltip'].set('trigger', savedApp.selectedTrigger);
+            this.$['part-editor-tooltip'].showPage(savedApp.blockEditorPage);
         }
     }
     openParts () {
@@ -238,10 +240,7 @@ class KanoAppEditor {
         parts.forEach((model) => {
             let part = Part.create(model, this.wsSize);
             this.push('addedParts', part);
-            this.fire('change', {
-                type: 'add-part',
-                part
-            });
+            this.notifyChange('add-part', { part });
         });
     }
     toggleLeftView () {
@@ -252,9 +251,9 @@ class KanoAppEditor {
         // If we just opened the leftView, show the code page
         if (this.leftViewOpened) {
             this.set('leftPanelView', 'code');
-            this.$['part-editor'].showCodeEditor();
+            this.$['part-editor-tooltip'].showCodeEditor();
         } else {
-            this.$['part-editor'].hideCodeEditor();
+            this.$['part-editor-tooltip'].hideCodeEditor();
         }
     }
     triggerResize () {
@@ -274,8 +273,8 @@ class KanoAppEditor {
     }
     onWindowResize () {
         let rect = this.$['left-panel'].getBoundingClientRect(),
-            partEditor = this.$['part-editor'],
-            backgroundEditor = this.$['background-editor'];
+            partEditor = this.$['part-editor-tooltip'],
+            backgroundEditor = this.$['background-editor-tooltip'];
         backgroundEditor.leftBound = rect.left + TOOLTIP_PADDING;
         backgroundEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
         partEditor.leftBound = rect.left + TOOLTIP_PADDING;

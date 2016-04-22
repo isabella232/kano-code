@@ -120,7 +120,7 @@
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing" main>
             <div name="code" class="editor" id="left-panel">
                 <kano-root-view
-                    id="part-editor"
+                    id="root-view"
                     on-previous="previous"
                     parts="{{addedParts}}"
                     codes="{{codes}}"
@@ -145,22 +145,22 @@
                                 selected="{{selected}}"
                                 running="{{running}}"></kano-workspace>
                 <div class="controls">
-                    <button type="button" class="share-button" on-tap="share">Share</button>
-                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning">{{getMakeButtonLabel(running)}}</button>
+                    <button type="button" class="share-button" on-tap="share" id="share-button">Share</button>
+                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
                 </div>
                 <kano-cover-generator id="image_generator"
                     element-name="kano-workspace"></kano-cover-generator>
             </div>
         </section>
-        <kano-content-tooltip id="part-editor"
+        <kano-content-tooltip id="part-editor-tooltip"
             target="[[partEditorTarget]]"
             hidden$="[[!partEditorOpened]]"
             on-close="closePartEditor"
             colour="[[selected.colour]]"
             title="[[selected.name]]">
-            <kano-part-editor selected="{{selected}}" class="tooltip-content"></kano-part-editor>
+            <kano-part-editor selected="{{selected}}" class="tooltip-content" id="part-editor"></kano-part-editor>
         </kano-content-tooltip>
-        <kano-content-tooltip id="background-editor"
+        <kano-content-tooltip id="background-editor-tooltip"
             target="[[backgroundEditorTarget]]"
             hidden$="[[!backgroundEditorOpened]]"
             on-close="closeBackgroundEditor"

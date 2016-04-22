@@ -16,7 +16,7 @@ export default class Part {
         // Add it to the registery
         names[newName] = true;
         this.uniqueName = newName;
-        this.id = slug(this.uniqueName);
+        this.id = slug(this.uniqueName, '');
     }
 
     get name () {

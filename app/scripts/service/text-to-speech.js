@@ -7,19 +7,22 @@
  *
  */
 
+import config from '../config';
+
 /* globals SpeechSynthesisUtterance*/
 
 class TextToSpeech {
     constructor () {
+        this.config = config;
         this.backend = this.remote;
 
         this.cache = {};
     }
 
-    configure (config) {
-        this.config = config;
+    configure (c) {
+        this.config = c;
 
-        if (config.TARGET === 'rpi') {
+        if (c.TARGET === 'rpi') {
             this.backend = this.rpi;
         } else if (window.speechSynthesis) {
             this.backend = this.browser;
