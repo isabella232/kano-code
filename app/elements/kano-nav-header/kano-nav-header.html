@@ -32,7 +32,7 @@
     :host header .header-right {
         width: 90px;
     }
-    :host .back {
+    :host .back, :host .menu {
         @apply(--layout-vertical);
         @apply(--layout-center);
         @apply(--layout-center-justified);
@@ -40,12 +40,17 @@
         border: 0px;
         width: 100%;
         height: 100%;
+        outline: none;
     }
     :host .back iron-image {
         width: 10px;
         height: 15px;
     }
-    :host .back:hover {
+    :host .menu iron-image {
+        width: 25px;
+        height: 25px;
+    }
+    :host .back:hover, :host .menu:hover {
         cursor: pointer;
     }
     </style>
@@ -58,6 +63,12 @@
                         on-tap="previous"
                         hidden$="[[!backEnabled]]">
                     <iron-image src="/assets/icons/back-arrow-icon.png" sizing="contain"></iron-image>
+                </button>
+                <button class="menu"
+                        type="button"
+                        on-tap="toggleMenu"
+                        hidden$="[[backEnabled]]">
+                    <iron-image src="/assets/icons/menu.png" sizing="contain"></iron-image>
                 </button>
             </div>
             <div class="title">
@@ -90,6 +101,10 @@
         }
         previous () {
             this.fire('previous');
+        }
+
+        toggleMenu () {
+            this.fire('toggle-menu');
         }
     }
     Polymer(KanoNavHeader);
