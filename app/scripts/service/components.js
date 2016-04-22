@@ -119,14 +119,14 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (parts, backgroundStyle, workspaceRect) {
+    generateStandaloneComponent (parts, backgroundStyle, workspaceRect, codes) {
         let template = [],
             components = parts.reduce((acc, part) => {
                 acc[part.id] = part.toJSON();
                 template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}"></kano-ui-${part.type}>`);
                 return acc;
             }, {}),
-            code = this.generateCode(parts),
+            code = this.generateCode(codes),
             id = 'kano-user-component',
             component,
             partsString = JSON.stringify(components).replace(/"/g, '\\"');

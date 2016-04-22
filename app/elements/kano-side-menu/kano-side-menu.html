@@ -1,0 +1,214 @@
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<dom-module id="kano-side-menu">
+    <style>
+        :host {
+            display: block;
+        }
+        :host ul {
+            margin: 0px;
+            padding: 0px;
+        }
+        :host ul li {
+            list-style-type: none;
+        }
+        :host ul li.separated {
+            border-bottom: 2px solid var(--color-grey-lightest);
+        }
+        li a {
+            display: block;
+            width: 100%;
+            height: 100%;
+
+            padding: 10px;
+            @apply(--layout-horizontal);
+            align-items: center;
+
+            cursor: pointer;
+            text-decoration: none;
+            color: black;
+        }
+        li a:hover {
+            background: var(--color-grey-lightest);
+        }
+        li.login a {
+            @apply(--layout-horizontal);
+        }
+        li.login a .label {
+            @apply(--layout-flex);
+        }
+        li.user {
+            @apply(--layout-horizontal);
+            align-items: center;
+            cursor: default;
+            padding: 10px;
+        }
+        li.user iron-image {
+            background-color: var(--color-grey-lighter);
+
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            margin: 0px 10px;
+        }
+        li a iron-image {
+            width: 24px;
+            height: 20px;
+
+            margin: 0px 15px 0px 5px;
+        }
+        .userInfo {
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
+        .userInfo .userName {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+        .userInfo .userLevel {
+            color: var(--color-grey-light);
+        }
+        .triangle {
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-right: 8px solid var(--color-grey-light);
+        }
+        .triangle:hover {
+            border-right: 10px solid var(--color-grey);
+            cursor: pointer;
+        }
+    </style>
+    <template>
+        <ul>
+            <li class="login separated" hidden$="[[isUserLoggedIn(user)]]">
+                <a on-tap="login">
+                    <iron-image class="icon" src="../../assets/icons/login.png" sizing="contain"></iron-image>
+                    <div class="label">Login</div>
+                    <div class="triangle" on-tap="toggleMenu"></div>
+                </a>
+            </li>
+            <li class="user separated" hidden$="[[!isUserLoggedIn(user)]]">
+                <iron-image src="[[user.avatar.urls.circle]]" preload sizing="contain"></iron-image>
+                <div class="userInfo">
+                    <div class="userName">{{user.username}}</div>
+                    <div class="userLevel">Level {{profile.level}} | {{profile.xp}}XP</div>
+                </div>
+                <div>
+                    <div class="triangle" on-tap="toggleMenu"></div>
+                </div>
+            </li>
+            <li>
+                <a>
+                    <iron-image class="icon" src="../../assets/icons/reset.png" sizing="contain"></iron-image>
+                    <div class="label">Reset Workspace</div>
+                </a>
+            </li>
+            <li>
+                <a href="/">
+                    <iron-image class="icon" src="../../assets/icons/projects.png" sizing="contain"></iron-image>
+                    <div class="label">Back to Projects</div>
+                </a>
+            </li>
+            <li>
+                <a href="http://goo.gl/forms/ZRGXkMVl4Y" target="_blank">
+                    <iron-image class="icon" src="../../assets/icons/feedback.png" sizing="contain"></iron-image>
+                    <div class="label">
+                        Give Feedback
+                    </div>
+                </a>
+            </li>
+            <li hidden$="{{!isUserLoggedIn(user)}}" on-tap="logout">
+                <a on-tap="logout">
+                    <iron-image class="icon" src="../../assets/icons/logout.png" sizing="contain"></iron-image>
+                    <div class="label">Logout</div>
+                </a>
+            </li>
+        </ul>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+
+    class KanoSideMenu {
+        beforeRegister () {
+            this.is = 'kano-side-menu';
+            this.properties = {
+                user: {
+                    type: Object,
+                    value: null,
+                    observer: 'userChanged'
+                },
+                profile: {
+                    type: Object
+                }
+            };
+        }
+        login () {
+            this.fire('login');
+        }
+
+        logout () {
+            this.fire('logout');
+        }
+        userChanged (newValue, old) {
+            if (newValue !== null) {
+                app.sdk.api.users.get.byId({id: this.user.id}).then((res) => {
+                    if (res.status == 200) {
+                        let xp = res.body.user.profile.xp;
+                        this.profile = {
+                            xp: xp,
+                            level: this.calculateLevel(xp)
+                        };
+                    }
+                }).catch((err) => console.error(err));
+            } else {
+                this.profile = {
+                    xp: "-",
+                    level: "-"
+                };
+            }
+        }
+        isUserLoggedIn () {
+            return !!this.user;
+        }
+        toggleMenu (e) {
+            this.fire('toggle-menu');
+            e.stopPropagation();
+        }
+        /* FIXME: This was copied out of Kano World. We need to put this
+                  functionality into the API. */
+        calculateLevel (xp) {
+            var current = '1',
+                levelsMap = {
+                    1: 0,
+                    2: 150,
+                    3: 300,
+                    4: 500,
+                    5: 800,
+                    6: 1300,
+                    7: 1600,
+                    8: 2200,
+                    9: 3000
+                };
+
+            if (typeof xp !== 'number') {
+                return null;
+            }
+
+            for (let lvl in levelsMap) {
+                if (levelsMap.hasOwnProperty(lvl)) {
+                    if (xp < levelsMap[lvl]) {
+                        return current;
+                    }
+                    current = lvl;
+                }
+            }
+
+            return current;
+        }
+    }
+    Polymer(KanoSideMenu);
+</script>
