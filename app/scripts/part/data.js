@@ -197,9 +197,7 @@ export default class Data extends Part {
                 pseudo: (part) => {
                     return function (block) {
                         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                            code = `for(let item in ${part.id}) {
-                                    ${statement}
-                            }`;
+                            code = `for(let item in ${part.id}) {\n${statement}\n}\n`;
                         return code;
                     };
                 }

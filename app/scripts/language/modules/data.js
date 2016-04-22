@@ -88,9 +88,7 @@ export default data = {
                                               { src: config.src }))
                     .then(r => r.json())
                     .then((data) => {
-                        return {
-                            title: data.title
-                        };
+                        return data.slice(0, 10);
                     });
             }
         },
@@ -100,9 +98,7 @@ export default data = {
                                               { src: config.src }))
                     .then(r => r.json())
                     .then((data) => {
-                        return {
-                            title: data.title
-                        };
+                        return data.slice(0, 10);
                     });
             }
         }

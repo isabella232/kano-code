@@ -7,7 +7,7 @@ export default rss = {
     colour: '#cddc39',
     image: '',
     dataType: 'list',
-    dataLength: 9,
+    dataLength: 10,
     parameters: [{
         label: 'Source',
         key: 'src',

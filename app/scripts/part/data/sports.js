@@ -7,7 +7,7 @@ export default sports = {
     colour: '#cddc39',
     image: '',
     dataType: 'list',
-    dataLength: 9,
+    dataLength: 10,
     parameters: [{
         label: 'Sport',
         key: 'src',

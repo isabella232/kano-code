@@ -32,8 +32,7 @@ export default scrollingText = {
                 message0: `${ui.name} scroll %1`,
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 }],
                 previousStatement: null,
                 nextStatement: null
