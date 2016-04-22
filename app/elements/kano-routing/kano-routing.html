@@ -15,7 +15,7 @@
           width: 100%;
       }
     </style>
-    <kano-view view-name="[[currentView]]"></kano-view>
+    <kano-view id="view" view-name="[[currentView]]"></kano-view>
   </template>
   <script>
   /* globals Polymer, page */
@@ -60,6 +60,10 @@
               this.ctx = ctx;
               this.currentView = name;
           };
+      }
+
+      reload () {
+          this.$.view.reloadView();
       }
   }
   Polymer(KanoRouting);

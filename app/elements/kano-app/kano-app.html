@@ -92,7 +92,7 @@ Example:
     <template>
         <style include="kano-style"></style>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
-            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu"></kano-side-menu>
+            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" on-reset-workspace="resetWorkspace"></kano-side-menu>
             <div class="main" main>
                 <!--<header>
                     <div class="user-info">
@@ -123,7 +123,7 @@ Example:
                         <span> Redirecting to Kano World</span>
                     </div>
                     <div name="allowed">
-                        <kano-routing ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu"></kano-routing>
+                        <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu"></kano-routing>
                     </div>
                 </iron-pages>
             </div>
@@ -273,6 +273,10 @@ Example:
         }
         toggleMenu () {
             this.$.drawer.togglePanel();
+        }
+        resetWorkspace () {
+            localStorage.clear();
+            this.$.router.reload();
         }
     }
     Polymer(KanoApp);
