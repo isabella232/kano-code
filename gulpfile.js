@@ -59,20 +59,31 @@ gulp.task('serve-prod', () => {
     });
 });
 
+function getHtmlReplaceOptions() {
+    let mapping = {
+        config: `<script type="text/javascript">
+            window.config = ${JSON.stringify(config(process.env.NODE_ENV,
+                                                    process.env.TARGET))};
+        </script>`
+    };
+    if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
+        mapping.style = `<style>
+            .animatable {
+                animation: none !important;
+                transition: none !important;
+            }
+        </style>`;
+    }
+    return mapping;
+}
+
 // For a build with cordova, add this to html replace
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
 gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
     gulp.src('./.tmp/app/index.html')
         .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.htmlReplace({
-            config: `
-            <script type="text/javascript">
-                window.config = ${JSON.stringify(config(process.env.NODE_ENV,
-                                                        process.env.TARGET))};
-            </script>
-            `
-         }))
+        .pipe($.htmlReplace(getHtmlReplaceOptions()))
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
 });
