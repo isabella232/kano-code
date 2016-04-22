@@ -1,15 +1,15 @@
-let rss;
+let sports;
 
-export default rss = {
+export default sports = {
     partType: 'data',
-    type: 'rss',
-    label: 'RSS',
+    type: 'sports',
+    label: 'Sports',
     colour: '#cddc39',
     image: '',
     dataType: 'list',
     dataLength: 10,
     parameters: [{
-        label: 'Source',
+        label: 'Sport',
         key: 'src',
         type: 'list',
         value: 'headlines',
@@ -17,28 +17,28 @@ export default rss = {
             value: 'headlines',
             label: 'Headlines'
         },{
-            value: 'world',
-            label: 'World'
+            value: 'football',
+            label: 'Football'
         },{
-            value: 'uk',
-            label: 'UK'
+            value: 'cricket',
+            label: 'Cricket'
         },{
-            value: 'edu',
-            label: 'Education'
+            value: 'rugby-union',
+            label: 'Rugby Union'
         },{
-            value: 'sci_env',
-            label: 'Science & Environment'
+            value: 'rugby-league',
+            label: 'Rugby League'
         },{
-            value: 'tech',
-            label: 'Technology'
+            value: 'tennis',
+            label: 'Tennis'
         },{
-            value: 'ent_arts',
-            label: 'Entertainment & Art'
+            value: 'golf',
+            label: 'Golf'
         }]
     }],
     refreshFreq: 5,
     minRefreshFreq: 5,
-    method: 'rss.getFeed',
+    method: 'sports.getResults',
     dataKeys: [{
         label: 'Title',
         key: 'title',
