@@ -1,0 +1,40 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-input-range">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+    }
+    :host label .value {
+        font-weight: bold;
+    }
+    :host .inputs {
+        @apply(--layout-horizontal);
+    }
+    </style>
+    <template>
+        <label>{{label}}: <span class="value">{{value}}</span></label>
+        <div class="inputs">
+            <input type="range"
+                    min="{{min}}"
+                    max="{{max}}"
+                    value="{{value::input}}">
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoInputrange {
+
+        get behaviors () {
+            return [KanoBehaviors.Input];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-input-range';
+        }
+    }
+    Polymer(KanoInputrange);
+</script>
