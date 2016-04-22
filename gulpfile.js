@@ -73,9 +73,8 @@ gulp.task('serve-prod', () => {
 function getHtmlReplaceOptions() {
     let mapping = {
         config: `<script type="text/javascript">
-            window.config = ${JSON.stringify(config(process.env.NODE_ENV,
-                                                    process.env.TARGET))};
-        </script>`
+                ${utils.getEnvVars()}
+            </script>`
     };
     if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
         mapping.style = `<style>
