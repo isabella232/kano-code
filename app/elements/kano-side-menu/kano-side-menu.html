@@ -101,13 +101,13 @@
                 </div>
             </li>
             <li>
-                <a>
+                <a on-tap="resetWorkspace">
                     <iron-image class="icon" src="../../assets/icons/reset.png" sizing="contain"></iron-image>
                     <div class="label">Reset Workspace</div>
                 </a>
             </li>
             <li>
-                <a href="/">
+                <a href="/" on-tap="backToProjects">
                     <iron-image class="icon" src="../../assets/icons/projects.png" sizing="contain"></iron-image>
                     <div class="label">Back to Projects</div>
                 </a>
@@ -177,6 +177,13 @@
         toggleMenu (e) {
             this.fire('toggle-menu');
             e.stopPropagation();
+        }
+        resetWorkspace () {
+            this.fire('reset-workspace');
+            this.fire('toggle-menu');
+        }
+        backToProjects () {
+            this.fire('toggle-menu');
         }
         /* FIXME: This was copied out of Kano World. We need to put this
                   functionality into the API. */
