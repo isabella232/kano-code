@@ -63,6 +63,9 @@
         margin: 20px;
         width: calc(50% - 40px);
     }
+    :host .saved-code:hover {
+        cursor: pointer;
+    }
     :host .code-trigger-title {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -83,6 +86,7 @@
     }
     :host .code-action kano-pseudo-code {
         padding: 0px 10px 10px 10px;
+        overflow: hidden;
     }
     :host .back {
         @apply(--layout-vertical);
@@ -144,9 +148,6 @@
         font-size: 1.2em;
         font-family: monospace;
     }
-    :host .edit-code-button:hover {
-        cursor: pointer;
-    }
     :host .right-button {
         @apply(--layout-vertical);
     }
@@ -180,11 +181,11 @@
                         <template is="dom-repeat"
                                 items="{{computeEventRules(codes.*)}}"
                                 as="event">
-                            <div class="saved-code">
+                            <div class="saved-code" on-tap="editCode">
                                 <div class="code-trigger">
                                     <div class="code-trigger-title">
                                         <span>{{event.trigger}}</span>
-                                        <button type="button" on-tap="editCode" class="edit-code-button">&gt;</button>
+                                        <button type="button" class="edit-code-button">&gt;</button>
                                     </div>
                                     <div class="separator">=======================================</div>
                                 </div>

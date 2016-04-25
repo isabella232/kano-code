@@ -54,8 +54,10 @@
             background: red;
         }
     }
-    :host sortable-js {
+    :host .carousel-content {
         padding: 0px 20px;
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
     }
     :host .add-part-section {
         @apply(--layout-vertical);
@@ -95,57 +97,61 @@
     <template>
         <div class="content">
             <kano-carousel id="carousel">
-                <sortable-js id="parts-tray" class="parts">
+                <div class="carousel-content">
                     <div class="part">
                         <kano-ui-item model="[[backgroundPart]]"
-                            on-tap="backgroundTapped"
-                            size="50"
-                            id="background"></kano-ui-item>
+                        on-tap="backgroundTapped"
+                        size="50"
+                        id="background"
+                        instance></kano-ui-item>
                     </div>
-                    <template is="dom-repeat"
-                    items="{{parts}}"
-                    as="part">
-                    <div class="part">
-                        <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
-                        <kano-ui-item model="[[part]]"
-                            selected="[[isSelected(part, selected)]]"
-                            on-tap="partTapped"
-                            size="50"
-                            id$="part-[[part.id]]"></kano-ui-item>
-                        <iron-image src="/assets/icons/bin.svg"
-                                    class="trash"
-                                    sizing="contain"
-                                    hidden$="[[isTrashHidden(part, selected, running)]]"
-                                    on-tap="openDeleteModal"></iron-image>
+                    <sortable-js id="parts-tray" class="parts">
+                        <template is="dom-repeat"
+                            items="{{parts}}"
+                            as="part">
+                            <div class="part">
+                                <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
+                                <kano-ui-item model="[[part]]"
+                                selected="[[isSelected(part, selected)]]"
+                                on-tap="partTapped"
+                                size="50"
+                                id$="part-[[part.id]]"
+                                instance></kano-ui-item>
+                                <iron-image src="/assets/icons/bin.svg"
+                                class="trash"
+                                sizing="contain"
+                                hidden$="[[isTrashHidden(part, selected, running)]]"
+                                on-tap="openDeleteModal"></iron-image>
+                            </div>
+                        </template>
+                    </sortable-js>
                     </div>
-                </template>
-            </sortable-js>
-        </kano-carousel>
-        <div class="add-part-section" id="add-part">
-            <button type="button" class="add-part-button" on-tap="addPartTapped">+</button>
-            <label>Add Parts</label>
-        </div>
+            </kano-carousel>
+            <div class="add-part-section" id="add-part">
+                <button type="button" class="add-part-button" on-tap="addPartTapped">+</button>
+                <label>Add Parts</label>
+            </div>
         </div>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
-          <h2>Delete Part</h2>
-          <div class="modal-content">
-              <div>You are about to delete '[[selected.name]]'</div>
-              <div>Are you sure you want to do this?</div>
-          </div>
-          <div class="buttons">
-            <button dialog-dismiss class="cancel">Cancel</button>
-            <button dialog-confirm class="confirm">Confirm</button>
-          </div>
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You are about to delete '[[selected.name]]'</div>
+                <div>Are you sure you want to do this?</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+                <button dialog-confirm class="confirm">Confirm</button>
+            </div>
         </paper-dialog>
         <paper-dialog id="external-use-warning" with-backdrop>
-          <h2>Delete Part</h2>
-          <div class="modal-content">
-              <div>You can't delete '[[selected.name]]' because it is used in another part</div>
-          </div>
-          <div class="buttons">
-            <button dialog-dismiss class="cancel">Cancel</button>
-          </div>
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You can't delete '[[selected.name]]' because it is used in another part</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+            </div>
         </paper-dialog>
     </template>
 </dom-module>

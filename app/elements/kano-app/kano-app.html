@@ -1,11 +1,13 @@
 <script src="../../scripts/app.js"></script>
 <script src="../../scripts/util/client.js"></script>
 
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-style/kano-style.html">
+<link rel="import" href="../kano-auth/kano-auth.html">
 <!--
 `kano-app` provides the whole Make apps app.
 Example:
@@ -15,20 +17,21 @@ Example:
 -->
 <dom-module id="kano-app">
     <style>
-    :host {
+    :host, :host .main {
         display: block;
         width: 100%;
         height: 100%;
         @apply(--layout-vertical);
         font-family: var(--font-body);
+        overflow: auto;
     }
     :host button,
-    :host header .link {
+    :host .main header .link {
         @apply(--kano-button-small);
         text-decoration: none;
         background-color: var(--primary-color);
     }
-    :host header {
+    :host .main header {
         background-color: var(--color-header, black);
         color: white;
         @apply(--kano-header);
@@ -37,33 +40,36 @@ Example:
         @apply(--layout-center);
         height: 62px;
     }
-    :host header div {
+    :host .main header div {
         @apply(--layout-flex);
     }
-    :host header .logged {
+    :host .main header .logged {
         @apply(--layout-vertical);
     }
     :host .user-info {
         margin-left: 5px;
     }
-    :host header iron-image {
+    :host .main header iron-image {
         height: 42px;
         width: 155px;
         margin-left: 15px;
     }
-    :host header button {
+    :host .main header button {
         margin-right: 15px;
     }
-    :host header .links {
+    :host .main header .links {
         @apply(--layout-horizontal);
         @apply(--layout-end-justified);
         padding-right: 5px;
     }
-    :host iron-pages {
+    :host paper-drawer-panel {
+        @apply(--layout-flex);
+    }
+    :host .main iron-pages {
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
-    :host iron-pages > div {
+    :host .main iron-pages > div {
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
@@ -84,41 +90,32 @@ Example:
     :host kano-routing {
         @apply(--layout-flex);
     }
+    :host .auth-modal {
+        border-radius: 5px;
+    }
     </style>
     <template>
         <style include="kano-style"></style>
-        <header>
-            <div class="user-info">
-                <div hidden$="{{!isUserLoggedIn(user)}}" class="logged">
-                    <label>{{user.username}}</label>
-                    <a href="#" on-tap="logout">Logout</a>
-                </div>
-                <button type="button"
-                    class="login-button"
-                    hidden$="{{isUserLoggedIn(user)}}"
-                    on-tap="login">Login</button>
+        <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
+            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" on-reset-workspace="resetWorkspace"></kano-side-menu>
+            <div class="main" main>
+                <iron-pages selected="{{accessState(user)}}" attr-for-selected="name">
+                    <div name="logged-out" class="logged-out">
+                        <span>Please Login</span>
+                    </div>
+                    <div name="not-allowed" class="access-denied">
+                        <span>Make Apps while it is still in private beta, thank you for your interest!</span>
+                        <span> Redirecting to Kano World</span>
+                    </div>
+                    <div name="allowed">
+                        <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]"></kano-routing>
+                    </div>
+                </iron-pages>
             </div>
-            <iron-image src="../../assets/logo.png"
-                        preload
-                        sizing="contain"></iron-image>
-            <div class="links">
-                <template is="dom-repeat" items="{{ctx.links}}" as="link">
-                    <a href$="[[link.url]]" class="link">[[link.label]]</a>
-                </template>
-            </div>
-        </header>
-        <iron-pages selected="{{accessState(user)}}" attr-for-selected="name">
-            <div name="logged-out" class="logged-out">
-                <span>Please Login</span>
-            </div>
-            <div name="not-allowed" class="access-denied">
-                <span>Make Apps while it is still in private beta, thank you for your interest!</span>
-                <span> Redirecting to Kano World</span>
-            </div>
-            <div name="allowed">
-                <kano-routing ctx="{{ctx}}" name="app"></kano-routing>
-            </div>
-        </iron-pages>
+        </paper-drawer-panel>
+        <paper-dialog id="auth-modal" class="auth-modal" modal>
+            <kano-auth on-login="onLogin"></kano-auth>
+        </paper-dialog>
     </template>
 </dom-module>
 <script>
@@ -218,49 +215,21 @@ Example:
             this.user = null;
         }
         login () {
-            let modal;
-
-            const handleSwitch = (ev) => {
-                if (ev.target.localName === 'kano-login-form') {
-                    modal.replaceChild(
-                        document.createElement('kano-signup-form'),
-                        modal.querySelector('kano-login-form')
-                    );
-                    document.querySelector('#already-signedup-button')
-                        .addEventListener('click', handleSwitch);
-                    modal.refit();
-                }
-                if (ev.target.id === 'already-signedup-button') {
-                    modal.replaceChild(
-                        document.createElement('kano-login-form'),
-                        modal.querySelector('kano-signup-form')
-                    );
-                    document.querySelector('kano-login-form')
-                        .addEventListener('signup-click', handleSwitch);
-                    document.querySelector('kano-login-form')
-                        .addEventListener('success', handleLogin);
-                    modal.refit();
-                }
-            };
-
-            const handleLogin = (data) => {
-                this.user = data.details.user;
-                app.sdk.auth.setToken(data.details.token);
-                modal.close();
-                this.removeChild(modal);
-            };
-
-            modal = document.createElement('paper-dialog');
-            modal.appendChild(document.createElement('kano-login-form'));
-            modal.addEventListener('iron-overlay-opened', () => {
-                let loginForm = document.querySelector('kano-login-form');
-                loginForm.addEventListener('signup-click', handleSwitch);
-                loginForm.addEventListener('success', handleLogin);
-            });
-            modal.modal = true;
+            let modal = this.$['auth-modal'];
             modal.open();
-
-            this.appendChild(modal);
+        }
+        onLogin (e) {
+            let data = e.detail;
+            this.user = data.user;
+            app.sdk.auth.setToken(data.token);
+            this.$['auth-modal'].close();
+        }
+        toggleMenu () {
+            this.$.drawer.togglePanel();
+        }
+        resetWorkspace () {
+            localStorage.clear();
+            this.$.router.reload();
         }
     }
     Polymer(KanoApp);

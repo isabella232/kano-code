@@ -19,7 +19,7 @@
                 },
                 location: {
                     type: String,
-                    value: 'views',
+                    value: 'views'
                 },
                 attributes: {
                     type: Object,
@@ -27,6 +27,10 @@
                         return {};
                     },
                     notify: true
+                },
+                flexEnabled: {
+                    type: Boolean,
+                    value: true
                 }
             };
             this.observers = [
@@ -51,7 +55,7 @@
                 return;
             }
             path = path.join('.');
-            this.viewComponent.set(e.path, e.value);
+            this.viewComponent.set(path, e.value);
         }
         viewChanged () {
             if ((this.viewName && !this.viewName.length) || !this.location) {
@@ -63,12 +67,16 @@
                     this.fire('kano-error', new Error(`Could not load view ${this.viewName}`));
                 });
         }
+        reloadView () {
+            this.viewChanged();
+        }
         displayView () {
             let view = this.create(this.viewName, this.attributes);
             this.mountComponent(view);
         }
         mountComponent (component) {
-            component.style.flex = 1;
+            component.style.flex = this.flexEnabled ? 1 : 'none';
+
             while (this.firstChild) {
                 this.removeChild(this.firstChild);
             }

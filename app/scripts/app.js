@@ -7,7 +7,7 @@ import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import FileUtils from './util/file';
-import config from './config'
+import config from './config';
 
 import es6Assign from 'es6-object-assign';
 
@@ -20,8 +20,7 @@ es6Assign.polyfill();
 
     app.defaultCategories = [];
     app.registerBlockly = (Blockly) => {
-        let mod,
-            category;
+        let mod;
         // Register default blockly modules
         blockly.register(Blockly);
         // Loop through the modules and register every block
@@ -29,29 +28,6 @@ es6Assign.polyfill();
             mod = modules[moduleName];
             if (typeof mod.config === 'function') {
                 mod.config(config);
-            }
-            if (!mod.blocks) {
-                return;
-            }
-            category = {
-                name: mod.name,
-                colour: mod.colour,
-                blocks: []
-            };
-            mod.blocks.forEach((definition) => {
-                let block = definition.block;
-                block.colour = mod.colour;
-                Blockly.Blocks[block.id] = {
-                    init: function () {
-                        this.jsonInit(block);
-                    }
-                };
-                Blockly.JavaScript[block.id] = definition.javascript;
-                Blockly.Pseudo[block.id] = definition.pseudo;
-                category.blocks.push({ id: block.id });
-            });
-            if (category.blocks) {
-                app.defaultCategories.push(category);
             }
         });
     };

@@ -29,6 +29,7 @@
             let workspace = window.document.getElementsByTagName(this.elementName)[0],
                 viewport = workspace.childNodes[1],
                 view = viewport.childNodes[1],
+                dropzone = view.childNodes[2],
                 el_container = view.childNodes[2],
                 image;
 
@@ -39,7 +40,7 @@
 
             let parent_rect = el_container.getBoundingClientRect(),
                 ctx,
-                background_color = this.getStyle(workspace, 'background-color'),
+                background_color = this.getStyle(dropzone, 'background-color'),
                 transform = this.getStyle(view, 'transform'),
                 float_regex = /([+-]?\d*\.*\d+)/g,
                 external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
@@ -88,9 +89,9 @@
 
             //computing style properties
             el.rotate = component_model.rotation;
-            el.internal_scale_factor = component_model.scale;
+            el.internal_scale_factor = component_model.scale / 100; //it is given in percentage so we need to scale it
             el.color = component_model.userStyle.color;
-            el.text = component_model.userProperties.text;
+            el.text = component_model.userProperties.label || component_model.userProperties.text;
 
             //computing element and font size
             el.size.width = component.offsetWidth * external_scale_factor * el.internal_scale_factor;
@@ -115,7 +116,7 @@
 
 
             switch (element.name) {
-                case 'KANO-UI-LABEL':
+                case 'KANO-UI-TEXT':
                     context.textAlign = 'center';
                     context.fillStyle = element.color;
                     context.fillText(element.text,  (element.size.width)/2,  (element.size.height) / 2);
@@ -188,6 +189,9 @@
          */
         getStyle (element, css_rule) {
             var strValue = "";
+            if (!element) {
+                return strValue;
+            }
             if(document.defaultView && document.defaultView.getComputedStyle){
                 strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
             }

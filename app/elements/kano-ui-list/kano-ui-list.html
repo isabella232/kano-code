@@ -29,8 +29,7 @@
         <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
         <template is="dom-repeat" items="{{items}}" id="partsList">
             <div class="part">
-                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection"></kano-ui-item>
-                <paper-checkbox checked noink hidden$="[[!isPartSelected(item, selected.*)]]"></paper-checkbox>
+                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection" selected="[[isPartSelected(item, selected.*)]]" disabled$="[[isHardwareAdded(item)]]"></kano-ui-item>
             </div>
         </template>
     </template>
@@ -54,15 +53,26 @@
                 selected: {
                     type: Array,
                     notify: true
+                },
+                parts: {
+                    type: Array
                 }
             };
         }
         toggleSelection (e) {
             let item = this.items[this.$.partsList.indexForElement(e.target)];
+            if (this.isHardwareAdded(item)) {
+                return;
+            }
             this.$.selector.select(item);
             if (this.$.selector.isSelected(item)) {
                 this.notifyChange('select-new-part', { part: item });
             }
+        }
+        isHardwareAdded (item) {
+            return this.parts.some(part => {
+                return part.partType === 'hardware' && part.type === item.type;
+            });
         }
         isPartSelected (part) {
             return this.$.selector.isSelected(part);

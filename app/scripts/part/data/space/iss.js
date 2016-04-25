@@ -4,7 +4,7 @@ export default iss = {
     partType: 'data',
     type: 'iss',
     label: 'ISS',
-    image: '/assets/part/ISS-icon.svg',
+    image: '/assets/part/iss.svg',
     colour: '#1f1f1f',
     description: 'The ISS (*International Space Station*) is the largest artificial body in orbit. Scientists use it to conduct experiments in **zero gravity**. Here, you can track its position in real time',
     parameters: [],

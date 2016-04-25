@@ -1,0 +1,147 @@
+<dom-module id="kano-auth">
+    <style>
+    :host {
+        display: block;
+        font-family: bariol;
+    }
+    :host ::content input[type="text"],
+    :host ::content input[type="email"],
+    :host ::content input[type="password"] {
+        border-radius: 4px;
+        background: #f5f5f5;
+        border: 2px solid #ccc;
+        margin-bottom: 20px;
+        padding: 9px 15px;
+        display: inline-block;
+        font-size: 16px;
+        box-shadow: 0 2px 0 0 rgba(0,0,0,0.03) inset;
+        width: 100%;
+    }
+    :host ::content .x-username-field label {
+        display: inline-block;
+    }
+    :host ::content label {
+        font-size: 20px;
+        display: block;
+        margin-bottom: 2px;
+        color: #6e6e6e;
+    }
+    :host ::content button {
+        @apply(--kano-button);
+    }
+    :host ::content .success {
+        width: 100%;
+        background: var(--color-green, green);
+    }
+    :host ::content .buttons {
+        @apply(--layout-vertical);
+    }
+    :host ::content .buttons .already-registered-button {
+        @apply(--layout-self-center);
+        margin-top: 30px;
+    }
+    :host ::content .password-field {
+        position: relative;
+    }
+    :host ::content .password-indicator {
+        position: absolute;
+        right: 10px;
+        top: 13px;
+        width: 30px;
+        height: 17px;
+        background-size: 30px 17px;
+        background-image: url("/assets/icons/show-icon.png");
+    }
+    :host ::content kano-login-form kano-password-field .password-indicator {
+        display: none;
+    }
+    :host ::content .password-indicator.hide-password {
+        background-image: url("/assets/icons/hide-icon.png");
+    }
+    @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+        :host ::content .password-indicator {
+            background-image: url("/assets/icons/show-icon@2x.png");
+        }
+
+        :host ::content .password-indicator.hide-password {
+            background-image: url("/assets/icons/hide-icon@2x.png");
+        }
+    }
+    :host ::content .errors {
+        background: var(--color-red, red);
+        padding: 10px;
+        border-radius: 10px;
+        color: var(--color-white, white);
+        display: none;
+        font-size: 16px;
+    }
+    :host ::content hr {
+        border: 0;
+        background: rgba(0,0,0,0.05);
+        height: 1px;
+    }
+    :host ::content kano-login-form .actions {
+        text-align: center;
+    }
+    :host ::content a {
+        color: var(--color-orange);
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 15px;
+    }
+    :host ::content a#terms {
+        font-size: 20px;
+        font-weight: 500;
+    }
+    :host ::content h3 {
+        color: var(--color-orange, orange);
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 30px;
+    }
+    :host ::content .generate-nickname {
+        float: right;
+        font-size: 15px;
+        color: var(--color-orange);
+        cursor: pointer;
+        font-weight: 600;
+        border-bottom: 1px dotted;
+    }
+    </style>
+    <template>
+        <iron-pages selected="[[selectedPage]]" attr-for-selected="name">
+            <div name="signup">
+                <h3>Create your account</h3>
+                <kano-signup-form on-login-click="toggle" on-success="loginSuccess"></kano-signup-form>
+            </div>
+            <div name="login">
+                <h3>Login to Your Account</h3>
+                <kano-login-form on-signup-click="toggle" on-success="loginSuccess"></kano-login-form>
+            </div>
+        </iron-pages>
+    </template>
+</dom-module>
+<script type="text/javascript">
+
+    /* globals Polymer */
+
+    class KanoAuth {
+        beforeRegister () {
+            this.is = 'kano-auth';
+        }
+
+        attached () {
+            this.selectedPage = 'login';
+        }
+
+        toggle () {
+            this.selectedPage = this.selectedPage === 'login' ? 'signup' : 'login';
+        }
+
+        loginSuccess (e) {
+            this.fire('login', e.details);
+        }
+    }
+    Polymer(KanoAuth);
+</script>

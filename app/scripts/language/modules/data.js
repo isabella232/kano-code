@@ -81,6 +81,26 @@ export default data = {
                     content: 'Content 3'
                 }]);
             }
+        },
+        rss: {
+            getFeed (id, config) {
+                return data.get(id, fetchData('rss',
+                                              { src: config.src }))
+                    .then(r => r.json())
+                    .then((data) => {
+                        return data.slice(0, 10);
+                    });
+            }
+        },
+        sports: {
+            getResults (id, config) {
+                return data.get(id, fetchData('rss-sports',
+                                              { src: config.src }))
+                    .then(r => r.json())
+                    .then((data) => {
+                        return data.slice(0, 10);
+                    });
+            }
         }
     },
     lifecycle: {

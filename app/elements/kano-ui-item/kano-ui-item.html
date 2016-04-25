@@ -5,6 +5,9 @@
     :host {
         display: block;
     }
+    :host[disabled] label {
+        color: grey;
+    }
     :host:hover {
         cursor: pointer;
     }
@@ -13,14 +16,26 @@
         @apply(--layout-wrap);
         @apply(--layout-center);
     }
+    :host .overlay {
+        position: absolute;
+        border-radius: 50%;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        background-color: rgba(0, 0, 0, 0.45);
+    }
     :host .img-container {
+        position: relative;
         border-radius: 50%;
         background-color: #CCC;
+        overflow: hidden;
     }
     :host iron-image {
         margin: 10px;
     }
     :host label {
+        margin-top: 10px;
         font-size: 1.2em;
         text-align: center;
         color: var(--kano-ui-item-color, black);
@@ -42,8 +57,11 @@
                             sizing="contain"
                             width="[[size]]"
                             height="[[size]]"></iron-image>
+                <template is="dom-if" if="[[disabled]]">
+                    <div class="overlay"></div>
+                </template>
             </div>
-            <label>{{computeLabel(model.*)}}</label>
+            <label style$="[[computeLabelStyle(selected)]]">{{computeLabel(model.*)}}</label>
         </div>
     </template>
 </dom-module>
@@ -53,6 +71,7 @@
 
     const IMAGE_PADDING = 20;
     const DEFAULT_BACKGROUND = '#CCC';
+    const DEFAULT_SELECTED_COLOUR = '#84C69E';
 
     class KanoUiItem {
         beforeRegister () {
@@ -71,6 +90,14 @@
                 selected: {
                     type: Boolean,
                     value: false
+                },
+                instance: {
+                    type: Boolean,
+                    value: false
+                },
+                disabled: {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
@@ -81,10 +108,19 @@
             return this.model.name || this.model.label;
         }
         computeContainerStyle (selected) {
-            let colour = selected ? this.model.colour : DEFAULT_BACKGROUND;
+            let colour = this.instance ? this.model.colour : DEFAULT_SELECTED_COLOUR;
+            colour = selected ? colour : DEFAULT_BACKGROUND;
             return `background-color: ${colour};
                     width: ${this.size + IMAGE_PADDING}px;
-                    height: ${this.size + IMAGE_PADDING}px;`;
+                    height: ${this.size + IMAGE_PADDING}px;
+                    box-shadow: inset 0 0 0 ${this.size * 0.08}px rgba(0,0,0,0.5);`;
+        }
+        computeLabelStyle (selected) {
+            if (this.instance) {
+                return;
+            }
+            let colour = selected ? DEFAULT_SELECTED_COLOUR : '';
+            return `color: ${colour};`;
         }
     }
     Polymer(KanoUiItem);

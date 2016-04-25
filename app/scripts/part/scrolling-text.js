@@ -6,7 +6,7 @@ export default scrollingText = {
     partType: 'ui',
     type: 'scrolling-text',
     label: 'Scrolling Text',
-    image: '/assets/part/text-icon.png',
+    image: '/assets/part/scrolling-text.svg',
     colour: '#E73544',
     customizable: {
         properties: [{
@@ -32,8 +32,7 @@ export default scrollingText = {
                 message0: `${ui.name} scroll %1`,
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 }],
                 previousStatement: null,
                 nextStatement: null

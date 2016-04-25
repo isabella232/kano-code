@@ -10,10 +10,7 @@
     }
     </style>
     <template>
-        <iron-image id="image"
-                    style$="[[computeImageStyle(model.userStyle.*)]]"
-                    sizing="cover"
-                    loaded="{{loaded}}"></iron-image>
+        <div style$="[[computeImageStyle(model.userStyle.*, model.userProperties.*)]]" on-tapped="tapped" loaded="{{loaded}}"></div>
     </template>
 </dom-module>
 
@@ -36,11 +33,27 @@
             // Check if the src is set or empty and toggle the class accordingly
             this.toggleClass('empty', !loaded, this.$.image);
         }
-        drawPicture (pic) {
-            this.$.image.src = pic;
+
+        setBackgroundColor (color) {
+            this.set('model.userStyle.background-color', color);
         }
+
+        setStrokeColor (color) {
+            this.set('model.userProperties.strokeColor', color);
+        }
+
+        setStrokeSize (size) {
+            this.set('model.userProperties.strokeSize', size);
+        }
+
+        tapped () {
+            this.fire('clicked');
+        }
+
         computeImageStyle () {
-            return this.getPartialStyle(['width', 'height']);
+            let style = this.getPartialStyle(['width', 'height', 'background-color']);
+            style += `border: ${this.model.userProperties.strokeSize}px solid ${this.model.userProperties.strokeColor};`;
+            return style;
         }
     }
     Polymer(KanoUiBox);
