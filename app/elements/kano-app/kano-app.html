@@ -7,6 +7,7 @@
 
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-style/kano-style.html">
+<link rel="import" href="../kano-auth/kano-auth.html">
 <!--
 `kano-app` provides the whole Make apps app.
 Example:
@@ -88,6 +89,9 @@ Example:
     :host kano-routing {
         @apply(--layout-flex);
     }
+    :host .auth-modal {
+        border-radius: 5px;
+    }
     </style>
     <template>
         <style include="kano-style"></style>
@@ -128,6 +132,9 @@ Example:
                 </iron-pages>
             </div>
         </paper-drawer-panel>
+        <paper-dialog id="auth-modal" class="auth-modal" modal>
+            <kano-auth on-login="onLogin"></kano-auth>
+        </paper-dialog>
     </template>
 </dom-module>
 <script>
@@ -227,49 +234,14 @@ Example:
             this.user = null;
         }
         login () {
-            let modal;
-
-            const handleSwitch = (ev) => {
-                if (ev.target.localName === 'kano-login-form') {
-                    modal.replaceChild(
-                        document.createElement('kano-signup-form'),
-                        modal.querySelector('kano-login-form')
-                    );
-                    document.querySelector('#already-signedup-button')
-                        .addEventListener('click', handleSwitch);
-                    modal.refit();
-                }
-                if (ev.target.id === 'already-signedup-button') {
-                    modal.replaceChild(
-                        document.createElement('kano-login-form'),
-                        modal.querySelector('kano-signup-form')
-                    );
-                    document.querySelector('kano-login-form')
-                        .addEventListener('signup-click', handleSwitch);
-                    document.querySelector('kano-login-form')
-                        .addEventListener('success', handleLogin);
-                    modal.refit();
-                }
-            };
-
-            const handleLogin = (data) => {
-                this.user = data.details.user;
-                app.sdk.auth.setToken(data.details.token);
-                modal.close();
-                this.removeChild(modal);
-            };
-
-            modal = document.createElement('paper-dialog');
-            modal.appendChild(document.createElement('kano-login-form'));
-            modal.addEventListener('iron-overlay-opened', () => {
-                let loginForm = document.querySelector('kano-login-form');
-                loginForm.addEventListener('signup-click', handleSwitch);
-                loginForm.addEventListener('success', handleLogin);
-            });
-            modal.modal = true;
+            let modal = this.$['auth-modal'];
             modal.open();
-
-            this.appendChild(modal);
+        }
+        onLogin (e) {
+            let data = e.detail;
+            this.user = data.user;
+            app.sdk.auth.setToken(data.token);
+            this.$['auth-modal'].close();
         }
         toggleMenu () {
             this.$.drawer.togglePanel();
