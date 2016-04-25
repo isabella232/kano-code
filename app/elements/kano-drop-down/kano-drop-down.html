@@ -1,0 +1,102 @@
+<dom-module id="kano-drop-down">
+    <style>
+        :host .drop-down {
+            font-size: 19px;
+            font-weight: 700;
+            border-radius: 5px;
+            -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+              box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+        }
+
+        :host .drop-down a {
+            display: block;
+            text-decoration: none;
+            float: left;
+            padding: 0px;
+            height: 73px;
+            max-width: 168px;
+            display: block;
+            border-bottom: none;
+            width: 100%;
+            max-height: 70px;
+            max-width: none;
+            text-align: left;
+            position: relative;
+            color: #333;
+        }
+
+        :host .drop-down a img {
+            vertical-align: middle;
+        }
+        :host .drop-down a:hover {
+            background-color: #cecece;
+        }
+
+        :host .drop-down a .drop-down-item {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translate(0, -50%);
+        }
+
+        :host .drop-down {
+            z-index: 9;
+            position: relative;
+            left: 0;
+            right: 0;
+            width: 220px;
+            display: block;
+            box-shadow: none;
+            background-color: #fff;
+            overflow: hidden;
+            margin-top: 13px;
+            webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+            max-height: 1000px;
+        }
+
+        :host b.notch {
+            position: absolute;
+            top: 68px;
+            left: 33px;
+            margin: 0;
+            border-top: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid white;
+            padding: 0;
+            width: 0;
+            height: 0;
+            z-index: 999;
+            display: block;
+            z-index: 0;
+        }
+    </style>
+    <template>
+        <b class='notch'></b>
+        <div class="drop-down">
+            <template is="dom-repeat" items="{{items}}" as="item">
+                <a href="{{item.url}}" target="_blank">
+                    <div class="drop-down-item">
+                        <template is="dom-if" if="{{item.img}}">
+                            <img src="{{item.img}}"/>
+                        </template>
+                        {{item.name}}
+                    </div>
+                </a>
+            </template>
+        </div>
+        <h2>DROPDOWN DUDEEE</h2>
+    </template>
+    <script>
+        class KanoDropDown {
+            beforeRegister () {
+                this.is = 'kano-drop-down'
+                this.properties = {
+                    items: Object
+                }
+            }
+        }
+        Polymer(KanoDropDown);
+    </script>
+</dom-module>

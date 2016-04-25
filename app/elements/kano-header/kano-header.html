@@ -1,21 +1,242 @@
+<link rel="import" href="../kano-drop-down/kano-drop-down.html">
+
 <dom-module id='kano-header'>
     <style>
-    :host h2 {
-        color: blue;
+    :host {
+        -webkit-font-smoothing: antialiased;
+        font-smoothing: antialiased;
+    }
+
+    :host .page-width {
+        max-width: 1000px;
+        margin: auto;
+        padding: 0 30px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    @media screen and (max-width: 600px) {
+        :host .page-width {
+            padding 0 10px
+        }
+    }
+
+    :host nav {
+        background: #fff;
+        display: block;
+        margin-bottom 30px;
+        padding-top: 2px;
+        width: 100%;
+        z-index: 999;
+        position: fixed;
+    }
+
+    :host nav .logo {
+        padding: 20px 5px 13px 5px;
+        margin: 0 3px;
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    :host nav .logo > a:before {
+        background-image: url('../../assets/kano.png');
+        background-position: center center;
+        background-repeat: no-repeat;
+        width: 100px;
+        height: 40px;
+        display: inline-block;
+        content: '';
+        margin-right: 5px;
+    }
+
+    :host nav .nav-menu {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items {
+        float: left;
+        list-style: none;
+        margin-top: 0;
+        margin-left: 0;
+        margin-bottom: 0;
+        padding-left: 0;
+        text-align: center;
+    }
+    :host nav .nav-menu ul.nav-menu-items li {
+        float: left;
+        padding: 0px;
+        height: 73px;
+        width: 130px;
+        display: inline-block;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li:hover {
+        border-bottom: 4px solid #66bed3;
+    }
+    :host nav .nav-menu ul.nav-menu-items li a {
+        padding: 25px 5px 13px 5px;
+        color: #6e6e6e;
+        display: inline-block;
+        margin: 0px 3px;
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li:hover {
+        cursor: pointer;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li kano-drop-down {
+        display: none;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li.nav-menu-items__open {
+        border-bottom: 4px solid #66bed3;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-drop-down {
+        display: block;
+    }
+
+    :host .nav-menu-items--separator {
+        content: '\00a0';
+        border-left: 3px solid #cecece;
+        pointer-events: none;
+        padding: 25px 0px 10px 0px !important;
+        width: auto !important;
+        height: 40px !important;
+        margin-top: 16px;
     }
     </style>
     <template>
-        <div class="test">
-            <h2>tetet</h2>
-        </div>
+        <nav>
+            <div class="page-width">
+                <div class="logo">
+                    <a href="/"></a>
+                </div>
+                <div class="nav-menu">
+                    <ul class="nav-menu-items">
+                        <li on-tap="toggleOpen">
+                            <a style="pointer-events: none;">Make</a>
+                            <i class="icon-chevron-down"></i>
+                            <kano-drop-down items="{{makeItems}}"></kano-drop-down>
+                        </li>
+                        <li on-tap="toggleOpen">
+                            <a style="pointer-events: none;">Community</a>
+                            <kano-drop-down items="{{communityItems}}"></kano-drop-down>
+                        </li>
+                        <li><a>Projects</a></li>
+                        <li class='nav-menu-items--separator'></li>
+                        <li class='nav-menu-items--products'><a>Product</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </template>
     <script>
         class KanoHeader {
             beforeRegister () {
+                this.URL = '//world.kano.me';
                 this.is = 'kano-header'
+                this.properties = {
+                    user: {
+                        type: Object,
+                        observer: 'getUser'
+                    },
+                    dropdownVisible: {
+                        type: Boolean,
+                        value: false
+                    }
+                }
+            }
+
+            attached () {
+                document.querySelector('#view').addEventListener('tap', (ev) => {
+                    if (this.dropdownVisible === true) {
+                        this.closeDropDown()
+                    }
+                    return false;
+                })
+            }
+
+            closeDropDown () {
+                document.querySelector('.nav-menu-items__open').classList.remove('nav-menu-items__open');
+                this.dropdownVisible = false;
+            }
+
+            toggleOpen (ev) {
+                let wasOpened = ev.target.classList.contains('nav-menu-items__open');
+
+                if (this.dropdownVisible === true) {
+                    this.closeDropDown();
+                }
+
+                if (!wasOpened) {
+                    ev.target.classList.add('nav-menu-items__open')
+                    this.dropdownVisible = true;
+                }
+
+            }
+
+            getUser () {
+                this.loggedIn = app.sdk.auth.getUser() !== null;
+            }
+
+            ready () {
+                this.communityItems = [
+                    {
+                        name: 'Users',
+                        url: this.URL + '/users'
+                    },
+                    {
+                        name: "Creations",
+                        url: this.URL + '/shares'
+                    },
+                    {
+                        name: "Leaderboard",
+                        url: this.URL + '/leaderboards'
+                    },
+                    {
+                        name: "Forum",
+                        url: this.URL + '/forum'
+                    },
+                    {
+                        name: "Blog",
+                        url: '//blog.kano.me'
+                    },
+                    {
+                        name: "Help Center",
+                        url: '//help.kano.me'
+                    }
+                ]
+
+                this.makeItems = [
+                    {
+                        name: 'Make Apps',
+                        url: '//make-apps.kano.me',
+                        img: '/assets/navbar/make-apps.png'
+                    },
+                    {
+                        name: 'Make Art',
+                        url: '//art.kano.me',
+                        img: '../../assets/navbar/make-art.png'
+                    },
+                    {
+                        name: 'Make Adventures',
+                        url: '//adventures.kano.me',
+                        img: '../../assets/navbar/make-adventures.png'
+                    },
+                    {
+                        name: 'Kano OS Apps',
+                        url: '//apps.kano.me',
+                        img: '../../assets/navbar/osapps.png'
+                    }
+                ]
             }
         }
-
-        Polymer(KanoHeader)
+        Polymer(KanoHeader);
     </script>
 </dom-module>
