@@ -141,7 +141,7 @@
             <div class="ui-edition" id="right-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
-                                parts="{{addedParts}}"
+                                parts="{{computeWorkspaceParts(addedParts)}}"
                                 selected="{{selected}}"
                                 running="{{running}}"></kano-workspace>
                 <div class="controls">
@@ -169,7 +169,7 @@
             <kano-background-editor class="tooltip-content" id="background-editor" background="{{background}}" name="background"></kano-background-editor>
         </kano-content-tooltip>
         <template is="dom-if" if="[[partsOpened]]" restamp>
-            <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts"></kano-sidebar>
+            <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts" parts="[[addedParts]]"></kano-sidebar>
         </template>
         <paper-dialog id="share-modal" with-backdrop>
             <kano-view view-name="kano-view-share-modal" on-confirm="confirmShare" on-dismiss="dismissShare"></kano-view>

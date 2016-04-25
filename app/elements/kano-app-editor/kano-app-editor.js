@@ -70,6 +70,9 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
+    computeWorkspaceParts (parts) {
+        return parts.filter(part => part.partType !== 'hardware');
+    }
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
