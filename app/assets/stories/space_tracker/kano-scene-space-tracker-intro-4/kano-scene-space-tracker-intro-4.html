@@ -1,5 +1,16 @@
 <dom-module id="kano-scene-space-tracker-intro-4">
     <style>
+    @keyframes move {
+        from {
+            top: 0%;
+            left: -20%;
+        }
+        to {
+            top: 50%;
+            left: 120%;
+            
+        }
+    }
     :host {
         display: block;
         background: #1d274f;
@@ -19,15 +30,39 @@
         padding: 15px;
         text-align: center;
     }
+    :host iron-image {
+        position: absolute;
+        /*animation: move 2s linear;*/
+    }
     :host button {
         @apply(--kano-button-big);
         background: var(--green-gradient);
     }
+    :host h1 {
+        transition: opacity linear 500ms;
+        opacity: 0;
+    }
+    :host h1#text1{
+        opacity: 1;
+    }
+    :host #text{
+        position: absolute;
+        width: 400px;
+        right: 0px;
+        top: 20px;
+        text-align: right;
+        padding-right: 40px;
+    }
     </style>
     <template>
+        <iron-image width="600" height="600" src="/assets/part/ISS.svg"></iron-image>
         <div class="content">
-            <h1>Ready to decode the signal and build your own Space Station Tracker?</h1>
-            <button type="button" on-tap="goToEditor">Make App</button>
+            <div id="text">
+                <h1 id="text1">Attached to the station is a beacon</h1>
+                <h1 id="text2">It broadcasts a signal to Earth that tells us where the ISS is</h1>
+                <h1 id="text3">We can use this signal to figure out when the space station passes over our town!</h1>
+                <button type="button" on-tap="nextScene" style='opacity: 0;' id='nextButton'>Next</button>
+            </div>
         </div>
     </template>
 </dom-module>
@@ -42,10 +77,24 @@
             this.is = 'kano-scene-space-tracker-intro-4';
         }
 
-        goToEditor  () {
+        nextScene () {
             this.finish();
         }
 
+        ready () {
+            setTimeout(() => {
+                this.$.text1.style.opacity = 0;
+                this.$.text2.style.opacity = 1;
+                setTimeout(() => {
+                    this.$.text2.style.opacity = 0;
+                    this.$.text3.style.opacity = 1;
+                    setTimeout(() => {
+                        this.$.nextButton.style.opacity = 1;
+                    }, 5000);
+                }, 5000);
+            }, 5000);
+    
+       }
     }
     Polymer(KanoSceneSpaceTrackerIntro4);
 </script>

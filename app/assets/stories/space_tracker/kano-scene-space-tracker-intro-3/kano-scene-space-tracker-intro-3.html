@@ -2,19 +2,20 @@
     <style>
     @keyframes move {
         from {
-            top: 0%;
-            left: -20%;
+            top: 20%;
+            left: -50%;
         }
         to {
             top: 50%;
-            left: 120%;
+            left: 150%;
             
         }
     }
     :host {
         display: block;
         background: #1d274f;
-        background-size: cover;
+        background-size: 100% auto;
+        background-image: url('/assets/part/star-background.png');
         @apply(--layout-vertical);
         @apply(--layout-center);
         @apply(--layout-around-justified);
@@ -32,7 +33,10 @@
     }
     :host iron-image {
         position: absolute;
-        /*animation: move 2s linear;*/
+        left: -30%;
+        top: 40%;
+        animation: move 2s linear;
+        animation-delay: 4s;
     }
     :host button {
         @apply(--kano-button-big);
@@ -40,11 +44,11 @@
     }
     </style>
     <template>
-        <iron-image width="600" height="600" src="/assets/part/ISS-icon.svg"></iron-image>
+        <iron-image width="200" height="200" src="/assets/part/ISS-icon.svg"></iron-image>
         <div class="content">
-            <h1>Attached to the station is a beacon</h1>
-            <h1>It broadcasts a signal to Earth that tells us where the ISS is</h1>
-            <h1>We can use this signal to figure out when the space station passes over our town!</h1>
+            <h1>The ship is travelling at a whopping 17,000 miles per hour!</h1>
+            <button type="button" on-tap="nextScene" style='opacity: 0;' id='nextButton'>Next</button>
+
         </div>
     </template>
 </dom-module>
@@ -63,10 +67,14 @@
             window.location = '/make';
         }
 
+        nextScene () {
+            this.finish();
+        }
+
         ready () {
            setTimeout(() => {
-               this.finish();
-           }, 10000);
+               this.$.nextButton.style.opacity = 1;
+           }, 6000);
        }
     }
     Polymer(KanoSceneSpaceTrackerIntro3);
