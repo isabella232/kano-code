@@ -1,5 +1,6 @@
 import Part from './part';
 import UI from './ui';
+import Hardware from './hardware';
 import Data from './data';
 import Button from './button';
 import Box from './box';
@@ -13,15 +14,17 @@ import Weather from './data/weather/weather';
 import Share from './data/kano/share';
 import Image from './image';
 import ScrollingText from './scrolling-text';
+import Speaker from './speaker';
 
 let part,
     partTypes;
 
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports];
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker];
 
 partTypes = {
     'ui': UI,
-    'data': Data
+    'data': Data,
+    'hardware': Hardware
 };
 
 window.Part = {

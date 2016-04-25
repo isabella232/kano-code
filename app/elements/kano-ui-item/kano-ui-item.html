@@ -5,6 +5,9 @@
     :host {
         display: block;
     }
+    :host[disabled] label {
+        color: grey;
+    }
     :host:hover {
         cursor: pointer;
     }
@@ -13,9 +16,20 @@
         @apply(--layout-wrap);
         @apply(--layout-center);
     }
+    :host .overlay {
+        position: absolute;
+        border-radius: 50%;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        background-color: rgba(0, 0, 0, 0.45);
+    }
     :host .img-container {
+        position: relative;
         border-radius: 50%;
         background-color: #CCC;
+        overflow: hidden;
     }
     :host iron-image {
         margin: 10px;
@@ -43,6 +57,9 @@
                             sizing="contain"
                             width="[[size]]"
                             height="[[size]]"></iron-image>
+                <template is="dom-if" if="[[disabled]]">
+                    <div class="overlay"></div>
+                </template>
             </div>
             <label style$="[[computeLabelStyle(selected)]]">{{computeLabel(model.*)}}</label>
         </div>
@@ -75,6 +92,10 @@
                     value: false
                 },
                 instance: {
+                    type: Boolean,
+                    value: false
+                },
+                disabled: {
                     type: Boolean,
                     value: false
                 }
