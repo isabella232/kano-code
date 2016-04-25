@@ -1,0 +1,100 @@
+<dom-module id="kano-projects">
+    <style>
+        :host a:hover,
+        :host a:visited,
+        :host a:link,
+        :host a:active {
+            text-decoration: none;
+        }
+        :host .projects {
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
+            width: 100%;
+        }
+        :host .block {
+            width: 100%;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            margin-bottom: 20px;
+        }
+        @media screen and (min-width: 768px) {
+            .block {
+                width: 50%;
+            }
+        }
+        @media screen and (min-width: 1270px) {
+            .block {
+                width: 25%;
+            }
+        }
+        :host .project {
+            display: inline-block;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            border-radius: 4px;
+            overflow: hidden;
+            @apply(--shadow-elevation-2dp);
+        }
+        :host .project:hover {
+            cursor: pointer;
+        }
+        :host .project .project-image {
+            width: 250px;
+            height: 250px;
+        }
+        :host .project .info {
+            @apply(--layout-horizontal);
+            width: 100%;
+            padding: 10px;
+            background: var(--color-white, white);
+        }
+        :host .project .project-name {
+            color: var(--color-black, black);
+            font-size: 1.3em;
+        }
+        :host .project.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <template>
+        <div class="projects">
+            <template is="dom-repeat" items="{{projects}}" as="project">
+                <div class="block">
+                    <a class$="project {{isAvailable(project.available)}}" href="/story/{{project.id}}">
+                        <iron-image src="{{project.image}}" fade sizing="cover" class="project-image"></iron-image>
+                        <div class="info">
+                            <div class="project-name">{{project.name}}</div>
+                            <iron-image></iron-image>
+                        </div>
+                    </a>
+                </div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer */
+    /* globals app */
+    class KanoProjects {
+        beforeRegister () {
+            this.is = 'kano-projects';
+            this.properties = {
+                projects: {
+                    type: Array,
+                    value: []
+                }
+            }
+        }
+
+        isAvailable (available) {
+            return available ? '' : 'disabled';
+        }
+    }
+
+    Polymer(KanoProjects);
+</script>

@@ -1,7 +1,10 @@
-/* globals Polymer */
-/* globals app */
-/* globals Blockly */
+/* globals Polymer, KanoBehaviors, app, Blockly */
 class KanoViewStory {
+
+    get behaviors () {
+        return [KanoBehaviors.SharingBehavior];
+    }
+
     beforeRegister () {
         this.is = 'kano-view-story';
         this.properties = {
@@ -17,6 +20,7 @@ class KanoViewStory {
         };
     }
     attached () {
+        this.modal = this.$['share-modal'];
         app.stories.getById(app.ctx.params.id)
             .then((story) => {
                 this.set('story', story);

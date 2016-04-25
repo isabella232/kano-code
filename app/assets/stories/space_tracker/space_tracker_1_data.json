@@ -3,28 +3,30 @@
     "modules": ["Control", "Variables", "Operators"],
     "steps": [{
         "modal": {
-            "text": "Welcome to the **App Editor**, I will guide you through the interface, and help you make your own space tracker app"
+            "text": "Let's grab that data from outer space!"
         }
     },{
-        "focus": "workspace-controls.add-part",
         "validation": {
             "open-parts": true
         },
         "tooltips": [{
             "location": "workspace-controls.add-part",
-            "position": "left",
-            "text": "Click on this button to see the parts you can add to your app"
+            "position": "top",
+            "text": "We need a special <em>part</em> to load the data.<br />Click here to open the Add Parts menu."
         }]
     },{
-        "validation": {
-            "select-new-part": {
-                "type": "map"
-            }
-        },
         "tooltips": [{
-            "location": "sidebar.parts.part-map",
+            "location": "sidebar.parts",
+            "position": "left",
+            "text": "These are your parts!<br />They are the building blocks<br />we'll use to build your app.",
+            "next_button": true
+        }]
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-iss",
             "position": "right",
-            "text": "Select the map part"
+            "text": "This part loads the ISS's beacon from the internet",
+            "next_button": true
         }]
     },{
         "validation": {
@@ -35,19 +37,7 @@
         "tooltips": [{
             "location": "sidebar.parts.part-iss",
             "position": "right",
-            "text": "Select the ISS part"
-        }]
-    },{
-        "validation": {
-            "add-part": {
-                "type": "map",
-                "id": "map_1"
-            }
-        },
-        "tooltips": [{
-            "location": "sidebar.done",
-            "position": "top",
-            "text": "Click on the button to add them"
+            "text": "We need to add it to our app.<br />Click to select it..."
         }]
     },{
         "validation": {
@@ -55,42 +45,21 @@
                 "type": "iss",
                 "id": "iss_1"
             }
-        }
+        },
+        "tooltips": [{
+            "location": "sidebar.done",
+            "position": "right",
+            "text": "...and click here to add it"
+        }]
     },{
-        "focus": {
-            "path": "workspace-controls",
-            "part": "map_1"
-        },
-        "validation": {
-            "open-part-config": {
-                "target": "map_1"
-            }
-        },
         "tooltips": [{
             "location": {
                 "path": "workspace-controls",
-                "part": "map_1"
+                "part": "iss_1"
             },
-            "position": "right",
-            "text": "Select the map you made"
-        }]
-    },{
-        "focus": "part-editor-tooltip",
-        "tooltips": [{
-            "location": "part-editor-tooltip",
-            "position": "right",
-            "text": "Style your map with the sliders. Try changing the size to fill the window.",
+            "position": "top",
+            "text": "Great!<br />Now the part is down here.",
             "next_button": true
-        }]
-    },{
-        "validation": {
-            "close-part-editor": true
-        },
-        "focus": "part-editor-tooltip",
-        "tooltips": [{
-            "location": "part-editor-tooltip.close-button",
-            "position": "right",
-            "text": "Now it’s time to configure the data source. This button goes back."
         }]
     },{
         "focus": {
@@ -108,19 +77,7 @@
                 "part": "iss_1"
             },
             "position": "right",
-            "text": "Select the ISS part"
-        }]
-    },{
-        "validation": {
-            "enable-refresh": {
-                "target": "iss_1"
-            }
-        },
-        "focus": "part-editor-tooltip",
-        "tooltips": [{
-            "location": "part-editor-tooltip",
-            "position": "right",
-            "text": "Here you can ask go get the new data every 5 seconds/30 seconds/An hour... Click on the refresh to enable that"
+            "text": "Click it to dive in!"
         }]
     },{
         "validation": {
@@ -132,14 +89,121 @@
         "tooltips": [{
             "location": "part-editor.data-editor.refresh-button",
             "position": "right",
-            "text": "If you click on this button you can ask to see the data"
+            "text": "Ready to see data flying in from space?<br />Click here!"
         }]
     },{
-        "focus": "part-editor.data-editor.data-browser",
         "tooltips": [{
             "location": "part-editor.data-editor.data-browser",
             "position": "right",
-            "text": "Here you see the last values",
+            "text": "Data!<br />Can you decode it?",
+            "next_button": true
+        }]
+    },
+    {
+        "focus": "part-editor-tooltip",
+        "tooltips": [{
+            "location": "part-editor-tooltip",
+            "position": "right",
+            "text": "We can also configure the part from here",
+            "next_button": true
+        }]
+    },
+    {
+        "validation": {
+            "enable-refresh": {
+                "target": "iss_1"
+            }
+        },
+        "focus": "part-editor-tooltip",
+        "tooltips": [{
+            "location": "part-editor-tooltip",
+            "position": "right",
+            "text": "Flip that switch to refresh the data every five seconds"
+        }]
+    },
+    {
+        "validation": {
+            "close-part-editor": true
+        },
+        "focus": "part-editor-tooltip",
+        "tooltips": [{
+            "location": "part-editor-tooltip.close-button",
+            "position": "right",
+            "text": "We're done here! Click to close."
+        }]
+    },{
+        "validation": {
+            "open-parts": true
+        },
+        "tooltips": [{
+            "location": "workspace-controls.add-part",
+            "position": "top",
+            "text": "Time to add another part!"
+        }]
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts",
+            "position": "left",
+            "text": "To turn that data into pixels,<br /> we need a map",
+            "next_button": true
+        }]
+    },
+    {
+        "validation": {
+            "select-new-part": {
+                "type": "map"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.parts",
+            "position": "left",
+            "text": "Add the map part"
+        }]
+    },
+    {
+        "validation": {
+            "add-part": {
+                "type": "map",
+                "id": "map_1"
+            }
+        },
+        "tooltips": [{
+            "location": "sidebar.parts",
+            "position": "left",
+            "text": "Add the map part"
+        }]
+    }, {
+        "save_to_storage": true,
+        "tooltips": [{
+            "location": "workspace",
+            "position": "left",
+            "text": "There's your map!",
+            "next_button": true
+        }]
+    },{
+        "focus": {
+            "path": "workspace-controls",
+            "part": "map_1"
+        },
+        "validation": {
+            "open-part-config": {
+                "target": "map_1"
+            }
+        },
+        "tooltips": [{
+            "location": {
+                "path": "workspace-controls",
+                "part": "map_1"
+            },
+            "position": "right",
+            "text": "Click down here to make it bigger"
+        }]
+    },{
+        "focus": "part-editor-tooltip",
+        "tooltips": [{
+            "location": "part-editor-tooltip",
+            "position": "right",
+            "text": "Use the sliders to make it fill the window",
             "next_button": true
         }]
     },{
@@ -150,17 +214,33 @@
         "tooltips": [{
             "location": "part-editor-tooltip.close-button",
             "position": "right",
-            "text": "We're done with the configuration, let's add some code!"
+            "text": "Done! Click to close."
         }]
-    },{
-        "validation": {
-            "open-trigger-dropdown": true
-        },
-        "focus": "root-view.open-dropdown",
+    },
+    {
         "tooltips": [{
             "location": "root-view.open-dropdown",
             "position": "bottom",
-            "text": "Click here to choose what will trigger your code"
+            "text": "Now that we have our parts ready...<br/>...let's write some code!",
+            "next_button": true
+        }]
+    },
+    {
+        "validation": {
+            "open-trigger-dropdown": true
+        },
+        "tooltips": [{
+            "location": "root-view.open-dropdown",
+            "position": "bottom",
+            "text": "Click here to write your first code"
+        }]
+    },
+    {
+        "tooltips": [{
+            "location": "root-view.trigger-dropdown",
+            "position": "right",
+            "text": "We need to decide when our code will run",
+            "next_button": true
         }]
     },{
         "validation": {
@@ -175,9 +255,27 @@
         "tooltips": [{
             "location": "root-view.trigger-dropdown",
             "position": "right",
-            "text": "For this app, we only need one trigger: 'When ISS updated'. Select it now."
+            "text": "We want it to be triggered 'When ISS updated'...so click that option"
         }]
     },{
+       
+        "tooltips": [{
+            "location": "root-view",
+            "position": "right",
+            "text": "Welcome to the code editor.<br />Here you can use code to bring your parts to life! ",
+            "next_button": true
+        }]
+    },
+    {
+       
+        "tooltips": [{
+            "location": "root-view",
+            "position": "right",
+            "text": "We are going to write code to load the data on the map",
+            "next_button": true
+        }]
+    },
+    {
         "validation": {
             "blockly": {
                 "create": {
@@ -191,7 +289,7 @@
         "tooltips": [{
             "location": "root-view",
             "position": "right",
-            "text": "We need a marker on the map to show where the Space Station is. You can find a 'move marker to' block in the Map drawer."
+            "text": "Click the Map tab and drag the 'move marker to' block onto the workspace"
         }]
     },{
         "validation": {
@@ -207,7 +305,7 @@
         "tooltips": [{
             "location": "root-view",
             "position": "right",
-            "text": "Find the ISS get block in the ISS drawer ..."
+            "text": "Next find the latitude block in the ISS drawer ..."
         }]
     },{
         "validation": {
@@ -222,7 +320,7 @@
         "tooltips": [{
             "location": "root-view",
             "position": "right",
-            "text": "... and connect it to our 'move marker' block."
+            "text": "... and connect it to our 'move marker to' block."
         }]
     },{
         "validation": {
@@ -238,7 +336,7 @@
         "tooltips": [{
             "location": "root-view",
             "position": "right",
-            "text": "Find another ISS get block in the ISS drawer ..."
+            "text": "Next grab another latitude block in the ISS drawer ..."
         }]
     },{
         "validation": {
@@ -268,7 +366,7 @@
         "tooltips": [{
             "location": "root-view",
             "position": "right",
-            "text": "Choose longitude."
+            "text": "Click on the dropdown and change it longitude."
         }]
     },{
         "validation": {
@@ -287,8 +385,16 @@
         "tooltips": [{
             "location": "workspace",
             "position": "left",
-            "text": "You’ve completed your first app. High five!",
+            "text": "Hurrah! You built your first app!<br />Watch it zoom across the world at 17000mph!",
             "next_button": true
+        }]
+    },{
+        "save_to_storage": true,
+        "focus":"share-button",
+        "tooltips": [{
+            "location": "share-button",
+            "position": "left",
+            "text": "Click to publish your creation to the world!"
         }]
     }]
 }

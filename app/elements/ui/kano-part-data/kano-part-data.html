@@ -9,9 +9,14 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoModules */
+    /* globals Polymer, KanoModules, KanoBehaviors */
 
     class KanoPartData {
+
+        get behaviors () {
+            return [KanoBehaviors.UIBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-part-data';
             this.properties = {
@@ -20,29 +25,13 @@
                 }
             };
         }
-        when (name, callback) {
-            if (!this.listeners[name]) {
-                this.listeners[name] = [];
-            }
-            this.listeners[name].push(callback);
-            this.addEventListener(name, callback);
-        }
         start () {
             let model = this.model;
             if (model.refreshEnabled) {
-                this.refreshInterval = setInterval(this.refresh.bind(this), Math.max(model.minRefreshFreq, model.refreshFreq) * 1000);
+                this.refreshInterval = setInterval(this.refresh.bind(this), Math.max(1, model.refreshFreq) * 1000);
             }
             // Call a refresh at the begining
             this.refresh();
-        }
-        stop () {
-            Object.keys(this.listeners).forEach((name) => {
-                this.listeners[name].forEach((callback) => {
-                    this.removeEventListener(name, callback);
-                });
-            });
-            this.listeners = {};
-            clearInterval(this.refreshInterval);
         }
         refresh () {
             return KanoModules.data.methods.generateRequest(this.model.id, this.model.method, this.model.config)

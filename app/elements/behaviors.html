@@ -1,5 +1,87 @@
 <script type="text/javascript">
+
+    /* globals app */
+
     window.KanoBehaviors = window.KanoBehaviors || {};
+
+    window.KanoBehaviors.SharingBehavior = {
+
+        properties: {
+            shareInfo: {
+                type: Object,
+                value: function () {
+                    return {};
+                },
+                notify: true
+            }
+        },
+
+        shareApp () {
+            // Generates the standalone component
+            let savedApp = app.components.generateStandaloneComponent(
+                    this.shareInfo.parts,
+                    this.shareInfo.background,
+                    this.shareInfo.size,
+                    this.shareInfo.codes
+                ),
+                attachment = new Blob([savedApp], { type: 'text/html' }),
+                cover = app.file_utils.dataURItoBlob(this.shareInfo.image.src),
+                workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+
+            attachment.filename = 'code.html';
+            cover.filename = 'cover.png';
+            workspaceInfo.filename = 'workspace_info.json';
+
+            //Share by calling the API
+            app.sdk.api.share.post({
+                app: 'make-apps',
+                title: this.shareInfo.title,
+                description: this.shareInfo.description,
+                files: {
+                    attachment: attachment,
+                    cover: cover,
+                    workspace_info: workspaceInfo
+                }
+            }).then((res) => {
+                if (res.status == 200) {
+                    this.set('shareInfo.page', 2);
+                    this.set('shareInfo.id', res.body.item.id);
+                } else {
+                    this.set('shareInfo.page', 3);
+                }
+            });
+        },
+        /**
+         * Opens the sharing modal and share the app
+         */
+        share (e) {
+            let shareInfo = {
+                    image: e.detail.cover,
+                    workspaceInfo: e.detail.workspaceInfo,
+                    page: 0,
+                    title: '',
+                    description: '',
+                    id: null,
+                    background: e.detail.background,
+                    parts: e.detail.parts,
+                    codes: e.detail.codes,
+                    size: e.detail.size,
+                };
+
+            this.set('shareInfo', shareInfo);
+            this.modal.open();
+        },
+
+        confirmShare () {
+            this.set('shareInfo.page', 1);
+            this.shareApp();
+        },
+
+        dismissShare () {
+            this.modal.close();
+        }
+
+    };
 
     window.KanoBehaviors.SceneComponentBehavior = {
 

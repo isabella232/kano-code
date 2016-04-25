@@ -70,9 +70,6 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
-    computeWorkspaceParts (parts) {
-        return parts.filter(part => part.partType !== 'hardware');
-    }
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
@@ -164,28 +161,6 @@ class KanoAppEditor {
         }
     }
     /**
-     * Opens the sharing modal and share the app
-     */
-    share () {
-        let modal = this.$['share-modal'],
-            image_generator = this.$['image_generator'],
-            image,
-            workspace_info;
-
-        image = image_generator.getImage();
-        workspace_info = JSON.stringify(this.save());
-        this.fire('data-generated', {image, workspace_info});
-        modal.open();
-    }
-    confirmShare (e) {
-        this.fire('share', e.detail);
-        this.dismissShare();
-    }
-    dismissShare () {
-        let modal = this.$['share-modal'];
-        modal.close();
-    }
-    /**
      * Save the current work in the local storage
      * TODO trigger that every 5sec or so if there is any changes
      */
@@ -206,6 +181,18 @@ class KanoAppEditor {
         }
 
         return savedApp;
+    }
+    share () {
+        let image_generator = this.$.image_generator;
+
+        this.fire('share', {
+            cover: image_generator.getImage(),
+            workspaceInfo: JSON.stringify(this.save()),
+            background: this.computeBackground(),
+            size: this.wsSize,
+            codes: this.codes,
+            parts: this.addedParts
+        });
     }
     /**
      * Load the saved work from the local storage
