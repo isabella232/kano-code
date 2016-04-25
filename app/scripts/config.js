@@ -9,9 +9,9 @@ let COMMON = {
     },
     ENV = {
         "production": {
-            "API_URL": "https://api-apps-sec.kano.me",
+            "API_URL": "https://api.kano.me",
             "DATA_API_URL": "https://apps-data.kano.me",
-            "WORLD_URL": "https://world-apps.kano.me",
+            "WORLD_URL": "https://world.kano.me",
             "PLAY_URL": "https://app.kano.me"
         },
         "staging": {
