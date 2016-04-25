@@ -21,6 +21,10 @@ window.KanoBehaviors.UIBehavior = {
                 return {};
             }
         },
+        isRunning: {
+            type: Boolean,
+            value: false
+        },
         autoStart: {
             type: Boolean,
             value: false
@@ -30,7 +34,6 @@ window.KanoBehaviors.UIBehavior = {
         'applyTransform(model.*)'
     ],
     attached () {
-        this.isRunning = false;
         this.fire('ui-ready', this);
         if (this.autoStart) {
             this.start();
