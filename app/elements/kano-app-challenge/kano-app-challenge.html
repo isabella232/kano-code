@@ -68,7 +68,7 @@
             </kano-tooltip>
         </template>
         <paper-dialog id="modal"
-                      with-backdrop>
+                      modal>
             <div class="modal-content">
                 <div class="text">
                     <marked-element markdown="[[selectedStep.modal.text]]">
@@ -142,14 +142,17 @@
             this.fire('attached');
         }
         computeTooltips (step) {
-            let tooltips = step.tooltips || [];
-            tooltips = tooltips.map((tooltip) => {
-                let target = this.getDeepElement(tooltip.location),
-                    rect = target.getBoundingClientRect();
-                tooltip.target = rect;
-                return tooltip;
-            });
-            this.set('tooltips', tooltips);
+            this.set('tooltips', []);
+            this.debounce('computeTooltips', () => {
+                let tooltips = step.tooltips || [];
+                tooltips = tooltips.map((tooltip) => {
+                    let target = this.getDeepElement(tooltip.location),
+                        rect = target.getBoundingClientRect();
+                    tooltip.target = rect;
+                    return tooltip;
+                });
+                this.set('tooltips', tooltips);
+            }, 200);
         }
         computeArrow (step) {
             let source, target;
