@@ -77,7 +77,11 @@ class KanoAppEditor {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     }
     openPartEditor (e) {
-        let controls = this.$['workspace-controls'].getBoundingClientRect();
+        let controls;
+        if (this.selected.partType === 'hardware') {
+            return;
+        }
+        controls = this.$['workspace-controls'].getBoundingClientRect();
         this.$['part-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
         this.partEditorTarget = e.detail;
         this.partEditorOpened = true;
