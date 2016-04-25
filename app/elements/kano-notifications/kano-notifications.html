@@ -1,0 +1,79 @@
+<link rel="import" href="../kano-drop-down/kano-drop-down.html">
+
+<dom-module id="kano-notifications">
+    <style>
+    :host kano-drop-down .drop-down.kano-drop-down {
+        width: 270px !important;
+    }
+    </style>
+    <template>
+        <img src="../../assets/navbar/notification.svg" alt="" />
+        <kano-drop-down items="{{notifications}}"></kano-drop-down>
+    </template>
+    <script>
+        class KanoNotifications {
+            beforeRegister () {
+                this.is = 'kano-notifications';
+                this.properties = {
+                    notifications: {
+                        type: Array,
+                        value: [],
+                        notify: true
+                    },
+                    unread: {
+                        type: Number,
+                        value: 0,
+                        norify: true
+                    }
+                }
+            }
+
+            getNotifications () {
+                let that = this,
+                    new_notifications = [];
+
+                console.log(that.notifications, 'outside notifications');
+                app.sdk.api.notifications.get().then((data) => {
+                    data.body.entries.forEach((value) => {
+                        let obj = {
+                            name: value.title
+                        },
+                            unread = this.unread;
+
+                        if (value.category === 'follows') {
+                            obj.url = `//world.kano.me/users/${value.meta.author.username}`;
+                        } else {
+                            obj.url = `//world.kano.me/shares/${value.id}`;
+                        }
+
+                        new_notifications.push(obj);
+
+                        if (value.unread) {
+                            unread++;
+                            this.set('unread', unread);
+                        }
+
+                    })
+
+                    that.set('notifications', new_notifications);
+
+                    console.log(this.notifications);
+                })
+            }
+
+            attached () {
+            }
+
+            ready () {
+                this.getNotifications()
+                this.items = [
+                    {
+                        name: 'TEst',
+                        url: 'Test'
+                    }
+                ]
+            }
+        }
+        Polymer(KanoNotifications);
+    </script>
+</dom-module>
