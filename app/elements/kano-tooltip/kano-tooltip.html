@@ -7,11 +7,27 @@
         position: fixed;
         z-index: 1;
     }
+    :host[position="top"] {
+        transform-origin: 50% 100%;
+    }
+    :host[position="bottom"] {
+        transform-origin: 50% 0%;
+    }
+    :host[position="left"] {
+        transform-origin: 100% 50%;
+    }
+    :host[position="right"] {
+        transform-origin: 0% 50%;
+    }
     :host .tooltip {
         @apply(--shadow-elevation-6dp);
         background-color: var(--kano-tooltip-color, white);
         border-radius: 4px;
         padding: 10px;
+    }
+    :host.no-animations {
+        animation: none;
+        transition: none;
     }
     :host .tooltip:before {
         content: '';
@@ -56,14 +72,20 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, KanoBehaviors */
     class KanoTooltip {
+
+        get behaviors () {
+            return [KanoBehaviors.AnimatableBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-tooltip';
             this.properties = {
                 position: {
                     type: String,
-                    value: 'top'
+                    value: 'top',
+                    reflectToAttribute: true
                 },
                 target: {
                     type: Object
@@ -73,7 +95,7 @@
                 'updatePosition(target.*, position)'
             ];
         }
-        ready () {
+        attached () {
             let observer = new MutationObserver(() => {
                 this.updatePosition();
             });
@@ -119,6 +141,19 @@
                 } else if (this.position === 'left') {
                     style.left = `${target.left - rect.width - 20}px`;
                 }
+
+                if (this.noAnimations || this.alreadyAnimated) {
+                    return;
+                }
+                style.transition = 'none';
+                style.transform = 'scale(0.5)';
+                style.opacity = '0';
+
+                this.getBoundingClientRect();
+                style.transition = 'all cubic-bezier(0.2, 0, 0.13, 1.5) 150ms';
+                style.transform = 'scale(1)';
+                style.opacity = '1';
+                this.alreadyAnimated = true;
             }, 10);
         }
         hide () {
