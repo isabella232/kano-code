@@ -106,28 +106,34 @@
                     type: Object
                 },
                 user: {
-                    type: Object
+                    type: Object,
+                    value: null,
+                    observer: 'getMyApps'
                 },
             }
         }
 
-        attached () {
-            let userId = null,
-                isMyApps = false;
+        attached() {
 
             if (this.view === 'my') {
-                isMyApps = true;
-                userId = this.user ? this.user.id : null;
+                this.isMyApps = true;
             }
+            this.getApps();
+        }
 
-            if (this.view === 'my' && userId !== null || this.view !== 'my') {
-                app.sdk.api.share.list({},{ app_name: 'make-apps', user_id: userId, limit: this.limit})
-                    .then((apps) => {
-                        this.set('apps', apps.body.entries);
-                    });
+        getMyApps() {
+            let userId = this.user ? this.user.id : null;
+
+            if (this.view === 'my' && userId !== null) {
+                this.getApps(userId); 
             }
+        }
 
-            this.set('isMyApps', isMyApps);
+        getApps (userId) {
+            app.sdk.api.share.list({},{ app_name: 'make-apps', user_id: userId, limit: this.limit})
+                .then((apps) => {
+                    this.set('apps', apps.body.entries);
+                });
         }
     }
 
