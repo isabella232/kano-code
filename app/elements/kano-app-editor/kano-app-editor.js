@@ -183,10 +183,16 @@ class KanoAppEditor {
         return savedApp;
     }
     share () {
-        let image_generator = this.$['image_generator'];
+        let image_generator = this.$.image_generator;
 
-        this.fire('share', {cover: image_generator.getImage(),
-                            workspaceInfo: JSON.stringify(this.save())});
+        this.fire('share', {
+            cover: image_generator.getImage(),
+            workspaceInfo: JSON.stringify(this.save()),
+            background: this.computeBackground(),
+            size: this.wsSize,
+            codes: this.codes,
+            parts: this.addedParts
+        });
     }
     /**
      * Load the saved work from the local storage
