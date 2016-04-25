@@ -1,20 +1,21 @@
-<dom-module id="kano-scene-space-tracker-outro">
+<dom-module id="kano-scene-space-tracker-intro-2">
     <style>
     @keyframes move {
         from {
-            top: 0%;
-            left: -20%;
+            top: 20%;
+            left: 0%;
         }
         to {
-            top: 110%;
-            left: 60%;
-            transform: rotate(360deg);
+            top: 50%;
+            left: 120%;
+            
         }
     }
     :host {
         display: block;
-        background: #3e3e80;
-        background-size: cover;
+        background: #1d274f;
+        background-size: 70% auto;
+        background-image: url('/assets/part/star-background.png');
         @apply(--layout-vertical);
         @apply(--layout-center);
         @apply(--layout-around-justified);
@@ -32,31 +33,35 @@
     }
     :host iron-image {
         position: absolute;
-        animation: move 30s linear infinite;
+        animation: move 10s linear;
     }
-    :host a {
+    :host button {
         @apply(--kano-button-big);
         background: var(--green-gradient);
     }
     </style>
     <template>
-        <iron-image width="200" height="200" src="/assets/part/ISS-icon.svg"></iron-image>
+        <iron-image width="30" height="30" src="/assets/part/iss-star.png"></iron-image>
         <div class="content">
-            <h1>Well done! This is just the beginning,<br>head to the playground to remix your app.</h1>
-            <a type="button" href="/make">Go</a>
+            <h1>It is carrying six humans (and a Raspberry Pi) on a journey around our planet...</h1>
+            <button type="button" on-tap="nextScene">Next</button>
         </div>
     </template>
 </dom-module>
 <script type="text/javascript">
-    class KanoSceneSpaceTrackerOutro {
+    class KanoSceneSpaceTrackerIntro2 {
 
         get behaviors () {
             return [KanoBehaviors.SceneComponentBehavior];
         }
 
         beforeRegister () {
-            this.is = 'kano-scene-space-tracker-outro';
+            this.is = 'kano-scene-space-tracker-intro-2';
+        }
+
+        nextScene () {
+            this.finish();
         }
     }
-    Polymer(KanoSceneSpaceTrackerOutro);
+    Polymer(KanoSceneSpaceTrackerIntro2);
 </script>

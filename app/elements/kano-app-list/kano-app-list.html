@@ -76,7 +76,7 @@
         </template>
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
-                <a class="app-list-item" href="//apps.kano.me/#!/app/{{app.id}}">
+                <a class="app-list-item" href="//app.kano.me/#!/app/{{app.id}}">
                     <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image"></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
@@ -108,7 +108,7 @@
                 apps: {
                     type: Array
                 }
-            }
+            };
 
         }
 
@@ -120,7 +120,6 @@
 
         getMyApps () {
             let userId = this.user ? this.user.id : null;
-            console.log('userId', this.user);
 
             if (this.view === 'my' && userId !== null) {
                 this.getApps(userId);

@@ -9,19 +9,22 @@ let COMMON = {
     },
     ENV = {
         "production": {
-            "API_URL": "https://api-apps-sec.kano.me",
+            "API_URL": "https://api.kano.me",
             "DATA_API_URL": "https://apps-data.kano.me",
-            "WORLD_URL": "http://world-apps.kano.me"
+            "WORLD_URL": "https://world.kano.me",
+            "PLAY_URL": "https://app.kano.me"
         },
         "staging": {
             "API_URL": "https://api-staging.kano.me",
             "DATA_API_URL": "https://apps-data-staging.kano.me",
-            "WORLD_URL": "http://world-apps.kano.me"
+            "WORLD_URL": "http://world-apps.kano.me",
+            "PLAY_URL": "https://app-staging.kano.me"
         },
         "development": {
             "API_URL": "http://localhost:1234",
             "DATA_API_URL": "http://localhost:2020",
-            "WORLD_URL": "http://localhost:5000"
+            "WORLD_URL": "http://localhost:5000",
+            "PLAY_URL": "http://localhost:4001"
         }
     },
     TARGET = {

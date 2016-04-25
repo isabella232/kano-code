@@ -1,4 +1,5 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
+<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <dom-module id="kano-view-workshop">
     <style>
     :host {
@@ -10,10 +11,13 @@
     }
     :host #error-dialog .title {
         color: red;
-    };
+    }
     :host #error-dialog .description {
         text-align: center;
-    };
+    }
+    :host #share-modal {
+        overflow: scroll;
+    }
     </style>
     <template>
         <kano-app-editor
@@ -23,19 +27,28 @@
             codes="{{codes}}"
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
-            ws-size="[[size]]"></kano-app-editor>
+            ws-size="[[size]]"
+            on-share="share"></kano-app-editor>
         <paper-dialog id='error-dialog' with-backdrop>
             <h2 class="title">{{error.title}}</h2>
             <p class="description">{{error.description}}</p>
         </paper-dialog>
-
+        <paper-dialog id="share-modal" with-backdrop>
+            <kano-share-modal on-confirm="confirmShare"
+                              on-dismiss="dismissShare"
+                              share-info="{{shareInfo}}"></kano-share-modal>
+        </paper-dialog>
     </template>
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
-    /* globals app */
+    /* globals Polymer, app, KanoBehaviors */
     class KanoViewWorkshop {
+
+        get behavior () {
+            return [KanoBehaviors.SharingBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-view-workshop';
             this.properties = {
@@ -77,13 +90,13 @@
                 appToLoad,
                 slug = app.ctx.params.slug;
 
+            this.modal = this.$['share-modal'];
             this.set('parts', app.part);
             this.set('user', app.sdk.auth.getUser());
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
             app.registerBlockly(window.Blockly);
             this.set('defaultCategories', app.defaultCategories);
             editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
-            editor.addEventListener('share', this.shareApp.bind(this));
             editor.addEventListener('change', this.save.bind(this));
 
             if (slug) {
@@ -102,11 +115,11 @@
                             this.set('error.title', 'Loading failed');
                             this.set('error.description', 'Couldn\'t load share');
                             this.$['error-dialog'].open();
-                        })
+                        });
                     }
                 });
             } else {
-                appToLoad = JSON.parse(localStorage.getItem('savedApp'))
+                appToLoad = JSON.parse(localStorage.getItem('savedApp'));
                 editor.load(appToLoad, app.part);
             }
 
@@ -123,37 +136,6 @@
                     localStorage.setItem('savedApp', JSON.stringify(savedApp));
                 }, 3000);
             }
-        }
-        shareApp (e) {
-            // Generates the standalone component
-            let editor = this.$.editor,
-                savedApp = app.components.generateStandaloneComponent(
-                    this.addedParts,
-                    editor.computeBackground(),
-                    this.size,
-                    this.codes
-                ),
-                attachment = new Blob([savedApp], { type: 'text/html' }),
-                cover = app.file_utils.dataURItoBlob(e.detail.image),
-                workspace_info = new Blob([e.detail.workspace_info], { type: 'application/json' });
-
-            attachment.filename = 'code.html';
-            cover.filename = 'cover.png';
-            workspace_info.filename = 'workspace_info.json';
-
-            //Share by calling the API
-            app.sdk.api.share.post({
-                app: 'make-apps',
-                title: e.detail.title,
-                description: e.detail.description,
-                files: {
-                    attachment: attachment,
-                    cover: cover,
-                    workspace_info: workspace_info
-                }
-            }).then(() => {
-                modal.close();
-            });
         }
         uiAddedParts () {
             return this.addedParts.filter((part) => {

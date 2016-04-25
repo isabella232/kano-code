@@ -41,7 +41,7 @@ class ComponentStore {
             }
         });
     }
-    generateCode (codes) {
+    generateCode (codes = {}) {
         let codeList,
             emitter;
         codeList = Object.keys(codes)
@@ -101,8 +101,7 @@ class ComponentStore {
         this.stopAll(parts);
     }
     save (id, rect) {
-        let component = this.get(id),
-            saved;
+        let component = this.get(id);
         component.model.position = component.element.getPosition();
         component.model.position.x -= rect.left;
         component.model.position.y -= rect.top;
@@ -121,15 +120,22 @@ class ComponentStore {
     }
     generateStandaloneComponent (parts, backgroundStyle, workspaceRect, codes) {
         let template = [],
-            components = parts.reduce((acc, part) => {
-                acc[part.id] = part.toJSON();
-                template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}" is-running></kano-ui-${part.type}>`);
-                return acc;
-            }, {}),
+            tagName,
+            components,
             code = this.generateCode(codes),
             id = 'kano-user-component',
             component,
-            partsString = JSON.stringify(components).replace(/"/g, '\\"');
+            partsString;
+
+        parts = parts || [];
+
+        components = parts.reduce((acc, part) => {
+            tagName = part.tagName || `kano-ui-${part.type}`;
+            acc[part.id] = part.toJSON();
+            template.push(`<${tagName} id="${part.id}" model="{{parts.${part.id}}}" auto-start></${tagName}>`);
+            return acc;
+        }, {});
+        partsString = JSON.stringify(components).replace(/"/g, '\\"');
 
         template = template.join('\n');
         // TODO find a better way to avoid having this script tag swallowed by
@@ -168,8 +174,12 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}")
+                            value: JSON.parse("${partsString}"),
+                            observer: 'partsChanged'
                         }
+                    },
+                    partsChanged () {
+                        console.log(this.parts);
                     },
                     attached: function () {
                         var devices = {

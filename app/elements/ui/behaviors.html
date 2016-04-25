@@ -24,6 +24,10 @@ window.KanoBehaviors.UIBehavior = {
         isRunning: {
             type: Boolean,
             value: false
+        },
+        autoStart: {
+            type: Boolean,
+            value: false
         }
     },
     observers: [
@@ -31,6 +35,9 @@ window.KanoBehaviors.UIBehavior = {
     ],
     attached () {
         this.fire('ui-ready', this);
+        if (this.autoStart) {
+            this.start();
+        }
     },
     getPartialStyle (attrs) {
         if (!this.model) {

@@ -1,3 +1,5 @@
+<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
+<link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
 <dom-module id="kano-view-story">
     <style>
         :host {
@@ -10,7 +12,12 @@
         }
     </style>
     <template>
-        <kano-story-scene scene="{{scene}}" on-scene-done="nextScene"></kano-story-scene>
+        <kano-story-scene scene="{{scene}}" on-scene-done="nextScene" on-share="share"></kano-story-scene>
+        <paper-dialog id="share-modal" with-backdrop>
+            <kano-share-modal on-confirm="confirmShare"
+                              on-dismiss="dismissShare"
+                              share-info="{{shareInfo}}"></kano-share-modal>
+        </paper-dialog>
     </template>
 </dom-module>
 
