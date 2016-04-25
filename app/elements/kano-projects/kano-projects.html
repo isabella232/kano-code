@@ -54,12 +54,17 @@
             color: var(--color-black, black);
             font-size: 1.3em;
         }
+        :host .project.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            cursor: default;
+        }
     </style>
     <template>
         <div class="projects">
             <template is="dom-repeat" items="{{projects}}" as="project">
                 <div class="block">
-                    <a class="project" href="/project/{{project.id}}">
+                    <a class$="project {{isAvailable(project.available)}}" href="/story/{{project.id}}">
                         <iron-image src="{{project.image}}" fade sizing="cover" class="project-image"></iron-image>
                         <div class="info">
                             <div class="project-name">{{project.name}}</div>
@@ -86,6 +91,10 @@
                 .then((projects) => {
                     this.set('projects', projects);
                 });
+        }
+
+        isAvailable (available) {
+            return available ? '' : 'disabled';
         }
     }
 

@@ -6,19 +6,23 @@ class Stories {
         return Promise.resolve([{
             name: 'ISS tracker',
             id: 'space_tracker',
-            image: '/assets/stories/space_tracker/space-tracker.svg'
+            image: '/assets/stories/space_tracker/space-tracker.svg',
+            available: true
         },{
             name: 'Weather',
             id: 'weather',
-            image: '/assets/stories/weather/weather.svg'
+            image: '/assets/stories/weather/weather.svg',
+            available: true
         },{
             name: 'AI Robot',
             id: 'ai_robot',
-            image: '/assets/stories/ai-robot.svg'
+            image: '/assets/stories/ai-robot.svg',
+            available: false
         },{
             name: 'Cat Factory',
             id: 'cat_factory',
-            image: '/assets/stories/cat-factory.svg'
+            image: '/assets/stories/cat-factory.svg',
+            available: false
         }]);
     }
     getById (id) {
