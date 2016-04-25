@@ -4,7 +4,7 @@ let register = (Blockly) => {
     Blockly.Blocks.set_background_color = {
         init: function () {
             let json = {
-                id: 'loop_forever',
+                id: 'set_background_color',
                 colour: COLOUR,
                 message0: 'Set background color to %1',
                 args0: [{
