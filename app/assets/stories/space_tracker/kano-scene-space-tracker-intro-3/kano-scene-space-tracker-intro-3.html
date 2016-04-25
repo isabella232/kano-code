@@ -1,0 +1,73 @@
+<dom-module id="kano-scene-space-tracker-intro-3">
+    <style>
+    @keyframes move {
+        from {
+            top: 0%;
+            left: -20%;
+        }
+        to {
+            top: 50%;
+            left: 120%;
+            
+        }
+    }
+    :host {
+        display: block;
+        background: #1d274f;
+        background-size: cover;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-around-justified);
+        position: relative;
+    }
+    :host .content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+    }
+    :host h1 {
+        display: inline-block;
+        color: white;
+        padding: 15px;
+        text-align: center;
+    }
+    :host iron-image {
+        position: absolute;
+        /*animation: move 2s linear;*/
+    }
+    :host button {
+        @apply(--kano-button-big);
+        background: var(--green-gradient);
+    }
+    </style>
+    <template>
+        <iron-image width="600" height="600" src="/assets/part/ISS-icon.svg"></iron-image>
+        <div class="content">
+            <h1>Attached to the station is a beacon</h1>
+            <h1>It broadcasts a signal to Earth that tells us where the ISS is</h1>
+            <h1>We can use this signal to figure out when the space station passes over our town!</h1>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    class KanoSceneSpaceTrackerIntro3 {
+
+        get behaviors () {
+            return [KanoBehaviors.SceneComponentBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-scene-space-tracker-intro-3';
+        }
+
+        goToPlayground () {
+            window.location = '/make';
+        }
+
+        ready () {
+           setTimeout(() => {
+               this.finish();
+           }, 10000);
+       }
+    }
+    Polymer(KanoSceneSpaceTrackerIntro3);
+</script>
