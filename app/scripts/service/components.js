@@ -121,9 +121,11 @@ class ComponentStore {
     }
     generateStandaloneComponent (parts, backgroundStyle, workspaceRect, codes) {
         let template = [],
+            tagName,
             components = parts.reduce((acc, part) => {
+                tagName = part.tagName || `kano-ui-${part.type}`;
                 acc[part.id] = part.toJSON();
-                template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}"></kano-ui-${part.type}>`);
+                template.push(`<${tagName} id="${part.id}" model="{{parts.${part.id}}}" auto-start></${tagName}>`);
                 return acc;
             }, {}),
             code = this.generateCode(codes),
@@ -168,8 +170,12 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}")
+                            value: JSON.parse("${partsString}"),
+                            observer: 'partsChanged'
                         }
+                    },
+                    partsChanged () {
+                        console.log(this.parts);
                     },
                     attached: function () {
                         var devices = {
