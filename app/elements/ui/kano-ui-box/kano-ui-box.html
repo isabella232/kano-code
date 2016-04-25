@@ -5,12 +5,9 @@
     :host {
         display: inline-block;
     }
-    :host iron-image.empty {
-        @apply(--kano-empty-box);
-    }
     </style>
     <template>
-        <div style$="[[computeImageStyle(model.userStyle.*, model.userProperties.*)]]" on-tapped="tapped" loaded="{{loaded}}"></div>
+        <div style$="[[computeImageStyle(model.userStyle.*, model.userProperties.*)]]" on-tapped="tapped"></div>
     </template>
 </dom-module>
 
@@ -25,13 +22,6 @@
 
         beforeRegister () {
             this.is = 'kano-ui-box';
-            this.observers = [
-                'loadedChanged(loaded)'
-            ];
-        }
-        loadedChanged (loaded) {
-            // Check if the src is set or empty and toggle the class accordingly
-            this.toggleClass('empty', !loaded, this.$.image);
         }
 
         setBackgroundColor (color) {
