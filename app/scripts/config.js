@@ -19,7 +19,7 @@ let COMMON = {
             "WORLD_URL": "http://world-apps.kano.me"
         },
         "development": {
-            "API_URL": "https://api-staging.kano.me",
+            "API_URL": "http://localhost:1234",
             "DATA_API_URL": "http://localhost:2020",
             "WORLD_URL": "http://localhost:5000"
         }
