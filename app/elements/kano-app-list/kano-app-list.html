@@ -61,7 +61,7 @@
             width: 250px;
             height: 295px;
             align-items: center;
-            justify-content: center;  
+            justify-content: center;
             font-size: 36px;
         }
     </style>
@@ -77,7 +77,7 @@
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
                 <a class="app-list-item" href="//apps.kano.me/#!/app/{{app.id}}">
-                    <iron-image src="{{app.cover_url}}" fade sizing="cover" class="app-list-item-image"></iron-image>
+                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image"></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
                     </div>
@@ -105,35 +105,27 @@
                 viewFlags: {
                     type: Object
                 },
-                user: {
-                    type: Object,
-                    value: null,
-                    observer: 'getMyApps'
-                },
+                apps: {
+                    type: Array
+                }
             }
+
         }
 
-        attached() {
-
+        attached () {
             if (this.view === 'my') {
                 this.isMyApps = true;
             }
-            this.getApps();
         }
 
-        getMyApps() {
+        getMyApps () {
             let userId = this.user ? this.user.id : null;
+            console.log('userId', this.user);
 
             if (this.view === 'my' && userId !== null) {
-                this.getApps(userId); 
+                this.getApps(userId);
             }
-        }
 
-        getApps (userId) {
-            app.sdk.api.share.list({},{ app_name: 'make-apps', user_id: userId, limit: this.limit})
-                .then((apps) => {
-                    this.set('apps', apps.body.entries);
-                });
         }
     }
 

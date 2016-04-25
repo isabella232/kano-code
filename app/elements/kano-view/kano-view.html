@@ -31,9 +31,6 @@
                 flexEnabled: {
                     type: Boolean,
                     value: true
-                },
-                user: {
-                    type: Object
                 }
             };
             this.observers = [
@@ -58,7 +55,7 @@
                 return;
             }
             path = path.join('.');
-            this.viewComponent.set(e.path, e.value);
+            this.viewComponent.set(path, e.value);
         }
         viewChanged () {
             if ((this.viewName && !this.viewName.length) || !this.location) {
@@ -79,7 +76,6 @@
         }
         mountComponent (component) {
             component.style.flex = this.flexEnabled ? 1 : 'none';
-            component.user = this.user;
 
             while (this.firstChild) {
                 this.removeChild(this.firstChild);

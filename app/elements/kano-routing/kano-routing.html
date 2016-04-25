@@ -15,7 +15,7 @@
           width: 100%;
       }
     </style>
-    <kano-view id="view" view-name="[[currentView]]" flex-enabled="[[flexEnabled]]" user="[[user]]"></kano-view>
+    <kano-view id="view" view-name="[[currentView]]" flex-enabled="[[flexEnabled]]" attributes="[[attributes]]"></kano-view>
   </template>
   <script>
   /* globals Polymer, page */
@@ -28,11 +28,24 @@
                   notify: true
               },
               user: {
-                  type: Object              
+                  type: Object
+              },
+              attributes: {
+                  type: Object,
+                  value: () => {
+                      return {};
+                  }
               }
           };
+
+          this.observers  = [
+              "computeAttributes(user)"
+          ];
       }
 
+      computeAttributes (user) {
+          this.set("attributes.user", user);
+      }
       /**
        * Initialize the views
        */
@@ -67,7 +80,7 @@
               this.ctx = ctx;
               this.flexEnabled = (name === 'kano-view-home' || name === 'kano-view-apps') ? false : true;
               this.currentView = name;
-              
+
           };
       }
 

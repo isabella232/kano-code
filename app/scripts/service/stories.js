@@ -12,7 +12,7 @@ class Stories {
             name: 'Weather',
             id: 'weather',
             image: '/assets/stories/weather/weather.svg',
-            available: true
+            available: false
         },{
             name: 'AI Robot',
             id: 'ai_robot',
