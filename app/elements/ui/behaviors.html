@@ -20,13 +20,16 @@ window.KanoBehaviors.UIBehavior = {
             value: () => {
                 return {};
             }
+        },
+        isRunning: {
+            type: Boolean,
+            value: false
         }
     },
     observers: [
         'applyTransform(model.*)'
     ],
     attached () {
-        this.isRunning = false;
         this.fire('ui-ready', this);
     },
     getPartialStyle (attrs) {

@@ -123,7 +123,7 @@ class ComponentStore {
         let template = [],
             components = parts.reduce((acc, part) => {
                 acc[part.id] = part.toJSON();
-                template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}"></kano-ui-${part.type}>`);
+                template.push(`<kano-ui-${part.type} id="${part.id}" model="{{parts.${part.id}}}" is-running></kano-ui-${part.type}>`);
                 return acc;
             }, {}),
             code = this.generateCode(codes),
