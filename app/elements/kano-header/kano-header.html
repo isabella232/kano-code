@@ -30,6 +30,8 @@
         width: 100%;
         z-index: 999;
         position: fixed;
+        top: 0;
+        left: 0;
     }
 
     :host nav .logo {
@@ -173,10 +175,9 @@
 
             attached () {
                 document.querySelector('#view').addEventListener('tap', (ev) => {
-                    if (this.dropdownVisible === true) {
+                    if (!ev.target.classList.contains('nav-menu-items__open') && this.dropdownVisible) {
                         this.closeDropDown()
                     }
-                    return false;
                 })
             }
 
