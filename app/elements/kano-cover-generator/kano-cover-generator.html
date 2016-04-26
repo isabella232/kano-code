@@ -24,7 +24,7 @@
          * Get image from elementName
          * @return {Object} image generated
          */
-        getImage() {
+        getImage () {
 
             let workspace = window.document.getElementsByTagName(this.elementName)[0],
                 viewport = workspace.childNodes[1],
@@ -45,7 +45,8 @@
                 float_regex = /([+-]?\d*\.*\d+)/g,
                 external_scale_factor = parseFloat(float_regex.exec(transform)[0]),
                 components = el_container.childNodes,
-                el;
+                el,
+                promise;
 
             //creating canvas
             this.canvas = document.createElement('canvas');
@@ -59,20 +60,35 @@
             ctx.fillStyle = background_color;
             ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            for (let i = 0; i <  components.length; i++) {
-                el = this.createElement(components[i], parent_rect, external_scale_factor);
-                this.drawElementOnCanvas(el, ctx);
-            }
+            promise = new Promise ((resolve, reject) => {
 
-            //converting canvas to Image
-            image = new Image();
-            image.src = this.canvas.toDataURL();
+                if (components.length > 0) {
+                    let draw_promise;
 
-            return image;
+                    el = this.createElement(components[0], parent_rect, external_scale_factor);
+                    draw_promise = this.drawElementOnCanvas(el, ctx);
+
+                    for (let i = 1; i < components.length; i++) {
+                        el = this.createElement(components[i], parent_rect, external_scale_factor);
+                        draw_promise = draw_promise.then(this.drawElementOnCanvas(el, ctx));
+                    }
+
+                    draw_promise.then(()=> {
+                        //converting canvas to Image
+                        image = new Image();
+                        image.src = this.canvas.toDataURL();
+                        resolve(image);
+                    })
+                } else {
+                    reject(Error('No elements in the workspace'));
+                }
+            });
+
+            return promise;
 
         }
 
-        createElement(component, parent_rect, external_scale_factor) {
+        createElement (component, parent_rect, external_scale_factor) {
             let component_model = component.model,
             el = {};
 
@@ -108,77 +124,94 @@
          * @param  {Object} context context needed to draw
          */
         drawElementOnCanvas (element, context) {
-            context.save();
-            context.translate(element.position.left, element.position.top);
-            context.rotate(element.rotate*Math.PI/180);
+            let promise = new Promise ((resolve, reject)=> {
 
-            context.font = `${element.font_size}px Bariol`;
+                context.save();
+                context.translate(element.position.left, element.position.top);
+                context.rotate(element.rotate * Math.PI / 180);
 
+                context.font = `${element.font_size}px Bariol`;
 
-            switch (element.name) {
-                case 'KANO-UI-TEXT':
-                    context.textAlign = 'center';
-                    context.fillStyle = element.color;
-                    context.fillText(element.text,  (element.size.width)/2,  (element.size.height) / 2);
+                switch (element.name) {
+                    case 'KANO-UI-TEXT':
+
+                        context.textAlign = 'center';
+                        context.fillStyle = element.color;
+                        context.fillText(element.text,  (element.size.width) / 2,  (element.size.height) / 2);
+                        context.restore();
+                        resolve(context);
+
                     break;
 
-                case 'KANO-UI-TEXT-INPUT':
-                    let placeholder = element.inner_element.getAttribute('placeholder');
+                    case 'KANO-UI-TEXT-INPUT':
+                        let placeholder = element.inner_element.getAttribute('placeholder');
 
-                    context.beginPath();
-                    context.fillStyle = "#FFFFFF";
-                    context.fillRect(0, 0, element.size.width, element.size.height);
-                    context.fillStyle = "#AAAAAA";
-                    context.strokeRect(0, 0, element.size.width, element.size.height);
-                    context.textAlign = 'right';
-                    context.fillText(placeholder, (element.size.width)/2, (element.size.height)/2);
-                    context.stroke();
-                    break;
-
-                case 'KANO-UI-FRAME':
-                    context.beginPath();
-                    context.lineWidth = 2;
-                    context.strokeRect(0, 0, element.size.width, element.size.height);
-                    context.stroke();
-                    break;
-
-                case 'KANO-UI-BUTTON':
-                    let background_color = this.getStyle(element.inner_element, 'background-color'),
-                        text_color = this.getStyle(element.inner_element, 'color');
-                    context.beginPath();
-                    //drawing background
-                    context.fillStyle = background_color;
-                    context.fillRect(0, 0, element.size.width, element.size.height);
-                    context.fillStyle = text_color;
-
-                    //drawing text inside button
-                    context.textAlign = 'center';
-                    context.fillText(element.text, (element.size.width)/2, (element.size.height + (element.font_size / 2)) / 2);
-                    context.stroke();
-                    break;
-
-                case 'KANO-UI-MAP':
-                    let img = new Image();
-                    img.onload = function () {
                         context.beginPath();
-                        context.rect(element.position.left, element.position.top, element.size.width, element.size.height);
+                        context.fillStyle = "#FFFFFF";
+                        context.fillRect(0, 0, element.size.width, element.size.height);
+                        context.fillStyle = "#AAAAAA";
+                        context.strokeRect(0, 0, element.size.width, element.size.height);
+                        context.textAlign = 'right';
+                        context.fillText(placeholder, (element.size.width) / 2, (element.size.height) / 2);
                         context.stroke();
-                        context.drawImage(img, element.position.left, element.position.top, element.size.width, element.size.height);
-                    };
-                    img.src = '/assets/part/map-icon.svg';
+                        context.restore();
+                        resolve(context);
 
                     break;
 
-                default:
-                    context.beginPath();
-                    context.rect(0, 0, element.size.width, element.size.height);
-                    context.stroke();
+                    case 'KANO-UI-FRAME':
+                        context.beginPath();
+                        context.lineWidth = 2;
+                        context.strokeRect(0, 0, element.size.width, element.size.height);
+                        context.stroke();
+                        context.restore();
+                        resolve(context);
+
                     break;
-            }
 
-            //restoring original context
-            context.restore();
+                    case 'KANO-UI-BUTTON':
+                        let background_color = this.getStyle(element.inner_element, 'background-color'),
+                        text_color = this.getStyle(element.inner_element, 'color');
+                        context.beginPath();
+                        //drawing background
+                        context.fillStyle = background_color;
+                        context.fillRect(0, 0, element.size.width, element.size.height);
+                        context.fillStyle = text_color;
 
+                        //drawing text inside button
+                        context.textAlign = 'center';
+                        context.fillText(element.text, (element.size.width) / 2, (element.size.height + (element.font_size / 2)) / 2);
+                        context.stroke();
+                        context.restore();
+                        resolve(context);
+
+                    break;
+
+                    case 'KANO-UI-MAP':
+                        let img = new Image();
+                        img.onload = function () {
+                            context.beginPath();
+                            context.drawImage(img, element.position.left, element.position.top, element.size.width, element.size.height);
+                            context.restore();
+                            resolve(context);
+
+                        };
+                        img.src = '/assets/part/map-icon.svg';
+
+                    break;
+
+                    default:
+                        context.beginPath();
+                        context.rect(0, 0, element.size.width, element.size.height);
+                        context.stroke();
+                        context.restore();
+                        resolve(context);
+
+                    break;
+                }
+            });
+
+            return promise;
         }
 
         /**
@@ -192,11 +225,10 @@
             if (!element) {
                 return strValue;
             }
-            if(document.defaultView && document.defaultView.getComputedStyle){
+            if (document.defaultView && document.defaultView.getComputedStyle) {
                 strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
-            }
-            else if(element.currentStyle){
-                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1){
+            } else if (element.currentStyle) {
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1) {
                     return p1.toUpperCase();
                 });
                 strValue = element.currentStyle[css_rule];
