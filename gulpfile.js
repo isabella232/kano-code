@@ -7,8 +7,6 @@ let gulp = require('gulp'),
     browserify = require('browserify'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
-    del = require('del'),
-    auth = require('basic-auth'),
     path = require('path'),
     fs = require('fs'),
     bundler,
@@ -48,6 +46,12 @@ utils = {
         }
 
         return code;
+    },
+    isProd () {
+        return process.env.NODE_ENV === 'production';
+    },
+    isEnv (env) {
+        return process.env.NODE_ENV === env;
     }
 };
 
@@ -95,15 +99,24 @@ gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
         .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.htmlReplace(getHtmlReplaceOptions()))
-        .pipe($.connect.reload())
+        .pipe($.if(utils.isEnv('development'), $.connect.reload()))
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('babel', ['copy'], () => {
+gulp.task('babel', ['sortable'], () => {
     return gulp.src('app/elements/**/*.{js,html}')
         .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('.tmp/app/elements'));
+});
+
+gulp.task('sortable', ['copy'], () => {
+    return gulp.src('.tmp/app/bower_components/Sortable/Sortable.html')
+        .pipe($.rename('Sortable-es5.html'))
+        .pipe($.crisper({ scriptInHead: false }))
+        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+        .pipe($.if('*.html', $.rename('Sortable.html')))
+        .pipe(gulp.dest('.tmp/app/bower_components/Sortable'));
 });
 
 gulp.task('copy', () => {
@@ -143,11 +156,18 @@ gulp.task('views', () => {
 });
 
 gulp.task('scenes', () => {
-    gulp.src('app/assets/stories/**/*.html')
-        .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
-        .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-        .pipe(gulp.dest('www/assets/stories'));
+    // Get the elements common to the whole app to exclude them from the views
+    getImports('./app/elements/elements.html').then((common) => {
+        return gulp.src('app/assets/stories/**/*.html')
+            .pipe(utils.vulcanize({
+                inlineScripts: true,
+                inlineCss: true,
+                stripExcludes: common
+            }))
+            .pipe($.crisper({ scriptInHead: false }))
+            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+            .pipe(gulp.dest('www/assets/stories'));
+    }).catch(utils.notifyError);
 });
 
 gulp.task('watch', () => {
@@ -249,8 +269,18 @@ gulp.task('client-util', () => {
         .pipe(gulp.dest('.tmp/app/scripts/util/'));
 });
 
-gulp.task('dev', ['watch', 'serve']);
+gulp.task('compress', () => {
+    return gulp.src(['www/**/*.{js,html}'])
+        .pipe($.if('*.html', $.htmlmin({
+            collapseWhitespace: true,
+            minifyCSS: true,
+            removeComments: true
+        })))
+        .pipe($.if('*.js', $.uglify()))
+        .on('error', utils.notifyError)
+        .pipe(gulp.dest('www'));
+});
 
-gulp.task('default', ['build']);
+gulp.task('dev', ['watch', 'serve']);
 gulp.task('build', ['views', 'js', 'sass', 'assets']);
-gulp.task('prod', ['build']);
+gulp.task('default', ['build']);
