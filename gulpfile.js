@@ -47,9 +47,6 @@ utils = {
 
         return code;
     },
-    isProd () {
-        return process.env.NODE_ENV === 'production';
-    },
     isEnv (env) {
         return process.env.NODE_ENV === env;
     }
