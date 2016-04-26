@@ -2,9 +2,6 @@
 
 <dom-module id="kano-notifications">
     <style>
-    :host kano-drop-down .drop-down.kano-drop-down {
-        width: 270px !important;
-    }
     </style>
     <template>
         <img src="../../assets/navbar/notification.svg" alt="" />
@@ -24,16 +21,23 @@
                         type: Number,
                         value: 0,
                         norify: true
+                    },
+                    user: {
+                        type: Object,
+                        observer: 'getNotifications'
                     }
                 }
             }
 
             getNotifications () {
-                let that = this,
-                    new_notifications = [];
+                let new_notifications = [];
 
-                console.log(that.notifications, 'outside notifications');
-                app.sdk.api.notifications.get().then((data) => {
+                if (!this.user) {
+                    return;
+                }
+
+                console.log(this.notifications, 'outside notifications');
+                app.sdk.api.notifications.get().then(((data) => {
                     data.body.entries.forEach((value) => {
                         let obj = {
                             name: value.title
@@ -55,10 +59,10 @@
 
                     })
 
-                    that.set('notifications', new_notifications);
+                    this.set('notifications', new_notifications);
 
                     console.log(this.notifications);
-                })
+                }).bind(this));
             }
 
             attached () {

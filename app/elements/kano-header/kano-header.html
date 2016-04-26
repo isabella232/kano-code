@@ -124,6 +124,10 @@
     :host  ul.nav-menu-items.nav-menu-user-items li {
         padding: 25px 5px 13px 5px !important;
     }
+    :host :content kano-notifications kano-drop-down .kano-drop-down {
+        width: 270px !important;
+        right: 130px;
+    }
 
     </style>
     <template>
@@ -150,7 +154,7 @@
                         </li>
                     </ul>
                     <ul class="nav-menu-user-items nav-menu-items">
-                        <li><kano-notifications></kano-notifications></li>
+                        <li><kano-notifications user="{{user}}"></kano-notifications></li>
                     </ul>
                 </div>
             </div>
@@ -162,14 +166,11 @@
                 this.URL = '//world.kano.me';
                 this.is = 'kano-header'
                 this.properties = {
-                    user: {
-                        type: Object,
-                        observer: 'getUser'
-                    },
                     dropdownVisible: {
                         type: Boolean,
                         value: false
-                    }
+                    },
+                    user: Object
                 }
             }
 
@@ -198,10 +199,6 @@
                     this.dropdownVisible = true;
                 }
 
-            }
-
-            getUser () {
-                this.loggedIn = app.sdk.auth.getUser() !== null;
             }
 
             ready () {
