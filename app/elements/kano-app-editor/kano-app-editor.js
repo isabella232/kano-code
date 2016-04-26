@@ -184,14 +184,15 @@ class KanoAppEditor {
     }
     share () {
         let image_generator = this.$.image_generator;
-
-        this.fire('share', {
-            cover: image_generator.getImage(),
-            workspaceInfo: JSON.stringify(this.save()),
-            background: this.computeBackground(),
-            size: this.wsSize,
-            codes: this.codes,
-            parts: this.addedParts
+        image_generator.getImage().then(image => {
+            this.fire('share', {
+                cover: image,
+                workspaceInfo: JSON.stringify(this.save()),
+                background: this.computeBackground(),
+                size: this.wsSize,
+                codes: this.codes,
+                parts: this.addedParts
+            });
         });
     }
     /**
