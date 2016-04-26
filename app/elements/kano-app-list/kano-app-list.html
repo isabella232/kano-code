@@ -76,7 +76,7 @@
         </template>
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
-                <a class="app-list-item" href="//apps.kano.me/#!/app/{{app.id}}">
+                <a class="app-list-item" href='{{PLAY_URL}}/#!/app/{{app.id}}'>
                     <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image"></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
@@ -116,6 +116,8 @@
             if (this.view === 'my') {
                 this.isMyApps = true;
             }
+
+            this.PLAY_URL =  app.config.PLAY_URL;
         }
 
         getMyApps () {
