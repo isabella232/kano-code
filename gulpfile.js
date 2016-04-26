@@ -74,7 +74,8 @@ function getHtmlReplaceOptions() {
     let mapping = {
         config: `<script type="text/javascript">
                 ${utils.getEnvVars()}
-            </script>`
+            </script>`,
+        base: `<base href="/" />`
     };
     if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
         mapping.style = `<style>

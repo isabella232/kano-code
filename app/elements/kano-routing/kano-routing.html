@@ -50,13 +50,10 @@
        * Initialize the views
        */
       ready () {
-          this.viewLinks = {
-              '/': [{
-                  label: 'Playground',
-                  url: '/make'
-              }]
-          };
-
+          let hashLocation = location.hash.replace(/^#\!/, '');
+          if (hashLocation.length) {
+              history.pushState({}, "entry page", location.hash.substring(2));
+          }
           page('/', this.partial('kano-view-home'));
           page('/apps', this.partial('kano-view-apps'));
           page('/apps/:view', this.partial('kano-view-apps'));
@@ -65,8 +62,6 @@
           page('/story/:id', this.partial('kano-view-story'));
           page('/remix/:slug', this.partial('kano-view-workshop'));
           page('*', () => {});
-          page({hashbang: true});
-          //page({ dispatch: false}); // turn off auto dispatching
           page(); // force trigger the initial root page
       }
       /**
@@ -76,11 +71,9 @@
        */
       partial (name) {
           return (ctx) => {
-              ctx.links = this.viewLinks[ctx.path];
               this.ctx = ctx;
               this.flexEnabled = (name === 'kano-view-home' || name === 'kano-view-apps') ? false : true;
               this.currentView = name;
-
           };
       }
 
