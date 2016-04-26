@@ -468,3 +468,59 @@ Blockly.BlockSvg.INNER_BOTTOM_LEFT_CORNER_HIGHLIGHT_LTR =
     (Blockly.BlockSvg.CORNER_RADIUS -
     Blockly.BlockSvg.DISTANCE_45_OUTSIDE) + ',' +
     (Blockly.BlockSvg.DISTANCE_45_OUTSIDE + 0.5);
+
+
+
+
+    /**
+     * Create the trash can elements.
+     * @return {!Element} The trash can's SVG group.
+     */
+    Blockly.Trashcan.prototype.createDom = function() {
+      /* Here's the markup that will be generated:
+      <g class="blocklyTrash">
+        <clippath id="blocklyTrashBodyClipPath837493">
+          <rect width="47" height="45" y="15"></rect>
+        </clippath>
+        <image width="64" height="92" y="-32" xlink:href="media/sprites.png"
+            clip-path="url(#blocklyTrashBodyClipPath837493)"></image>
+        <clippath id="blocklyTrashLidClipPath837493">
+          <rect width="47" height="15"></rect>
+        </clippath>
+        <image width="84" height="92" y="-32" xlink:href="media/sprites.png"
+            clip-path="url(#blocklyTrashLidClipPath837493)"></image>
+      </g>
+      */
+      this.svgGroup_ = Blockly.createSvgElement('g',
+          {'class': 'blocklyTrash'}, null);
+      var rnd = String(Math.random()).substring(2);
+      var clip = Blockly.createSvgElement('clipPath',
+          {'id': 'blocklyTrashBodyClipPath' + rnd},
+          this.svgGroup_);
+      Blockly.createSvgElement('rect',
+          {'width': this.WIDTH_, 'height': this.BODY_HEIGHT_,
+           'y': this.LID_HEIGHT_},
+          clip);
+      var body = Blockly.createSvgElement('image',
+          {'width': Blockly.SPRITE.width, 'height': Blockly.SPRITE.height, 'y': -32,
+           'clip-path': 'url(' + location.href + '#blocklyTrashBodyClipPath' + rnd + ')'},
+          this.svgGroup_);
+      body.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
+          this.workspace_.options.pathToMedia + Blockly.SPRITE.url);
+
+      var clip = Blockly.createSvgElement('clipPath',
+          {'id': 'blocklyTrashLidClipPath' + rnd},
+          this.svgGroup_);
+      Blockly.createSvgElement('rect',
+          {'width': this.WIDTH_, 'height': this.LID_HEIGHT_}, clip);
+      this.svgLid_ = Blockly.createSvgElement('image',
+          {'width': Blockly.SPRITE.width, 'height': Blockly.SPRITE.height, 'y': -32,
+           'clip-path': 'url(' + location.href + '#blocklyTrashLidClipPath' + rnd + ')'},
+          this.svgGroup_);
+      this.svgLid_.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
+          this.workspace_.options.pathToMedia + Blockly.SPRITE.url);
+
+      Blockly.bindEvent_(this.svgGroup_, 'mouseup', this, this.click);
+      this.animateLid_();
+      return this.svgGroup_;
+    };
