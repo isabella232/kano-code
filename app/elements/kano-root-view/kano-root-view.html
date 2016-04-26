@@ -128,12 +128,16 @@
         box-shadow: 0px 0px;
         background: transparent;
     }
+    :host .edit-button {
+        @apply(--layout-horizontal);
+    }
     :host .open-dropdown .green {
         background: var(--green-gradient, green);
     }
     :host .edit-icon {
         width: 8px;
         transform: rotate(45deg);
+        margin-right: 15px;
     }
     :host kano-event-select {
         position: absolute;
@@ -162,8 +166,9 @@
                         selected="{{selectedPage}}"
                         class="right-button">
                 <div name="default">
-                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown [[computeDropdownClass(eventSelectOpen)]]" id="open-dropdown">
+                    <button type="button" on-tap="toggleEventSelectOpen" class$="open-dropdown edit-button [[computeDropdownClass(eventSelectOpen)]]" id="open-dropdown">
                         <img src="/assets/icons/edit-icon.png" alt="Edit" class="edit-icon"/>
+                        <div>Edit</div>
                     </button>
                 </div>
                 <div name="code">
