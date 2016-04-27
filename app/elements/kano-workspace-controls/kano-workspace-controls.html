@@ -23,6 +23,9 @@
         padding: 3px;
         border: 2px solid transparent;
     }
+    :host .part.sortable-ghost {
+        opacity: 0.5;
+    }
     :host .part .trash {
         width: 25px;
         height: 25px;
@@ -68,6 +71,7 @@
     :host .add-part-section label {
         text-transform: uppercase;
         color: var(--color-white, white);
+        margin-top: 10px;
     }
     :host .add-part-button {
         width: 70px;
@@ -100,28 +104,28 @@
                 <div class="carousel-content">
                     <div class="part">
                         <kano-ui-item model="[[backgroundPart]]"
-                        on-tap="backgroundTapped"
-                        size="50"
-                        id="background"
-                        instance></kano-ui-item>
+                            on-tap="backgroundTapped"
+                            size="50"
+                            id="background"
+                            instance></kano-ui-item>
                     </div>
-                    <sortable-js id="parts-tray" class="parts">
+                    <sortable-js id="parts-tray" class="parts" animation="150">
                         <template is="dom-repeat"
                             items="{{parts}}"
                             as="part">
                             <div class="part">
                                 <kano-data-visualizer for="[[part.id]]" buffer-length="100"></kano-data-visualizer>
                                 <kano-ui-item model="[[part]]"
-                                selected="[[isSelected(part, selected)]]"
-                                on-tap="partTapped"
-                                size="50"
-                                id$="part-[[part.id]]"
-                                instance></kano-ui-item>
+                                    selected="[[isSelected(part, selected)]]"
+                                    on-tap="partTapped"
+                                    size="50"
+                                    id$="part-[[part.id]]"
+                                    instance></kano-ui-item>
                                 <iron-image src="/assets/icons/bin.svg"
-                                class="trash"
-                                sizing="contain"
-                                hidden$="[[isTrashHidden(part, selected, running)]]"
-                                on-tap="openDeleteModal"></iron-image>
+                                    class="trash"
+                                    sizing="contain"
+                                    hidden$="[[isTrashHidden(part, selected, running)]]"
+                                    on-tap="openDeleteModal"></iron-image>
                             </div>
                         </template>
                     </sortable-js>

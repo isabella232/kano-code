@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-ui-item">
     <style>
@@ -30,6 +31,7 @@
         border-radius: 50%;
         background-color: #CCC;
         overflow: hidden;
+        transition: all ease-in 150ms;
     }
     :host iron-image {
         margin: 10px;
@@ -50,7 +52,7 @@
     </style>
     <template>
         <div class="container">
-            <div class="img-container" style$="[[computeContainerStyle(selected)]]">
+            <div class="img-container" style$="[[containerStyle]]">
                 <iron-image src="{{model.image}}"
                             preload
                             fade
@@ -67,13 +69,19 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, KanoBehaviors */
 
     const IMAGE_PADDING = 20;
     const DEFAULT_BACKGROUND = '#CCC';
+    const DEFAULT_RING_COLOUR = 'rgba(0,0,0,0.5)';
     const DEFAULT_SELECTED_COLOUR = '#84C69E';
 
     class KanoUiItem {
+
+        get behaviors () {
+            return [KanoBehaviors.AnimatableBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-ui-item';
             this.properties = {
@@ -100,6 +108,9 @@
                     value: false
                 }
             };
+            this.observers = [
+                'computeContainerStyle(selected, instance, model.*)'
+            ];
         }
         attached () {
             this.fire('ui-ready', this);
@@ -107,13 +118,16 @@
         computeLabel () {
             return this.model.name || this.model.label;
         }
-        computeContainerStyle (selected) {
-            let colour = this.instance ? this.model.colour : DEFAULT_SELECTED_COLOUR;
-            colour = selected ? colour : DEFAULT_BACKGROUND;
-            return `background-color: ${colour};
-                    width: ${this.size + IMAGE_PADDING}px;
-                    height: ${this.size + IMAGE_PADDING}px;
-                    box-shadow: inset 0 0 0 ${this.size * 0.08}px rgba(0,0,0,0.5);`;
+        computeContainerStyle (selected, instance) {
+            this.debounce('computeContainerStyle', () => {
+                let colour = instance ? this.model.colour : DEFAULT_SELECTED_COLOUR,
+                    ringColour = instance && !selected ? this.model.colour : DEFAULT_RING_COLOUR;
+                colour = selected ? colour : DEFAULT_BACKGROUND;
+                this.containerStyle = `background-color: ${colour};
+                                        width: ${this.size + IMAGE_PADDING}px;
+                                        height: ${this.size + IMAGE_PADDING}px;
+                                        box-shadow: inset 0 0 0 ${this.size * 0.08}px ${ringColour};`;
+            }, 10);
         }
         computeLabelStyle (selected) {
             if (this.instance) {

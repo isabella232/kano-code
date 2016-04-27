@@ -96,7 +96,7 @@ gulp.task('js', ['babel', 'bundle', 'dom-util', 'client-util'], () => {
         .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe($.htmlReplace(getHtmlReplaceOptions()))
-        .pipe($.if(utils.isEnv('development'), $.connect.reload()))
+        .pipe($.if(!utils.isEnv('production'), $.connect.reload()))
         .pipe(gulp.dest('www'));
 });
 

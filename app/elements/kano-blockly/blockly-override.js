@@ -1,4 +1,4 @@
-/* globals Blockly */
+/* globals Blockly, goog */
 
 Blockly.Blocks.colour.HUE = '#ffff00';
 Blockly.Blocks.logic.HUE = '#7DC242';
@@ -29,6 +29,53 @@ function lightenColor (hex, lum) {
 	}
 	return rgb;
 }
+
+function hslToRgb(h, s, l) {
+    var r, g, b;
+
+    if(s == 0){
+        r = g = b = l; // achromatic
+    }else{
+        function hue2rgb(p, q, t){
+            if(t < 0) t += 1;
+            if(t > 1) t -= 1;
+            if(t < 1/6) return p + (q - p) * 6 * t;
+            if(t < 1/2) return q;
+            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [r * 255, g * 255, b * 255];
+}
+function rgbToHex(r,g,b){
+    var bin = r << 16 | g << 8 | b;
+    return (function(h){
+        return new Array(7-h.length).join("0")+h
+    })(bin.toString(16).toUpperCase())
+}
+
+var d2b = Blockly.Xml.domToBlock;
+
+Blockly.Xml.domToBlock = function (xmlBlock, ws) {
+    let block = d2b.apply(Blockly.Xml, arguments);
+    if (xmlBlock instanceof Blockly.Workspace) {
+        var swap = xmlBlock;
+        xmlBlock = ws;
+        ws = swap;
+    }
+    let colour = xmlBlock.getAttribute('colour');
+    if (colour) {
+        block.setColour(colour);
+    }
+    return block;
+};
 
 /**
  * Move the toolbox to the edge of the workspace.
@@ -176,23 +223,33 @@ Blockly.Toolbox.prototype.addColour_ = function(opt_tree) {
     }
 };
 
+Blockly.Block.colourCache = {};
+
 /**
  * Change the colour of a block.
  * @param {number|string} colour HSV hue value, or #RRGGBB string.
  */
 Blockly.Block.prototype.setColour = function(colour) {
-    var hexReg = /^#[0-9a-fA-F]{6}$/;
-    var m = /(#[0-9a-fA-F]{6})|linear-gradient\((.+),.+\)/.exec(colour);
-    if (m) {
-        colour = m[1] || m[2];
+    var hslRegex = /hsl\(\s*(\d+)\s*,\s*(\d+(?:\.\d+)?)%\s*,\s*(\d+(?:\.\d+)?)%\).*/,
+        hue = parseFloat(colour);
+
+    if (Blockly.Block.colourCache[colour]) {
+        colour = Blockly.Block.colourCache[colour];
+    } else {
+        var m = colour.match(hslRegex),
+            newColour;
+        if (m) {
+            newColour = hslToRgb(parseInt(m[1], 10) / 360, parseInt(m[2], 10) / 100, parseInt(m[3], 10) / 100);
+            newColour = '#' + rgbToHex(Math.round(newColour[0]), Math.round(newColour[1]), Math.round(newColour[2]));
+            Blockly.Block.colourCache[colour] = newColour;
+            colour = newColour;
+        }
     }
-    var hue = parseFloat(colour);
+
     if (!isNaN(hue)) {
         this.colour_ = Blockly.hueToRgb(hue);
-    } else if (goog.isString(colour) && colour.match(hexReg)) {
-        this.colour_ = colour;
     } else {
-        throw 'Invalid colour: ' + colour;
+        this.colour_ = colour;
     }
     if (this.rendered) {
         this.updateColour();
@@ -248,6 +305,71 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     if (node) {
         toolbox.lastCategory_ = node;
     }
+};
+
+/**
+ * Create a copy of this block on the workspace.
+ * @param {!Blockly.Block} originBlock The flyout block to copy.
+ * @return {!Function} Function to call when block is clicked.
+ * @private
+ */
+Blockly.Flyout.prototype.createBlockFunc_ = function(originBlock) {
+  var flyout = this;
+  var workspace = this.targetWorkspace_;
+  return function(e) {
+    if (Blockly.isRightButton(e)) {
+      // Right-click.  Don't create a block, let the context menu show.
+      return;
+    }
+    if (originBlock.disabled) {
+      // Beyond capacity.
+      return;
+    }
+    Blockly.Events.disable();
+    // Create the new block by cloning the block in the flyout (via XML).
+    var xml = Blockly.Xml.blockToDom(originBlock);
+    var block = Blockly.Xml.domToBlock(workspace, xml);
+    // Place it in the same spot as the flyout copy.
+    var svgRootOld = originBlock.getSvgRoot();
+    if (!svgRootOld) {
+      throw 'originBlock is not rendered.';
+    }
+    var xyOld = Blockly.getSvgXY_(svgRootOld, workspace);
+    // Scale the scroll (getSvgXY_ did not do this).
+    if (flyout.RTL) {
+      var width = workspace.getMetrics().viewWidth - flyout.width_;
+      xyOld.x += width / workspace.scale - width;
+    } else {
+      xyOld.x += flyout.workspace_.scrollX / flyout.workspace_.scale -
+          flyout.workspace_.scrollX;
+    }
+    xyOld.y += flyout.workspace_.scrollY / flyout.workspace_.scale -
+        flyout.workspace_.scrollY;
+    var svgRootNew = block.getSvgRoot();
+    if (!svgRootNew) {
+      throw 'block is not rendered.';
+    }
+    var xyNew = Blockly.getSvgXY_(svgRootNew, workspace);
+    // Scale the scroll (getSvgXY_ did not do this).
+    xyNew.x += workspace.scrollX / workspace.scale - workspace.scrollX;
+    xyNew.y += workspace.scrollY / workspace.scale - workspace.scrollY;
+    if (workspace.toolbox_ && !workspace.scrollbar) {
+      xyNew.x += workspace.toolbox_.width / workspace.scale;
+    }
+    block.moveBy(xyOld.x - xyNew.x, xyOld.y - xyNew.y);
+    Blockly.Events.enable();
+    if (Blockly.Events.isEnabled() && !block.isShadow()) {
+      Blockly.Events.fire(new Blockly.Events.Create(block));
+    }
+    if (flyout.autoClose) {
+      flyout.hide();
+    } else {
+      flyout.filterForCapacity_();
+    }
+    // Start a dragging operation on the new block.
+    block.onMouseDown_(e);
+    block.setColour(originBlock.getColour());
+  };
 };
 
 /**

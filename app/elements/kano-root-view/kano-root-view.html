@@ -423,32 +423,44 @@
                 let categories,
                     toolbox,
                     parts = this.parts,
-                    blocks;
+                    blocks,
+                    weight;
                 if (!parts) {
                     return;
                 }
-                categories = parts.map((ui) => {
-                    blocks = ui.blocks.map((definition) => {
-                        let block = definition.block(ui);
-                        block.colour = ui.colour;
-                        block.id = `${ui.id}#${block.id}`;
-                        Blockly.Blocks[block.id] = {
-                            init: function () {
-                                this.jsonInit(block);
-                            }
-                        };
-                        Blockly.JavaScript[block.id] = definition.javascript(ui);
-                        Blockly.Pseudo[block.id] = definition.pseudo(ui);
+                weight = {
+                    'ui': 1,
+                    'data': 2,
+                    'hardware': 3
+                };
+                categories = parts
+                    .map((ui) => {
+                        blocks = ui.blocks.map((definition) => {
+                            let block = definition.block(ui);
+                            block.colour = ui.colour;
+                            block.id = `${ui.id}#${block.id}`;
+                            Blockly.Blocks[block.id] = {
+                                init: function () {
+                                    this.jsonInit(block);
+                                }
+                            };
+                            Blockly.JavaScript[block.id] = definition.javascript(ui);
+                            Blockly.Pseudo[block.id] = definition.pseudo(ui);
+                            return {
+                                id: block.id,
+                                colour: block.colour
+                            };
+                        });
                         return {
-                            id: block.id
+                            name: ui.name,
+                            colour: ui.colour,
+                            weight: weight[ui.partType],
+                            blocks
                         };
+                    })
+                    .sort((a, b) => {
+                        return a.weight - b.weight;
                     });
-                    return {
-                        name: ui.name,
-                        colour: ui.colour,
-                        blocks
-                    };
-                });
 
                 categories = categories || [];
                 categories = categories.filter((category) => category.blocks.length);
