@@ -5,7 +5,7 @@
     </style>
     <template>
         <img src="../../assets/navbar/notification.svg" alt="" />
-        <kano-drop-down items="{{notifications}}"></kano-drop-down>
+        <kano-drop-down on-tap="readIt" items="{{notifications}}"></kano-drop-down>
     </template>
     <script>
         class KanoNotifications {
@@ -29,6 +29,18 @@
                 }
             }
 
+            attached () {
+                setTimeout(this.getNotifications, 180000);
+
+            }
+
+            readIt (ev) {
+                console.log(ev);
+
+
+                return false;
+            }
+
             getNotifications () {
                 let new_notifications = [];
 
@@ -39,15 +51,18 @@
                 console.log(this.notifications, 'outside notifications');
                 app.sdk.api.notifications.get().then(((data) => {
                     data.body.entries.forEach((value) => {
+                        console.log(value);
                         let obj = {
-                            name: value.title
+                            name: value.title,
+                            category: 'notification',
+                            time: this.fromNow(value.date_created)
                         },
                             unread = this.unread;
 
                         if (value.category === 'follows') {
                             obj.url = `//world.kano.me/users/${value.meta.author.username}`;
                         } else {
-                            obj.url = `//world.kano.me/shares/${value.id}`;
+                            obj.url = `//world.kano.me/shared/${value.id}`;
                         }
 
                         new_notifications.push(obj);
@@ -61,21 +76,27 @@
 
                     this.set('notifications', new_notifications);
 
-                    console.log(this.notifications);
                 }).bind(this));
             }
 
-            attached () {
+            fromNow (value) {
+                let match_list = moment(value).fromNow(true).match(/\d+ \w/g);
+                if (match_list) {
+                    return match_list[0].replace(' ', '');
+                } else {
+                    switch (moment(value).fromNow(true)) {
+                    case 'an hour':
+                        return '1h';
+                    case 'a few seconds':
+                        return '< 1m';
+                    default:
+                        return moment(value).fromNow(true);
+                    }
+                }
             }
 
             ready () {
                 this.getNotifications()
-                this.items = [
-                    {
-                        name: 'TEst',
-                        url: 'Test'
-                    }
-                ]
             }
         }
         Polymer(KanoNotifications);

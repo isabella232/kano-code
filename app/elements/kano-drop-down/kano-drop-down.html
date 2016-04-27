@@ -4,8 +4,8 @@
             font-size: 19px;
             font-weight: 700;
             border-radius: 5px;
-            -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
-              box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+            -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+            box-shadow: 0 0 5px rgba(0,0,0,0.15);
         }
 
         :host .drop-down a {
@@ -13,7 +13,7 @@
             text-decoration: none;
             float: left;
             padding: 0px;
-            height: 73px;
+            height: 70px;
             max-width: 168px;
             display: block;
             border-bottom: none;
@@ -35,14 +35,14 @@
         :host .drop-down a .drop-down-item {
             position: absolute;
             top: 50%;
-            left: 20px;
             transform: translate(0, -50%);
+            width: 100%;
+            padding: 0 20px;
         }
 
         :host .drop-down {
             z-index: 9;
             position: relative;
-            left: 0;
             right: 0;
             width: 220px;
             display: block;
@@ -50,8 +50,8 @@
             background-color: #fff;
             overflow: hidden;
             margin-top: 13px;
-            webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.08);
+            webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+            box-shadow: 0 0 5px rgba(0,0,0,0.15);
             max-height: 1000px;
         }
 
@@ -71,17 +71,66 @@
             display: block;
             z-index: 0;
         }
+
+        :host .notification-follow, :host .time {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            -o-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            padding: 0;
+            margin-right: 12px;
+            width: 30px;
+            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        :host .notification-info {
+            display: inline-block;
+            font-size: 15px;
+        }
+
+        :host .notification-icon {
+            position: relative;
+            top: 4px;
+            float: right;
+            vertical-align: middle;
+            display: none;
+        }
+
+        :host .drop-down a:hover .notification-icon {
+            display: block;
+        }
     </style>
     <template>
         <b class='notch'></b>
         <div class="drop-down">
             <template is="dom-repeat" items="{{items}}" as="item">
                 <a href="{{item.url}}" target="_blank">
-                    <div class="drop-down-item">
-                        <template is="dom-if" if="{{item.img}}">
-                            <img src="{{item.img}}"/>
-                        </template>
-                        {{item.name}}
+                    <div class="drop-down-item-constainer">
+                        <div class="drop-down-item">
+                            <template is="dom-if" if="{{item.time}}">
+                                <div class="time">
+                                    {{item.time}}
+                                </div>
+                            </template>
+                            <template is="dom-if" if="{{item.category}}">
+                                <div class="notification-follow">
+                                    <i class='icon-users'></i>
+                                </div>
+                            </template>
+
+                            <template is="dom-if" if="{{item.img}}">
+                                <img src="{{item.img}}"/>
+                            </template>
+                            <div class="notification-info">
+                                {{item.name}}
+                            </div>
+                            <template is="dom-if" if="{{item.category}}">
+                                <i class="notification-icon icon-chevron-right2"></i>
+                            </template>
+                        </div>
                     </div>
                 </a>
             </template>
