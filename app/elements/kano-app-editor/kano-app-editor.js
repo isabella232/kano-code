@@ -27,7 +27,6 @@ class KanoAppEditor {
             },
             selected: {
                 type: Object,
-                observer: 'selectedChanged',
                 value: null
             },
             running: {
@@ -42,16 +41,14 @@ class KanoAppEditor {
             selectedTrigger: {
                 type: Object
             },
-            leftViewOpened: {
-                type: Boolean,
-                value: true,
-                observer: 'leftViewOpenedChanged'
-            },
             background: {
                 type: Object
             },
             defaultCategories: {
-                type: Array
+                type: Array,
+                value: () => {
+                    return [];
+                }
             },
             wsSize: {
                 type: Object
@@ -64,11 +61,54 @@ class KanoAppEditor {
         this.observers = [
             'addedPartsChanged(addedParts.*)',
             'selectedPartChanged(selected.*)',
-            'backgroundChanged(background.*)'
+            'backgroundChanged(background.*)',
+            'updateColors(addedParts.splices)'
         ];
         this.listeners = {
             'previous': 'clearEditorStyle'
         };
+    }
+    updateColors () {
+        this.debounce('updateColors', () => {
+            let range = 33.33,
+                colorMapHS = {
+                    system: [206, 100],
+                    ui: [89, 52],
+                    hardware: [289, 32],
+                    data: [1, 61]
+                },
+                grouped = this.addedParts.reduce((acc, part) => {
+                    acc[part.partType] = acc[part.partType] || [];
+                    acc[part.partType].push(part);
+                    return acc;
+                }, {}),
+                partList,
+                increment,
+                HS;
+
+            grouped.system = this.defaultCategories;
+
+            Object.keys(grouped).forEach((partType) => {
+                partList = grouped[partType] || [];
+                // Set the increment value, which will decide how much to change the lightness between all colors
+                increment = range / (partList.length + 1);
+                // Grab the HS values from the color map
+                HS = colorMapHS[partType];
+                partList.forEach((part, i) => {
+                    // Calculate the lightness
+                    let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
+                    // Set the color
+                    part.colour = `hsl(${HS[0]}, ${HS[1]}%, ${L}%)`;
+                });
+            });
+
+            // Update the colours
+            this.defaultCategories.forEach((cat) => {
+                cat.blocks.forEach((block) => {
+                    block.colour = cat.colour;
+                });
+            });
+        }, 10);
     }
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
@@ -119,14 +159,6 @@ class KanoAppEditor {
     addedPartsChanged () {
         this.fire('change');
     }
-    selectedChanged (newValue) {
-        if (newValue) {
-            if (!this.leftViewOpened) {
-                this.toggleLeftView();
-            }
-            this.set('leftPanelView', 'code');
-        }
-    }
     computeBackground () {
         let style = this.background.userStyle;
         return Object.keys(style).reduce((acc, property) => {
@@ -141,28 +173,8 @@ class KanoAppEditor {
             this.set('leftPanelView', 'background');
         }
     }
-    leftViewOpenedChanged () {
-        this.triggerResize();
-    }
-    removePart (e) {
-        let model = e.detail,
-            parts = this.addedParts;
-        for (let i = 0, len = parts.length; i < len; i++) {
-            if (parts[i].id === model.id) {
-                this.splice('addedParts', i, 1);
-                if (model.partType === 'module') {
-                    this.push('parts', model);
-                }
-                if (!this.addedParts.length) {
-                    this.set('leftPanelView', 'code');
-                }
-                return;
-            }
-        }
-    }
     /**
      * Save the current work in the local storage
-     * TODO trigger that every 5sec or so if there is any changes
      */
     save (snapshot=false) {
         let savedParts = this.addedParts.reduce((acc, part) => {
@@ -222,6 +234,7 @@ class KanoAppEditor {
             this.$['part-editor-tooltip'].set('trigger', savedApp.selectedTrigger);
             this.$['part-editor-tooltip'].showPage(savedApp.blockEditorPage);
         }
+        this.updateColors();
     }
     openParts () {
         this.partsOpened = true;
@@ -237,19 +250,6 @@ class KanoAppEditor {
             this.push('addedParts', part);
             this.notifyChange('add-part', { part });
         });
-    }
-    toggleLeftView () {
-        if (this.running) {
-            return;
-        }
-        this.set('leftViewOpened', !this.leftViewOpened);
-        // If we just opened the leftView, show the code page
-        if (this.leftViewOpened) {
-            this.set('leftPanelView', 'code');
-            this.$['part-editor-tooltip'].showCodeEditor();
-        } else {
-            this.$['part-editor-tooltip'].hideCodeEditor();
-        }
     }
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
