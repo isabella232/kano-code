@@ -203,6 +203,7 @@ Blockly.Toolbox.prototype.position = function() {
     }
     treeDiv.style.bottom = '0px';
     treeDiv.style.top = '0px';
+    treeDiv.style.left = '0px';
     treeDiv.style.width = '120px';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
@@ -618,4 +619,115 @@ Blockly.BlockSvg.INNER_BOTTOM_LEFT_CORNER_HIGHLIGHT_LTR =
       Blockly.bindEvent_(this.svgGroup_, 'mouseup', this, this.click);
       this.animateLid_();
       return this.svgGroup_;
+    };
+
+
+
+
+    /**
+     * Encode a block subtree as XML.
+     * @param {!Blockly.Block} block The root block to encode.
+     * @return {!Element} Tree of XML elements.
+     */
+    Blockly.Xml.blockToDom = function(block) {
+      var element = goog.dom.createDom(block.isShadow() ? 'shadow' : 'block');
+      element.setAttribute('type', block.type);
+      element.setAttribute('id', block.id);
+      if (block.getColour()) {
+          element.setAttribute('colour', block.getColour());
+      }
+      if (block.mutationToDom) {
+        // Custom data for an advanced block.
+        var mutation = block.mutationToDom();
+        if (mutation && (mutation.hasChildNodes() || mutation.hasAttributes())) {
+          element.appendChild(mutation);
+        }
+      }
+      function fieldToDom(field) {
+        if (field.name && field.EDITABLE) {
+          var container = goog.dom.createDom('field', null, field.getValue());
+          container.setAttribute('name', field.name);
+          element.appendChild(container);
+        }
+      }
+      for (var i = 0, input; input = block.inputList[i]; i++) {
+        for (var j = 0, field; field = input.fieldRow[j]; j++) {
+          fieldToDom(field);
+        }
+      }
+
+      var commentText = block.getCommentText();
+      if (commentText) {
+        var commentElement = goog.dom.createDom('comment', null, commentText);
+        if (typeof block.comment == 'object') {
+          commentElement.setAttribute('pinned', block.comment.isVisible());
+          var hw = block.comment.getBubbleSize();
+          commentElement.setAttribute('h', hw.height);
+          commentElement.setAttribute('w', hw.width);
+        }
+        element.appendChild(commentElement);
+      }
+
+      if (block.data) {
+        var dataElement = goog.dom.createDom('data', null, block.data);
+        element.appendChild(dataElement);
+      }
+
+      for (var i = 0, input; input = block.inputList[i]; i++) {
+        var container;
+        var empty = true;
+        if (input.type == Blockly.DUMMY_INPUT) {
+          continue;
+        } else {
+          var childBlock = input.connection.targetBlock();
+          if (input.type == Blockly.INPUT_VALUE) {
+            container = goog.dom.createDom('value');
+          } else if (input.type == Blockly.NEXT_STATEMENT) {
+            container = goog.dom.createDom('statement');
+          }
+          var shadow = input.connection.getShadowDom();
+          if (shadow && (!childBlock || !childBlock.isShadow())) {
+            container.appendChild(Blockly.Xml.cloneShadow_(shadow));
+          }
+          if (childBlock) {
+            container.appendChild(Blockly.Xml.blockToDom(childBlock));
+            empty = false;
+          }
+        }
+        container.setAttribute('name', input.name);
+        if (!empty) {
+          element.appendChild(container);
+        }
+      }
+      if (block.inputsInlineDefault != block.inputsInline) {
+        element.setAttribute('inline', block.inputsInline);
+      }
+      if (block.isCollapsed()) {
+        element.setAttribute('collapsed', true);
+      }
+      if (block.disabled) {
+        element.setAttribute('disabled', true);
+      }
+      if (!block.isDeletable() && !block.isShadow()) {
+        element.setAttribute('deletable', false);
+      }
+      if (!block.isMovable() && !block.isShadow()) {
+        element.setAttribute('movable', false);
+      }
+      if (!block.isEditable()) {
+        element.setAttribute('editable', false);
+      }
+
+      var nextBlock = block.getNextBlock();
+      if (nextBlock) {
+        var container = goog.dom.createDom('next', null,
+            Blockly.Xml.blockToDom(nextBlock));
+        element.appendChild(container);
+      }
+      var shadow = block.nextConnection && block.nextConnection.getShadowDom();
+      if (shadow && (!nextBlock || !nextBlock.isShadow())) {
+        container.appendChild(Blockly.Xml.cloneShadow_(shadow));
+      }
+
+      return element;
     };

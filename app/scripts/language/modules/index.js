@@ -5,6 +5,7 @@ import global from './global';
 import speaker from './speaker';
 import math from './math';
 import colour from './colour';
+import mouse from './mouse';
 
 export default {
     time,
@@ -13,5 +14,6 @@ export default {
     speaker,
     data,
     math,
-    colour
+    colour,
+    mouse
 };

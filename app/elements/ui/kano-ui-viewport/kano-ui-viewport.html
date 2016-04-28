@@ -109,7 +109,7 @@ the content out of proportions to make it fit inside the available space.
         }
 
         resizeView () {
-            this.debounce('resizeView', () => {
+            requestAnimationFrame(() => {
                 switch (this.mode) {
                     case "responsive":
                         this.resize();
@@ -123,7 +123,7 @@ the content out of proportions to make it fit inside the available space.
                     default:
                         console.log('Mode "' + this.mode + '" not supported.');
                 }
-            }, 10);
+            });
         }
 
         resize () {

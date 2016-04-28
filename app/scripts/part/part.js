@@ -40,35 +40,6 @@ export default class Part {
         this.codes = {};
         this.userStyle = Object.assign({}, opts.userStyle);
         this.userProperties = Object.assign({}, opts.userProperties);
-        this.events.forEach((event) => {
-            let blockId = `${this.id}#${event.id}`,
-                name = this.name;
-            Blockly.Blocks[blockId] = {
-                init: function () {
-                    let json = {
-                        id: blockId,
-                        colour: '#33a7ff',
-                        message0: `When ${name} ${event.label}`,
-                        message1: '%1',
-                        args1: [{
-                            type: "input_statement",
-                            name: "DO"
-                        }]
-                    };
-                    this.jsonInit(json);
-                }
-            };
-            Blockly.JavaScript[blockId] = (block) => {
-                let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-                    code = `devices.get('${this.id}').when('${event.id}', function () {\n${statement}});\n`;
-                return code;
-            };
-            Blockly.Pseudo[blockId] = (block) => {
-                let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-                    code = `devices.get('${this.id}').when('${event.id}', function () {\n${statement}});\n`;
-                return code;
-            };
-        });
     }
     getUniqueName (value, inc=0) {
         let newName = inc ? `${value} ${inc}` : value;

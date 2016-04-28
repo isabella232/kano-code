@@ -38,11 +38,6 @@ es6Assign.polyfill();
     app.dragAndDrop = DragAndDrop;
 
     app.defaultCategories = blockly.categories;
-    app.defaultCategories.events = {
-        name: 'Events',
-        colour: '#33a7ff',
-        blocks: []
-    };
 
     app.sdk = KanoWorldSdk(config);
     app.sdk.registerForms();

@@ -68,6 +68,9 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
+    toggleMenu () {
+        this.fire('toggle-menu');
+    }
     setColorRange (hs, range, items = []) {
         // Set the increment value, which will decide how much to change the lightness between all colors
         let increment = range / (items.length + 1);
@@ -94,9 +97,8 @@ class KanoAppEditor {
                     return acc;
                 }, {});
 
-            if (grouped.ui) {
-                grouped.ui.unshift(this.defaultCategories.background);
-            }
+            grouped.ui = grouped.ui || [];
+            grouped.ui.unshift(this.defaultCategories.background);
 
             Object.keys(grouped).forEach((partType) => {
                 let parts = grouped[partType];
