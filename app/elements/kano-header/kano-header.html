@@ -174,8 +174,8 @@
         display: none;
     }
 
-    :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-notifications {
-        pointer-events: auto;
+    :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-notifications img {
+        pointer-events: none;
     }
 
     :host .nav-menu ul.nav-menu-items.nav-menu-user-items li.menu-item.menu-item-avatar {
@@ -278,39 +278,33 @@
                 console.log(this.user);
             }
 
-            closeDropDown (elem) {
+            closeDropDown () {
                 document.querySelector('.nav-menu-items__open').classList.remove('nav-menu-items__open');
-
                 this.dropdownVisible = false;
             }
 
             toggleOpen (ev) {
-                ev.stopPropagation()
-                console.log(ev);
-                let wasOpened = ev.target.classList.contains('nav-menu-items__open'),
-                    isUserAvatar = false;
+                let wasOpened,
+                    isUserAvatar,
+                    elem;
 
-                if (ev.target.localName === 'kano-user-avatar') {
-                    isUserAvatar = true;
-                }
+                ev.stopPropagation();
+
+                isUserAvatar = ev.target.localName === 'kano-user-avatar';
 
                 elem = isUserAvatar ? document.getElementById('avatar-menu') : ev.target;
 
-                console.log('isUserAvatar', isUserAvatar);
+                wasOpened = isUserAvatar
+                    ? elem.classList.contains('nav-menu-items__open')
+                    : ev.target.classList.contains('nav-menu-items__open');
 
                 if (!ev.target.classList.contains('menu-item') && !isUserAvatar) {
                     return;
                 }
 
-
-                if (this.dropdownVisible === true) {
-                    this.closeDropDown(elem);
+                if (this.dropdownVisible) {
+                    this.closeDropDown();
                 }
-
-                if (isUserAvatar) {
-                    wasOpened = elem.classList.contains('nav-menu-items__open');
-                }
-
 
                 if (!wasOpened) {
                     if (isUserAvatar) {
