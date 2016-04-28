@@ -195,12 +195,13 @@ class KanoAppEditor {
         return savedApp;
     }
     share () {
-        let image_generator = this.$.image_generator;
-        image_generator.getImage().then(image => {
+        let workspace = this.$.workspace,
+            backgroundColor = this.computeBackground();
+        workspace.generateCover(backgroundColor).then(image => {
             this.fire('share', {
                 cover: image,
                 workspaceInfo: JSON.stringify(this.save()),
-                background: this.computeBackground(),
+                background: backgroundColor,
                 size: this.wsSize,
                 codes: this.codes,
                 parts: this.addedParts

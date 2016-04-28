@@ -51,6 +51,46 @@
         tapped () {
             this.fire('clicked');
         }
+        renderOnCanvas (ctx) {
+            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                let img,
+                    image = this.$.image,
+                    width = image.offsetWidth,
+                    height = image.offsetHeight,
+                    x = 0,
+                    y = 0;
+
+                if (this.loaded) {
+                    img = new Image();
+                    img.src = this.model.userProperties.src;
+
+                    return new Promise((resolve) => {
+                        img.onload = () => {
+                            let aspectW = img.width / width,
+                                aspectH = img.height / height;
+                            if (aspectW > aspectH) {
+                                y = height / 2;
+                                height = img.height / aspectW;
+                                y -= height / 2;
+                            } else {
+                                x = width / 2;
+                                width = img.width / aspectH;
+                                x -= width / 2;
+                            }
+                            ctx.drawImage(img, x, y, width, height);
+                            ctx.stroke();
+                            ctx.restore();
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            resolve(KanoBehaviors.UIBehavior.renderFallback.apply(this, arguments));
+                        };
+                    });
+                } else {
+                    return KanoBehaviors.UIBehavior.renderFallback.apply(this, arguments);
+                }
+            });
+        }
     }
     Polymer(KanoUiImage);
 </script>

@@ -41,6 +41,21 @@
         textClicked () {
             this.fire('clicked');
         }
+
+        renderOnCanvas (ctx) {
+            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                let text = this.model.userProperties.text,
+                    color = this.model.userStyle.color;
+
+                ctx.textAlign = 'start';
+                ctx.textBaseline = 'top';
+                ctx.font = `${this.model.userStyle['font-size']} ${this.model.userStyle['font-family']}`;
+                ctx.fillStyle = color;
+                ctx.fillText(text, 0, 0);
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
     }
     Polymer(KanoUiText);
 

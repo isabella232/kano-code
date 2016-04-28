@@ -93,13 +93,13 @@ let register = (Blockly) => {
     Blockly.JavaScript.repeat_x_times = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
             n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}, i++) {\n${statement}}\n`;
+            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
         return code;
     };
     Blockly.Pseudo.repeat_x_times = (block) => {
         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
             n = Blockly.Pseudo.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}, i++) {\n${statement}}\n`;
+            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
         return code;
     };
 
