@@ -1,17 +1,182 @@
+<link rel="import" href="../kano-drop-down/kano-drop-down.html">
+
 <dom-module is="kano-user-avatar">
     <style>
+        :host .user-avatar {
+            margin: -10px 0;
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            -webkit-filter: none;
+            filter: none;
+        }
 
+        :host .progress-header {
+            width: 60px;
+            height: 60px;
+            border-radius: 100%;
+        }
+
+        :host .progress-header svg {
+            display: block;
+            width: 100%;
+            stroke-linecap: round;
+        }
+
+        :host .progress-header img {
+            border-radius: 100%;
+            border: 1px solid white;
+            height: 40px;
+            width: 40px;
+        }
+
+        :host ::content kano-drop-down b.notch.kano-drop-down {
+            left: 25px;
+        }
     </style>
     <template>
-        <h2>AVT</h2>
+        <div style="position: relative">
+            <div class="progress-header"></div>
+            <img src='//s3-eu-west-1.amazonaws.com/world.kano.me/users/avatars/561e17da25fd3f070042a489/avatar-circle.png' class="user-avatar"/>
+        </div>
+        <kano-drop-down items="{{items}}"></kano-drop-down>
     </template>
     <script>
         class KanoUserAvatar {
             beforeRegister () {
                 this.is = 'kano-user-avatar'
+                this.properties = {
+                    user: {
+                        type: Object,
+                        observer: 'showProgress'
+                    }
+                }
+                this.levelsMap = {
+                    "1": 0,
+                    "2": 150,
+                    "3": 300,
+                    "4": 500,
+                    "5": 800,
+                    "6": 1300,
+                    "7": 1600,
+                    "8": 2200,
+                    "9": 3000
+                };
+            }
+
+        getProgress (xp) {
+            let last = 0,
+                lvl;
+
+            for (lvl in this.levelsMap) {
+                if (this.levelsMap.hasOwnProperty(lvl)) {
+                    if (xp < this.levelsMap[lvl]) {
+                        return [xp - last, this.levelsMap[lvl] - xp, this.levelsMap[lvl] - last];
+                    }
+                    last = this.levelsMap[lvl];
+                }
+            }
+
+            return 0;
+        }
+
+        getPercent (xp) {
+            let progress = this.getProgress(xp),
+                covered = progress[0],
+                leap = progress[2];
+
+            return (covered * 100) / leap;
+        }
+
+        calculate (xp) {
+            let current = '1',
+                lvl;
+
+            if (typeof xp !== 'number') {
+                return null;
+            }
+
+            for (lvl in this.levelsMap) {
+                if (this.levelsMap.hasOwnProperty(lvl)) {
+                    if (xp < this.levelsMap[lvl]) {
+                        return current;
+                    }
+                    current = lvl;
+                }
+            }
+
+            return current;
+        }
+
+        drawProgressCircle (progress) {
+            this.circle = new ProgressBar.Circle(document.querySelector('.progress-header'), {
+                color       : '#FF8329',
+                strokeWidth : 12,
+                trailColor  : '#DCDCDC',
+                trailWidth  : 12,
+                duration    : 1000,
+                easing      : 'bounce'
+            });
+
+            this.circle.animate(progress);
+        }
+
+        clearExistentCircle () {
+            if (this.circle) {
+                this.circle.destroy();
             }
         }
 
-        Polymer(KanoUserAvatar);
+
+        showProgress () {
+            if (!this.user) {
+                this.clearExistentCircle();
+                this.drawProgressCircle(0);
+                return;
+            }
+
+            app.sdk.api.users.get.byUsername({ username: this.user.username })
+                .then((res, d) => {
+                    profile = res.body.user.profile;
+                    progressPercent = this.getPercent(profile.xp) / 100;
+                    this.level = parseInt(this.calculate(profile.xp), 10) || 0;
+
+                    this.clearExistentCircle();
+                    this.drawProgressCircle(progressPercent);
+
+                    let items = [
+                        {
+                            name: this.user.username,
+                            extra: `Level ${this.level}`,
+                            url: `//world.kano.me/users/${this.user.username}`
+                        },
+                        {
+                            name: 'Settings',
+                            url: '//world.kano.me/settings'
+                        },
+                        {
+                            name: 'Log out',
+                            logout: true
+                        }
+                    ]
+
+                    if (this.user.admin_level > 0) {
+                        items.push({
+                            name: 'Admin',
+                            url: '//world.kano.me/admin'
+                        })
+                    }
+
+                    this.set('items', items)
+
+                })
+                .catch((err) => console.log(err))
+
+        }
+    }
+
+    Polymer(KanoUserAvatar);
     </script>
 </dom-module>

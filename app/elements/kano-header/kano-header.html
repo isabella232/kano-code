@@ -119,7 +119,8 @@
 
     :host nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-drop-down,
     :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-notifications kano-drop-down,
-    :host ::content nav .nav-menu ul.nav-menu-items li kano-notifications.nav-menu-items__open kano-drop-down {
+    :host ::content nav .nav-menu ul.nav-menu-items li kano-notifications.nav-menu-items__open kano-drop-down,
+    :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-user-avatar kano-drop-down {
         display: block;
     }
 
@@ -138,8 +139,8 @@
         float: right !important;
     }
 
-    :host  ul.nav-menu-items.nav-menu-user-items li {
-        padding: 25px 5px 13px 5px !important;
+    :host .nav-menu ul.nav-menu-items.nav-menu-user-items li.menu-item {
+        padding: 25px 5px 13px 5px ;
     }
 
 
@@ -153,12 +154,12 @@
 
     :host ::content kano-notifications .kano-notifications .drop-down {
         width: 340px;
-        right: 200px;
+        right: 285px;
         top: 13px;
     }
 
     :host ::content kano-notifications .kano-notifications .notch {
-        left: 53px;
+        left: 17px;
     }
 
     :host ::content kano-notifications,
@@ -166,12 +167,43 @@
         pointer-events: none;
     }
 
-    :host ::content kano-notifications kano-drop-down {
+    :host ::content kano-notifications kano-drop-down,
+    :host ::content kano-user-avatar kano-drop-down {
         display: none;
     }
 
     :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-notifications {
         pointer-events: auto;
+    }
+
+    :host .nav-menu ul.nav-menu-items.nav-menu-user-items li.menu-item.menu-item-avatar {
+        padding-top: 2px;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items.nav-menu-user-items li {
+        width: 60px;
+    }
+
+    :host ::content kano-user-avatar kano-drop-down.kano-user-avatar .drop-down.kano-drop-down {
+        margin-top: 9px;
+        right: 130px;
+        width: 200px;
+    }
+
+    :host .make-items ::content kano-drop-down .drop-down > a .notification-info {
+        margin-left: 10px;
+    }
+
+    :host ::content kano-user-avatar > div {
+        pointer-events: none;
+    }
+
+    :host ::content kano-notifications .notification-info {
+        padding: 0 15px;
+    }
+
+    :host ::content kano-notifications kano-drop-down .drop-down.kano-drop-down a.kano-drop-down .drop-down-item.kano-drop-down {
+        padding: 0;
     }
     </style>
     <template>
@@ -182,7 +214,7 @@
                 </div>
                 <div class="nav-menu">
                     <ul class="nav-menu-items">
-                        <li class="menu-item" on-tap="toggleOpen">
+                        <li class="menu-item make-items" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Make</a>
                             <i class="icon-chevron-down2"></i>
                             <kano-drop-down items="{{makeItems}}"></kano-drop-down>
@@ -202,8 +234,8 @@
                         <li class="menu-item" on-tap="toggleOpen">
                             <kano-notifications user="{{user}}"></kano-notifications>
                         </li>
-                        <li class="menu-item">
-                            <kano-user-avatar></kano-user-avatar>
+                        <li id="avatar-menu" class="menu-item menu-item-avatar" on-tap="toggleOpen">
+                            <kano-user-avatar user="{{user}}"></kano-user-avatar>
                         </li>
                     </ul>
                 </div>
@@ -221,15 +253,15 @@
                         value: false
                     },
                     user: {
-                        type: Object,
-                        observer: 'makeAvatar'
+                        type: Object
                     }
                 }
             }
 
             attached () {
                 document.querySelector('#view').addEventListener('tap', (ev) => {
-                    if (!ev.target.classList.contains('nav-menu-items__open') && this.dropdownVisible) {
+                    if (!ev.target.classList.contains('nav-menu-items__open') || !document.getElementById('avatar-menu').classList.contains('nav-menu-items__open') && this.dropdownVisible) {
+                        console.log('eeeee');
                         this.closeDropDown()
                     }
                 })
@@ -240,26 +272,48 @@
                 console.log(this.user);
             }
 
-            closeDropDown () {
-                let elem = document.querySelectorAll('nav-menu-items__open .icon-chevron-up2');
+            closeDropDown (elem) {
                 document.querySelector('.nav-menu-items__open').classList.remove('nav-menu-items__open');
 
                 this.dropdownVisible = false;
             }
 
             toggleOpen (ev) {
-                let wasOpened = ev.target.classList.contains('nav-menu-items__open');
+                ev.stopPropagation()
+                console.log(ev);
+                let wasOpened = ev.target.classList.contains('nav-menu-items__open'),
+                    isUserAvatar = false;
 
-                if (!ev.target.classList.contains('menu-item')) {
+                if (ev.target.localName === 'kano-user-avatar') {
+                    isUserAvatar = true;
+                }
+
+                elem = isUserAvatar ? document.getElementById('avatar-menu') : ev.target;
+
+                console.log('isUserAvatar', isUserAvatar);
+
+                if (!ev.target.classList.contains('menu-item') && !isUserAvatar) {
                     return;
                 }
 
+
                 if (this.dropdownVisible === true) {
-                    this.closeDropDown();
+                    this.closeDropDown(elem);
+                    return;
                 }
 
+                if (isUserAvatar) {
+                    wasOpened = elem.classList.contains('nav-menu-items__open');
+                }
+
+
                 if (!wasOpened) {
-                    ev.target.classList.add('nav-menu-items__open')
+                    if (isUserAvatar) {
+                        elem.classList.add('nav-menu-items__open');
+                    } else {
+                        ev.target.classList.add('nav-menu-items__open')
+                    }
+
                     this.dropdownVisible = true;
                 }
 
