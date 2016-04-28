@@ -25,21 +25,21 @@
     }
     :host section #right-panel {
         position: relative;
-        @apply(--layout-vertical);
         @apply(--layout-flex);
+        @apply(--layout-vertical);
         @apply(--kano-inset-box-shadow)
         min-width: 38%;
         max-width: 62%;
+        width: 62%;
     }
     :host section #left-panel {
         position: relative;
         @apply(--layout-vertical);
         @apply(--kano-box-shadow);
-        max-width: 62%;
-        width: 62%;
         min-width: 38%;
+        max-width: 62%;
     }
-    :host #right-panel kano-workspace {
+    :host #left-panel kano-workspace {
         @apply(--layout-flex);
         padding: 10px;
     }
@@ -118,7 +118,19 @@
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing" main>
-            <div name="code" class="editor" id="left-panel">
+            <div class="ui-edition" id="left-panel">
+                <kano-workspace id="workspace"
+                                on-ui-ready="workspaceUiReady"
+                                parts="{{addedParts}}"
+                                selected="{{selected}}"
+                                running="{{running}}"></kano-workspace>
+                <div class="controls">
+                    <button type="button" class="share-button" on-tap="share" id="share-button">Publish</button>
+                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
+                </div>
+            </div>
+            <div id="resize" on-mousedown="resizeWorkspace"></div>
+            <div name="code" class="editor" id="right-panel">
                 <kano-root-view
                     id="root-view"
                     on-previous="previous"
@@ -135,18 +147,6 @@
                     on-part-tap="openPartEditor"
                     on-background-tap="openBackgroundEditor"
                     on-add-part-tap="openParts"></kano-workspace-controls>
-            </div>
-            <div id="resize" on-mousedown="resizeWorkspace"></div>
-            <div class="ui-edition" id="right-panel">
-                <kano-workspace id="workspace"
-                                on-ui-ready="workspaceUiReady"
-                                parts="{{addedParts}}"
-                                selected="{{selected}}"
-                                running="{{running}}"></kano-workspace>
-                <div class="controls">
-                    <button type="button" class="share-button" on-tap="share" id="share-button">Publish</button>
-                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
-                </div>
             </div>
         </section>
         <kano-content-tooltip id="part-editor-tooltip"
