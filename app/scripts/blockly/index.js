@@ -25,12 +25,12 @@ let registered = false,
         registered = true;
     };
 
-let categories = [
-    control.category,
-    operators.category,
-    variables.category,
-    background.category
-];
+let categories = {
+    control: control.category,
+    operators: operators.category,
+    variables: variables.category,
+    background: background.category
+};
 
 export default {
     register,

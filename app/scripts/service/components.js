@@ -41,48 +41,18 @@ class ComponentStore {
             }
         });
     }
-    generateCode (codes = {}) {
-        let codeList,
-            emitter;
-        codeList = Object.keys(codes)
-            .map((emitterId) => {
-                emitter = codes[emitterId];
-                return this.generateEmitterCode(emitterId, emitter);
-            });
-        codeList.push(`global.emit('start')`);
-        return codeList.join(';');
-    }
-    generateEventCode (emitterId, eventId, codes) {
-        return codes.map((code) => {
-            let emitterString = emitterId === 'global' ?
-                                'global' :
-                                `devices.get('${emitterId}')`,
-                javascript = code.snapshot.javascript || '';
-            return `${emitterString}.when('${eventId}',
-                            function (){
-                                ${javascript}
-                            })`;
-        }).join('\n');
-    }
-    generateEmitterCode (emitterId, emitter) {
-        let eventCode;
-        return Object.keys(emitter).map((eventId) => {
-            eventCode = emitter[eventId];
-            return this.generateEventCode(emitterId, eventId, eventCode);
-        }).join(';');
-    }
-    generateModuleCode (model) {
-        return CodeService.getStringifiedModule(model.type);
+    generateCode (code = {}) {
+        return code.snapshot.javascript;
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts, codes) {
-        let code = this.generateCode(codes);
+    run (parts, code) {
+        let codeString = this.generateCode(code);
         this.start(parts);
         // Run the code using this store. Only expose the get function
-        CodeService.run(code, {
+        CodeService.run(codeString, {
             get (id) {
                 return document.querySelector(`kano-workspace #${id}`);
             }

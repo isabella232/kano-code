@@ -422,7 +422,7 @@ Blockly.BlockSvg.NOTCH_WIDTH = 30;
  * Rounded corner radius.
  * @const
  */
-Blockly.BlockSvg.CORNER_RADIUS = 0;
+Blockly.BlockSvg.CORNER_RADIUS = 8;
 /**
  * Do blocks with no previous or output connections have a 'hat' on top?
  * @const
@@ -463,7 +463,7 @@ Blockly.BlockSvg.DISTANCE_45_OUTSIDE = (1 - Math.SQRT1_2) *
 * SVG path for drawing next/previous notch from left to right.
 * @const
 */
-Blockly.BlockSvg.NOTCH_PATH_LEFT = 'l 8,6 8,-6';
+Blockly.BlockSvg.NOTCH_PATH_LEFT = 'h -1 l 8,6 8,-6 h 2';
 
 /**
  * SVG path for drawing next/previous notch from left to right with
@@ -475,7 +475,7 @@ Blockly.BlockSvg.NOTCH_PATH_LEFT_HIGHLIGHT = 'l 8,6 8,-6';
  * SVG path for drawing next/previous notch from right to left.
  * @const
  */
-Blockly.BlockSvg.NOTCH_PATH_RIGHT = 'l -8,6 -8,-6';
+Blockly.BlockSvg.NOTCH_PATH_RIGHT = 'h 1 l -8,6 -8,-6';
 /**
  * SVG path for drawing jagged teeth at the end of collapsed blocks.
  * @const
@@ -509,33 +509,6 @@ Blockly.BlockSvg.TAB_PATH_DOWN_HIGHLIGHT_RTL = 'v 6.5 m -' +
     (Blockly.BlockSvg.TAB_WIDTH * 0.3) + ',9.5 m ' +
     (Blockly.BlockSvg.TAB_WIDTH * 0.67) + ',-1.9 v 1.4';
 
-/**
- * SVG start point for drawing the top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START = 'm 0,0';
-/**
- * SVG start point for drawing the top-left corner's highlight in RTL.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START_HIGHLIGHT_RTL =
-    'm ' + Blockly.BlockSvg.DISTANCE_45_INSIDE + ',' +
-    Blockly.BlockSvg.DISTANCE_45_INSIDE;
-/**
- * SVG start point for drawing the top-left corner's highlight in LTR.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START_HIGHLIGHT_LTR = 'm 0.5, -0.5';
-/**
- * SVG path for drawing the rounded top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER = '';
-/**
- * SVG path for drawing the highlight on the rounded top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_HIGHLIGHT = '';
 /**
  * SVG path for drawing the top-left corner of a statement input.
  * Includes the top notch, a horizontal space, and the rounded inside corner.

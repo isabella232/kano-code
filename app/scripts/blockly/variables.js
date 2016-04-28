@@ -1,4 +1,4 @@
-const COLOUR = '#34A836';
+const COLOUR = '#1198ff';
 
 let register = (Blockly) => {
     Blockly.Blocks.random_colour = {

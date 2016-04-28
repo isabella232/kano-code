@@ -68,6 +68,7 @@
             window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.onResize();
+            this.fire('blockly-ready');
         }
         // Wrap around the querySelector, and caches the values to
         // gain performances
@@ -105,7 +106,7 @@
                 workspace.style.bottom = '0px';
                 workspace.style.left = '0px';
                 workspace.style.right = '0px';
-            }, 10);
+            });
         }
         /**
          * Takes a categories definition in JSON and generates the XML
@@ -126,8 +127,10 @@
                         return '<sep gap="8"></sep>';
                     }
                     let blocksXml = category.blocks.map((block) => {
-                        let colourAttr = block.colour ? `colour="${block.colour}"` : '';
-                        return `<block type="${block.id}" ${colourAttr}></block>`;
+                        let colourAttr = block.colour ? `colour="${block.colour}"` : '',
+                            shadow = block.shadow || {},
+                            content = Object.keys(shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
+                        return `<block type="${block.id}" ${colourAttr}>${content}</block>`;
                     }).join(''),
                         colour = category.colour;
 
@@ -151,6 +154,9 @@
          * Remove every block in the workspace
          */
         clearWorkspace () {
+            if (!this.workspace) {
+                return;
+            }
             this.workspace.clear();
         }
         /**
@@ -200,7 +206,11 @@
             });
         }
 
-        load (snapshot) {
+        load (snapshot = {}) {
+            console.log(snapshot);
+            if (!this.workspace) {
+                return this.addEventListener('blockly-ready', this.load.bind(this, snapshot));
+            }
             let blocks = snapshot.blocks || '<xml></xml>';
             let xml = Blockly.Xml.textToDom(blocks);
             this.clearWorkspace();

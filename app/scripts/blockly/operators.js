@@ -1,4 +1,4 @@
-const COLOUR = '#7DC242'; //41
+const COLOUR = '#0087ee';
 
 let register = (Blockly) => {
     /* --- max(x, y) */
