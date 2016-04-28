@@ -2,10 +2,34 @@
 
 <dom-module id="kano-notifications">
     <style>
+    :host .unread-count {
+        position: absolute;
+        display: inline-block;
+        height: 20px;
+        border: 2px solid #fff;
+        line-height: 16px;
+        text-align: center;
+        background-color: red;
+        color: #fff;
+        type-size: 1;
+        top: 45%;
+        left: 45%;
+        margin-left: 5px;
+        margin-top: -16px;
+        font-weight: bold;
+        font-size: 1;
+        padding: 0 5px;
+        min-width: 10px;
+        border-radius: 5px;
+    }
     </style>
     <template>
         <img src="../../assets/navbar/notification.svg" alt="" />
-        <kano-drop-down on-tap="readIt" items="{{notifications}}"></kano-drop-down>
+        <template is="dom-if" if="{{unread}}">
+            <span class="unread-count">{{unread}}</span>
+        </template>
+            <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications"></kano-drop-down>
+        </template>
     </template>
     <script>
         class KanoNotifications {
@@ -19,8 +43,7 @@
                     },
                     unread: {
                         type: Number,
-                        value: 0,
-                        norify: true
+                        notify: true
                     },
                     user: {
                         type: Object,
@@ -29,35 +52,23 @@
                 }
             }
 
-            attached () {
-                setTimeout(this.getNotifications, 180000);
-
-            }
-
-            readIt (ev) {
-                console.log(ev);
-
-
-                return false;
-            }
-
             getNotifications () {
-                let new_notifications = [];
+                let new_notifications = [], unread = 0;
 
                 if (!this.user) {
                     return;
                 }
 
-                console.log(this.notifications, 'outside notifications');
                 app.sdk.api.notifications.get().then(((data) => {
                     data.body.entries.forEach((value) => {
-                        console.log(value);
                         let obj = {
                             name: value.title,
                             category: 'notification',
-                            time: this.fromNow(value.date_created)
-                        },
-                            unread = this.unread;
+                            time: this.fromNow(value.date_created),
+                            id: value.id,
+                            read: value.read,
+                            unreadClass:  value.read ? 'notification-read' : 'notification-unread'
+                        };
 
                         if (value.category === 'follows') {
                             obj.url = `//world.kano.me/users/${value.meta.author.username}`;
@@ -67,13 +78,14 @@
 
                         new_notifications.push(obj);
 
-                        if (value.unread) {
+                        if (!value.read) {
+                            console.log('increase', unread);
                             unread++;
-                            this.set('unread', unread);
                         }
 
                     })
 
+                    this.set('unread', unread);
                     this.set('notifications', new_notifications);
 
                 }).bind(this));
@@ -96,7 +108,14 @@
             }
 
             ready () {
-                this.getNotifications()
+                this.notificationsInterval = setInterval(this.getNotifications.bind(this), 180000);
+                this.getNotifications();
+                this.addEventListener('notification:read', () => { this.unread = this.unread - 1; console.log('READ'); });
+                this.addEventListener('notifications:readAll', () => this.unread = 0);
+            }
+
+            detached () {
+                clearInterval(this.notificationsInterval)
             }
         }
         Polymer(KanoNotifications);

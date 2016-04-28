@@ -13,7 +13,7 @@
             text-decoration: none;
             float: left;
             padding: 0px;
-            height: 70px;
+            height: 57px;
             max-width: 168px;
             display: block;
             border-bottom: none;
@@ -37,7 +37,7 @@
             top: 50%;
             transform: translate(0, -50%);
             width: 100%;
-            padding: 0 20px;
+            padding: 0 10px 0 20px;
         }
 
         :host .drop-down {
@@ -79,7 +79,7 @@
             -o-text-overflow: ellipsis;
             text-overflow: ellipsis;
             padding: 0;
-            margin-right: 12px;
+            margin-right: 3px;
             width: 30px;
             text-align: center;
             display: inline-block;
@@ -99,15 +99,42 @@
             display: none;
         }
 
-        :host .drop-down a:hover .notification-icon {
+        :host .drop-down a:hover .notification-icon,
+        :host .see-all:hover .notification-icon {
             display: block;
+        }
+
+        :host .mark-all-read {
+            width: 50% !important;
+            padding: 20px 25px !important;
+            font-size: 15px !important;
+            text-align: right !important;
+            color: #F18A37 !important;
+        }
+
+        :host .see-all {
+            width: 50% !important;
+            padding: 20px 25px !important;
+            font-size: 15px !important;
+        }
+
+        :host .notification-unread {
+            background-color: #eee;
+        }
+
+        :host .no-notifications {
+            padding: 25px 0;
+        }
+
+        :host .drop-down-item {
+            pointer-events: none;
         }
     </style>
     <template>
-        <b class='notch'></b>
+        <b class="notch"></b>
         <div class="drop-down">
             <template is="dom-repeat" items="{{items}}" as="item">
-                <a href="{{item.url}}" target="_blank">
+                <a href="{{item.url}}" target="_blank" class$="{{item.unreadClass}}" on-tap="readIt">
                     <div class="drop-down-item-constainer">
                         <div class="drop-down-item">
                             <template is="dom-if" if="{{item.time}}">
@@ -134,6 +161,21 @@
                     </div>
                 </a>
             </template>
+            <template is="dom-if" if="{{hasNotifications(items, type)}}">
+                <a href="//world.kano.me/notifications" class="see-all">
+                    See all
+                    <i class="notification-icon icon-chevron-right2"></i>
+                </a>
+                <template is="dom-if" if="{{unread}}">
+                    <a class="mark-all-read" on-tap="readThemAll">
+                        Mark all as read
+                        <i class="icon-tick"></i>
+                    </a>
+                </template>
+            </template>
+            <template  is="dom-if" if="{{!hasNotifications(items, type)}}">
+                <div class="no-notifications">You have no notifications yet.</div>
+            </template>
         </div>
     </template>
     <script>
@@ -141,8 +183,32 @@
             beforeRegister () {
                 this.is = 'kano-drop-down'
                 this.properties = {
-                    items: Object
+                    items: {
+                        type: Object,
+                        observer: 'hasNotifications'
+                    },
+                    unread: Number,
+                    type: String
                 }
+                this.hasNotifications = (items, type) => {
+                    console.log(type, items);
+                    return type === 'notifications' && items.length;
+                }
+            }
+
+            readIt (ev) {
+                let item = ev.model.get('item');
+                if (!item.read && item.category === 'notification') {
+                    ev.target.classList.remove('notification-unread')
+                    ev.target.classList.add('notification-read')
+                    app.sdk.api.notifications.read({ id: item.id })
+                        .then(() => this.fire('notification:read'))
+                }
+            }
+
+            readThemAll () {
+                app.sdk.api.notifications.readAll()
+                    .then(() => this.fire('notifications:readAll'))
             }
         }
         Polymer(KanoDropDown);
