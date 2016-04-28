@@ -78,6 +78,21 @@
                 this.scrollNext();
             }, duration);
         }
+        renderOnCanvas (ctx, util) {
+            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                let text = this.model.userProperties.text,
+                    color = this.model.userStyle.color,
+                    label = this.$.label;
+
+                ctx.textAlign = 'start';
+                ctx.textBaseline = 'top';
+                ctx.font = `${util.getStyle(label, 'font-size')} ${util.getStyle(label, 'font-family')}`;
+                ctx.fillStyle = color;
+                ctx.fillText(text, 0, 0);
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
     }
     Polymer(KanoUiScrollingText);
 

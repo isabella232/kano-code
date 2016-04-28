@@ -75,6 +75,42 @@
         computeMapStyle () {
             return this.getPartialStyle(['width', 'height']);
         }
+        renderOnCanvas (ctx) {
+            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                let img,
+                    map = this.$.map,
+                    width = map.offsetWidth,
+                    height = map.offsetHeight,
+                    x = 0,
+                    y = 0;
+
+                img = new Image();
+                img.src = '/assets/part/map-icon.svg';
+
+                return new Promise((resolve) => {
+                    img.onload = () => {
+                        let aspectW = img.width / width,
+                            aspectH = img.height / height;
+                        if (aspectW > aspectH) {
+                            y = height / 2;
+                            height = img.height / aspectW;
+                            y -= height / 2;
+                        } else {
+                            x = width / 2;
+                            width = img.width / aspectH;
+                            x -= width / 2;
+                        }
+                        ctx.drawImage(img, x, y, width, height);
+                        ctx.stroke();
+                        ctx.restore();
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        resolve(KanoBehaviors.UIBehavior.renderFallback.apply(this, arguments));
+                    };
+                });
+            });
+        }
     }
     Polymer(KanoUiMap);
 </script>

@@ -20,7 +20,7 @@
     }
     </style>
     <template>
-        <input type="text" value="{{model.userProperties.value::keyup}}" on-keyup="onKeyUp" placeholder$="[[model.userProperties.placeholder]]" disabled$="[[!isRunning]]">
+        <input id="input" type="text" value="{{model.userProperties.value::keyup}}" on-keyup="onKeyUp" placeholder$="[[model.userProperties.placeholder]]" disabled$="[[!isRunning]]">
     </template>
 </dom-module>
 
@@ -49,6 +49,33 @@
         }
         getPlaceholder () {
             return this.get('model.userProperties.placeholder');
+        }
+        renderOnCanvas (ctx, util) {
+            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                let placeholder = this.model.userProperties.placeholder,
+                    text = this.model.userProperties.value,
+                    input = this.$.input,
+                    width = input.offsetWidth,
+                    height = input.offsetHeight;
+
+                ctx.beginPath();
+                ctx.fillStyle = "#263238";
+                util.roundRect(ctx, 0, 0, width, height, 4, false, true);
+                ctx.fillStyle = "#FFFFFF";
+                util.roundRect(ctx, 0, 0, width, height, 4, true);
+                ctx.textAlign = 'start';
+                ctx.textBaseline = 'middle';
+                ctx.font = `${util.getStyle(input, 'font-size')} ${util.getStyle(input, 'font-family')}`;
+                if (text) {
+                    ctx.fillStyle = "black";
+                    ctx.fillText(text, 12, height / 2);
+                } else if (placeholder) {
+                    ctx.fillStyle = "#dddddd";
+                    ctx.fillText(placeholder, 12, height / 2);
+                }
+                ctx.stroke();
+                ctx.restore();
+            });
         }
     }
     Polymer(KanoUiTextInput);
