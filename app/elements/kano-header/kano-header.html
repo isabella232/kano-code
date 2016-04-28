@@ -42,7 +42,7 @@
         margin: 0 3px;
         vertical-align: middle;
         display: inline-block;
-        width: 110px;
+        width: 12%;
     }
 
     :host nav .logo > a:before {
@@ -59,7 +59,7 @@
     :host nav .nav-menu {
         display: inline-block;
         vertical-align: middle;
-        width: 820px;
+        width: 86%;
         height: 70px;
     }
 
@@ -164,7 +164,6 @@
         left: 17px;
     }
 
-    :host ::content kano-notifications,
     :host ::content kano-notifications img {
         pointer-events: none;
     }
@@ -211,6 +210,20 @@
     :host ::content kano-notifications kano-drop-down .drop-down {
         margin-top: 13px;
     }
+
+    @media screen and (max-width: 999px) {
+        :host nav .logo {
+            display: none;
+        }
+
+        :host .page-width {
+            padding: 0;
+        }
+
+        :host nav .nav-menu {
+            width: 100%;
+        }
+    }
     </style>
     <template>
         <nav>
@@ -237,7 +250,7 @@
                         </li>
                     </ul>
                     <ul class="nav-menu-user-items nav-menu-items">
-                        <li class="menu-item" on-tap="toggleOpen">
+                        <li id="notifications-menu" class="menu-item" on-tap="toggleOpen">
                             <kano-notifications user="{{user}}"></kano-notifications>
                         </li>
                         <li id="avatar-menu" class="menu-item menu-item-avatar" on-tap="toggleOpen">
@@ -286,19 +299,23 @@
             toggleOpen (ev) {
                 let wasOpened,
                     isUserAvatar,
+                    isUserNotif,
                     elem;
 
                 ev.stopPropagation();
 
                 isUserAvatar = ev.target.localName === 'kano-user-avatar';
+                isUserNotif = ev.target.localName === 'kano-notifications';
 
-                elem = isUserAvatar ? document.getElementById('avatar-menu') : ev.target;
+                elem = isUserAvatar
+                    ? document.getElementById('avatar-menu')
+                    : (isUserNotif
+                        ? document.getElementById('notifications-menu')
+                        : ev.target);
 
-                wasOpened = isUserAvatar
-                    ? elem.classList.contains('nav-menu-items__open')
-                    : ev.target.classList.contains('nav-menu-items__open');
+                wasOpened = elem.classList.contains('nav-menu-items__open')
 
-                if (!ev.target.classList.contains('menu-item') && !isUserAvatar) {
+                if (!ev.target.classList.contains('menu-item') && !(isUserAvatar || isUserNotif)) {
                     return;
                 }
 
@@ -307,7 +324,7 @@
                 }
 
                 if (!wasOpened) {
-                    if (isUserAvatar) {
+                    if (isUserAvatar || isUserNotif) {
                         elem.classList.add('nav-menu-items__open');
                     } else {
                         ev.target.classList.add('nav-menu-items__open')
