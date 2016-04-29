@@ -7,12 +7,13 @@
     :host {
         -webkit-font-smoothing: antialiased;
         font-smoothing: antialiased;
+        font-size: 18px;
     }
 
     :host .page-width {
-        max-width: 1000px;
+        max-width: 900px;
         margin: auto;
-        padding: 0 30px;
+        padding: 0 20px;
         box-sizing: border-box;
         -webkit-box-sizing: border-box;
         height: 70px;
@@ -73,15 +74,15 @@
         text-align: center;
         height: 100%;
     }
+
     :host nav .nav-menu ul.nav-menu-items li {
         float: left;
         padding: 0px;
-        height: 67px;
-        width: 130px;
+        height: 69px;
+        width: 143px;
         display: inline-block;
         -webkit-tap-highlight-color: transparent;
         position: relative;
-        height: 100%;
     }
 
     :host nav .nav-menu ul.nav-menu-items li:hover {
@@ -118,6 +119,10 @@
         content: '\e63e'
     }
 
+    :host nav .nav-menu ul.nav-menu-items li .icon-chevron-down2 {
+        vertical-align: middle;
+        margin-left: 7px;
+    }
 
     :host nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-drop-down,
     :host ::content nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-notifications kano-drop-down,
@@ -142,9 +147,43 @@
     }
 
     :host .nav-menu ul.nav-menu-items.nav-menu-user-items li.menu-item {
-        padding: 25px 5px 13px 5px ;
+        padding: 25px 12px 13px 12px;
     }
 
+    @-webkit-keyframes slideInLeft {
+        from {
+            -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0);
+            visibility: visible;
+        }
+
+        to {
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0);
+            visibility: visible;
+        }
+
+        to {
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .slideInLeft {
+        -webkit-animation-name: slideInLeft;
+        animation-name: slideInLeft;
+        -webkit-animation-duration: 0.5s;
+        animation-duration: 0.5s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+    }
 
     :host i {
         pointer-events: none;
@@ -157,7 +196,7 @@
     :host ::content kano-notifications .kano-notifications .drop-down {
         width: 340px;
         right: 285px;
-        top: 16px;
+        top: 10px;
     }
 
     :host ::content kano-notifications .kano-notifications .notch {
@@ -222,6 +261,10 @@
 
         :host nav .nav-menu {
             width: 100%;
+        }
+
+        :host #nav-items {
+            display: block;
         }
     }
 
@@ -303,12 +346,20 @@
             vertical-align: middle;
             cursor: pointer;
         }
+
+        :host nav .nav-menu ul.nav-menu-items li {
+            float: none;
+        }
+
+        :host nav .nav-menu ul.nav-menu-user-items li {
+            float: left;
+        }
     }
     </style>
     <template>
         <nav id="navbar">
             <div class="page-width">
-                <div class="hamburger" on-tap="showMenu">
+                <div class="hamburger slideInLeft" on-tap="showMenu">
                     <img src="../../assets/icons/hamburger.svg" alt="" />
                 </div>
                 <div class="logo">
