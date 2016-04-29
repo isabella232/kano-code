@@ -19,7 +19,7 @@
         right: 0px;
     }
     :host ::content svg {
-        @apply(--kano-dotted-background);
+        @apply(--kano-crossed-background);
     }
     </style>
     <template>
@@ -53,14 +53,11 @@
                 }
             };
         }
-        created () {
-            Blockly.HSV_SATURATION = 0.8;
-            Blockly.HSV_VALUE = 0.8;
-        }
         /**
          * Inject blockly to the workspace div and register the resize event
          */
         attached () {
+            this.visible = false;
             this.workspace = Blockly.inject(this.$.workspace, {
                 toolbox: this.toolboxXml,
                 media: '/assets/vendor/google-blockly/media/'
@@ -68,21 +65,7 @@
             window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.onResize();
-        }
-        // Wrap around the querySelector, and caches the values to
-        // gain performances
-        getToolboxElements () {
-            if (this.toolboxElements) {
-                return this.toolboxElements;
-            }
-            this.toolboxElements = document.querySelectorAll([
-                '.blocklyWidgetDiv',
-                '.blocklyTooltipDiv',
-                '.blocklyToolboxDiv',
-            ].join(','));
-            this.toolboxElements = [].slice.call(this.toolboxElements);
-            this.toolboxDiv = this.toolboxElements[2];
-            return this.toolboxElements;
+            this.fire('blockly-ready');
         }
         detached () {
             this.workspace.dispose();
@@ -96,16 +79,27 @@
         /**
          * Debounce function that will apply style rules to the workspace
          * element to let know Blockly the new dimensions.
-         * It also forces the toolbox to be 50% the width of the workspace
          */
         onResize () {
-            this.debounce('resize', () => {
+            requestAnimationFrame(() => {
+                // Check if the ws is visible
+                if (this.offsetWidth > 0 && this.offsetHeight > 0) {
+                    // The visibilty went from false to true, notify with an event
+                    if (!this.visible) {
+                        this.visible = true;
+                        this.fire('blockly-ready');
+                    } else {
+                        this.visible = true;
+                    }
+                } else {
+                    this.visible = false;
+                }
                 let workspace = this.$.workspace;
                 workspace.style.top = '0px';
                 workspace.style.bottom = '0px';
                 workspace.style.left = '0px';
                 workspace.style.right = '0px';
-            }, 10);
+            });
         }
         /**
          * Takes a categories definition in JSON and generates the XML
@@ -126,8 +120,10 @@
                         return '<sep gap="8"></sep>';
                     }
                     let blocksXml = category.blocks.map((block) => {
-                        let colourAttr = block.colour ? `colour="${block.colour}"` : '';
-                        return `<block type="${block.id}" ${colourAttr}></block>`;
+                        let colourAttr = block.colour ? `colour="${block.colour}"` : '',
+                            shadow = block.shadow || {},
+                            content = Object.keys(shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
+                        return `<block type="${block.id}" ${colourAttr}>${content}</block>`;
                     }).join(''),
                         colour = category.colour;
 
@@ -151,6 +147,9 @@
          * Remove every block in the workspace
          */
         clearWorkspace () {
+            if (!this.workspace) {
+                return;
+            }
             this.workspace.clear();
         }
         /**
@@ -200,7 +199,11 @@
             });
         }
 
-        load (snapshot) {
+        load (snapshot = {}) {
+            // Defer the load until the workspace exists and is visible
+            if (!this.workspace || !this.visible) {
+                return this.addEventListener('blockly-ready', this.load.bind(this, snapshot));
+            }
             let blocks = snapshot.blocks || '<xml></xml>';
             let xml = Blockly.Xml.textToDom(blocks);
             this.clearWorkspace();

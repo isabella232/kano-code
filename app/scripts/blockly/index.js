@@ -2,6 +2,7 @@ import pseudo from './pseudo';
 import operators from './operators';
 import control from './control';
 import variables from './variables';
+import events from './events';
 import background from './background';
 
 /**
@@ -21,16 +22,18 @@ let registered = false,
         control.register(Blockly);
         operators.register(Blockly);
         variables.register(Blockly);
+        events.register(Blockly);
         background.register(Blockly);
         registered = true;
     };
 
-let categories = [
-    control.category,
-    operators.category,
-    variables.category,
-    background.category
-];
+let categories = {
+    control: control.category,
+    operators: operators.category,
+    variables: variables.category,
+    events: events.category,
+    background: background.category
+};
 
 export default {
     register,

@@ -38,6 +38,7 @@
         @apply(--kano-box-shadow);
         min-width: 38%;
         max-width: 62%;
+        background-color: var(--color-dark, black);
     }
     :host #left-panel kano-workspace {
         @apply(--layout-flex);
@@ -69,18 +70,33 @@
         position: relative;
         width: 8px;
         cursor: ew-resize;
-        background-color: #3c3c3c;
+        background-color: #e1e1e1;
     }
-
-    :host #resize::before {
-        content: '';
-        background-color: var(--color-white, white);
-        width: 2px;
-        height: 16px;
+    :host #resize .handle {
         position: absolute;
-        top: calc(50% - 6px);
-        left: calc(50% - 1px);
+        background-color: #404040;
+        width: 16px;
+        height: 38px;
+        border: 2px solid #616161;
+        border-radius: 5px;
+        top: calc(50% - 19px);
+        left: -8px;
+    }
+    :host #resize .handle::before,
+    :host #resize .handle::after {
+        content: '';
+        position: absolute;
+        top: calc(50% - 5px);
+        width: 2px;
         border-radius: 1px;
+        height: 10px;
+        background-color: white;
+    }
+    :host #resize .handle::before {
+        left: 3px;
+    }
+    :host #resize .handle::after {
+        right: 3px;
     }
     :host .root-view-wrapper {
         position: relative;
@@ -114,6 +130,19 @@
         min-width: 300px;
         min-height: 100px;
     }
+    :host .menu {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--kano-icon-button);
+    }
+    :host .menu iron-image {
+        width: 25px;
+        height: 25px;
+    }
 
     </style>
     <template>
@@ -128,21 +157,28 @@
                     <button type="button" class="share-button" on-tap="share" id="share-button">Publish</button>
                     <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
                 </div>
+                <button class="menu"
+                        type="button"
+                        on-tap="toggleMenu">
+                    <iron-image src="/assets/icons/menu.png" sizing="contain"></iron-image>
+                </button>
             </div>
-            <div id="resize" on-mousedown="resizeWorkspace"></div>
+            <div id="resize" on-mousedown="resizeWorkspace">
+                <div class="handle"></div>
+            </div>
             <div name="code" class="editor" id="right-panel">
                 <kano-root-view
                     id="root-view"
                     on-previous="previous"
                     parts="{{addedParts}}"
-                    codes="{{codes}}"
+                    code="{{code}}"
                     default-categories="{{defaultCategories}}"></kano-root-view>
                 <kano-workspace-controls
                     id="workspace-controls"
                     parts="{{addedParts}}"
                     running="{{running}}"
                     selected="{{selected}}"
-                    codes="{{codes}}"
+                    code="{{code}}"
                     deletion-disabled="[[isPartDeletionDisabled(partEditorOpened, backgroundEditorOpened, running)]]"
                     on-part-tap="openPartEditor"
                     on-background-tap="openBackgroundEditor"

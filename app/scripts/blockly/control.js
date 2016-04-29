@@ -1,4 +1,4 @@
-const COLOUR = '#C24242';
+const COLOUR = '#0074cc';
 
 let register = (Blockly) => {
     Blockly.Blocks.loop_forever = {
@@ -144,11 +144,17 @@ let category = {
     name: 'Control',
     colour: COLOUR,
     blocks: [{
-        id: 'repeat_x_times'
+        id: 'repeat_x_times',
+        shadow: {
+            'N': '<shadow type="math_number"><field name="NUM">10</field></shadow>'
+        }
     },{
         id: 'loop_forever'
     },{
-        id: 'every_x_seconds'
+        id: 'every_x_seconds',
+        shadow: {
+            'INTERVAL': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
+        }
     },{
         id: 'controls_if'
     },{

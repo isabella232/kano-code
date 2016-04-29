@@ -21,7 +21,7 @@ class KanoAppEditor {
                 },
                 notify: true
             },
-            codes: {
+            code: {
                 type: Object,
                 notify: true
             },
@@ -45,9 +45,9 @@ class KanoAppEditor {
                 type: Object
             },
             defaultCategories: {
-                type: Array,
+                type: Object,
                 value: () => {
-                    return [];
+                    return {};
                 }
             },
             wsSize: {
@@ -68,6 +68,20 @@ class KanoAppEditor {
             'previous': 'clearEditorStyle'
         };
     }
+    toggleMenu () {
+        this.fire('toggle-menu');
+    }
+    setColorRange (hs, range, items = []) {
+        // Set the increment value, which will decide how much to change the lightness between all colors
+        let increment = range / (items.length + 1);
+        // Grab the HS values from the color map
+        items.forEach((item, i) => {
+            // Calculate the lightness
+            let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
+            // Set the color
+            item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
+        });
+    }
     updateColors () {
         this.debounce('updateColors', () => {
             let range = 33.33,
@@ -81,32 +95,14 @@ class KanoAppEditor {
                     acc[part.partType] = acc[part.partType] || [];
                     acc[part.partType].push(part);
                     return acc;
-                }, {}),
-                partList,
-                increment,
-                HS;
+                }, {});
 
-            grouped.system = this.defaultCategories;
+            grouped.ui = grouped.ui || [];
+            grouped.ui.unshift(this.defaultCategories.background);
 
             Object.keys(grouped).forEach((partType) => {
-                partList = grouped[partType] || [];
-                // Set the increment value, which will decide how much to change the lightness between all colors
-                increment = range / (partList.length + 1);
-                // Grab the HS values from the color map
-                HS = colorMapHS[partType];
-                partList.forEach((part, i) => {
-                    // Calculate the lightness
-                    let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
-                    // Set the color
-                    part.colour = `hsl(${HS[0]}, ${HS[1]}%, ${L}%)`;
-                });
-            });
-
-            // Update the colours
-            this.defaultCategories.forEach((cat) => {
-                cat.blocks.forEach((block) => {
-                    block.colour = cat.colour;
-                });
+                let parts = grouped[partType];
+                this.setColorRange(colorMapHS[partType], range, parts);
             });
         }, 10);
     }
@@ -183,7 +179,7 @@ class KanoAppEditor {
         }, []),
             savedApp = {};
         savedApp.parts = savedParts;
-        savedApp.codes = this.codes;
+        savedApp.code = this.code;
         savedApp.background = this.background;
         if (snapshot) {
             savedApp.snapshot = true;
@@ -203,7 +199,7 @@ class KanoAppEditor {
                 workspaceInfo: JSON.stringify(this.save()),
                 background: backgroundColor,
                 size: this.wsSize,
-                codes: this.codes,
+                code: this.code,
                 parts: this.addedParts
             });
         });
@@ -227,7 +223,7 @@ class KanoAppEditor {
             part = Part.create(savedPart, this.wsSize);
             return part;
         });
-        this.set('codes', savedApp.codes);
+        this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {
