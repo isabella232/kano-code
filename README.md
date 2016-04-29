@@ -15,15 +15,15 @@ bower install
 If it is the first time you use the project, run
 
 ```shell
-gulp build
+npm run build
 ```
 
 It will prepare everything.
 
-Once done, you can start the development gulp task
+Once done, you can start the development task
 
 ```shell
-gulp dev
+npm run dev
 ```
 
 This will watch the files and rebuild when necessary. It also start a web server listening on port 4000
