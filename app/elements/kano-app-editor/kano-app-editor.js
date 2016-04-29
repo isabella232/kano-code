@@ -98,7 +98,9 @@ class KanoAppEditor {
                 }, {});
 
             grouped.ui = grouped.ui || [];
-            grouped.ui.unshift(this.defaultCategories.background);
+            if (this.defaultCategories.background) {
+                grouped.ui.unshift(this.defaultCategories.background);
+            }
 
             Object.keys(grouped).forEach((partType) => {
                 let parts = grouped[partType];
