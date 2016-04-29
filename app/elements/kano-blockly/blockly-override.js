@@ -203,6 +203,7 @@ Blockly.Toolbox.prototype.position = function() {
     }
     treeDiv.style.bottom = '0px';
     treeDiv.style.top = '0px';
+    treeDiv.style.left = '0px';
     treeDiv.style.width = '120px';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {

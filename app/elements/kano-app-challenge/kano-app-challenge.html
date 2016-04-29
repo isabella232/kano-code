@@ -82,8 +82,7 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
-    /* globals KanoBehaviors */
+    /* globals Polymer, KanoBehaviors */
 
     class KanoAppChallenge {
 
@@ -219,6 +218,9 @@
             let pieces,
                 element = this.editor;
             if (typeof selector == 'object') {
+                if (selector.block) {
+                    return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
+                }
                 selector = `${selector.path}.part-${this.stepIds[selector.part]}`;
             }
             pieces = selector.split('.');

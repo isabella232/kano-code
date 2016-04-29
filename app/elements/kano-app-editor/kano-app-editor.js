@@ -420,5 +420,9 @@ class KanoAppEditor {
     clearEditorStyle () {
         this.$['left-panel'].style.maxWidth = '62%';
     }
+
+    getBlocklyWorkspace () {
+        return this.$['root-view'].getBlocklyWorkspace();
+    }
 }
 Polymer(KanoAppEditor);
