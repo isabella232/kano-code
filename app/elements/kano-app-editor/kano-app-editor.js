@@ -327,7 +327,7 @@ class KanoAppEditor {
 
         interact(this.$['left-panel']).dropzone({
             // TODO rename to kano-part-item
-            accept: 'kano-ui-item',
+            accept: 'kano-ui-item:not([instance])',
             ondrop: (e) => {
                 let model = e.relatedTarget.model,
                     part;
@@ -363,6 +363,9 @@ class KanoAppEditor {
      */
     workspaceUiReady (e) {
         let element = e.detail;
+        if (element.instance) {
+            return ;
+        }
         interact(element).draggable({
             onmove: this.getDragMoveListener(true),
             onend: (e) => {
