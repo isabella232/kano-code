@@ -5,9 +5,9 @@
  * method at the moment
  */
 function isPi() {
-    let userAgent = window.navigator.userAgent;
+    var userAgent = window.navigator.userAgent;
 
     return userAgent.indexOf('armv6l') !== -1 || userAgent.indexOf('armv7l') !== -1;
 }
 
-export { isPi };
+window.ClientUtil = window.ClientUtil || { isPi };
