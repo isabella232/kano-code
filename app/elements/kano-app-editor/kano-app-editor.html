@@ -1,5 +1,6 @@
 <script src="../../bower_components/interact/interact.js"></script>
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../kano-sidebar/kano-sidebar.html">
 <link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../kano-workspace/kano-workspace.html">
@@ -49,22 +50,6 @@
     }
     :host kano-root-view {
         @apply(--layout-flex);
-    }
-    :host kano-sidebar {
-        display: flex !important;
-        position: fixed;
-        top: 0px;
-        bottom: 0px;
-        right: 0px;
-        left: 0px;
-        background-color: rgba(0, 0, 0, 0.7);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity linear 200ms;
-    }
-    :host kano-sidebar[hidden] {
-        visibility: hidden;
-        opacity: 0;
     }
     :host #resize {
         position: relative;
@@ -130,6 +115,7 @@
         min-width: 300px;
         min-height: 100px;
     }
+<<<<<<< 3b42aa4f60a1becbff98bec2d7d5d64344db3128
     :host .menu {
         position: absolute;
         top: 10px;
@@ -142,6 +128,38 @@
     :host .menu iron-image {
         width: 25px;
         height: 25px;
+=======
+    :host .parts-toggle {
+        @apply(--layout-horizontal);
+    }
+    :host .parts-toggle button {
+        @apply(--kano-round-button);
+        background: var(--color-green);
+
+        border: 4px solid #57b40c;
+        box-shadow: none;
+        margin: auto 10px;
+    }
+    :host .parts-toggle label {
+        margin: auto 0;
+        display: block;
+        color: #a4a4a4;
+    }
+    :host .parts-toggle button span {
+        font-size: 40px;
+        transform: translate(0px, -9px) rotate(0deg);
+        text-shadow: 1px 1px 0 #57b40c;
+        transition: 0.3s;
+
+        display: block;
+        margin: auto 10px;
+    }
+    :host .parts-toggle.open button span {
+        transform: translate(4px, -8px) rotate(45deg);
+    }
+    :host .parts-toggle.open button {
+        background: var(--color-green);
+>>>>>>> Changing the parts tray into a side bar
     }
 
     </style>
@@ -156,6 +174,12 @@
                 <div class="controls">
                     <button type="button" class="share-button" on-tap="share" id="share-button">Publish</button>
                     <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
+                    <div class$="parts-toggle {{applyOpenClass(partsPanelState)}}">
+                        <label>{{partsMenuLabel(partsPanelState)}}</label>
+                        <button type="button" class="parts-button" on-tap="toggleParts">
+                            <span>+</span>
+                        </button>
+                    </div>
                 </div>
                 <button class="menu"
                         type="button"
@@ -167,13 +191,31 @@
                 <div class="handle"></div>
             </div>
             <div name="code" class="editor" id="right-panel">
-                <kano-root-view
-                    id="root-view"
-                    on-previous="previous"
-                    parts="{{addedParts}}"
-                    code="{{code}}"
-                    default-categories="{{defaultCategories}}"></kano-root-view>
-                <kano-workspace-controls
+                <paper-drawer-panel
+                    id="partsPanel"
+                    force-narrow
+                    disable-edge-swipe
+                    disable-swipe
+                    selected="{{partsPanelState}}"
+                    drawer-width="80%">
+                        <kano-sidebar
+                            id="sidebar"
+                            ui-elements="{{parts}}"
+                            name="parts"
+                            on-done="toggleParts"
+                            parts="[[addedParts]]"
+                            selected="{{selectedParts}}"
+                            drawer
+                            on-ui-ready="onPartReady"></kano-sidebar>
+                        <kano-root-view
+                            id="root-view"
+                            on-previous="previous"
+                            parts="{{addedParts}}"
+                            code="{{code}}"
+                            default-categories="{{defaultCategories}}"
+                            main></kano-root-view>
+                </paper-drawer-panel>
+                <!--<kano-workspace-controls
                     id="workspace-controls"
                     parts="{{addedParts}}"
                     running="{{running}}"
@@ -182,7 +224,7 @@
                     deletion-disabled="[[isPartDeletionDisabled(partEditorOpened, backgroundEditorOpened, running)]]"
                     on-part-tap="openPartEditor"
                     on-background-tap="openBackgroundEditor"
-                    on-add-part-tap="openParts"></kano-workspace-controls>
+                    on-add-part-tap="toggleParts"></kano-workspace-controls>-->
             </div>
         </section>
         <kano-content-tooltip id="part-editor-tooltip"
@@ -201,9 +243,6 @@
             title="Background">
             <kano-background-editor class="tooltip-content" id="background-editor" background="{{background}}" name="background"></kano-background-editor>
         </kano-content-tooltip>
-        <template is="dom-if" if="[[partsOpened]]" restamp>
-            <kano-sidebar id="sidebar" ui-elements="{{parts}}" name="parts" on-done="closeParts" parts="[[addedParts]]"></kano-sidebar>
-        </template>
     </template>
 </dom-module>
 

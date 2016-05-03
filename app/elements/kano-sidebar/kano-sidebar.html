@@ -14,32 +14,39 @@
         display: block;
         position: relative;
         @apply(--layout-vertical);
-        @apply(--layout-center);
         animation: fade-in linear 200ms;
     }
     :host header {
         @apply(--layout-vertical);
         @apply(--layout-center-justified);
-        min-height: 60px;
+        width: 100%;
+        padding: 0 25px;
     }
     :host header h1 {
-        color: var(--color-white, white);
-        font-size: 1.8em;
-        text-align: center;
+        color: #4A4A4A;
+        font-size: 1em;
+        text-align: left;
+        font-weight: 600;
+        margin-bottom: 10px;
+        margin-top: 30px;
     }
     :host kano-ui-list {
         @apply(--layout-flex);
-        padding-top: 15px;
     }
     :host .done-button {
-        @apply(--kano-button-big);
-        background: var(--green-gradient, green);
+        @apply(--kano-button);
+        background: var(--color-orange);
         margin: 15px 0px 15px;
+        border-radius: 3px;
+        font-size: 1em;
+        margin-right: auto;
+        margin-left: 25px;
+        padding: 15px 30px;
     }
     </style>
     <template>
         <header>
-            <h1>Add Parts</h1>
+            <h1>Drag parts to your app</h1>
         </header>
         <kano-ui-list id="parts" items="{{uiElements}}" selected="{{selected}}" parts="{{parts}}"></kano-ui-list>
         <button type="button" class="done-button" on-tap="done" id="done">Done</button>
@@ -58,14 +65,23 @@
                 },
                 parts: {
                     type: Array
+                },
+                selected: {
+                    type: Array,
+                    notify: true
                 }
             };
+        }
+        ready () {
+            this.fire('parts-menu-ready');
         }
         handleTapped () {
             this.fire('close');
         }
         done () {
-            this.fire('done', this.selected);
+            this.fire('done');
+        }
+        clearSelection () {
             this.$.parts.clearSelection();
         }
     }
