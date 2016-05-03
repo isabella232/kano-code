@@ -84,21 +84,16 @@ Blockly.Flyout.prototype.position = function () {
     if (!this.isVisible()) {
         return;
     }
-    console.log(this);
     if (!this.clipPath) {
-        var _svgNS = 'http://www.w3.org/2000/svg';
-        var defs = document.createElementNS(_svgNS, "defs");
-        var rect = document.createElementNS(_svgNS, "rect");
-        rect.setAttributeNS(null, 'x', 0);
-        rect.setAttributeNS(null, 'y', 0);
-        rect.setAttributeNS(null, 'width', 20);
-        rect.setAttributeNS(null, 'height', 20);
-        this.clipPath = document.createElementNS(_svgNS, "clipPath");
+        var defs = document.createElementNS(Blockly.SVG_NS, "defs");
+        var path = document.createElementNS(Blockly.SVG_NS, "path");
+        this.clipPath = document.createElementNS(Blockly.SVG_NS, "clipPath");
         this.clipPath.setAttributeNS(null, 'id', 'flyoutClipPath');
-        this.clipPath.appendChild(rect);
+        this.clipPath.appendChild(path);
+        this.clipPath.path = path;
         defs.appendChild(this.clipPath);
         this.svgGroup_.appendChild(defs);
-        this.svgGroup_.style.clipPath = 'url(#flyoutClipPath)';
+        this.svgGroup_.style.clipPath = 'url(' + location.href + '#flyoutClipPath)';
     }
     var metrics = this.targetWorkspace_.getMetrics();
     var m = this.workspace_.getMetrics();
@@ -127,6 +122,8 @@ Blockly.Flyout.prototype.position = function () {
 
     this.svgGroup_.setAttribute('transform',
         `translate(150, ${Math.max(middle - height / 2, 20)})`);
+
+    this.clipPath.path.setAttributeNS(null, 'd', path.join(' '));
 
     // Record the height for Blockly.Flyout.getMetrics_.
     this.height_ = height;
