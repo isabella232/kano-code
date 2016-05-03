@@ -94,6 +94,7 @@ Blockly.Flyout.prototype.position = function () {
         edgeWidth *= -1;
     }
     var path = ['M ' + (this.RTL ? this.width_ : 0) + ',0'];
+    console.log(metrics);
     path.push('h', edgeWidth);
     path.push('v', Math.max(0, metrics.viewHeight));
     path.push('h', -edgeWidth);
@@ -106,7 +107,7 @@ Blockly.Flyout.prototype.position = function () {
         x -= this.width_;
     }
     this.svgGroup_.setAttribute('transform',
-        'translate(' + x + ',' + metrics.absoluteTop + ')');
+        'translate(160,20)');
 
     // Record the height for Blockly.Flyout.getMetrics_.
     this.height_ = metrics.viewHeight;
@@ -202,8 +203,8 @@ Blockly.Toolbox.prototype.position = function() {
         treeDiv.style.left = svgPosition.x + 'px';
     }
     treeDiv.style.bottom = '0px';
-    treeDiv.style.top = '0px';
-    treeDiv.style.left = '0px';
+    treeDiv.style.top = '20px';
+    treeDiv.style.left = '20px';
     treeDiv.style.width = '120px';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
