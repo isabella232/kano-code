@@ -243,7 +243,12 @@ class KanoAppEditor {
         this.updateColors();
     }
     toggleParts () {
+        let eventName = 'open-parts';
         this.$.partsPanel.togglePanel();
+        if (this.partsPanelState !== 'drawer') {
+            eventName = 'close-parts';
+        }
+        this.notifyChange(eventName);
     }
     panelStateChanged (state) {
         if (state !== 'drawer') { /* When closing the panel */
