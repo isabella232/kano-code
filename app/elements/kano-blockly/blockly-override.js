@@ -423,7 +423,7 @@ Blockly.BlockSvg.NOTCH_WIDTH = 30;
  * Rounded corner radius.
  * @const
  */
-Blockly.BlockSvg.CORNER_RADIUS = 0;
+Blockly.BlockSvg.CORNER_RADIUS = 8;
 /**
  * Do blocks with no previous or output connections have a 'hat' on top?
  * @const
@@ -464,7 +464,7 @@ Blockly.BlockSvg.DISTANCE_45_OUTSIDE = (1 - Math.SQRT1_2) *
 * SVG path for drawing next/previous notch from left to right.
 * @const
 */
-Blockly.BlockSvg.NOTCH_PATH_LEFT = 'l 8,6 8,-6';
+Blockly.BlockSvg.NOTCH_PATH_LEFT = 'h -1 l 8,6 8,-6 h 2';
 
 /**
  * SVG path for drawing next/previous notch from left to right with
@@ -476,7 +476,7 @@ Blockly.BlockSvg.NOTCH_PATH_LEFT_HIGHLIGHT = 'l 8,6 8,-6';
  * SVG path for drawing next/previous notch from right to left.
  * @const
  */
-Blockly.BlockSvg.NOTCH_PATH_RIGHT = 'l -8,6 -8,-6';
+Blockly.BlockSvg.NOTCH_PATH_RIGHT = 'h 1 l -8,6 -8,-6';
 /**
  * SVG path for drawing jagged teeth at the end of collapsed blocks.
  * @const
@@ -510,33 +510,6 @@ Blockly.BlockSvg.TAB_PATH_DOWN_HIGHLIGHT_RTL = 'v 6.5 m -' +
     (Blockly.BlockSvg.TAB_WIDTH * 0.3) + ',9.5 m ' +
     (Blockly.BlockSvg.TAB_WIDTH * 0.67) + ',-1.9 v 1.4';
 
-/**
- * SVG start point for drawing the top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START = 'm 0,0';
-/**
- * SVG start point for drawing the top-left corner's highlight in RTL.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START_HIGHLIGHT_RTL =
-    'm ' + Blockly.BlockSvg.DISTANCE_45_INSIDE + ',' +
-    Blockly.BlockSvg.DISTANCE_45_INSIDE;
-/**
- * SVG start point for drawing the top-left corner's highlight in LTR.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_START_HIGHLIGHT_LTR = 'm 0.5, -0.5';
-/**
- * SVG path for drawing the rounded top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER = '';
-/**
- * SVG path for drawing the highlight on the rounded top-left corner.
- * @const
- */
-Blockly.BlockSvg.TOP_LEFT_CORNER_HIGHLIGHT = '';
 /**
  * SVG path for drawing the top-left corner of a statement input.
  * Includes the top notch, a horizontal space, and the rounded inside corner.
@@ -646,4 +619,115 @@ Blockly.BlockSvg.INNER_BOTTOM_LEFT_CORNER_HIGHLIGHT_LTR =
       Blockly.bindEvent_(this.svgGroup_, 'mouseup', this, this.click);
       this.animateLid_();
       return this.svgGroup_;
+    };
+
+
+
+
+    /**
+     * Encode a block subtree as XML.
+     * @param {!Blockly.Block} block The root block to encode.
+     * @return {!Element} Tree of XML elements.
+     */
+    Blockly.Xml.blockToDom = function(block) {
+      var element = goog.dom.createDom(block.isShadow() ? 'shadow' : 'block');
+      element.setAttribute('type', block.type);
+      element.setAttribute('id', block.id);
+      if (block.getColour()) {
+          element.setAttribute('colour', block.getColour());
+      }
+      if (block.mutationToDom) {
+        // Custom data for an advanced block.
+        var mutation = block.mutationToDom();
+        if (mutation && (mutation.hasChildNodes() || mutation.hasAttributes())) {
+          element.appendChild(mutation);
+        }
+      }
+      function fieldToDom(field) {
+        if (field.name && field.EDITABLE) {
+          var container = goog.dom.createDom('field', null, field.getValue());
+          container.setAttribute('name', field.name);
+          element.appendChild(container);
+        }
+      }
+      for (var i = 0, input; input = block.inputList[i]; i++) {
+        for (var j = 0, field; field = input.fieldRow[j]; j++) {
+          fieldToDom(field);
+        }
+      }
+
+      var commentText = block.getCommentText();
+      if (commentText) {
+        var commentElement = goog.dom.createDom('comment', null, commentText);
+        if (typeof block.comment == 'object') {
+          commentElement.setAttribute('pinned', block.comment.isVisible());
+          var hw = block.comment.getBubbleSize();
+          commentElement.setAttribute('h', hw.height);
+          commentElement.setAttribute('w', hw.width);
+        }
+        element.appendChild(commentElement);
+      }
+
+      if (block.data) {
+        var dataElement = goog.dom.createDom('data', null, block.data);
+        element.appendChild(dataElement);
+      }
+
+      for (var i = 0, input; input = block.inputList[i]; i++) {
+        var container;
+        var empty = true;
+        if (input.type == Blockly.DUMMY_INPUT) {
+          continue;
+        } else {
+          var childBlock = input.connection.targetBlock();
+          if (input.type == Blockly.INPUT_VALUE) {
+            container = goog.dom.createDom('value');
+          } else if (input.type == Blockly.NEXT_STATEMENT) {
+            container = goog.dom.createDom('statement');
+          }
+          var shadow = input.connection.getShadowDom();
+          if (shadow && (!childBlock || !childBlock.isShadow())) {
+            container.appendChild(Blockly.Xml.cloneShadow_(shadow));
+          }
+          if (childBlock) {
+            container.appendChild(Blockly.Xml.blockToDom(childBlock));
+            empty = false;
+          }
+        }
+        container.setAttribute('name', input.name);
+        if (!empty) {
+          element.appendChild(container);
+        }
+      }
+      if (block.inputsInlineDefault != block.inputsInline) {
+        element.setAttribute('inline', block.inputsInline);
+      }
+      if (block.isCollapsed()) {
+        element.setAttribute('collapsed', true);
+      }
+      if (block.disabled) {
+        element.setAttribute('disabled', true);
+      }
+      if (!block.isDeletable() && !block.isShadow()) {
+        element.setAttribute('deletable', false);
+      }
+      if (!block.isMovable() && !block.isShadow()) {
+        element.setAttribute('movable', false);
+      }
+      if (!block.isEditable()) {
+        element.setAttribute('editable', false);
+      }
+
+      var nextBlock = block.getNextBlock();
+      if (nextBlock) {
+        var container = goog.dom.createDom('next', null,
+            Blockly.Xml.blockToDom(nextBlock));
+        element.appendChild(container);
+      }
+      var shadow = block.nextConnection && block.nextConnection.getShadowDom();
+      if (shadow && (!nextBlock || !nextBlock.isShadow())) {
+        container.appendChild(Blockly.Xml.cloneShadow_(shadow));
+      }
+
+      return element;
     };

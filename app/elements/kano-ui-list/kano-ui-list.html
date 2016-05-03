@@ -4,12 +4,24 @@
 <dom-module id="kano-ui-list">
     <style>
     :host {
+        overflow-y: scroll;
+        padding: 0 25px;
+
+        color: #383838;
+    }
+    :host .category {
         display: block;
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
         @apply(--layout-start);
-        @apply(--layout-center-justified);
+        @apply(--layout-start-justified);
         overflow-y: auto;
+    }
+    :host .categoryHead {
+        border-top: 1px solid #979797;
+        text-align: right;
+        padding-top: 5px;
+        font-weight: 600;
     }
     :host kano-ui-item {
         --kano-ui-item-color: var(--color-white, white);
@@ -27,9 +39,20 @@
     </style>
     <template>
         <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
-        <template is="dom-repeat" items="{{items}}" id="partsList">
-            <div class="part">
-                <kano-ui-item model="{{item}}" id$="part-[[item.type]]" on-tap="toggleSelection" selected="[[isPartSelected(item, selected.*)]]" disabled$="[[isHardwareAdded(item)]]"></kano-ui-item>
+        <template is="dom-repeat" items={{categories}} as="cat">
+            <div class="categoryHead">{{cat.title}}</div>
+            <div class="category">
+                <template is="dom-repeat" items="{{items}}" filter="[[cat.partType]]Filter" observe="partType">
+                    <div class="part">
+                        <kano-ui-item
+                            model="{{item}}"
+                            id$="part-[[item.type]]"
+                            on-selected="toggleSelection"
+                            selected="[[isPartSelected(item, selected.*)]]"
+                            disabled$="[[isHardwareAdded(item)]]"
+                            colour="[[cat.colour]]"></kano-ui-item>
+                    </div>
+                </template>
             </div>
         </template>
     </template>
@@ -56,11 +79,39 @@
                 },
                 parts: {
                     type: Array
+                },
+                categories: {
+                    type: Object,
+                    value: [
+                        {
+                            partType: 'ui',
+                            title: 'Interface',
+                            colour: '#7eb081'
+                        },
+                        {
+                            partType: 'data',
+                            title: 'Data',
+                            colour: '#fb5a4c'
+                        },
+                        {
+                            partType: 'hardware',
+                            title: 'Hardware',
+                            colour: '#3ba9d8'
+                        }
+                    ]
                 }
             };
         }
         toggleSelection (e) {
-            let item = this.items[this.$.partsList.indexForElement(e.target)];
+            let itemName = e.detail.name,
+                item;
+
+            for (let i = 0; i < this.items.length; i++) {
+                if (this.items[i].name === name) {
+                    item = this.items[i];
+                    break;
+                }
+            }
             if (this.isHardwareAdded(item)) {
                 return;
             }
@@ -79,6 +130,15 @@
         }
         clearSelection () {
             this.$.selector.clearSelection();
+        }
+        uiFilter (item) {
+            return item.partType === 'ui';
+        }
+        dataFilter (item) {
+            return item.partType === 'data';
+        }
+        hardwareFilter (item) {
+            return item.partType === 'hardware';
         }
     }
     Polymer(KanoUiList);

@@ -21,7 +21,7 @@ class KanoAppEditor {
                 },
                 notify: true
             },
-            codes: {
+            code: {
                 type: Object,
                 notify: true
             },
@@ -45,9 +45,9 @@ class KanoAppEditor {
                 type: Object
             },
             defaultCategories: {
-                type: Array,
+                type: Object,
                 value: () => {
-                    return [];
+                    return {};
                 }
             },
             wsSize: {
@@ -56,17 +56,38 @@ class KanoAppEditor {
             isResizing: {
                 type: Boolean,
                 value: false
+            },
+            partsPanelState: {
+                type: String
+            },
+            selectedParts: {
+                type: Array
             }
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
             'selectedPartChanged(selected.*)',
             'backgroundChanged(background.*)',
-            'updateColors(addedParts.splices)'
+            'updateColors(addedParts.splices)',
+            'panelStateChanged(partsPanelState)'
         ];
         this.listeners = {
             'previous': 'clearEditorStyle'
         };
+    }
+    toggleMenu () {
+        this.fire('toggle-menu');
+    }
+    setColorRange (hs, range, items = []) {
+        // Set the increment value, which will decide how much to change the lightness between all colors
+        let increment = range / (items.length + 1);
+        // Grab the HS values from the color map
+        items.forEach((item, i) => {
+            // Calculate the lightness
+            let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
+            // Set the color
+            item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
+        });
     }
     updateColors () {
         this.debounce('updateColors', () => {
@@ -81,32 +102,14 @@ class KanoAppEditor {
                     acc[part.partType] = acc[part.partType] || [];
                     acc[part.partType].push(part);
                     return acc;
-                }, {}),
-                partList,
-                increment,
-                HS;
+                }, {});
 
-            grouped.system = this.defaultCategories;
+            grouped.ui = grouped.ui || [];
+            grouped.ui.unshift(this.defaultCategories.background);
 
             Object.keys(grouped).forEach((partType) => {
-                partList = grouped[partType] || [];
-                // Set the increment value, which will decide how much to change the lightness between all colors
-                increment = range / (partList.length + 1);
-                // Grab the HS values from the color map
-                HS = colorMapHS[partType];
-                partList.forEach((part, i) => {
-                    // Calculate the lightness
-                    let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
-                    // Set the color
-                    part.colour = `hsl(${HS[0]}, ${HS[1]}%, ${L}%)`;
-                });
-            });
-
-            // Update the colours
-            this.defaultCategories.forEach((cat) => {
-                cat.blocks.forEach((block) => {
-                    block.colour = cat.colour;
-                });
+                let parts = grouped[partType];
+                this.setColorRange(colorMapHS[partType], range, parts);
             });
         }, 10);
     }
@@ -183,7 +186,7 @@ class KanoAppEditor {
         }, []),
             savedApp = {};
         savedApp.parts = savedParts;
-        savedApp.codes = this.codes;
+        savedApp.code = this.code;
         savedApp.background = this.background;
         if (snapshot) {
             savedApp.snapshot = true;
@@ -203,7 +206,7 @@ class KanoAppEditor {
                 workspaceInfo: JSON.stringify(this.save()),
                 background: backgroundColor,
                 size: this.wsSize,
-                codes: this.codes,
+                code: this.code,
                 parts: this.addedParts
             });
         });
@@ -227,7 +230,7 @@ class KanoAppEditor {
             part = Part.create(savedPart, this.wsSize);
             return part;
         });
-        this.set('codes', savedApp.codes);
+        this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
         if (savedApp.snapshot) {
@@ -237,26 +240,81 @@ class KanoAppEditor {
         }
         this.updateColors();
     }
-    openParts () {
-        this.partsOpened = true;
+    toggleParts () {
+        this.$.partsPanel.togglePanel();
     }
-    closeParts (e) {
-        let parts = e.detail;
-        this.partsOpened = false;
-        if (!Array.isArray(parts)) {
-            return;
+    panelStateChanged (state) {
+        if (state !== 'drawer') { /* When closing the panel */
+            if (!Array.isArray(this.selectedParts)) {
+                return;
+            }
+
+            for (let i = 0; i < this.selectedParts.length; i++) {
+                let model = this.selectedParts[i],
+                    part = Part.create(model, this.wsSize);
+                this.push('addedParts', part);
+                this.notifyChange('add-part', { part });
+            }
+            this.$.sidebar.clearSelection();
         }
-        parts.forEach((model) => {
-            let part = Part.create(model, this.wsSize);
-            this.push('addedParts', part);
-            this.notifyChange('add-part', { part });
+    }
+    onPartReady (e) {
+        let clone;
+        interact(e.detail).draggable({
+            onmove: (event) => {
+                let target = event.target,
+                    // keep the dragged position in the data-x/data-y attributes
+                    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                // translate the element
+                target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+
+                // update the posiion attributes
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            },
+            restrict: {
+                restriction: this.$.section
+            },
+            onend: () => {
+                this.$.section.removeChild(clone);
+            }
+        }).on('move', (event) => {
+            let interaction = event.interaction;
+
+            // if the pointer was moved while being held down
+            // and an interaction hasn't started yet
+            if (interaction.pointerIsDown && !interaction.interacting()) {
+                let original = event.currentTarget,
+                    rect = original.getBoundingClientRect(),
+                    style;
+
+                // create a clone of the currentTarget element
+                clone = Polymer.dom(original).cloneNode(true);
+                style = clone.style;
+                clone.model = original.model;
+                style.position = 'absolute';
+                style.top = `${rect.top}px`;
+                style.left = `${rect.left}px`;
+                style.zIndex = 11;
+
+                // insert the clone to the page
+                this.$.section.appendChild(clone);
+
+                // start a drag interaction targeting the clone
+                interaction.start({ name: 'drag' },
+                                    event.interactable,
+                                    clone);
+            }
         });
     }
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
     }
     attached () {
-        this.partsOpened = false;
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;
@@ -266,6 +324,22 @@ class KanoAppEditor {
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
         window.addEventListener('resize', this.onWindowResize.bind(this));
         this.onWindowResize();
+
+        interact(this.$['left-panel']).dropzone({
+            // TODO rename to kano-part-item
+            accept: 'kano-ui-item',
+            ondrop: (e) => {
+                let model = e.relatedTarget.model,
+                    part;
+                model.position = null;
+                part = Part.create(model, this.wsSize);
+                this.push('addedParts', part);
+                this.fire('change', {
+                    type: 'add-part',
+                    part
+                });
+            }
+        });
     }
     onWindowResize () {
         let rect = this.$['left-panel'].getBoundingClientRect(),
@@ -299,7 +373,7 @@ class KanoAppEditor {
                 });
             },
             restrict: {
-                restriction: this.$.workspace.getViewport(),
+                restriction: this.$['left-panel'],
                 elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
             }
         });
@@ -423,6 +497,14 @@ class KanoAppEditor {
 
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
+    }
+    
+    partsMenuLabel () {
+        return this.partsPanelState === 'drawer' ? 'Close' : 'Add';
+    }
+
+    applyOpenClass () {
+        return this.partsPanelState === 'drawer' ? 'open' : '';
     }
 }
 Polymer(KanoAppEditor);

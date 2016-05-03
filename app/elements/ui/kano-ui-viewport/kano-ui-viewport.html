@@ -54,9 +54,12 @@ the content out of proportions to make it fit inside the available space.
         #view {
             position: absolute;
             transform-origin: 0 0 0;
-            overflow: hidden;
             background-color: transparent;
             @apply(--kano-ui-viewport);
+        }
+
+        :host([no-overflow]) #view {
+            overflow: hidden;
         }
 
         .debug {
@@ -109,7 +112,7 @@ the content out of proportions to make it fit inside the available space.
         }
 
         resizeView () {
-            this.debounce('resizeView', () => {
+            requestAnimationFrame(() => {
                 switch (this.mode) {
                     case "responsive":
                         this.resize();
@@ -123,7 +126,7 @@ the content out of proportions to make it fit inside the available space.
                     default:
                         console.log('Mode "' + this.mode + '" not supported.');
                 }
-            }, 10);
+            });
         }
 
         resize () {

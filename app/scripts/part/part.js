@@ -1,3 +1,4 @@
+/* globals Blockly */
 import slug from 'speakingurl';
 
 export default class Part {

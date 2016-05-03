@@ -18,7 +18,6 @@ es6Assign.polyfill();
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    app.defaultCategories = [];
     app.registerBlockly = (Blockly) => {
         let mod;
         // Register default blockly modules
@@ -38,7 +37,7 @@ es6Assign.polyfill();
     app.modelManager = ModelManager;
     app.dragAndDrop = DragAndDrop;
 
-    app.defaultCategories = app.defaultCategories.concat(blockly.categories);
+    app.defaultCategories = blockly.categories;
 
     app.sdk = KanoWorldSdk(config);
     app.sdk.registerForms();
