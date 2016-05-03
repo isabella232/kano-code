@@ -106,7 +106,7 @@
                 }
             };
             this.observers = [
-                'computeContainerStyle(colour, selected, instance, model.*)'
+                'computeContainerStyle(selected, instance, model.*, colour)'
             ];
         }
         attached () {
@@ -116,7 +116,6 @@
             return this.model.name || this.model.label;
         }
         computeContainerStyle (selected, instance) {
-            console.log(selected, this.colour);
             let colour = this.colour;
             this.debounce('computeContainerStyle', () => {
                 this.containerStyle = `background-color: ${colour};
