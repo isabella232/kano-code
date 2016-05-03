@@ -78,11 +78,25 @@
             }
             path = e.path;
             if (path === 'parts.splices') {
-                let splices = e.value.keySplices;
-                splices.forEach((splice) => {
-                    splice.added.forEach(this.insertPart.bind(this));
-                    splice.removed.forEach(this.removePart.bind(this));
-                });
+                let keySplices = e.value.keySplices,
+                    indexSplices = e.value.indexSplices;
+                if (keySplices) {
+                    keySplices.forEach((splice) => {
+                        splice.added.forEach(this.insertPart.bind(this));
+                        splice.removed.forEach(this.removePart.bind(this));
+                    });
+                } else {
+                    if (indexSplices) {
+                        indexSplices.forEach((idxSplice)=> {
+                            for (let  i = 0; i < idxSplice.addedCount; i++) {
+                                this.insertPart.bind(this)(`#${idxSplice.index + i}`);
+                            }
+                            //TODO: I'm not quite certain about the format of removals
+                            // Add them when we can test them
+                        });
+                    }
+                }
+
             } else if (path === 'parts') {
                 if (this.elements) {
                     // Clean the dropzone
@@ -92,7 +106,7 @@
                 this.parts.forEach((model, index) => {
                     this.insertPart(`#${index}`);
                 });
-            } else if (path === 'parts.length'){
+            } else if (path === 'parts.length') {
                 return;
             } else {
                 let pieces = path.split('.'),

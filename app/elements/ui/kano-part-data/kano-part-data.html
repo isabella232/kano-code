@@ -5,7 +5,14 @@
     }
     </style>
     <template>
-
+        <div class="part">
+            <kano-data-visualizer for="[[model.id]]" buffer-length="100"></kano-data-visualizer>
+            <kano-ui-item model="[[model]]"
+                on-tap="partTapped"
+                size="50"
+                id$="part-[[model.id]]"
+                instance></kano-ui-item>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -19,11 +26,6 @@
 
         beforeRegister () {
             this.is = 'kano-part-data';
-            this.properties = {
-                model: {
-                    type: Object
-                }
-            };
         }
         start () {
             let model = this.model;
@@ -50,6 +52,7 @@
         getData () {
             return this.get('model.data');
         }
+        partTapped () {}
     }
     Polymer(KanoPartData);
 </script>
