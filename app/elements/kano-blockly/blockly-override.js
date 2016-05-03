@@ -94,9 +94,8 @@ Blockly.Flyout.prototype.position = function () {
         edgeWidth *= -1;
     }
     var path = ['M ' + (this.RTL ? this.width_ : 0) + ',0'];
-    console.log(metrics);
     path.push('h', edgeWidth);
-    path.push('v', Math.max(0, metrics.viewHeight));
+    path.push('v', Math.max(0, metrics.viewHeight - 40));
     path.push('h', -edgeWidth);
     path.push('z');
     this.svgBackground_.setAttribute('d', path.join(' '));
@@ -107,7 +106,7 @@ Blockly.Flyout.prototype.position = function () {
         x -= this.width_;
     }
     this.svgGroup_.setAttribute('transform',
-        'translate(160,20)');
+        'translate(150,20)');
 
     // Record the height for Blockly.Flyout.getMetrics_.
     this.height_ = metrics.viewHeight;
@@ -115,13 +114,6 @@ Blockly.Flyout.prototype.position = function () {
     // Update the scrollbar (if one exists).
     if (this.scrollbar_) {
         this.scrollbar_.resize();
-    }
-    var button = this.buttons_[0];
-    if (button) {
-        var colour = button.parentNode
-            .querySelector('.blocklyDraggable>.blocklyPath')
-            .getAttribute('fill');
-        this.svgBackground_.style.fill = lightenColor(colour, 0.5);
     }
 };
 
@@ -202,7 +194,6 @@ Blockly.Toolbox.prototype.position = function() {
     } else {
         treeDiv.style.left = svgPosition.x + 'px';
     }
-    treeDiv.style.bottom = '0px';
     treeDiv.style.top = '20px';
     treeDiv.style.left = '20px';
     treeDiv.style.width = '120px';
@@ -216,9 +207,22 @@ Blockly.Toolbox.prototype.position = function() {
 Blockly.Toolbox.prototype.addColour_ = function(opt_tree) {
     var tree = opt_tree || this.tree_;
     var children = tree.getChildren();
+    var next, previous;
     for (var i = 0, child; child = children[i]; i++) {
         var element = child.getRowElement();
         if (element) {
+            if (element.classList.contains('blocklyTreeRow')) {
+                next = element.parentNode.nextSibling;
+                previous = element.parentNode.previousSibling;
+                if (!next || next.querySelector('.blocklyTreeSeparator')) {
+                    element.style.borderBottomLeftRadius = '8px';
+                    element.style.borderBottomRightRadius = '8px';
+                }
+                if (!previous || previous.querySelector('.blocklyTreeSeparator')) {
+                    element.style.borderTopLeftRadius = '8px';
+                    element.style.borderTopRightRadius = '8px';
+                }
+            }
             element.style.background = (child.hexColour || '#ddd');
         }
         this.addColour_(child);
@@ -279,14 +283,14 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     }
     if (node) {
         rowElement = node.getRowElement();
+        console.log(rowElement);
         hexColour = node.hexColour || '#57e';
         containerRect = toolbox.HtmlDiv.getBoundingClientRect();
         rect = rowElement.getBoundingClientRect();
         rowElement.style.background = hexColour;
         rowElement.className += ' selected';
         triangle.style.display = 'block';
-        triangle.style.top = `${rect.top - containerRect.top - 8 + (rect.height / 2)}px`;
-        triangle.style.borderLeftColor = hexColour;
+        triangle.style.top = `${rect.top - containerRect.top - 6 + (rect.height / 2) + 20}px`;
 
         // Add colours to child nodes which may have been collapsed and thus
         // not rendered.
