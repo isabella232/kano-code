@@ -295,7 +295,7 @@ class KanoAppEditor {
                 });
             },
             restrict: {
-                restriction: this.$.workspace.getViewport(),
+                restriction: this.$['left-panel'],
                 elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
             }
         });
