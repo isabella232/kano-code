@@ -37,21 +37,14 @@
         margin: 10px;
     }
     :host label {
-        margin-top: 10px;
-        font-size: 1.2em;
+        margin-top: 5px;
+        font-size: 1em;
         text-align: center;
-        color: var(--kano-ui-item-color, black);
-    }
-    /* Smartphones (portrait and landscape) ----------- */
-    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
-        :host iron-image {
-            width: 40px;
-            height: 40px;
-        }
+        color: #4A4A4A;
     }
     </style>
     <template>
-        <div class="container">
+        <div class="container" on-tap="handleSelect">
             <div class="img-container" style$="[[containerStyle]]">
                 <iron-image src="{{model.image}}"
                             preload
@@ -93,7 +86,7 @@
                 },
                 size: {
                     type: Number,
-                    value: 140
+                    value: 42
                 },
                 selected: {
                     type: Boolean,
@@ -106,10 +99,14 @@
                 disabled: {
                     type: Boolean,
                     value: false
+                },
+                colour: {
+                    type: String,
+                    value: null
                 }
             };
             this.observers = [
-                'computeContainerStyle(selected, instance, model.*)'
+                'computeContainerStyle(selected, instance, model.*, colour)'
             ];
         }
         attached () {
@@ -119,14 +116,11 @@
             return this.model.name || this.model.label;
         }
         computeContainerStyle (selected, instance) {
+            let colour = this.colour;
             this.debounce('computeContainerStyle', () => {
-                let colour = instance ? this.model.colour : DEFAULT_SELECTED_COLOUR,
-                    ringColour = instance && !selected ? this.model.colour : DEFAULT_RING_COLOUR;
-                colour = selected ? colour : DEFAULT_BACKGROUND;
                 this.containerStyle = `background-color: ${colour};
                                         width: ${this.size + IMAGE_PADDING}px;
-                                        height: ${this.size + IMAGE_PADDING}px;
-                                        box-shadow: inset 0 0 0 ${this.size * 0.08}px ${ringColour};`;
+                                        height: ${this.size + IMAGE_PADDING}px;`;
             }, 10);
         }
         computeLabelStyle (selected) {
@@ -135,6 +129,9 @@
             }
             let colour = selected ? DEFAULT_SELECTED_COLOUR : '';
             return `color: ${colour};`;
+        }
+        handleSelect () {
+            this.fire('selected', this.model);
         }
     }
     Polymer(KanoUiItem);

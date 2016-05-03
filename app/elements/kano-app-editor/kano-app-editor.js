@@ -56,13 +56,20 @@ class KanoAppEditor {
             isResizing: {
                 type: Boolean,
                 value: false
+            },
+            partsPanelState: {
+                type: String
+            },
+            selectedParts: {
+                type: Array
             }
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
             'selectedPartChanged(selected.*)',
             'backgroundChanged(background.*)',
-            'updateColors(addedParts.splices)'
+            'updateColors(addedParts.splices)',
+            'panelStateChanged(partsPanelState)'
         ];
         this.listeners = {
             'previous': 'clearEditorStyle'
@@ -233,26 +240,81 @@ class KanoAppEditor {
         }
         this.updateColors();
     }
-    openParts () {
-        this.partsOpened = true;
+    toggleParts () {
+        this.$.partsPanel.togglePanel();
     }
-    closeParts (e) {
-        let parts = e.detail;
-        this.partsOpened = false;
-        if (!Array.isArray(parts)) {
-            return;
+    panelStateChanged (state) {
+        if (state !== 'drawer') { /* When closing the panel */
+            if (!Array.isArray(this.selectedParts)) {
+                return;
+            }
+
+            for (let i = 0; i < this.selectedParts.length; i++) {
+                let model = this.selectedParts[i],
+                    part = Part.create(model, this.wsSize);
+                this.push('addedParts', part);
+                this.notifyChange('add-part', { part });
+            }
+            this.$.sidebar.clearSelection();
         }
-        parts.forEach((model) => {
-            let part = Part.create(model, this.wsSize);
-            this.push('addedParts', part);
-            this.notifyChange('add-part', { part });
+    }
+    onPartReady (e) {
+        let clone;
+        interact(e.detail).draggable({
+            onmove: (event) => {
+                let target = event.target,
+                    // keep the dragged position in the data-x/data-y attributes
+                    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                // translate the element
+                target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+
+                // update the posiion attributes
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            },
+            restrict: {
+                restriction: this.$.section
+            },
+            onend: () => {
+                this.$.section.removeChild(clone);
+            }
+        }).on('move', (event) => {
+            let interaction = event.interaction;
+
+            // if the pointer was moved while being held down
+            // and an interaction hasn't started yet
+            if (interaction.pointerIsDown && !interaction.interacting()) {
+                let original = event.currentTarget,
+                    rect = original.getBoundingClientRect(),
+                    style;
+
+                // create a clone of the currentTarget element
+                clone = Polymer.dom(original).cloneNode(true);
+                style = clone.style;
+                clone.model = original.model;
+                style.position = 'absolute';
+                style.top = `${rect.top}px`;
+                style.left = `${rect.left}px`;
+                style.zIndex = 11;
+
+                // insert the clone to the page
+                this.$.section.appendChild(clone);
+
+                // start a drag interaction targeting the clone
+                interaction.start({ name: 'drag' },
+                                    event.interactable,
+                                    clone);
+            }
         });
     }
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
     }
     attached () {
-        this.partsOpened = false;
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;
@@ -262,6 +324,22 @@ class KanoAppEditor {
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
         window.addEventListener('resize', this.onWindowResize.bind(this));
         this.onWindowResize();
+
+        interact(this.$['left-panel']).dropzone({
+            // TODO rename to kano-part-item
+            accept: 'kano-ui-item',
+            ondrop: (e) => {
+                let model = e.relatedTarget.model,
+                    part;
+                model.position = null;
+                part = Part.create(model, this.wsSize);
+                this.push('addedParts', part);
+                this.fire('change', {
+                    type: 'add-part',
+                    part
+                });
+            }
+        });
     }
     onWindowResize () {
         let rect = this.$['left-panel'].getBoundingClientRect(),
@@ -415,6 +493,14 @@ class KanoAppEditor {
      */
     clearEditorStyle () {
         this.$['left-panel'].style.maxWidth = '62%';
+    }
+
+    partsMenuLabel () {
+        return this.partsPanelState === 'drawer' ? 'Close' : 'Add';
+    }
+
+    applyOpenClass () {
+        return this.partsPanelState === 'drawer' ? 'open' : '';
     }
 }
 Polymer(KanoAppEditor);
