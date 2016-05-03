@@ -4,7 +4,7 @@
  * A small module containing utilities to work with the DOM
  */
 
-const VENDOR_PREFIXES = [ '', '-ms-', '-webkit-', '-moz-', '-o-' ];
+var VENDOR_PREFIXES = [ '', '-ms-', '-webkit-', '-moz-', '-o-' ];
 
 /*
  * Returns true if element has given className
@@ -146,4 +146,4 @@ function click(element, x = 0, y = 0, mouseDownOnly = false) {
     }
 }
 
-export { hasClass, toggleClass, addClass, removeClass, isIn, addVendorProperty, removeVendorProperty, click };
+window.DOMUtil = window.DOMUtil || { hasClass, toggleClass, addClass, removeClass, isIn, addVendorProperty, removeVendorProperty, click };

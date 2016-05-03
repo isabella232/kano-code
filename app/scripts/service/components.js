@@ -133,7 +133,8 @@ class ComponentStore {
                 <template>
                     <kano-ui-viewport mode="scaled"
                                 view-width="${workspaceRect.width}"
-                                view-height="${workspaceRect.height}">
+                                view-height="${workspaceRect.height}"
+                                no-overflow>
                         ${template}
                     </kano-ui-viewport>
                 </template>
