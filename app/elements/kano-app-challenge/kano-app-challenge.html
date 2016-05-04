@@ -78,6 +78,7 @@
                 <button type="button" on-tap="nextStep">Next</button>
             </div>
         </paper-dialog>
+        <kano-challenge-progress step=[[step_number]] steps=[[steps.length]] ></kano-challenge-progress>
     </template>
 </dom-module>
 
@@ -139,6 +140,7 @@
         }
         attached () {
             this.isAttached = true;
+            this.step_number = 0;
             this.fire('attached');
         }
         computeTooltips (step) {
@@ -211,6 +213,7 @@
                 if (step.modal) {
                     this.modal.open();
                 }
+                this.step_number += 1;
                 this.computeTooltips(step);
                 this.computeArrow(step);
             }, 10);
