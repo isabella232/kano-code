@@ -36,7 +36,7 @@
                     view-height="[[size.height]]"
                     class="content"
                     id="content">
-            <div id="dropzone"></div>
+            <div id="dropzone" on-tap="onTap"></div>
         </kano-ui-viewport>
     </template>
 </dom-module>
@@ -70,6 +70,11 @@
         }
         ready () {
             this.elements = {};
+        }
+        onTap (e) {
+            if (e.target.id === 'dropzone') {
+                this.fire('edit-background');
+            }
         }
         partsChanged (e) {
             let path;
