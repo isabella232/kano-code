@@ -185,6 +185,12 @@
             transition: all ease-in-out 200ms;
         }
     }
+    :host .drawer {
+        @apply(--layout-vertical);
+    };
+    :host .drawer > * {
+        @apply(--layout-flex);
+    };
 
     </style>
     <template>
@@ -226,16 +232,27 @@
                     disable-swipe
                     selected="{{partsPanelState}}"
                     drawer-width="80%">
-                        <kano-sidebar
-                            id="sidebar"
-                            class="animatable"
-                            ui-elements="{{parts}}"
-                            name="parts"
-                            on-done="toggleParts"
-                            parts="[[addedParts]]"
-                            selected="{{selectedParts}}"
-                            drawer
-                            on-ui-ready="onPartReady"></kano-sidebar>
+                        <iron-pages class="drawer" drawer selected="{{drawerPage}}"
+                                attr-for-selected="id">
+                            <kano-sidebar
+                                id="sidebar"
+                                class="animatable"
+                                ui-elements="{{parts}}"
+                                name="parts"
+                                on-done="toggleParts"
+                                parts="[[addedParts]]"
+                                selected="{{selectedParts}}"
+                                on-ui-ready="onPartReady"></kano-sidebar>
+                            <kano-part-editor
+                                selected="{{selected}}"
+                                class="tooltip-content"
+                                id="part-editor"></kano-part-editor>
+                            <kano-background-editor
+                                class="tooltip-content"
+                                id="background-editor"
+                                background="{{background}}"
+                                name="background"></kano-background-editor>
+                        </iron-pages>
                         <kano-root-view
                             id="root-view"
                             on-previous="previous"
@@ -253,7 +270,7 @@
             on-close="closePartEditor"
             colour="[[selected.colour]]"
             title="[[selected.name]]">
-            <kano-part-editor selected="{{selected}}" class="tooltip-content" id="part-editor"></kano-part-editor>
+
         </kano-content-tooltip>
         <kano-content-tooltip id="background-editor-tooltip"
             target="[[backgroundEditorTarget]]"
@@ -261,7 +278,6 @@
             on-close="closeBackgroundEditor"
             colour="orange"
             title="Background">
-            <kano-background-editor class="tooltip-content" id="background-editor" background="{{background}}" name="background"></kano-background-editor>
         </kano-content-tooltip>
     </template>
 </dom-module>

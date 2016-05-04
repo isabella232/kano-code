@@ -63,7 +63,11 @@ class KanoAppEditor {
             selectedParts: {
                 type: Array
             },
-            showShareButton: Boolean
+            showShareButton: Boolean,
+            drawerPage: {
+                type: String,
+                value: 'sidebar'
+            }
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
