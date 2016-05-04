@@ -33,6 +33,14 @@ window.KanoBehaviors.UIBehavior = {
     observers: [
         'applyTransform(model.*)'
     ],
+    listeners: {
+        'tap': 'onTap'
+    },
+    onTap () {
+        if (!this.isRunning) {
+            this.fire('part-tapped', this);
+        }
+    },
     attached () {
         this.fire('ui-ready', this);
         if (this.autoStart) {

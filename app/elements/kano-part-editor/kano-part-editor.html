@@ -18,12 +18,27 @@
         height: 100%;
         @apply(--layout-flex);
     }
+    :host button {
+        @apply(--kano-button-big);
+        background-color: var(--color-red);
+    }
+    :host .head h2 {
+        margin-left: 15px;
+        margin-right: 15px;
+        text-overflow: ellipsis;
+        color: white;
+        font-weight: 400;
+    }
     </style>
     <template>
+        <div class="head" style="background: {{selected.colour}}">
+            <h2>{{selected.name}}</h2>
+        </div>
         <iron-pages selected="[[selected.partType]]" attr-for-selected="name">
             <kano-ui-editor id="ui-editor" selected="{{selected}}" name="ui"></kano-ui-editor>
             <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
         </iron-pages>
+        <button type="button" on-tap="deletePart">Remove part</button>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -60,6 +75,9 @@
                 return;
             }
             uiEditor.showPage(page);
+        }
+        deletePart () {
+            this.fire('delete-part', this.selected);
         }
     }
     Polymer(KanoPartEditor);

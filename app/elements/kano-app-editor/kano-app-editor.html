@@ -185,6 +185,12 @@
             transition: all ease-in-out 200ms;
         }
     }
+    :host .drawer {
+        @apply(--layout-vertical);
+    };
+    :host .drawer > * {
+        @apply(--layout-flex);
+    };
 
     </style>
     <template>
@@ -192,11 +198,13 @@
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
+                                on-part-tapped="onSelectPart"
+                                on-edit-background="onEditBackground"
                                 parts="{{addedParts}}"
                                 selected="{{selected}}"
                                 running="{{running}}"></kano-workspace>
-                <div class$="parts-toggle {{applyOpenClass(partsPanelState)}}">
-                    <label>{{partsMenuLabel(partsPanelState)}}</label>
+                <div class$="parts-toggle {{applyOpenClass(partsPanelState, drawerPage)}}">
+                    <label>{{partsMenuLabel(partsPanelState, drawerPage)}}</label>
                     <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
                         <span>+</span>
                     </button>
@@ -219,23 +227,34 @@
                 <div class="handle"></div>
             </div>
             <div name="code" class="editor" id="right-panel">
+                <array-selector id="selector" items="{{addedParts}}" selected="{{selected}}"></array-selector>
                 <paper-drawer-panel
                     id="partsPanel"
                     force-narrow
                     disable-edge-swipe
                     disable-swipe
                     selected="{{partsPanelState}}"
-                    drawer-width="80%">
-                        <kano-sidebar
-                            id="sidebar"
-                            class="animatable"
-                            ui-elements="{{parts}}"
-                            name="parts"
-                            on-done="toggleParts"
-                            parts="[[addedParts]]"
-                            selected="{{selectedParts}}"
-                            drawer
-                            on-ui-ready="onPartReady"></kano-sidebar>
+                    drawer-width="{{drawerWidth}}">
+                        <iron-pages id="drawer" class="drawer animatable" drawer selected="{{drawerPage}}"
+                                attr-for-selected="id">
+                            <kano-sidebar
+                                id="sidebar"
+                                ui-elements="{{parts}}"
+                                name="parts"
+                                on-done="toggleParts"
+                                parts="[[addedParts]]"
+                                on-ui-ready="onPartReady"></kano-sidebar>
+                            <kano-part-editor
+                                selected="{{selected}}"
+                                class="tooltip-content"
+                                id="part-editor"
+                                on-delete-part="deletePart"></kano-part-editor>
+                            <kano-background-editor
+                                class="tooltip-content"
+                                id="background-editor"
+                                background="{{background}}"
+                                name="background"></kano-background-editor>
+                        </iron-pages>
                         <kano-root-view
                             id="root-view"
                             on-previous="previous"
@@ -253,7 +272,7 @@
             on-close="closePartEditor"
             colour="[[selected.colour]]"
             title="[[selected.name]]">
-            <kano-part-editor selected="{{selected}}" class="tooltip-content" id="part-editor"></kano-part-editor>
+
         </kano-content-tooltip>
         <kano-content-tooltip id="background-editor-tooltip"
             target="[[backgroundEditorTarget]]"
@@ -261,7 +280,6 @@
             on-close="closeBackgroundEditor"
             colour="orange"
             title="Background">
-            <kano-background-editor class="tooltip-content" id="background-editor" background="{{background}}" name="background"></kano-background-editor>
         </kano-content-tooltip>
     </template>
 </dom-module>
