@@ -79,7 +79,9 @@
     <template>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
-        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]"></kano-arrow>
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]">
+            <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
+        </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
             <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">
                 <div class="tooltip-content">
@@ -181,7 +183,7 @@
         computeArrow (step) {
             let source, target;
             if (!step.arrow) {
-                return this.set('arrow', null);
+                return this.$.arrow.hide();
             }
             source = this.getDeepElement(step.arrow.source);
             target = this.getDeepElement(step.arrow.target);
@@ -189,7 +191,8 @@
             target = target.getBoundingClientRect();
             this.set('arrow', {
                 source,
-                target
+                target,
+                size: step.arrow.size || 70
             });
         }
         stepChanged () {
@@ -241,16 +244,20 @@
         }
         getDeepElement (selector) {
             let pieces,
-                element = this.editor;
+                element = this.editor,
+                partId,
+                piece;
             if (typeof selector == 'object') {
                 if (selector.block) {
                     return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
                 }
-                selector = `${selector.path}.part-${this.stepIds[selector.part]}`;
+                partId = this.stepIds[selector.part];
+                selector = `${selector.path}.part-${partId},${partId}`;
             }
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
-                element = element.$$(`#${pieces[i]}`);
+                piece = pieces[i].split(',').join(',#');
+                element = element.$$(`#${piece}`);
             }
             return element;
         }

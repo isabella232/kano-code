@@ -1,0 +1,118 @@
+<script src="../../scripts/util/dom.js"></script>
+<dom-module id="kano-arrow">
+    <style>
+    :host {
+        display: inline-block;
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        left: 0px;
+        bottom: 0px;
+        pointer-events: none;
+        visibility: hidden;
+    }
+    :host .line {
+        stroke: black;
+        stroke-width: 3;
+        fill: transparent;
+    }
+    </style>
+    <template>
+        <content id="content" select=".arrow-image"></content>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, DOMUtil */
+
+    class KanoArrow {
+        beforeRegister () {
+            this.is = 'kano-arrow';
+            this.properties = {
+                source: {
+                    type: Object
+                },
+                target: {
+                    type: Object
+                },
+                path: {
+                    type: String,
+                    value: ''
+                }
+            };
+            this.observers = [
+                'updatePosition(target.*, source.*)'
+            ];
+        }
+        ready () {
+            this.arrowImage = Polymer.dom(this.$.content).getDistributedNodes()[0];
+            window.addEventListener('resize', this.updatePosition.bind(this));
+        }
+        detached () {
+            window.removeEventListener('resize', this.updatePosition.bind(this));
+        }
+        hide () {
+            this.style.display = 'none';
+        }
+        updatePosition () {
+            if (!this.arrowImage) {
+                return;
+            }
+            this.debounce('updatePosition', () => {
+                let target = this.target,
+                    source = this.source,
+                    arrowStyle = this.arrowImage.style,
+                    angle,
+                    dist,
+                    offsetX, offsetY,
+                    x1, x2, y1, y2, x, y;
+
+                if (!target || !source) {
+                    return this.hide();
+                }
+                this.style.display = 'block';
+                x1 = source.left + source.width / 2;
+                y1 = source.top + source.height / 2;
+                x2 = target.left + target.width / 2;
+                y2 = target.top + target.height / 2;
+
+                x = x1 + ((x2 - x1) / 2);
+                y = y1 + ((y2 - y1) / 2);
+
+                x -= this.arrowImage.offsetWidth / 2;
+                y -= this.arrowImage.offsetHeight / 2;
+
+                angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
+
+                dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+                offsetX = Math.cos(angle) * (dist * 0.2);
+                offsetY = Math.sin(angle) * (dist * 0.2);
+
+                arrowStyle.position = 'fixed';
+                arrowStyle.left = `${x}px`;
+                arrowStyle.top = `${y}px`;
+
+                DOMUtil.addVendorProperty(this.arrowImage, 'transform-origin', `50% 50%`);
+                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `rotate(${angle}rad)`);
+                this.style.visibility = 'visible';
+
+                if (this.noAnimations || this.alreadyAnimated) {
+                    return;
+                }
+                arrowStyle.transition = 'none';
+                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `translate(${offsetX}px, ${offsetY}px) rotate(${angle}rad)`);
+                arrowStyle.opacity = '0';
+
+                this.getBoundingClientRect();
+                // Animate for 500ms on the whole distance, compute the real animation time over the portion of the distance
+                arrowStyle.transition = `all cubic-bezier(0.2, 0, 0.13, 1.5) ${500 / dist * (dist * 0.2)}ms`;
+                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `rotate(${angle}rad)`);
+                arrowStyle.opacity = '1';
+                this.alreadyAnimated = true;
+
+            }, 10);
+        }
+    }
+    Polymer(KanoArrow);
+</script>

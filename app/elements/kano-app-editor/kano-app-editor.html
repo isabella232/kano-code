@@ -4,13 +4,12 @@
 <link rel="import" href="../kano-sidebar/kano-sidebar.html">
 <link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../kano-workspace/kano-workspace.html">
-<link rel="import" href="../kano-event-select/kano-event-select.html">
-<link rel="import" href="../kano-workspace-controls/kano-workspace-controls.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
 <link rel="import" href="../kano-part-editor/kano-part-editor.html">
 <link rel="import" href="../kano-content-tooltip/kano-content-tooltip.html">
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
 <link rel="import" href="../kano-root-view/kano-root-view.html">
+<link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-app-editor">
@@ -44,9 +43,6 @@
     :host #left-panel kano-workspace {
         @apply(--layout-flex);
         padding: 10px;
-    }
-    :host .ui-edition kano-workspace-controls {
-        min-height: 200px;
     }
     :host kano-root-view {
         @apply(--layout-flex);
@@ -88,32 +84,20 @@
         @apply(--layout-vertical);
         @apply(--layout-flex);
     }
-    :host .controls {
-        margin: 20px 0px 20px;
-        @apply(--layout-horizontal);
-        @apply(--layout-around-justified);
-        width: 100%;
-
-    }
-    :host .controls button {
-        @apply(--kano-button-big);
-        @apply(--kano-box-shadow);
-    }
     :host .share-button {
-        background: var(--blue-gradient, blue);
-    }
-    :host .make-button {
-        background: var(--color-orange, orange);
-    }
-    :host .make-button-running {
-        background: var(--color-red, orange);
-    }
-    :host kano-content-tooltip {
-        @apply(--shadow-elevation-16dp);
+        font-size: 18px;
+        font-family: Bariol;
+        text-transform: uppercase;
+        background-color: var(--color-orange, orange);
+        color: white;
+        padding: 12px 30px;
         position: absolute;
-        top: 70px;
-        min-width: 300px;
-        min-height: 100px;
+        top: 20px;
+        right: 20px;
+        border: 0px;
+        border-radius: 4px;
+        text-shadow: 0px 1px rgba(0, 0, 0, 0.25);
+        cursor: pointer;
     }
     :host .menu {
         position: absolute;
@@ -123,21 +107,17 @@
         @apply(--layout-center);
         @apply(--layout-center-justified);
         @apply(--kano-icon-button);
+        cursor: pointer;
     }
     :host .menu iron-image {
         width: 25px;
         height: 25px;
     }
     :host .parts-toggle {
+        position: absolute;
         @apply(--layout-horizontal);
-    }
-    :host .parts-toggle button {
-        @apply(--kano-round-button);
-        background: var(--color-green);
-
-        border: 4px solid #57b40c;
-        box-shadow: none;
-        margin: auto 10px;
+        right: 20px;
+        bottom: 20px;
     }
     :host .parts-toggle label {
         margin: auto 0;
@@ -145,8 +125,8 @@
         color: #a4a4a4;
     }
     :host .parts-toggle button span {
-        font-size: 40px;
-        transform: translate(0px, -9px) rotate(0deg);
+        font-size: 60px;
+        transform: translate(0px, -8px) rotate(0deg);
         text-shadow: 1px 1px 0 #57b40c;
         transition: 0.3s;
 
@@ -154,10 +134,56 @@
         margin: auto 10px;
     }
     :host .parts-toggle.open button span {
-        transform: translate(4px, -8px) rotate(45deg);
+        transform: translate(6px, -6px) rotate(45deg);
     }
     :host .parts-toggle.open button {
         background: var(--color-green);
+    }
+    :host .make-button,
+    :host .parts-toggle button {
+        @apply(--kano-round-button);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        box-shadow: none;
+        margin: auto 10px;
+        width: 70px;
+        height: 70px;
+    }
+    :host .parts-toggle button {
+        background: var(--color-green);
+        border: 4px solid #57b40c;
+    }
+    :host .make-button.stopped {
+        border: 4px solid #fb592b;
+        background: #fc823f;
+    }
+    :host .make-button.running {
+        border: 4px solid #e63533;
+        background: var(--color-red, red);
+    }
+    :host .make-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+
+    :host .make-button kano-animated-svg {
+        width: 32px;
+        height: 32px;
+        -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        --kano-animated-path: {
+            fill: white;
+            stroke: white;
+            stroke-width: 7px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all ease-in-out 200ms;
+        }
     }
 
     </style>
@@ -169,21 +195,24 @@
                                 parts="{{addedParts}}"
                                 selected="{{selected}}"
                                 running="{{running}}"></kano-workspace>
-                <div class="controls">
-                    <button type="button" class="share-button" on-tap="share" id="share-button">Publish</button>
-                    <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
-                    <div class$="parts-toggle {{applyOpenClass(partsPanelState)}}">
-                        <label>{{partsMenuLabel(partsPanelState)}}</label>
-                        <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
-                            <span>+</span>
-                        </button>
-                    </div>
+                <div class$="parts-toggle {{applyOpenClass(partsPanelState)}}">
+                    <label>{{partsMenuLabel(partsPanelState)}}</label>
+                    <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
+                        <span>+</span>
+                    </button>
                 </div>
                 <button class="menu"
                         type="button"
                         on-tap="toggleMenu"
                         id="toggle-menu-button">
                     <iron-image src="/assets/icons/menu.png" sizing="contain"></iron-image>
+                </button>
+                <button type="button"
+                    class$="make-button {{getMakeButtonClass(running)}}"
+                    on-tap="toggleRunning"
+                    id="make-button">
+                    <kano-animated-svg width="32" height="32" paths="[[makeButtonIconPaths]]" selected="{{getMakeButtonClass(running)}}">
+                    </kano-animated-svg>
                 </button>
             </div>
             <div id="resize" on-mousedown="resizeWorkspace">
@@ -215,6 +244,7 @@
                             default-categories="{{defaultCategories}}"
                             main></kano-root-view>
                 </paper-drawer-panel>
+                <button type="button" class="share-button" on-tap="share" id="share-button" hidden$="[[!showShareButton]]">Share App</button>
             </div>
         </section>
         <kano-content-tooltip id="part-editor-tooltip"

@@ -62,7 +62,8 @@ class KanoAppEditor {
             },
             selectedParts: {
                 type: Array
-            }
+            },
+            showShareButton: Boolean
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
@@ -326,6 +327,12 @@ class KanoAppEditor {
         this.$.sidebar.removeEventListener('transitionend', this.panelStateChanged);
         window.removeEventListener('resize', this.onWindowResize);
     }
+    ready () {
+        this.makeButtonIconPaths = {
+            stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
+            running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+        };
+    }
     attached () {
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
@@ -438,10 +445,10 @@ class KanoAppEditor {
 
     getMakeButtonClass () {
         if (this.running) {
-            return 'make-button-running';
+            return 'running';
         }
 
-        return 'make-button';
+        return 'stopped';
     }
 
     getMakeButtonLabel () {
