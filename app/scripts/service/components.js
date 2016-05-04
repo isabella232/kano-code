@@ -42,7 +42,8 @@ class ComponentStore {
         });
     }
     generateCode (code = {}) {
-        return code.snapshot.javascript;
+        code.snapshot = code.snapshot || {};
+        return code.snapshot.javascript || '';
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
