@@ -250,36 +250,18 @@ class KanoAppEditor {
         }
         this.updateColors();
     }
-    panelStateChanged (state) {
-        if (state !== 'drawer') { /* When closing the panel */
-            if (this.drawerPage === 'sidebar') {
-                if (!Array.isArray(this.selectedParts)) {
-                    return;
-                }
-
-                for (let i = 0; i < this.selectedParts.length; i++) {
-                    let model = this.selectedParts[i],
-                        part = Part.create(model, this.wsSize);
-                    this.push('addedParts', part);
-                    this.notifyChange('add-part', { part });
-                }
-                this.$.sidebar.clearSelection();
-            }
-        }
+    panelStateChanged () {
+        let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState !== 'drawer';
+        this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
     }
     toggleParts () {
-        let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState === 'drawer';
-        this.$.selector.clearSelection();
-
-        if (isClosing) {
+        if (this.drawerPage === 'sidebar' && this.partsPanelState === 'drawer') {
             this.$.partsPanel.closeDrawer();
         } else {
             this.drawerPage = 'sidebar';
             this.drawerWidth = '80%';
             this.$.partsPanel.openDrawer();
         }
-
-        this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
     }
     onSelectPart (e) {
         let model = e.detail.model;
@@ -375,7 +357,7 @@ class KanoAppEditor {
         window.dispatchEvent(new Event('resize'));
     }
     bindEvents () {
-        let sidebar = this.$.sidebar;
+        let sidebar = this.$.drawer;
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
         this.panelStateChanged = this.panelStateChanged.bind(this);
