@@ -354,11 +354,13 @@ You can display tooltips on the screen that points to a UI element using the `to
 
 If the `next_button` key is set, a `Next` button will be added at the end of the tooltip and will go to the next step when clicked on. When using this key, no need to specify a validation
 
+>>>>>>> b2e719eb83bf3b00af55db9f8190e6d554052b8c
 ### Location
 
 You can define the target of the tooltip using the `location` key.
 
 To target a part of the UI use the dotted notation e.g. `sidebar.parts.part-iss`.
+
 Each name in the chain is the id of an element on the screen.
 
 To target a dynamically created part during the story, define the path and part using an object with `path` and `part` keys e.g.

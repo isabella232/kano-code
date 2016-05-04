@@ -505,6 +505,10 @@ class KanoAppEditor {
         this.$['left-panel'].style.maxWidth = '62%';
     }
 
+    getBlocklyWorkspace () {
+        return this.$['root-view'].getBlocklyWorkspace();
+    }
+    
     partsMenuLabel () {
         return this.partsPanelState === 'drawer' ? 'Close' : 'Add';
     }
