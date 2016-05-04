@@ -9,6 +9,8 @@ The order and metadata of each scenes are defines in the `index.json` file. Here
 ```js
 {
     "id": "my_story", // Defines the id of the story
+    "name": "My Story", // Defines the name of the story
+    "next": "next_story_id", //(Optional) sets the id of the next challenge
     "description": "", // Optional description (not implemented yet)
     // list of scenes. Will be displayed in that order
     "scenes": [{

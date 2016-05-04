@@ -93,7 +93,7 @@
                 <button type="button" on-tap="nextStep">Next</button>
             </div>
         </paper-dialog>
-        <kano-challenge-progress step=[[step_number]] steps=[[steps.length]] ></kano-challenge-progress>
+        <kano-challenge-progress progress=[[progress]] title="[[storyName]]" next-challenge="[[nextStory]]"></kano-challenge-progress>
     </template>
 </dom-module>
 
@@ -118,6 +118,12 @@
                 },
                 arrow: {
                     type: Object
+                },
+                storyName: {
+                    type: String
+                },
+                nextStory: {
+                    type: String
                 }
             };
             this.observers = [
@@ -155,6 +161,7 @@
         attached () {
             this.isAttached = true;
             this.step_number = 0;
+            this.progress = 0;
             this.fire('attached');
         }
         computeTooltips (step) {
@@ -228,6 +235,7 @@
                     this.modal.open();
                 }
                 this.step_number += 1;
+                this.progress = parseInt(this.step_number) / parseInt(this.steps.length);
                 this.computeTooltips(step);
                 this.computeArrow(step);
             }, 10);
