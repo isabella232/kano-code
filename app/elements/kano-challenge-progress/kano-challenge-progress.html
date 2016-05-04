@@ -1,0 +1,254 @@
+<!--
+
+## kano-challenge-progress component usage
+
+The component is responsible for showing the progress of the user during
+a challenge and to link the user to the next challenge.
+
+The component takes as input attributes:
+  title: the title of the challenge/story you are displaying
+  progress: the progress [0-1] of the user
+  remix-mode (optional): it enables the sharing behavior
+  next-challenge (optional): id of the next challenge
+
+As an example, if the component needs to be used for displaying a remixed
+challenge whose title is "button-press-onator" and the progress is defined
+by a `progress` variable, this would be
+
+<kano-challenge-progress progress=[[progress]] title="button-press-onator" remix-mode next-challenge-url="/story/weather"></kano-challenge-progress>
+
+In this example we also assume that the next challenge URL is `/story/weather`
+-->
+
+<script src="../../bower_components/progressbar.js/dist/progressbar.min.js" charset="utf-8"></script>
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="kano-challenge-progress">
+    <style>
+        :host {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+        }
+
+        :host #circular_progress {
+            display: inline-block;;
+            width: 50px;
+            stroke-linecap: round;
+            z-index: 1;
+        }
+
+        :host #circular_progress {
+            background: var(--color-orange);
+            padding: 8px;
+            border-radius: 100px;
+        }
+
+        :host .title {
+            background: var(--color-orange);
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            font-size: 15px;
+            padding: 0 30px;
+            margin-top: 5px;
+            margin-left: -15px;
+            border-radius: 5px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        :host .title p {
+            margin: 0;
+            color: white;
+            padding: 0;
+        }
+
+        :host .progress {
+            display: flex;
+        }
+
+        :host .actions {
+            background: var(--color-dark-orange);
+            display: flex;;
+            width: 85%;
+            margin-right: 0;
+            margin-top: -28px;
+            border-radius: 5px;
+            flex-direction: column;
+            margin-left: auto;
+        }
+
+        :host .actions .empty-space {
+            height: 30px;
+        }
+
+        :host .actions a {
+            display: block;
+            color: white;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        :host .actions .separator {
+            background: var(--color-darker-orange);
+            border-radius: 5px;
+            height: 1px;
+            width: 80%;
+            margin: auto;
+        }
+
+        :host #challenge-completed {
+            border-radius: 5px;
+        }
+
+        :host #challenge-completed .buttons button {
+            @apply(--kano-button);
+            border-radius: 5px;
+            margin: 0 10px;
+            min-height: 45px;
+            font-weight: bold;
+        }
+
+        :host #challenge-completed .buttons .remix {
+            background: var(--color-orange);
+        }
+
+        :host #challenge-completed .buttons .share {
+            background: var(--color-kw-blue);
+        }
+
+        :host #challenge-completed .buttons .next-challenge {
+            background: var(--color-green);
+        }
+
+        :host #challenge-completed h2 {
+            color: var(--color-green);
+        }
+
+        :host .vertical-aligned {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+    </style>
+    <template>
+         <div class="progress">
+           <div id="circular_progress"></div>
+           <div class="title">
+              <p>{{title}}</p>
+           </div>
+         </div>
+         <template is="dom-if" if="{{remixMode}}">
+            <div class="actions">
+              <div class="empty-space"></div>
+              <template is="dom-if" if="{{nextChallenge}}">
+                  <a on-tap="goToNextChallenge"> NEXT CHALLENGE </a>
+                  <div class="separator"></div>
+              </template>
+              <a on-tap="shareApp"> SHARE APP </a>
+            </div>
+         </template>
+         <paper-dialog id="challenge-completed" with-backdrop>
+            <div class="dialog pure-g">
+              <div class="pure-u-1 pure-u-md-1-2 vertical-aligned">
+                <div class="p-box">
+                  <h2>High five!</h2>
+                  <p> You have completed the {{title}} challenge </p>
+                </div>
+              </div>
+              <div class="pure-u-1 pure-u-md-1-2 vertical-aligned">
+                <div class="p-box">
+                  <div class="buttons">
+                      <button class="share" on-tap="shareApp">SHARE</button>
+                      <button class="remix" on-tap="goToRemixChallenge">REMIX</button>
+                      <template is="dom-if" if="{{nextChallenge}}">
+                          <button class="next-challenge" on-tap="goToNextChallenge">NEXT CHALLENGE</button>
+                      </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+         </paper-dialog>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer */
+    class KanoChallengeProgress {
+        beforeRegister () {
+            this.is = 'kano-challenge-progress';
+            this.properties = {
+                progress: {
+                    type: Number,
+                    value: 0,
+                    observer: 'progressChanged'
+                },
+                color: {
+                    type: String,
+                    value: '#ffffff'
+                },
+                title: {
+                    type: String,
+                    value: ''
+                },
+                remixMode: {
+                    type: Boolean,
+                    value: false
+                },
+                nextChallenge: {
+                    type: String,
+                    value: ''
+                }
+            }
+
+            this.observers = [
+              'flushContainer(color)'
+            ]
+
+        }
+
+        flushContainer (color) {
+            this.element = new ProgressBar.Circle(this.$.circular_progress, {
+                color: color,
+                strokeWidth: 12
+            });
+        }
+
+        progressChanged (newValue, oldValue) {
+            if (this.element) {
+                this.animate(newValue)
+            };
+
+            if (this.progress === 1) {
+                //challenge completed
+                this.$['challenge-completed'].open();
+            }
+        }
+
+        animate () {
+            if (this.element) {
+                this.element.animate.apply(this.element, arguments);
+            }
+        }
+
+        goToNextChallenge () {
+            if (this.nextChallenge) {
+                window.location.href = '/story/' + this.nextChallenge;
+            }
+        }
+
+        shareApp () {
+            this.fire('shareApp');
+        }
+
+        goToRemixChallenge () {
+            console.log('goToRemixChallenge');
+        }
+
+    }
+
+    Polymer(KanoChallengeProgress);
+</script>

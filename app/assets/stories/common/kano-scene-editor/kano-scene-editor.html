@@ -16,7 +16,9 @@
                             steps="[[scene.steps]]"
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
-                            on-load="loadApp">
+                            on-load="loadApp"
+                            story-name="[[storyName]]"
+                            next-story="[[nextStory]]">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*)]]"
                             default-categories="[[computeCategories(scene.*)]]"
@@ -48,6 +50,9 @@
 
         attached () {
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
+            document.addEventListener('shareApp', (e) => {
+                this.$['editor'].share();
+            })
         }
 
         computeParts () {
