@@ -174,14 +174,15 @@
                     <button type="button" class$="{{getMakeButtonClass(running)}}" on-tap="toggleRunning" id="make-button">{{getMakeButtonLabel(running)}}</button>
                     <div class$="parts-toggle {{applyOpenClass(partsPanelState)}}">
                         <label>{{partsMenuLabel(partsPanelState)}}</label>
-                        <button type="button" class="parts-button" on-tap="toggleParts">
+                        <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
                             <span>+</span>
                         </button>
                     </div>
                 </div>
                 <button class="menu"
                         type="button"
-                        on-tap="toggleMenu">
+                        on-tap="toggleMenu"
+                        id="toggle-menu-button">
                     <iron-image src="/assets/icons/menu.png" sizing="contain"></iron-image>
                 </button>
             </div>
@@ -213,16 +214,6 @@
                             default-categories="{{defaultCategories}}"
                             main></kano-root-view>
                 </paper-drawer-panel>
-                <!--<kano-workspace-controls
-                    id="workspace-controls"
-                    parts="{{addedParts}}"
-                    running="{{running}}"
-                    selected="{{selected}}"
-                    code="{{code}}"
-                    deletion-disabled="[[isPartDeletionDisabled(partEditorOpened, backgroundEditorOpened, running)]]"
-                    on-part-tap="openPartEditor"
-                    on-background-tap="openBackgroundEditor"
-                    on-add-part-tap="toggleParts"></kano-workspace-controls>-->
             </div>
         </section>
         <kano-content-tooltip id="part-editor-tooltip"

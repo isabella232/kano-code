@@ -105,7 +105,9 @@ class KanoAppEditor {
                 }, {});
 
             grouped.ui = grouped.ui || [];
-            grouped.ui.unshift(this.defaultCategories.background);
+            if (this.defaultCategories.background) {
+                grouped.ui.unshift(this.defaultCategories.background);
+            }
 
             Object.keys(grouped).forEach((partType) => {
                 let parts = grouped[partType];
@@ -241,7 +243,12 @@ class KanoAppEditor {
         this.updateColors();
     }
     toggleParts () {
+        let eventName = 'open-parts';
         this.$.partsPanel.togglePanel();
+        if (this.partsPanelState !== 'drawer') {
+            eventName = 'close-parts';
+        }
+        this.notifyChange(eventName);
     }
     panelStateChanged (state) {
         if (state !== 'drawer') { /* When closing the panel */
@@ -327,7 +334,7 @@ class KanoAppEditor {
 
         interact(this.$['left-panel']).dropzone({
             // TODO rename to kano-part-item
-            accept: 'kano-ui-item',
+            accept: 'kano-ui-item:not([instance])',
             ondrop: (e) => {
                 let model = e.relatedTarget.model,
                     part;
@@ -363,6 +370,9 @@ class KanoAppEditor {
      */
     workspaceUiReady (e) {
         let element = e.detail;
+        if (element.instance) {
+            return ;
+        }
         interact(element).draggable({
             onmove: this.getDragMoveListener(true),
             onend: (e) => {

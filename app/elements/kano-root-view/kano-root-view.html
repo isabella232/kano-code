@@ -187,9 +187,11 @@
                 toolbox = Object.keys(this.defaultCategories).filter(id => id !== 'background').map(id => this.defaultCategories[id]);
 
                 toolbox = toolbox
-                    .concat({ type: 'separator' })
-                    .concat(this.defaultCategories.background)
-                    .concat(categories);
+                    .concat({ type: 'separator' });
+                if (this.defaultCategories.background) {
+                    toolbox.push(this.defaultCategories.background);
+                }
+                toolbox = toolbox.concat(categories);
                 this.set('toolbox', toolbox);
                 if (!this.toolboxReady) {
                     // I spent too many hours trying to figure out how to know when the blockly container got its
