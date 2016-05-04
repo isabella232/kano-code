@@ -116,6 +116,10 @@ In this example we also assume that the next challenge URL is `/story/weather`
             background: var(--color-orange);
         }
 
+        :host #challenge-completed .buttons .share {
+            background: var(--color-kw-blue);
+        }
+
         :host #challenge-completed .buttons .next-challenge {
             background: var(--color-green);
         }
@@ -158,6 +162,7 @@ In this example we also assume that the next challenge URL is `/story/weather`
               <div class="pure-u-1 pure-u-md-1-2 vertical-aligned">
                 <div class="p-box">
                   <div class="buttons">
+                      <button class="share" on-tap="shareApp">SHARE</button>
                       <button class="remix" on-tap="goToRemixChallenge">REMIX</button>
                       <template is="dom-if" if="{{nextChallenge}}">
                           <button class="next-challenge" on-tap="goToNextChallenge">NEXT CHALLENGE</button>
@@ -239,13 +244,14 @@ In this example we also assume that the next challenge URL is `/story/weather`
             }
         }
 
-        shareApp (e) {
-            console.log('shareApp', e);
+        shareApp () {
+            this.fire('shareApp');
         }
 
         goToRemixChallenge () {
             console.log('goToRemixChallenge');
         }
+
     }
 
     Polymer(KanoChallengeProgress);
