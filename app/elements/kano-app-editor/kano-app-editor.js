@@ -67,6 +67,10 @@ class KanoAppEditor {
             drawerPage: {
                 type: String,
                 value: 'sidebar'
+            },
+            drawerWidth: {
+                type: String,
+                value: '80%'
             }
         };
         this.observers = [
@@ -246,15 +250,73 @@ class KanoAppEditor {
         }
         this.updateColors();
     }
-    toggleParts () {
-        this.$.partsPanel.togglePanel();
-    }
-    panelStateChanged () {
-        let eventName = 'open-parts';
-        if (this.partsPanelState !== 'drawer') { /* When closing the panel */
-            eventName = 'close-parts';
+    panelStateChanged (state) {
+        if (state !== 'drawer') { /* When closing the panel */
+            if (this.drawerPage === 'sidebar') {
+                if (!Array.isArray(this.selectedParts)) {
+                    return;
+                }
+
+                for (let i = 0; i < this.selectedParts.length; i++) {
+                    let model = this.selectedParts[i],
+                        part = Part.create(model, this.wsSize);
+                    this.push('addedParts', part);
+                    this.notifyChange('add-part', { part });
+                }
+                this.$.sidebar.clearSelection();
+            }
         }
-        this.notifyChange(eventName);
+    }
+    toggleParts () {
+        let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState === 'drawer';
+        this.$.selector.clearSelection();
+
+        if (isClosing) {
+            this.$.partsPanel.closeDrawer();
+        } else {
+            this.drawerPage = 'sidebar';
+            this.drawerWidth = '80%';
+            this.$.partsPanel.openDrawer();
+        }
+
+        this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
+    }
+    onSelectPart (e) {
+        let model = e.detail.model;
+
+        if (this.partsPanelState === 'drawer' && this.selected && model.id === this.selected.id) {
+            this.$.partsPanel.closeDrawer();
+            return;
+        }
+
+        for (let i = 0; i <= this.addedParts.length; i++) {
+            let part = this.addedParts[i];
+            if (model.id === part.id) {
+                this.$.selector.select(part);
+                this.drawerPage = 'part-editor';
+                this.drawerWidth = '256px';
+                this.$.partsPanel.openDrawer();
+                return;
+            }
+        }
+
+        console.log("Selected unknown part");
+    }
+    onEditBackground () {
+        this.$.selector.clearSelection();
+        if (this.partsPanelState === 'drawer' && this.drawerPage === 'background-editor') {
+            this.$.partsPanel.closeDrawer();
+        } else {
+            this.drawerPage = 'background-editor';
+            this.drawerWidth = '256px';
+            this.$.partsPanel.openDrawer();
+        }
+    }
+    deletePart (e) {
+        let index = this.addedParts.indexOf(e.detail);
+        this.splice('addedParts', index, 1);
+        this.$.selector.clearSelection();
+        this.$.partsPanel.closeDrawer();
     }
     onPartReady (e) {
         let clone;
@@ -525,11 +587,11 @@ class KanoAppEditor {
     }
 
     partsMenuLabel () {
-        return this.partsPanelState === 'drawer' ? 'Close' : 'Add';
+        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'Close' : 'Add';
     }
 
     applyOpenClass () {
-        return this.partsPanelState === 'drawer' ? 'open' : '';
+        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'open' : '';
     }
 }
 Polymer(KanoAppEditor);
