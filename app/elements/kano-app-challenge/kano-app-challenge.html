@@ -79,7 +79,7 @@
     <template>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
-        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]">
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" id="arrow">
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
@@ -183,7 +183,7 @@
         computeArrow (step) {
             let source, target;
             if (!step.arrow) {
-                return this.$.arrow.hide();
+                return this.set('arrow', {});
             }
             source = this.getDeepElement(step.arrow.source);
             target = this.getDeepElement(step.arrow.target);
