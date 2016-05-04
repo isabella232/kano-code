@@ -55,7 +55,12 @@
         }
 
         computeCategories () {
-            return app.defaultCategories.filter(category => this.scene.modules.indexOf(category.name) !== -1);
+            let cats = {};
+            this.scene.modules.forEach(id => {
+                cats[id] = app.defaultCategories[id];
+            });
+            cats.events = app.defaultCategories.events;
+            return cats;
         }
 
         runningChanged () {

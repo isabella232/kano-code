@@ -21,7 +21,8 @@
     }
     :host .tooltip {
         @apply(--shadow-elevation-6dp);
-        background-color: var(--kano-tooltip-color, white);
+        @apply(--kano-tooltip);
+        background-color: var(--kano-tooltip-background-color, white);
         border-radius: 4px;
         padding: 10px;
     }
@@ -29,35 +30,62 @@
         animation: none;
         transition: none;
     }
-    :host .tooltip:before {
+    :host .tooltip .caret:after {
         content: '';
+        @apply(--shadow-elevation-6dp);
+        @apply(--kano-tooltip);
+        @apply(--kano-tooltip-caret);
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background-color: transparent;
+        transform: rotate(45deg);
+        z-index: -1;
+    }
+    :host([position="top"]) .tooltip .caret:after {
+        top: -19px;
+        left: -7px;
+    }
+    :host([position="left"]) .tooltip .caret:after {
+        top: -7px;
+        left: -19px;
+    }
+    :host([position="right"]) .tooltip .caret:after {
+        top: -7px;
+        left: 3px;
+    }
+    :host([position="bottom"]) .tooltip .caret:after {
+        left: -7px;
+        top: 3px;
+    }
+    :host .tooltip .caret {
         position: absolute;
         border: 10px solid transparent;
     }
-    :host .tooltip.top:before,
-    :host .tooltip.bottom:before {
+    :host .tooltip.top .caret,
+    :host .tooltip.bottom .caret {
         margin-left: -10px;
         left: 50%;
     }
-    :host .tooltip.right:before,
-    :host .tooltip.left:before {
+    :host .tooltip.right .caret,
+    :host .tooltip.left .caret {
         margin-top: -10px;
         top: 50%;
     }
-    :host .tooltip.top:before {
-        border-top-color: var(--kano-tooltip-color, white);
+    :host .tooltip.top .caret {
+        border-top-color: var(--kano-tooltip-background-color, white);
         top: 100%;
     }
-    :host .tooltip.bottom:before {
-        border-bottom-color: var(--kano-tooltip-color, white);
+    :host .tooltip.bottom .caret {
+        border-bottom-color: var(--kano-tooltip-background-color, white);
         bottom: 100%;
     }
-    :host .tooltip.right:before {
-        border-right-color: var(--kano-tooltip-color, white);
+    :host .tooltip.right .caret {
+        border-right-color: var(--kano-tooltip-background-color, white);
         left: -20px;
     }
-    :host .tooltip.left:before {
-        border-left-color: var(--kano-tooltip-color, white);
+    :host .tooltip.left .caret {
+        border-left-color: var(--kano-tooltip-background-color, white);
         left: 100%;
     }
     :host .wrapper {
@@ -67,6 +95,7 @@
     <template>
         <div class$="tooltip [[position]]" id="tooltip">
             <content></content>
+            <div class="caret"></div>
         </div>
     </template>
 </dom-module>
