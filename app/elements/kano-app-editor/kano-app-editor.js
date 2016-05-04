@@ -62,14 +62,14 @@ class KanoAppEditor {
             },
             selectedParts: {
                 type: Array
-            }
+            },
+            showShareButton: Boolean
         };
         this.observers = [
             'addedPartsChanged(addedParts.*)',
             'selectedPartChanged(selected.*)',
             'backgroundChanged(background.*)',
-            'updateColors(addedParts.splices)',
-            'panelStateChanged(partsPanelState)'
+            'updateColors(addedParts.splices)'
         ];
         this.listeners = {
             'previous': 'clearEditorStyle'
@@ -243,27 +243,14 @@ class KanoAppEditor {
         this.updateColors();
     }
     toggleParts () {
-        let eventName = 'open-parts';
         this.$.partsPanel.togglePanel();
-        if (this.partsPanelState !== 'drawer') {
+    }
+    panelStateChanged () {
+        let eventName = 'open-parts';
+        if (this.partsPanelState !== 'drawer') { /* When closing the panel */
             eventName = 'close-parts';
         }
         this.notifyChange(eventName);
-    }
-    panelStateChanged (state) {
-        if (state !== 'drawer') { /* When closing the panel */
-            if (!Array.isArray(this.selectedParts)) {
-                return;
-            }
-
-            for (let i = 0; i < this.selectedParts.length; i++) {
-                let model = this.selectedParts[i],
-                    part = Part.create(model, this.wsSize);
-                this.push('addedParts', part);
-                this.notifyChange('add-part', { part });
-            }
-            this.$.sidebar.clearSelection();
-        }
     }
     onPartReady (e) {
         let clone;
@@ -321,16 +308,35 @@ class KanoAppEditor {
     triggerResize () {
         window.dispatchEvent(new Event('resize'));
     }
+    bindEvents () {
+        let sidebar = this.$.sidebar;
+        this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
+        this.onWindowResize = this.onWindowResize.bind(this);
+        this.panelStateChanged = this.panelStateChanged.bind(this);
+
+        this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
+        if (sidebar.classList.contains('animatable')) {
+            sidebar.addEventListener('transitionend', this.panelStateChanged);
+        } else {
+            this.$.partsPanel.addEventListener('selected-changed', this.panelStateChanged);
+        }
+        window.addEventListener('resize', this.onWindowResize);
+    }
+    detachEvents () {
+        this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
+        this.$.sidebar.removeEventListener('transitionend', this.panelStateChanged);
+        window.removeEventListener('resize', this.onWindowResize);
+    }
+    ready () {
+        this.makeButtonIconPaths = {
+            stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
+            running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+        };
+    }
     attached () {
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;
-        setTimeout(() => {
-            this.triggerResize();
-        }, 200);
-        this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect.bind(this));
-        window.addEventListener('resize', this.onWindowResize.bind(this));
-        this.onWindowResize();
 
         interact(this.$['left-panel']).dropzone({
             // TODO rename to kano-part-item
@@ -347,6 +353,11 @@ class KanoAppEditor {
                 });
             }
         });
+        this.bindEvents();
+        setTimeout(() => {
+            this.triggerResize();
+        }, 200);
+        this.onWindowResize();
     }
     onWindowResize () {
         let rect = this.$['left-panel'].getBoundingClientRect(),
@@ -359,7 +370,7 @@ class KanoAppEditor {
     }
     detached () {
         Part.clear();
-        window.removeEventListener('resize', this.onWindowResize.bind(this));
+        this.detachEvents();
     }
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
@@ -434,10 +445,10 @@ class KanoAppEditor {
 
     getMakeButtonClass () {
         if (this.running) {
-            return 'make-button-running';
+            return 'running';
         }
 
-        return 'make-button';
+        return 'stopped';
     }
 
     getMakeButtonLabel () {
@@ -508,7 +519,7 @@ class KanoAppEditor {
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
     }
-    
+
     partsMenuLabel () {
         return this.partsPanelState === 'drawer' ? 'Close' : 'Add';
     }
