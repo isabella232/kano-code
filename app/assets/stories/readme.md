@@ -354,6 +354,23 @@ You can display tooltips on the screen that points to a UI element using the `to
 
 If the `next_button` key is set, a `Next` button will be added at the end of the tooltip and will go to the next step when clicked on. When using this key, no need to specify a validation
 
+#### Arrow
+
+You can display an arrow on the screen. This arrow will use two elements on the UI as anchors and position itself in between.
+To define the arrow, use the `arrow` key and set the values as follow:
+
+```json
+{
+    "arrow": {
+        "source": "<source location>",
+        "target": "<target location>",
+        "size": "<arrow size (defaults to 70)>"
+    }
+}
+```
+
+The location of the source and target are defined the same way the highlight and tooltips are. Read the next chapter to learn more.
+
 ### Location
 
 You can define the target of the tooltip using the `location` key.
