@@ -308,8 +308,14 @@
                 // the value is set to the one we expect
                 // We use the double equal to be sure we catch Number/String
                 // parsing
-                if (validation.value && block.newValue != validation.value) {
-                    failed = true;
+                if (validation.value) {
+                    let value = validation.value;
+                    if (value.event_from) {
+                        value = `${this.stepIds[value.event_from]}.${value.event}`;
+                    }
+                    if (block.newValue != value) {
+                        failed = true;
+                    }
                 }
                 return !failed;
             }
