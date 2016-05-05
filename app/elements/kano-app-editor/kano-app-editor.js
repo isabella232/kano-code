@@ -35,7 +35,8 @@ class KanoAppEditor {
             },
             selected: {
                 type: Object,
-                value: null
+                value: null,
+                observer: 'selectedChanged'
             },
             running: {
                 type: Boolean,
@@ -136,30 +137,6 @@ class KanoAppEditor {
     }
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
-    }
-    openPartEditor (e) {
-        let controls;
-        if (this.selected.partType === 'hardware') {
-            return;
-        }
-        controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['part-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
-        this.partEditorTarget = e.detail;
-        this.partEditorOpened = true;
-        this.notifyChange('open-part-config', { part: this.selected });
-    }
-    openBackgroundEditor (e) {
-        let controls = this.$['workspace-controls'].getBoundingClientRect();
-        this.$['background-editor-tooltip'].style.bottom = `${window.innerHeight - controls.top}px`;
-        this.backgroundEditorTarget = e.detail;
-        this.backgroundEditorOpened = true;
-    }
-    closePartEditor () {
-        this.partEditorOpened = false;
-        this.notifyChange('close-part-editor', {});
-    }
-    closeBackgroundEditor () {
-        this.backgroundEditorOpened = false;
     }
     backgroundChanged (e) {
         let property = e.path.split('.');
@@ -265,6 +242,12 @@ class KanoAppEditor {
         }
         this.updateColors();
     }
+    selectedChanged (newValue) {
+        // The selection is cleared
+        if (!newValue && this.drawerPage === 'part-editor' && this.partsPanelState === 'drawer') {
+            this.$.partsPanel.closeDrawer();
+        }
+    }
     panelStateChanged () {
         let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState !== 'drawer';
         this.debounce('notifyPanelState', () => {
@@ -280,42 +263,32 @@ class KanoAppEditor {
             this.$.partsPanel.openDrawer();
         }
     }
-    onSelectPart (e) {
-        let model = e.detail.model;
-
-        if (this.partsPanelState === 'drawer' && this.selected && model.id === this.selected.id) {
-            this.$.partsPanel.closeDrawer();
-            return;
-        }
-
-        for (let i = 0; i <= this.addedParts.length; i++) {
-            let part = this.addedParts[i];
-            if (model.id === part.id) {
-                this.$.selector.select(part);
-                this.drawerPage = 'part-editor';
+    onPartSettings () {
+        // No part selected, show the background editor
+        if (!this.selected) {
+            if (this.partsPanelState === 'drawer' && this.drawerPage === 'background-editor') {
+                this.$.partsPanel.closeDrawer();
+            } else {
+                this.drawerPage = 'background-editor';
                 this.drawerWidth = '50%';
                 this.$.partsPanel.openDrawer();
-                return;
             }
-        }
-
-        console.log("Selected unknown part");
-    }
-    onEditBackground () {
-        this.$.selector.clearSelection();
-        if (this.partsPanelState === 'drawer' && this.drawerPage === 'background-editor') {
-            this.$.partsPanel.closeDrawer();
         } else {
-            this.drawerPage = 'background-editor';
+            this.drawerPage = 'part-editor';
             this.drawerWidth = '50%';
             this.$.partsPanel.openDrawer();
+        }
+    }
+    closeSettings () {
+        if (this.drawerPage === 'background-editor' || this.drawerPage === 'part-editor') {
+            this.$.partsPanel.closeDrawer();
         }
     }
     deletePart (e) {
         let index = this.addedParts.indexOf(e.detail);
         this.splice('addedParts', index, 1);
-        this.$.selector.clearSelection();
         this.$.partsPanel.closeDrawer();
+        this.$.workspace.clearSelection();
     }
     onPartReady (e) {
         let clone;
@@ -376,7 +349,6 @@ class KanoAppEditor {
     bindEvents () {
         let sidebar = this.$.drawer;
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
-        this.onWindowResize = this.onWindowResize.bind(this);
         this.panelStateChanged = this.panelStateChanged.bind(this);
 
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
@@ -385,12 +357,10 @@ class KanoAppEditor {
         } else {
             this.$.partsPanel.addEventListener('selected-changed', this.panelStateChanged);
         }
-        window.addEventListener('resize', this.onWindowResize);
     }
     detachEvents () {
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
         this.$.sidebar.removeEventListener('transitionend', this.panelStateChanged);
-        window.removeEventListener('resize', this.onWindowResize);
     }
     ready () {
         this.makeButtonIconPaths = {
@@ -419,16 +389,6 @@ class KanoAppEditor {
             }
         });
         this.bindEvents();
-        this.onWindowResize();
-    }
-    onWindowResize () {
-        let rect = this.$['left-panel'].getBoundingClientRect(),
-            partEditor = this.$['part-editor-tooltip'],
-            backgroundEditor = this.$['background-editor-tooltip'];
-        backgroundEditor.leftBound = rect.left + TOOLTIP_PADDING;
-        backgroundEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
-        partEditor.leftBound = rect.left + TOOLTIP_PADDING;
-        partEditor.rightBound = rect.left + rect.width - TOOLTIP_PADDING;
     }
     detached () {
         Part.clear();

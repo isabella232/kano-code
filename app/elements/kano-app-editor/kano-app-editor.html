@@ -203,11 +203,14 @@
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
-                                on-part-tapped="onSelectPart"
                                 on-edit-background="onEditBackground"
                                 parts="{{addedParts}}"
                                 selected="{{selected}}"
-                                running="{{running}}"></kano-workspace>
+                                on-settings-tapped="onPartSettings"
+                                on-close-settings="closeSettings"
+                                on-delete-tapped="deletePart"
+                                running="{{running}}"
+                                code="[[code]]"></kano-workspace>
                 <div class$="parts-toggle {{applyOpenClass(partsPanelState, drawerPage)}}">
                     <label>{{partsMenuLabel(partsPanelState, drawerPage)}}</label>
                     <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
@@ -232,7 +235,6 @@
                 <div class="handle"></div>
             </div>
             <div name="code" class="editor" id="right-panel">
-                <array-selector id="selector" items="{{addedParts}}" selected="{{selected}}"></array-selector>
                 <paper-drawer-panel
                     id="partsPanel"
                     force-narrow
@@ -260,8 +262,7 @@
                             <kano-part-editor
                                 selected="{{selected}}"
                                 class="tooltip-content"
-                                id="part-editor"
-                                on-delete-part="deletePart"></kano-part-editor>
+                                id="part-editor"></kano-part-editor>
                             <kano-background-editor
                                 class="tooltip-content"
                                 id="background-editor"
@@ -271,20 +272,6 @@
                 </paper-drawer-panel>
             </div>
         </section>
-        <kano-content-tooltip id="part-editor-tooltip"
-            target="[[partEditorTarget]]"
-            hidden$="[[!partEditorOpened]]"
-            on-close="closePartEditor"
-            colour="[[selected.colour]]"
-            title="[[selected.name]]">
-        </kano-content-tooltip>
-        <kano-content-tooltip id="background-editor-tooltip"
-            target="[[backgroundEditorTarget]]"
-            hidden$="[[!backgroundEditorOpened]]"
-            on-close="closeBackgroundEditor"
-            colour="orange"
-            title="Background">
-        </kano-content-tooltip>
     </template>
 </dom-module>
 
