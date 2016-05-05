@@ -215,10 +215,12 @@
         },
         attached () {
             this.eventsMap = {
-                create: 'Create',
-                connect: 'Move',
-                value: 'Change',
-                delete: 'Delete'
+                create: 'create',
+                connect: 'move',
+                value: 'change',
+                delete: 'delete',
+                'open-flyout': 'open-flyout',
+                'close-flyout': 'close-flyout',
             };
             this.blocklyValidators = {
                 'create': this.matchCreate.bind(this),
@@ -238,7 +240,7 @@
             return event.xml.getAttribute('type') === type;
         },
         matchBlocklyEvent (type, event) {
-            return event.type === type;
+            return event.type === this.eventsMap[type];
         },
         getBlockType (validation) {
             let target = this.stepIds[validation.target],
@@ -284,6 +286,7 @@
             // the block moved
             let targetId = this.blockIds[validation.target],
                 parentId = this.blockIds[validation.parent];
+
             // Check that the element moved is the one targeted and that its
             // new parent is the right one
             if (event.blockId === targetId && event.newParentId === parentId) {
