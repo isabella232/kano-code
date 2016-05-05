@@ -142,6 +142,7 @@ let register = (Blockly) => {
 
 let category = {
     name: 'Control',
+    id: 'control',
     colour: COLOUR,
     blocks: [{
         id: 'repeat_x_times',

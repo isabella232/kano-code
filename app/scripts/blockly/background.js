@@ -32,6 +32,7 @@ let register = (Blockly) => {
 
 let category = {
     name: 'Background',
+    id: 'background',
     colour: COLOUR,
     blocks: [{
         id: 'set_background_color'

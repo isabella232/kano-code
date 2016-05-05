@@ -73,6 +73,7 @@ let register = (Blockly) => {
 };
 let category = {
     name: 'Events',
+    id: 'events',
     colour: COLOUR,
     blocks: [{
         id: 'part_event'

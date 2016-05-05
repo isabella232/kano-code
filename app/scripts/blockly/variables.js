@@ -25,6 +25,7 @@ let register = (Blockly) => {
 };
 let category = {
     name: 'Variables',
+    id: 'variables',
     colour: COLOUR,
     blocks: [{
         id: 'text'

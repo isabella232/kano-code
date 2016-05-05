@@ -222,14 +222,21 @@
                 'create': this.matchCreate.bind(this),
                 'connect': this.matchConnect.bind(this),
                 'value': this.matchBlocklyValue.bind(this),
-                'delete': this.matchDelete.bind(this)
+                'delete': this.matchDelete.bind(this),
+                'open_flyout': this.matchCategory.bind(this)
             };
+        },
+        matchCategory (validation, event) {
+            if (validation.part) {
+                validation = this.stepIds[validation.part];
+            }
+            return event.categoryId === validation;
         },
         matchBlockType (type, event) {
             return event.xml.getAttribute('type') === type;
         },
         matchBlocklyEvent (type, event) {
-            return event instanceof Blockly.Events[this.eventsMap[type]];
+            return event.type === type;
         },
         getBlockType (validation) {
             let target = this.stepIds[validation.target],
