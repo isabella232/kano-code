@@ -4,7 +4,7 @@ let register = (Blockly) => {
     Blockly.Blocks.random_colour = {
         init: function () {
             let json = {
-                id: 'random_colour ',
+                id: 'random_colour',
                 colour: COLOUR,
                 message0: 'random colour',
                 output: 'Colour'

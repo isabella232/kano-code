@@ -484,3 +484,114 @@ You can also target categories added with parts
     }
 }
 ```
+
+### Available blocks
+
+> Control (`control`)
+
+ - `repeat_x_times`
+ - `loop_forever`
+ - `every_x_seconds`
+ - `controls_if`
+ - `logic_compare`
+ - `logic_operation`
+ - `logic_negate`
+ - `logic_boolean`
+
+
+> Operators (`operators`)
+
+ - `math_arithmetic`
+ - `text_join`
+ - `math_single`
+ - `math_trig`
+ - `math_constant`
+ - `math_number_property`
+ - `math_round`
+ - `math_modulo`
+ - `math_constrain`
+ - `math_max`
+ - `math_min`
+ - `math_sign`
+ - `math_random`
+
+> Variable (`variables`)
+
+ - `text`
+ - `math_number`
+ - `colour_picker`
+ - `random_colour`
+ - `variables_set`
+ - `variables_get`
+
+> Events (`events`)
+
+ - `part_event`
+
+> Background (`background`)
+
+ - `set_background_color`
+
+> UI Part
+
+ - `ui_move_by`
+ - `ui_rotate_clockwise`
+ - `ui_rotate_counter_clockwise`
+ - `ui_scale_rel`
+ - `ui_set_x_y`
+ - `ui_set_x`
+ - `ui_set_y`
+ - `ui_show_hide`
+ - `ui_toggle_visibility`
+ - `ui_x`
+ - `ui_y`
+
+> Data Part
+
+ - `refresh`
+ - `set_config`
+ - `get_value_at`
+ - `get_value`
+ - `for_each`
+
+
+> Speaker
+
+ - `say`
+
+> Box
+
+ - `set_stroke_size`
+ - `set_stroke_colour`
+ - `set_background_colour`
+
+> Button
+
+ - `set_label`
+ - `set_background_colour`
+ - `set_text_colour`
+
+> Image
+
+ - `set_image_to`
+ - `source`
+
+> Map
+
+ - `show_marker`
+
+> Scrolling Text
+
+ - `scroll`
+
+> Text Input
+
+ - `input_text_get_value`
+ - `input_text_get_placeholder`
+ - `input_text_set_value`
+ - `input_text_set_placeholder`
+
+> Text
+
+ - `set_value`
+ - `get_text`
