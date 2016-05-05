@@ -235,11 +235,6 @@ class KanoAppEditor {
         this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);
-        if (savedApp.snapshot) {
-            this.$['workspace-controls'].selectPart(addedParts[savedApp.selectedPart]);
-            this.$['part-editor-tooltip'].set('trigger', savedApp.selectedTrigger);
-            this.$['part-editor-tooltip'].showPage(savedApp.blockEditorPage);
-        }
         this.updateColors();
     }
     selectedChanged (newValue) {
