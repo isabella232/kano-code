@@ -484,3 +484,50 @@ You can also target categories added with parts
     }
 }
 ```
+
+### Available blocks
+
+> Control (`control`)
+
+ - `repeat_x_times`
+ - `loop_forever`
+ - `every_x_seconds`
+ - `controls_if`
+ - `logic_compare`
+ - `logic_operation`
+ - `logic_negate`
+ - `logic_boolean`
+
+
+> Operators (`operators`)
+
+ - `math_arithmetic`
+ - `text_join`
+ - `math_single`
+ - `math_trig`
+ - `math_constant`
+ - `math_number_property`
+ - `math_round`
+ - `math_modulo`
+ - `math_constrain`
+ - `math_max`
+ - `math_min`
+ - `math_sign`
+ - `math_random`
+
+> Variable (`variables`)
+
+ - `text`
+ - `math_number`
+ - `colour_picker`
+ - `random_colour`
+ - `variables_set`
+ - `variables_get`
+
+> Events (`events`)
+
+ - `part_event`
+
+> Background (`background`)
+
+ - `set_background_color`
