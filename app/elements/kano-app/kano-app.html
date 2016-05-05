@@ -180,27 +180,31 @@ Example:
             this.set('accessState', 'logged-out');
             let initialiseSDK = () => {
                 app.sdk.auth.initSession((err, user) => {
-                    this.set('user', user);
+                    if (user) {
+                        this.set('user', user);
+                    } else {
+                        this.launchLogin();
+                    }
                 });
             };
 
             if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
 
                 fetch(window.app.config.TOKEN_ENDPOINT)
-                .then( (response) => {
+                .then((response) => {
                     if (response.ok) {
                         // The API has responded, need to set the token
                         return response.json();
                     }
                 })
-                .then( (retObj) => {
+                .then((retObj) => {
                     if (retObj.hasOwnProperty('token')) {
                         app.sdk.auth.setToken(retObj['token']);
                     }
 
                     initialiseSDK();
                 })
-                .catch( (error) => {
+                .catch((error) => {
                     // Server responded with 401 or some other error occurred
                     // still need to initialise the SDK
                     initialiseSDK();
