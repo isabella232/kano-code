@@ -32,6 +32,11 @@ export default class Part {
         this.label = opts.label;
         this.name = this.name || this.label;
         this.description = opts.description;
+        opts.position = opts.position || { x: 0, y: 0 };
+        this.position = {
+            x: opts.position.x || 0,
+            y: opts.position.y || 0
+        };
         this.image = opts.image;
         this.colour = opts.colour;
         this.blocks = Array.isArray(opts.blocks) ? opts.blocks.slice(0) : [];

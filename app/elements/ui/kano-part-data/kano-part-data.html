@@ -35,6 +35,15 @@
             // Call a refresh at the begining
             this.refresh();
         }
+        stop () {
+            clearInterval(this.refreshInterval);
+            Object.keys(this.listeners).forEach((name) => {
+                this.listeners[name].forEach((callback) => {
+                    this.removeEventListener(name, callback);
+                });
+            });
+            this.listeners = {};
+        }
         refresh () {
             return KanoModules.data.methods.generateRequest(this.model.id, this.model.method, this.model.config)
                     .then((data) => {

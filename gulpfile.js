@@ -9,6 +9,8 @@ let gulp = require('gulp'),
     source = require('vinyl-source-stream'),
     path = require('path'),
     fs = require('fs'),
+    es = require('event-stream'),
+    htmlAutoprefixer = require("html-autoprefixer"),
     bundler,
     utils;
 
@@ -42,6 +44,23 @@ utils = {
             .pipe(source('app.js'))
             .pipe($.connect.reload())
             .pipe(gulp.dest('www/scripts'));
+    },
+    /*
+     * gulp-html-autoprefixer points to an outdated version.
+     * Putting this here until they fix it.
+     */
+    htmlAutoprefixerStream () {
+        return es.map(function (file, done) {
+            let htmlString = file.contents.toString(),
+                prefixed = htmlAutoprefixer.process(htmlString);
+            file.contents = new Buffer(prefixed);
+
+            next();
+
+            function next(err) {
+                done(err, file);
+            }
+        });
     },
     getEnvVars () {
         var code = '';
@@ -154,6 +173,7 @@ gulp.task('views', () => {
                 stripExcludes: common
             }))
             .pipe($.crisper({ scriptInHead: false }))
+            .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
             .pipe(gulp.dest('www/views'));
     }).catch(utils.notifyError);
@@ -170,6 +190,7 @@ gulp.task('scenes', () => {
             }))
             .pipe($.crisper({ scriptInHead: false }))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+            .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
             .pipe(gulp.dest('www/assets/stories'));
     }).catch(utils.notifyError);
 });
@@ -177,6 +198,7 @@ gulp.task('scenes', () => {
 gulp.task('sass', () => {
     gulp.src('app/style/**/*.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
+        .pipe($.autoprefixer())
         .pipe(gulp.dest('.tmp/app/css'));
 });
 
@@ -263,6 +285,7 @@ function babelOrCopy(src) {
     if (!process.env.ES6) {
         stream = stream
             .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
+            .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })));
     }
     return stream;
@@ -289,6 +312,7 @@ gulp.task('views-dev', () => {
 gulp.task('sass-dev', () => {
     gulp.src('app/style/**/*.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
+        .pipe($.autoprefixer())
         .pipe($.connect.reload())
         .pipe(gulp.dest('www/css'));
 });
@@ -296,6 +320,7 @@ gulp.task('sass-dev', () => {
 gulp.task('index-dev', () => {
     gulp.src('app/index.html')
         .pipe($.htmlReplace(getHtmlReplaceOptions()))
+        .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
         .pipe(gulp.dest('www'));
 });
 

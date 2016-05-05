@@ -36,7 +36,11 @@ let register = (Blockly) => {
     Blockly.Pseudo.part_event = (block) => {
         let ev = block.getFieldValue('EVENT'),
             statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            code = `devices.get('${ev.emitter}').when('${ev.event}', function () {\n${statement}});\n`;
+            code = `devices.get('${ev.emitter}')`;
+        if (ev.emitter === 'global') {
+            code = 'global';
+        }
+        code += `.when('${ev.event}', function () {\n${statement}});\n`;
         return code;
     };
 

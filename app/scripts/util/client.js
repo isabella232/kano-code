@@ -10,4 +10,4 @@ function isPi() {
     return userAgent.indexOf('armv6l') !== -1 || userAgent.indexOf('armv7l') !== -1;
 }
 
-window.ClientUtil = window.ClientUtil || { isPi };
+window.ClientUtil = window.ClientUtil || { isPi: isPi };

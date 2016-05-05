@@ -19,14 +19,6 @@
         @apply(--kano-button);
         background: var(--green-gradient);
     }
-    :host .info-button {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        line-height: 15px;
-        border: 1px solid grey;
-        background-color: var(--color-white, white);
-    }
     :host .modal-content .code-sample {
         font-family: monospace;
         color: #aabbc3;
@@ -55,8 +47,6 @@
     }
     </style>
     <template>
-        <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
-        <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
         <paper-dialog id="modal" with-backdrop>
             <h2>What is JSON?</h2>
             <div class="modal-content">
@@ -95,8 +85,11 @@
         beforeRegister () {
             this.is = 'kano-what-is-json';
         }
+        attached () {
+            this.modal = this.$.modal;
+        }
         openJsonInfo () {
-            this.$.modal.open();
+            this.modal.open();
         }
     }
     Polymer(KanoWhatIsJson);

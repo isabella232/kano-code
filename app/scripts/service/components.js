@@ -123,12 +123,11 @@ class ComponentStore {
         component = `
             <dom-module id="${id}">
                 <style>
+                    :host {
+                        ${backgroundStyle}
+                    }
                     :host kano-ui-viewport * {
                         position: absolute;
-                    }
-
-                    :host kano-ui-viewport {
-                        ${backgroundStyle}
                     }
                 </style>
                 <template>
@@ -146,16 +145,15 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}"),
-                            observer: 'partsChanged'
+                            value: JSON.parse("${partsString}")
                         }
-                    },
-                    partsChanged () {
-                        console.log(this.parts);
                     },
                     attached: function () {
                         var devices = {
                             get: function (id) {
+                                if (id === 'dropzone') {
+                                    return this;
+                                }
                                 return this.$$('#' + id);
                             }.bind(this)
                         };
