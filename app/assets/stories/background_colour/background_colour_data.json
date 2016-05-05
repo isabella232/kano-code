@@ -1,0 +1,184 @@
+{
+    "parts": ["text", "button", "image", "weather", "speaker"],
+    "modules": ["control", "operators", "variables", "background"],
+    "steps": [
+      {
+          "tooltips": [{
+                "location": "right-panel",
+                "text": "<strong>Can you help?</strong><br /> I’d like a new colour every<br />time I press a button.",
+                "next_button": true
+            }]
+      },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "This recipe needs a<br />button we can press"
+        }],
+        "validation": {
+            "open-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-button",
+            "position": "right",
+            "text": "Drag the button to<br />your app"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-button",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "button",
+                "id": "button_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "Close the parts drawer"
+        }],
+        "validation": {
+            "close-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "bottom",
+            "text": "Change ‘the app starts’ to ‘Button is clicked’",
+            "next_button": "true"
+        }],
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "default_part_event",
+                    "value": "button.clicked"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "background"
+            },
+            "position": "left",
+            "text": "Open the background tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "background"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": "set_background_color"
+            },
+            "position": "left",
+            "text": "Drag the ‘Set<br />background’ block onto<br />your code space"
+        }],
+        "arrow": {
+            "source": {
+                "flyout_block": "set_background_color"
+            },
+            "target": {
+                "block": "default_part_event"
+            },
+            "size": 120
+        },
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "background",
+                    "type": "set_background_color",
+                    "id": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "left",
+            "text": "Connect the blocks",
+            "next_button": "true"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "variables"
+            },
+            "position": "left",
+            "text": "Open the variables tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "variables"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": "random_colour"
+            },
+            "position": "right",
+            "text": "Grab the random<br />colour block"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "variables",
+                    "type": "random_colour",
+                    "id": "random_colour_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "set_background_color_1"
+            },
+            "position": "left",
+            "text": "Plug it into the<br />background colour",
+            "next_button": true
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "random_colour_1",
+                    "target": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "make-button",
+            "position": "bottom",
+            "text": "Click play"
+        }],
+        "validation": {
+            "running": {
+                "value": true
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "right-panel",
+            "text": "<strong>Thank you!</strong><br />Did you know our eyes can see seven million different colours?",
+            "next_button": true
+        }]
+    }]
+}
