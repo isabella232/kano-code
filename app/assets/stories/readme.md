@@ -337,6 +337,47 @@ Here you wait for the user to open the configuration menu of the `Map` part crea
 }
 ```
 
+#### Match category (`open-flyout`)
+
+This allows you to specify which target category we are waiting for to be opened.
+
+
+This wait for the user to open the `events` flyout
+```json
+"validation": {
+    "blockly": {
+        "open-flyout": "events"
+    }
+}
+```
+
+This wait for the user to open a `Map` flyout (`map_1` being a part previously created)
+```json
+"validation": {
+    "blockly": {
+        "open-flyout": {
+            "part": "map_1"
+        }
+    }
+}
+```
+
+#### Other events
+
+Blockly events must be declared under the `blockly` key e.g. :
+
+```json
+"validation": {
+    "blockly": {
+        "create": {
+            "type": "map"
+        }
+    }
+}
+```
+
+ - `close-flyout` (Blockly event)
+
 #### Highlight
 
 You can highlight an element in the UI using the `focus` key. The key needs to be an location (See location a bit further).
@@ -421,5 +462,25 @@ Later on you will be able to target this block using:
 ```json
 {
     "block": "show_marker"
+}
+```
+
+To target a category in a blockly workspace, define an object and use the `category` key e.g.
+
+```json
+
+{
+    "category": "events"
+}
+
+```
+
+You can also target categories added with parts
+
+```json
+{
+    "category": {
+        "part": "map_1"
+    }
 }
 ```
