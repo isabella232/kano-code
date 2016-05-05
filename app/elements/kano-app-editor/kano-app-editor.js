@@ -266,7 +266,9 @@ class KanoAppEditor {
     }
     panelStateChanged () {
         let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState !== 'drawer';
-        this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
+        this.debounce('notifyPanelState', () => {
+            this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
+        }, 10);
     }
     toggleParts () {
         if (this.drawerPage === 'sidebar' && this.partsPanelState === 'drawer') {
