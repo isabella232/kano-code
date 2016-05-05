@@ -1,6 +1,7 @@
 /* globals Polymer, KanoBehaviors, interact, Part */
 
-const TOOLTIP_PADDING = 10;
+const TOOLTIP_PADDING = 10,
+      DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
 
 class KanoAppEditor {
 
@@ -27,7 +28,7 @@ class KanoAppEditor {
                 value: () => {
                     return {
                         snapshot: {
-                            blocks: "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"l}ei!_)^vCP5eRFY5W@z\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>"
+                            blocks: DEFAULT_BLOCKS
                         }
                     };
                 }
@@ -252,7 +253,7 @@ class KanoAppEditor {
         });
         let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
         if (savedApp.code && savedApp.code.snapshot && emptyBlocks.indexOf(savedApp.code.snapshot.blocks) !== -1) {
-            savedApp.code.snapshot.blocks = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"l}ei!_)^vCP5eRFY5W@z\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
+            savedApp.code.snapshot.blocks = DEFAULT_BLOCKS;
         }
         this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
