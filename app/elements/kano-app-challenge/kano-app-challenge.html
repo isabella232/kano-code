@@ -267,6 +267,12 @@
                         cat = this.stepIds[cat.part];
                     }
                     return this.editor.getBlocklyWorkspace().getCategoryElementById(cat);
+                } else if (selector.flyout_block) {
+                    let type = selector.flyout_block;
+                    if (type.part) {
+                        type = `${this.stepIds[type.part]}#${type.type}`;
+                    }
+                    return this.editor.getBlocklyWorkspace().getFlyoutBlockByType(type).svgPath_;
                 }
                 partId = this.stepIds[selector.part];
                 selector = `${selector.path}.part-${partId},${partId}`;
