@@ -279,8 +279,8 @@ Blockly.Block.prototype.setColour = function(colour) {
     }
 };
 
-Blockly.Events.OPEN_FLYOUT = 'open_flyout';
-Blockly.Events.CLOSE_FLYOUT = 'close_flyout';
+Blockly.Events.OPEN_FLYOUT = 'open-flyout';
+Blockly.Events.CLOSE_FLYOUT = 'close-flyout';
 
 /**
  * Display/hide the flyout when an item is selected.
