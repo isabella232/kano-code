@@ -263,6 +263,7 @@ let register = (Blockly) => {
 
 let category = {
     name: 'Operators',
+    id: 'operators',
     colour: COLOUR,
     blocks: [{
         id: 'math_arithmetic'

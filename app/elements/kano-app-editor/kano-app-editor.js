@@ -23,7 +23,14 @@ class KanoAppEditor {
             },
             code: {
                 type: Object,
-                notify: true
+                notify: true,
+                value: () => {
+                    return {
+                        snapshot: {
+                            blocks: "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"l}ei!_)^vCP5eRFY5W@z\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>"
+                        }
+                    };
+                }
             },
             selected: {
                 type: Object,
@@ -243,6 +250,10 @@ class KanoAppEditor {
             part = Part.create(savedPart, this.wsSize);
             return part;
         });
+        let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
+        if (savedApp.code && savedApp.code.snapshot && emptyBlocks.indexOf(savedApp.code.snapshot.blocks) !== -1) {
+            savedApp.code.snapshot.blocks = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"l}ei!_)^vCP5eRFY5W@z\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
+        }
         this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
         this.set('background', savedApp.background);

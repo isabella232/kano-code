@@ -279,6 +279,9 @@ Blockly.Block.prototype.setColour = function(colour) {
     }
 };
 
+Blockly.Events.OPEN_FLYOUT = 'open_flyout';
+Blockly.Events.CLOSE_FLYOUT = 'close_flyout';
+
 /**
  * Display/hide the flyout when an item is selected.
  * @param {goog.ui.tree.BaseNode} node The item to select.
@@ -311,6 +314,11 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
         // Add colours to child nodes which may have been collapsed and thus
         // not rendered.
         toolbox.addColour_(node);
+        let e = {
+            type: Blockly.Events.OPEN_FLYOUT,
+            categoryId: node.categoryId
+        };
+        toolbox.workspace_.fireChangeListener(e);
     }
     goog.ui.tree.TreeControl.prototype.setSelectedItem.call(this, node);
     if (node && node.blocks && node.blocks.length) {
@@ -320,6 +328,10 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
             toolbox.flyout_.scrollToStart();
         }
     } else {
+        let e = {
+            type: Blockly.Events.CLOSE_FLYOUT
+        };
+        toolbox.workspace_.fireChangeListener(e);
         // Hide the flyout.
         toolbox.flyout_.hide();
         triangle.style.display = 'none';
@@ -327,6 +339,105 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     if (node) {
         toolbox.lastCategory_ = node;
     }
+};
+
+Blockly.Toolbox.CategoryElements = {};
+
+Blockly.Workspace.prototype.getCategoryElementById = (id) => {
+    return Blockly.Toolbox.CategoryElements[id];
+};
+
+/**
+ * Fill the toolbox with categories and blocks.
+ * @param {Node} newTree DOM tree of blocks, or null.
+ * @private
+ */
+Blockly.Toolbox.prototype.populate_ = function(newTree) {
+  var rootOut = this.tree_;
+  rootOut.removeChildren();  // Delete any existing content.
+  rootOut.blocks = [];
+  var hasColours = false;
+  function syncTrees(treeIn, treeOut) {
+    var lastElement = null;
+    for (var i = 0, childIn; childIn = treeIn.childNodes[i]; i++) {
+      if (!childIn.tagName) {
+        // Skip over text.
+        continue;
+      }
+      switch (childIn.tagName.toUpperCase()) {
+        case 'CATEGORY':
+          var childOut = rootOut.createNode(childIn.getAttribute('name')),
+            catId = childIn.getAttribute('id')
+          childOut.blocks = [];
+          childOut.categoryId = catId;
+          treeOut.add(childOut);
+          Blockly.Toolbox.CategoryElements[catId] = childOut.getRowElement();
+          var custom = childIn.getAttribute('custom');
+          if (custom) {
+            // Variables and procedures are special dynamic categories.
+            childOut.blocks = custom;
+          } else {
+            syncTrees(childIn, childOut);
+          }
+          var colour = childIn.getAttribute('colour');
+          if (goog.isString(colour)) {
+            if (colour.match(/^#[0-9a-fA-F]{6}$/)) {
+              childOut.hexColour = colour;
+            } else {
+              childOut.hexColour = Blockly.hueToRgb(colour);
+            }
+            hasColours = true;
+          } else {
+            childOut.hexColour = '';
+          }
+          if (childIn.getAttribute('expanded') == 'true') {
+            if (childOut.blocks.length) {
+              rootOut.setSelectedItem(childOut);
+            }
+            childOut.setExpanded(true);
+          } else {
+            childOut.setExpanded(false);
+          }
+          lastElement = childIn;
+          break;
+        case 'SEP':
+          if (lastElement) {
+            if (lastElement.tagName.toUpperCase() == 'CATEGORY') {
+              // Separator between two categories.
+              // <sep></sep>
+              treeOut.add(new Blockly.Toolbox.TreeSeparator());
+            } else {
+              // Change the gap between two blocks.
+              // <sep gap="36"></sep>
+              // The default gap is 24, can be set larger or smaller.
+              // Note that a deprecated method is to add a gap to a block.
+              // <block type="math_arithmetic" gap="8"></block>
+              var newGap = parseFloat(childIn.getAttribute('gap'));
+              if (!isNaN(newGap)) {
+                var oldGap = parseFloat(lastElement.getAttribute('gap'));
+                var gap = isNaN(oldGap) ? newGap : oldGap + newGap;
+                lastElement.setAttribute('gap', gap);
+              }
+            }
+          }
+          break;
+        case 'BLOCK':
+        case 'SHADOW':
+          treeOut.blocks.push(childIn);
+          lastElement = childIn;
+          break;
+      }
+    }
+  }
+  syncTrees(newTree, this.tree_);
+  this.hasColours_ = hasColours;
+
+  if (rootOut.blocks.length) {
+    throw 'Toolbox cannot have both blocks and categories in the root level.';
+  }
+
+  // Fire a resize event since the toolbox may have changed width and height.
+  Blockly.fireUiEvent(window, 'resize');
 };
 
 /**
