@@ -44,6 +44,10 @@
         @apply(--layout-flex);
         padding: 10px;
     }
+    :host [main] {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
     :host kano-root-view {
         @apply(--layout-flex);
     }
@@ -172,6 +176,7 @@
     }
 
     :host .make-button kano-animated-svg {
+        @apply(--layout-flex);
         width: 32px;
         height: 32px;
         -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
@@ -194,7 +199,7 @@
 
     </style>
     <template>
-        <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing" main>
+        <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
                                 on-ui-ready="workspaceUiReady"
@@ -235,8 +240,16 @@
                     disable-swipe
                     selected="{{partsPanelState}}"
                     drawer-width="{{drawerWidth}}">
-                        <iron-pages id="drawer" class="drawer animatable" drawer selected="{{drawerPage}}"
-                                attr-for-selected="id">
+                    <div main>
+                        <kano-root-view
+                            id="root-view"
+                            on-previous="previous"
+                            parts="{{addedParts}}"
+                            code="{{code}}"
+                            default-categories="{{defaultCategories}}"></kano-root-view>
+                        <button type="button" class="share-button" on-tap="share" id="share-button" hidden$="[[!showShareButton]]">Share App</button>
+                    </div>
+                        <iron-pages id="drawer" class="drawer animatable" drawer selected="{{drawerPage}}" attr-for-selected="id">
                             <kano-sidebar
                                 id="sidebar"
                                 ui-elements="{{parts}}"
@@ -255,15 +268,7 @@
                                 background="{{background}}"
                                 name="background"></kano-background-editor>
                         </iron-pages>
-                        <kano-root-view
-                            id="root-view"
-                            on-previous="previous"
-                            parts="{{addedParts}}"
-                            code="{{code}}"
-                            default-categories="{{defaultCategories}}"
-                            main></kano-root-view>
                 </paper-drawer-panel>
-                <button type="button" class="share-button" on-tap="share" id="share-button" hidden$="[[!showShareButton]]">Share App</button>
             </div>
         </section>
         <kano-content-tooltip id="part-editor-tooltip"
@@ -272,7 +277,6 @@
             on-close="closePartEditor"
             colour="[[selected.colour]]"
             title="[[selected.name]]">
-
         </kano-content-tooltip>
         <kano-content-tooltip id="background-editor-tooltip"
             target="[[backgroundEditorTarget]]"

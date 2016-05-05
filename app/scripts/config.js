@@ -1,3 +1,7 @@
+import es6Assign from 'es6-object-assign';
+
+es6Assign.polyfill();
+
 let COMMON = {
         "WORKSPACE_FULL_SIZE": {
             "width": 512,

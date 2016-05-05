@@ -79,7 +79,7 @@ window.KanoBehaviors.UIBehavior = {
         this.isRunning = true;
     },
     stop () {
-        let savedState = this.savedState;
+        let savedState = this.savedState || {};
         Object.keys(this.listeners).forEach((name) => {
             this.listeners[name].forEach((callback) => {
                 this.removeEventListener(name, callback);

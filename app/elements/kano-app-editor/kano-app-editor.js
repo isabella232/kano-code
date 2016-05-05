@@ -279,7 +279,7 @@ class KanoAppEditor {
             if (model.id === part.id) {
                 this.$.selector.select(part);
                 this.drawerPage = 'part-editor';
-                this.drawerWidth = '256px';
+                this.drawerWidth = '50%';
                 this.$.partsPanel.openDrawer();
                 return;
             }
@@ -293,7 +293,7 @@ class KanoAppEditor {
             this.$.partsPanel.closeDrawer();
         } else {
             this.drawerPage = 'background-editor';
-            this.drawerWidth = '256px';
+            this.drawerWidth = '50%';
             this.$.partsPanel.openDrawer();
         }
     }
@@ -405,9 +405,6 @@ class KanoAppEditor {
             }
         });
         this.bindEvents();
-        setTimeout(() => {
-            this.triggerResize();
-        }, 200);
         this.onWindowResize();
     }
     onWindowResize () {

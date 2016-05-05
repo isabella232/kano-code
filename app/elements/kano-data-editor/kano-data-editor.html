@@ -59,6 +59,7 @@
         margin-bottom: 20px;
     }
     :host .data-browser {
+        position: relative;
         @apply(--layout-vertical);
         @apply(--layout-start);
         background-color: #263238;
@@ -74,6 +75,17 @@
         position: absolute;
         top: 15px;
         right: 15px;
+    }
+    :host .info-button {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        line-height: 15px;
+        border: 1px solid grey;
+        background-color: var(--color-white, white);
     }
     </style>
     <template>
@@ -106,7 +118,9 @@
                 <template is="dom-repeat" items="[[dataArray]]" as="value">
                     <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[value]]" trailing-comma="[[!isLastItem(dataArray, index)]]"></kano-data-display>
                 </template>
-                <kano-what-is-json></kano-what-is-json>
+                <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
+                <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
+                <kano-what-is-json id="what-is-json"></kano-what-is-json>
                 <div class="loading-overlay" hidden$="[[!loading]]">
                     <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                 </div>
@@ -143,6 +157,16 @@
                 'computeDataArray(selected.data.*)',
                 'refreshEnabledChanged(selected.refreshEnabled)'
             ];
+        }
+        attached () {
+            this.jsonInfo = this.$['what-is-json'];
+            document.body.appendChild(this.jsonInfo);
+        }
+        detached () {
+            document.body.removeChild(this.jsonInfo);
+        }
+        openJsonInfo () {
+            this.jsonInfo.openJsonInfo();
         }
         refreshEnabledChanged (enabled) {
             if (enabled) {

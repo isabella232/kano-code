@@ -65,10 +65,6 @@ export default class UI extends Part {
             });
         }
         this.partType = 'ui';
-        this.position = opts.position || {
-            x: 0,
-            y: 0
-        };
         this.rotation = opts.rotation || 0;
         this.scale = opts.scale || 100;
         this.visible = opts.visible || true;

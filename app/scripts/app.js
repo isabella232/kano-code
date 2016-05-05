@@ -1,3 +1,7 @@
+import es6Assign from 'es6-object-assign';
+
+es6Assign.polyfill();
+
 import modules from './language/modules';
 import blockly from './blockly';
 import Stories from './service/stories';
@@ -8,10 +12,6 @@ import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import FileUtils from './util/file';
 import config from './config';
-
-import es6Assign from 'es6-object-assign';
-
-es6Assign.polyfill();
 
 (function (app) {
     app.config = config;

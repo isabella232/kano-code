@@ -85,13 +85,13 @@
         <ul>
             <li class="login separated" hidden$="[[isUserLoggedIn(user)]]">
                 <a on-tap="login">
-                    <iron-image class="icon" src="../../assets/icons/login.png" sizing="contain"></iron-image>
+                    <iron-image class="icon" src="/assets/icons/login.png" sizing="contain"></iron-image>
                     <div class="label">Login</div>
                     <div class="triangle" on-tap="toggleMenu"></div>
                 </a>
             </li>
             <li class="user separated" hidden$="[[!isUserLoggedIn(user)]]">
-                <iron-image src="[[user.avatar.urls.circle]]" preload sizing="contain"></iron-image>
+                <iron-image src="[[getUserAvatar(user.avatar.urls.circle)]]" preload sizing="contain"></iron-image>
                 <div class="userInfo">
                     <div class="userName">{{user.username}}</div>
                     <div class="userLevel">Level {{profile.level}} | {{profile.xp}}XP</div>
@@ -102,19 +102,19 @@
             </li>
             <li>
                 <a on-tap="resetWorkspace">
-                    <iron-image class="icon" src="../../assets/icons/reset.png" sizing="contain"></iron-image>
+                    <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
                     <div class="label">Reset Workspace</div>
                 </a>
             </li>
             <li>
                 <a href="/" on-tap="backToProjects">
-                    <iron-image class="icon" src="../../assets/icons/projects.png" sizing="contain"></iron-image>
+                    <iron-image class="icon" src="/assets/icons/projects.png" sizing="contain"></iron-image>
                     <div class="label">Back to Projects</div>
                 </a>
             </li>
             <li>
                 <a href="http://goo.gl/forms/ZRGXkMVl4Y" target="_blank">
-                    <iron-image class="icon" src="../../assets/icons/feedback.png" sizing="contain"></iron-image>
+                    <iron-image class="icon" src="/assets/icons/feedback.png" sizing="contain"></iron-image>
                     <div class="label">
                         Give Feedback
                     </div>
@@ -122,7 +122,7 @@
             </li>
             <li hidden$="{{!isUserLoggedIn(user)}}" on-tap="logout">
                 <a on-tap="logout">
-                    <iron-image class="icon" src="../../assets/icons/logout.png" sizing="contain"></iron-image>
+                    <iron-image class="icon" src="/assets/icons/logout.png" sizing="contain"></iron-image>
                     <div class="label">Logout</div>
                 </a>
             </li>
@@ -152,6 +152,10 @@
 
         logout () {
             this.fire('logout');
+        }
+        // Hack to make the app work on safari
+        getUserAvatar (avatar) {
+            return avatar || '';
         }
         userChanged (newValue, old) {
             if (newValue !== null) {

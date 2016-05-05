@@ -31,7 +31,7 @@
     }
     </style>
     <template>
-        <div class="head" style="background: {{selected.colour}}">
+        <div class="head" style$="[[computeHeadStyle(selected.colour)]]">
             <h2>{{selected.name}}</h2>
         </div>
         <iron-pages selected="[[selected.partType]]" attr-for-selected="name">
@@ -54,6 +54,9 @@
                     notify: true
                 }
             };
+        }
+        computeHeadStyle (colour) {
+            return `background: ${colour}`;
         }
         showCodeEditor () {
             let uiEditor = this.$$('#ui-editor');
