@@ -4,6 +4,11 @@ class Stories {
     }
     list () {
         return Promise.resolve([{
+            name: 'Random colours',
+            id: 'background_colour',
+            image: '/assets/stories/background_colour/background-colour.svg',
+            available: true
+        },{
             name: 'ISS tracker',
             id: 'space_tracker',
             image: '/assets/stories/space_tracker/space-tracker.svg',
