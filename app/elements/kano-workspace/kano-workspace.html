@@ -29,15 +29,83 @@
         top: 0px;
         left: 0px
     }
+    :host kano-tooltip {
+        --kano-tooltip-background-color: #88c840;
+        color: white;
+        --kano-tooltip: {
+            box-shadow: 0px 0px 0px 0px;
+        };
+        --kano-tooltip-caret: {
+            box-shadow: 0px 0px 0px 0px;
+        };
+    }
+    :host .tooltip-content {
+        @apply(--layout-horizontal);
+    }
+    :host .tooltip-content button {
+        background-color: transparent;
+        border: 0px;
+        color: white;
+        cursor: pointer;
+    }
+    :host .tooltip-content .delete-section {
+        @apply(--layout-horizontal);
+    }
+    :host .tooltip-content .separator {
+        border-left: 1px solid white;
+        width: 0px;
+    }
+    :host paper-dialog .buttons button {
+        @apply(--kano-button);
+        margin-left: 5px;
+    }
+    :host paper-dialog .buttons .confirm {
+        background: var(--red-gradient, red);
+    }
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
                     view-width="[[size.width]]"
                     view-height="[[size.height]]"
                     class="content"
-                    id="content">
-            <div id="dropzone" on-tap="onTap"></div>
+                    id="content"
+                    on-tap="onTap">
+            <div id="dropzone"></div>
         </kano-ui-viewport>
+        <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
+            <div class="tooltip-content">
+                <div class="settings">
+                    <button type="button" on-tap="openSettings">settings</button>
+                </div>
+                <div class="delete-section" hidden$="[[!canDelete(tappedElement)]]">
+                    <div class="separator"></div>
+                    <div class="delete" on-tap="deletePart">
+                        <button type="button">delete</button>
+                    </div>
+                </div>
+            </div>
+        </kano-tooltip>
+        <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
+        <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You are about to delete '[[aboutToDelete]]'</div>
+                <div>Are you sure you want to do this?</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+                <button dialog-confirm class="confirm">Confirm</button>
+            </div>
+        </paper-dialog>
+        <paper-dialog id="external-use-warning" with-backdrop>
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You can't delete '[[aboutToDelete]]' because it is used in the code</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+            </div>
+        </paper-dialog>
     </template>
 </dom-module>
 
@@ -62,22 +130,122 @@
                 selected: {
                     type: Object,
                     notify: true
+                },
+                internalSelection: {
+                    type: Object,
+                    value: null
+                },
+                code: {
+                    type: Object
                 }
             };
             this.observers = [
                 'partsChanged(parts.*)'
             ];
+            this.listeners = {
+                'part-tapped': 'onPartTapped'
+            };
         }
         ready () {
             this.elements = {};
+            this.tappedElement = null;
+        }
+        canDelete (el) {
+            return el && !!el.model;
         }
         onTap (e) {
-            if (e.target.id === 'dropzone') {
-                this.fire('edit-background');
+            if (e.target.id === 'content') {
+                this.clearSelection();
+                this.fire('close-settings');
+            } else if (e.target.id === 'dropzone') {
+                this.tappedElement = e.target;
+                this.tooltipTarget = e.target.getBoundingClientRect();
+                this.$.selector.clearSelection();
+                if (e.target === this.tappedElement) {
+                    this.fire('close-settings');
+                }
             }
+        }
+        clearSelection () {
+            this.$.selector.clearSelection();
+            this.tappedElement = null;
+            this.$.tooltip.close();
+            this.set('tooltipTarget', null);
+        }
+        partFromElement () {
+            let model = this.tappedElement.model;
+            for (let i = 0; i <= this.parts.length; i++) {
+                let part = this.parts[i];
+                if (model.id === part.id) {
+                    return part;
+                }
+            }
+        }
+        onPartTapped (e) {
+            this.$.selector.clearSelection();
+            this.tappedElement = e.detail;
+            this.tooltipTarget = this.tappedElement.getBoundingClientRect();
+            if (this.tappedElement !== e.detail) {
+                this.fire('close-settings');
+            }
+        }
+        openSettings () {
+            this.$.tooltip.close();
+            this.tooltipTarget = null;
+            if (!this.canDelete(this.tappedElement)) {
+                this.fire('settings-tapped');
+                return;
+            }
+            let part = this.partFromElement(),
+                selector = this.$.selector;
+            selector.select(part);
+            this.fire('settings-tapped');
+        }
+        deletePart () {
+            let part = this.partFromElement();
+            this.aboutToDelete = part.name;
+            if (this.checkBlockDependency(part)) {
+                return this.$['external-use-warning'].open();
+            } else {
+                this.$['confirm-delete'].open();
+            }
+        }
+        modalClosed (e) {
+            let part = this.partFromElement();
+            if (e.detail.confirmed) {
+                this.fire('delete-tapped', part);
+            }
+        }
+        checkBlockDependency (part) {
+            let xmlString, xml, parser, blocks, block, blockId, pieces;
+            // Get the blockly xml and parse it
+            xmlString = this.code.snapshot.blocks;
+            parser = new DOMParser();
+            xml = parser.parseFromString(xmlString, 'text/xml');
+            // Get all the 'block' elements
+            blocks = xml.getElementsByTagName('block');
+            // Check for every one of them...
+            for (let k = 0, len = blocks.length; k < len; k++) {
+                block = blocks[k];
+                blockId = block.getAttribute('type');
+                pieces = blockId.split('#');
+                // ...if the type of the block is the part we're trying to delete
+                if (pieces[0] === part.id) {
+                    return true;
+                }
+            }
+            return false;
         }
         partsChanged (e) {
             let path;
+            if (this.tooltipTarget) {
+                 requestAnimationFrame(() => {
+                     // In case it changed before the animation frame
+                     if (this.tooltipTarget) {
+                         this.tooltipTarget = this.tappedElement.getBoundingClientRect();
+                     }
+                 });
+             }
             if (!e) {
                 return;
             }
@@ -165,6 +333,7 @@
         runningChanged () {
             if (this.running) {
                 this.classList.add('running');
+                this.clearSelection();
             } else {
                 this.classList.remove('running');
             }

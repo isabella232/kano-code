@@ -188,8 +188,31 @@
                 this.alreadyAnimated = true;
             }, 10);
         }
-        hide () {
+        close () {
+            let style = this.style;
 
+            if (this.noAnimations) {
+                return this.onCloseAnimationEnd();
+            }
+            this.addEventListener('transitionend', this.onCloseAnimationEnd);
+
+            style.transition = 'none';
+            style.transform = 'scale(1)';
+            style.opacity = '1';
+
+            this.getBoundingClientRect();
+            style.transition = 'all cubic-bezier(0.2, 0, 0.13, 1.5) 150ms';
+            style.transform = 'scale(0.5)';
+            style.opacity = '0';
+        }
+        onCloseAnimationEnd () {
+            let style = this.style;
+            if (!this.noAnimations) {
+                this.removeEventListener('transitionend', this.onCloseAnimationEnd);
+            }
+            this.alreadyAnimated = false;
+            style.visibility = 'hidden';
+            style.transform = 'scale(1)';
         }
     }
     Polymer(KanoTooltip);

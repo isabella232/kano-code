@@ -126,20 +126,11 @@ gulp.task('js', ['babel', 'bundle'], () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('babel', ['sortable'], () => {
+gulp.task('babel', () => {
     return gulp.src('app/elements/**/*.{js,html}')
         .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('.tmp/app/elements'));
-});
-
-gulp.task('sortable', ['copy'], () => {
-    return gulp.src('.tmp/app/bower_components/Sortable/Sortable.html')
-        .pipe($.rename('Sortable-es5.html'))
-        .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-        .pipe($.if('*.html', $.rename('Sortable.html')))
-        .pipe(gulp.dest('.tmp/app/bower_components/Sortable'));
 });
 
 gulp.task('copy', () => {
