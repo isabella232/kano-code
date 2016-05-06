@@ -18,6 +18,9 @@ import config from './config';
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
+    app.registerBlockly = (Blockly) => {
+        blockly.register(Blockly);
+    };
     modules.init(config);
 
     app.part = Part;

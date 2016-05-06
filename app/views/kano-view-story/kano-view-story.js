@@ -24,6 +24,7 @@ class KanoViewStory {
         app.stories.getById(app.ctx.params.id)
             .then((story) => {
                 this.set('story', story);
+                app.registerBlockly(window.Blockly);
             });
     }
     isSelected (index) {
