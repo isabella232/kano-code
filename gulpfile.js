@@ -118,7 +118,7 @@ function getHtmlReplaceOptions() {
 
 // For a build with cordova, add this to html replace
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
-gulp.task('js', ['babel', 'bundle'], () => {
+gulp.task('js', ['babel', 'bundle', 'copy'], () => {
     gulp.src('./.tmp/app/index.html')
         .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
@@ -140,7 +140,9 @@ gulp.task('copy', () => {
             'app/assets/vendor/google-blockly/blockly_compressed.js',
             'app/assets/vendor/google-blockly/blocks_compressed.js',
             'app/assets/vendor/google-blockly/javascript_compressed.js',
-            'app/assets/vendor/google-blockly/msg/js/en.js'
+            'app/assets/vendor/google-blockly/msg/js/en.js',
+            'app/scripts/util/dom.js',
+            'app/scripts/util/client.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
 });
@@ -154,7 +156,7 @@ gulp.task('assets', ['scenes'], () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('views', () => {
+gulp.task('views', ['copy'], () => {
     // Get the elements common to the whole app to exclude them from the views
     getImports('./app/elements/elements.html').then((common) => {
         return gulp.src('app/views/**/*.html')
@@ -170,7 +172,7 @@ gulp.task('views', () => {
     }).catch(utils.notifyError);
 });
 
-gulp.task('scenes', () => {
+gulp.task('scenes', ['copy'], () => {
     // Get the elements common to the whole app to exclude them from the views
     getImports('./app/elements/elements.html').then((common) => {
         return gulp.src('app/assets/stories/**/*.html')
