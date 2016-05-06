@@ -1,4 +1,5 @@
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
+<link rel="import" href="../ui/behaviors.html">
 <dom-module id="kano-workspace">
     <style>
     :host {
@@ -110,8 +111,13 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, KanoBehaviors */
     class KanoWorkspace {
+
+        get behaviors () {
+            return [KanoBehaviors.AppEditorBehavior];
+        }
+
         beforeRegister () {
             this.is = 'kano-workspace';
             this.properties = {
@@ -160,6 +166,7 @@
             } else if (e.target.id === 'dropzone') {
                 this.tappedElement = e.target;
                 this.tooltipTarget = e.target.getBoundingClientRect();
+                this.notifyChange('open-settings-tooltip', { part: this.tappedElement.model });
                 this.$.selector.clearSelection();
                 if (e.target === this.tappedElement) {
                     this.fire('close-settings');
@@ -171,6 +178,7 @@
             this.tappedElement = null;
             this.$.tooltip.close();
             this.set('tooltipTarget', null);
+            this.notifyChange('close-settings-tooltip');
         }
         partFromElement () {
             let model = this.tappedElement.model;
@@ -185,6 +193,7 @@
             this.$.selector.clearSelection();
             this.tappedElement = e.detail;
             this.tooltipTarget = this.tappedElement.getBoundingClientRect();
+            this.notifyChange('open-settings-tooltip', { part: this.tappedElement.model });
             if (this.tappedElement !== e.detail) {
                 this.fire('close-settings');
             }
