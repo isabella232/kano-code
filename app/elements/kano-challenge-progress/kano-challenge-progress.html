@@ -176,7 +176,7 @@ In this example we also assume that the next challenge URL is `/story/weather`
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, ProgressBar */
     class KanoChallengeProgress {
         beforeRegister () {
             this.is = 'kano-challenge-progress';
@@ -201,12 +201,17 @@ In this example we also assume that the next challenge URL is `/story/weather`
                 nextChallenge: {
                     type: String,
                     value: ''
+                },
+                done: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'doneChanged'
                 }
-            }
+            };
 
             this.observers = [
               'flushContainer(color)'
-            ]
+          ];
 
         }
 
@@ -217,14 +222,18 @@ In this example we also assume that the next challenge URL is `/story/weather`
             });
         }
 
-        progressChanged (newValue, oldValue) {
+        progressChanged (newValue) {
             if (this.element) {
-                this.animate(newValue)
-            };
+                this.animate(newValue);
+            }
+        }
 
-            if (this.progress === 1) {
-                //challenge completed
-                this.$['challenge-completed'].open();
+        doneChanged () {
+            let modal = this.$['challenge-completed'];
+            if (this.done) {
+                modal.open();
+            } else {
+                modal.close();
             }
         }
 

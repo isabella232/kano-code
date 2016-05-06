@@ -105,7 +105,7 @@
                 <button type="button" on-tap="nextStep">Next</button>
             </div>
         </paper-dialog>
-        <kano-challenge-progress progress=[[progress]] title="[[storyName]]" next-challenge="[[nextStory]]"></kano-challenge-progress>
+        <kano-challenge-progress progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" done="[[done]]"></kano-challenge-progress>
     </template>
 </dom-module>
 
@@ -139,11 +139,21 @@
                 }
             };
             this.observers = [
-                'stepChanged(steps, step)'
+                'stepChanged(steps, step)',
+                'doneChanged(done)'
             ];
             this.listeners = {
                 'change': 'editorChanged'
             };
+        }
+        doneChanged (done) {
+            // Reset everything when the challenge is done
+            if (done) {
+                this.set('tooltips', []);
+                this.set('arrow', {});
+                this.focus.hide();
+                this.modal.close();
+            }
         }
         computeSelectedStep () {
             return this.steps[this.step];
