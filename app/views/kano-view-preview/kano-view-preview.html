@@ -1,4 +1,5 @@
-<dom-module id="kano-user-component">
+
+            <dom-module id="kano-user-component">
                 <style>
                     :host {
                         background:#F5F5F5;
@@ -12,7 +13,8 @@
                                 view-width="512"
                                 view-height="384"
                                 no-overflow>
-                        <kano-ui-button id="button" model="{{parts.button}}" auto-start></kano-ui-button>
+                        <kano-part-hardware id="speaker" model="{{parts.speaker}}" auto-start></kano-part-hardware>
+<kano-ui-text id="text" model="{{parts.text}}" auto-start></kano-ui-text>
                     </kano-ui-viewport>
                 </template>
             </dom-module>
@@ -22,11 +24,10 @@
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("{\"button\":{\"id\":\"button\",\"name\":\"Button\",\"type\":\"button\",\"userStyle\":{\"background-color\":\"#2A3080\"},\"userProperties\":{\"label\":\"Click me\"},\"position\":{\"x\":237.05502846299814,\"y\":74.80834914611005},\"customizable\":{\"properties\":[{\"key\":\"label\",\"type\":\"text\",\"label\":\"Label\"}],\"style\":[\"background-color\"]},\"rotation\":0,\"scale\":100,\"visible\":true}}")
+                            value: JSON.parse("{\"speaker\":{\"id\":\"speaker\",\"name\":\"Speaker\",\"type\":\"speaker\",\"userStyle\":{},\"userProperties\":{},\"position\":{\"x\":0,\"y\":0}},\"text\":{\"id\":\"text\",\"name\":\"Text\",\"type\":\"text\",\"userStyle\":{\"color\":\"#F5F5F5\",\"font-size\":\"4em\",\"font-family\":\"monospace\"},\"userProperties\":{\"text\":\"My text\"},\"position\":{\"x\":149.61669829222018,\"y\":149.61669829222006},\"customizable\":{\"properties\":[{\"key\":\"text\",\"type\":\"text\",\"label\":\"Text\"}],\"style\":[\"color\",\"font-size\",\"font-family\"]},\"rotation\":0,\"scale\":\"181\",\"visible\":true}}")
                         }
                     },
                     attached: function () {
-                        this.style.backgroundColor = 'red';
                         var devices = {
                             get: function (id) {
                                 if (id === 'dropzone') {
@@ -37,8 +38,14 @@
                         };
 
                 (function (devices, time, loop, global, speaker, data, math, colour, mouse) {
-                    devices.get('button').when('clicked', function () {
-  devices.get('dropzone').style.backgroundColor = colour.random();
+                    var c;
+
+
+time.every(5, function () {
+  c = colour.random();
+  speaker.say(c, 1, "en-GB");
+  devices.get('dropzone').style.backgroundColor = c;
+  devices.get('text').setValue(c);devices.get('text').rotate(math.random(0, 7, false));
 });
 ;
                 })(devices, KanoModules.time.methods, KanoModules.loop.methods, KanoModules.global.methods, KanoModules.speaker.methods, KanoModules.data.methods, KanoModules.math.methods, KanoModules.colour.methods, KanoModules.mouse.methods);
@@ -46,6 +53,7 @@
                     }
                 });
             </script>
+        
 
 
 <dom-module id="kano-view-preview">

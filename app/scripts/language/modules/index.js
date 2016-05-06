@@ -7,7 +7,9 @@ import math from './math';
 import colour from './colour';
 import mouse from './mouse';
 
-export default {
+let modules;
+
+export default modules = {
     time,
     loop,
     global,
@@ -15,5 +17,15 @@ export default {
     data,
     math,
     colour,
-    mouse
+    mouse,
+    init (config) {
+        let mod;
+        // Loop through the modules and register every block
+        Object.keys(modules).forEach((moduleName) => {
+            mod = modules[moduleName];
+            if (typeof mod.config === 'function') {
+                mod.config(config);
+            }
+        });
+    }
 };

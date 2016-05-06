@@ -18,18 +18,15 @@ import config from './config';
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    app.registerBlockly = (Blockly) => {
-        let mod;
-        // Register default blockly modules
-        blockly.register(Blockly);
-        // Loop through the modules and register every block
-        Object.keys(modules).forEach((moduleName) => {
-            mod = modules[moduleName];
-            if (typeof mod.config === 'function') {
-                mod.config(config);
-            }
-        });
-    };
+    let mod;
+    // Loop through the modules and register every block
+    Object.keys(modules).forEach((moduleName) => {
+        mod = modules[moduleName];
+        console.log(moduleName);
+        if (typeof mod.config === 'function') {
+            mod.config(config);
+        }
+    });
 
     app.part = Part;
     app.stories = Stories;
