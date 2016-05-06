@@ -237,6 +237,9 @@ class KanoAppEditor {
         this.set('background', savedApp.background);
         this.updateColors();
     }
+    closeDrawer () {
+        this.$.partsPanel.closeDrawer();
+    }
     selectedChanged (newValue) {
         // The selection is cleared
         if (!newValue && this.drawerPage === 'part-editor' && this.partsPanelState === 'drawer') {

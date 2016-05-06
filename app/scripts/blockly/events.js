@@ -29,18 +29,24 @@ let register = (Blockly) => {
             pieces = ev.split('.'),
             emitter = pieces[0],
             eventId = pieces[1],
-            code;
-        code = `devices.get('${emitter}').when('${eventId}', function () {\n${statement}});\n`;
+            code = `devices.get('${emitter}')`;
+        if (emitter === 'global') {
+            code = 'global';
+        }
+        code += `.when('${eventId}', function () {\n${statement}});\n`;
         return code;
     };
     Blockly.Pseudo.part_event = (block) => {
         let ev = block.getFieldValue('EVENT'),
             statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            code = `devices.get('${ev.emitter}')`;
-        if (ev.emitter === 'global') {
+            pieces = ev.split('.'),
+            emitter = pieces[0],
+            eventId = pieces[1],
+            code = `devices.get('${emitter}')`;
+        if (emitter === 'global') {
             code = 'global';
         }
-        code += `.when('${ev.event}', function () {\n${statement}});\n`;
+        code += `.when('${eventId}', function () {\n${statement}});\n`;
         return code;
     };
 

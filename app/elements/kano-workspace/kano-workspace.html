@@ -158,14 +158,12 @@
                 this.clearSelection();
                 this.fire('close-settings');
             } else if (e.target.id === 'dropzone') {
-                if (e.target === this.tappedElement) {
-                    this.clearSelection();
-                    return;
-                }
                 this.tappedElement = e.target;
-                this.set('tooltipTarget', e.target.getBoundingClientRect());
+                this.tooltipTarget = e.target.getBoundingClientRect();
                 this.$.selector.clearSelection();
-                this.fire('close-settings');
+                if (e.target === this.tappedElement) {
+                    this.fire('close-settings');
+                }
             }
         }
         clearSelection () {
@@ -184,26 +182,22 @@
             }
         }
         onPartTapped (e) {
-            if (this.tappedElement === e.detail) {
-                this.clearSelection();
-                return;
-            }
             this.$.selector.clearSelection();
             this.tappedElement = e.detail;
-            this.set('tooltipTarget', this.tappedElement.getBoundingClientRect());
-            this.fire('close-settings');
+            this.tooltipTarget = this.tappedElement.getBoundingClientRect();
+            if (this.tappedElement !== e.detail) {
+                this.fire('close-settings');
+            }
         }
         openSettings () {
+            this.$.tooltip.close();
+            this.tooltipTarget = null;
             if (!this.canDelete(this.tappedElement)) {
                 this.fire('settings-tapped');
                 return;
             }
             let part = this.partFromElement(),
                 selector = this.$.selector;
-            if (part === this.selected) {
-                selector.clearSelection();
-                return;
-            }
             selector.select(part);
             this.fire('settings-tapped');
         }
@@ -244,14 +238,14 @@
         }
         partsChanged (e) {
             let path;
-            if (this.tappedElement) {
-                requestAnimationFrame(() => {
-                    // In case it changed before the animation frame
-                    if (this.tappedElement) {
-                        this.set('tooltipTarget', this.tappedElement.getBoundingClientRect());
-                    }
-                });
-            }
+            if (this.tooltipTarget) {
+                 requestAnimationFrame(() => {
+                     // In case it changed before the animation frame
+                     if (this.tooltipTarget) {
+                         this.tooltipTarget = this.tappedElement.getBoundingClientRect();
+                     }
+                 });
+             }
             if (!e) {
                 return;
             }
