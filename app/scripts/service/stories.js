@@ -12,21 +12,16 @@ class Stories {
             name: 'ISS tracker',
             id: 'space_tracker',
             image: '/assets/stories/space_tracker/space-tracker.svg',
-            available: true
+            available: false
         },{
-            name: 'Weather',
+            name: 'Windy mountains',
             id: 'weather',
             image: '/assets/stories/weather/weather.svg',
             available: false
         },{
-            name: 'AI Robot',
+            name: 'Sports ticker',
             id: 'ai_robot',
             image: '/assets/stories/ai-robot.svg',
-            available: false
-        },{
-            name: 'Cat Factory',
-            id: 'cat_factory',
-            image: '/assets/stories/cat-factory.svg',
             available: false
         }]);
     }
