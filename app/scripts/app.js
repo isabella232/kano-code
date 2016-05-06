@@ -18,15 +18,7 @@ import config from './config';
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    let mod;
-    // Loop through the modules and register every block
-    Object.keys(modules).forEach((moduleName) => {
-        mod = modules[moduleName];
-        console.log(moduleName);
-        if (typeof mod.config === 'function') {
-            mod.config(config);
-        }
-    });
+    modules.init(config);
 
     app.part = Part;
     app.stories = Stories;
