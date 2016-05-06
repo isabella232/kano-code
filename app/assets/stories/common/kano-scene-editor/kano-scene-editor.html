@@ -17,14 +17,17 @@
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            story-name="[[storyName]]"
-                            next-story="[[nextStory]]">
+                            current-step="{{currentStep}}"
+                            on-scene-done="completedScene">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*)]]"
                             default-categories="[[computeCategories(scene.*)]]"
                             class="editor"
                             ws-size="[[size]]"
-                            running="{{running}}"></kano-app-editor>
+                            running="{{running}}">
+              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp"></kano-challenge-progress>
+
+          </kano-app-editor>
       </kano-app-challenge>
   </template>
 </dom-module>
@@ -32,7 +35,7 @@
 
     /* globals app, Polymer, KanoBehaviors */
 
-    class KanoSceneVideo {
+    class KanoSceneEditor {
 
         get behaviors () {
             return [KanoBehaviors.SceneComponentBehavior];
@@ -44,15 +47,38 @@
                 running: {
                     type: Boolean,
                     observer: 'runningChanged'
+                },
+                storyName: {
+                    type: String
+                },
+                nextStory: {
+                    type: String
+                },
+                currentStep: {
+                    type: Number,
+                    value: 0
+                },
+                progress: {
+                    type: Number,
+                    computed: "computeProgress(currentStep, scene)"
                 }
             };
         }
 
+        computeProgress (currentStep, scene) {
+            return currentStep / scene.steps.length;
+        }
+
         attached () {
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
-            document.addEventListener('shareApp', () => {
-                this.$.editor.share();
-            });
+        }
+
+        completedScene () {
+            this.$['challenge-progress'].completedChallenge();
+        }
+
+        shareApp () {
+            this.$.editor.share();
         }
 
         computeParts () {
@@ -102,5 +128,5 @@
             challenge.set('blockIds', savedState.blockIds);
         }
     }
-    Polymer(KanoSceneVideo);
+    Polymer(KanoSceneEditor);
 </script>
