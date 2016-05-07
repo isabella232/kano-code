@@ -223,8 +223,16 @@ Blockly.Flyout.prototype.position = function () {
     var metrics = this.targetWorkspace_.getMetrics();
     var m = this.workspace_.getMetrics();
     var height = m.contentHeight + 20;
-    var triangleRect = this.targetWorkspace_.toolbox_.triangle.getBoundingClientRect();
-    var middle = triangleRect.top + 6;
+    var triangleRect, middle, toolboxRect, offsetLeft;
+    if (this.targetWorkspace_.toolbox_) {
+        triangleRect = this.targetWorkspace_.toolbox_.triangle.getBoundingClientRect();
+        toolboxRect = this.targetWorkspace_.toolbox_.HtmlDiv.getBoundingClientRect();
+        middle = triangleRect.top + 6;
+        offsetLeft = toolboxRect.width + 30;
+    } else {
+        middle = 0;
+        offsetLeft = 2;
+    }
     if (!metrics) {
         // Hidden components will return null.
         return;
@@ -246,7 +254,7 @@ Blockly.Flyout.prototype.position = function () {
     this.svgBackground_.setAttribute('d', path.join(' '));
 
     this.svgGroup_.setAttribute('transform',
-        `translate(150, ${Math.max(middle - height / 2, 20)})`);
+        `translate(${offsetLeft}, ${Math.max(middle - height / 2, 20)})`);
 
     this.clipPath.path.setAttributeNS(null, 'd', path.join(' '));
 
