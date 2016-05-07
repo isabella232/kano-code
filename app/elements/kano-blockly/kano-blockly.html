@@ -185,17 +185,14 @@
         save () {
             let javascript = this.getCode('JavaScript'),
                 pseudo = this.getCode('Pseudo'),
-                blocks = this.getBlocks();
-            return this.getScreenshot().then((screenshot) => {
-                let snapshot = {
-                    javascript,
-                    pseudo,
-                    screenshot,
-                    blocks
-                };
-                this.set('snapshot', snapshot);
-                return snapshot;
-            });
+                blocks = this.getBlocks(),
+                snapshot = {
+                javascript,
+                pseudo,
+                blocks
+            };
+            this.set('snapshot', snapshot);
+            return Promise.resolve(snapshot);
         }
 
         load (snapshot = {}) {
