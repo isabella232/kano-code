@@ -15,6 +15,7 @@ class TextToSpeech {
     constructor () {
         this.config = config;
         this.backend = this.remote;
+        this.backendStop = this.remoteStop;
 
         this.cache = {};
     }
@@ -24,8 +25,10 @@ class TextToSpeech {
 
         if (c.TARGET === 'rpi') {
             this.backend = this.rpi;
+            this.backendStop = this.rpiStop;
         } else if (window.speechSynthesis) {
             this.backend = this.browser;
+            this.backendStop = this.browserStop;
         }
 
         return this;
@@ -33,6 +36,10 @@ class TextToSpeech {
 
     speak (text, rate=1, language='en-GB') {
         this.backend(text, rate, language);
+    }
+
+    stop () {
+        this.backendStop();
     }
 
     rpi (text, rate, language) {
@@ -66,6 +73,10 @@ class TextToSpeech {
         msg.lang = language;
 
         window.speechSynthesis.speak(msg);
+    }
+
+    browserStop () {
+        window.speechSynthesis.cancel();
     }
 
     remote (text, rate, language) {
@@ -110,10 +121,14 @@ class TextToSpeech {
     }
 
     playAudio (url) {
-        let audio = document.createElement('audio');
-        audio.src = url;
-        audio.load();
-        audio.play();
+        this.this.audio = document.createElement('audio');
+        this.audio.src = url;
+        this.audio.load();
+        this.audio.play();
+    }
+
+    audioStop () {
+        this.audio.pause();
     }
 
     normaliseRateToRSS (rate) {
