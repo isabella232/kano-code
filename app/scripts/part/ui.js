@@ -162,6 +162,37 @@ export default class UI extends Part {
         this.blocks.push({
             block: (ui) => {
                 return {
+                    id: 'ui_absolute_rotate',
+                    message0: `set \u21BB ${ui.name} %1 degrees`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'DEG'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
+                        code;
+                    code = `devices.get('${ui.id}').absolute_rotate(${deg});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
+                        code;
+                    code = `${ui.id}.turnClockwise(${deg});\n`;
+                    return code;
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
                     id: 'ui_scale',
                     message0: `set ${ui.name} size to %1 %`,
                     args0: [{
