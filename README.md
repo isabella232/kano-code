@@ -2,7 +2,7 @@
 
 ## Make it work
 
-In the main folder, install the dependencies:
+In the main folder, install the dependencies :
 
 npm is used for the gulp tasks and the service/data layer
 bower is used for the web UI components (Polymer, Pure ...)
