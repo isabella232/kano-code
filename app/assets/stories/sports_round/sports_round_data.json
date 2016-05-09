@@ -1,0 +1,327 @@
+{
+    "parts": ["text", "scrolling-text", "button", "image", "weather", "sports", "speaker"],
+    "modules": ["control", "operators", "variables", "background"],
+    "steps": [
+      {
+          "tooltips": [{
+                "location": "right-panel",
+                "text": "<strong>Sports Ticker</strong><br />Make your own ticker to keep up<br />to date with the latest sports news.",
+                "next_button": true
+            }]
+      },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "This recipe needs two<br />parts: scrolling text and sports news data"
+        }],
+        "validation": {
+            "open-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-sports",
+            "position": "right",
+            "text": "Drag the sports data<br />part to your app"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-sports",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "sports",
+                "id": "sports_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-scrolling-text",
+            "position": "right",
+            "text": "Add a scrolling text<br />part too"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-scrolling-text",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "scrolling-text",
+                "id": "scrolling_text_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "Close the parts drawer"
+        }],
+        "validation": {
+            "close-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "path": "workspace",
+                "part": "scrolling_text_1"
+            },
+            "position": "right",
+            "text": "Click on the scrolling part"
+        }],
+        "validation": {
+            "open-settings-tooltip": {
+                "target": "scrolling_text_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "workspace.tooltip",
+            "position": "bottom",
+            "text": "Click 'settings'"
+        }],
+        "validation": {
+            "open-part-settings": {
+                "target": "scrolling_text_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "part-editor.ui-editor.look.style.width",
+            "position": "right",
+            "text": "Change the width to 512px",
+            "next_button": true
+        }],
+        "validation": {
+            "selected-part-change": {
+                "property": "userStyle.width"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "close-drawer",
+            "position": "bottom",
+            "text": "Close the settings when you’re done"
+        }],
+        "validation": {
+            "close-part-settings": true
+        }
+    },
+    {
+        "tooltips": [{
+            "location": {
+                "category": "scrolling-text"
+            },
+            "position": "left",
+            "text": "Open the scroll text tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "scrolling-text"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "scrolling_text_1",
+                    "type": "scroll"
+                }
+            },
+            "position": "left",
+            "text": "Drag the ‘Scroll text<br />scroll’ block onto your<br />code space"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "scrolling_text_1",
+                    "type": "scroll",
+                    "id": "scroll_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "left",
+            "text": "Connect the blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "scroll_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "sports"
+            },
+            "position": "left",
+            "text": "Open the sports tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "sports"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "sports_1",
+                    "type": "get_value_at"
+                }
+            },
+            "position": "right",
+            "text": "Drag out the<br />‘sports title’"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "sports_1",
+                    "type": "get_value_at",
+                    "id": "sports_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "scroll_1"
+            },
+            "position": "bottom",
+            "text": "Connect the blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "scroll_1",
+                    "target": "sports_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "sports"
+            },
+            "position": "left",
+            "text": "Open the sports<br />tray again"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "sports"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "sports_1",
+                    "type": "for_each"
+                }
+            },
+            "position": "right",
+            "text": "Grab a<br />‘for each’ block"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "sports_1",
+                    "type": "for_each",
+                    "id": "sports_for_each_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "left",
+            "text": "Connect it above<br />scrolling text scroll"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "sports_for_each_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "scroll_1"
+            },
+            "position": "left",
+            "text": "Pull the scroll text<br />block off the stack"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "scroll_1",
+                    "parent": null
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "sports_for_each_1"
+            },
+            "position": "left",
+            "text": "Drag it into the gap"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "sports_for_each_1",
+                    "target": "scroll_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "top",
+            "text": "Change ‘app starts’ to ‘Sports updated’"
+        }],
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "default_part_event",
+                    "value": {
+                        "event_from": "sports_1",
+                        "event": "update"
+                    }
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "make-button",
+            "position": "bottom",
+            "text": "Click play"
+        }],
+        "validation": {
+            "running": {
+                "value": true
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "left-panel",
+            "position": "right",
+            "text": "<strong>You did it!</strong><br />Did you know people have played a<br />game like football since medieval times?",
+            "next_button": true
+        }]
+    }]
+}
