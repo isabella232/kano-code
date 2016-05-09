@@ -74,14 +74,12 @@
         </kano-ui-viewport>
         <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
             <div class="tooltip-content">
-                <div class="settings">
+                <div class="settings" hidden$="[[!canEdit(tappedElement)]]">
                     <button type="button" on-tap="openSettings">settings</button>
                 </div>
-                <div class="delete-section" hidden$="[[!canDelete(tappedElement)]]">
-                    <div class="separator"></div>
-                    <div class="delete" on-tap="deletePart">
-                        <button type="button">delete</button>
-                    </div>
+                <div class="separator" hidden$="[[isSeparatorHidden(tappedElement)]]"></div>
+                <div class="delete" on-tap="deletePart" hidden$="[[!canDelete(tappedElement)]]">
+                    <button type="button">delete</button>
                 </div>
             </div>
         </kano-tooltip>
@@ -152,6 +150,12 @@
         }
         canDelete (el) {
             return el && !!el.model;
+        }
+        canEdit (el) {
+            return (el && el.id === "dropzone") || (el && el.model && el.model.partType !== 'hardware');
+        }
+        isSeparatorHidden (el) {
+            return !this.canDelete(el) || !this.canEdit(el);
         }
         onTap (e) {
             if (e.target.id === 'content') {

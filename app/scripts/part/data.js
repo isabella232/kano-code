@@ -26,11 +26,6 @@ export default class Data extends Part {
         this.dataType = opts.dataType || 'object';
         this.dataLength = opts.dataLength || 1;
         this.parameters = opts.parameters || [];
-        this.position = opts.position || {
-            x: 0,
-            y: 0
-        };
-        this.visible = true;
         this.config = this.parameters.reduce((acc, param) => {
             acc[param.key] = param.value;
             return acc;
