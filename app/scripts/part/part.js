@@ -37,6 +37,7 @@ export default class Part {
             x: opts.position.x || 0,
             y: opts.position.y || 0
         };
+        this.visible = true;
         this.image = opts.image;
         this.colour = opts.colour;
         this.blocks = Array.isArray(opts.blocks) ? opts.blocks.slice(0) : [];
