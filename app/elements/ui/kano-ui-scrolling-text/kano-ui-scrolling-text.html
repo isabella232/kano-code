@@ -39,6 +39,13 @@
             this.scrolling = false;
         }
 
+        stop () {
+            KanoBehaviors.UIBehavior.stop.apply(this, arguments);
+            this.stack = [];
+            clearTimeout(this.nextTimeout);
+            this.scrolling = false;
+        }
+
         computeLabelStyle () {
             let style = this.getPartialStyle(['color', 'font-family']);
             style += `font-size: ${this.model.userStyle.height};`;
@@ -74,7 +81,7 @@
             duration = rect.width / rect.height * 300;
             this.$.label.style.transition = `left linear ${duration}ms`;
             this.$.label.style.left = `-${rect.width}px`;
-            setTimeout(() => {
+            this.nextTimeout = setTimeout(() => {
                 this.scrollNext();
             }, duration);
         }
