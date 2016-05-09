@@ -64,6 +64,7 @@ Example:
     }
     :host paper-drawer-panel {
         @apply(--layout-flex);
+        position: relative;
     }
     :host .main iron-pages {
         @apply(--layout-flex);
@@ -93,8 +94,25 @@ Example:
     :host .auth-modal {
         border-radius: 5px;
     }
+    :host .news-bar {
+        background-color: #7DC242;
+        min-height: 40px;
+        color: white;
+        font-size: 1em;
+        text-decoration: none;
+        z-index: 1;
+        padding: 7px;
+        text-align: center;
+        
+    }
+    :host .news-bar:hover {
+        background-color: #8AC854;
+    }
     </style>
     <template>
+        <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857">
+            Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
+        </a>
         <style include="kano-style"></style>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
             <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" on-reset-workspace="resetWorkspace"></kano-side-menu>
