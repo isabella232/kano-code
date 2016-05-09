@@ -247,9 +247,21 @@ class KanoAppEditor {
         }
     }
     panelStateChanged () {
-        let isClosing = this.drawerPage === 'sidebar' && this.partsPanelState !== 'drawer';
+        let isClosing = this.partsPanelState !== 'drawer',
+            eventName,
+            eventData;
+        if (this.drawerPage === 'sidebar') {
+            eventName = isClosing ? 'close-parts' : 'open-parts';
+        } else if (this.drawerPage === 'part-editor') {
+            if (!isClosing) {
+                eventData = { part: this.selected };
+            }
+            eventName = isClosing ? 'close-part-settings' : 'open-part-settings';
+        } else if (this.drawerPage === 'background-editor') {
+            eventName = isClosing ? 'close-background-settings' : 'open-background-settings';
+        }
         this.debounce('notifyPanelState', () => {
-            this.notifyChange(isClosing ? 'close-parts' : 'open-parts');
+            this.notifyChange(eventName, eventData);
         }, 10);
     }
     toggleParts () {
@@ -275,6 +287,7 @@ class KanoAppEditor {
             this.drawerPage = 'part-editor';
             this.drawerWidth = '50%';
             this.$.partsPanel.openDrawer();
+            this.notifyChange('open-part-settings', { part: this.selected });
         }
     }
     closeSettings () {
@@ -357,8 +370,13 @@ class KanoAppEditor {
         }
     }
     detachEvents () {
+        let sidebar = this.$.drawer;
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
-        this.$.sidebar.removeEventListener('transitionend', this.panelStateChanged);
+        if (sidebar.classList.contains('animatable')) {
+            sidebar.removeEventListener('transitionend', this.panelStateChanged);
+        } else {
+            this.$.partsPanel.removeEventListener('selected-changed', this.panelStateChanged);
+        }
     }
     ready () {
         this.makeButtonIconPaths = {

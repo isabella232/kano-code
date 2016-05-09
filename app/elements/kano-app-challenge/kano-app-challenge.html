@@ -171,7 +171,9 @@
                 "open-part-config": this.matchPartTarget.bind(this),
                 "enable-refresh": this.matchPartTarget.bind(this),
                 "disable-refresh": this.matchPartTarget.bind(this),
-                "manual-refresh": this.matchPartTarget.bind(this)
+                "manual-refresh": this.matchPartTarget.bind(this),
+                "open-settings-tooltip": this.matchPartTarget.bind(this),
+                "open-part-settings": this.matchPartTarget.bind(this)
             };
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
@@ -324,8 +326,11 @@
         }
         matchPartTarget (validation, event) {
             let target = this.stepIds[validation.target];
-            // Match if there is not target defined or if the target matches
-            return validation.target || target === event.part.id;
+            if (!event.part && validation.target) {
+                return false;
+            } else {
+                return target === event.part.id;
+            }
         }
         /**
          * Will tell if a property defined in a validation and an event matches
