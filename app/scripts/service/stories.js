@@ -4,24 +4,24 @@ class Stories {
     }
     list () {
         return Promise.resolve([{
-            name: 'Random colours',
-            id: 'background_colour',
-            image: '/assets/stories/background_colour/background-colour.svg',
+            name: 'Random colors',
+            id: 'background_color',
+            image: '/assets/stories/background_color/background-color.svg',
+            available: true
+        },{
+            name: 'Sports ticker',
+            id: 'sports_round',
+            image: '/assets/stories/sports_round/sports-round.svg',
             available: true
         },{
             name: 'ISS tracker',
             id: 'space_tracker',
             image: '/assets/stories/space_tracker/space-tracker.svg',
-            available: false
+            available: true
         },{
             name: 'Windy mountains',
             id: 'weather',
             image: '/assets/stories/weather/weather.svg',
-            available: false
-        },{
-            name: 'Sports ticker',
-            id: 'ai_robot',
-            image: '/assets/stories/ai-robot.svg',
             available: false
         }]);
     }
