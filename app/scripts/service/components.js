@@ -43,7 +43,7 @@ class ComponentStore {
     }
     generateCode (code = {}) {
         code.snapshot = code.snapshot || {};
-        return code.snapshot.javascript || '';
+        return code.snapshot.javascript + `\nglobal.emit('start');` || '';
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
