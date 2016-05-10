@@ -52,7 +52,8 @@
         }
     </style>
     <template>
-        <kano-header user="[[user]]"></kano-header>
+        <kano-header user="[[user]]" app="[[app]]"></kano-header>
+        <h1>{{app}}</h1>
         <style include="kano-style"></style>
         <div class="container">
             <div class="logo-holder"><iron-image src="../../assets/logo.png" preload></iron-image></div>
@@ -78,12 +79,17 @@
                 },
                 user: {
                     type: Object
+                },
+                app: {
+                    type: Object,
+                    value: app
                 }
             }
 
             this.observers = [
                 "userChanged(user, view)"
             ];
+
         }
 
         userChanged () {

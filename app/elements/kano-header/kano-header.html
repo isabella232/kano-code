@@ -21,7 +21,7 @@
 
     @media screen and (max-width: 600px) {
         :host .page-width {
-            padding 0 10px
+            padding: 0 10px;
         }
     }
 
@@ -374,13 +374,13 @@
                         <li class="menu-item make-items" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Make</a>
                             <i class="icon-chevron-down2"></i>
-                            <kano-drop-down items="{{makeItems}}"></kano-drop-down>
+                            <kano-drop-down items="{{makeItems}}" app="[[app]]"></kano-drop-down>
                         </li>
                         <li class="menu-item"><a href='//world.kano.me/projects'>Projects</a></li>
                         <li class="menu-item" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Community</a>
                             <i class="icon-chevron-down2"></i>
-                            <kano-drop-down items="{{communityItems}}"></kano-drop-down>
+                            <kano-drop-down items="{{communityItems}}" app="[[app]]"></kano-drop-down>
                         </li>
                         <li class="menu-item nav-menu-items--separator"></li>
                         <li class="menu-item nav-menu-items--products">
@@ -389,10 +389,10 @@
                     </ul>
                     <ul class="nav-menu-user-items nav-menu-items">
                         <li id="notifications-menu" class="menu-item" on-tap="toggleOpen">
-                            <kano-notifications user="{{user}}"></kano-notifications>
+                            <kano-notifications user="{{user}}" app="[[app]]"></kano-notifications>
                         </li>
                         <li id="avatar-menu" class="menu-item menu-item-avatar" on-tap="toggleOpen">
-                            <kano-user-avatar user="{{user}}"></kano-user-avatar>
+                            <kano-user-avatar user="{{user}}" app="[[app]]"></kano-user-avatar>
                         </li>
                     </ul>
                 </div>
@@ -412,7 +412,10 @@
                     user: {
                         type: Object
                     },
-                    mobileNav: false
+                    mobileNav: false,
+                    app: {
+                        type: Object
+                    }
                 }
             }
 

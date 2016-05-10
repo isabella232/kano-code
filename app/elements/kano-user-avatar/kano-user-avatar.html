@@ -41,7 +41,7 @@
             <div class="progress-header"></div>
             <img src='{{user.avatar.urls.circle}}' class="user-avatar"/>
         </div>
-        <kano-drop-down items="{{items}}"></kano-drop-down>
+        <kano-drop-down items="{{items}}" app="[[app]]"></kano-drop-down>
     </template>
     <script>
         class KanoUserAvatar {
@@ -51,7 +51,8 @@
                     user: {
                         type: Object,
                         observer: 'showProgress'
-                    }
+                    },
+                    app: Object
                 }
                 this.levelsMap = {
                     "1": 0,
@@ -137,7 +138,7 @@
                 return;
             }
 
-            app.sdk.api.users.get.byUsername({ username: this.user.username })
+            this.app.sdk.api.users.get.byUsername({ username: this.user.username })
                 .then((res, d) => {
                     profile = res.body.user.profile;
                     progressPercent = this.getPercent(profile.xp) / 100;

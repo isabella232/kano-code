@@ -28,7 +28,7 @@
         <template is="dom-if" if="{{unread}}">
             <span class="unread-count">{{unread}}</span>
         </template>
-        <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications"></kano-drop-down>
+        <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications" app="[[app]]"></kano-drop-down>
     </template>
     <script>
         class KanoNotifications {
@@ -47,7 +47,8 @@
                     user: {
                         type: Object,
                         observer: 'getNotifications'
-                    }
+                    },
+                    app: Object
                 }
             }
 
@@ -58,7 +59,7 @@
                     return;
                 }
 
-                app.sdk.api.notifications.get().then(((data) => {
+                this.app.sdk.api.notifications.get().then(((data) => {
                     data.body.entries.forEach((value) => {
                         let obj = {
                             name: value.title,

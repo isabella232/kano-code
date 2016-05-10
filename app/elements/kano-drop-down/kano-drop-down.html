@@ -203,7 +203,8 @@
                         observer: 'hasNotifications'
                     },
                     unread: Number,
-                    type: String
+                    type: String,
+                    app: Object
                 }
                 this.hasNotifications = (items, type) => {
                     return type === 'notifications' && items.length;
@@ -216,18 +217,18 @@
                 if (!item.read && item.category === 'notification') {
                     ev.target.classList.remove('notification-unread')
                     ev.target.classList.add('notification-read')
-                    app.sdk.api.notifications.read({ id: item.id })
+                    this.app.sdk.api.notifications.read({ id: item.id })
                         .then(() => this.fire('notification:read'))
                 }
 
                 if (item.logout) {
                     ev.preventDefault();
-                    app.sdk.auth.logout();
+                    this.app.sdk.auth.logout();
                 }
             }
 
             readThemAll () {
-                app.sdk.api.notifications.readAll()
+                this.app.sdk.api.notifications.readAll()
                     .then(() => this.fire('notifications:readAll'))
             }
         }
