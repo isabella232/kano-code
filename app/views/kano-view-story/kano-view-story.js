@@ -33,6 +33,10 @@ class KanoViewStory {
     nextScene () {
         if (this.selected < this.story.scenes.length - 1) {
             this.selected++;
+        } else {
+            //story completed!!!
+            let progress = this.story.progress;
+            app.progress.updateProgress(progress.group, progress.storyNo);
         }
     }
     selectedChanged () {
