@@ -120,12 +120,11 @@ function getHtmlReplaceOptions() {
 
 // For a build with cordova, add this to html replace
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
-gulp.task('js', ['babel', 'bundle', 'copy'], () => {
-    gulp.src('./.tmp/app/index.html')
+gulp.task('js', ['babel', 'bundle', 'copy', 'polyfill'], () => {
+    gulp.src('./.tmp/app/elements/elements.html')
         .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
         .pipe($.crisper({ scriptInHead: false }))
-        .pipe($.htmlReplace(getHtmlReplaceOptions()))
-        .pipe(gulp.dest('www'));
+        .pipe(gulp.dest('www/elements'));
 });
 
 gulp.task('babel', () => {
@@ -135,9 +134,8 @@ gulp.task('babel', () => {
         .pipe(gulp.dest('.tmp/app/elements'));
 });
 
-gulp.task('copy', () => {
+gulp.task('copy', ['copy-index'], () => {
     return gulp.src([
-            'app/index.html',
             'app/bower_components/**/*',
             'app/assets/vendor/google-blockly/blockly_compressed.js',
             'app/assets/vendor/google-blockly/blocks_compressed.js',
@@ -147,6 +145,12 @@ gulp.task('copy', () => {
             'app/scripts/util/client.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
+});
+
+gulp.task('copy-index', () => {
+    return gulp.src(['app/index.html', 'app/scripts/index.js'], { base: 'app' })
+        .pipe($.if('index.html', $.htmlReplace(getHtmlReplaceOptions())))
+        .pipe(gulp.dest('www'));
 });
 
 gulp.task('assets', ['scenes'], () => {
@@ -191,10 +195,10 @@ gulp.task('scenes', ['copy'], () => {
 });
 
 gulp.task('sass', () => {
-    gulp.src('app/style/**/*.sass')
+    gulp.src('app/style/main.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
         .pipe($.autoprefixer())
-        .pipe(gulp.dest('.tmp/app/css'));
+        .pipe(gulp.dest('www/css'));
 });
 
 function getImports(filePath, opts) {
@@ -305,7 +309,7 @@ gulp.task('views-dev', () => {
 });
 
 gulp.task('sass-dev', () => {
-    gulp.src('app/style/**/*.sass')
+    gulp.src('app/style/main.sass')
         .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', utils.notifyError))
         .pipe($.autoprefixer())
         .pipe($.connect.reload())
@@ -319,7 +323,7 @@ gulp.task('index-dev', () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('copy-dev', ['index-dev'], () => {
+gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
     return gulp.src([
             'app/bower_components/**/*',
             'app/assets/vendor/google-blockly/blockly_compressed.js',
@@ -327,10 +331,16 @@ gulp.task('copy-dev', ['index-dev'], () => {
             'app/assets/vendor/google-blockly/javascript_compressed.js',
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
-            'app/scripts/util/client.js'
+            'app/scripts/util/client.js',
+            'app/scripts/index.js'
         ], { base: 'app'})
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
+});
+
+gulp.task('polyfill', () => {
+    return gulp.src('app/bower_components/webcomponentsjs/webcomponents-lite.min.js')
+        .pipe(gulp.dest('www/assets/vendor/webcomponentsjs/'));
 });
 
 gulp.task('assets-dev', ['scenes-dev'], () => {
@@ -351,7 +361,8 @@ gulp.task('watch', () => {
             'app/index.html',
             'app/bower_components/**/*',
             'app/scripts/util/dom.js',
-            'app/scripts/util/client.js'
+            'app/scripts/util/client.js',
+            'app/scripts/index.js'
         ], ['copy-dev']),
         gulp.watch(['app/elements/**/*'], ['elements-dev']),
         gulp.watch(['app/views/**/*'], ['views-dev']),
