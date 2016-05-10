@@ -18,7 +18,10 @@ export default speaker = {
     },
     lifecycle: {
         stop () {
-
+            if (!speaker.tts) {
+                return;
+            }
+            speaker.tts.stop();
         }
     },
     config (opts) {
