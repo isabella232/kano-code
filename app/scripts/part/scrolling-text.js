@@ -19,7 +19,7 @@ export default scrollingText = {
     userStyle: {
         width: '200px',
         height: '50px',
-        color: 'black',
+        color: '#000000',
         'font-family': 'Bariol'
     },
     userProperties: {
