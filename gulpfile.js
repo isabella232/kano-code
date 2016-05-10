@@ -14,6 +14,8 @@ let gulp = require('gulp'),
     bundler,
     utils;
 
+require('web-component-tester').gulp.init(gulp, ['copy-test', 'build-dev']);
+
 bundler = browserify('app/scripts/app.js', { cache: {}, packageCache: {} })
         .transform(babelify.configure({ presets: ['es2015'] }));
 
@@ -273,8 +275,8 @@ gulp.task('default', ['build']);
 /**
  * Skip babel if the target env is ES6 capable
  */
-function babelOrCopy(src) {
-    let stream = gulp.src(src);
+function babelOrCopy(src, opts) {
+    let stream = gulp.src(src, opts);
     if (!process.env.ES6) {
         stream = stream
             .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
@@ -285,7 +287,7 @@ function babelOrCopy(src) {
 }
 
 gulp.task('elements-dev', () => {
-    return babelOrCopy('app/elements/**/*.{js,html}')
+    return babelOrCopy('app/elements/**/*.{js,html}', { base: 'app/elements/' })
         .pipe($.connect.reload())
         .pipe(gulp.dest('www/elements'));
 });
@@ -363,6 +365,11 @@ gulp.task('watch', () => {
     });
     bundler = bundler.plugin(watchify).on('update', utils.bundleDev);
     utils.bundleDev();
+});
+
+gulp.task('copy-test', () => {
+    return babelOrCopy('app/test/**/*.{js,html}', { base: 'app/test/' })
+        .pipe(gulp.dest('www/test'));
 });
 
 gulp.task('dev', ['watch', 'serve']);
