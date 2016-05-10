@@ -232,8 +232,8 @@ class KanoAppEditor {
         if (savedApp.code && savedApp.code.snapshot && emptyBlocks.indexOf(savedApp.code.snapshot.blocks) !== -1) {
             savedApp.code.snapshot.blocks = DEFAULT_BLOCKS;
         }
-        this.set('code', savedApp.code);
         this.set('addedParts', addedParts);
+        this.set('code', savedApp.code);
         this.set('background', savedApp.background);
         this.updateColors();
     }
