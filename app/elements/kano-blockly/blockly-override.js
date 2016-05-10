@@ -225,9 +225,10 @@ Blockly.Flyout.prototype.position = function () {
     var height = m.contentHeight + 20;
     var triangleRect, middle, toolboxRect, offsetLeft;
     if (this.targetWorkspace_.toolbox_) {
+        let workspaceRect = this.targetWorkspace_.svgGroup_.getBoundingClientRect();
         triangleRect = this.targetWorkspace_.toolbox_.triangle.getBoundingClientRect();
         toolboxRect = this.targetWorkspace_.toolbox_.HtmlDiv.getBoundingClientRect();
-        middle = triangleRect.top + 6;
+        middle = triangleRect.top - workspaceRect.top + 12;
         offsetLeft = toolboxRect.width + 30;
     } else {
         middle = 0;
