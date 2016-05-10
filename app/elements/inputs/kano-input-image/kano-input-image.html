@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-fs/kano-fs.html">
+<link rel="import" href="../kano-file-picker-modal/kano-file-picker-modal.html">
 
 <dom-module id="kano-input-image">
     <style>
@@ -38,19 +39,11 @@
             <button type="button" on-tap="openModal" class="change-button">Change image</button>
             <button type="button" on-tap="removeImage" class="remove-button" hidden$="[[!src]]">Remove image</button>
         </div>
-        <paper-dialog id="modal" on-iron-overlay-closed="modalClosed">
-            <h2>Choose an image</h2>
-            <paper-dialog-scrollable>
-                <kano-fs files="[[files]]" id="fs" on-dom-change="refitModal"></kano-fs>
-            </paper-dialog-scrollable>
-            <div class="buttons">
-                <button dialog-dismiss>Cancel</button>
-                <button dialog-confirm class="accept">Choose</button>
-            </div>
-        </paper-dialog>
+        <kano-file-picker-modal files="[[files]]" id="modal" on-select-file="fileSelected"></kano-file-picker-modal>
     </template>
 </dom-module>
 <script type="text/javascript">
+    /* globals Polymer, KanoBehaviors */
     class KanoInputImage {
 
         get behaviors () {
@@ -78,6 +71,7 @@
         }
 
         attached () {
+            document.body.appendChild(this.$.modal);
             fetch('/assets/filesets/images.json')
                 .then(r => r.json())
                 .then((response) => {
@@ -85,16 +79,19 @@
                 });
         }
 
+        detached () {
+            document.body.removeChild(this.$.modal);
+        }
+
         openModal () {
             this.$.modal.open();
         }
 
-        modalClosed (e) {
-            let file = this.$.fs.selectedFile;
-            if (e.detail.confirmed && file) {
-                this.set('src', file.data.src);
-                this.set('title', file.name);
-            }
+        fileSelected (e) {
+            let file = e.detail;
+            this.set('src', file.data.src);
+            this.set('title', file.name);
+            this.$.modal.close();
         }
 
         valueChanged () {
@@ -104,10 +101,6 @@
         removeImage () {
             this.set('title', null);
             this.set('src', null);
-        }
-
-        refitModal () {
-            this.$.modal.refit();
         }
     }
     Polymer(KanoInputImage);
