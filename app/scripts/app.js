@@ -11,6 +11,7 @@ import KanoWorldSdk from 'kano-world-sdk';
 import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
 import FileUtils from './util/file';
+import ProgressService from './service/progress.js';
 import config from './config';
 
 (function (app) {
@@ -32,7 +33,9 @@ import config from './config';
     app.defaultCategories = blockly.categories;
 
     app.sdk = KanoWorldSdk(config);
+    app.progress = ProgressService(app.sdk);
     app.sdk.registerForms();
+
 
     window.KanoModules = modules;
 
