@@ -15,7 +15,7 @@ export default text = {
         }]
     },
     userStyle: {
-        color: 'black',
+        color: '#000000',
         'font-size': '1em',
         'font-family': 'Bariol'
     },

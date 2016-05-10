@@ -19,6 +19,9 @@ export default button = {
     userProperties: {
         label: 'Click me'
     },
+    userStyle: {
+        'background-color': '#70C222'
+    },
     events: [{
         label: 'is clicked',
         id: 'clicked'

@@ -22,7 +22,8 @@ export default box = {
     },
     userStyle: {
         width: '200px',
-        height: '200px'
+        height: '200px',
+        'background-color': '#F5F5F5'
     },
     userProperties: {
         strokeSize: '2',
