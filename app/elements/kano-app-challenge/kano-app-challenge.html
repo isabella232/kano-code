@@ -319,9 +319,6 @@
                     validation.event === event.trigger.event;
         }
         matchPartChange (validation, event) {
-            if (!this.matchPartTarget(validation, event)) {
-                return false;
-            }
             return this.matchProperty(validation, event);
         }
         matchPartTarget (validation, event) {
@@ -398,7 +395,7 @@
             let step = this.steps[this.step],
                 detail = e.detail;
 
-            if (!step || !step.validation) {
+            if (!step || !step.validation || this.done) {
                 return;
             }
             Object.keys(step.validation).forEach((type) => {

@@ -1,0 +1,180 @@
+<dom-module id="kano-scene-challenge-overlay">
+    <style>
+        @keyframes jump-in {
+            from {
+                opacity: 1;
+                transform: translateY(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0%);
+            }
+        }
+        @keyframes jump-out {
+            from {
+                opacity: 1;
+                transform: translateY(0%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(100%);
+            }
+        }
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        :host {
+            display: block;
+            position: relative;
+            z-index: 10;
+        }
+        :host .overlay {
+            opacity: 0;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            animation: fade-in ease-in-out 800ms;
+            animation-fill-mode: forwards;
+            animation-delay: 400ms;
+            background-color: rgba(255, 255, 255, 0.45);
+        }
+        :host .overlay.animate-out {
+            animation: fade-out ease-in-out 400ms;
+            animation-fill-mode: forwards;
+            animation-delay: 0ms;
+        }
+        :host .content {
+            position: absolute;
+            right: 0px;
+            bottom: 0px;
+            width: 50%;
+        }
+        :host button {
+            @apply(--kano-button);
+            background-color: var(--color-green, green);
+        }
+        :host .background,
+        :host .char-bubble {
+            position: absolute;
+            right: 0px;
+            bottom: 0px;
+        }
+        :host .char-bubble {
+            width: 100%;
+        }
+        :host .background,
+        :host .character,
+        :host .ui {
+            animation: jump-in ease-in-out 300ms;
+            animation-fill-mode: forwards;
+        }
+        :host .animate-out {
+            animation: jump-out ease-in 300ms;
+            animation-fill-mode: forwards;
+        }
+        :host .background {
+            opacity: 0;
+            animation-delay: 400ms;
+            max-height: 400px;
+        }
+        :host .character {
+            opacity: 0;
+            animation-delay: 800ms;
+            max-height: 200px;
+        }
+        :host .background.animate-out {
+            opacity: 1;
+            animation-delay: 400ms;
+        }
+        :host .character.animate-out {
+            opacity: 1;
+            animation-delay: 200ms;
+        }
+        :host .ui.animate-out {
+            opacity: 1;
+            animation-delay: 0ms;
+        }
+        :host .ui {
+            opacity: 0;
+            animation-delay: 600ms;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            @apply(--layout-flex);
+            text-align: center;
+            color: white;
+            margin-right: -10px;
+        }
+        :host .char-bubble {
+            @apply(--layout-horizontal);
+        }
+        :host .bubble {
+            border-radius: 4px;
+            padding: 10px 20px;
+            background-color: #4b99e0;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.45);
+            @apply(--layout-self-stretch);
+        }
+    </style>
+  <template>
+      <div class="overlay" id="overlay"></div>
+      <div class="content">
+          <img class="background" src$="[[scene.background]]" id="background"/>
+          <div class="char-bubble">
+              <div class="ui" id="ui">
+                  <div class="bubble">
+                      <marked-element markdown="[[scene.text]]">
+                          <div class="markdown-html"></div>
+                      </marked-element>
+                  </div>
+                  <button type="button" name="button" on-tap="overlayDone">[[scene.buttonText]]</button>
+              </div>
+              <img class="character" src$="[[scene.character]]" id="character"/>
+          </div>
+      </div>
+  </template>
+</dom-module>
+<script type="text/javascript">
+
+    /* globals Polymer, KanoBehaviors */
+
+    class KanoSceneChallengeOverlay {
+        get behaviors () {
+            return [KanoBehaviors.SceneComponentBehavior, KanoBehaviors.AnimatableBehavior];
+        }
+
+        beforeRegister () {
+            this.is = 'kano-scene-challenge-overlay';
+        }
+
+        overlayDone () {
+            this.fire('overlay-done');
+        }
+
+        end () {
+            this.toggleClass('animate-out', true, this.$.character);
+            this.toggleClass('animate-out', true, this.$.background);
+            this.toggleClass('animate-out', true, this.$.ui);
+            return new Promise((resolve) => {
+                setTimeout(resolve, 700);
+            });
+        }
+    }
+    Polymer(KanoSceneChallengeOverlay);
+</script>
