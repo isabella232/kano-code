@@ -339,6 +339,7 @@ class KanoAppEditor {
                 clone = Polymer.dom(original).cloneNode(true);
                 style = clone.style;
                 clone.model = original.model;
+                clone.colour = original.colour;
                 style.position = 'absolute';
                 style.top = `${rect.top}px`;
                 style.left = `${rect.left}px`;
@@ -394,8 +395,15 @@ class KanoAppEditor {
             accept: 'kano-ui-item:not([instance])',
             ondrop: (e) => {
                 let model = e.relatedTarget.model,
-                    part;
-                model.position = null;
+                    part,
+                    viewport = this.$.workspace.getViewport(),
+                    viewportRect = viewport.getBoundingClientRect(),
+                    viewportScale = this.$.workspace.getViewportScale(),
+                    targetRect = e.relatedTarget.getBoundingClientRect();
+                model.position = {
+                    x: (targetRect.left - viewportRect.left) / viewportScale.x,
+                    y: (targetRect.top - viewportRect.top) / viewportScale.y
+                };
                 part = Part.create(model, this.wsSize);
                 this.push('addedParts', part);
                 this.fire('change', {
