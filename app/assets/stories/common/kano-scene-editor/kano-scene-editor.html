@@ -17,16 +17,14 @@
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            current-step="{{currentStep}}"
-                            on-scene-done="completedScene">
+                            current-step="{{currentStep}}">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*)]]"
                             default-categories="[[computeCategories(scene.*)]]"
                             class="editor"
                             ws-size="[[size]]"
                             running="{{running}}">
-              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp"></kano-challenge-progress>
-
+              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp" remix-mode="[[scene.remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
   </template>
@@ -71,10 +69,6 @@
 
         attached () {
             this.set('size', app.config.WORKSPACE_FULL_SIZE);
-        }
-
-        completedScene () {
-            this.$['challenge-progress'].completedChallenge();
         }
 
         shareApp () {

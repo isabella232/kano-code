@@ -90,6 +90,7 @@ In this example we also assume that the next challenge URL is `/story/weather`
             line-height: 40px;
             text-align: center;
             cursor: pointer;
+            text-transform: uppercase;
         }
 
         :host .actions .separator {
@@ -98,34 +99,6 @@ In this example we also assume that the next challenge URL is `/story/weather`
             height: 1px;
             width: 80%;
             margin: auto;
-        }
-
-        :host #challenge-completed {
-            border-radius: 5px;
-        }
-
-        :host #challenge-completed .buttons button {
-            @apply(--kano-button);
-            border-radius: 5px;
-            margin: 0 10px;
-            min-height: 45px;
-            font-weight: bold;
-        }
-
-        :host #challenge-completed .buttons .remix {
-            background: var(--color-orange);
-        }
-
-        :host #challenge-completed .buttons .share {
-            background: var(--color-kw-blue);
-        }
-
-        :host #challenge-completed .buttons .next-challenge {
-            background: var(--color-green);
-        }
-
-        :host #challenge-completed h2 {
-            color: var(--color-green);
         }
 
         :host .vertical-aligned {
@@ -145,10 +118,10 @@ In this example we also assume that the next challenge URL is `/story/weather`
             <div class="actions">
               <div class="empty-space"></div>
               <template is="dom-if" if="{{nextChallenge}}">
-                  <a on-tap="goToNextChallenge"> NEXT CHALLENGE </a>
+                  <a on-tap="goToNextChallenge"> Next Challenge </a>
                   <div class="separator"></div>
               </template>
-              <a on-tap="shareApp"> SHARE APP </a>
+              <a on-tap="shareApp"> Share App </a>
             </div>
          </template>
          <paper-dialog id="challenge-completed" with-backdrop on-iron-overlay-closed="goToRemixChallenge">
@@ -223,30 +196,14 @@ In this example we also assume that the next challenge URL is `/story/weather`
             }
         }
 
-        completedChallenge () {
-            let modal = this.$['challenge-completed'];
-            modal.open();
-        }
-
         animate () {
             if (this.element) {
                 this.element.animate.apply(this.element, arguments);
             }
         }
 
-        goToNextChallenge () {
-            if (this.nextChallenge) {
-                window.location.href = '/story/' + this.nextChallenge;
-            }
-        }
-
         shareApp () {
             this.fire('share-app');
-        }
-
-        goToRemixChallenge () {
-            this.$['challenge-completed'].close();
-            this.remixMode = true;
         }
 
     }
