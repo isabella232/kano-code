@@ -163,7 +163,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_absolute_rotate',
-                    message0: `set \u21BB ${ui.name} %1 degrees`,
+                    message0: `point ${ui.name} to %1 degrees`,
                     args0: [{
                         type: 'input_value',
                         name: 'DEG'
@@ -176,8 +176,10 @@ export default class UI extends Part {
             javascript: (ui) => {
                 return function (block) {
                     let deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
-                        code;
-                    code = `devices.get('${ui.id}').absolute_rotate(${deg});\n`;
+                        code = '';
+                    if (deg) {
+                        code = `devices.get('${ui.id}').absolute_rotate(${deg});\n`;
+                    }
                     return code;
                 };
             },
