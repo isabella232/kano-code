@@ -1,0 +1,83 @@
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<dom-module id="kano-file-picker-modal">
+    <style>
+    :host {
+        display: block;
+    }
+    :host #modal {
+        max-width: 70vw;
+        padding: 12px 0px;
+        @apply(--layout-vertical);
+    }
+    :host #modal paper-dialog-scrollable {
+        @apply(--layout-flex);
+        --paper-dialog-scrollable: {
+            max-height: 50vh;
+            padding: 0px 60px;
+        };
+    }
+    :host #modal .cancel {
+        @apply(--kano-button);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        background-color: var(--color-red);
+    }
+    :host #modal header {
+        padding: 0px 60px;
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-center);
+    }
+    :host #modal header h2 {
+        font-size: 16px;
+        font-family: Bariol;
+        font-weight: bold;
+    }
+    :host .cancel .times {
+        font-size: 25px;
+        font-weight: 500;
+        transform: translate(0px, -3px);
+    }
+    </style>
+    <template>
+        <paper-dialog id="modal" with-backdrop>
+            <header>
+                <h2>Click an image to select</h2>
+                <button type="button" name="button" class="cancel" dialog-dismiss><span>Cancel&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+            </header>
+            <paper-dialog-scrollable>
+                <kano-fs files="[[files]]" id="fs" on-dom-change="refitModal"></kano-fs>
+            </paper-dialog-scrollable>
+        </paper-dialog>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer */
+    class KanoFilePickerModal {
+
+        beforeRegister () {
+            this.is = 'kano-file-picker-modal';
+            this.properties = {
+                files: {
+                    type: Array
+                }
+            };
+        }
+
+        open () {
+            this.$.modal.open();
+        }
+
+        close () {
+            this.$.modal.close();
+        }
+
+        refitModal () {
+            this.$.modal.refit();
+        }
+
+    }
+    Polymer(KanoFilePickerModal);
+</script>
