@@ -36,7 +36,6 @@ class KanoViewStory {
         } else {
             //story completed!!!
             let progress = this.story.progress;
-            console.log(this.story);
             app.progress.updateProgress(progress.group, progress.storyNo);
         }
     }
