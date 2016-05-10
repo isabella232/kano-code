@@ -28,7 +28,7 @@
         <template is="dom-if" if="{{unread}}">
             <span class="unread-count">{{unread}}</span>
         </template>
-        <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications" app="[[app]]"></kano-drop-down>
+        <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications"></kano-drop-down>
     </template>
     <script>
         class KanoNotifications {
@@ -71,9 +71,9 @@
                         };
 
                         if (value.category === 'follows') {
-                            obj.url = `//world.kano.me/users/${value.meta.author.username}`;
+                            obj.url = `${this.app.config.WORLD_URL}/users/${value.meta.author.username}`;
                         } else {
-                            obj.url = `//world.kano.me/shared/${value.id}`;
+                            obj.url = `${this.app.config.WORLD_URL}/shared/${value.id}`;
                         }
 
                         new_notifications.push(obj);
@@ -109,8 +109,13 @@
             ready () {
                 this.notificationsInterval = setInterval(this.getNotifications.bind(this), 180000);
                 this.getNotifications();
-                this.addEventListener('notification:read', () => this.unread--);
-                this.addEventListener('notifications:readAll', () => this.unread = 0);
+                this.addEventListener('notification:read', (payload) => this.app.sdk.api.notifications.read({ id: payload.detail.id })
+                    .then(() => this.unread--));
+
+                this.addEventListener('notifications:readAll', () => this.app.sdk.api.notifications.readAll()
+                    .then(() => this.unread = 0));
+
+                this.addEventListener('logout', () => this.app.sdk.auth.logout());
             }
 
             detached () {

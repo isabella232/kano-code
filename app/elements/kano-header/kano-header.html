@@ -374,13 +374,13 @@
                         <li class="menu-item make-items" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Make</a>
                             <i class="icon-chevron-down2"></i>
-                            <kano-drop-down items="{{makeItems}}" app="[[app]]"></kano-drop-down>
+                            <kano-drop-down items="{{makeItems}}"></kano-drop-down>
                         </li>
                         <li class="menu-item"><a href='//world.kano.me/projects'>Projects</a></li>
                         <li class="menu-item" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Community</a>
                             <i class="icon-chevron-down2"></i>
-                            <kano-drop-down items="{{communityItems}}" app="[[app]]"></kano-drop-down>
+                            <kano-drop-down items="{{communityItems}}"></kano-drop-down>
                         </li>
                         <li class="menu-item nav-menu-items--separator"></li>
                         <li class="menu-item nav-menu-items--products">
@@ -420,9 +420,9 @@
             }
 
             attached () {
-                document.querySelector('#view').addEventListener('tap', (ev) => {
+                document.addEventListener('tap', (ev) => {
                     if (!ev.target.classList.contains('nav-menu-items__open') ||
-                    !document.getElementById('avatar-menu').classList.contains('nav-menu-items__open') &&
+                    !this.$$('#avatar-menu').classList.contains('nav-menu-items__open') &&
                     this.dropdownVisible) {
                         this.closeDropDown()
                     }
@@ -430,14 +430,14 @@
             }
 
             showMenu () {
-                document.getElementById('navbar').style.height = this.mobileNav ? '70px' : 'auto';
-                document.getElementById('nav-items').style.display = this.mobileNav ? 'none' : 'block';
+                this.$$('#navbar').style.height = this.mobileNav ? '70px' : 'auto';
+                this.$$('#nav-items').style.display = this.mobileNav ? 'none' : 'block';
 
                 this.mobileNav = !this.mobileNav;
             }
 
             closeDropDown () {
-                let elem = document.querySelector('.nav-menu-items__open');
+                let elem = this.$$('.nav-menu-items__open');
                 if (elem) {
                     elem.classList.remove('nav-menu-items__open');
                     this.dropdownVisible = false;
@@ -456,9 +456,9 @@
                 isUserNotif = ev.target.localName === 'kano-notifications';
 
                 elem = isUserAvatar
-                    ? document.getElementById('avatar-menu')
+                    ? this.$$('#avatar-menu')
                     : (isUserNotif
-                        ? document.getElementById('notifications-menu')
+                        ? this.$$('#notifications-menu')
                         : ev.target);
 
                 wasOpened = elem.classList.contains('nav-menu-items__open')

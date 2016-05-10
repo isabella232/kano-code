@@ -203,8 +203,7 @@
                         observer: 'hasNotifications'
                     },
                     unread: Number,
-                    type: String,
-                    app: Object
+                    type: String
                 }
                 this.hasNotifications = (items, type) => {
                     return type === 'notifications' && items.length;
@@ -217,19 +216,17 @@
                 if (!item.read && item.category === 'notification') {
                     ev.target.classList.remove('notification-unread')
                     ev.target.classList.add('notification-read')
-                    this.app.sdk.api.notifications.read({ id: item.id })
-                        .then(() => this.fire('notification:read'))
+                    this.fire('notification:read', {id: item.id });
                 }
 
                 if (item.logout) {
                     ev.preventDefault();
-                    this.app.sdk.auth.logout();
+                    this.fire('logout');
                 }
             }
 
             readThemAll () {
-                this.app.sdk.api.notifications.readAll()
-                    .then(() => this.fire('notifications:readAll'))
+                this.fire('notifications:readAll');
             }
         }
         Polymer(KanoDropDown);

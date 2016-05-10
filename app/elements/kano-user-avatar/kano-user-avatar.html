@@ -41,7 +41,7 @@
             <div class="progress-header"></div>
             <img src='{{user.avatar.urls.circle}}' class="user-avatar"/>
         </div>
-        <kano-drop-down items="{{items}}" app="[[app]]"></kano-drop-down>
+        <kano-drop-down items="{{items}}"></kano-drop-down>
     </template>
     <script>
         class KanoUserAvatar {
@@ -151,11 +151,11 @@
                         {
                             name: this.user.username,
                             extra: `Level ${this.level}`,
-                            url: `//world.kano.me/users/${this.user.username}`
+                            url: `${this.app.config.WORLD_URL}users/${this.user.username}`
                         },
                         {
                             name: 'Settings',
-                            url: '//world.kano.me/settings'
+                            url: `${this.app.config.WORLD_URL}/settings`
                         },
                         {
                             name: 'Log out',
@@ -166,7 +166,7 @@
                     if (this.user.admin_level > 0) {
                         items.push({
                             name: 'Admin',
-                            url: '//world.kano.me/admin'
+                            url: `${this.app.config.WORLD_URL}/admin`
                         })
                     }
 
