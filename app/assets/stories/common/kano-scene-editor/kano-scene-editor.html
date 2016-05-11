@@ -17,7 +17,8 @@
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            current-step="{{currentStep}}">
+                            current-step="{{currentStep}}"
+                            started="[[scene.started]]">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*)]]"
                             default-categories="[[computeCategories(scene.*)]]"
@@ -61,6 +62,15 @@
                     computed: "computeProgress(currentStep, scene)"
                 }
             };
+            this.observers = [
+                'shareChanged(scene.share)'
+            ];
+        }
+
+        shareChanged () {
+            if (this.scene.share) {
+                this.shareApp();
+            }
         }
 
         computeProgress (currentStep, scene) {
