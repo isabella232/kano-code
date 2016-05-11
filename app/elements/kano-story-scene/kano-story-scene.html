@@ -1,3 +1,6 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../kano-view/kano-view.html">
 <dom-module id="kano-story-scene">
     <style>
     :host {
@@ -53,7 +56,9 @@
                 location="[[location]]"
                 view-name="[[name]]"
                 attributes="{{attributes}}"
-                on-scene-done="sceneFinished"></kano-view>
+                on-scene-done="sceneFinished"
+                on-next-story="goToNextStory"
+                ></kano-view>
         <div id="overlay"></div>
         <paper-dialog id="challenge-completed" with-backdrop on-iron-overlay-closed="goToRemixChallenge">
             <div class="dialog pure-g">
@@ -69,7 +74,7 @@
                             <button class="share" on-tap="shareApp">Share</button>
                             <button class="remix" on-tap="goToRemixChallenge">Remix</button>
                             <template is="dom-if" if="[[nextStory]]">
-                                <a class="next-challenge" href$="/story/[[nextStory]]">Next Challenge</a>
+                                <button type="button" class="next-challenge" on-tap="goToNextStory">Next Challenge</button>
                             </template>
                         </div>
                     </div>
@@ -122,9 +127,18 @@
             this.overlayDone = this.overlayDone.bind(this);
             this.overlay = null;
         }
+        shareApp () {
+            this.set('attributes.scene.share', true);
+        }
         goToRemixChallenge () {
             this.$['challenge-completed'].close();
             this.set('attributes.scene.remix', true);
+        }
+        goToNextStory () {
+            if (!this.nextStory) {
+                return;
+            }
+            window.location = `/story/${this.nextStory}`;
         }
         sceneFinished (e) {
             if (this.scene.overlay_after) {
@@ -136,6 +150,7 @@
         }
         componentChanged () {
             let scene = this.scene,
+                attributes = {},
                 pieces,
                 name,
                 loc;
@@ -154,17 +169,22 @@
             // Join back the first pieces to get the location
             loc = pieces.join('/');
             this.set('location', `assets/stories/${loc}`);
-            this.set('attributes', {
-                scene: scene.data,
-                store: this.store,
-                storyName: this.storyName,
-                nextStory: this.nextStory
-            });
+            attributes.store = this.store;
+            attributes.storyName = this.storyName;
+            attributes.nextStory = this.nextStory;
+            attributes.scene = scene.data;
+            // Let the end of the overlay load the data
+            if (!scene.overlay_before) {
+                attributes.scene.started = true;
+            }
+            this.set('attributes', attributes);
             this.set('name', `kano-scene-${name}`);
         }
         overlayDone () {
+            let started = false;
             if (!this.beforeDone && this.scene.overlay_before) {
                 this.beforeDone = true;
+                started = true;
             } else if (this.scene.overlay_after) {
                 if (this.scene.show_remix_options) {
                     this.$['challenge-completed'].open();
@@ -174,6 +194,9 @@
             }
             this.overlay.end().then(() => {
                 this.$.overlay.style.display = 'none';
+                if (started) {
+                    this.set('attributes.scene.started', true);
+                }
             });
         }
         setupOverlay (overlayConfig) {

@@ -1,7 +1,6 @@
 /* globals Polymer, KanoBehaviors, interact, Part */
 
-const TOOLTIP_PADDING = 10,
-      DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
+const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
 
 function getDefaultCode() {
     return {
@@ -66,10 +65,7 @@ class KanoAppEditor {
                 value: getDefaultBackground()
             },
             defaultCategories: {
-                type: Object,
-                value: () => {
-                    return {};
-                }
+                type: Object
             },
             wsSize: {
                 type: Object
@@ -101,7 +97,8 @@ class KanoAppEditor {
             'addedPartsChanged(addedParts.*)',
             'selectedPartChanged(selected.*)',
             'backgroundChanged(background.*)',
-            'updateColors(addedParts.splices)'
+            'updateColors(addedParts.splices)',
+            'updateColors(defaultCategories.*)'
         ];
         this.listeners = {
             'previous': 'clearEditorStyle'
@@ -122,6 +119,9 @@ class KanoAppEditor {
         });
     }
     updateColors () {
+        if (!this.defaultCategories) {
+            return;
+        }
         this.debounce('updateColors', () => {
             let range = 33.33,
                 colorMapHS = {
@@ -583,7 +583,7 @@ class KanoAppEditor {
     }
 
     partsMenuLabel () {
-        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'Close' : 'Add';
+        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'close' : 'add part';
     }
 
     applyOpenClass () {

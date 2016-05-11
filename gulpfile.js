@@ -128,7 +128,7 @@ gulp.task('js', ['babel', 'bundle', 'copy', 'polyfill'], () => {
 });
 
 gulp.task('babel', () => {
-    return gulp.src('app/elements/**/*.{js,html}')
+    return gulp.src('app/elements/**/*.{js,html,css}')
         .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
         .pipe(gulp.dest('.tmp/app/elements'));
@@ -291,7 +291,7 @@ function babelOrCopy(src, opts) {
 }
 
 gulp.task('elements-dev', () => {
-    return babelOrCopy('app/elements/**/*.{js,html}', { base: 'app/elements/' })
+    return babelOrCopy('app/elements/**/*.{js,html,css}', { base: 'app/elements/' })
         .pipe($.connect.reload())
         .pipe(gulp.dest('www/elements'));
 });
@@ -303,7 +303,7 @@ gulp.task('scenes-dev', () => {
 });
 
 gulp.task('views-dev', () => {
-    return babelOrCopy('app/views/**/*.{js,html}')
+    return babelOrCopy('app/views/**/*.{js,html,css}')
         .pipe($.connect.reload())
         .pipe(gulp.dest('www/views'));
 });
