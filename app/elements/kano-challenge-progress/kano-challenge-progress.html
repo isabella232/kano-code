@@ -19,9 +19,8 @@ by a `progress` variable, this would be
 
 In this example we also assume that the next challenge URL is `/story/weather`
 -->
-
-<script src="../../bower_components/progressbar.js/dist/progressbar.min.js" charset="utf-8"></script>
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../kano-circle-progress/kano-circle-progress.html">
 
 <dom-module id="kano-challenge-progress">
     <style>
@@ -31,16 +30,13 @@ In this example we also assume that the next challenge URL is `/story/weather`
           right: 20px;
         }
 
-        :host #circular_progress {
+        :host .circular-progress {
             display: inline-block;;
             width: 50px;
-            stroke-linecap: round;
-        }
-
-        :host #circular_progress {
+            height: 50px;
             background: var(--color-orange);
             padding: 8px;
-            border-radius: 100px;
+            border-radius: 50%;
         }
 
         :host .title {
@@ -108,35 +104,36 @@ In this example we also assume that the next challenge URL is `/story/weather`
         }
     </style>
     <template>
-         <div class="progress">
-           <div class="title">
-              <p>{{title}}</p>
-           </div>
-           <div id="circular_progress"></div>
-         </div>
-         <template is="dom-if" if="{{remixMode}}">
-            <div class="actions">
-              <div class="empty-space"></div>
-              <template is="dom-if" if="{{nextChallenge}}">
-                  <a on-tap="goToNextChallenge"> Next Challenge </a>
-                  <div class="separator"></div>
-              </template>
-              <a on-tap="shareApp"> Share App </a>
+        <div class="progress">
+            <div class="title">
+                <p>{{title}}</p>
             </div>
-         </template>
+            <div class="circular-progress">
+                <kano-circle-progress value="[[progress]]"></kano-circle-progress>
+            </div>
+        </div>
+        <template is="dom-if" if="{{remixMode}}">
+            <div class="actions">
+                <div class="empty-space"></div>
+                <template is="dom-if" if="{{nextChallenge}}">
+                    <a on-tap="goToNextChallenge"> Next Challenge </a>
+                    <div class="separator"></div>
+                </template>
+                <a on-tap="shareApp"> Share App </a>
+            </div>
+        </template>
     </template>
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, ProgressBar */
+    /* globals Polymer */
     class KanoChallengeProgress {
         beforeRegister () {
             this.is = 'kano-challenge-progress';
             this.properties = {
                 progress: {
                     type: Number,
-                    value: 0,
-                    observer: 'progressChanged'
+                    value: 0
                 },
                 color: {
                     type: String,
@@ -155,30 +152,6 @@ In this example we also assume that the next challenge URL is `/story/weather`
                     value: ''
                 }
             };
-
-            this.observers = [
-              'flushContainer(color)'
-          ];
-
-        }
-
-        flushContainer (color) {
-            this.element = new ProgressBar.Circle(this.$.circular_progress, {
-                color: color,
-                strokeWidth: 12
-            });
-        }
-
-        progressChanged (newValue) {
-            if (this.element) {
-                this.animate(newValue);
-            }
-        }
-
-        animate () {
-            if (this.element) {
-                this.element.animate.apply(this.element, arguments);
-            }
         }
 
         shareApp () {
