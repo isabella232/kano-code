@@ -129,8 +129,9 @@
         sceneFinished (e) {
             if (this.scene.overlay_after) {
                 e.stopPropagation();
-                console.log(this.scene.overlay_after);
                 this.setupOverlay(this.scene.overlay_after);
+            } else if (this.scene.show_remix_options) {
+                this.$['challenge-completed'].open();
             }
         }
         componentChanged () {

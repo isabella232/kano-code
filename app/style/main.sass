@@ -1,5 +1,6 @@
 @import 'pure/grids'
 @import 'pure/grids-responsive'
+@import './fonts'
 @import './slider'
 @import './blockly'
 @import './icons'
@@ -15,8 +16,55 @@ html
 *, *:before, *:after
     box-sizing: inherit
 
+.loader
+    position: absolute
+    top: 0px
+    bottom: 0px
+    left: 0px
+    right: 0px
+    font-family: Bariol, Arial
+    height: 100%
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-direction: column
+    animation: fade-in ease-in-out 300ms
+    background-color: white
+
+.loader.animate-out
+    animation: fade-out ease-in 300ms
+
+#title
+    font-family: monospace
+    font-size: 60px
+
+.message-board
+    max-width: 600px
+    text-align: center
+    font-size: 30px
+
 paper-dialog
     border-radius: 3px
+
+@keyframes compress
+    from
+        max-height: 1em
+    to
+        max-height: 0em
+
+
+@keyframes fade-in
+    from
+        opacity: 0
+    to
+        opacity: 1
+
+@keyframes fade-out
+    from
+        opacity: 1
+    to
+        opacity: 0
 
 @keyframes zoom-in
     0%

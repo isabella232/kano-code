@@ -81,13 +81,6 @@ Example:
         color: white;
         font-size: 1.3em;
     }
-    :host .access-denied {
-        justify-content: center;
-        align-items: center;
-        background: #ff842a;
-        color: white;
-        font-size: 1.3em;
-    }
     :host kano-routing {
         @apply(--layout-flex);
     }
@@ -100,10 +93,8 @@ Example:
         color: white;
         font-size: 1em;
         text-decoration: none;
-        z-index: 1;
         padding: 7px;
         text-align: center;
-        
     }
     :host .news-bar:hover {
         background-color: #8AC854;
@@ -118,13 +109,7 @@ Example:
             <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" on-reset-workspace="resetWorkspace"></kano-side-menu>
             <div class="main" main>
                 <iron-pages selected="[[accessState]]" attr-for-selected="name" on-iron-select="pageChanged">
-                    <div name="logged-out" class="logged-out">
-                        <span>Please Login</span>
-                    </div>
-                    <div name="not-allowed" class="access-denied">
-                        <span>Make Apps while it is still in private beta, thank you for your interest!</span>
-                        <span> Redirecting to Kano World</span>
-                    </div>
+                    <div name="logged-out" class="logged-out"></div>
                     <kano-routing name="allowed" id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]"></kano-routing>
                 </iron-pages>
             </div>
@@ -169,24 +154,10 @@ Example:
         isUserLoggedIn () {
             return !!this.user;
         }
-        userCanHandleMakeApps () {
-            if (window.app.config.ENV === 'development') {
-                return true;
-            }
-            if (this.isUserLoggedIn()) {
-                return true;
-            }
-            return false;
-        }
         computeAccessState () {
             clearTimeout(this.redirectTimer);
             if (!this.isUserLoggedIn()) {
                 return 'logged-out';
-            }
-
-            if (!this.userCanHandleMakeApps()) {
-                this.redirectToKanoWorld();
-                return 'not-allowed';
             }
 
             return 'allowed';
@@ -201,7 +172,7 @@ Example:
         redirectToKanoWorld () {
             this.redirectTimer = setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
         }
-        attached () {
+        ready () {
             this.set('accessState', 'logged-out');
             let initialiseSDK = () => {
                 app.sdk.auth.initSession((err, user) => {
@@ -212,7 +183,6 @@ Example:
                     }
                 });
             };
-
             if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
 
                 fetch(window.app.config.TOKEN_ENDPOINT)
@@ -224,7 +194,7 @@ Example:
                 })
                 .then((retObj) => {
                     if (retObj.hasOwnProperty('token')) {
-                        app.sdk.auth.setToken(retObj['token']);
+                        app.sdk.auth.setToken(retObj.token);
                     }
 
                     initialiseSDK();
