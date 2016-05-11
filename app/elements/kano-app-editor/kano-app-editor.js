@@ -3,6 +3,23 @@
 const TOOLTIP_PADDING = 10,
       DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
 
+function getDefaultCode() {
+    return {
+        snapshot: {
+            blocks: DEFAULT_BLOCKS
+        }
+    };
+}
+
+function getDefaultBackground() {
+    return {
+        name: 'My app',
+        userStyle: {
+            background: '#F5F5F5'
+        }
+    };
+}
+
 class KanoAppEditor {
 
     get behaviors () {
@@ -25,13 +42,7 @@ class KanoAppEditor {
             code: {
                 type: Object,
                 notify: true,
-                value: () => {
-                    return {
-                        snapshot: {
-                            blocks: DEFAULT_BLOCKS
-                        }
-                    };
-                }
+                value: getDefaultCode()
             },
             selected: {
                 type: Object,
@@ -51,7 +62,8 @@ class KanoAppEditor {
                 type: Object
             },
             background: {
-                type: Object
+                type: Object,
+                value: getDefaultBackground()
             },
             defaultCategories: {
                 type: Object,
@@ -189,8 +201,6 @@ class KanoAppEditor {
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
-            savedApp.blockEditorPage = this.$['part-editor-tooltip'].selectedPage;
-            savedApp.selectedTrigger = this.$['part-editor-tooltip'].trigger;
         }
 
         return savedApp;
@@ -236,6 +246,12 @@ class KanoAppEditor {
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
         this.updateColors();
+    }
+    reset () {
+        this.set('addedParts', []);
+        this.set('code', getDefaultCode());
+        this.set('background', getDefaultBackground());
+        this.save();
     }
     closeDrawer () {
         this.$.partsPanel.closeDrawer();

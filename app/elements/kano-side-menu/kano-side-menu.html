@@ -100,12 +100,14 @@
                     <div class="triangle" on-tap="toggleMenu"></div>
                 </div>
             </li>
-            <li>
-                <a on-tap="resetWorkspace">
-                    <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
-                    <div class="label">Reset Workspace</div>
-                </a>
-            </li>
+            <template is="dom-if" if="{{editor}}">
+                <li>
+                    <a on-tap="resetWorkspace">
+                        <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
+                        <div class="label">Reset Workspace</div>
+                    </a>
+                </li>
+            </template>
             <li>
                 <a href="/" on-tap="backToProjects">
                     <iron-image class="icon" src="/assets/icons/projects.png" sizing="contain"></iron-image>
@@ -142,6 +144,9 @@
                     observer: 'userChanged'
                 },
                 profile: {
+                    type: Object
+                },
+                editor: {
                     type: Object
                 }
             };
@@ -183,7 +188,9 @@
             e.stopPropagation();
         }
         resetWorkspace () {
-            this.fire('reset-workspace');
+            if (this.editor) {
+                editor.reset();
+            }
             this.fire('toggle-menu');
         }
         backToProjects () {
