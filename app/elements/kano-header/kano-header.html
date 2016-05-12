@@ -428,6 +428,17 @@
                         this.closeDropDown()
                     }
                 })
+
+                window.addEventListener('resize', (ev) => {
+                    if (!this.mobileNav) {
+                        return;
+                    }
+
+                    if (screen.width > 768) {
+                        this.mobileNav = false;
+                        this.$$('#nav-items').style.display = 'block';
+                    }
+                })
             }
 
             showMenu () {
