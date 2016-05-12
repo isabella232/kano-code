@@ -3,25 +3,11 @@
 <script src="../../assets/vendor/google-blockly/javascript_compressed.js"></script>
 <script src="../../assets/vendor/google-blockly/msg/js/en.js"></script>
 <script src="./blockly-override.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-blockly">
-    <style>
-    :host {
-        display: block;
-        position: relative;
-    }
-    :host #workspace {
-        position: absolute;
-        top: 0px;
-        bottom: 0px;
-        left: 0px;
-        right: 0px;
-    }
-    :host ::content svg {
-        @apply(--kano-crossed-background);
-    }
-    </style>
+    <link rel="import" type="css" href="./kano-blockly.css">
     <template>
         <div id="workspace"></div>
     </template>
@@ -112,7 +98,7 @@
             // Force default toolbox if empty since blockly is not able
             // to switch from empty to category mode
             if (!this.toolbox || !this.toolbox.length) {
-                this.toolbox = [{ name: 'Category', blocks: [] }];
+                return '<xml><category name=""></category></xml>';
             }
             let xml,
                 categoriesXml = this.toolbox.map((category) => {
@@ -137,7 +123,9 @@
             xml = `<xml>${categoriesXml}</xml>`;
             // Update the workspace if it exists
             if (this.workspace) {
-                this.workspace.updateToolbox(xml);
+                try {
+                    this.workspace.updateToolbox(xml);
+                } catch (e) {} // Ignore toolbox loading errors
                 this.resize();
             }
             return xml;
@@ -179,7 +167,11 @@
          * @return {String}      A piece of code
          */
         getCode (type) {
-            return Blockly[type].workspaceToCode(this.workspace);
+            try {
+                return Blockly[type].workspaceToCode(this.workspace);
+            } catch (e) {
+                return '';
+            }
         }
 
         save () {
@@ -200,11 +192,15 @@
             if (!this.workspace || !this.visible) {
                 return this.addEventListener('blockly-ready', this.load.bind(this, snapshot));
             }
+            if (!snapshot.blocks) {
+                return;
+            }
             let blocks = snapshot.blocks || '<xml></xml>';
             let xml = Blockly.Xml.textToDom(blocks);
             this.clearWorkspace();
-            Blockly.Xml.domToWorkspace(this.workspace, xml);
-            this.set('code', this.getCode('JavaScript'));
+            try {
+                Blockly.Xml.domToWorkspace(this.workspace, xml);
+            } catch (e) {} // Ignore loading errors
         }
 
         getScreenshot () {

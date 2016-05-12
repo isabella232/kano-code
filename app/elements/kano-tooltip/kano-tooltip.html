@@ -8,6 +8,8 @@
         z-index: 1;
         visibility: hidden;
         text-align: center;
+        --kano-tooltip-border-width: 0px;
+        --kano-tooltip-border-color: transparent;
     }
     :host[position="top"] {
         transform-origin: 50% 100%;
@@ -22,73 +24,120 @@
         transform-origin: 0% 50%;
     }
     :host .tooltip {
+        position: relative;
         @apply(--shadow-elevation-6dp);
         @apply(--kano-tooltip);
         background-color: var(--kano-tooltip-background-color, white);
         border-radius: 4px;
+        border: solid;
+        border-color: var(--kano-tooltip-border-color);
+        border-width: var(--kano-tooltip-border-width);
     }
     :host.no-animations {
         animation: none;
         transition: none;
     }
-    :host .tooltip .caret:after {
-        content: '';
-        @apply(--shadow-elevation-6dp);
+    :host .tooltip:after, :host .tooltip:before {
+        border: solid transparent;
+        width: 0px;
+        height: 0px;
+        position: absolute;
+        pointer-events: none;
+        content: ' ';
+        border-color: transparent;
+    }
+    :host[position="bottom"] .tooltip:after,
+    :host[position="bottom"] .tooltip:before {
+        bottom: 100%;
+        left: 50%;
+    }
+    :host[position="top"] .tooltip:after,
+    :host[position="top"] .tooltip:before {
+        top: 100%;
+        left: 50%;
+    }
+    :host[position="right"] .tooltip:after,
+    :host[position="right"] .tooltip:before {
+        right: 100%;
+        top: 50%;
+    }
+    :host[position="left"] .tooltip:after,
+    :host[position="left"] .tooltip:before {
+        left: 100%;
+        top: 50%;
+    }
+    :host .tooltip:after {
+        border-width: 15px;
+    }
+    :host[position="bottom"] .tooltip:after {
+        border-bottom-color: var(--kano-tooltip-background-color, white);
+        margin-left: -15px;
+    }
+    :host[position="top"] .tooltip:after {
+        border-top-color: var(--kano-tooltip-background-color, white);
+        margin-left: -15px;
+    }
+    :host[position="right"] .tooltip:after {
+        border-right-color: var(--kano-tooltip-background-color, white);
+        margin-top: -15px;
+    }
+    :host[position="left"] .tooltip:after {
+        border-left-color: var(--kano-tooltip-background-color, white);
+        margin-top: -15px;
+    }
+    :host .tooltip:before {
+        border-width: calc(15px + var(--kano-tooltip-border-width));
+    }
+    :host[position="bottom"] .tooltip:before {
+        border-bottom-color: var(--kano-tooltip-border-color);
+        margin-left: calc(-15px - var(--kano-tooltip-border-width));
+    }
+    :host[position="top"] .tooltip:before {
+        border-top-color: var(--kano-tooltip-border-color);
+        margin-left: calc(-15px - var(--kano-tooltip-border-width));
+    }
+    :host[position="right"] .tooltip:before {
+        border-right-color: var(--kano-tooltip-border-color);
+        margin-top: calc(-15px - var(--kano-tooltip-border-width));
+    }
+    :host[position="left"] .tooltip:before {
+        border-left-color: var(--kano-tooltip-border-color);
+        margin-top: calc(-15px - var(--kano-tooltip-border-width));
+    }
+    :host .tooltip .caret-shadow {
         @apply(--kano-tooltip);
         @apply(--kano-tooltip-caret);
         position: absolute;
-        width: 15px;
-        height: 15px;
+        width: 24px;
+        height: 24px;
         background-color: transparent;
         transform: rotate(45deg);
         z-index: -1;
         padding: 0px;
     }
-    :host([position="top"]) .tooltip .caret:after {
-        top: -19px;
-        left: -7px;
-    }
-    :host([position="left"]) .tooltip .caret:after {
-        top: -7px;
-        left: -19px;
-    }
-    :host([position="right"]) .tooltip .caret:after {
-        top: -7px;
-        left: 5px;
-    }
-    :host([position="bottom"]) .tooltip .caret:after {
-        left: -7px;
-        top: 3px;
-    }
-    :host .tooltip .caret {
-        position: absolute;
-        border: 10px solid transparent;
-    }
-    :host .tooltip.top .caret,
-    :host .tooltip.bottom .caret {
-        margin-left: -10px;
-        left: 50%;
-    }
-    :host .tooltip.right .caret,
-    :host .tooltip.left .caret {
-        margin-top: -10px;
-        top: 50%;
-    }
-    :host .tooltip.top .caret {
-        border-top-color: var(--kano-tooltip-background-color, white);
-        top: 100%;
-    }
-    :host .tooltip.bottom .caret {
-        border-bottom-color: var(--kano-tooltip-background-color, white);
+    :host([position="bottom"]) .tooltip .caret-shadow {
         bottom: 100%;
+        left: 50%;
+        margin-left: -12px;
+        margin-bottom: -14px;
     }
-    :host .tooltip.right .caret {
-        border-right-color: var(--kano-tooltip-background-color, white);
-        left: -20px;
-    }
-    :host .tooltip.left .caret {
-        border-left-color: var(--kano-tooltip-background-color, white);
+    :host([position="left"]) .tooltip .caret-shadow {
+        top: 50%;
         left: 100%;
+        margin-top: -12px;
+        margin-left: -14px;
+    }
+    :host([position="right"]) .tooltip .caret-shadow {
+        top: 50%;
+        right: 100%;
+        margin-top: -12px;
+        margin-right: -14px;
+    }
+    :host([position="top"]) .tooltip .caret-shadow {
+        top: 100%;
+        left: 50%;
+        margin-left: -12px;
+        margin-top: -14px;
     }
     :host .wrapper {
         position: relative;
@@ -100,8 +149,8 @@
     </style>
     <template>
         <div class$="tooltip [[position]]" id="tooltip">
+            <div class="caret-shadow"></div>
             <content></content>
-            <div class="caret"></div>
         </div>
     </template>
 </dom-module>

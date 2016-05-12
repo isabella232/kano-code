@@ -8,6 +8,7 @@
     :host {
         display: block;
         @apply(--layout-vertical);
+        --tooltip-color: #21596F;
     }
     :host .instruction-overlay {
         @apply(--layout-horizontal);
@@ -17,7 +18,7 @@
     }
     :host button {
         @apply(--kano-button);
-        background: var(--green-gradient, green);
+        background-color: var(--color-green, green);
         margin-left: 10px;
     }
     :host content {
@@ -38,26 +39,28 @@
     :host .modal-content button {
         @apply(--kano-button);
         margin-top: 15px;
+        color: #435055;
     }
     :host .tooltip-content {
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
-    :host .tooltip-text {
-        font-size: 1.4em;
-        font-weight: 400;
-    }
     :host .tooltip-content button {
         margin-top: 10px;
+        background-color: white;
+        color: #435055;
+        text-shadow: none;
     }
     :host kano-tooltip {
-        --kano-tooltip-background-color: #4b99e0;
+        --kano-tooltip-background-color: var(--tooltip-color);
+        --kano-tooltip-border-color: white;
+        --kano-tooltip-border-width: 1px;
         color: white;
         --kano-tooltip: {
-            box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.45);
+            box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
             padding: 18px 26px 20px;
             font-size: 20px;
-            line-height: 38px;
+            line-height: 25px;
         };
         --kano-tooltip-caret: {
             box-shadow: 0px 0px 0px 0px;
@@ -65,17 +68,17 @@
     }
     :host kano-tooltip[position="top"] {
         --kano-tooltip-caret: {
-            box-shadow: 0px 0px 0px 4px rgba(0, 0, 0, 0.45);
+            box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
         };
     }
     :host kano-tooltip[position="left"] {
         --kano-tooltip-caret: {
-            box-shadow: 3px 0px 0px 0px rgba(0, 0, 0, 0.45);
+            box-shadow: 2px 0px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
     :host kano-tooltip[position="right"] {
         --kano-tooltip-caret: {
-            box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, 0.45);
+            box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
     </style>
@@ -137,10 +140,14 @@
                     type: Number,
                     notify: true,
                     value: 0
+                },
+                started: {
+                    type: Boolean,
+                    value: false
                 }
             };
             this.observers = [
-                'stepChanged(steps, step)',
+                'stepChanged(steps, step, started)',
                 'doneChanged(done)'
             ];
             this.listeners = {
@@ -223,6 +230,9 @@
             // Prevent the loading of the saved app before the store is initialized
             if (!this.isAttached) {
                 this.addEventListener('attached', this.stepChanged.bind(this));
+                return;
+            }
+            if (!this.started) {
                 return;
             }
             this.debounce('stepChanged', () => {

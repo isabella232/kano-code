@@ -77,9 +77,7 @@ Example:
         @apply(--layout-center-justified);
     }
     :host .logged-out {
-        background: #ff842a;
-        color: white;
-        font-size: 1.3em;
+        background: white;
     }
     :host kano-routing {
         @apply(--layout-flex);
@@ -106,7 +104,7 @@ Example:
         </a>
         <style include="kano-style"></style>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
-            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" on-reset-workspace="resetWorkspace"></kano-side-menu>
+            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" editor="{{editor}}"></kano-side-menu>
             <div class="main" main>
                 <iron-pages selected="[[accessState]]" attr-for-selected="name" on-iron-select="pageChanged">
                     <div name="logged-out" class="logged-out"></div>
@@ -173,6 +171,7 @@ Example:
             this.redirectTimer = setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
         }
         ready () {
+            this.editor = null;
             this.set('accessState', 'logged-out');
             let initialiseSDK = () => {
                 app.sdk.auth.initSession((err, user) => {
@@ -224,11 +223,8 @@ Example:
             this.$['auth-modal'].close();
         }
         toggleMenu () {
+            this.editor = document.getElementById('editor');
             this.$.drawer.togglePanel();
-        }
-        resetWorkspace () {
-            localStorage.clear();
-            this.$.router.reload();
         }
     }
     Polymer(KanoApp);

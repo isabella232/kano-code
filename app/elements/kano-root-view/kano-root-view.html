@@ -40,10 +40,7 @@
                     type: Array
                 },
                 defaultCategories: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
+                    type: Object
                 },
                 code: {
                     type: Object,
@@ -53,38 +50,9 @@
             };
             this.observers = [
                 'computeToolbox(parts.*)',
-                'computeBlocks(parts.*)',
-                'computeTitle(selectedPage)'
+                'computeToolbox(defaultCategories.*)',
+                'defaultCategoriesLoaded(defaultCategories.events)'
             ];
-        }
-        ready () {
-            this.toolboxReady = false;
-        }
-        attached () {
-            let computeTriggerOptions = this.computeTriggerOptions.bind(this),
-                colour = this.defaultCategories.events.colour;
-
-            Blockly.Blocks.part_event = {
-                init: function () {
-                    let json = {
-                        id: 'part_event',
-                        colour: colour,
-                        message0: 'When %1',
-                        args0: [{
-                            type: "field_dropdown",
-                            name: "EVENT",
-                            options: computeTriggerOptions
-                        }],
-                        message1: '%1',
-                        args1: [{
-                            type: "input_statement",
-                            name: "DO"
-                        }]
-                    };
-                    this.jsonInit(json);
-                }
-            };
-            this.$['code-editor'].resize();
         }
         codeChanged () {
             if (!this.code) {
@@ -110,6 +78,37 @@
                     this.set('code.snapshot', snapshot);
                 });
             }, 300);
+        }
+        ready () {
+            this.toolboxReady = false;
+        }
+        defaultCategoriesLoaded (newVal, oldVal) {
+            if (!newVal) {
+                return;
+            }
+            let computeTriggerOptions = this.computeTriggerOptions.bind(this),
+                colour = this.defaultCategories.events ? this.defaultCategories.events.colour : '';
+            Blockly.Blocks.part_event = {
+                init: function () {
+                    let json = {
+                        id: 'part_event',
+                        colour: colour,
+                        message0: 'When %1',
+                        args0: [{
+                            type: "field_dropdown",
+                            name: "EVENT",
+                            options: computeTriggerOptions
+                        }],
+                        message1: '%1',
+                        args1: [{
+                            type: "input_statement",
+                            name: "DO"
+                        }]
+                    };
+                    this.jsonInit(json);
+                }
+            };
+            this.$['code-editor'].load(this.code.snapshot);
         }
         computeBlocks () {
             let events = [];
@@ -144,9 +143,10 @@
                     parts = this.parts,
                     blocks,
                     weight;
-                if (!parts) {
+                if (!parts || !this.defaultCategories) {
                     return;
                 }
+                this.computeBlocks();
                 // Reset events blocks
                 weight = {
                     'ui': 1,
