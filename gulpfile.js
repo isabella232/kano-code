@@ -148,7 +148,7 @@ gulp.task('copy', ['copy-index'], () => {
 });
 
 gulp.task('copy-index', () => {
-    return gulp.src(['app/index.html', 'app/scripts/index.js'], { base: 'app' })
+    return gulp.src(['app/index.html', 'app/scripts/index.js', 'app/sw.js'], { base: 'app' })
         .pipe($.if('index.html', $.htmlReplace(getHtmlReplaceOptions())))
         .pipe(gulp.dest('www'));
 });
@@ -332,7 +332,8 @@ gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
-            'app/scripts/index.js'
+            'app/scripts/index.js',
+            'app/sw.js'
         ], { base: 'app'})
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
@@ -362,7 +363,8 @@ gulp.task('watch', () => {
             'app/bower_components/**/*',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
-            'app/scripts/index.js'
+            'app/scripts/index.js',
+            'app/sw.js'
         ], ['copy-dev']),
         gulp.watch(['app/elements/**/*'], ['elements-dev']),
         gulp.watch(['app/views/**/*'], ['views-dev']),
