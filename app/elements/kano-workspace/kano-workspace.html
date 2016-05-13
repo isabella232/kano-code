@@ -23,9 +23,10 @@
         box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
         margin: auto;
         position: relative;
+        border-radius: 5px;
     }
 
-    :host ::content div#dropzone > * {
+    :host ::content div#dropzone > *:not(.hole) {
         position: absolute;
         top: 0px;
         left: 0px
@@ -64,6 +65,34 @@
     :host paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
+
+    :host .hole {
+        position: absolute;
+        width: 25px;
+        height: 25px;
+    }
+
+    :host .hole-top-left {
+        top: 0;
+        left: 0;
+    }
+    :host .hole-top-right {
+        top: 0;
+        right: 0;
+    }
+    :host .hole-bottom-left {
+        bottom: 0;
+        left: 0;
+    }
+    :host .hole-bottom-right {
+        bottom: 0;
+        right: 0;
+    }
+
+    :host .made-with-kano {
+        text-align: center;
+        color: #B3B3B3;
+    }
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
@@ -72,7 +101,21 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone"></div>
+            <div id="dropzone">
+                <svg class="hole hole-top-left">
+                  <circle cx="12" cy="12" r="5" fill="#454545" />
+                </svg>
+                <svg class="hole hole-top-right">
+                  <circle cx="12" cy="12" r="5" fill="#454545" />
+                </svg>
+                <svg class="hole hole-bottom-left">
+                  <circle cx="12" cy="12" r="5" fill="#454545" />
+                </svg>
+                <svg class="hole hole-bottom-right">
+                  <circle cx="12" cy="12" r="5" fill="#454545" />
+                </svg>
+            </div>
+            <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
         <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
             <div class="tooltip-content">
