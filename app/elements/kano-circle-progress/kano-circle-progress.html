@@ -1,4 +1,22 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!--
+
+`kano-circle-progress` displays a circular progress bar from a value using SVG.
+
+Example:
+
+    <kano-circle-progress value="0.4"></kano-circle-progress>
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--kano-circle-progress` | Mixin applied to the circle SVG element | `{}`
+
+
+@group Kano Elements
+@hero hero.svg
+@demo demo.html
+-->
 <dom-module id="kano-circle-progress">
     <style>
     :host {
@@ -20,31 +38,31 @@
     </template>
 </dom-module>
 <script>
-    /* globals Polymer */
-    class KanoCircleProgress {
-
-        beforeRegister () {
-            this.is = 'kano-circle-progress';
-            this.properties = {
-                strokeWidth: {
-                    type: Number,
-                    value: 4,
-                    observer: 'update'
-                },
-                value: {
-                    type: Number,
-                    value: 0,
-                    observer: 'computeDashoffset'
-                }
-            };
-        }
-
+    Polymer({
+        is: 'kano-circle-progress',
+        properties: {
+            /**
+             * Defines the stroke width of the circle.
+             */
+            strokeWidth: {
+                type: Number,
+                value: 4,
+                observer: 'update'
+            },
+            /**
+             * Current value of the progress circle. Between 0 and 1.
+             */
+            value: {
+                type: Number,
+                value: 0,
+                observer: 'computeDashoffset'
+            }
+        },
         attached () {
             this.width = this.offsetWidth;
             this.update();
             this.computeDashoffset(0);
-        }
-
+        },
         update () {
             let svg = this.$.svg,
                 circle = this.$.circle,
@@ -65,8 +83,7 @@
             circle.setAttributeNS(null, 'stroke-dashoffset', c);
             circle.setAttributeNS(null, 'transform', `rotate(270, ${width / 2}, ${width / 2})`);
             circle.style.display = 'block';
-        }
-
+        },
         computeDashoffset (value) {
             let circle = this.$.circle,
                 r = circle.getAttribute('r'),
@@ -75,7 +92,5 @@
 
             circle.setAttributeNS(null, 'stroke-dashoffset', (1 - val) * c);
         }
-
-    }
-    Polymer(KanoCircleProgress);
+    });
 </script>

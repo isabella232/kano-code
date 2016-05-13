@@ -92,6 +92,13 @@ gulp.task('serve', () => {
     });
 });
 
+gulp.task('serve-doc', () => {
+    return $.connect.server({
+        root: 'app',
+        port: process.env.PORT || 5000
+    });
+});
+
 gulp.task('serve-prod', () => {
     return $.connect.server({
         root: 'www',
