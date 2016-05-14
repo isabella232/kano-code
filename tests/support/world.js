@@ -4,29 +4,49 @@ let webdriver = require('selenium-webdriver'),
     url = require('url'),
     should = require('should'),
     user = null,
+    capability = webdriver.Capabilities.chrome(),
     driver;
 
 const DEFAULT_TIMEOUT = 5000,
       // testing user creating in staging env
       USER = {
           token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAa2Fuby5tZSIsInVzZXJuYW1lIjoiYXV0b21hdGVkLXRlc3QiLCJpYXQiOjE0NjMyMjkxMDR9.-wowXt2oF7iCSuyxxfcJJoirsYsT0-dwbbe9FxhIusU'
+      },
+      PORT_MAP = {
+          'chrome': 3333,
+          'firefox': 4444,
+          'safari': 5555
       };
 
 user = USER;
 
-function buildChromeDriver() {
+function buildDriver(capability) {
     return new webdriver.Builder()
-        .withCapabilities(webdriver.Capabilities.chrome())
+        .withCapabilities(capability)
         .build();
 }
 
-driver = buildChromeDriver();
+if (process.env.TARGET_BROWSER === 'firefox') {
+    capability = webdriver.Capabilities.firefox();
+} else if (process.env.TARGET_BROWSER === 'safari') {
+    capability = webdriver.Capabilities.safari();
+}
+
+driver = buildDriver(capability);
 driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
 driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
 driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
 
 function getDriver() {
     return driver;
+}
+
+function getBrowserName() {
+    return capability.get('browserName');
+}
+
+function getPort() {
+    return PORT_MAP[getBrowserName()];
 }
 
 function logoutUser() {
@@ -90,7 +110,7 @@ class World {
         if (!route) {
             return Promise.reject(new Error(`Tried to open a non registered page: ${page}`));
         }
-        return this.driver.get(`http://localhost:4444${route}`)
+        return this.driver.get(`http://localhost:${getPort()}${route}`)
             .then(() => this.clearStorage())
             .then(() => {
                 this.currentView = page;
@@ -212,5 +232,6 @@ class World {
 
 module.exports.World = World;
 module.exports.getDriver = getDriver;
+module.exports.getPort = getPort;
 module.exports.loginUser = loginUser;
 module.exports.logoutUser = logoutUser;

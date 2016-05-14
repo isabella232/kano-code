@@ -23,7 +23,7 @@ hooks = function () {
 
     // Start a server to deliver make-apps files
     this.BeforeFeatures((e, callback) => {
-        server.listen(4444, callback);
+        server.listen(world.getPort(), callback);
     });
 
     // Log the user on each scenario
