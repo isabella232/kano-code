@@ -35,6 +35,17 @@ hooks = function () {
         world.logoutUser();
     });
 
+    // Take a screeshot if the scenario failed and attach it to the scenario report
+    /*this.After((scenario, callback) => {
+        if (scenario.isFailed()) {
+            world.getDriver().takeScreenshot().then((stream) => {
+                scenario.attach(stream, 'image/png', callback);
+            }).catch(callback);
+        } else {
+            callback();
+        }
+    });*/
+
     // Close the browser
     this.AfterFeatures((e, callback) => {
         world.getDriver().quit().then(() => {

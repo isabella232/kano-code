@@ -7,15 +7,10 @@ let webdriver = require('selenium-webdriver'),
     capability = webdriver.Capabilities.chrome(),
     driver;
 
-const DEFAULT_TIMEOUT = 5000,
+const DEFAULT_TIMEOUT = 10000,
       // testing user creating in staging env
       USER = {
           token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAa2Fuby5tZSIsInVzZXJuYW1lIjoiYXV0b21hdGVkLXRlc3QiLCJpYXQiOjE0NjMyMjkxMDR9.-wowXt2oF7iCSuyxxfcJJoirsYsT0-dwbbe9FxhIusU'
-      },
-      PORT_MAP = {
-          'chrome': 3333,
-          'firefox': 4444,
-          'safari': 5555
       };
 
 user = USER;
@@ -26,27 +21,29 @@ function buildDriver(capability) {
         .build();
 }
 
-if (process.env.TARGET_BROWSER === 'firefox') {
-    capability = webdriver.Capabilities.firefox();
-} else if (process.env.TARGET_BROWSER === 'safari') {
-    capability = webdriver.Capabilities.safari();
+if (process.env.CAPABILITY) {
+    try {
+        capability = JSON.parse(process.env.CAPABILITY);
+    } catch (e) {
+        capability = webdriver.Capabilities[process.env.CAPABILITY]();
+    }
+} else {
+    capability = webdriver.Capabilities.chrome();
 }
 
 driver = buildDriver(capability);
-driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
-driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
-driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
+if (capability.browserName !== 'safari') {
+    driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
+    driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
+    driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
+}
 
 function getDriver() {
     return driver;
 }
 
-function getBrowserName() {
-    return capability.get('browserName');
-}
-
 function getPort() {
-    return PORT_MAP[getBrowserName()];
+    return process.env.TEST_PORT || 4444;
 }
 
 function logoutUser() {
