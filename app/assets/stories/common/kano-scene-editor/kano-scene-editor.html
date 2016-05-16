@@ -10,6 +10,41 @@
     :host kano-app-editor {
         @apply(--layout-flex);
     }
+    :host kano-challenge-progress {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    :host #challenge-completed .buttons {
+        @apply(--layout-horizontal);
+        @apply(--layout-around-justified);
+    }
+    :host #challenge-completed .buttons button {
+        @apply(--kano-button);
+        min-height: 45px;
+        font-weight: bold;
+    }
+
+    :host #challenge-completed .buttons .remix {
+        background: var(--color-orange);
+    }
+
+    :host #challenge-completed .buttons .share {
+        background: var(--color-kw-blue);
+    }
+
+    :host #challenge-completed .buttons .next-challenge {
+        background: var(--color-green);
+    }
+
+    :host #challenge-completed h2 {
+        color: var(--color-green);
+    }
+    :host .completed-message,
+    :host .completed-options {
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+    }
   </style>
   <template>
       <kano-app-challenge id="challenge"
@@ -25,9 +60,28 @@
                             class="editor"
                             ws-size="[[size]]"
                             running="{{running}}">
-              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp" remix-mode="[[scene.remix]]"></kano-challenge-progress>
+              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp" remix-mode="[[remix]]" on-next-story="goToNextStory"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
+      <paper-dialog id="challenge-completed" with-backdrop on-iron-overlay-closed="goToRemixChallenge">
+          <div class="dialog pure-g">
+              <div class="pure-u-1 pure-u-md-1-3 completed-message">
+                  <div class="p-box">
+                      <h2>High five!</h2>
+                      <p> You have completed the [[storyName]] challenge </p>
+                  </div>
+              </div>
+              <div class="pure-u-1 pure-u-md-2-3 completed-options">
+                  <div class="buttons">
+                      <button class="share" on-tap="shareApp">Share</button>
+                      <button class="remix" on-tap="goToRemixChallenge">Remix</button>
+                      <template is="dom-if" if="[[nextStory]]">
+                          <button type="button" class="next-challenge" on-tap="goToNextStory">Next Challenge</button>
+                      </template>
+                  </div>
+              </div>
+          </div>
+      </paper-dialog>
   </template>
 </dom-module>
 <script type="text/javascript">
@@ -63,18 +117,22 @@
                 }
             };
             this.observers = [
-                'shareChanged(scene.share)'
+                'endedChanged(scene.ended)'
             ];
         }
 
-        shareChanged () {
-            if (this.scene.share) {
-                this.shareApp();
+        endedChanged () {
+            if (this.scene.ended) {
+                this.$['challenge-completed'].open();
             }
         }
 
         computeProgress (currentStep, scene) {
             return currentStep / scene.steps.length;
+        }
+
+        ready () {
+            this.remix = false;
         }
 
         attached () {
@@ -130,6 +188,16 @@
             this.$.editor.load(savedState.app, this.computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
+        }
+        goToRemixChallenge () {
+            this.$['challenge-completed'].close();
+            this.remix = true;
+        }
+        goToNextStory () {
+            if (!this.nextStory) {
+                return;
+            }
+            window.location = `/story/${this.nextStory}`;
         }
     }
     Polymer(KanoSceneEditor);

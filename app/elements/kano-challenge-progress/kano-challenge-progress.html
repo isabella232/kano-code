@@ -25,9 +25,8 @@ In this example we also assume that the next challenge URL is `/story/weather`
 <dom-module id="kano-challenge-progress">
     <style>
         :host {
-          position: absolute;
-          top: 20px;
-          right: 20px;
+            display: inline-block;
+            @apply(--layout-vertical-reverse);
         }
 
         :host .circular-progress {
@@ -37,6 +36,7 @@ In this example we also assume that the next challenge URL is `/story/weather`
             background: var(--color-orange, orange);
             padding: 8px;
             border-radius: 50%;
+            box-sizing: border-box;
         }
 
         :host .title {
@@ -46,7 +46,6 @@ In this example we also assume that the next challenge URL is `/story/weather`
             line-height: 40px;
             font-size: 15px;
             padding: 0 30px;
-            margin-top: 5px;
             margin-left: -15px;
             border-radius: 5px;
             min-width: 150px;
@@ -60,19 +59,17 @@ In this example we also assume that the next challenge URL is `/story/weather`
         }
 
         :host .progress {
-            display: flex;
-            flex-direction: row-reverse;
+            @apply(--layout-horizontal-reverse);
+            @apply(--layout-center);
         }
 
         :host .actions {
             background: var(--color-dark-orange, orange);
-            display: flex;;
-            width: 85%;
-            margin-right: 0;
+            @apply(--layout-vertical);
             margin-top: -28px;
             border-radius: 5px;
-            flex-direction: column;
-            margin-left: auto;
+            margin-left: 25px;
+            width: calc(100% - 25px);
         }
 
         :host .actions .empty-space {
@@ -104,6 +101,16 @@ In this example we also assume that the next challenge URL is `/story/weather`
         }
     </style>
     <template>
+        <template is="dom-if" if="{{remixMode}}">
+            <div class="actions">
+                <div class="empty-space"></div>
+                <template is="dom-if" if="{{nextChallenge}}">
+                    <a on-tap="goToNextStory"> Next Challenge </a>
+                    <div class="separator"></div>
+                </template>
+                <a on-tap="shareApp"> Share App </a>
+            </div>
+        </template>
         <div class="progress">
             <div class="title">
                 <p>{{title}}</p>
@@ -112,16 +119,6 @@ In this example we also assume that the next challenge URL is `/story/weather`
                 <kano-circle-progress value="[[progress]]"></kano-circle-progress>
             </div>
         </div>
-        <template is="dom-if" if="{{remixMode}}">
-            <div class="actions">
-                <div class="empty-space"></div>
-                <template is="dom-if" if="{{nextChallenge}}">
-                    <a on-tap="goToNextChallenge"> Next Challenge </a>
-                    <div class="separator"></div>
-                </template>
-                <a on-tap="shareApp"> Share App </a>
-            </div>
-        </template>
     </template>
 </dom-module>
 
@@ -158,7 +155,7 @@ In this example we also assume that the next challenge URL is `/story/weather`
             this.fire('share-app');
         }
 
-        goToNextChallenge () {
+        goToNextStory () {
             this.fire('next-story');
         }
 
