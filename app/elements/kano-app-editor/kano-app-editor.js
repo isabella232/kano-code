@@ -91,6 +91,9 @@ class KanoAppEditor {
             drawerWidth: {
                 type: String,
                 value: '80%'
+            },
+            title: {
+                type: String
             }
         };
         this.observers = [
@@ -402,6 +405,8 @@ class KanoAppEditor {
         };
     }
     attached () {
+        this.title = this.title ? "My " + this.title.toLowerCase() : "Make Apps";
+
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;

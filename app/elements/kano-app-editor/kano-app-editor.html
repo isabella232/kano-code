@@ -38,6 +38,8 @@
         min-width: 38%;
         max-width: 62%;
         background-color: var(--color-dark, black);
+        background-image: -webkit-linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
+        background-image: linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
     }
     :host #left-panel kano-workspace {
         @apply(--layout-flex);
@@ -212,6 +214,14 @@
         font-weight: 500;
         transform: translate(0px, -3px);
     }
+    :host h1#app-title {
+        position: absolute;
+        top: 14px;
+        left: 55px;
+        color: var(--color-white, white);
+        margin: 0;
+        font-size: 18px;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
@@ -238,6 +248,7 @@
                         id="toggle-menu-button">
                     <iron-image src="/assets/icons/menu.png" sizing="contain"></iron-image>
                 </button>
+                <h1 id="app-title">{{title}}</h1>
                 <button type="button"
                     class$="make-button {{getMakeButtonClass(running)}}"
                     on-tap="toggleRunning"
