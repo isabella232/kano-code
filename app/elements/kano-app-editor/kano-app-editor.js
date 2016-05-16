@@ -405,7 +405,7 @@ class KanoAppEditor {
         };
     }
     attached () {
-        this.title = this.title ? "My " + this.title : "My app";
+        this.title = this.title ? "My " + this.title : "Make Apps";
 
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
