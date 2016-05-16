@@ -4,30 +4,8 @@ let spawn = require('child_process').spawn,
     path = require('path'),
     chalk = require('chalk'),
     wctLocalBrowsers = require('wct-local/lib/browsers'),
-    http = require('http'),
-    fs = require('fs'),
-    args = process.argv.slice(2),
-    StreamCache = require('stream-cache'),
-    cache = {},
-    server;
-
-
-function getFileStream(filepath) {
-    cache[filepath] = new StreamCache();
-    fs.createReadStream(filepath).pipe(cache[filepath]);
-    return cache[filepath];
-}
-
-server = http.createServer((req, res) => {
-    let filePath = path.join('www', req.url);
-    fs.stat(filePath, function (err, stats) {
-        if (!err && stats.isFile()) {
-            getFileStream(filePath).pipe(res);
-        } else {
-            getFileStream('./www/index.html').pipe(res);
-        }
-    });
-});
+    server = require('./server'),
+    args = process.argv.slice(2);
 
 // Sauce Labs compatible ports
 // taken from https://docs.saucelabs.com/reference/sauce-connect/#can-i-access-applications-on-localhost-

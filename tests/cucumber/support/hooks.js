@@ -1,23 +1,8 @@
 'use strict';
 
 let world = require('./world'),
-    http = require('http'),
-    fs = require('fs'),
-    path = require('path'),
-    server,
+    server = require('../../server'),
     hooks;
-
-// Simple static server
-server = http.createServer((req, res) => {
-    let filePath = path.join('www', req.url);
-    fs.stat(filePath, function (err, stats) {
-        if (!err && stats.isFile()) {
-            fs.createReadStream(filePath).pipe(res);
-        } else {
-            fs.createReadStream('./www/index.html').pipe(res);
-        }
-    });
-});
 
 hooks = function () {
 
