@@ -1,7 +1,7 @@
-Feature: Landing page
+Feature:
 
-Scenario: Start new creation
-  Given that a user is logged in
-    And the landing page is opened
-   When the user clicks the link to see all community created apps
-   Then the community creations page is loaded
+Scenario: Progress tracking updates each step
+ Given the story test_tooltip page is opened
+  When the user completes a step
+  Then the progress meter updates
+   And the next tooltip loads with the next step

@@ -64,12 +64,14 @@ class World {
         this.routeMap = {
             'landing': '/',
             'editor': '/make',
-            'community creations': '/apps'
+            'community creations': '/apps',
+            'story': '/story'
         };
         this.viewMap = {
             'landing': 'kano-view-home',
             'editor': 'kano-view-workshop',
-            'community creations': 'kano-view-apps'
+            'community creations': 'kano-view-apps',
+            'story': 'kano-view-story kano-story-scene kano-view'
         };
         this.firstStory = 'background_color';
         this.buttonMap = {
@@ -77,17 +79,41 @@ class World {
             'new app button': 'kano-app-list a#new-app',
             'link to see all community created apps': 'a#see-all-community'
         };
+        this.stories = {
+            test_tooltip: {
+                scenes: [{
+                    component: 'kano-scene-editor',
+                    steps: [{
+                        action: 'click',
+                        target: 'kano-app-editor #add-part-button'
+                    }]
+                }]
+            }
+        };
+        this.elementMap = {};
+        this.elementMap.editor = 'kano-app-editor';
+        this.elementMap.challenge = 'kano-app-challenge';
+        this.elementMap.progressIndicator = 'kano-challenge-progress';
+        this.elementMap.progressCircle = `${this.elementMap.progressIndicator} kano-cirle-progress`;
         this.loginUser = loginUser;
         this.logoutUser = logoutUser;
+    }
+    loadStory (id) {
+        this.currentStory = {
+            id,
+            sceneIndex: 0,
+            stepIndex: 0
+        };
     }
     /**
      * Wait for an element to be present on the page
      */
     waitFor (selector, timeout) {
         timeout = timeout || DEFAULT_TIMEOUT;
-        return driver.wait(function () {
-            return driver.isElementPresent({ css: selector });
-        }, timeout);
+        return driver.wait(() => {
+            return this.getDeepElement(selector, this.currentView)
+                .catch((e) => false);
+        }, timeout, `Could not find element ${selector}`);
     }
     /**
      * Empty the localStorage
@@ -100,23 +126,37 @@ class World {
     /**
      * Open the app to a speficied route
      */
-    openApp (page) {
+    openApp (page, ext) {
         let route;
+        ext = ext || '';
         page = page || 'landing';
         route = this.routeMap[page];
         if (!route) {
             return Promise.reject(new Error(`Tried to open a non registered page: ${page}`));
         }
-        return this.driver.get(`http://localhost:${getPort()}${route}`)
+        return this.driver.get(`http://localhost:${getPort()}${route}${ext}`)
             .then(() => this.clearStorage())
             .then(() => {
-                this.currentView = page;
                 if (user) {
                     return this.driver.executeScript(`
                         localStorage.setItem('KW_TOKEN', '${user.token}');
-                    `);
+                        `);
                 }
-            });
+            })
+            .then(() => this.waitFor(`kano-app`))
+            .then((el) => this.waitForDisplayed(el))
+            .then(() => this.waitFor(`kano-app kano-routing kano-view ${this.viewMap[page]}`))
+            .then((el) => this.currentView = el);
+    }
+    openStory (storyId) {
+        this.loadStory(storyId);
+        return this.openApp('story', `/${storyId}`)
+            .then(() => this.waitForScene());
+    }
+    waitForScene () {
+        let story = this.stories[this.currentStory.id],
+            scene = story.scenes[this.currentStory.sceneIndex];
+        return this.waitFor(scene.component);
     }
     /**
      * Get an element using a css selector
@@ -135,12 +175,14 @@ class World {
     getDeepElement (selector, node) {
         return this.driver.executeScript(`
             var pieces = arguments[0].split(' '),
-                element = arguments[1] || document;
+                element = arguments[1] || document,
+                el;
             for (var i = 0, len = pieces.length; i < len; i++) {
-                element = element.querySelector(pieces[i]);
-                if (!element) {
-                    throw new Error('Could not find element ' + pieces[i]);
+                el = element.querySelector(pieces[i]);
+                if (!el) {
+                    throw new Error('Could not find element ' + pieces[i] + ' from ' + element.tagName.toLowerCase());
                 }
+                element = el;
             }
             return element;
         `, selector, node);
@@ -152,13 +194,8 @@ class World {
         timeout = timeout || DEFAULT_TIMEOUT;
         return driver.wait(() => {
             return el.isDisplayed();
-        }, timeout)
-            .then(() => {
-                return el;
-            })
-            .catch(() => {
-                throw new Error('The element is not displayed on the page');
-            });
+        }, timeout, 'The element is not displayed on the page')
+            .then(() => el);
     }
     /**
      * Get the first child of a node
@@ -169,30 +206,23 @@ class World {
         `, node);
     }
     /**
-     * Assert that the current view s th one expected
+     * Assert that the current view is the one expected
      */
     assertCurrentView (view) {
         let tagName = this.viewMap[view];
         if (!tagName) {
             throw new Error(`View ${view} doesn't exists`);
         }
-        return this.getDeepElement(`kano-app kano-routing kano-view`)
-            .then((el) => this.getFirstChild(el))
-            .then((el) => el.getTagName(el))
+        return this.currentView.getTagName()
             .then((viewTagName) => {
                 viewTagName.should.be.eql(tagName);
-                this.currentView = view;
             });
     }
     /**
      * utility function to not have to save the current view in the step definitions
      */
     getDeepElementInView (selector) {
-        let viewTagName = this.viewMap[this.currentView];
-        if (!viewTagName) {
-            throw new Error(`No view is currently displayed`);
-        }
-        return this.getDeepElement(`kano-app kano-view ${viewTagName} ${selector}`);
+        return this.getDeepElement(selector, this.currentView);
     }
     /**
      * Assert that the current URL is the one expected (Check the path name)
@@ -219,11 +249,23 @@ class World {
     /**
      * Wait for an element to be visible and click on it. Uses `getDeepElementInView`
      */
-    clickOn (target) {
+    clickOnButton (target) {
         let selector = this.buttonMap[target];
+        return this.clickOn(selector);
+    }
+    clickOn (selector) {
         return this.getDeepElementInView(selector)
             .then((el) => this.waitForDisplayed(el))
             .then((el) => el.click());
+    }
+    // TODO detect next step and move indexes
+    validateStep () {
+        let story = this.stories[this.currentStory.id],
+            scene = story.scenes[this.currentStory.sceneIndex],
+            step = scene.steps[this.currentStory.stepIndex];
+        if (step.action === 'click') {
+            return this.clickOn(`${scene.component} ${step.target}`);
+        }
     }
 }
 

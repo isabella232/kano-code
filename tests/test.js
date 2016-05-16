@@ -4,7 +4,30 @@ let spawn = require('child_process').spawn,
     path = require('path'),
     chalk = require('chalk'),
     wctLocalBrowsers = require('wct-local/lib/browsers'),
-    args = process.argv.slice(2);
+    http = require('http'),
+    fs = require('fs'),
+    args = process.argv.slice(2),
+    StreamCache = require('stream-cache'),
+    cache = {},
+    server;
+
+
+function getFileStream(filepath) {
+    cache[filepath] = new StreamCache();
+    fs.createReadStream(filepath).pipe(cache[filepath]);
+    return cache[filepath];
+}
+
+server = http.createServer((req, res) => {
+    let filePath = path.join('www', req.url);
+    fs.stat(filePath, function (err, stats) {
+        if (!err && stats.isFile()) {
+            getFileStream(filePath).pipe(res);
+        } else {
+            getFileStream('./www/index.html').pipe(res);
+        }
+    });
+});
 
 // Sauce Labs compatible ports
 // taken from https://docs.saucelabs.com/reference/sauce-connect/#can-i-access-applications-on-localhost-
@@ -18,17 +41,21 @@ const SAUCE_PORTS = [
 ];
 
 wctLocalBrowsers.detect((err, browsers) => {
-    let promises = Object.keys(browsers).map((key, index) => {
-        return runCucumber(browsers[key], SAUCE_PORTS[index]);
-    });
-    Promise.all(promises).then((results) => {
-        Object.keys(browsers).forEach((key, index) => {
-            let browser = browsers[key];
-            if (results[index]) {
-                console.log(chalk.green(`${browser.browserName} ${browser.version}: ✓`));
-            } else {
-                console.log(chalk.red(`${browser.browserName} ${browser.version}: ✖`));
-            }
+    let port = SAUCE_PORTS[0],
+        promises = Object.keys(browsers).map((key, index) => {
+            return runCucumber(browsers[key], port);
+        });
+    server.listen(port, () => {
+        Promise.all(promises).then((results) => {
+            server.close();
+            Object.keys(browsers).forEach((key, index) => {
+                let browser = browsers[key];
+                if (results[index]) {
+                    console.log(chalk.green(`${browser.browserName} ${browser.version}: ✓`));
+                } else {
+                    console.log(chalk.red(`${browser.browserName} ${browser.version}: ✖`));
+                }
+            });
         });
     });
 });
@@ -37,7 +64,8 @@ function runCucumber(capability, port) {
     return new Promise((resolve, reject) => {
         let childEnv = Object.assign({}, process.env, {
                 CAPABILITY: JSON.stringify(capability),
-                TEST_PORT: port
+                TEST_PORT: port,
+                EXTERNAL_SERVER: true
             }),
             cucumber = spawn(path.join(__dirname, '../node_modules/.bin/cucumber-js'), args, {
             env: childEnv

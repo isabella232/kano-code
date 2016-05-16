@@ -1,19 +1,17 @@
 Feature: Landing page
-  Given the landing page is opened
+
+  Background:
+    Given the landing page is opened
 
   @loggedout
   Scenario: Logged out visitor loads page
-    Given the landing page is opened
     Then the landing page opens
      And the authentication modal is opened
 
   Scenario: Logged in visitor loads page
-    Then the landing page opens
-     And their creations are displayed
+     Then the user creations are displayed
 
   Scenario: Get started with content
-     Given that a user is logged in
-      And the landing page is opened
      When the user clicks the link to start the content
      Then the first story is loaded
 
@@ -40,8 +38,6 @@ Feature: Landing page
 #    Then nothing happens
 
   Scenario: Start new creation
-    Given that a user is logged in
-      And the landing page is opened
      When the user clicks the new app button
      Then the editor page is loaded
 
@@ -62,7 +58,5 @@ Feature: Landing page
 #    Then the app loads in the player
 
   Scenario: Start new creation
-    Given that a user is logged in
-      And the landing page is opened
      When the user clicks the link to see all community created apps
      Then the community creations page is loaded

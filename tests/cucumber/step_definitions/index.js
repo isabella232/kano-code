@@ -14,11 +14,14 @@ module.exports = function () {
         }).catch(callback);
     });
 
-    this.Given(/^the (.+) page is opened$/, function (arg0, callback) {
-        this.openApp(arg0)
-            .then(() => this.waitFor('kano-app'))
-            .then(() => this.getDeepElement('kano-app'))
-            .then((el) => this.waitForDisplayed(el))
+    this.Given(/^the (story )?(.+) page is opened$/, function (arg0, arg1, callback) {
+        let openApp;
+        if (arg0) {
+            openApp = this.openStory(arg1);
+        } else {
+            openApp = this.openApp(arg1);
+        }
+        openApp
             .then(() => {
                 callback();
             })
@@ -42,7 +45,7 @@ module.exports = function () {
             .catch(callback);
     });
 
-    this.Then(/^their creations are displayed$/, function (callback) {
+    this.Then(/^the user creations are displayed$/, function (callback) {
         this.getDeepElementInView('kano-app-list[view="my"]')
             .then(() => {
                 callback();
@@ -51,7 +54,7 @@ module.exports = function () {
     });
 
     this.When(/^the user clicks the (.+)$/, function (arg0, callback) {
-        this.clickOn(arg0)
+        this.clickOnButton(arg0)
             .then(() => {
                 callback();
             })
@@ -72,6 +75,19 @@ module.exports = function () {
                 callback();
             })
             .catch(callback);
+    });
+
+    this.When(/^the user completes a step$/, function (callback) {
+        this.validateStep()
+            .then(() => {
+                callback();
+            })
+            .catch(callback);
+    });
+
+    this.Then(/^the progress meter updates$/, function (callback) {
+        // Write code here that turns the phrase above into concrete actions
+        callback(null, 'pending');
     });
 
 };
