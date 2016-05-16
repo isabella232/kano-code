@@ -79,10 +79,13 @@
         float: left;
         padding: 0px;
         height: 69px;
-        width: 143px;
         display: inline-block;
         -webkit-tap-highlight-color: transparent;
         position: relative;
+    }
+
+    :host #nav-items li:not(.nav-menu-items--separator) {
+        margin: 0 10px;
     }
 
     :host nav .nav-menu ul.nav-menu-items li:hover {
@@ -92,7 +95,7 @@
     :host nav .nav-menu ul.nav-menu-items li a {
         padding: 23px 5px 13px 5px;
         display: inline-block;
-        margin: 0px 3px;
+        margin: 0px 2px;
         font-size: 19px;
         font-weight: 700;
         text-decoration: none;
@@ -121,7 +124,7 @@
 
     :host nav .nav-menu ul.nav-menu-items li .icon-chevron-down2 {
         vertical-align: middle;
-        margin-left: 7px;
+        font-size: 15px;
     }
 
     :host nav .nav-menu ul.nav-menu-items li.nav-menu-items__open kano-drop-down,
@@ -131,16 +134,16 @@
         display: block;
     }
 
-    :host .nav-menu-items--separator {
+    :host nav .nav-menu ul.nav-menu-items li.nav-menu-items--separator {
         content: '\00a0';
         border-left: 4px solid #eee;
         pointer-events: none;
-        padding: 20px 0px 10px 0px !important;
-        width: auto !important;
-        height: 40px !important;
+        padding: 20px 0px 10px 0px;
+        width: auto;
+        height: 40px;
         margin-top: 16px;
-        margin-left: 10px;
-        margin-right: 10px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     :host  ul.nav-menu-items.nav-menu-user-items {
@@ -255,7 +258,14 @@
         display: none;
     }
 
-    @media screen and (max-width: 999px) {
+    :host nav .nav-menu ul.nav-menu-items li.make-nav {
+        width: 80px;
+    }
+
+    :host nav .nav-menu ul.nav-menu-items li.community-nav {
+        width: 125px;
+    }
+    @media only screen and (min-width: 768px) and (max-width: 991px) {
         :host nav .logo {
             display: none;
         }
@@ -376,13 +386,13 @@
                 </div>
                 <div class="nav-menu">
                     <ul id="nav-items" class="nav-menu-items">
-                        <li class="menu-item make-items" on-tap="toggleOpen">
+                        <li class="menu-item make-items make-nav" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Make</a>
                             <i class="icon-chevron-down2"></i>
                             <kano-drop-down items="{{makeItems}}"></kano-drop-down>
                         </li>
-                        <li class="menu-item"><a href='//world.kano.me/projects'>Projects</a></li>
-                        <li class="menu-item" on-tap="toggleOpen">
+                        <li class="menu-item"><a href="{{URL}}/projects">Projects</a></li>
+                        <li class="menu-item community-nav" on-tap="toggleOpen">
                             <a style="pointer-events: none;">Community</a>
                             <i class="icon-chevron-down2"></i>
                             <kano-drop-down items="{{communityItems}}"></kano-drop-down>
@@ -407,7 +417,6 @@
     <script>
         class KanoHeader {
             beforeRegister () {
-                this.URL = '//world.kano.me';
                 this.is = 'kano-header'
                 this.properties = {
                     dropdownVisible: {
@@ -503,6 +512,7 @@
             }
 
             ready () {
+                this.URL = this.app.config.WORLD_URL;
                 this.communityItems = [
                     {
                         name: 'Users',
