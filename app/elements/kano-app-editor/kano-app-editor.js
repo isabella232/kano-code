@@ -209,9 +209,8 @@ class KanoAppEditor {
         return savedApp;
     }
     share () {
-        let workspace = this.$.workspace,
-            backgroundColor = this.computeBackground();
-        workspace.generateCover(backgroundColor).then(image => {
+        this.generateCover().then(image => {
+            let backgroundColor = this.computeBackground();
             this.fire('share', {
                 cover: image,
                 workspaceInfo: JSON.stringify(this.save()),
@@ -221,6 +220,10 @@ class KanoAppEditor {
                 parts: this.addedParts
             });
         });
+    }
+    generateCover () {
+        let backgroundColor = this.computeBackground();
+        return this.$.workspace.generateCover(backgroundColor);
     }
     /**
      * Load the saved work from the local storage

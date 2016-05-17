@@ -57,18 +57,22 @@
             path = e.path.split('.');
             path.shift();
             if (!path.length) {
+                Object.keys(this.attributes).forEach((key) => {
+                    this.viewComponent.set(key, this.attributes.key);
+                });
                 return;
             }
             path = path.join('.');
             this.viewComponent.set(path, e.value);
         }
         viewChanged () {
-            if ((this.viewName && !this.viewName.length) || !this.location) {
+            if (!this.viewName || (this.viewName && !this.viewName.length) || !this.location) {
                 return;
             }
             this.loadView(this.viewName)
                 .then(this.displayView.bind(this))
                 .catch((e) => {
+                    console.log(e.stack);
                     this.fire('kano-error', new Error(`Could not load view ${this.viewName}`));
                 });
             this.set('ready', false);
