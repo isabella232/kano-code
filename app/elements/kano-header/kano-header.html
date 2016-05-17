@@ -39,7 +39,7 @@
     }
 
     :host nav .logo {
-        padding: 14px 5px 13px 5px;
+        padding: 12px 5px 0 5px;
         margin: 0 3px;
         vertical-align: middle;
         display: inline-block;
@@ -54,7 +54,7 @@
         height: 40px;
         display: inline-block;
         content: '';
-        margin-right: 5px;
+        margin-bottom: 5px;
     }
 
     :host nav .nav-menu {
@@ -71,14 +71,13 @@
         margin-left: 0;
         margin-bottom: 0;
         padding-left: 0;
-        text-align: center;
         height: 100%;
     }
 
     :host nav .nav-menu ul.nav-menu-items li {
         float: left;
         padding: 0px;
-        height: 69px;
+        height: 100%;
         display: inline-block;
         -webkit-tap-highlight-color: transparent;
         position: relative;
@@ -136,12 +135,12 @@
 
     :host nav .nav-menu ul.nav-menu-items li.nav-menu-items--separator {
         content: '\00a0';
-        border-left: 4px solid #eee;
+        border-left: 3px solid #eee;
         pointer-events: none;
         padding: 20px 0px 10px 0px;
         width: auto;
-        height: 40px;
-        margin-top: 16px;
+        height: 30px;
+        margin-top: 20px;
         margin-left: 20px;
         margin-right: 20px;
     }
@@ -198,7 +197,7 @@
     }
 
     :host ::content kano-notifications .kano-notifications .drop-down {
-        width: 340px;
+        width: 360px;
         right: 285px;
         top: 15px;
     }
@@ -265,15 +264,11 @@
     :host nav .nav-menu ul.nav-menu-items li.community-nav {
         width: 125px;
     }
+
+    :host .blue-border {
+        border-bottom: 4px solid #66bed3;
+    }
     @media only screen and (min-width: 768px) and (max-width: 991px) {
-        :host nav .logo {
-            display: none;
-        }
-
-        :host nav .nav-menu {
-            width: 100%;
-        }
-
         :host #nav-items {
             display: block;
         }
@@ -299,6 +294,11 @@
 
         :host nav .logo {
             display: inline-block;
+            padding: 15px 5px 0 0px;
+        }
+
+        :host nav .logo a {
+            border: none;
         }
 
         :host nav .nav-menu {
@@ -312,7 +312,7 @@
         }
 
         :host nav .page-width .nav-menu ::content #nav-items > li a {
-            padding: 15px 5px 15px 5px;
+            padding: 15px 5px 15px 20px;
         }
 
         :host nav .nav-menu .nav-menu-items .menu-item {
@@ -321,7 +321,7 @@
         }
 
         :host nav .nav-menu .nav-menu-items .menu-item:hover {
-            border: none;
+            border-bottom: none;
         }
 
         :host nav .nav-menu .nav-menu-items .menu-item.nav-menu-items__open {
@@ -343,10 +343,16 @@
             box-shadow: none;
             margin-top: 0;
             top: 0;
+            padding: 5px 0;
         }
 
-        :host nav .nav-menu .nav-menu-items--separator {
-            display: none !important;
+        :host nav .nav-menu ul#nav-items.nav-menu-items li.nav-menu-items--separator {
+            border-bottom: 3px solid #eee;
+            padding: 0px;
+            width: 87%;
+            height: 0px;
+            margin: 10px;
+            margin-left: 40px !important;
         }
 
         :host nav .page-width .nav-menu ul.nav-menu-user-items {
@@ -360,6 +366,7 @@
             margin: 0 20px;
             vertical-align: middle;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         :host nav .nav-menu ul.nav-menu-items li {
@@ -370,9 +377,32 @@
             float: left;
         }
 
+        :host nav .page-width .nav-menu ul#nav-items.nav-menu-items li a {
+            padding-left: 30px;
+            border-left: 4px solid transparent;
+        }
+
         :host ::content kano-user-avatar kano-drop-down.kano-user-avatar .drop-down.kano-drop-down {
             right: 145px;
         }
+
+        :host nav .nav-menu ul.nav-menu-items li.make-nav, :host nav .nav-menu ul.nav-menu-items li.community-nav {
+            width: 100%;
+        }
+
+        :host nav .nav-menu ul.nav-menu-items li.community-nav ::content kano-drop-down a {
+            height: 40px;
+        }
+
+        :host nav .page-width .nav-menu ul#nav-items.nav-menu-items li a.left-indicator-bar {
+            border-color: #66bed3;
+        }
+
+        :host nav .nav-menu {
+            padding: 0;
+            padding-bottom: 10px;
+        }
+
     }
     </style>
     <template>
@@ -399,7 +429,7 @@
                         </li>
                         <li class="menu-item nav-menu-items--separator"></li>
                         <li class="menu-item nav-menu-items--products">
-                            <a href='//kano.me'>Product</a>
+                            <a href='//kano.me'>Products</a>
                         </li>
                     </ul>
                     <ul class="nav-menu-user-items nav-menu-items">
@@ -558,10 +588,18 @@
                     },
                     {
                         name: 'Kano OS Apps',
-                        url: '//apps.kano.me',
+                        url: '//world.kano.me/apps',
                         img: '../../assets/navbar/osapps.png'
                     }
                 ]
+
+                if (window.location.pathname === '/') {
+                    this.$$('.logo a').classList.add('blue-border');
+                }
+
+                if (window.location.hostname === 'localhost') {
+                    this.$$('.make-nav a').classList.add('left-indicator-bar');
+                }
             }
         }
         Polymer(KanoHeader);
