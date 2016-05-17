@@ -6,7 +6,7 @@ let register = (Blockly) => {
             let json = {
                 id: 'set_background_color',
                 colour: COLOUR,
-                message0: 'Set background color to %1',
+                message0: 'Background: set color to %1',
                 args0: [{
                     type: "input_value",
                     name: "COLOUR",
