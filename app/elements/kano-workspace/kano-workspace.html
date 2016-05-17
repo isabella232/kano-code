@@ -23,9 +23,10 @@
         box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
         margin: auto;
         position: relative;
+        border-radius: 5px;
     }
 
-    :host ::content div#dropzone > * {
+    :host ::content div#dropzone > *:not(.hole) {
         position: absolute;
         top: 0px;
         left: 0px
@@ -64,6 +65,39 @@
     :host paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
+
+    :host .hole {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #454545;
+    }
+
+    :host .hole.hole-top-left {
+        top: 5px;
+        left: 5px;
+    }
+
+    :host .hole.hole-top-right {
+        top: 5px;
+        right: 5px;
+    }
+
+    :host .hole.hole-bottom-right {
+        bottom: 5px;
+        right: 5px;
+    }
+
+    :host .hole.hole-bottom-left {
+        bottom: 5px;
+        left: 5px;
+    }
+
+    :host .made-with-kano {
+        text-align: center;
+        color: #B3B3B3;
+    }
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
@@ -72,7 +106,13 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone"></div>
+            <div id="dropzone">
+                <div class="hole hole-top-left"></div>
+                <div class="hole hole-top-right"></div>
+                <div class="hole hole-bottom-right"></div>
+                <div class="hole hole-bottom-left"></div>
+            </div>
+            <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
         <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
             <div class="tooltip-content">
@@ -165,6 +205,10 @@
             return !this.canDelete(el) || !this.canEdit(el);
         }
         onTap (e) {
+            if (this.running) {
+                return;
+            }
+
             if (e.target.id === 'content') {
                 this.clearSelection();
                 this.fire('close-settings');

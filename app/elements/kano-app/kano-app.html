@@ -99,21 +99,20 @@ Example:
     }
     </style>
     <template>
-        <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857">
+        <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank">
             Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
         </a>
         <style include="kano-style"></style>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
             <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" editor="{{editor}}"></kano-side-menu>
             <div class="main" main>
-                <iron-pages selected="[[accessState]]" attr-for-selected="name" on-iron-select="pageChanged">
-                    <div name="logged-out" class="logged-out"></div>
+                <template is="dom-if" if={{user}}>
                     <kano-routing name="allowed" id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]"></kano-routing>
-                </iron-pages>
+                </template>
             </div>
         </paper-drawer-panel>
         <paper-dialog id="auth-modal" class="auth-modal" modal>
-            <kano-auth on-login="onLogin"></kano-auth>
+            <kano-auth on-login="onLogin" id="auth"></kano-auth>
         </paper-dialog>
     </template>
 </dom-module>
@@ -125,9 +124,6 @@ Example:
             this.is = 'kano-app';
             this.properties = {
                 user: {
-                    type: Object
-                },
-                redirectTimer: {
                     type: Object
                 }
             };
@@ -152,27 +148,13 @@ Example:
         isUserLoggedIn () {
             return !!this.user;
         }
-        computeAccessState () {
-            clearTimeout(this.redirectTimer);
-            if (!this.isUserLoggedIn()) {
-                return 'logged-out';
-            }
-
-            return 'allowed';
-        }
         launchLogin () {
-            let state = this.computeAccessState();
-            this.set('accessState', state);
             if (!this.isUserLoggedIn()) {
                 this.login();
             }
         }
-        redirectToKanoWorld () {
-            this.redirectTimer = setTimeout(()=>{location.href='http://world.kano.me';}, 5000);
-        }
         ready () {
             this.editor = null;
-            this.set('accessState', 'logged-out');
             let initialiseSDK = () => {
                 app.sdk.auth.initSession((err, user) => {
                     if (user) {
@@ -211,6 +193,9 @@ Example:
             e.preventDefault();
             app.sdk.auth.setToken(null);
             this.user = null;
+            history.pushState({}, "logout", "/");
+            this.$.drawer.closeDrawer();
+            this.$.auth.reset();
         }
         login () {
             let modal = this.$['auth-modal'];
