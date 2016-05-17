@@ -56,7 +56,7 @@
         position: relative;
         width: 8px;
         cursor: ew-resize;
-        background-color: #e1e1e1;
+        background-color: rgba(0, 0, 0, 0.11);
     }
     :host #resize .handle {
         position: absolute;
@@ -231,17 +231,20 @@
         width: 100%;
         height: 100%;
         z-index: 100;
+        transition: all ease-in-out 0.5s;
+        opacity: 1;
     }
     :host .elevate {
         z-index: 101;
     }
     :host .hidden {
-        display: none;
+        visibility: hidden;
+        opacity: 0;
     }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <div id="overlay" class$="overlay {{applyHiddenClass(running)}}" tabindex="0"
+            <div id="overlay" class$="overlay animatable {{applyHiddenClass(running)}}" tabindex="0"
                  on-keypress="trapEvent" on-keyup="trapEvent" on-keydown="trapEvent"></div>
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
