@@ -205,6 +205,10 @@
             return !this.canDelete(el) || !this.canEdit(el);
         }
         onTap (e) {
+            if (this.running) {
+                return;
+            }
+
             if (e.target.id === 'content') {
                 this.clearSelection();
                 this.fire('close-settings');

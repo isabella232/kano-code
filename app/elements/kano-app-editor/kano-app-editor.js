@@ -508,14 +508,26 @@ class KanoAppEditor {
         this.notifyChange('running', {
             value: this.running
         });
+
+        this.$.overlay.focus();
+        this.$.partsPanel.closeDrawer();
+    }
+
+    trapEvent (e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     getMakeButtonClass () {
-        if (this.running) {
-            return 'running';
-        }
+        return this.running ? 'running' : 'stopped';
+    }
 
-        return 'stopped';
+    applyElevateClass () {
+        return this.running ? 'elevate' : '';
+    }
+
+    applyHiddenClass () {
+        return this.running ? '' : 'hidden';
     }
 
     getMakeButtonLabel () {
