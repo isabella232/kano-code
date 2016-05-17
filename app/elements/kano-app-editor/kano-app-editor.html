@@ -222,11 +222,30 @@
         margin: 0;
         font-size: 18px;
     }
+    :host .overlay {
+        background-color: rgba(50, 50, 50, 0.5);
+
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+    }
+    :host .elevate {
+        z-index: 101;
+    }
+    :host .hidden {
+        display: none;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
+            <div id="overlay" class$="overlay {{applyHiddenClass(running)}}" tabindex="0"
+                 on-keypress="trapEvent" on-keyup="trapEvent" on-keydown="trapEvent"></div>
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
+                                class$="{{applyElevateClass(running)}}"
                                 on-ui-ready="workspaceUiReady"
                                 on-edit-background="onEditBackground"
                                 parts="{{addedParts}}"
@@ -250,14 +269,14 @@
                 </button>
                 <h1 id="app-title">{{title}}</h1>
                 <button type="button"
-                    class$="make-button {{getMakeButtonClass(running)}}"
+                    class$="make-button {{getMakeButtonClass(running)}} {{applyElevateClass(running)}}"
                     on-tap="toggleRunning"
                     id="make-button">
                     <kano-animated-svg width="32" height="32" paths="[[makeButtonIconPaths]]" selected="{{getMakeButtonClass(running)}}">
                     </kano-animated-svg>
                 </button>
             </div>
-            <div id="resize" on-mousedown="resizeWorkspace">
+            <div id="resize" on-mousedown="resizeWorkspace" class$="{{applyElevateClass(running)}}">
                 <div class="handle"></div>
             </div>
             <div name="code" class="editor" id="right-panel">
