@@ -1,3 +1,8 @@
+<link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/cascaded-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
 <dom-module id="kano-projects">
     <style>
         :host a:hover,
@@ -12,6 +17,8 @@
             @apply(--layout-center);
             @apply(--layout-center-justified);
             width: 100%;
+            min-height: 250px;
+            overflow: hidden;
         }
         :host .block {
             width: 100%;
@@ -60,12 +67,16 @@
             pointer-events: none;
             cursor: default;
         }
+        :host .empty-stories {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 20px;
+        }
     </style>
     <template>
         <div class="projects">
-            <template is="dom-repeat" items="{{projects}}" as="project">
+            <template is="dom-repeat" items="{{projects}}" as="project" on-dom-change="updateAnimation">
                 <div class="block">
-                    <a class$="project {{isAvailable(project.available)}}" href="/story/{{project.id}}">
+                    <a class$="project [[computeProjectClass(project)]]" href="/story/{{project.id}}">
                         <iron-image src="{{project.image}}" fade sizing="cover" class="project-image"></iron-image>
                         <div class="info">
                             <div class="project-name">{{project.name}}</div>
@@ -74,26 +85,75 @@
                     </a>
                 </div>
             </template>
+            <div class="empty-stories" hidden$="[[isEmptyMessageHidden(projects, loading)]]">
+                [[computeEmptyMessage(projects, loading)]]
+            </div>
         </div>
     </template>
 </dom-module>
 
 <script type="text/javascript">
     /* globals Polymer */
-    /* globals app */
     class KanoProjects {
+
+        get behaviors () {
+            return [
+                Polymer.NeonAnimationRunnerBehavior,
+                Polymer.NeonSharedElementAnimatableBehavior
+            ];
+        }
+
         beforeRegister () {
             this.is = 'kano-projects';
             this.properties = {
                 projects: {
                     type: Array,
                     value: []
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
                 }
+            };
+        }
+
+        computeProjectClass (project) {
+            let classes = [];
+            if (!project.available) {
+                classes.push('disabled');
+            }
+            if (project.locked) {
+                classes.push('locked');
+            }
+            return classes.join(' ');
+        }
+
+        computeEmptyMessage (projects, loading) {
+            if (loading) {
+                return 'Loading stories...';
+            } else if (!projects || !projects.length) {
+                return 'No stories...for now';
             }
         }
 
-        isAvailable (available) {
-            return available ? '' : 'disabled';
+        isEmptyMessageHidden (projects, loading) {
+            return projects && projects.length || !loading;
+        }
+
+        updateAnimation () {
+            let nodes = Polymer.dom(this.root).querySelectorAll('.block');
+            this.animationConfig = {
+                entry: [{
+                    name: 'cascaded-animation',
+                    animation: 'slide-from-bottom-animation',
+                    nodes
+                },{
+                    name: 'cascaded-animation',
+                    animation: 'fade-in-animation',
+                    nodes
+                }]
+            };
+            this.playAnimation('entry');
         }
     }
 

@@ -51,7 +51,7 @@ export default class Data extends Part {
             block: (part) => {
                 return {
                     id: 'refresh',
-                    message0: `refresh ${part.name} data`,
+                    message0: `${part.name}: refresh data`,
                     previousStatement: null,
                     nextStatement: null
                 };
@@ -74,7 +74,7 @@ export default class Data extends Part {
                 block: (part) => {
                     return {
                         id: 'set_config',
-                        message0: `${part.name} set %1 to %2`,
+                        message0: `${part.name}: set %1 to %2`,
                         args0: [{
                             type: "field_dropdown",
                             name: "PARAM",
@@ -111,7 +111,7 @@ export default class Data extends Part {
                     block: (part) => {
                         return {
                             id: 'get_value_at',
-                            message0: `${part.name}'s %1`,
+                            message0: `${part.name}: %1`,
                             args0: [{
                                 type: "field_dropdown",
                                 name: "KEY",
@@ -144,7 +144,7 @@ export default class Data extends Part {
                     block: (part) => {
                         return {
                             id: 'get_value',
-                            message0: `${part.name}'s %1`,
+                            message0: `${part.name}: %1`,
                             args0: [{
                                 type: "field_dropdown",
                                 name: "KEY",

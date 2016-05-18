@@ -1,79 +1,35 @@
-<link rel="import" href="../ui/kano-ui-style/kano-ui-style.html">
+<link rel="import" href="./typography.html">
+<link rel="import" href="./color.html">
+<link rel="import" href="./button.html">
+<link rel="import" href="./input.html">
+<link rel="import" href="./background.html">
+<style is="custom-style">
+    :root {
+        --kano-shadow: {
+            box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
+        };
 
-<dom-module id="kano-style">
-  <template>
-    <style include="kano-ui-style"></style>
-    <style>
-        :root {
-            --kano-shadow: {
-                box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.11);
-            };
-            --kano-icon-button: {
-                background: transparent;
-                border: 0px;
-                outline: none;
-            };
-            --kano-close-button: {
-                position: absolute;
-                top: 0px;
-                right: 0px;
-                border: 0px;
-                background-color: transparent;
-                color: var(--color-black, black);
-                font-size: 2em;
-                line-height: 20px;
-            };
+        --kano-overlay: {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            right: 0px;
+            left: 0px;
+            z-index: 999;
+        };
 
-            --kano-overlay: {
-                position: absolute;
-                top: 0px;
-                bottom: 0px;
-                right: 0px;
-                left: 0px;
-                z-index: 999;
-            };
-
-            --kano-light-input: {
-                background-color: transparent;
-                border: 0px;
-                border-bottom: 2px solid var(--color-black, black);
-            };
-
-            --kano-light-select: {
-                background-color: transparent;
-                border: 1px solid var(--color-black, black);
-                font-size: 1em;
-            };
-
-            --kano-dotted-background: {
-                background-image: -webkit-repeating-radial-gradient(center center, rgba(0,0,0,.04), rgba(0,0,0,.04) 4px, transparent 1px, transparent 100%);
-                background-image: -moz-repeating-radial-gradient(center center, rgba(0,0,0,.04), rgba(0,0,0,.04) 4px, transparent 1px, transparent 100%);
-                background-image: -ms-repeating-radial-gradient(center center, rgba(0,0,0,.04), rgba(0,0,0,.04) 4px, transparent 1px, transparent 100%);
-                background-image: repeating-radial-gradient(center center, rgba(0,0,0,.04), rgba(0,0,0,.04) 4px, transparent 1px, transparent 100%);
-                -webkit-background-size: 20px 20px;
-                -moz-background-size: 20px 20px;
-                background-size: 20px 20px;
-            };
-
-            --kano-crossed-background: {
-                background-image: url("/assets/patterns/cross.svg");
-                background-color: white;
-            }
-
-            --kano-box-shadow: {
-               -webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-               -moz-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-               -o-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-               box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-            }
-
-            --kano-inset-box-shadow: {
-                -webkit-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
-                -moz-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
-                -o-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
-                box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
-            }
+        --kano-box-shadow: {
+           -webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+           -moz-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+           -o-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+           box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
         }
-    </style>
-  </template>
-</dom-module>
+
+        --kano-inset-box-shadow: {
+            -webkit-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
+            -moz-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
+            -o-box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
+            box-shadow: inset 4px 0 5px 0 rgba(0, 0, 0, 0.14);
+        }
+    }
+</style>

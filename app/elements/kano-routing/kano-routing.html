@@ -39,12 +39,17 @@
           };
 
           this.observers  = [
-              "computeAttributes(user)"
+              "computeAttributes(user)",
+              "computeAttributes(ctx.*)",
+              "reload(ctx.*)"
           ];
       }
 
-      computeAttributes (user) {
-          this.set("attributes.user", user);
+      computeAttributes () {
+          this.set("attributes", {
+              user: this.user,
+              ctx: this.ctx
+          });
       }
       /**
        * Initialize the views
@@ -69,7 +74,7 @@
        */
       partial (name) {
           return (ctx) => {
-              this.ctx = ctx;
+              this.set('ctx', ctx);
               this.flexEnabled = (name === 'kano-view-home' || name === 'kano-view-apps') ? false : true;
               this.currentView = name;
           };

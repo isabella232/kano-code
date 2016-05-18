@@ -26,8 +26,7 @@
                 location="[[location]]"
                 view-name="[[name]]"
                 attributes="{{attributes}}"
-                on-scene-done="sceneFinished"
-                ></kano-view>
+                on-scene-done="sceneFinished"></kano-view>
         <div id="overlay"></div>
     </template>
 </dom-module>
@@ -49,7 +48,7 @@
                     value: ''
                 },
                 nextStory: {
-                    type: String
+                    type: Object
                 },
                 location: {
                     type: String
@@ -65,11 +64,18 @@
                     value: () => {
                         return {};
                     }
+                },
+                extensions: {
+                    type: Array
                 }
             };
             this.observers = [
-                'componentChanged(scene.component)'
+                'componentChanged(scene.component)',
+                'extensionsChanged(extensions.*)'
             ];
+        }
+        extensionsChanged(e) {
+            this.set(`attributes.${e.path}`, e.value);
         }
         ready () {
             this.overlayDone = this.overlayDone.bind(this);
@@ -107,7 +113,8 @@
             attributes.store = this.store;
             attributes.storyName = this.storyName;
             attributes.nextStory = this.nextStory;
-            attributes.scene = scene.data;
+            attributes.scene = Object.assign({}, scene.data);
+            attributes.extensions = this.extensions;
             // Let the end of the overlay load the data
             if (!scene.overlay_before) {
                 attributes.scene.started = true;
