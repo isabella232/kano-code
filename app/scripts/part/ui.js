@@ -72,7 +72,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_move_by',
-                    message0: `move ${ui.name} %1 pixels`,
+                    message0: `${ui.name}: move  %1 pixels`,
                     args0: [{
                         type: 'input_value',
                         name: 'pixels'
@@ -101,7 +101,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_rotate_clockwise',
-                    message0: `turn \u21BB ${ui.name} %1 degrees`,
+                    message0: `${ui.name}: turn \u21BB %1 degrees`,
                     args0: [{
                         type: 'input_value',
                         name: 'DEG'
@@ -132,7 +132,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_rotate_counter_clockwise',
-                    message0: `turn \u21BA ${ui.name} %1 degrees`,
+                    message0: `${ui.name}: turn \u21BA %1 degrees`,
                     args0: [{
                         type: 'input_value',
                         name: 'DEG'
@@ -163,7 +163,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_absolute_rotate',
-                    message0: `point ${ui.name} to %1 degrees`,
+                    message0: `${ui.name}: point to %1 degrees`,
                     args0: [{
                         type: 'input_value',
                         name: 'DEG'
@@ -196,7 +196,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_scale',
-                    message0: `set ${ui.name} size to %1 %`,
+                    message0: `${ui.name}: set size to %1 %`,
                     args0: [{
                         type: 'input_value',
                         name: 'FACTOR'
@@ -227,7 +227,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_scale_rel',
-                    message0: `change ${ui.name} size by %1 %`,
+                    message0: `${ui.name}: change size by %1 %`,
                     args0: [{
                         type: 'input_value',
                         name: 'FACTOR'
@@ -258,7 +258,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_set_x_y',
-                    message0: `move ${ui.name} to x %1, y %2`,
+                    message0: `${ui.name}: move to x %1, y %2`,
                     args0: [{
                         type: 'input_value',
                         name: 'X'
@@ -293,7 +293,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_set_x',
-                    message0: `set ${ui.name} x to %1`,
+                    message0: `${ui.name}: set x to %1`,
                     args0: [{
                         type: 'input_value',
                         name: 'X'
@@ -322,7 +322,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_set_y',
-                    message0: `set ${ui.name} y to %1`,
+                    message0: `${ui.name}: set y to %1`,
                     args0: [{
                         type: 'input_value',
                         name: 'Y'
@@ -351,7 +351,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_show_hide',
-                    message0: `${ui.name} %1`,
+                    message0: `${ui.name}: %1`,
                     args0: [{
                         type: "field_dropdown",
                         name: "VISIBILITY",
@@ -393,7 +393,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_toggle_visibility',
-                    message0: `toggle ${ui.name}'s' visibility`,
+                    message0: `${ui.name}: toggle visibility`,
                     previousStatement: null,
                     nextStatement: null
                 };
@@ -415,7 +415,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_x',
-                    message0: `${ui.name} x position`,
+                    message0: `${ui.name}: x position`,
                     output: 'Number'
                 };
             },
@@ -434,7 +434,7 @@ export default class UI extends Part {
             block: (ui) => {
                 return {
                     id: 'ui_y',
-                    message0: `${ui.name} y position`,
+                    message0: `${ui.name}: y position`,
                     output: 'Number'
                 };
             },

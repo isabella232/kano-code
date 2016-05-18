@@ -19,7 +19,7 @@ export default map = {
         block: (ui) => {
             return {
                 id: 'show_marker',
-                message0: `${ui.name} move marker to %1 %2`,
+                message0: `${ui.name}: move marker to %1 %2`,
                 args0: [{
                     type: "input_value",
                     name: "LATITUDE"

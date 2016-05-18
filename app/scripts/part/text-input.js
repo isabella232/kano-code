@@ -31,7 +31,7 @@ export default input = {
             return {
                 id: 'input_text_get_value',
                 output: 'String',
-                message0: `${ui.name} value`
+                message0: `${ui.name}: value`
             };
         },
         javascript: (ui) => {
@@ -49,7 +49,7 @@ export default input = {
             return {
                 id: 'input_text_get_placeholder',
                 output: 'String',
-                message0: `${ui.name} placeholder`
+                message0: `${ui.name}: placeholder`
             };
         },
         javascript: (ui) => {
@@ -66,7 +66,7 @@ export default input = {
         block: (ui) => {
             return {
                 id: 'input_text_set_value',
-                message0: `set ${ui.name} value to %1`,
+                message0: `${ui.name}: set value to %1`,
                 args0: [{
                     type: "input_value",
                     name: "INPUT"
@@ -91,7 +91,7 @@ export default input = {
         block: (ui) => {
             return {
                 id: 'input_text_set_placeholder',
-                message0: `set ${ui.name} placeholder to %1`,
+                message0: `${ui.name}: set placeholder to %1`,
                 args0: [{
                     type: "input_value",
                     name: "PLACEHOLDER"

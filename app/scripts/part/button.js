@@ -31,7 +31,7 @@ export default button = {
             return {
                 id: 'get_label',
                 output: "String",
-                message0: `${ui.name} label`
+                message0: `${ui.name}: label`
             };
         },
         javascript: (ui) => {
@@ -48,7 +48,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_label',
-                message0: `set ${ui.name} label to %1`,
+                message0: `${ui.name}: set label to %1`,
                 args0: [{
                     type: "input_value",
                     name: "LABEL"
@@ -73,7 +73,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_background_colour',
-                message0: `set ${ui.name} background colour to %1`,
+                message0: `${ui.name}: set background colour to %1`,
                 args0: [{
                     type: "input_value",
                     name: "COLOUR",
@@ -99,7 +99,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_text_colour',
-                message0: `set ${ui.name} text colour to %1`,
+                message0: `${ui.name}: set text colour to %1`,
                 args0: [{
                     type: "input_value",
                     name: "COLOUR",
