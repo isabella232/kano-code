@@ -20,10 +20,11 @@ let progressService = (sdk) => {
             let progressGroup;
 
             this.loadFromStorage();
-            if (extension && progress[group].extensions.indexOf(extension) === -1) {
-                progress[group].extensions.push(extension);
+            progressGroup = formatProgressGroup(progress[group]);
+            if (extension && progressGroup.extensions.indexOf(extension) === -1) {
+                progressGroup.extensions.push(extension);
             }
-            progressGroup = progress[group];
+
             progressGroup.storyNo = storyNo;
 
             this.saveToStorage();
