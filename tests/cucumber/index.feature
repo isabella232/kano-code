@@ -5,8 +5,7 @@ Feature: Landing page
 
   @loggedout
   Scenario: Logged out visitor loads page
-    Then the landing page opens
-     And the authentication modal is opened
+    Then the authentication modal is opened
 
   Scenario: Logged in visitor loads page
      Then the user creations are displayed
@@ -15,10 +14,10 @@ Feature: Landing page
      When the user clicks the link to start the content
      Then the first story is loaded
 
-#  Scenario: Browse Kano-created projects
-#    When the page is opened
-#    Then there is a display of Kano-created projects
-#     And projects that haven't been completed are locked
+  @test
+  Scenario: Browse Kano-created projects
+    Then Kano-created projects are displayed
+     And projects that haven't been completed are locked
 
 #  Scenario: See completed projects
 #    Given that a user has completed a project

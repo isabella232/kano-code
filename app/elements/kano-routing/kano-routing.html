@@ -39,21 +39,22 @@
           };
 
           this.observers  = [
-              "computeAttributes(user)"
+              "computeAttributes(user)",
+              "computeAttributes(ctx.*)",
+              "reload(ctx.*)"
           ];
       }
 
-      computeAttributes (user) {
-          this.set("attributes.user", user);
+      computeAttributes () {
+          this.set("attributes", {
+              user: this.user,
+              ctx: this.ctx
+          });
       }
       /**
        * Initialize the views
        */
       ready () {
-          let hashLocation = location.hash.replace(/^#\!/, '');
-          if (hashLocation.length) {
-              history.pushState({}, "entry page", location.hash.substring(2));
-          }
           page('/', this.partial('kano-view-home'));
           page('/apps', this.partial('kano-view-apps'));
           page('/apps/:view', this.partial('kano-view-apps'));
@@ -73,7 +74,7 @@
        */
       partial (name) {
           return (ctx) => {
-              this.ctx = ctx;
+              this.set('ctx', ctx);
               this.flexEnabled = (name === 'kano-view-home' || name === 'kano-view-apps') ? false : true;
               this.currentView = name;
           };

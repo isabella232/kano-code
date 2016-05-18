@@ -112,7 +112,7 @@
         </div>
         <div class="container">
             <h1>Projects</h1>
-            <kano-projects projects="[[projects]]"></kano-projects>
+            <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
             <kano-app-list limit="3" view="my" apps="[[user_apps]]" play-url="{{PLAY_URL}}"></kano-app-list>
             <h1>Latest Apps</h1><a id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
@@ -136,7 +136,7 @@
                     type: Object,
                     observer: "userChanged"
                 }
-            }
+            };
         }
 
         userChanged () {
@@ -151,13 +151,30 @@
         }
 
         ready () {
-
             this.PLAY_URL = app.config.PLAY_URL;
+            this.loadingProjects = true;
             app.stories.list()
+                .then((stories) => {
+                    // Go through all the stories and update the `locked` key
+                    let promises = stories.map((story) => {
+                        // Load the story's progress group
+                        return app.progress.loadProgress()
+                            .then((progress) => {
+                                let progressGroup = progress[story.progress.group] || {};
+                                // `storyNo` is the last completed story number of the user. If the story number is over
+                                // that number plus one, the story is locked
+                                if (progressGroup.storyNo + 1 < story.progress.storyNo) {
+                                    story.locked = true;
+                                }
+                                return story;
+                            });
+                    });
+                    return Promise.all(promises);
+                })
                 .then((projects) => {
+                    this.loadingProjects = false;
                     this.set('projects', projects);
                 });
-
             app.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);

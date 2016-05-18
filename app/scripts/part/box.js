@@ -37,7 +37,7 @@ export default box = {
         block: (ui) => {
             return {
                 id: 'set_stroke_size',
-                message0: `set ${ui.name} stroke size to %1`,
+                message0: `${ui.name}: set stroke size to %1`,
                 args0: [{
                     type: "input_value",
                     name: "SIZE",
@@ -63,7 +63,7 @@ export default box = {
         block: (ui) => {
             return {
                 id: 'set_stroke_colour',
-                message0: `set ${ui.name} stroke color to %1`,
+                message0: `${ui.name}: set stroke color to %1`,
                 args0: [{
                     type: "input_value",
                     name: "COLOUR",
@@ -89,7 +89,7 @@ export default box = {
         block: (ui) => {
             return {
                 id: 'set_background_colour',
-                message0: `set ${ui.name} background color to %1`,
+                message0: `${ui.name}: set background color to %1`,
                 args0: [{
                     type: "input_value",
                     name: "COLOUR",

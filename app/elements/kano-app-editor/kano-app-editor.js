@@ -91,6 +91,9 @@ class KanoAppEditor {
             drawerWidth: {
                 type: String,
                 value: '80%'
+            },
+            title: {
+                type: String
             }
         };
         this.observers = [
@@ -206,9 +209,8 @@ class KanoAppEditor {
         return savedApp;
     }
     share () {
-        let workspace = this.$.workspace,
-            backgroundColor = this.computeBackground();
-        workspace.generateCover(backgroundColor).then(image => {
+        this.generateCover().then(image => {
+            let backgroundColor = this.computeBackground();
             this.fire('share', {
                 cover: image,
                 workspaceInfo: JSON.stringify(this.save()),
@@ -218,6 +220,10 @@ class KanoAppEditor {
                 parts: this.addedParts
             });
         });
+    }
+    generateCover () {
+        let backgroundColor = this.computeBackground();
+        return this.$.workspace.generateCover(backgroundColor);
     }
     /**
      * Load the saved work from the local storage
@@ -402,6 +408,8 @@ class KanoAppEditor {
         };
     }
     attached () {
+        this.title = this.title ? "My " + this.title.toLowerCase() : "Make Apps";
+
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
         this.$.workspace.size = this.wsSize;
@@ -503,14 +511,26 @@ class KanoAppEditor {
         this.notifyChange('running', {
             value: this.running
         });
+
+        this.$.overlay.focus();
+        this.$.partsPanel.closeDrawer();
+    }
+
+    trapEvent (e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     getMakeButtonClass () {
-        if (this.running) {
-            return 'running';
-        }
+        return this.running ? 'running' : 'stopped';
+    }
 
-        return 'stopped';
+    applyElevateClass () {
+        return this.running ? 'elevate' : '';
+    }
+
+    applyHiddenClass () {
+        return this.running ? '' : 'hidden';
     }
 
     getMakeButtonLabel () {

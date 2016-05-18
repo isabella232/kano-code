@@ -12,7 +12,7 @@ export default speaker = {
         block: () => {
             return {
                 id: 'say',
-                message0: 'say Text %1 Speed %2 Accent %3',
+                message0: 'Speaker: say Text %1 Speed %2 Accent %3',
                 inputsInline: false,
                 args0: [{
                     type: "input_value",

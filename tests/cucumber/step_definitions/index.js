@@ -90,4 +90,20 @@ module.exports = function () {
         callback(null, 'pending');
     });
 
+    this.Then(/^(.+) (are|is) displayed$/, function (arg0, arg1, callback) {
+        this.assertDisplayed(arg0)
+            .then(() => {
+                callback();
+            })
+            .catch(callback);
+    });
+
+    this.Then(/^projects that haven't been completed are locked$/, function (callback) {
+        this.waitFor('kano-projects a.locked')
+            .then(() => {
+                callback();
+            })
+            .catch(callback);
+    });
+
 };

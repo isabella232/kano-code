@@ -1,3 +1,7 @@
+<link rel="import" href="../../../../elements/kano-power-up-modal/kano-power-up-modal.html">
+<link rel="import" href="../../../../elements/kano-app-challenge/kano-app-challenge.html">
+<link rel="import" href="../../../../elements/kano-app-editor/kano-app-editor.html">
+<link rel="import" href="../../../../elements/kano-challenge-progress/kano-challenge-progress.html">
 <dom-module id="kano-scene-editor">
   <style>
     :host {
@@ -9,6 +13,11 @@
     }
     :host kano-app-editor {
         @apply(--layout-flex);
+    }
+    :host kano-challenge-progress {
+        position: absolute;
+        top: 20px;
+        right: 20px;
     }
   </style>
   <template>
@@ -24,10 +33,20 @@
                             default-categories="[[computeCategories(scene.*)]]"
                             class="editor"
                             ws-size="[[size]]"
-                            running="{{running}}">
-              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory]]" on-share-app="shareApp" remix-mode="[[scene.remix]]"></kano-challenge-progress>
+                            running="{{running}}"
+                            title="[[storyName]]"
+                            code="{{code}}">
+              <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory.id]]" on-share-app="shareApp" remix-mode="[[remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
+      <kano-power-up-modal id="challenge-completed"
+                            options="[[extensions]]"
+                            app-preview="[[appPreview]]"
+                            story-name="[[storyName]]"
+                            next-story="[[nextStory]]"
+                            on-close="goToRemixChallenge"
+                            on-power-up="powerUp"></kano-power-up-modal>
+      </paper-dialog>
   </template>
 </dom-module>
 <script type="text/javascript">
@@ -60,21 +79,32 @@
                 progress: {
                     type: Number,
                     computed: "computeProgress(currentStep, scene)"
+                },
+                extensions: {
+                    type: Array
                 }
             };
             this.observers = [
-                'shareChanged(scene.share)'
+                'endedChanged(scene.ended)'
             ];
         }
 
-        shareChanged () {
-            if (this.scene.share) {
-                this.shareApp();
+        endedChanged () {
+            if (this.scene.ended) {
+                this.$.editor.generateCover().then((image) => {
+                    this.appPreview = image.src;
+                    this.$['challenge-completed'].open();
+                });
             }
         }
 
         computeProgress (currentStep, scene) {
             return currentStep / scene.steps.length;
+        }
+
+        ready () {
+            this.remix = false;
+            this.code = {};
         }
 
         attached () {
@@ -130,6 +160,14 @@
             this.$.editor.load(savedState.app, this.computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
+        }
+        goToRemixChallenge () {
+            this.remix = true;
+        }
+        powerUp (e) {
+            let extensionId = e.detail.id;
+            this.fire('extend-story', extensionId);
+            e.stopPropagation();
         }
     }
     Polymer(KanoSceneEditor);

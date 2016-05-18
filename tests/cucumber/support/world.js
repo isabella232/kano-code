@@ -74,10 +74,11 @@ class World {
             'story': 'kano-view-story kano-story-scene kano-view'
         };
         this.firstStory = 'background_color';
-        this.buttonMap = {
+        this.uiMap = {
             'link to start the content': 'a#get-started',
             'new app button': 'kano-app-list a#new-app',
-            'link to see all community created apps': 'a#see-all-community'
+            'link to see all community created apps': 'a#see-all-community',
+            'Kano\-created projects': 'kano-projects'
         };
         this.stories = {
             test_tooltip: {
@@ -127,13 +128,15 @@ class World {
      * Open the app to a speficied route
      */
     openApp (page, ext) {
-        let route;
+        let route,
+            viewPath;
         ext = ext || '';
         page = page || 'landing';
         route = this.routeMap[page];
         if (!route) {
             return Promise.reject(new Error(`Tried to open a non registered page: ${page}`));
         }
+        viewPath = user ? `kano-app kano-routing kano-view ${this.viewMap[page]}` : 'kano-app';
         return this.driver.get(`http://localhost:${getPort()}${route}${ext}`)
             .then(() => this.clearStorage())
             .then(() => {
@@ -143,9 +146,8 @@ class World {
                         `);
                 }
             })
-            .then(() => this.waitFor(`kano-app`))
+            .then(() => this.waitFor(viewPath))
             .then((el) => this.waitForDisplayed(el))
-            .then(() => this.waitFor(`kano-app kano-routing kano-view ${this.viewMap[page]}`))
             .then((el) => this.currentView = el);
     }
     openStory (storyId) {
@@ -246,11 +248,19 @@ class World {
     assertCurrentStory (storyId) {
         return this.assertCurrentUrl(`/story/${storyId}`);
     }
+    assertDisplayed (target) {
+        let selector = this.uiMap[target];
+        if (!selector) {
+            throw new Error(`The target '${target}' is not registered in the test suite`);
+        }
+        return this.waitFor(selector)
+            .then((el) => this.waitForDisplayed(el));
+    }
     /**
      * Wait for an element to be visible and click on it. Uses `getDeepElementInView`
      */
     clickOnButton (target) {
-        let selector = this.buttonMap[target];
+        let selector = this.uiMap[target];
         return this.clickOn(selector);
     }
     clickOn (selector) {
