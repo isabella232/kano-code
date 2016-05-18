@@ -74,6 +74,7 @@ let progressService = (sdk) => {
                             return reject(err);
                         }
                         keys = Object.keys(progress);
+                        data.progress = data.progress || {};
 
                         // Add missing groups from remote
                         Object.keys(data.progress).forEach((key) => {
