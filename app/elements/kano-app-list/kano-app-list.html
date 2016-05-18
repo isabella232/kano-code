@@ -89,9 +89,16 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
-    /* globals app */
+    /* globals Polymer, app */
     class KanoAppList {
+
+        get behaviors () {
+            return [
+                Polymer.NeonAnimationRunnerBehavior,
+                Polymer.NeonSharedElementAnimatableBehavior
+            ];
+        }
+
         beforeRegister () {
             this.is = 'kano-app-list';
             this.properties = {
@@ -111,8 +118,7 @@
                 playUrl: {
                     type: String
                 }
-            }
-
+            };
         }
 
         attached () {
