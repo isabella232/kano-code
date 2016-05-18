@@ -1,27 +1,31 @@
-<!--
-
-## kano-challenge-progress component usage
-
-The component is responsible for showing the progress of the user during
-a challenge and to link the user to the next challenge.
-
-The component takes as input attributes:
-  title: the title of the challenge/story you are displaying
-  progress: the progress [0-1] of the user
-  remix-mode (optional): it enables the sharing behavior
-  next-challenge (optional): id of the next challenge
-
-As an example, if the component needs to be used for displaying a remixed
-challenge whose title is "button-press-onator" and the progress is defined
-by a `progress` variable, this would be
-
-<kano-challenge-progress progress=[[progress]] title="button-press-onator" remix-mode next-challenge-url="/story/weather"></kano-challenge-progress>
-
-In this example we also assume that the next challenge URL is `/story/weather`
--->
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../kano-circle-progress/kano-circle-progress.html">
 
+<!--
+
+`kano-challenge-progress` is responsible for showing the progress of the user during
+a challenge and to link the user to the next challenge.
+
+As an example, if the component needs to be used for displaying a remixed
+challenge whose title is "button-press-onator" and the progress is defined
+by a `progress` variable, this would be:
+
+    <kano-challenge-progress progress="0.4"
+                             title="button-press-onator"
+                             next-challenge="weather"
+                             remix-mode></kano-challenge-progress>
+
+ The following custom properties and mixins are also available for styling:
+
+ Custom property | Description | Default
+ ----------------|-------------|----------
+ `--color-orange` | Background color of the top title and round progress block | `orange`
+ `--color-dark-orange` | Background color of the options dropdown | `orange`
+
+@group Kano Elements
+@hero hero.svg
+@demo ./demo.html
+-->
 <dom-module id="kano-challenge-progress">
     <style>
         :host {
@@ -123,43 +127,47 @@ In this example we also assume that the next challenge URL is `/story/weather`
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
-    class KanoChallengeProgress {
-        beforeRegister () {
-            this.is = 'kano-challenge-progress';
-            this.properties = {
-                progress: {
-                    type: Number,
-                    value: 0
-                },
-                color: {
-                    type: String,
-                    value: '#ffffff'
-                },
-                title: {
-                    type: String,
-                    value: ''
-                },
-                remixMode: {
-                    type: Boolean,
-                    value: false
-                },
-                nextChallenge: {
-                    type: String,
-                    value: ''
-                }
-            };
-        }
+
+    Polymer({
+        is: 'kano-challenge-progress',
+        properties: {
+            /**
+             * The progress [0-1] of the user
+             */
+            progress: {
+                type: Number,
+                value: 0
+            },
+            /**
+             * The title of the challenge/story you are displaying
+             */
+            title: {
+                type: String,
+                value: ''
+            },
+            /**
+             * It enables the sharing behavior
+             */
+            remixMode: {
+                type: Boolean,
+                value: false
+            },
+            /**
+             * Id of the next challenge
+             */
+            nextChallenge: {
+                type: String,
+                value: ''
+            }
+        },
 
         shareApp () {
             this.fire('share-app');
-        }
+        },
 
         goToNextStory () {
             this.fire('next-story');
         }
 
-    }
-
-    Polymer(KanoChallengeProgress);
+    });
 </script>
