@@ -116,7 +116,7 @@ Example:
     </template>
 </dom-module>
 <script>
-    /* globals Polymer, app, ClientUtil */
+    /* globals Polymer, app, ClientUtil, page */
 
     class KanoApp {
         beforeRegister () {
@@ -192,9 +192,10 @@ Example:
             e.preventDefault();
             app.sdk.auth.setToken(null);
             this.user = null;
-            history.pushState({}, "logout", "/");
+            page.redirect("/");
             this.$.drawer.closeDrawer();
             this.$.auth.reset();
+            app.progress.reset();
         }
         login () {
             let modal = this.$['auth-modal'];
