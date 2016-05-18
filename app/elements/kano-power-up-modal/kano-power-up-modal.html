@@ -250,18 +250,30 @@ Custom property | Description | Default
             Polymer.NeonAnimationRunnerBehavior
         ],
         properties: {
+            /**
+             * List of power ups available from the story
+             */
             options: {
                 type: Array,
                 value: () => {
                     return [];
                 }
             },
+            /**
+             * Source of the preview image
+             */
             appPreview: {
                 type: String
             },
+            /**
+             * Name of the current story
+             */
             storyName: {
                 type: String
             },
+            /**
+             * Infos about the next story in line
+             */
             nextStory: {
                 type: Object,
                 value: null
@@ -286,10 +298,16 @@ Custom property | Description | Default
             let item = e.model.get('option');
             this.fire('power-up', item);
         },
+        /**
+         * Closes the modal, proxy for `paper-dialog`'s `open` method
+         */
         close () {
             this.fire('close');
             this.$.modal.close();
         },
+        /**
+         * Opens the modal, proxy for `paper-dialog`'s `open` method
+         */
         open () {
             this.$.modal.open();
         },
@@ -362,4 +380,24 @@ Custom property | Description | Default
             }
         }
     });
+
+    /**
+     * Fired when `kano-power-up-modal` closes.
+     *
+     * @event close
+     */
+
+    /**
+     * Fired when the next story button is clicked.
+     *
+     * @event next-story
+     */
+
+    /**
+     * Fired when a power up is clicked.
+     *
+     * @event power-up
+     * @param {Event} event The `event.detail` is the `id` and `name` of the clicked power-up
+     */
+
 </script>
