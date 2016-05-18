@@ -40,18 +40,18 @@ class KanoViewStory {
                 this.story = story;
                 return app.progress.loadProgress(story.progress.group);
             })
-            .then((progress) => {
-                let story = this.story;
-                if (story.extensions) {
-                    this.updateExtensions(progress[story.progress.group]);
-                }
-            });
+            .then((progress) => this.updateExtensions(progress));
     }
     updateExtensions (progress) {
-        let extensions = this.story.extensions;
-        for (let i = 0, len = extensions.length; i < len; i++) {
-            if (progress.extensions.indexOf(extensions[i].id) !== -1) {
-                this.set(`story.extensions.${i}.completed`, true);
+        let story = this.story,
+            extensions = story.extensions,
+            progressGroup = progress[story.progress.group] || {},
+            progressExtensions = progressGroup.extensions;
+        if (story.extensions && progressExtensions) {
+            for (let i = 0, len = extensions.length; i < len; i++) {
+                if (progressExtensions.indexOf(extensions[i].id) !== -1) {
+                    this.set(`story.extensions.${i}.completed`, true);
+                }
             }
         }
     }
@@ -65,11 +65,8 @@ class KanoViewStory {
             //story completed!!!
             let progress = this.story.progress,
                 extension = this.story.extension ? this.story.id : null;
-            app.progress.updateProgress(progress.group, progress.storyNo, extension).then((progress) => {
-                if (this.story.extensions) {
-                    this.updateExtensions(progress[this.story.progress.group]);
-                }
-            });
+            app.progress.updateProgress(progress.group, progress.storyNo, extension)
+                .then((progress) => this.updateExtensions(progress));
         }
     }
     selectedChanged () {
