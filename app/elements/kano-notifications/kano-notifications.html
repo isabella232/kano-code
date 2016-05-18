@@ -70,6 +70,7 @@
                 }
 
                 this.app.sdk.api.notifications.get().then(((data) => {
+                    console.log(data);
                     data.body.entries.forEach((value) => {
                         let obj = {
                             name: value.title,
@@ -88,13 +89,10 @@
 
                         new_notifications.push(obj);
 
-                        if (!value.read) {
-                            unread++;
-                        }
 
                     })
 
-                    this.set('unread', unread);
+                    this.set('unread', data.body.unread_count);
                     this.set('notifications', new_notifications);
 
                 }).bind(this));
