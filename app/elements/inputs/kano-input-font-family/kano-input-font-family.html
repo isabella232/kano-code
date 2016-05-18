@@ -1,9 +1,18 @@
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
-
 <link rel="import" href="../behaviors.html">
+<!--
 
+`kano-input-color` Dislpay a choice of fonts and allows the selection of one of them
+
+Example:
+    <kano-input-font-family value="{{value}}"></kano-input-font-family>
+
+@group Kano Elements
+@hero hero.svg
+@demo ./demo.html
+-->
 <dom-module id="kano-input-font-family">
     <style>
     </style>
@@ -18,21 +27,15 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    Polymer({
 
-    class KanoInputFontFamily {
+        behaviors: [KanoBehaviors.Input],
 
-        get behaviors () {
-            return [KanoBehaviors.Input];
-        }
+        is: 'kano-input-font-family',
 
-        beforeRegister () {
-            this.is = 'kano-input-font-family';
-            this.observers = [
-                'valueChanged(value)'
-            ];
-        }
-
+        observers: [
+            'valueChanged(value)'
+        ],
         attached () {
             this.fontFamilies = [
                 {
@@ -48,12 +51,11 @@
                     label: 'monospace'
                 }
             ];
-        }
+        },
 
         valueChanged () {
             this.fire('change');
         }
 
-    }
-    Polymer(KanoInputFontFamily);
+    });
 </script>
