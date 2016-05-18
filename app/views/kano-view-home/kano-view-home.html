@@ -160,7 +160,7 @@
                         // Load the story's progress group
                         return app.progress.loadProgress()
                             .then((progress) => {
-                                let progressGroup = progress[story.progress.group] || {};
+                                let progressGroup = progress[story.progress.group] || { storyNo: 0 };
                                 // `storyNo` is the last completed story number of the user. If the story number is over
                                 // that number plus one, the story is locked
                                 if (progressGroup.storyNo + 1 < story.progress.storyNo) {

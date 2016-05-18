@@ -35,6 +35,14 @@ hooks = function () {
         }
     });*/
 
+    this.After((e, callback) => {
+        world.getDriver().manage().logs().get('browser')
+            .then((logs) => {
+                //logs.forEach((log) => console.log(`${log.level.name_}: ${log.message}`));
+                callback();
+            });
+    });
+
     // Close the browser
     this.AfterFeatures((e, callback) => {
         world.getDriver().quit().then(() => {

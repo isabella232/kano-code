@@ -7,7 +7,7 @@ let webdriver = require('selenium-webdriver'),
     capability = webdriver.Capabilities.chrome(),
     driver;
 
-const DEFAULT_TIMEOUT = 10000,
+const DEFAULT_TIMEOUT = process.env.EXTERNAL_SERVER ? 20000 : 10000,
       // testing user creating in staging env
       USER = {
           token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAa2Fuby5tZSIsInVzZXJuYW1lIjoiYXV0b21hdGVkLXRlc3QiLCJpYXQiOjE0NjMyMjkxMDR9.-wowXt2oF7iCSuyxxfcJJoirsYsT0-dwbbe9FxhIusU'
@@ -78,6 +78,7 @@ class World {
             'link to start the content': 'a#get-started',
             'new app button': 'kano-app-list a#new-app',
             'link to see all community created apps': 'a#see-all-community',
+            'the user creations': 'kano-app-list[view="my"]',
             'Kano\-created projects': 'kano-projects'
         };
         this.stories = {
@@ -91,13 +92,19 @@ class World {
                 }]
             }
         };
+
+        // Elements from the scene-editor
         this.elementMap = {};
         this.elementMap.editor = 'kano-app-editor';
         this.elementMap.challenge = 'kano-app-challenge';
         this.elementMap.progressIndicator = 'kano-challenge-progress';
         this.elementMap.progressCircle = `${this.elementMap.progressIndicator} kano-cirle-progress`;
+
         this.loginUser = loginUser;
         this.logoutUser = logoutUser;
+
+        // Used to store state values during the test
+        this.state = {};
     }
     loadStory (id) {
         this.currentStory = {
@@ -106,15 +113,23 @@ class World {
             stepIndex: 0
         };
     }
+    getLogs () {
+        return this.driver.manage().logs().get('browser');
+    }
     /**
      * Wait for an element to be present on the page
      */
-    waitFor (selector, timeout) {
+    waitFor (selector, node, timeout) {
+        let lastError;
         timeout = timeout || DEFAULT_TIMEOUT;
+        node = node || this.currentView;
         return driver.wait(() => {
-            return this.getDeepElement(selector, this.currentView)
-                .catch((e) => false);
-        }, timeout, `Could not find element ${selector}`);
+            return this.getDeepElement(selector, node)
+                .catch((e) => {
+                    lastError = e.message || e;
+                    return false;
+                });
+        }, timeout, `Could not find element ${selector}: ${lastError}`);
     }
     /**
      * Empty the localStorage
@@ -150,15 +165,26 @@ class World {
             .then((el) => this.waitForDisplayed(el))
             .then((el) => this.currentView = el);
     }
+    getAttribute (el, attr) {
+        return this.driver.executeScript(`
+            return arguments[0][arguments[1]];
+        `, el, attr);
+    }
     openStory (storyId) {
         this.loadStory(storyId);
         return this.openApp('story', `/${storyId}`)
-            .then(() => this.waitForScene());
+            .then(() => this.waitForScene())
+            .then(() => this.waitFor(this.elementMap.progressIndicator, this.currentSceneEl))
+            .then((el) => this.getAttribute(el, 'progress'))
+            .then((attr) => {
+                this.state.progress = attr;
+            });
     }
     waitForScene () {
         let story = this.stories[this.currentStory.id],
             scene = story.scenes[this.currentStory.sceneIndex];
-        return this.waitFor(scene.component);
+        return this.waitFor(scene.component)
+            .then(el => this.currentSceneEl = el);
     }
     /**
      * Get an element using a css selector
@@ -182,7 +208,8 @@ class World {
             for (var i = 0, len = pieces.length; i < len; i++) {
                 el = element.querySelector(pieces[i]);
                 if (!el) {
-                    throw new Error('Could not find element ' + pieces[i] + ' from ' + element.tagName.toLowerCase());
+                    var tagName = element.tagName ? element.tagName.toLowerCase() : '';
+                    throw new Error('Could not find element ' + pieces[i] + ' from ' + tagName);
                 }
                 element = el;
             }
@@ -276,6 +303,17 @@ class World {
         if (step.action === 'click') {
             return this.clickOn(`${scene.component} ${step.target}`);
         }
+    }
+    assertChanged (oldVal, getNewVal, timeout) {
+        timeout = timeout || DEFAULT_TIMEOUT;
+        return driver.wait(() => {
+            return getNewVal()
+                .then((newVal) => {
+                    newVal.should.not.be.eql(oldVal);
+                })
+                .then(() => true)
+                .catch(() => false);
+        }, timeout);
     }
 }
 

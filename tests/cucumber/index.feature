@@ -14,7 +14,6 @@ Feature: Landing page
      When the user clicks the link to start the content
      Then the first story is loaded
 
-  @test
   Scenario: Browse Kano-created projects
     Then Kano-created projects are displayed
      And projects that haven't been completed are locked
