@@ -17,7 +17,8 @@ let progressService = (sdk) => {
     let progressService = {
 
         reset () {
-            localStorage.progress = JSON.stringify({});
+            progress = {};
+            this.saveToStorage();
         },
 
         updateProgress (group, storyNo, extension) {
@@ -131,7 +132,11 @@ let progressService = (sdk) => {
             localStorage.progress = JSON.stringify(progress);
         },
         loadFromStorage () {
-            progress = JSON.parse(localStorage.progress) || {};
+            try {
+                progress = JSON.parse(localStorage.progress) || {};
+            } catch (e) {
+                progress = {};
+            }
 
             // Format each group
             Object.keys(progress).forEach((group) => {
