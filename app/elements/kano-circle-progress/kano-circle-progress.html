@@ -56,20 +56,26 @@ Custom property | Description | Default
                 type: Number,
                 value: 0,
                 observer: 'computeDashoffset'
+            },
+            /**
+             * Radius of the circle
+             */
+            radius: {
+                type: Number
             }
         },
         attached () {
-            this.width = this.offsetWidth;
+            this.radius = this.radius || this.offsetWidth;
             this.update();
             this.computeDashoffset(0);
         },
         update () {
             let svg = this.$.svg,
                 circle = this.$.circle,
-                width = this.width,
+                width = this.radius,
                 r = width / 2 - this.strokeWidth / 2,
                 c = Math.PI * (r * 2);
-            if (!this.width) {
+            if (!this.radius) {
                 return;
             }
             svg.setAttribute('width', width);

@@ -5,16 +5,36 @@
     :host {
         display: block;
     }
+    :host .part {
+        position: relative;
+    }
+    :host kano-data-visualizer {
+        position: absolute;
+        top: -10px;
+        left: 0px;
+        right: 0px;
+        height: 90px;
+        text-align: center;
+        --kano-data-visualizer-color: black;
+    }
+    :host kano-circle-progress {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+    }
     </style>
     <template>
         <div class="part">
-            <kano-data-visualizer for="[[model.id]]" buffer-length="100"></kano-data-visualizer>
+            <kano-data-visualizer for="[[model.id]]" buffer-length="100" hide-progress loading="{{loading}}"></kano-data-visualizer>
             <kano-ui-item model="[[model]]"
                 on-tap="partTapped"
                 size="50"
                 id$="part-[[model.id]]"
                 colour="[[model.colour]]"
                 instance></kano-ui-item>
+            <kano-circle-progress value="[[progressValue]]" radius="70"></kano-circle-progress>
         </div>
     </template>
 </dom-module>
@@ -29,6 +49,18 @@
 
         beforeRegister () {
             this.is = 'kano-part-data';
+            this.properties = {
+                loading: {
+                    type: Boolean
+                },
+                progressValue: {
+                    type: Number,
+                    computed: 'computeProgress(loading)'
+                }
+            };
+        }
+        computeProgress (loading) {
+            return loading ? 1 : 0;
         }
         start () {
             let model = this.model;

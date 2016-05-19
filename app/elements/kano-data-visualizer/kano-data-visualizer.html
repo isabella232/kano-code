@@ -9,7 +9,7 @@
     :host .speedy {
         @apply(--layout-flex);
         font-family: monospace;
-        color: white;
+        color: var(--kano-data-visualizer-color, white);
         word-wrap: break-word;
     }
     :host paper-progress {
@@ -17,7 +17,7 @@
     }
     </style>
     <template>
-        <paper-progress indeterminate hidden$="[[!loading]]"></paper-progress>
+        <paper-progress indeterminate hidden$="[[isProgressHidden(loading, hideProgress)]]"></paper-progress>
         <div class="speedy">[[scrollingText]]</div>
     </template>
 </dom-module>
@@ -33,14 +33,25 @@
                 bufferLength: {
                     type: Number,
                     value: 15
+                },
+                loading: {
+                    type: Boolean,
+                    notify: true,
+                    value: false
+                },
+                hideProgress: {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
         attached () {
             this.scrollingText = '';
-            this.loading = false;
             document.addEventListener('request', this.onRequest.bind(this));
             document.addEventListener('response', this.onResponse.bind(this));
+        }
+        isProgressHidden (loading, hideProgress) {
+            return !loading || hideProgress;
         }
         onRequest (e) {
             let detail = e.detail;
