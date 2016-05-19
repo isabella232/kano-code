@@ -28,7 +28,7 @@ export default image = {
         block: (ui) => {
             return {
                 id: 'set_image_to',
-                message0: `set ${ui.name} to %1`,
+                message0: `${ui.name}: set to %1`,
                 args0: [{
                     type: "input_value",
                     name: "PICTURE"
@@ -55,7 +55,7 @@ export default image = {
         block: (ui) => {
             return {
                 id: 'source',
-                message0: `${ui.name} source`,
+                message0: `${ui.name}: source`,
                 output: 'String'
             };
         },

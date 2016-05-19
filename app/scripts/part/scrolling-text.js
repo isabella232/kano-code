@@ -29,7 +29,7 @@ export default scrollingText = {
         block: (ui) => {
             return {
                 id: 'scroll',
-                message0: `${ui.name} scroll %1`,
+                message0: `${ui.name}: scroll %1`,
                 args0: [{
                     type: "input_value",
                     name: "TEXT"

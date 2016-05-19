@@ -26,7 +26,7 @@ export default text = {
         block: (ui) => {
             return {
                 id: 'set_value',
-                message0: `set ${ui.name}'s text to %1`,
+                message0: `${ui.name}: set text to %1`,
                 args0: [{
                     type: "input_value",
                     name: "INPUT"
@@ -52,7 +52,7 @@ export default text = {
         block: (ui) => {
             return {
                 id: 'get_text',
-                message0: `${ui.name}'s text`,
+                message0: `${ui.name}: text`,
                 output: 'String'
             }
         },

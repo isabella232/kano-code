@@ -1,6 +1,17 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../behaviors.html">
+<!--
 
+`kano-input-color` Dislpay a color palette and allows selection by clicking on one of them
+
+Example:
+    <kano-input-color value="{{value}}"></kano-input-color>
+
+@group Kano Elements
+@hero hero.svg
+@demo ./demo.html
+-->
 <dom-module id="kano-input-color">
     <style>
     :host {
@@ -38,17 +49,12 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
 
-    class KanoInputColor {
+    Polymer({
 
-        get behaviors () {
-            return [KanoBehaviors.Input];
-        }
+        behaviors: [KanoBehaviors.Input],
 
-        beforeRegister () {
-            this.is = 'kano-input-color';
-        }
+        is: 'kano-input-color',
 
         attached () {
             this.colors = [
@@ -70,7 +76,7 @@
                 '#683D12'   // Brown
             ];
             this.value = this.value || this.colors[0];
-        }
+        },
 
         computeColor (color, value) {
             let style = `background-color: ${color};`;
@@ -79,12 +85,11 @@
                             outline-offset: 1px;`;
             }
             return style;
-        }
+        },
 
         selectColor (e) {
             this.set('value', e.model.get('color'));
             this.fire('change', this.value);
         }
-    }
-    Polymer(KanoInputColor);
+    });
 </script>

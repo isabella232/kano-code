@@ -1,0 +1,403 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/cascaded-animation.html">
+<link rel="import" href="../kano-style/kano-style.html">
+<!--
+
+`kano-power-up-modal` displays a preview of a created app with options to jump to `power ups` or the next story
+
+Example:
+
+    <kano-power-up-modal></kano-power-up-modal>
+
+
+The following custom properties and mixins are also available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--kano-power-up-modal-background-color` | Background color of the modal | `#4e4653`
+`--kano-power-up-modal-next-story-color` | Background color of the next story section | `#9a8aa4`
+`--kano-power-up-modal` | Mixin applied to the modal | `{}`
+
+@group Kano Elements
+@demo demo.html
+-->
+<dom-module id="kano-power-up-modal">
+    <style>
+
+    :host {
+        display: block;
+        box-sizing: border-box;
+        --kano-power-up-modal-background-color: #4e4653;
+        --kano-power-up-modal-next-story-color: #9a8aa4;
+    }
+    :host * {
+        box-sizing: inherit;
+    }
+    :host paper-dialog {
+        @apply(--kano-power-up-modal);
+        border-radius: 4px;
+        color: white;
+    }
+    :host .content {
+        @apply(--layout-horizontal);
+        background-color: var(--kano-power-up-modal-background-color);
+        font-family: bariol;
+        position: relative;
+        margin: 0px;
+        padding: 0px;
+        border-radius: 4px;
+    }
+    :host .preview-image {
+        width: 100%;
+        @apply(--layout-flex);
+    }
+    :host .app-preview {
+        @apply(--layout-flex-2);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        position: relative;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    :host .hole {
+        position: absolute;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        background-color: var(--kano-power-up-modal-background-color);
+    }
+    :host .hole:nth-of-type(1) {
+        top: 7px;
+        left: 7px;
+    }
+    :host .hole:nth-of-type(2) {
+        top: 7px;
+        right: 7px;
+    }
+    :host .hole:nth-of-type(3) {
+        bottom: 7px;
+        left: 7px;
+    }
+    :host .hole:nth-of-type(4) {
+        bottom: 7px;
+        right: 7px;
+    }
+    :host .options {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        padding: 12px;
+    }
+    :host .power-ups {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        @apply(--layout-start);
+        margin-left: 24px;
+    }
+    :host .power-ups h2 {
+        font-size: 16px;
+    }
+    :host .power-up {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        margin: 7px 0px 7px;
+        cursor: pointer;
+    }
+    :host .power-up .icon {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        margin-right: 7px;
+        transition: background-color ease-in-out 300ms;
+    }
+    :host .power-up .title {
+        font-weight: bold;
+    }
+    :host .power-up.new .title {
+        color: var(--kano-power-up-modal-next-story-color, rgba(255, 255, 255, 0.55));
+    }
+    :host .power-up.completed .icon {
+        background-color: #fffbe2;
+        box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.25);
+    }
+    :host .power-up.new .icon {
+        background-color: rgba(0, 0, 0, 0.25);
+        border: 1px dashed rgba(0, 0, 0, 0.55);
+    }
+    :host .power-up.new .icon iron-image {
+        display: none;
+    }
+    :host .next-story {
+        background-color: var(--kano-power-up-modal-next-story-color);
+        border-radius: 3px;
+        border: 1px solid #8e8b90;
+        padding: 12px;
+    }
+    :host .next-story .next-story-empty,
+    :host .next-story .next-story-available {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+    }
+    :host .next-story iron-image {
+        margin-right: 12px;
+        @apply(--layout-flex);
+    }
+    :host .next-story-options {
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+    }
+    :host .next-story-button {
+        @apply(--kano-button);
+        background-color: var(--color-green, green);
+        border-radius: 500px;
+        text-transform: none;
+        padding: 8px 12px 8px 12px;
+    }
+    :host .close {
+        position: absolute;
+        bottom: calc(100% + 12px);
+        right: 0px;
+        background-color: var(--color-red, red);
+        @apply(--kano-button);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    :host .close .times {
+        font-size: 25px;
+        font-weight: 500;
+        transform: translate(0px, -3px);
+    }
+    :host .next-story:not(.empty) .next-story-empty {
+        display: none;
+    }
+    :host .next-story.empty .next-story-available {
+        display: none;
+    }
+    :host .next-story.empty .next-story-empty {
+        display: flex !important;
+    }
+    :host .img-placeholder {
+        background-color: rgba(0, 0, 0, 0.25);
+        border: 1px dashed rgba(0, 0, 0, 0.55);
+        min-width: 100px;
+        max-width: 100px;
+        min-height: 100px;
+        max-height: 100px;
+        border-radius: 50%;
+        margin-right: 12px;
+        @apply(--layout-flex);
+    }
+    :host .coming-soon {
+        font-weight: bold;
+    }
+    :host .next-story-icon {
+        min-width: 100px;
+    }
+    </style>
+    <template>
+        <paper-dialog id="modal" modal on-iron-overlay-opened="updateAnimation">
+            <div class="content">
+                <button type="button" name="button" class="close" on-tap="close"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+                <div class="app-preview"><img src$="[[appPreview]]" alt="kano share preview" class="preview-image" /><div class="hole"></div><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+                <div class="options">
+                    <div class="power-ups" id="power-ups">
+                        <h2 id="power-ups-title">[[storyName]] Challenges</h2>
+                        <div class="power-ups-empty" hidden$="[[!isOptionsEmpty(options)]]" id="power-ups-empty">Well done, you completed the [[storyName]] challenge</div>
+                        <template is="dom-repeat" items="[[options]]" as="option">
+                            <div class$="power-up {{computeClass(option.completed)}}" on-tap="goToPowerUp" id="power-up-[[index]]">
+                                <div class="icon">
+                                    <iron-image src="/assets/icons/star.png" width="50" height="50" sizing="contain"></iron-image>
+                                </div>
+                                <div class="title">
+                                    <span>[[option.name]]</span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class$="next-story [[computeNextStoryClass(nextStory)]]">
+                        <div class="next-story-available">
+                            <iron-image src="[[nextStory.icon]]" width="100" height="100" sizing="contain" class="next-story-icon"></iron-image>
+                            <div class="next-story-options">
+                                <h3>You've unlocked the [[computeLowerCase(nextStory.name)]] challenges!</h3>
+                                <button type="button" name="button" class="next-story-button" on-tap="goToNextStory">Start</button>
+                            </div>
+                        </div>
+                        <div class="next-story-empty">
+                            <div class="img-placeholder"></div>
+                            <div class="coming-soon">Coming soon: more stories!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'kano-power-up-modal',
+        behaviors: [
+            Polymer.NeonSharedElementAnimatableBehavior,
+            Polymer.NeonAnimationRunnerBehavior
+        ],
+        properties: {
+            /**
+             * List of power ups available from the story
+             */
+            options: {
+                type: Array,
+                value: () => {
+                    return [];
+                }
+            },
+            /**
+             * Source of the preview image
+             */
+            appPreview: {
+                type: String
+            },
+            /**
+             * Name of the current story
+             */
+            storyName: {
+                type: String
+            },
+            /**
+             * Infos about the next story in line
+             */
+            nextStory: {
+                type: Object,
+                value: null
+            }
+        },
+        observers: [
+            'optionsChanged(options.*)'
+        ],
+        computeClass (completed) {
+            return completed ? 'completed' : 'new';
+        },
+        computeLowerCase (string) {
+            if (!string) {
+                return '';
+            }
+            return string.toLowerCase();
+        },
+        goToNextStory () {
+            this.fire('next-story');
+        },
+        goToPowerUp (e) {
+            let item = e.model.get('option');
+            this.fire('power-up', item);
+        },
+        /**
+         * Closes the modal, proxy for `paper-dialog`'s `open` method
+         */
+        close () {
+            this.fire('close');
+            this.$.modal.close();
+        },
+        /**
+         * Opens the modal, proxy for `paper-dialog`'s `open` method
+         */
+        open () {
+            this.$.modal.open();
+        },
+        computeNextStoryClass () {
+            return this.nextStory ? '' : 'empty';
+        },
+        isOptionsEmpty (options) {
+            return !options.length;
+        },
+        updateAnimation () {
+            let nodes;
+            if (this.isOptionsEmpty(this.options)) {
+                nodes = [this.$['power-ups-empty']];
+            } else {
+                nodes = Polymer.dom(this.root).querySelectorAll('.power-up');
+            }
+            nodes.unshift(this.$['power-ups-title']);
+            this.animationConfig = {
+                entry: [{
+                    name: 'cascaded-animation',
+                    animation: 'slide-from-right-animation',
+                    nodes,
+                    nodeDelay: 100
+                },{
+                    name: 'cascaded-animation',
+                    animation: 'fade-in-animation',
+                    nodes,
+                    nodeDelay: 100
+                }]
+            };
+            this.playAnimation('entry');
+        },
+        optionsChanged (e) {
+            let path = e.path,
+                node,
+                indexReg,
+                index,
+                m;
+            // Get last key
+            path = path.split('.').pop();
+            if (path === 'completed' && e.value === true) {
+                indexReg = /options\.#(\d+)\.completed/;
+                m = indexReg.exec(e.path);
+                if (!m) {
+                    return;
+                }
+                index = parseInt(m[1]);
+                node = Polymer.dom(this.root).querySelector(`#power-up-${index} iron-image`);
+                node.animate([{
+                        transform: 'scale(0)', offset: 0
+                    },{
+                        transform: 'scale(1.5)', offset: 0.4
+                    },{
+                        transform: 'rotate(0deg) scale(1.5)', offset: 0.41
+                    },{
+                        transform: 'rotate(45deg) scale(1.5)', offset: 0.54
+                    },{
+                        transform: 'rotate(-45deg) scale(1.5)', offset: 0.67
+                    },{
+                        transform: 'rotate(45deg) scale(1.5)', offset: 0.8
+                    },{
+                        transform: 'scale(1.5)', offset: 0.9
+                    },{
+                        transform: 'scale(1.5)', offset: 0.99
+                    }
+                ], {
+                    duration: 900,
+                    easing: 'ease-in-out'
+                });
+            }
+        }
+    });
+
+    /**
+     * Fired when `kano-power-up-modal` closes.
+     *
+     * @event close
+     */
+
+    /**
+     * Fired when the next story button is clicked.
+     *
+     * @event next-story
+     */
+
+    /**
+     * Fired when a power up is clicked.
+     *
+     * @event power-up
+     * @param {Event} event The `event.detail` is the `id` and `name` of the clicked power-up
+     */
+
+</script>
