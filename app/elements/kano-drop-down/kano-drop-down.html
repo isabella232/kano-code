@@ -139,6 +139,16 @@
             color: #7f7f7f;
             font-size: 1.1em;
         }
+
+        :host .notification-title {
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 65%;
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
     <template>
         <b class="notch"></b>
@@ -162,7 +172,9 @@
                                         <i class='icon-users'></i>
                                     </div>
                                 </template>
-                                {{item.name}}
+                                <div class="notification-title">
+                                    {{item.name}}
+                                </div>
 
                                 <template is="dom-if" if="{{item.extra}}">
                                     <div class="notification-info-extra">
