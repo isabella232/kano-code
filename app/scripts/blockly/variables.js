@@ -6,7 +6,7 @@ let register = (Blockly) => {
             let json = {
                 id: 'random_colour',
                 colour: COLOUR,
-                message0: 'random colour',
+                message0: 'random color',
                 output: 'Colour'
             };
             this.jsonInit(json);
