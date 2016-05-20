@@ -1,0 +1,133 @@
+<link rel="import" href="../kano-drop-down/kano-drop-down.html">
+<script src="../../bower_components/moment/moment.js"></script>
+
+<dom-module id="kano-notifications">
+    <style>
+        :host {
+            position: relative;
+        }
+
+        :host .unread-count {
+            position: absolute;
+            display: inline-block;
+            height: 20px;
+            border: 2px solid #fff;
+            line-height: 16px;
+            text-align: center;
+            background-color: #EE5F53;
+            color: #fff;
+            type-size: 1;
+            top: 5%;
+            left: 33%;
+            margin-left: 5px;
+            margin-top: -16px;
+            font-weight: bold;
+            font-size: 0.7em;
+            padding: 0 3px;
+            min-width: 10px;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+
+        :host ::content kano-drop-down .notch {
+            top: 6px !important;
+        }
+    </style>
+    <template>
+        <img src="../../assets/navbar/notification.svg" alt="" />
+        <template is="dom-if" if="{{unread}}">
+            <span class="unread-count">{{unread}}</span>
+        </template>
+        <kano-drop-down items="{{notifications}}" unread="{{unread}}" type="notifications"></kano-drop-down>
+    </template>
+    <script>
+        class KanoNotifications {
+            beforeRegister () {
+                this.is = 'kano-notifications';
+                this.properties = {
+                    notifications: {
+                        type: Array,
+                        value: [],
+                        notify: true
+                    },
+                    unread: {
+                        type: Number,
+                        notify: true
+                    },
+                    user: {
+                        type: Object,
+                        observer: 'getNotifications'
+                    },
+                    app: Object
+                }
+            }
+
+            getNotifications () {
+                let new_notifications = [], unread = 0;
+
+                if (!this.user) {
+                    return;
+                }
+
+                this.app.sdk.api.notifications.get().then(((data) => {
+                    data.body.entries.forEach((value) => {
+                        let obj = {
+                            name: value.title,
+                            category: 'notification',
+                            time: this.fromNow(value.date_created),
+                            id: value.id,
+                            read: value.read,
+                            unreadClass:  value.read ? 'notification-read' : 'notification-unread',
+                            type: value.category || null
+                        };
+
+                        if (value.category === 'follows') {
+                            obj.url = `${this.app.config.WORLD_URL}/users/${value.meta.author.username}`;
+                        } else {
+                            obj.url = `${this.app.config.WORLD_URL}/shared/${value.meta.item.id}`;
+                        }
+
+                        new_notifications.push(obj);
+
+
+                    })
+
+                    this.set('unread', data.body.unread_count);
+                    this.set('notifications', new_notifications);
+
+                }).bind(this));
+            }
+
+            fromNow (value) {
+                let match_list = moment(value).fromNow(true).match(/\d+ \w/g);
+                if (match_list) {
+                    return match_list[0].replace(' ', '');
+                } else {
+                    switch (moment(value).fromNow(true)) {
+                    case 'an hour':
+                        return '1h';
+                    case 'a few seconds':
+                        return '< 1m';
+                    default:
+                        return moment(value).fromNow(true);
+                    }
+                }
+            }
+
+            ready () {
+                this.notificationsInterval = setInterval(this.getNotifications.bind(this), 180000);
+                this.getNotifications();
+                this.addEventListener('notification:read', (payload) => this.app.sdk.api.notifications.read({ id: payload.detail.id })
+                    .then(() => this.unread--));
+
+                this.addEventListener('notifications:readAll', () => this.app.sdk.api.notifications.readAll()
+                    .then(() => this.unread = 0));
+            }
+
+            detached () {
+                clearInterval(this.notificationsInterval)
+            }
+        }
+        Polymer(KanoNotifications);
+    </script>
+</dom-module>

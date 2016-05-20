@@ -1,0 +1,254 @@
+<dom-module id="kano-drop-down">
+    <style>
+        :host .drop-down {
+            font-size: 19px;
+            font-weight: 700;
+            border-radius: 5px;
+            -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+            box-shadow: 0 0 5px rgba(0,0,0,0.15);
+        }
+
+        :host .drop-down a {
+            display: block;
+            text-decoration: none;
+            float: left;
+            padding: 0px;
+            height: 57px;
+            max-width: 168px;
+            display: block;
+            border-bottom: none;
+            width: 100%;
+            max-height: 70px;
+            max-width: none;
+            text-align: left;
+            position: relative;
+            color: #333;
+        }
+
+        :host .drop-down a img {
+            vertical-align: middle;
+            width: 40px;
+        }
+        :host .drop-down a:hover {
+            background-color: #cecece;
+        }
+
+        :host .drop-down a .drop-down-item {
+            position: absolute;
+            top: 50%;
+            transform: translate(0, -50%);
+            width: 100%;
+            padding-left: 15px;
+        }
+
+        :host .drop-down {
+            z-index: 9;
+            position: relative;
+            right: 0;
+            top: 6px;
+            width: 220px;
+            display: block;
+            box-shadow: none;
+            background-color: #fff;
+            overflow: hidden;
+            margin-top: 10px;
+            max-height: 1000px;
+        }
+
+        :host b.notch {
+            position: absolute;
+            top: 67px;
+            left: 25px;
+            margin: 0;
+            border-top: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid white;
+            padding: 0;
+            width: 0;
+            height: 0;
+            z-index: 999;
+            display: block;
+            z-index: 0;
+        }
+
+        :host .notification-follow,
+        :host .time {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0;
+            margin-right: 3px;
+            width: 30px;
+            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        :host .notification-info {
+            top: 50%;
+            position: absolute;
+            transform: translateY(-50%);
+            font-size: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        :host .notification-icon {
+            position: absolute;
+            top: 50%;
+            right: 2%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        :host .drop-down a:hover .notification-icon,
+        :host .see-all:hover .notification-icon {
+            display: block;
+        }
+
+        :host .mark-all-read {
+            width: 50% !important;
+            padding: 20px 25px !important;
+            font-size: 15px !important;
+            text-align: right !important;
+            color: #F18A37 !important;
+        }
+
+        :host .see-all {
+            width: 50% !important;
+            padding: 20px 25px !important;
+            font-size: 15px !important;
+        }
+
+
+        :host .no-notifications {
+            padding: 25px 0;
+        }
+
+        :host .drop-down-item {
+            pointer-events: none;
+        }
+
+        :host .drop-down a.notification-read {
+            color: #7F7F7F;
+        }
+
+        :host .notification-info-extra {
+            color: #7f7f7f;
+            font-size: 1.1em;
+        }
+
+        :host .notification-title {
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 65%;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+    <template>
+        <b class="notch"></b>
+        <div class="drop-down">
+            <template is="dom-repeat" items="{{items}}" as="item">
+                <a href="{{item.url}}" target="_blank" class$="{{item.unreadClass}} class-{{item.name}}" on-tap="handleClick">
+                    <div class="drop-down-item-constainer">
+                        <div class="drop-down-item">
+
+                            <template is="dom-if" if="{{item.img}}">
+                                <img src="{{item.img}}"/>
+                            </template>
+                            <div class="notification-info">
+                                <template is="dom-if" if="{{item.time}}">
+                                    <div class="time">
+                                        {{item.time}}
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{item.category}}">
+                                    <div class="notification-follow">
+                                        <iron-pages selected="[[item.type]]" attr-for-selected="name">
+                                            <i class="icon-share" name="shares"></i>
+                                            <i class="icon-heart" name="likes"></i>
+                                            <i class="icon-megaphone" name="updates"></i>
+                                            <i class="icon-users" name="follows"></i>
+                                            <i class="icon-chat" name="comments"></i>
+
+                                        </iron-pages>
+                                    </div>
+                                </template>
+                                <div class="notification-title">
+                                    {{item.name}}
+                                </div>
+
+                                <template is="dom-if" if="{{item.extra}}">
+                                    <div class="notification-info-extra">
+                                        {{item.extra}}
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{item.category}}">
+                                    <i class="notification-icon icon-chevron-right2"></i>
+                                </template>
+                            </div>
+
+                        </div>
+                    </div>
+                </a>
+            </template>
+            <template is="dom-if" if="{{hasNotifications(items, type)}}">
+                <a href="//world.kano.me/notifications" class="see-all">
+                    See all
+                    <i class="notification-icon icon-chevron-right2"></i>
+                </a>
+                <template is="dom-if" if="{{unread}}">
+                    <a class="mark-all-read" on-tap="readThemAll">
+                        Mark all as read
+                        <i class="icon-tick"></i>
+                    </a>
+                </template>
+            </template>
+            <template  is="dom-if" if="{{!hasNotifications(items, type)}}">
+                <div class="no-notifications">You have no notifications yet.</div>
+            </template>
+        </div>
+    </template>
+    <script>
+        class KanoDropDown {
+            beforeRegister () {
+                this.is = 'kano-drop-down'
+                this.properties = {
+                    items: {
+                        type: Object,
+                        observer: 'hasNotifications'
+                    },
+                    unread: Number,
+                    type: String
+                }
+                this.hasNotifications = (items, type) => {
+                    return type === 'notifications' && items.length;
+                }
+            }
+
+            handleClick (ev) {
+                let item = ev.model.get('item');
+
+                if (!item.read && item.category === 'notification') {
+                    ev.target.classList.remove('notification-unread')
+                    ev.target.classList.add('notification-read')
+                    this.fire('notification:read', {id: item.id });
+                }
+
+                if (item.logout) {
+                    ev.preventDefault();
+                    this.fire('logout');
+                }
+            }
+
+            readThemAll () {
+                this.fire('notifications:readAll');
+            }
+        }
+        Polymer(KanoDropDown);
+    </script>
+</dom-module>

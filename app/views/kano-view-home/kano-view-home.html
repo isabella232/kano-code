@@ -6,6 +6,7 @@
             @apply(--layout-vertical);
             @apply(--layout-center);
             background-color: #DCDCDC;
+
         }
         :host .pure-g [class *= "pure-u"] {
             font-family: 'Bariol', Helvetica, Arial, sans-serif;
@@ -37,6 +38,7 @@
             background-color: #444444;
             width: 100%;
             text-align: center;
+            margin-top: 30px;
         }
         :host .banner-content {
             display: inline-block;
@@ -98,8 +100,16 @@
                 padding: 50px 100px;
             }
         }
+
+        @media screen and (max-width: 768px) {
+            :host .banner {
+                margin-top: 0;
+            }
+        }
+
     </style>
     <template>
+        <kano-header user="[[user]]" app="[[app]]"></kano-header>
         <div class="banner">
             <div class="banner-content pure-g">
                 <div class="banner-text pure-u-1 pure-u-md-1-2">
@@ -135,6 +145,10 @@
                 user: {
                     type: Object,
                     observer: "userChanged"
+                },
+                app: {
+                    type: Object,
+                    value: app
                 }
             };
         }
@@ -145,9 +159,7 @@
             }
 
             app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => {
-                    this.set('user_apps', apps.body.entries);
-                });
+                .then((apps) => this.set('user_apps', apps.body.entries))
         }
 
         ready () {

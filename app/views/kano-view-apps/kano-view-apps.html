@@ -23,6 +23,7 @@
         :host .container {
             width: 100%;
             padding: 0 35px;
+            margin-top: 30px;
         }
         :host .logo-holder {
             width: 100%;
@@ -43,8 +44,18 @@
                 text-align: left;
             }
         }
+
+        @media screen and (max-width: 768px) {
+            :host .container {
+                margin-top: 0;
+            }
+        }
     </style>
     <template>
+        <kano-header user="[[user]]" app="[[app]]"></kano-header>
+        <a class="news-bar style-scope kano-app" href="https://insights.hotjar.com/s?siteId=119134&amp;surveyId=9857" target="_blank">
+            Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
+        </a>
         <style include="kano-style"></style>
         <div class="container">
             <div class="logo-holder"><iron-image src="../../assets/logo.png" preload></iron-image></div>
@@ -70,12 +81,17 @@
                 },
                 user: {
                     type: Object
+                },
+                app: {
+                    type: Object,
+                    value: app
                 }
             }
 
             this.observers = [
                 "userChanged(user, view)"
             ];
+
         }
 
         userChanged () {
