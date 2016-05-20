@@ -21,7 +21,7 @@ let COMMON = {
         "staging": {
             "API_URL": "https://api-staging.kano.me",
             "DATA_API_URL": "https://apps-data-staging.kano.me",
-            "WORLD_URL": "http://world-apps.kano.me",
+            "WORLD_URL": "http://world-staging.kano.me",
             "PLAY_URL": "https://app-staging.kano.me"
         },
         "development": {
