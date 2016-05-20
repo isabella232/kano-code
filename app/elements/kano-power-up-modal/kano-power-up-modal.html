@@ -203,12 +203,23 @@ Custom property | Description | Default
     :host .next-story-icon {
         min-width: 100px;
     }
+
+    :host .share {
+        background-color: #ff842a;
+        font-size: 0.8em;
+        border: none;
+        outline: none;
+        font-weight: 500;
+        color: white;
+        padding: 15px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
     </style>
     <template>
         <paper-dialog id="modal" modal on-iron-overlay-opened="updateAnimation">
             <div class="content">
                 <button type="button" name="button" class="close" on-tap="close"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
-                <button type="button" name="button" class="share" on-tap="share"><span>Share&nbsp;&nbsp;</span><span class="times">&times;</span></button>
                 <div class="app-preview"><img src$="[[appPreview]]" alt="kano share preview" class="preview-image" /><div class="hole"></div><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
                 <div class="options">
                     <div class="power-ups" id="power-ups">
@@ -224,6 +235,7 @@ Custom property | Description | Default
                                 </div>
                             </div>
                         </template>
+                        <button type="button" name="button" class="share" on-tap="share"><span>Share on Kano World</span></button>
                     </div>
                     <div class$="next-story [[computeNextStoryClass(nextStory)]]">
                         <div class="next-story-available">
