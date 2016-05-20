@@ -507,13 +507,24 @@ class KanoAppEditor {
      * Toggle the running state of the current app
      */
     toggleRunning () {
+        let visibleWhenRunning = Polymer.dom(this.root).querySelectorAll('.visible-when-running'),
+            toggleElevate = () => {
+                visibleWhenRunning.forEach((el) => {
+                    this.toggleClass('elevate', this.running, el);
+                });
+            };
         this.running = !this.running;
         this.notifyChange('running', {
             value: this.running
         });
-
         this.$.overlay.focus();
         this.$.partsPanel.closeDrawer();
+        // Removes the elevate class only after the animation
+        if (!this.running) {
+            setTimeout(toggleElevate, 500);
+        } else {
+            toggleElevate();
+        }
     }
 
     trapEvent (e) {
