@@ -203,6 +203,18 @@ Custom property | Description | Default
     :host .next-story-icon {
         min-width: 100px;
     }
+
+    :host .share {
+        background-color: #ff842a;
+        font-size: 0.8em;
+        border: none;
+        outline: none;
+        font-weight: 500;
+        color: white;
+        padding: 15px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
     </style>
     <template>
         <paper-dialog id="modal" modal on-iron-overlay-opened="updateAnimation">
@@ -223,6 +235,7 @@ Custom property | Description | Default
                                 </div>
                             </div>
                         </template>
+                        <button type="button" name="button" class="share" on-tap="share"><span>Share on Kano World</span></button>
                     </div>
                     <div class$="next-story [[computeNextStoryClass(nextStory)]]">
                         <div class="next-story-available">
@@ -304,6 +317,10 @@ Custom property | Description | Default
         close () {
             this.fire('close');
             this.$.modal.close();
+        },
+
+        share () {
+            this.fire('share-app');
         },
         /**
          * Opens the modal, proxy for `paper-dialog`'s `open` method
