@@ -168,25 +168,14 @@
                                 </template>
                                 <template is="dom-if" if="{{item.category}}">
                                     <div class="notification-follow">
-                                        <template is="dom-if" if="{{item.type === 'shares'}}">
-                                            <i class='icon-share'></i>
-                                        </template>
+                                        <iron-pages selected="[[item.type]]" attr-for-selected="name">
+                                            <i class="icon-share" name="shares"></i>
+                                            <i class="icon-heart" name="likes"></i>
+                                            <i class="icon-megaphone" name="updates"></i>
+                                            <i class="icon-users" name="follows"></i>
+                                            <i class="icon-chat" name="comments"></i>
 
-                                        <template is="dom-if" if="{{item.type === 'likes'}}">
-                                            <i class='icon-heart'></i>
-                                        </template>
-
-                                        <template is="dom-if" if="{{item.type === 'comments'}}">
-                                            <i class='icon-chat'></i>
-                                        </template>
-
-                                        <template is="dom-if" if="{{item.type === 'updates'}}">
-                                            <i class='icon-megaphone'></i>
-                                        </template>
-
-                                        <template is="dom-if" if="{{item.type === 'badges'}}">
-                                            <i class='icon-megaphone'></i>
-                                        </template>
+                                        </iron-pages>
                                     </div>
                                 </template>
                                 <div class="notification-title">
