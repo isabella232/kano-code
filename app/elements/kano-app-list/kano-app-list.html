@@ -68,16 +68,16 @@
     <template>
     <div class="app-list">
         <template is="dom-if" if="{{isMyApps}}">
-        <div class="block">
-            <a class="app-list-item new-app" href="/make">
-                + New App
-            </a>
-        </div>
+            <div class="block">
+                <a class="app-list-item new-app" href="/make">
+                    + New App
+                </a>
+            </div>
         </template>
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
-                <a class="app-list-item" href='{{playUrl}}/app/{{app.id}}'>
-                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image"></iron-image>
+                <a class="app-list-item" href="{{playUrl}}/app/{{app.id}}">
+                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
                     </div>
