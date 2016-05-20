@@ -13,7 +13,8 @@
                     return {};
                 },
                 notify: true
-            }
+            },
+            user: Object
         },
 
         shareApp () {
@@ -73,12 +74,34 @@
         },
 
         confirmShare () {
+            if (!app.sdk.auth.getToken()) {
+                return this.createAuthModal();
+            }
             this.set('shareInfo.page', 1);
             this.shareApp();
         },
 
         dismissShare () {
             this.modal.close();
+        },
+
+        onLoginSuccess (e) {
+            this.fire('login', e.detail);
+            this.authModal.close();
+            this.removeChild(this.authModal);
+            this.authModal = null;
+            this.confirmShare();
+        },
+
+        createAuthModal () {
+            let auth = this.create('kano-auth');
+            this.authModal = this.create('paper-dialog', {
+                withBackdrop: true
+            });
+            this.authModal.appendChild(auth);
+            auth.addEventListener('login', (e) => this.onLoginSuccess(e));
+            this.appendChild(this.authModal);
+            this.authModal.open();
         }
 
     };

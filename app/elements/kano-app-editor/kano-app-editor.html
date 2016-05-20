@@ -248,7 +248,7 @@
                  on-keypress="trapEvent" on-keyup="trapEvent" on-keydown="trapEvent"></div>
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
-                                class$="{{applyElevateClass(running)}}"
+                                class="visible-when-running"
                                 on-ui-ready="workspaceUiReady"
                                 on-edit-background="onEditBackground"
                                 parts="{{addedParts}}"
@@ -272,14 +272,14 @@
                 </button>
                 <h1 id="app-title">{{title}}</h1>
                 <button type="button"
-                    class$="make-button {{getMakeButtonClass(running)}} {{applyElevateClass(running)}}"
+                    class$="make-button visible-when-running {{getMakeButtonClass(running)}}"
                     on-tap="toggleRunning"
                     id="make-button">
                     <kano-animated-svg width="32" height="32" paths="[[makeButtonIconPaths]]" selected="{{getMakeButtonClass(running)}}">
                     </kano-animated-svg>
                 </button>
             </div>
-            <div id="resize" on-mousedown="resizeWorkspace" class$="{{applyElevateClass(running)}}">
+            <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running">
                 <div class="handle"></div>
             </div>
             <div name="code" class="editor" id="right-panel">

@@ -7,6 +7,7 @@
         :host .container {
             overflow: hidden;
             position: relative;
+            border: 1px solid transparent;
         }
         :host #label {
             white-space: nowrap;
@@ -15,7 +16,7 @@
         }
     </style>
     <template>
-        <div class="container" style$="[[computeContainerStyle(model.userStyle.*)]]">
+        <div class="container" style$="[[computeContainerStyle(model.userStyle.*, isRunning)]]">
             <span id="label"
                 on-tap="textClicked"
                 style$="[[computeLabelStyle(model.userStyle.*)]]">
@@ -55,7 +56,9 @@
         }
 
         computeContainerStyle () {
-            return this.getPartialStyle(['width', 'height']);
+            let style = this.getPartialStyle(['width', 'height']);
+            style += this.isRunning ? '' : 'border: 1px dashed lightgrey';
+            return style;
         }
 
         scroll (value) {
@@ -102,7 +105,7 @@
             });
         }
         textClicked () {
-            
+
         }
     }
     Polymer(KanoUiScrollingText);
