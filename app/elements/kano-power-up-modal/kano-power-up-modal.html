@@ -208,6 +208,7 @@ Custom property | Description | Default
         <paper-dialog id="modal" modal on-iron-overlay-opened="updateAnimation">
             <div class="content">
                 <button type="button" name="button" class="close" on-tap="close"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+                <button type="button" name="button" class="share" on-tap="share"><span>Share&nbsp;&nbsp;</span><span class="times">&times;</span></button>
                 <div class="app-preview"><img src$="[[appPreview]]" alt="kano share preview" class="preview-image" /><div class="hole"></div><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
                 <div class="options">
                     <div class="power-ups" id="power-ups">
@@ -304,6 +305,10 @@ Custom property | Description | Default
         close () {
             this.fire('close');
             this.$.modal.close();
+        },
+
+        share () {
+            this.fire('share-app');
         },
         /**
          * Opens the modal, proxy for `paper-dialog`'s `open` method
