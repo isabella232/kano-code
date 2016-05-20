@@ -1,6 +1,6 @@
 /* globals Polymer, KanoBehaviors, interact, Part */
 
-const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"250\" y=\"150\"><field name=\"EVENT\">global.start</field></block></xml>";
+const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"90\" y=\"120\"><field name=\"EVENT\">global.start</field></block></xml>";
 
 function getDefaultCode() {
     return {
@@ -507,13 +507,24 @@ class KanoAppEditor {
      * Toggle the running state of the current app
      */
     toggleRunning () {
+        let visibleWhenRunning = Polymer.dom(this.root).querySelectorAll('.visible-when-running'),
+            toggleElevate = () => {
+                visibleWhenRunning.forEach((el) => {
+                    this.toggleClass('elevate', this.running, el);
+                });
+            };
         this.running = !this.running;
         this.notifyChange('running', {
             value: this.running
         });
-
         this.$.overlay.focus();
         this.$.partsPanel.closeDrawer();
+        // Removes the elevate class only after the animation
+        if (!this.running) {
+            setTimeout(toggleElevate, 500);
+        } else {
+            toggleElevate();
+        }
     }
 
     trapEvent (e) {

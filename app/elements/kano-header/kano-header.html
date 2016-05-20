@@ -273,6 +273,17 @@
     :host .make-nav ::content kano-drop-down .drop-down {
         padding: 15px 0;
     }
+
+    :host .login-menu {
+        padding: 23px 5px 15px 5px;
+        display: inline-block;
+        margin: 0px 2px;
+        font-size: 19px;
+        font-weight: 700;
+        text-decoration: none;
+        color: #414042;
+        vertical-align: middle;
+    }
     @media only screen and (min-width: 768px) and (max-width: 991px) {
         :host #nav-items {
             display: block;
@@ -441,17 +452,29 @@
                             <a href='//kano.me'>Products</a>
                         </li>
                     </ul>
-                    <ul class="nav-menu-user-items nav-menu-items">
-                        <li id="notifications-menu" class="menu-item" on-tap="toggleOpen">
-                            <kano-notifications user="{{user}}" app="[[app]]"></kano-notifications>
-                        </li>
-                        <li id="avatar-menu" class="menu-item menu-item-avatar" on-tap="toggleOpen">
-                            <kano-user-avatar user="{{user}}" app="[[app]]"></kano-user-avatar>
-                        </li>
-                    </ul>
+                    <template is="dom-if" if="{{loggedIn}}">
+                        <ul class="nav-menu-user-items nav-menu-items">
+                            <li id="notifications-menu" class="menu-item" on-tap="toggleOpen">
+                                <kano-notifications user="{{user}}" app="[[app]]"></kano-notifications>
+                            </li>
+                            <li id="avatar-menu" class="menu-item menu-item-avatar" on-tap="toggleOpen">
+                                <kano-user-avatar user="{{user}}" app="[[app]]"></kano-user-avatar>
+                            </li>
+                        </ul>
+                    </template>
+                    <template is="dom-if" if="{{!loggedIn}}">
+                        <ul class="nav-menu-user-items nav-menu-items">
+                            <li class="menu-item login-menu" on-tap="login">
+                                Log In
+                            </li>
+                        </ul>
+                    </template>
                 </div>
             </div>
         </nav>
+        <paper-dialog id="auth-modal" class="auth-modal" modal>
+            <kano-auth on-login="onLogin" id="auth"></kano-auth>
+        </paper-dialog>
     </template>
     <script>
         class KanoHeader {
@@ -471,15 +494,30 @@
                     },
                     app: {
                         type: Object
+                    },
+                    loggedIn: {
+                        type: Boolean,
+                        value: false
+                    },
+                    loginVisible: {
+                        type: Boolean,
+                        value: false
                     }
                 }
+            }
+
+            login () {
+                this.set('selectedPage', 'login')
+                this.$['auth-modal'].toggle();
+                this.set('loginVisible', !this.loginVisible);
+
             }
 
             attached () {
                 document.addEventListener('tap', (ev) => {
                     if (!ev.target.classList.contains('nav-menu-items__open') ||
-                    !this.$$('#avatar-menu').classList.contains('nav-menu-items__open') &&
-                    this.dropdownVisible) {
+                        !this.$$('#avatar-menu').classList.contains('nav-menu-items__open') &&
+                        this.dropdownVisible) {
                         this.closeDropDown()
                     }
                 })
@@ -495,6 +533,13 @@
                         this.$$('#navbar').style.height = '70px';
                     }
                 })
+
+                this.app.sdk.auth.initSession((err, user) => {
+                    if (user) {
+                        this.set('user', user);
+                        this.set('loggedIn', true);
+                    }
+                });
             }
 
             showMenu () {
@@ -609,6 +654,20 @@
                 if (window.location.hostname === 'localhost') {
                     this.$$('.make-nav a').classList.add('left-indicator-bar');
                 }
+            }
+
+            onLogin (e) {
+                let data = e.detail;
+                this.app.sdk.auth.setToken(data.token);
+                this.user = data.user;
+                this.loggedIn = !this.loggedIn;
+                this.$['auth-modal'].close();
+                document.querySelector('iron-overlay-backdrop').addEventListener('tap', (ev) => {
+                    console.log('dads');
+                    if (this.$['auth-modal'].style.display === 'block') {
+                        console.log('dasda');
+                    }
+                })
             }
         }
         Polymer(KanoHeader);
