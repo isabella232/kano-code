@@ -20,6 +20,7 @@ export default CodeService = {
         });
 
         modulesArray = modulesNames.map((name) => modules[name].methods);
+        console.log(modulesArray);
 
         // Add the devices modules as first module
         modulesNames.unshift('devices');
