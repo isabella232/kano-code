@@ -1,8 +1,8 @@
-/* globals Polymer, KanoBehaviors, app, page */
+/* globals Polymer, Kano, app, page */
 class KanoViewStory {
 
     get behaviors () {
-        return [KanoBehaviors.SharingBehavior];
+        return [Kano.Behaviors.ViewBehavior, Kano.Behaviors.SharingBehavior];
     }
 
     beforeRegister () {
@@ -16,16 +16,13 @@ class KanoViewStory {
             story: {
                 type: Object,
                 observer: 'selectedChanged'
-            },
-            ctx: {
-                type: Object
             }
         };
     }
     attached () {
         this.modal = this.$['share-modal'];
         app.registerBlockly(window.Blockly);
-        app.stories.getById(app.ctx.params.id)
+        app.stories.getById(this.context.params.id)
             .then((story) => {
                 if (typeof story.next === 'string') {
                     return app.stories.getById(story.next)

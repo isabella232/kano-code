@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../kano-view/kano-view.html">
+<link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
@@ -7,66 +7,69 @@
     <style>
       :host {
           display: block;
-          @apply(--layout-horizontal);
       }
-      :host kano-view {
-          @apply(--layout-flex);
-          @apply(--layout-vertical);
+      :host iron-lazy-pages {
           width: 100%;
+          height: 100%;
+      }
+      :host iron-lazy-pages>* {
+          width: 100%;
+          height: 100%;
       }
     </style>
-    <kano-view id="view" view-name="[[currentView]]" flex-enabled="[[flexEnabled]]" attributes="[[attributes]]"></kano-view>
+    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" restamp hide-immediately>
+        <template is="iron-lazy-page" name="home" path="/views/kano-view-home/kano-view-home.html">
+            <kano-view-home context="[[context]]" user="{{user}}"></kano-view-home>
+        </template>
+        <template is="iron-lazy-page" name="story" path="/views/kano-view-story/kano-view-story.html">
+            <kano-view-story context="[[context]]" user="{{user}}"></kano-view-story>
+        </template>
+        <template is="iron-lazy-page" name="editor" path="/views/kano-view-editor/kano-view-editor.html">
+            <kano-view-editor context="[[context]]" user="{{user}}"></kano-view-editor>
+        </template>
+        <template is="iron-lazy-page" name="apps" path="/views/kano-view-apps/kano-view-apps.html">
+            <kano-view-apps context="[[context]]" user="{{user}}"></kano-view-apps>
+        </template>
+    </iron-lazy-pages>
   </template>
   <script>
   /* globals Polymer, page */
-  class KanoRouting {
-      beforeRegister () {
-          this.is = 'kano-routing';
-          this.properties = {
-              ctx: {
-                  type: Object,
-                  notify: true
-              },
-              user: {
-                  type: Object
-              },
-              attributes: {
-                  type: Object,
-                  value: () => {
-                      return {};
-                  }
+  Polymer({
+      is: 'kano-routing',
+      properties: {
+          context: {
+              type: Object
+          },
+          user: {
+              type: Object
+          },
+          attributes: {
+              type: Object,
+              value: () => {
+                  return {};
               }
-          };
-
-          this.observers  = [
-              "computeAttributes(user)",
-              "computeAttributes(ctx.*)",
-              "reload(ctx.*)"
-          ];
-      }
-
-      computeAttributes () {
-          this.set("attributes", {
-              user: this.user,
-              ctx: this.ctx
-          });
-      }
+          },
+          page: {
+              type: String,
+              reflectToAttribute: true
+          }
+      },
       /**
        * Initialize the views
        */
       ready () {
-          page('/', this.partial('kano-view-home'));
-          page('/apps', this.partial('kano-view-apps'));
-          page('/apps/:view', this.partial('kano-view-apps'));
-          page('/make', this.partial('kano-view-workshop'));
-          page('/preview', this.partial('kano-view-preview'));
-          page('/story/:id', this.partial('kano-view-story'));
-          page('/remix/:slug', this.partial('kano-view-workshop'));
+          page('/',             this.partial('home'));
+          page('/apps',         this.partial('apps'));
+          page('/apps/:view',   this.partial('apps'));
+          page('/make',         this.partial('editor'));
+          page('/preview',      this.partial('preview'));
+          page('/story/:id',    this.partial('story'));
+          page('/remix/:slug',  this.partial('editor'));
           // Used for debugging apps export
           //page('/preview', this.partial('kano-view-preview'));
           page('*', () => {});
           page(); // force trigger the initial root page
-      }
+      },
       /**
        * Creates a function to be used by page.js
        * @param  {String} name  Name of the view component to load
@@ -74,16 +77,11 @@
        */
       partial (name) {
           return (ctx) => {
-              this.set('ctx', ctx);
-              this.flexEnabled = (name === 'kano-view-home' || name === 'kano-view-apps') ? false : true;
-              this.currentView = name;
+              this.page = null;
+              this.page = name;
+              this.context = ctx;
           };
       }
-
-      reload () {
-          this.$.view.reloadView();
-      }
-  }
-  Polymer(KanoRouting);
+  });
   </script>
 </dom-module>

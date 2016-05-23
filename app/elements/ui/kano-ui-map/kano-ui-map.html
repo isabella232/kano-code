@@ -27,12 +27,12 @@
 
 <script type="text/javascript">
 
-    /* globals Polymer, KanoBehaviors, google */
+    /* globals Polymer, Kano, google */
 
     class KanoUiMap {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior];
+            return [Kano.Behaviors.UIBehavior];
         }
 
         beforeRegister () {
@@ -76,7 +76,7 @@
             return this.getPartialStyle(['width', 'height']);
         }
         renderOnCanvas (ctx) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let img,
                     map = this.$.map,
                     width = map.offsetWidth,
@@ -106,7 +106,7 @@
                         resolve();
                     };
                     img.onerror = () => {
-                        resolve(KanoBehaviors.UIBehavior.renderFallback.apply(this, arguments));
+                        resolve(Kano.Behaviors.UIBehavior.renderFallback.apply(this, arguments));
                     };
                 });
             });

@@ -27,12 +27,12 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
     class KanoUiTextInput {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior];
+            return [Kano.Behaviors.UIBehavior];
         }
         beforeRegister () {
             this.is = 'kano-ui-text-input';
@@ -53,7 +53,7 @@
             return this.get('model.userProperties.placeholder');
         }
         renderOnCanvas (ctx, util) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let placeholder = this.model.userProperties.placeholder,
                     text = this.model.userProperties.value,
                     input = this.$.input,

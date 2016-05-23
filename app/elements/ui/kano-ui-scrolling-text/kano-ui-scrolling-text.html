@@ -27,12 +27,12 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
     class KanoUiScrollingText {
 
         get behaviors () {
-            return [KanoBehaviors.UIBehavior];
+            return [Kano.Behaviors.UIBehavior];
         }
 
         beforeRegister () {
@@ -42,7 +42,7 @@
         }
 
         stop () {
-            KanoBehaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
             this.stack = [];
             clearTimeout(this.nextTimeout);
             this.scrolling = false;
@@ -90,7 +90,7 @@
             }, duration);
         }
         renderOnCanvas (ctx, util) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let text = this.model.userProperties.text,
                     color = this.model.userStyle.color,
                     label = this.$.label;

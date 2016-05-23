@@ -1,3 +1,7 @@
+<link rel="import" href="../../elements/behaviors.html">
+<link rel="import" href="../../elements/kano-header/kano-header.html">
+<link rel="import" href="../../elements/kano-projects/kano-projects.html">
+<link rel="import" href="../../elements/kano-app-list/kano-app-list.html">
 <dom-module id="kano-view-home">
     <style>
         :host {
@@ -85,7 +89,7 @@
             font-size: 15px;
             font-weight: bold;
             @apply(--kano-button);
-        }   
+        }
         :host #logo {
             height: 80px;
             width: 80px;
@@ -146,35 +150,31 @@
 </dom-module>
 
 <script>
-    /* globals Polymer */
-    /* globals app */
-    class KanoViewHome {
-        beforeRegister () {
-            this.is = 'kano-view-home';
-            this.properties = {
-                projects: {
-                    type: Array,
-                    value: []
-                },
-                user: {
-                    type: Object,
-                    observer: "userChanged"
-                },
-                app: {
-                    type: Object,
-                    value: app
-                }
-            };
-        }
-
+    /* globals Polymer, app, Kano */
+    Polymer({
+        is: 'kano-view-home',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        properties: {
+            projects: {
+                type: Array,
+                value: []
+            },
+            app: {
+                type: Object,
+                value: app
+            }
+        },
+        observers: [
+            'userChanged(user)'
+        ],
         userChanged () {
             if (!this.user) {
                 return null;
             }
 
             app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => this.set('user_apps', apps.body.entries))
-        }
+                .then((apps) => this.set('user_apps', apps.body.entries));
+        },
 
         ready () {
             this.PLAY_URL = app.config.PLAY_URL;
@@ -205,7 +205,5 @@
                     this.set('apps', apps.body.entries);
                 });
         }
-    }
-
-    Polymer(KanoViewHome);
+    });
 </script>

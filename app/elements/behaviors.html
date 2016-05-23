@@ -1,10 +1,25 @@
 <script type="text/javascript">
 
-    /* globals app, Blockly */
+    /* globals app */
 
-    window.KanoBehaviors = window.KanoBehaviors || {};
+    window.Kano = window.Kano || {};
 
-    window.KanoBehaviors.SharingBehavior = {
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.ViewBehavior = {
+
+        properties: {
+            context: {
+                type: Object
+            },
+            user: {
+                type: Object,
+                notify: true
+            }
+        }
+    };
+
+ var SharingBehavior = {
 
         properties: {
             shareInfo: {
@@ -13,8 +28,7 @@
                     return {};
                 },
                 notify: true
-            },
-            user: Object
+            }
         },
 
         shareApp () {
@@ -106,7 +120,9 @@
 
     };
 
-    window.KanoBehaviors.SceneComponentBehavior = {
+    window.Kano.Behaviors.SharingBehavior = [window.Kano.Behaviors.ViewBehavior, SharingBehavior];
+
+    window.Kano.Behaviors.SceneComponentBehavior = {
 
         properties: {
             scene: Object,
@@ -139,7 +155,7 @@
 
     };
 
-    window.KanoBehaviors.CodeEditorBehavior = {
+    window.Kano.Behaviors.CodeEditorBehavior = {
         properties: {
             code: {
                 type: String,
@@ -160,14 +176,14 @@
         }
     };
 
-    window.KanoBehaviors.AppEditorBehavior = {
+    window.Kano.Behaviors.AppEditorBehavior = {
         notifyChange (type, data={}) {
             data.type = type;
             this.fire('change', data);
         }
     };
 
-    window.KanoBehaviors.PartEditorBehavior = {
+    window.Kano.Behaviors.PartEditorBehavior = {
         properties: {
             selected: {
                 type: Object,
@@ -180,7 +196,7 @@
         }
     };
 
-    window.KanoBehaviors.ValidatorBehavior = {
+    window.Kano.Behaviors.ValidatorBehavior = {
         properties: {
             step: {
                 type: Number,
@@ -228,7 +244,7 @@
         }
     };
 
-    window.KanoBehaviors.BlocklyValidatorBehavior = {
+    window.Kano.Behaviors.BlocklyValidatorBehavior = {
         properties: {
             blockIds: {
                 type: Object,
@@ -365,7 +381,7 @@
         }
     };
 
-    window.KanoBehaviors.AnimatableBehavior = {
+    window.Kano.Behaviors.AnimatableBehavior = {
         properties: {
             noAnimations: {
                 type: Boolean,

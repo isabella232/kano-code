@@ -23,10 +23,10 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
     class KanoUiButton {
         get behaviors () {
-            return [KanoBehaviors.UIBehavior];
+            return [Kano.Behaviors.UIBehavior];
         }
         beforeRegister () {
             this.is = 'kano-ui-button';
@@ -50,7 +50,7 @@
             this.set('model.userStyle.color', color);
         }
         renderOnCanvas (ctx, util) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let button = this.$.button,
                     text = this.model.userProperties.label,
                     width = button.offsetWidth,
