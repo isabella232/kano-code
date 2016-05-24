@@ -29,29 +29,23 @@
 
     /* globals Polymer, Kano, google */
 
-    class KanoUiMap {
-
-        get behaviors () {
-            return [Kano.Behaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-map';
-            this.properties = {
-                coordinates: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
+    Polymer({
+        is: 'kano-ui-map',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        properties: {
+            coordinates: {
+                type: Array,
+                value: () => {
+                    return [];
                 }
-            };
-        }
+            }
+        },
         attached () {
             this.mapOptions = {
                 draggable: false,
                 scrollWheel: false
             };
-        }
+        },
         showMarker (latitude, longitude) {
             let pos = { latitude, longitude },
                 path;
@@ -71,10 +65,10 @@
 
             this.push('coordinates', pos);
             this.set('position', pos);
-        }
+        },
         computeMapStyle () {
             return this.getPartialStyle(['width', 'height']);
-        }
+        },
         renderOnCanvas (ctx) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let img,
@@ -111,6 +105,5 @@
                 });
             });
         }
-    }
-    Polymer(KanoUiMap);
+    });
 </script>

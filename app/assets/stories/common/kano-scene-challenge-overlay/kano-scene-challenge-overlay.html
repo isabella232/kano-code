@@ -156,22 +156,14 @@
   </template>
 </dom-module>
 <script type="text/javascript">
-
     /* globals Polymer, Kano */
 
-    class KanoSceneChallengeOverlay {
-        get behaviors () {
-            return [Kano.Behaviors.SceneComponentBehavior, Kano.Behaviors.AnimatableBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-scene-challenge-overlay';
-        }
-
+    Polymer({
+        is: 'kano-scene-challenge-overlay',
+        behaviors: [Kano.Behaviors.SceneComponentBehavior, Kano.Behaviors.AnimatableBehavior],
         overlayDone () {
             this.fire('overlay-done');
-        }
-
+        },
         end () {
             this.toggleClass('animate-out', true, this.$.character);
             this.toggleClass('animate-out', true, this.$.background);
@@ -180,6 +172,5 @@
                 setTimeout(resolve, 700);
             });
         }
-    }
-    Polymer(KanoSceneChallengeOverlay);
+    });
 </script>

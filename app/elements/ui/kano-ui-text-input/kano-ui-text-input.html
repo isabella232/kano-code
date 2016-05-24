@@ -29,29 +29,24 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoUiTextInput {
-
-        get behaviors () {
-            return [Kano.Behaviors.UIBehavior];
-        }
-        beforeRegister () {
-            this.is = 'kano-ui-text-input';
-        }
+    Polymer({
+        is: 'kano-ui-text-input',
+        behaviors: [Kano.Behaviors.UIBehavior],
         onKeyUp () {
             this.fire('input-keyup', this.value);
-        }
+        },
         getValue () {
             return this.get('model.userProperties.value');
-        }
+        },
         setValue (value) {
             this.set('model.userProperties.value', value);
-        }
+        },
         setPlaceholder (placeholder) {
             this.set('model.userProperties.placeholder', placeholder);
-        }
+        },
         getPlaceholder () {
             return this.get('model.userProperties.placeholder');
-        }
+        },
         renderOnCanvas (ctx, util) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let placeholder = this.model.userProperties.placeholder,
@@ -79,6 +74,5 @@
                 ctx.restore();
             });
         }
-    }
-    Polymer(KanoUiTextInput);
+    });
 </script>

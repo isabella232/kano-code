@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
@@ -17,8 +18,19 @@
           @apply(--layout-flex);
           overflow: auto;
       }
+      :host paper-progress {
+          --paper-progress-active-color: var(--color-orange);
+          --paper-progress-transition-duration: 0.05s;
+          position: fixed;
+          top: -4px;
+          width: 100%;
+          transition: top linear 100ms;
+      }
+      :host paper-progress.loading {
+          top: 0px;
+      }
     </style>
-    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" restamp>
+    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" loading="{{loading}}" restamp>
         <template is="iron-lazy-page" name="home" path="/views/kano-view-home/kano-view-home.html">
             <kano-view-home context="[[context]]" user="{{user}}"></kano-view-home>
         </template>
@@ -32,6 +44,7 @@
             <kano-view-apps context="[[context]]" user="{{user}}"></kano-view-apps>
         </template>
     </iron-lazy-pages>
+    <paper-progress indeterminate class$="[[_computeLoadingClass(loading)]]"></paper-progress>
   </template>
   <script>
   /* globals Polymer, page */
@@ -77,6 +90,9 @@
               this.page = name;
               this.context = ctx;
           };
+      },
+      _computeLoadingClass (loading) {
+          return loading ? 'loading' : '';
       }
   });
   </script>

@@ -118,25 +118,13 @@ Example:
 <script>
     /* globals Polymer, Kano, ClientUtil, page */
 
-    class KanoApp {
-        beforeRegister () {
-            this.is = 'kano-app';
-            this.properties = {
-                user: {
-                    type: Object
-                }
-            };
-        }
-        pageChanged () {
-            // Trigger a resize event. iron-pages uses the `display` css property to hide pages
-            // This causes the boudingClientRect to be empty. This notifies the elements depending on
-            // this value to recompute their sizes
-            var ev = new Event('resize');
-            window.dispatchEvent(ev);
-        }
-        isUserLoggedIn () {
-            return !!this.user;
-        }
+    Polymer({
+        is: 'kano-app',
+        properties: {
+            user: {
+                type: Object
+            }
+        },
         ready () {
             this.editor = null;
             let initialiseSDK = () => {
@@ -170,7 +158,7 @@ Example:
             } else {
                 initialiseSDK();
             }
-        }
+        },
         logout (e) {
             e.preventDefault();
             Kano.MakeApps.sdk.auth.setToken(null);
@@ -179,21 +167,20 @@ Example:
             this.$.drawer.closeDrawer();
             this.$.auth.reset();
             Kano.MakeApps.progress.reset();
-        }
+        },
         login () {
             let modal = this.$['auth-modal'];
             modal.open();
-        }
+        },
         onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
             this.user = data.user;
             this.$['auth-modal'].close();
-        }
+        },
         toggleMenu () {
             this.editor = document.getElementById('editor');
             this.$.drawer.togglePanel();
         }
-    }
-    Polymer(KanoApp);
+    });
 </script>

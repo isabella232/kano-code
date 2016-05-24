@@ -17,22 +17,14 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoInputBackground {
-
-        get behaviors () {
-            return [Kano.Behaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-background';
-            this.observers = [
-                'computeValue(color)'
-            ];
-        }
-
-        computeValue () {
+    Polymer({
+        is: 'kano-input-background',
+        behaviors: [Kano.Behaviors.Input],
+        observers: [
+            '_computeValue(color)'
+        ],
+        _computeValue () {
             this.set('value', this.color);
         }
-    }
-    Polymer(KanoInputBackground);
+    });
 </script>

@@ -7,8 +7,7 @@ let gulp = require('gulp'),
     browserify = require('browserify'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
-    path = require('path'),
-    fs = require('fs'),
+    getImports = require('./tasks/get-imports'),
     es = require('event-stream'),
     htmlAutoprefixer = require("html-autoprefixer"),
     bundler,
@@ -129,9 +128,27 @@ function getHtmlReplaceOptions() {
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
 gulp.task('js', ['babel', 'bundle', 'copy', 'polyfill'], () => {
     gulp.src('./.tmp/app/elements/elements.html')
-        .pipe(utils.vulcanize({ inlineScripts: true, inlineCss: true }))
+        .pipe(utils.vulcanize({
+            inlineScripts: true,
+            inlineCss: true,
+            stripComments: true
+        }))
         .pipe($.crisper({ scriptInHead: false }))
         .pipe(gulp.dest('www/elements'));
+});
+
+gulp.task('bundles', ['copy'], () => {
+    getImports('./app/elements/elements.html').then((common) => {
+        return gulp.src('.tmp/app/elements/*-bundle.html')
+            .pipe(utils.vulcanize({
+                inlineScripts: true,
+                inlineCss: true,
+                stripExcludes: common,
+                stripComments: true
+            }))
+            .pipe($.crisper({ scriptInHead: false }))
+            .pipe(gulp.dest('www/elements'));
+    }).catch(utils.notifyError);
 });
 
 gulp.task('babel', () => {
@@ -170,35 +187,33 @@ gulp.task('assets', ['scenes'], () => {
 });
 
 gulp.task('views', ['copy'], () => {
-    // Get the elements common to the whole app to exclude them from the views
-    getImports('./app/elements/elements.html').then((common) => {
-        return gulp.src('app/views/**/*.html')
-            .pipe(utils.vulcanize({
-                inlineScripts: true,
-                inlineCss: true,
-                stripExcludes: common
-            }))
-            .pipe($.crisper({ scriptInHead: false }))
-            .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
-            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-            .pipe(gulp.dest('www/views'));
-    }).catch(utils.notifyError);
+    return gulp.src('app/views/**/*.html')
+        .pipe($.crisper({ scriptInHead: false }))
+        .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
+        .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+        .pipe(gulp.dest('www/views'));
 });
 
 gulp.task('scenes', ['copy'], () => {
-    // Get the elements common to the whole app to exclude them from the views
-    getImports('./app/elements/elements.html').then((common) => {
-        return gulp.src('app/assets/stories/**/*.html')
-            .pipe(utils.vulcanize({
-                inlineScripts: true,
-                inlineCss: true,
-                stripExcludes: common
-            }))
-            .pipe($.crisper({ scriptInHead: false }))
-            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-            .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
-            .pipe(gulp.dest('www/assets/stories'));
-    }).catch(utils.notifyError);
+    // The core elements and the elements already present in the view are removed
+    Promise.all([getImports('./app/elements/elements.html'), getImports('./app/views/kano-view-story/kano-view-story.html')])
+        .then((commons) => {
+            return commons.reduce((acc, common) => {
+                return acc.concat(common);
+            }, []);
+        }).then((common) => {
+            return gulp.src('app/assets/stories/**/*.html')
+                .pipe(utils.vulcanize({
+                    inlineScripts: true,
+                    inlineCss: true,
+                    stripExcludes: common,
+                    stripComments: true
+                }))
+                .pipe($.crisper({ scriptInHead: false }))
+                .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
+                .pipe($.if('*.html', utils.htmlAutoprefixerStream()))
+                .pipe(gulp.dest('www/assets/stories'));
+        }).catch(utils.notifyError);
 });
 
 gulp.task('sass', () => {
@@ -207,64 +222,6 @@ gulp.task('sass', () => {
         .pipe($.autoprefixer())
         .pipe(gulp.dest('www/css'));
 });
-
-function getImports(filePath, opts) {
-    let found = [];
-    opts = opts || {};
-
-    function crawlImports(filePath) {
-        return new Promise((resolve, reject) => {
-            let dir = path.dirname(filePath);
-            fs.readFile(filePath, (err, file) => {
-                if (err) {
-                    return resolve();
-                }
-                found.push(filePath);
-                let content = file.toString(),
-                importRegex = /<link.*rel="import".*>/gi,
-                imports = content.match(importRegex),
-                fileRegex,
-                files,
-                tasks;
-                if (!imports) {
-                    return resolve();
-                }
-                fileRegex = /href="(.*)"/,
-                files = imports.map((importLine) => {
-                    let m = importLine.match(fileRegex);
-                    if (m && m[1]) {
-                        return path.join(dir, m[1]);
-                    }
-                    return null;
-                }).filter((f) => {
-                    if (!f) {
-                        return false;
-                    }
-                    if (found.indexOf(f) === -1) {
-                        return true;
-                    }
-                });
-                tasks = files.map((f) => {
-                    return crawlImports(f);
-                });
-                return Promise.all(tasks).then(() => {
-                    return resolve(found);
-                }).catch(reject);
-            });
-        });
-    }
-    return crawlImports(filePath).then((files) => {
-        files = files.filter((item, pos, self) => {
-            return self.indexOf(item) == pos;
-        });
-        if (opts.base) {
-            files = files.map((filePath) => {
-                return path.relative(opts.base, filePath);
-            });
-        }
-        return files;
-    });
-}
 
 gulp.task('compress', () => {
     return gulp.src(['www/**/*.{js,html}'])
@@ -278,7 +235,7 @@ gulp.task('compress', () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('build', ['views', 'js', 'sass', 'assets']);
+gulp.task('build', ['views', 'js', 'sass', 'assets', 'bundles']);
 gulp.task('default', ['build']);
 
 /* DEVELOPMENT BUILD */

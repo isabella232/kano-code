@@ -20,10 +20,8 @@ function getDefaultBackground() {
 }
 
 Polymer({
-
     is: 'kano-app-editor',
     behaviors: [Kano.Behaviors.AppEditorBehavior],
-
     properties: {
         parts: {
             type: Array

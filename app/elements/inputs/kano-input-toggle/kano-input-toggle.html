@@ -14,21 +14,14 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoInputToggle {
-
-        get behaviors () {
-            return [Kano.Behaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-toggle';
-            this.observers = [
-                'valueChanged(value)'
-            ];
-        }
+    Polymer({
+        is: 'kano-input-toggle',
+        behaviors: [Kano.Behaviors.Input],
+        observers: [
+            'valueChanged(value)'
+        ],
         valueChanged () {
             this.notifyPath('value', this.value);
         }
-    }
-    Polymer(KanoInputToggle);
+    });
 </script>

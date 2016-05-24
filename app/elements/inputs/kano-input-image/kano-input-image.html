@@ -43,33 +43,27 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoInputImage {
+    /* globals Polymer, Kano */
 
-        get behaviors () {
-            return [Kano.Behaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-image';
-            this.properties = {
-                title: {
-                    type: String
-                },
-                size: {
-                    type: String,
-                    value: '50px'
-                },
-                src: {
-                    type: String,
-                    value: null
-                }
-            };
-            this.observers = [
-                'valueChanged(src, size)'
-            ];
-        }
-
+    Polymer({
+        is: 'kano-input-image',
+        behaviors: [Kano.Behaviors.Input],
+        properties: {
+            title: {
+                type: String
+            },
+            size: {
+                type: String,
+                value: '50px'
+            },
+            src: {
+                type: String,
+                value: null
+            }
+        },
+        observers: [
+            'valueChanged(src, size)'
+        ],
         attached () {
             document.body.appendChild(this.$.modal);
             fetch('/assets/filesets/images.json')
@@ -77,31 +71,30 @@
                 .then((response) => {
                     this.files = response;
                 });
-        }
+        },
 
         detached () {
             document.body.removeChild(this.$.modal);
-        }
+        },
 
         openModal () {
             this.$.modal.open();
-        }
+        },
 
         fileSelected (e) {
             let file = e.detail;
             this.set('src', file.data.src);
             this.set('title', file.name);
             this.$.modal.close();
-        }
+        },
 
         valueChanged () {
             this.set('value', this.src);
-        }
+        },
 
         removeImage () {
             this.set('title', null);
             this.set('src', null);
         }
-    }
-    Polymer(KanoInputImage);
+    });
 </script>

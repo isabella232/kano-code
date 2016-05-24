@@ -125,32 +125,23 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-
     /* globals Polymer */
-
-    class KanoAuth {
-        beforeRegister () {
-            this.is = 'kano-auth';
-        }
-
+    Polymer({
+        is: 'kano-auth',
         attached () {
             this.selectedPage = 'login';
-        }
-
+        },
         toggle () {
             this.selectedPage = this.selectedPage === 'login' ? 'signup' : 'login';
-        }
-
+        },
         loginSuccess (e) {
             this.fire('login', e.details);
-        }
-
+        },
         reset () {
             let inputs = this.querySelectorAll('input');
             for (let i = 0, len = inputs.length; i < len; i++) {
                 inputs[i].value = "";
             }
         }
-    }
-    Polymer(KanoAuth);
+    });
 </script>

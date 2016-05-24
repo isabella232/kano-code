@@ -20,21 +20,14 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoUiEditor {
-
-        get behaviors () {
-            return [Kano.Behaviors.AppEditorBehavior];
+    Polymer({
+        is: 'kano-ui-editor',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            selected: {
+                type: Object,
+                notify: true
+            }
         }
-
-        beforeRegister () {
-            this.is = 'kano-ui-editor';
-            this.properties = {
-                selected: {
-                    type: Object,
-                    notify: true
-                }
-            };
-        }
-    }
-    Polymer(KanoUiEditor);
+    });
 </script>

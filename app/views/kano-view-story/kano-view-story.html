@@ -1,6 +1,6 @@
-<link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
-<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
-<link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
+<link rel="import" href="../../elements/share-bundle.html">
+<link rel="import" href="../../elements/story-bundle.html">
+<link rel="import" href="../../elements/editor-bundle.html">
 <dom-module id="kano-view-story">
     <style>
         :host {
@@ -22,4 +22,94 @@
     </template>
 </dom-module>
 
-<script src="./kano-view-story.js"></script>
+<script>
+    /* globals Polymer, Kano, page */
+    Polymer({
+        is: 'kano-view-story',
+        behaviors: [Kano.Behaviors.SharingBehavior],
+        properties: {
+            selected: {
+                type: Number,
+                value: 0,
+                observer: 'selectedChanged'
+            },
+            story: {
+                type: Object,
+                observer: 'selectedChanged'
+            }
+        },
+        listeners: {
+            'blockly-ready': '_registerBlockly'
+        },
+        attached () {
+            this.modal = this.$['share-modal'];
+            Kano.MakeApps.stories.getById(this.context.params.id)
+                .then((story) => {
+                    if (typeof story.next === 'string') {
+                        return Kano.MakeApps.stories.getById(story.next)
+                            .then((nextStory) => {
+                                story.next = nextStory;
+                                return story;
+                            });
+                    }
+                    return story;
+                })
+                .then((story) => {
+                    this.story = story;
+                    return Kano.MakeApps.progress.loadProgress(story.progress.group);
+                })
+                .then((progress) => this.updateExtensions(progress));
+        },
+        _registerBlockly () {
+            Kano.MakeApps.blockly.register(window.Blockly);
+        },
+        updateExtensions (progress) {
+            let story = this.story,
+                extensions = story.extensions,
+                progressGroup = progress[story.progress.group] || {},
+                progressExtensions = progressGroup.extensions;
+            if (story.extensions && progressExtensions) {
+                for (let i = 0, len = extensions.length; i < len; i++) {
+                    if (progressExtensions.indexOf(extensions[i].id) !== -1) {
+                        this.set(`story.extensions.${i}.completed`, true);
+                    }
+                }
+            }
+        },
+        isSelected (index) {
+            return index === this.selected;
+        },
+        nextScene () {
+            if (this.selected < this.story.scenes.length - 1) {
+                this.selected++;
+            } else {
+                //story completed!!!
+                let progress = this.story.progress,
+                    extension = this.story.extension ? this.story.id : null;
+                Kano.MakeApps.progress.updateProgress(progress.group, progress.storyNo, extension)
+                    .then((progress) => this.updateExtensions(progress));
+            }
+        },
+        selectedChanged () {
+            if (!this.story) {
+                return;
+            }
+            Kano.MakeApps.stories.getSceneByIndex(this.story, this.selected)
+                .then((scene) => {
+                    this.set('scene', scene);
+                });
+        },
+        extendStory (e) {
+            let extensionId = e.detail;
+            page.redirect(`/story/${extensionId}`);
+        },
+        nextStory (e) {
+            let storyId;
+            if (!this.story.next) {
+                return;
+            }
+            storyId = this.story.next.id;
+            page.redirect(`/story/${storyId}`);
+        }
+    });
+</script>

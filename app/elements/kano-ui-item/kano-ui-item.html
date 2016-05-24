@@ -69,56 +69,48 @@
     /* globals Polymer, Kano */
 
     const IMAGE_PADDING = 20;
-    const DEFAULT_BACKGROUND = '#CCC';
-    const DEFAULT_RING_COLOUR = 'rgba(0,0,0,0.5)';
     const DEFAULT_SELECTED_COLOUR = '#84C69E';
 
-    class KanoUiItem {
-
-        get behaviors () {
-            return [Kano.Behaviors.AnimatableBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-item';
-            this.properties = {
-                model: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                size: {
-                    type: Number,
-                    value: 42
-                },
-                selected: {
-                    type: Boolean,
-                    value: false
-                },
-                instance: {
-                    type: Boolean,
-                    value: false
-                },
-                disabled: {
-                    type: Boolean,
-                    value: false
-                },
-                colour: {
-                    type: String,
-                    value: null
+    Polymer({
+        is: 'kano-ui-item',
+        behaviors: [Kano.Behaviors.AnimatableBehavior],
+        properties: {
+            model: {
+                type: Object,
+                value: () => {
+                    return {};
                 }
-            };
-            this.observers = [
-                'computeContainerStyle(selected, instance, model.*, colour)'
-            ];
-        }
+            },
+            size: {
+                type: Number,
+                value: 42
+            },
+            selected: {
+                type: Boolean,
+                value: false
+            },
+            instance: {
+                type: Boolean,
+                value: false
+            },
+            disabled: {
+                type: Boolean,
+                value: false
+            },
+            colour: {
+                type: String,
+                value: null
+            }
+        },
+        observers: [
+            'computeContainerStyle(selected, instance, model.*, colour)'
+        ],
         attached () {
             this.fire('ui-ready', this);
-        }
+        },
         computeLabel () {
             return this.model.name || this.model.label;
-        }
+        },
         computeContainerStyle (selected, instance) {
             let colour = this.colour;
             this.debounce('computeContainerStyle', () => {
@@ -126,17 +118,16 @@
                                         width: ${this.size + IMAGE_PADDING}px;
                                         height: ${this.size + IMAGE_PADDING}px;`;
             }, 10);
-        }
+        },
         computeLabelStyle (selected) {
             if (this.instance) {
                 return;
             }
             let colour = selected ? DEFAULT_SELECTED_COLOUR : '';
             return `color: ${colour};`;
-        }
+        },
         handleSelect () {
             this.fire('selected', this.model);
         }
-    }
-    Polymer(KanoUiItem);
+    });
 </script>

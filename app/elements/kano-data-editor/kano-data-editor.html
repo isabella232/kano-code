@@ -133,48 +133,41 @@
 
     /* globals Polymer, Kano */
 
-    class KanoDataEditor {
-
-        get behaviors () {
-            return [Kano.Behaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-data-editor';
-            this.properties = {
-                selected: {
-                    type: Object,
-                    notify: true,
-                    observer: 'computeDataArray'
-                },
-                loading: {
-                    type: Boolean,
-                    value: false,
-                    observer: 'loadingChanged'
-                }
-            };
-            this.observers = [
-                'computeDataArray(selected.data.*)',
-                'refreshEnabledChanged(selected.refreshEnabled)'
-            ];
-        }
+    Polymer({
+        is: 'kano-data-editor',
+        properties: {
+            selected: {
+                type: Object,
+                notify: true,
+                observer: 'computeDataArray'
+            },
+            loading: {
+                type: Boolean,
+                value: false,
+                observer: 'loadingChanged'
+            }
+        },
+        observers: [
+            'computeDataArray(selected.data.*)',
+            'refreshEnabledChanged(selected.refreshEnabled)'
+        ],
         attached () {
             this.jsonInfo = this.$['what-is-json'];
             document.body.appendChild(this.jsonInfo);
-        }
+        },
         detached () {
             document.body.removeChild(this.jsonInfo);
-        }
+        },
         openJsonInfo () {
             this.jsonInfo.openJsonInfo();
-        }
+        },
         refreshEnabledChanged (enabled) {
             if (enabled) {
                 this.notifyChange('enable-refresh', { part: this.selected });
             } else {
                 this.notifyChange('disable-refresh', { part: this.selected });
             }
-        }
+        },
         computeDataArray () {
             if (!this.selected) {
                 return;
@@ -184,10 +177,10 @@
                 return;
             }
             this.dataArray = Array.isArray(this.selected.data) ? this.selected.data : [this.selected.data];
-        }
+        },
         loadingChanged () {
             this.toggleClass('loading', this.loading);
-        }
+        },
         refresh () {
             this.loading = true;
             this.selected.refresh().then((data) => {
@@ -195,20 +188,19 @@
                 this.loading = false;
             });
             this.notifyChange('manual-refresh', {});
-        }
+        },
         paramChanged (e) {
             let key = e.model.get('param').key;
             this.set(`selected.config.${key}`, e.target.value);
-        }
+        },
         computeDataSample () {
             if (!this.selected || !this.selected.data) {
                 return;
             }
             return this.selected.dataType === 'list' ? this.selected.data[0] : this.selected.data;
-        }
+        },
         isLastItem(array, index) {
             return (array.length - 1) === index;
         }
-    }
-    Polymer(KanoDataEditor);
+    });
 </script>

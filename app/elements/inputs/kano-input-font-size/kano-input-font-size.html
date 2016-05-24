@@ -26,38 +26,19 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
     const FONT_REGEXP = /(\d*\.\d+)em/;
-    class KanoInputFontSize {
 
-        get behaviors () {
-            return [Kano.Behaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-font-size';
-            this.properties = {
-                value: {
-                    type: String,
-                    observer: 'valueChanged'
-                },
-                unit: {
-                    type: String
-                },
-                number: {
-                    type: Number
-                }
-            };
-            this.observers = [
-                'computeValue(number)'
-            ];
-        }
-
+    Polymer({
+        is: 'kano-input-font-size',
+        behaviors: [Kano.Behaviors.Input],
+        observers: [
+            'computeValue(number)'
+        ],
         computeValue () {
             this.set('value', `${this.number}em`);
-        }
-
+        },
         valueChanged () {
             let m;
 
@@ -71,11 +52,9 @@
             }
 
             this.fire('change');
-        }
-
+        },
         numberChanged (e) {
             e.stopPropagation();
         }
-    }
-    Polymer(KanoInputFontSize);
+    });
 </script>

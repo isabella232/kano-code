@@ -119,43 +119,37 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoAppChallenge {
-
-        get behaviors () {
-            return [Kano.Behaviors.ValidatorBehavior, Kano.Behaviors.BlocklyValidatorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-app-challenge';
-            this.properties = {
-                tooltips: {
-                    type: Array
-                },
-                selectedStep: {
-                    type: Object,
-                    computed: 'computeSelectedStep(steps, step)'
-                },
-                arrow: {
-                    type: Object
-                },
-                currentStep: {
-                    type: Number,
-                    notify: true,
-                    value: 0
-                },
-                started: {
-                    type: Boolean,
-                    value: false
-                }
-            };
-            this.observers = [
-                'stepChanged(steps, step, started)',
-                'doneChanged(done)'
-            ];
-            this.listeners = {
-                'change': 'editorChanged'
-            };
-        }
+    Polymer({
+        is: 'kano-app-challenge',
+        behaviors: [Kano.Behaviors.ValidatorBehavior, Kano.Behaviors.BlocklyValidatorBehavior],
+        properties: {
+            tooltips: {
+                type: Array
+            },
+            selectedStep: {
+                type: Object,
+                computed: 'computeSelectedStep(steps, step)'
+            },
+            arrow: {
+                type: Object
+            },
+            currentStep: {
+                type: Number,
+                notify: true,
+                value: 0
+            },
+            started: {
+                type: Boolean,
+                value: false
+            }
+        },
+        observers: [
+            'stepChanged(steps, step, started)',
+            'doneChanged(done)'
+        ],
+        listeners: {
+            'change': 'editorChanged'
+        },
         doneChanged (done) {
             // Reset everything when the challenge is done
             if (done) {
@@ -168,10 +162,10 @@
                     editor.toggleRunning();
                 }
             }
-        }
+        },
         computeSelectedStep () {
             return this.steps[this.step];
-        }
+        },
         /**
          * Find the blockly element and listens to the change event
          */
@@ -195,13 +189,13 @@
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.focus = this.$.focus;
             this.modal = this.$.modal;
-        }
+        },
         attached () {
             this.isAttached = true;
             this.step_number = 0;
             this.progress = 0;
             this.fire('attached');
-        }
+        },
         computeTooltips (step) {
             this.set('tooltips', []);
             this.debounce('computeTooltips', () => {
@@ -214,7 +208,7 @@
                 });
                 this.set('tooltips', tooltips);
             }, 200);
-        }
+        },
         computeArrow (step) {
             let source, target;
             if (!step.arrow) {
@@ -229,7 +223,7 @@
                 target,
                 size: step.arrow.size || 70
             });
-        }
+        },
         stepChanged () {
             let step,
                 focusString;
@@ -280,7 +274,7 @@
                 this.computeTooltips(step);
                 this.computeArrow(step);
             }, 10);
-        }
+        },
         getDeepElement (selector) {
             let pieces,
                 element = this.editor,
@@ -311,13 +305,13 @@
                 element = element.$$(`#${piece}`);
             }
             return element;
-        }
+        },
         deepFocus (selector) {
             let targets;
             targets = Array.isArray(selector) ? selector : [selector];
             targets = targets.map(this.getDeepElement.bind(this));
             this.focus.show(targets);
-        }
+        },
         isNextHidden () {
             let currentStep;
             if (!this.steps) {
@@ -328,7 +322,7 @@
                 return true;
             }
             return !currentStep.next_button;
-        }
+        },
         matchTrigger (validation, event) {
             let emitter = validation.emitter;
             if (emitter.part) {
@@ -336,10 +330,10 @@
             }
             return emitter === event.trigger.emitter &&
                     validation.event === event.trigger.event;
-        }
+        },
         matchPartChange (validation, event) {
             return this.matchProperty(validation, event);
-        }
+        },
         matchPartTarget (validation, event) {
             let target = this.stepIds[validation.target];
             if (!event.part && validation.target) {
@@ -347,7 +341,7 @@
             } else {
                 return target === event.part.id;
             }
-        }
+        },
         /**
          * Will tell if a property defined in a validation and an event matches
          * Example:
@@ -380,10 +374,10 @@
                 }
             }
             return true;
-        }
+        },
         matchValue (validation, event) {
             return validation.value === event.value;
-        }
+        },
         matchAddPart (validation, event) {
             // Check the type of the added part
             if (!this.matchPartType(validation, event)) {
@@ -394,17 +388,17 @@
                 this.stepIds[validation.id] = event.part.id;
             }
             return true;
-        }
+        },
         matchPartType (validation, event) {
             return validation.type === event.part.type;
-        }
+        },
         isStepTarget (validation, id) {
             let target = this.stepIds[validation.target];
             return target === id;
-        }
+        },
         isStepEvent (step, type, event) {
             return step[type] && event.type === type;
-        }
+        },
         /**
          * Try to match the blockly event to the current step
          * @param  {Event} e  A blockyl change event
@@ -436,6 +430,5 @@
                 }
             });
         }
-    }
-    Polymer(KanoAppChallenge);
+    });
 </script>

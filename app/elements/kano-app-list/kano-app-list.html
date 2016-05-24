@@ -91,43 +91,31 @@
 
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoAppList {
 
-        get behaviors () {
-            return [
-                Polymer.NeonAnimationRunnerBehavior,
-                Polymer.NeonSharedElementAnimatableBehavior
-            ];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-app-list';
-            this.properties = {
-                limit: {
-                    type: Number,
-                    value: 48
-                },
-                view: {
-                    type: String
-                },
-                viewFlags: {
-                    type: Object
-                },
-                apps: {
-                    type: Array
-                },
-                playUrl: {
-                    type: String
-                }
-            };
-        }
-
+    Polymer({
+        is: 'kano-app-list',
+        properties: {
+            limit: {
+                type: Number,
+                value: 48
+            },
+            view: {
+                type: String
+            },
+            viewFlags: {
+                type: Object
+            },
+            apps: {
+                type: Array
+            },
+            playUrl: {
+                type: String
+            }
+        },
         attached () {
             if (this.view === 'my') {
                 this.isMyApps = true;
             }
         }
-    }
-
-    Polymer(KanoAppList);
+    });
 </script>

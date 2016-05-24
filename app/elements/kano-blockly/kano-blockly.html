@@ -2,34 +2,115 @@
 <link rel="import" href="./import.html">
 
 <dom-module id="kano-blockly">
-    <link rel="import" type="css" href="./kano-blockly.css">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+        }
+        :host #workspace {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+        }
+        :host ::content svg {
+            @apply(--kano-crossed-background);
+        }
+
+        :host::content .blocklyPathDark,
+        :host::content .blocklyPathLight {
+            fill: transparent !important;
+            stroke-width: 0px !important;
+        }
+        :host::content .blocklySelected > .blocklyPath {
+            stroke-width: 1px !important;
+            stroke: rgba(0, 0, 0, 0.5) !important;
+            stroke-linejoin: round !important;
+        }
+        :host::content .blocklyHighlightedConnectionPath {
+            stroke-width: 2px !important;
+        }
+        :host::content text.blocklyText {
+            font-family: bariol;
+            font-size: 1em;
+        }
+        :host::content .blocklyEditableText:hover > rect {
+            stroke-width: 1px !important;
+        }
+        :host::content .blocklyEditableText .blocklyText {
+            font-size: 1em !important;
+        }
+        :host::content div.blocklyTreeRoot {
+            padding: 0px;
+        }
+        :host::content span.blocklyTreeLabel {
+            font-family: bariol;
+            font-size: 1.1em;
+        }
+        :host::content div.blocklyTreeRow {
+            position: relative;
+            height: auto !important;
+            line-height: 20px !important;
+            padding: 18px 12px !important;
+            margin: 0px;
+            color: white;
+            font-size: 1em;
+        }
+        :host::content div.blocklyTreeRow:hover,
+        :host::content span.blocklyTreeLabel:hover {
+            cursor: pointer;
+        }
+        :host::content div.blocklyTriangle {
+            position: absolute;
+            left: 140px;
+            display: none;
+            border: 12px solid transparent;
+            border-left: 0px;
+            border-right-width: 10px;
+            border-right-color: #E8E8E8;
+        }
+        :host::content span.blocklyTreeIcon {
+            width: 0px;
+        }
+        :host::content div.blocklyToolboxDiv {
+            background-color: transparent;
+        }
+        :host::content div.blocklyTreeSeparator {
+            border: 0px;
+        }
+        :host::content path.blocklyFlyoutBackground {
+            fill: #E8E8E8;
+            fill-opacity: 1;
+        }
+        :host::content rect.blocklyMainBackground {
+            display: none !important;
+        }
+    </style>
     <template>
         <div id="workspace"></div>
     </template>
 </dom-module>
 
 <script>
-    /* globals Polymer, Kano, Blockly */
+    /* globals Polymer, Blockly */
 
-    class KanoBlockly {
-
-        beforeRegister () {
-            this.is = 'kano-blockly';
-            this.properties = {
-                toolbox: {
-                    type: Array,
-                    value: () => []
-                },
-                toolboxXml: {
-                    type: String,
-                    computed: 'computeToolboxXml(toolbox)'
-                },
-                code: {
-                    type: String,
-                    notify: true
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-blockly',
+        properties: {
+            toolbox: {
+                type: Array,
+                value: () => []
+            },
+            toolboxXml: {
+                type: String,
+                computed: 'computeToolboxXml(toolbox)'
+            },
+            code: {
+                type: String,
+                notify: true
+            }
+        },
         /**
          * Inject blockly to the workspace div and register the resize event
          */
@@ -42,42 +123,32 @@
             window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.onResize();
-            this.fire('blockly-ready');
-        }
+            this.async(() => {
+                this.fire('blockly-ready');
+            });
+        },
         detached () {
             this.workspace.dispose();
-        }
+        },
         /**
          * Triggers the resize event on the window
          */
         resize () {
             Blockly.fireUiEvent(window, 'resize');
-        }
+        },
         /**
          * Debounce function that will apply style rules to the workspace
          * element to let know Blockly the new dimensions.
          */
         onResize () {
             requestAnimationFrame(() => {
-                // Check if the ws is visible
-                if (this.offsetWidth > 0 && this.offsetHeight > 0) {
-                    // The visibilty went from false to true, notify with an event
-                    if (!this.visible) {
-                        this.visible = true;
-                        this.fire('blockly-ready');
-                    } else {
-                        this.visible = true;
-                    }
-                } else {
-                    this.visible = false;
-                }
                 let workspace = this.$.workspace;
                 workspace.style.top = '0px';
                 workspace.style.bottom = '0px';
                 workspace.style.left = '0px';
                 workspace.style.right = '0px';
             });
-        }
+        },
         /**
          * Takes a categories definition in JSON and generates the XML
          * string blockly needs to display the toolbox.
@@ -120,7 +191,7 @@
                 this.resize();
             }
             return xml;
-        }
+        },
         /**
          * Remove every block in the workspace
          */
@@ -129,7 +200,7 @@
                 return;
             }
             this.workspace.clear();
-        }
+        },
         /**
          * Update the code on any blockly change and
          * bubble up the event
@@ -137,8 +208,9 @@
          * @return {[type]}   [description]
          */
         onBlocklyChange (e) {
+            this.fire('change', e);
             this.set('code', this.getCode('JavaScript'));
-        }
+        },
         /**
          * Generate a XML string representation of the blocks
          * currently on the workspace
@@ -148,7 +220,7 @@
             let xml = Blockly.Xml.workspaceToDom(this.workspace),
                 xmlString = Blockly.Xml.domToText(xml);
             return xmlString;
-        }
+        },
         /**
          * Compute the current code for a given language
          * @param  {String} type Language to use to compute the code
@@ -160,8 +232,7 @@
             } catch (e) {
                 return '';
             }
-        }
-
+        },
         save () {
             let javascript = this.getCode('JavaScript'),
                 pseudo = this.getCode('Pseudo'),
@@ -173,11 +244,10 @@
             };
             this.set('snapshot', snapshot);
             return Promise.resolve(snapshot);
-        }
-
+        },
         load (snapshot = {}) {
-            // Defer the load until the workspace exists and is visible
-            if (!this.workspace || !this.visible) {
+            // Defer the load until the workspace exists
+            if (!this.workspace) {
                 return this.addEventListener('blockly-ready', this.load.bind(this, snapshot));
             }
             if (!snapshot.blocks) {
@@ -189,8 +259,7 @@
             try {
                 Blockly.Xml.domToWorkspace(this.workspace, xml);
             } catch (e) {} // Ignore loading errors
-        }
-
+        },
         getScreenshot () {
             return new Promise((resolve) => {
                 let svg = this.$$('svg'),
@@ -211,11 +280,9 @@
                 };
                 loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
             });
-        }
-
+        },
         getWorkspace () {
             return this.workspace;
         }
-    }
-    Polymer(KanoBlockly);
+    });
 </script>

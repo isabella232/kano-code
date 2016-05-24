@@ -24,31 +24,27 @@
 
 <script type="text/javascript">
     /* globals Polymer, Kano */
-    class KanoUiButton {
-        get behaviors () {
-            return [Kano.Behaviors.UIBehavior];
-        }
-        beforeRegister () {
-            this.is = 'kano-ui-button';
-        }
+    Polymer({
+        is: 'kano-ui-button',
+        behaviors: [Kano.Behaviors.UIBehavior],
         buttonClicked () {
             this.fire('clicked');
-        }
+        },
         computeButtonStyle () {
             return this.getPartialStyle(['background-color', 'color']);
-        }
+        },
         getLabel () {
             return this.get('model.userProperties.label');
-        }
+        },
         setLabel (label) {
             this.set('model.userProperties.label', label);
-        }
+        },
         setBackgroundColour (color) {
             this.set('model.userStyle.background-color', color);
-        }
+        },
         setColour (color) {
             this.set('model.userStyle.color', color);
-        }
+        },
         renderOnCanvas (ctx, util) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let button = this.$.button,
@@ -69,6 +65,5 @@
                 ctx.restore();
             });
         }
-    }
-    Polymer(KanoUiButton);
+    });
 </script>

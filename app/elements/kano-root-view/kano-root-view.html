@@ -22,44 +22,38 @@
 <script type="text/javascript">
     /* globals Polymer, Kano, Blockly */
 
-    class KanoRootView {
-
-        get behaviors () {
-            return [Kano.Behaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-root-view';
-            this.properties = {
-                parts: {
-                    type: Array,
-                    notify: true
-                },
-                toolbox: {
-                    type: Array
-                },
-                defaultCategories: {
-                    type: Object
-                },
-                code: {
-                    type: Object,
-                    notify: true,
-                    observer: 'codeChanged'
-                }
-            };
-            this.observers = [
-                'computeToolbox(parts)',
-                'computeToolboxDebounced(parts.*)',
-                'computeToolboxDebounced(defaultCategories.*)',
-                'defaultCategoriesLoaded(defaultCategories.events)'
-            ];
-        }
+    Polymer({
+        is: 'kano-root-view',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            parts: {
+                type: Array,
+                notify: true
+            },
+            toolbox: {
+                type: Array
+            },
+            defaultCategories: {
+                type: Object
+            },
+            code: {
+                type: Object,
+                notify: true,
+                observer: 'codeChanged'
+            }
+        },
+        observers: [
+            'computeToolbox(parts)',
+            'computeToolboxDebounced(parts.*)',
+            'computeToolboxDebounced(defaultCategories.*)',
+            'defaultCategoriesLoaded(defaultCategories.events)'
+        ],
         codeChanged () {
             if (!this.code) {
                 return;
             }
             this.$['code-editor'].load(this.code.snapshot);
-        }
+        },
         computeTriggerOptions () {
             let options = [['app starts', 'global.start']];
             this.parts.forEach((part) => {
@@ -68,9 +62,9 @@
                 });
             });
             return options;
-        }
+        },
         saveCode (e) {
-            this.notifyChange('blockly', { event: e });
+            this.notifyChange('blockly', { event: e.detail });
             this.debounce('saveCode', () => {
                 let codeEditor = this.$['code-editor'];
 
@@ -79,10 +73,10 @@
                     this.set('code.snapshot', snapshot);
                 });
             }, 300);
-        }
+        },
         ready () {
             this.toolboxReady = false;
-        }
+        },
         defaultCategoriesLoaded (newVal, oldVal) {
             if (!newVal) {
                 return;
@@ -110,7 +104,7 @@
                 }
             };
             this.$['code-editor'].load(this.code.snapshot);
-        }
+        },
         computeBlocks () {
             let events = [];
             this.parts
@@ -136,7 +130,7 @@
                         events.push(ev);
                     });
                 });
-        }
+        },
         computeToolbox () {
             let categories,
                 toolbox,
@@ -200,14 +194,12 @@
                 this.$['code-editor'].resize();
             }
             this.toolboxReady = true;
-        }
+        },
         computeToolboxDebounced () {
             this.debounce('computeToolbox', () => this.computeToolbox(), 200);
-        }
-
+        },
         getBlocklyWorkspace () {
             return this.$['code-editor'].getWorkspace();
         }
-    }
-    Polymer(KanoRootView);
+    });
 </script>

@@ -24,34 +24,28 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoUiImage {
-
-        get behaviors () {
-            return [Kano.Behaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-image';
-            this.observers = [
-                'loadedChanged(loaded)'
-            ];
-        }
+    Polymer({
+        is: 'kano-ui-image',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        observers: [
+            'loadedChanged(loaded)'
+        ],
         loadedChanged (loaded) {
             // Check if the src is set or empty and toggle the class accordingly
             this.toggleClass('empty', !loaded, this.$.image);
-        }
+        },
         setImage (pic) {
             this.set('model.userProperties.src', pic);
-        }
+        },
         getSource () {
             return this.get('model.userProperties.src');
-        }
+        },
         computeImageStyle () {
             return this.getPartialStyle(['width', 'height']);
-        }
+        },
         tapped () {
             this.fire('clicked');
-        }
+        },
         renderOnCanvas (ctx) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let img,
@@ -92,6 +86,5 @@
                 }
             });
         }
-    }
-    Polymer(KanoUiImage);
+    });
 </script>

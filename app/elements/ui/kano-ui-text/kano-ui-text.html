@@ -17,32 +17,21 @@
 <script type="text/javascript">
     /* globals Polymer, Kano */
 
-    class KanoUiText {
-
-        get behaviors () {
-            return [Kano.Behaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-text';
-        }
-
+    Polymer({
+        is: 'kano-ui-text',
+        behaviors: [Kano.Behaviors.UIBehavior],
         computeLabelStyle () {
             return this.getPartialStyle(['font-size', 'color', 'font-family']);
-        }
-
+        },
         setValue (value) {
             this.set('model.userProperties.text', value);
-        }
-
+        },
         getValue () {
             return this.get('model.userProperties.text');
-        }
-
+        },
         textClicked () {
             this.fire('clicked');
-        }
-
+        },
         renderOnCanvas (ctx) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let text = this.model.userProperties.text,
@@ -57,7 +46,5 @@
                 ctx.restore();
             });
         }
-    }
-    Polymer(KanoUiText);
-
+    });
 </script>
