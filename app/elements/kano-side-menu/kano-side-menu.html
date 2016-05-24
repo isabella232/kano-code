@@ -132,7 +132,7 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, Kano */
 
     class KanoSideMenu {
         beforeRegister () {
@@ -164,7 +164,7 @@
         }
         userChanged (newValue, old) {
             if (newValue) {
-                app.sdk.api.users.get.byId({id: this.user.id}).then((res) => {
+                Kano.MakeApps.sdk.api.users.get.byId({id: this.user.id}).then((res) => {
                     if (res.status == 200) {
                         let xp = res.body.user.profile.xp;
                         this.profile = {

@@ -67,8 +67,7 @@
 </dom-module>
 
 <script>
-    /* globals Polymer */
-    /* globals app */
+    /* globals Polymer, Kano */
     class KanoViewApps{
         beforeRegister () {
             this.is = 'kano-view-apps';
@@ -84,9 +83,9 @@
                 },
                 app: {
                     type: Object,
-                    value: app
+                    value: Kano.MakeApps
                 }
-            }
+            };
 
             this.observers = [
                 "userChanged(user, view)"
@@ -100,12 +99,12 @@
             }
 
             if (this.view === 'my') {
-                app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id})
+                Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
             } else {
-                app.sdk.api.share.list({}, { app_name: 'make-apps' })
+                Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps' })
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
@@ -113,11 +112,11 @@
         }
 
         attached () {
-            let view = app.ctx.params.view,
+            let view = Kano.MakeApps.ctx.params.view,
                 appListHeader = 'Apps';
 
             if (view === 'my') {
-                appListHeader = 'My Apps'
+                appListHeader = 'My Apps';
             } else {
                 view = 'all';
             }

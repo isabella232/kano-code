@@ -1,3 +1,5 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../elements/behaviors/kano-scene-component-behavior.html">
 <link rel="import" href="../../../../elements/kano-power-up-modal/kano-power-up-modal.html">
 <link rel="import" href="../../../../elements/kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../../../../elements/kano-app-editor/kano-app-editor.html">
@@ -109,7 +111,7 @@
         }
 
         attached () {
-            this.set('size', app.config.WORKSPACE_FULL_SIZE);
+            this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
         }
 
         shareApp () {
@@ -117,24 +119,24 @@
         }
 
         computeParts () {
-            return app.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+            return Kano.MakeApps.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
         }
 
         computeCategories () {
             let cats = {};
             this.scene.modules.forEach(id => {
-                cats[id] = app.defaultCategories[id];
+                cats[id] = Kano.MakeApps.defaultCategories[id];
             });
-            cats.events = app.defaultCategories.events;
+            cats.events = Kano.MakeApps.defaultCategories.events;
             return cats;
         }
 
         runningChanged () {
             let editor = this.$.editor;
             if (this.running) {
-                app.components.run(editor.addedParts, editor.code);
+                Kano.MakeApps.components.run(editor.addedParts, editor.code);
             } else {
-                app.components.stop(editor.addedParts, editor.code);
+                Kano.MakeApps.components.stop(editor.addedParts, editor.code);
             }
         }
         saveApp (e) {

@@ -1,10 +1,5 @@
-<script src="../../assets/vendor/google-blockly/blockly_compressed.js"></script>
-<script src="../../assets/vendor/google-blockly/blocks_compressed.js"></script>
-<script src="../../assets/vendor/google-blockly/javascript_compressed.js"></script>
-<script src="../../assets/vendor/google-blockly/msg/js/en.js"></script>
-<script src="./blockly-override.js"></script>
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../behaviors.html">
+<link rel="import" href="./import.html">
 
 <dom-module id="kano-blockly">
     <link rel="import" type="css" href="./kano-blockly.css">
@@ -17,10 +12,6 @@
     /* globals Polymer, Kano, Blockly */
 
     class KanoBlockly {
-
-        get behaviors () {
-            return [Kano.Behaviors.CodeEditorBehavior, Kano.Behaviors.AppEditorBehavior];
-        }
 
         beforeRegister () {
             this.is = 'kano-blockly';
@@ -147,9 +138,6 @@
          */
         onBlocklyChange (e) {
             this.set('code', this.getCode('JavaScript'));
-            this.notifyChange('blockly', {
-                event: e
-            });
         }
         /**
          * Generate a XML string representation of the blocks

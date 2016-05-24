@@ -1,0 +1,111 @@
+<link rel="import" href="./kano-view-behavior.html">
+<script src="./file_utils.js"></script>
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    var SharingBehavior = {
+
+       properties: {
+           shareInfo: {
+               type: Object,
+               value: function () {
+                   return {};
+               },
+               notify: true
+           }
+       },
+
+       shareApp () {
+           // Generates the standalone component
+           let savedApp = Kano.MakeApps.components.generateStandaloneComponent(
+                   this.shareInfo.parts,
+                   this.shareInfo.background,
+                   this.shareInfo.size,
+                   this.shareInfo.code
+               ),
+               attachment = new Blob([savedApp], { type: 'text/html' }),
+               cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+               workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+
+           attachment.filename = 'code.html';
+           cover.filename = 'cover.png';
+           workspaceInfo.filename = 'workspace_info.json';
+
+           //Share by calling the API
+           Kano.MakeApps.sdk.api.share.post({
+               app: 'make-apps',
+               title: this.shareInfo.title,
+               description: this.shareInfo.description,
+               files: {
+                   attachment: attachment,
+                   cover: cover,
+                   workspace_info: workspaceInfo
+               }
+           }).then((res) => {
+               if (res.status == 200) {
+                   this.set('shareInfo.page', 2);
+                   this.set('shareInfo.id', res.body.item.id);
+               } else {
+                   this.set('shareInfo.page', 3);
+               }
+           });
+       },
+       /**
+        * Opens the sharing modal and share the app
+        */
+       share (e) {
+           let shareInfo = {
+                   image: e.detail.cover,
+                   workspaceInfo: e.detail.workspaceInfo,
+                   page: 0,
+                   title: '',
+                   description: '',
+                   id: null,
+                   background: e.detail.background,
+                   parts: e.detail.parts,
+                   code: e.detail.code,
+                   size: e.detail.size,
+               };
+
+           this.set('shareInfo', shareInfo);
+           this.modal.open();
+       },
+
+       confirmShare () {
+           if (!Kano.MakeApps.sdk.auth.getToken()) {
+               return this.createAuthModal();
+           }
+           this.set('shareInfo.page', 1);
+           this.shareApp();
+       },
+
+       dismissShare () {
+           this.modal.close();
+       },
+
+       onLoginSuccess (e) {
+           this.fire('login', e.detail);
+           this.authModal.close();
+           this.removeChild(this.authModal);
+           this.authModal = null;
+           this.confirmShare();
+       },
+
+       createAuthModal () {
+           let auth = this.create('kano-auth');
+           this.authModal = this.create('paper-dialog', {
+               withBackdrop: true
+           });
+           this.authModal.appendChild(auth);
+           auth.addEventListener('login', (e) => this.onLoginSuccess(e));
+           this.appendChild(this.authModal);
+           this.authModal.open();
+       }
+
+   };
+
+   window.Kano.Behaviors.SharingBehavior = [window.Kano.Behaviors.ViewBehavior, SharingBehavior];
+</script>

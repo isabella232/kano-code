@@ -21,6 +21,7 @@
             @apply(--layout-vertical);
             @apply(--layout-center);
             margin-bottom: 20px;
+            z-index: 0;
         }
         @media screen and (min-width: 768px) {
             .block {
@@ -89,7 +90,7 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, app */
+    /* globals Polymer */
     class KanoAppList {
 
         get behaviors () {
@@ -125,17 +126,6 @@
             if (this.view === 'my') {
                 this.isMyApps = true;
             }
-
-            this.playUrl =  app.config.PLAY_URL;
-        }
-
-        getMyApps () {
-            let userId = this.user ? this.user.id : null;
-
-            if (this.view === 'my' && userId !== null) {
-                this.getApps(userId);
-            }
-
         }
     }
 

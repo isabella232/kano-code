@@ -1,13 +1,16 @@
-<script src="../../scripts/app.js"></script>
 <script src="../../scripts/util/client.js"></script>
 
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
+
+<link rel="import" href="../app.html">
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-style/kano-style.html">
 <link rel="import" href="../kano-auth/kano-auth.html">
+<link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <!--
 `kano-app` provides the whole Make apps app.
 Example:
@@ -17,12 +20,22 @@ Example:
 -->
 <dom-module id="kano-app">
     <style>
-    :host, :host .main {
-        display: block;
-        width: 100%;
-        height: 100%;
-        @apply(--layout-vertical);
+    :host {
         font-family: var(--font-body);
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    :host paper-drawer-panel {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        --paper-drawer-panel-main-container: {
+            @apply(--layout-flex);
+        };
+    }
+    :host kano-routing {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
         overflow: auto;
     }
     :host button,
@@ -73,9 +86,6 @@ Example:
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
-    :host kano-routing {
-        @apply(--layout-flex);
-    }
     :host .auth-modal {
         border-radius: 5px;
     }
@@ -98,9 +108,7 @@ Example:
         </a>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
             <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" editor="{{editor}}"></kano-side-menu>
-            <div class="main" main>
-                <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="onLogin"></kano-routing>
-            </div>
+            <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="onLogin" main></kano-routing>
         </paper-drawer-panel>
         <paper-dialog id="auth-modal" class="auth-modal" modal>
             <kano-auth on-login="onLogin" id="auth"></kano-auth>
@@ -108,7 +116,7 @@ Example:
     </template>
 </dom-module>
 <script>
-    /* globals Polymer, app, ClientUtil, page */
+    /* globals Polymer, Kano, ClientUtil, page */
 
     class KanoApp {
         beforeRegister () {
@@ -118,9 +126,6 @@ Example:
                     type: Object
                 }
             };
-            this.observers = [
-                'ctxChanged(ctx.*)'
-            ];
         }
         pageChanged () {
             // Trigger a resize event. iron-pages uses the `display` css property to hide pages
@@ -129,27 +134,21 @@ Example:
             var ev = new Event('resize');
             window.dispatchEvent(ev);
         }
-        /**
-         * When the router changes the ctx, we update it in the app
-         */
-        ctxChanged () {
-            app.ctx = this.ctx;
-        }
         isUserLoggedIn () {
             return !!this.user;
         }
         ready () {
             this.editor = null;
             let initialiseSDK = () => {
-                app.sdk.auth.initSession((err, user) => {
+                Kano.MakeApps.sdk.auth.initSession((err, user) => {
                     if (user) {
                         this.set('user', user);
                     }
                 });
             };
-            if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
+            if (Kano.MakeApps.config.TARGET === 'osonline' && ClientUtil.isPi()) {
 
-                fetch(window.app.config.TOKEN_ENDPOINT)
+                fetch(Kano.MakeApps.config.TOKEN_ENDPOINT)
                 .then((response) => {
                     if (response.ok) {
                         // The API has responded, need to set the token
@@ -158,7 +157,7 @@ Example:
                 })
                 .then((retObj) => {
                     if (retObj.hasOwnProperty('token')) {
-                        app.sdk.auth.setToken(retObj.token);
+                        Kano.MakeApps.sdk.auth.setToken(retObj.token);
                     }
 
                     initialiseSDK();
@@ -174,12 +173,12 @@ Example:
         }
         logout (e) {
             e.preventDefault();
-            app.sdk.auth.setToken(null);
+            Kano.MakeApps.sdk.auth.setToken(null);
             this.user = null;
             page.redirect("/");
             this.$.drawer.closeDrawer();
             this.$.auth.reset();
-            app.progress.reset();
+            Kano.MakeApps.progress.reset();
         }
         login () {
             let modal = this.$['auth-modal'];
@@ -187,7 +186,7 @@ Example:
         }
         onLogin (e) {
             let data = e.detail;
-            app.sdk.auth.setToken(data.token);
+            Kano.MakeApps.sdk.auth.setToken(data.token);
             this.user = data.user;
             this.$['auth-modal'].close();
         }

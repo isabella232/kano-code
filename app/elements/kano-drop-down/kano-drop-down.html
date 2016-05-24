@@ -214,9 +214,10 @@
         </div>
     </template>
     <script>
+        /* globals Polymer */
         class KanoDropDown {
             beforeRegister () {
-                this.is = 'kano-drop-down'
+                this.is = 'kano-drop-down';
                 this.properties = {
                     items: {
                         type: Object,
@@ -224,18 +225,19 @@
                     },
                     unread: Number,
                     type: String
-                }
-                this.hasNotifications = (items, type) => {
-                    return type === 'notifications' && items.length;
-                }
+                };
+            }
+
+            hasNotifications (items, type) {
+                return type === 'notifications' && items.length;
             }
 
             handleClick (ev) {
                 let item = ev.model.get('item');
 
                 if (!item.read && item.category === 'notification') {
-                    ev.target.classList.remove('notification-unread')
-                    ev.target.classList.add('notification-read')
+                    ev.target.classList.remove('notification-unread');
+                    ev.target.classList.add('notification-read');
                     this.fire('notification:read', {id: item.id });
                 }
 

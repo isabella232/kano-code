@@ -1,8 +1,8 @@
-/* globals Polymer, Kano, app, page */
+/* globals Polymer, Kano, page */
 class KanoViewStory {
 
     get behaviors () {
-        return [Kano.Behaviors.ViewBehavior, Kano.Behaviors.SharingBehavior];
+        return [Kano.Behaviors.SharingBehavior];
     }
 
     beforeRegister () {
@@ -18,14 +18,16 @@ class KanoViewStory {
                 observer: 'selectedChanged'
             }
         };
+        this.listeners = {
+            'blockly-ready': '_registerBlockly'
+        };
     }
     attached () {
         this.modal = this.$['share-modal'];
-        app.registerBlockly(window.Blockly);
-        app.stories.getById(this.context.params.id)
+        Kano.MakeApps.stories.getById(this.context.params.id)
             .then((story) => {
                 if (typeof story.next === 'string') {
-                    return app.stories.getById(story.next)
+                    return Kano.MakeApps.stories.getById(story.next)
                         .then((nextStory) => {
                             story.next = nextStory;
                             return story;
@@ -35,9 +37,12 @@ class KanoViewStory {
             })
             .then((story) => {
                 this.story = story;
-                return app.progress.loadProgress(story.progress.group);
+                return Kano.MakeApps.progress.loadProgress(story.progress.group);
             })
             .then((progress) => this.updateExtensions(progress));
+    }
+    _registerBlockly() {
+        Kano.MakeApps.blockly.register(window.Blockly);
     }
     updateExtensions (progress) {
         let story = this.story,
@@ -62,7 +67,7 @@ class KanoViewStory {
             //story completed!!!
             let progress = this.story.progress,
                 extension = this.story.extension ? this.story.id : null;
-            app.progress.updateProgress(progress.group, progress.storyNo, extension)
+            Kano.MakeApps.progress.updateProgress(progress.group, progress.storyNo, extension)
                 .then((progress) => this.updateExtensions(progress));
         }
     }
@@ -70,7 +75,7 @@ class KanoViewStory {
         if (!this.story) {
             return;
         }
-        app.stories.getSceneByIndex(this.story, this.selected)
+        Kano.MakeApps.stories.getSceneByIndex(this.story, this.selected)
             .then((scene) => {
                 this.set('scene', scene);
             });

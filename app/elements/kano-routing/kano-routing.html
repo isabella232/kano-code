@@ -7,17 +7,18 @@
     <style>
       :host {
           display: block;
+          @apply(--layout-vertical);
       }
       :host iron-lazy-pages {
-          width: 100%;
-          height: 100%;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
       }
       :host iron-lazy-pages>* {
-          width: 100%;
-          height: 100%;
+          @apply(--layout-flex);
+          overflow: auto;
       }
     </style>
-    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" restamp hide-immediately>
+    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" restamp>
         <template is="iron-lazy-page" name="home" path="/views/kano-view-home/kano-view-home.html">
             <kano-view-home context="[[context]]" user="{{user}}"></kano-view-home>
         </template>
@@ -43,12 +44,6 @@
           user: {
               type: Object
           },
-          attributes: {
-              type: Object,
-              value: () => {
-                  return {};
-              }
-          },
           page: {
               type: String,
               reflectToAttribute: true
@@ -58,13 +53,13 @@
        * Initialize the views
        */
       ready () {
-          page('/',             this.partial('home'));
-          page('/apps',         this.partial('apps'));
-          page('/apps/:view',   this.partial('apps'));
-          page('/make',         this.partial('editor'));
-          page('/preview',      this.partial('preview'));
-          page('/story/:id',    this.partial('story'));
-          page('/remix/:slug',  this.partial('editor'));
+          page('/',             this._showPageThunk('home'));
+          page('/apps',         this._showPageThunk('apps'));
+          page('/apps/:view',   this._showPageThunk('apps'));
+          page('/make',         this._showPageThunk('editor'));
+          page('/preview',      this._showPageThunk('preview'));
+          page('/story/:id',    this._showPageThunk('story'));
+          page('/remix/:slug',  this._showPageThunk('editor'));
           // Used for debugging apps export
           //page('/preview', this.partial('kano-view-preview'));
           page('*', () => {});
@@ -75,8 +70,9 @@
        * @param  {String} name  Name of the view component to load
        * @return {Function}     A function ready to be used in page.js
        */
-      partial (name) {
+      _showPageThunk (name) {
           return (ctx) => {
+              // Set the page to null, before the real value to force a restamp of the view
               this.page = null;
               this.page = name;
               this.context = ctx;

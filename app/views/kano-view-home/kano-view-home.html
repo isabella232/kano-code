@@ -1,4 +1,4 @@
-<link rel="import" href="../../elements/behaviors.html">
+<link rel="import" href="../../elements/behaviors/kano-view-behavior.html">
 <link rel="import" href="../../elements/kano-header/kano-header.html">
 <link rel="import" href="../../elements/kano-projects/kano-projects.html">
 <link rel="import" href="../../elements/kano-app-list/kano-app-list.html">
@@ -150,7 +150,7 @@
 </dom-module>
 
 <script>
-    /* globals Polymer, app, Kano */
+    /* globals Polymer, Kano */
     Polymer({
         is: 'kano-view-home',
         behaviors: [Kano.Behaviors.ViewBehavior],
@@ -161,7 +161,7 @@
             },
             app: {
                 type: Object,
-                value: app
+                value: Kano.MakeApps
             }
         },
         observers: [
@@ -172,19 +172,19 @@
                 return null;
             }
 
-            app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
                 .then((apps) => this.set('user_apps', apps.body.entries));
         },
 
         ready () {
-            this.PLAY_URL = app.config.PLAY_URL;
+            this.PLAY_URL = Kano.MakeApps.config.PLAY_URL;
             this.loadingProjects = true;
-            app.stories.list()
+            Kano.MakeApps.stories.list()
                 .then((stories) => {
                     // Go through all the stories and update the `locked` key
                     let promises = stories.map((story) => {
                         // Load the story's progress group
-                        return app.progress.loadProgress(story.progress.group)
+                        return Kano.MakeApps.progress.loadProgress(story.progress.group)
                             .then((progress) => {
                                 // `storyNo` is the last completed story number of the user. If the story number is over
                                 // that number plus one, the story is locked
@@ -200,7 +200,7 @@
                     this.loadingProjects = false;
                     this.set('projects', projects);
                 });
-            app.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });

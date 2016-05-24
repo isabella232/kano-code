@@ -98,10 +98,14 @@ Polymer({
         'selectedPartChanged(selected.*)',
         'backgroundChanged(background.*)',
         'updateColors(addedParts.splices)',
-        'updateColors(defaultCategories.*)'
+        'updateColors(defaultCategories.*)',
+        '_codeChanged(code.*)'
     ],
     listeners: {
         'previous': 'clearEditorStyle'
+    },
+    _codeChanged () {
+        this.code = this._formatCode(this.code);
     },
     toggleMenu () {
         this.fire('toggle-menu');
@@ -240,14 +244,20 @@ Polymer({
             part = Part.create(savedPart, this.wsSize);
             return part;
         });
-        let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
-        if (savedApp.code && savedApp.code.snapshot && emptyBlocks.indexOf(savedApp.code.snapshot.blocks) !== -1) {
-            savedApp.code.snapshot.blocks = DEFAULT_BLOCKS;
-        }
+        savedApp.code = this._formatCode(savedApp.code);
         this.set('addedParts', addedParts);
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
         this.updateColors();
+    },
+    _formatCode (code) {
+        let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
+        code = code || {};
+        code.snapshot = code.snapshot || {};
+        if (code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
+            code.snapshot.blocks = DEFAULT_BLOCKS;
+        }
+        return code;
     },
     reset () {
         this.set('addedParts', []);
