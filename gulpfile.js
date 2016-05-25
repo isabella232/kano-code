@@ -8,6 +8,7 @@ let gulp = require('gulp'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
     getImports = require('./tasks/get-imports'),
+    getCacheable = require('./tasks/get-cacheable'),
     es = require('event-stream'),
     htmlAutoprefixer = require("html-autoprefixer"),
     bundler,
@@ -172,16 +173,24 @@ gulp.task('copy', ['copy-index'], () => {
 });
 
 gulp.task('copy-index', () => {
-    return gulp.src(['app/index.html', 'app/scripts/index.js'], { base: 'app' })
+    return gulp.src(['app/index.html', 'app/scripts/index.js', 'app/assets/vendor/cache-polyfill/cache-polyfill.js'], { base: 'app' })
         .pipe($.if('index.html', $.htmlReplace(getHtmlReplaceOptions())))
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('assets', ['scenes'], () => {
+gulp.task('blockly-media', () => {
+    gulp.src([
+        'app/assets/vendor/google-blockly/media/**/*'
+    ], { base: 'app' })
+        .pipe(gulp.dest('www'));
+});
+
+gulp.task('assets', ['scenes', 'blockly-media'], () => {
     gulp.src([
         'app/assets/**/*',
         'app/manifest.json',
-        '!app/assets/stories/**/*.{js,html}'
+        '!app/assets/stories/**/*.{js,html}',
+        '!app/assets/vendor/**/*'
     ], { base: 'app' })
         .pipe(gulp.dest('www'));
 });
@@ -235,7 +244,15 @@ gulp.task('compress', () => {
         .pipe(gulp.dest('www'));
 });
 
-gulp.task('build', ['views', 'js', 'sass', 'assets', 'bundles']);
+function updateSW() {
+    getCacheable().then((paths) => {
+        gulp.src('app/sw.js')
+            .pipe($.replace('[/* build:cacheable */]', JSON.stringify(paths)))
+            .pipe(gulp.dest('www'));
+    });
+}
+
+gulp.task('build', ['views', 'js', 'sass', 'assets', 'bundles'], updateSW);
 gulp.task('default', ['build']);
 
 /* DEVELOPMENT BUILD */
@@ -294,6 +311,8 @@ gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
             'app/assets/vendor/google-blockly/blocks_compressed.js',
             'app/assets/vendor/google-blockly/javascript_compressed.js',
             'app/assets/vendor/google-blockly/msg/js/en.js',
+            'app/assets/vendor/google-blockly/media/**/*',
+            'app/assets/vendor/cache-polyfill/cache-polyfill.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/index.js'
@@ -307,11 +326,13 @@ gulp.task('polyfill', () => {
         .pipe(gulp.dest('www/assets/vendor/webcomponentsjs/'));
 });
 
-gulp.task('assets-dev', ['scenes-dev'], () => {
+gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], () => {
     gulp.src([
         'app/assets/**/*',
+        'app/assets/**/*',
         'app/manifest.json',
-        '!app/assets/stories/**/*.{js,html}'
+        '!app/assets/stories/**/*.{js,html}',
+        '!app/assets/vendor/**/*'
     ], { base: 'app' })
         .pipe($.connect.reload())
         .pipe(gulp.dest('www'));
@@ -331,7 +352,8 @@ gulp.task('watch', () => {
         gulp.watch(['app/elements/**/*'], ['elements-dev']),
         gulp.watch(['app/views/**/*'], ['views-dev']),
         gulp.watch(['app/style/**/*'], ['sass-dev']),
-        gulp.watch(['app/assets/stories/**/*'], ['assets-dev'])
+        gulp.watch(['app/assets/stories/**/*'], ['assets-dev']),
+        gulp.watch(['app/sw.js'], ['sw'])
     ];
     watchers.forEach((watcher) => {
         watcher.on('change', function (event) {
@@ -361,5 +383,7 @@ gulp.task('copy-doc', () => {
         .pipe(gulp.dest('www-doc'));
 });
 
+gulp.task('sw', updateSW);
+
 gulp.task('dev', ['watch', 'serve']);
-gulp.task('build-dev', ['sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev']);
+gulp.task('build-dev', ['sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev'], updateSW);
