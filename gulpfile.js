@@ -12,7 +12,8 @@ let gulp = require('gulp'),
     es = require('event-stream'),
     htmlAutoprefixer = require("html-autoprefixer"),
     bundler,
-    utils;
+    utils,
+    env = 'prod';
 
 require('web-component-tester').gulp.init(gulp, ['copy-test', 'build-dev']);
 
@@ -108,12 +109,14 @@ gulp.task('serve-prod', () => {
 });
 
 function getHtmlReplaceOptions() {
+
     let mapping = {
         config: `<script type="text/javascript">
                 ${utils.getEnvVars()}
             </script>`,
         base: `<base href="/" />`
     };
+
     if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
         mapping.style = `<style>
             .animatable {
@@ -122,6 +125,17 @@ function getHtmlReplaceOptions() {
             }
         </style>`;
     }
+
+    if (env === 'prod') {
+        mapping.gtm = `<noscript>
+            <iframe src='//www.googletagmanager.com/ns.html?id=GTM-WMGKFR' height='0' width='0' style='display: none; visibility: hidden;'></iframe>
+        </noscript>
+        <script type='text/javascript'>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-WMGKFR');
+        </script>`;
+    }
+
     return mapping;
 }
 
@@ -149,7 +163,8 @@ gulp.task('copy', ['copy-index'], () => {
             'app/assets/vendor/google-blockly/javascript_compressed.js',
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
-            'app/scripts/util/client.js'
+            'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
 });
@@ -339,6 +354,7 @@ gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
             'app/scripts/index.js'
         ], { base: 'app'})
         .pipe($.connect.reload())
@@ -369,6 +385,7 @@ gulp.task('watch', () => {
             'app/bower_components/**/*',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
             'app/scripts/index.js'
         ], ['copy-dev']),
         gulp.watch(['app/elements/**/*'], ['elements-dev']),
@@ -404,5 +421,9 @@ gulp.task('copy-doc', () => {
         .pipe(gulp.dest('www-doc'));
 });
 
+gulp.task('configure-dev', () => {
+    env = 'dev';
+});
+
 gulp.task('dev', ['watch', 'serve']);
-gulp.task('build-dev', ['sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev']);
+gulp.task('build-dev', ['configure-dev', 'sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev']);

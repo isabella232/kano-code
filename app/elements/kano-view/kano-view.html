@@ -1,3 +1,5 @@
+<script src="../../scripts/util/tracking.js"></script>
+
 <dom-module id="kano-view">
     <style>
     :host {
@@ -40,7 +42,8 @@
             };
             this.observers = [
                 'viewChanged(viewName)',
-                'attributesChanged(attributes.*)'
+                'attributesChanged(attributes.*)',
+                'isReady(ready)'
             ];
         }
         getComponent () {
@@ -75,6 +78,7 @@
                     console.log(e.stack);
                     this.fire('kano-error', new Error(`Could not load view ${this.viewName}`));
                 });
+
             this.set('ready', false);
         }
         reloadView () {
@@ -93,6 +97,12 @@
             this.appendChild(component);
             this.viewComponent = component;
             this.set('ready', true);
+        }
+        isReady () {
+            // Track only root view
+            if (this.get('ready') && this.location === 'views') {
+                trackPage();
+            }
         }
         /**
          * Import the view component
