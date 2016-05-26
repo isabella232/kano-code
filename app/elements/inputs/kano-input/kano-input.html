@@ -23,23 +23,17 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoInput {
-
-        get behaviors () {
-            return [KanoBehaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input';
-            this.observers = [
-                'typeChanged(type)',
-                'valueChanged(value)',
-            ];
-        }
-        typeChanged () {
-            let input = document.createElement(this.getTagName());
+    Polymer({
+        is: 'kano-input',
+        behaviors: [Kano.Behaviors.Input],
+        observers: [
+            '_typeChanged(type)',
+            '_valueChanged(value)',
+        ],
+        _typeChanged () {
+            let input = document.createElement(this._getTagName());
             input.value = this.value;
             input.label = this.label;
             input.min = this.min;
@@ -55,15 +49,14 @@
                 this.removeChild(this.firstChild);
             }
             this.appendChild(this.input);
-        }
-        valueChanged () {
+        },
+        _valueChanged () {
             if (this.input) {
                 this.input.value = this.value;
             }
-        }
-        getTagName () {
+        },
+        _getTagName () {
             return `kano-input-${this.type}`;
         }
-    }
-    Polymer(KanoInput);
+    });
 </script>

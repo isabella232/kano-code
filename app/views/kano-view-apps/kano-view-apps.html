@@ -1,3 +1,4 @@
+<link rel="import" href="../../elements/home-bundle.html">
 <dom-module id="kano-view-apps">
     <style>
         :host {
@@ -56,7 +57,6 @@
         <a class="news-bar style-scope kano-app" href="https://insights.hotjar.com/s?siteId=119134&amp;surveyId=9857" target="_blank">
             Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
         </a>
-        <style include="kano-style"></style>
         <div class="container">
             <div class="logo-holder"><iron-image src="../../assets/logo.png" preload></iron-image></div>
             <a href="/" class="back-to-home">&lt; Home</a>
@@ -67,57 +67,47 @@
 </dom-module>
 
 <script>
-    /* globals Polymer */
-    /* globals app */
-    class KanoViewApps{
-        beforeRegister () {
-            this.is = 'kano-view-apps';
-            this.properties = {
-                view: {
-                    type: String
-                },
-                appListHeader: {
-                    type: String
-                },
-                user: {
-                    type: Object
-                },
-                app: {
-                    type: Object,
-                    value: app
-                }
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-apps',
+        properties: {
+            view: {
+                type: String
+            },
+            appListHeader: {
+                type: String
+            },
+            app: {
+                type: Object,
+                value: Kano.MakeApps
             }
-
-            this.observers = [
-                "userChanged(user, view)"
-            ];
-
-        }
-
-        userChanged () {
+        },
+        observers: [
+            "_userChanged(user, view)"
+        ],
+        _userChanged () {
             if (!this.user || !this.view) {
                 return null;
             }
 
             if (this.view === 'my') {
-                app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id})
+                Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
             } else {
-                app.sdk.api.share.list({}, { app_name: 'make-apps' })
+                Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps' })
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
             }
-        }
-
+        },
         attached () {
-            let view = app.ctx.params.view,
+            let view = this.context.params.view,
                 appListHeader = 'Apps';
 
             if (view === 'my') {
-                appListHeader = 'My Apps'
+                appListHeader = 'My Apps';
             } else {
                 view = 'all';
             }
@@ -125,7 +115,5 @@
             this.appListHeader = appListHeader;
             this.view = view;
         }
-    }
-
-    Polymer(KanoViewApps);
+    });
 </script>

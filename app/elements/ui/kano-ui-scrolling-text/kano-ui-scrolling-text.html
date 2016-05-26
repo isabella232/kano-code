@@ -18,7 +18,6 @@
     <template>
         <div class="container" style$="[[computeContainerStyle(model.userStyle.*, isRunning)]]">
             <span id="label"
-                on-tap="textClicked"
                 style$="[[computeLabelStyle(model.userStyle.*)]]">
                 {{model.userProperties.text}}
             </span>
@@ -27,46 +26,38 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoUiScrollingText {
-
-        get behaviors () {
-            return [KanoBehaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-scrolling-text';
+    Polymer({
+        is: 'kano-ui-scrolling-text',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        ready () {
             this.stack = [];
             this.scrolling = false;
-        }
-
+        },
         stop () {
-            KanoBehaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
             this.stack = [];
             clearTimeout(this.nextTimeout);
             this.scrolling = false;
-        }
-
+        },
         computeLabelStyle () {
             let style = this.getPartialStyle(['color', 'font-family']);
             style += `font-size: ${this.model.userStyle.height};`;
             style +=  `line-height: calc(${this.model.userStyle.height} * 0.8);`;
             return style;
-        }
-
+        },
         computeContainerStyle () {
             let style = this.getPartialStyle(['width', 'height']);
             style += this.isRunning ? '' : 'border: 1px dashed lightgrey';
             return style;
-        }
-
+        },
         scroll (value) {
             this.stack.push(value);
             if (!this.scrolling) {
                 this.scrollNext();
             }
-        }
+        },
         scrollNext () {
             let value = this.stack.shift(),
                 rect,
@@ -88,9 +79,9 @@
             this.nextTimeout = setTimeout(() => {
                 this.scrollNext();
             }, duration);
-        }
+        },
         renderOnCanvas (ctx, util) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let text = this.model.userProperties.text,
                     color = this.model.userStyle.color,
                     label = this.$.label;
@@ -104,10 +95,5 @@
                 ctx.restore();
             });
         }
-        textClicked () {
-
-        }
-    }
-    Polymer(KanoUiScrollingText);
-
+    });
 </script>

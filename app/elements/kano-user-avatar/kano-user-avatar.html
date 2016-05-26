@@ -61,9 +61,10 @@
         <kano-drop-down items="{{items}}"></kano-drop-down>
     </template>
     <script>
+        /* globals Polymer */
         class KanoUserAvatar {
             beforeRegister () {
-                this.is = 'kano-user-avatar'
+                this.is = 'kano-user-avatar';
                 this.properties = {
                     user: {
                         type: Object,
@@ -74,7 +75,7 @@
                         type: Number,
                         value: 0
                     }
-                }
+                };
                 this.levelsMap = {
                     "1": 0,
                     "2": 150,
@@ -140,8 +141,8 @@
 
             this.app.sdk.api.users.get.byUsername({ username: this.user.username })
                 .then((res, d) => {
-                    profile = res.body.user.profile;
-                    progressPercent = this.getPercent(profile.xp) / 100;
+                    let profile = res.body.user.profile;
+                    let progressPercent = this.getPercent(profile.xp) / 100;
                     this.level = parseInt(this.calculate(profile.xp), 10) || 0;
 
                     this.progress = progressPercent;
@@ -160,16 +161,16 @@
                             name: 'Log out',
                             logout: true
                         }
-                    ]
+                    ];
 
                     if (this.user.admin_level > 0) {
                         items.push({
                             name: 'Admin',
                             url: `${this.app.config.WORLD_URL}/admin`
-                        })
+                        });
                     }
 
-                    this.set('items', items)
+                    this.set('items', items);
 
                 });
 
@@ -180,7 +181,7 @@
         }
 
         attached () {
-            this.set('avatarSrc', this.user.avatar.urls.circle || "/assets/avatar/judoka_1_white_circular.png");    
+            this.set('avatarSrc', this.user.avatar.urls.circle || "/assets/avatar/judoka_1_white_circular.png");
         }
     }
 

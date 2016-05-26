@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../behaviors/kano-animatable-behavior.html">
 <script src="../../scripts/util/dom.js"></script>
 <dom-module id="kano-tooltip">
     <style>
@@ -156,39 +157,33 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoTooltip {
-
-        get behaviors () {
-            return [KanoBehaviors.AnimatableBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-tooltip';
-            this.properties = {
-                position: {
-                    type: String,
-                    value: 'top',
-                    reflectToAttribute: true
-                },
-                target: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'updatePosition(target.*, position)'
-            ];
-        }
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-tooltip',
+        behaviors: [Kano.Behaviors.AnimatableBehavior],
+        properties: {
+            position: {
+                type: String,
+                value: 'top',
+                reflectToAttribute: true
+            },
+            target: {
+                type: Object
+            }
+        },
+        observers: [
+            'updatePosition(target.*, position)'
+        ],
         attached () {
             let observer = new MutationObserver(() => {
                 this.updatePosition();
             });
             observer.observe(this, { childList: true, subtree: true, characterData: true });
             window.addEventListener('resize', this.updatePosition.bind(this));
-        }
+        },
         detached () {
             window.removeEventListener('resize', this.updatePosition.bind(this));
-        }
+        },
         updatePosition () {
             this.debounce('updatePosition', () => {
                 let target = this.target,
@@ -241,7 +236,7 @@
                 style.opacity = '1';
                 this.alreadyAnimated = true;
             }, 10);
-        }
+        },
         close () {
             let style = this.style;
 
@@ -258,7 +253,7 @@
             style.transition = 'all cubic-bezier(0.2, 0, 0.13, 1.5) 150ms';
             style.transform = 'scale(0.5)';
             style.opacity = '0';
-        }
+        },
         onCloseAnimationEnd () {
             let style = this.style;
             if (!this.noAnimations) {
@@ -268,6 +263,5 @@
             style.visibility = 'hidden';
             style.transform = 'scale(1)';
         }
-    }
-    Polymer(KanoTooltip);
+    });
 </script>

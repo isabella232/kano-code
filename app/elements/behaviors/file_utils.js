@@ -1,10 +1,14 @@
+/* globals unescape */
+
+window.FileUtils = window.FileUtils || {};
+
 /*
  * Convert base64/URLEncoded data component to raw binary data held in a string
  *
  * @param {String} dataURI
  * @return Blob
  */
-function dataURItoBlob(dataURI) {
+window.FileUtils.dataURItoBlob = function dataURItoBlob(dataURI) {
     let byteString,
         mimeString,
         ia,
@@ -26,6 +30,4 @@ function dataURItoBlob(dataURI) {
     }
 
     return new Blob([ia], { type: mimeString });
-}
-
-export default { dataURItoBlob };
+};

@@ -94,29 +94,23 @@
 
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoProjects {
 
-        get behaviors () {
-            return [
-                Polymer.NeonAnimationRunnerBehavior,
-                Polymer.NeonSharedElementAnimatableBehavior
-            ];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-projects';
-            this.properties = {
-                projects: {
-                    type: Array,
-                    value: []
-                },
-                loading: {
-                    type: Boolean,
-                    value: false
-                }
-            };
-        }
-
+    Polymer({
+        is: 'kano-projects',
+        behaviors: [
+            Polymer.NeonAnimationRunnerBehavior,
+            Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+            projects: {
+                type: Array,
+                value: []
+            },
+            loading: {
+                type: Boolean,
+                value: false
+            }
+        },
         computeProjectClass (project) {
             let classes = [];
             if (!project.available) {
@@ -126,20 +120,17 @@
                 classes.push('locked');
             }
             return classes.join(' ');
-        }
-
+        },
         computeEmptyMessage (projects, loading) {
             if (loading) {
                 return 'Loading stories...';
             } else if (!projects || !projects.length) {
                 return 'No stories...for now';
             }
-        }
-
+        },
         isEmptyMessageHidden (projects, loading) {
             return projects && projects.length || !loading;
-        }
-
+        },
         updateAnimation () {
             let nodes = Polymer.dom(this.root).querySelectorAll('.block');
             this.animationConfig = {
@@ -155,7 +146,5 @@
             };
             this.playAnimation('entry');
         }
-    }
-
-    Polymer(KanoProjects);
+    });
 </script>

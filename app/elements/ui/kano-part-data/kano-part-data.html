@@ -29,7 +29,6 @@
         <div class="part">
             <kano-data-visualizer for="[[model.id]]" buffer-length="100" hide-progress loading="{{loading}}"></kano-data-visualizer>
             <kano-ui-item model="[[model]]"
-                on-tap="partTapped"
                 size="50"
                 id$="part-[[model.id]]"
                 colour="[[model.colour]]"
@@ -39,29 +38,23 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoModules, KanoBehaviors */
+    /* globals Polymer, KanoModules, Kano */
 
-    class KanoPartData {
-
-        get behaviors () {
-            return [KanoBehaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-part-data';
-            this.properties = {
-                loading: {
-                    type: Boolean
-                },
-                progressValue: {
-                    type: Number,
-                    computed: 'computeProgress(loading)'
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-part-data',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        properties: {
+            loading: {
+                type: Boolean
+            },
+            progressValue: {
+                type: Number,
+                computed: 'computeProgress(loading)'
+            }
+        },
         computeProgress (loading) {
             return loading ? 1 : 0;
-        }
+        },
         start () {
             let model = this.model;
             if (model.refreshEnabled) {
@@ -69,7 +62,7 @@
             }
             // Call a refresh at the begining
             this.refresh();
-        }
+        },
         stop () {
             clearInterval(this.refreshInterval);
             Object.keys(this.listeners).forEach((name) => {
@@ -78,25 +71,23 @@
                 });
             });
             this.listeners = {};
-        }
+        },
         refresh () {
             return KanoModules.data.methods.generateRequest(this.model.id, this.model.method, this.model.config)
                     .then((data) => {
                         this.set('model.data', data);
                         this.fire('update');
                     });
-        }
+        },
         setConfig (name, value) {
             this.set(`model.config.${name}`, value);
             this.refresh();
-        }
+        },
         getValue (path) {
             return this.get(`model.data.${path}`) || this.get(`model.config.${path}`);
-        }
+        },
         getData () {
             return this.get('model.data');
         }
-        partTapped () {}
-    }
-    Polymer(KanoPartData);
+    });
 </script>

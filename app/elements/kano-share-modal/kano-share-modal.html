@@ -154,51 +154,41 @@
 </dom-module>
 
 <script>
-    /* globals Polymer, app */
-    class KanoShareModal {
-        beforeRegister () {
-            this.is = 'kano-share-modal';
-            this.properties = {
-                shareInfo: {
-                    type: Object,
-                    value: function () {
-                        return {};
-                    },
-                    notify: true
-                }
-            };
-        }
-
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-share-modal',
+        properties: {
+            shareInfo: {
+                type: Object,
+                value: function () {
+                    return {};
+                },
+                notify: true
+            }
+        },
         confirm () {
             this.fire('confirm');
-        }
-
+        },
         dismiss () {
             this.fire('dismiss');
-        }
+        },
         playUrl () {
-            return `${app.config.PLAY_URL}/app/${this.shareInfo.id}`;
-        }
-
+            return `${Kano.MakeApps.config.PLAY_URL}/app/${this.shareInfo.id}`;
+        },
         fbLink () {
             return 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(this.playUrl()) + '&t=' + encodeURIComponent(this.playUrl());
-        }
-
+        },
         twitterLink () {
             return 'https://twitter.com/intent/tweet?source=' + encodeURIComponent(this.playUrl()) + '&text=' + encodeURIComponent(this.shareInfo.title + ' ' + this.playUrl());
-        }
-
+        },
         gplusLink () {
             return 'https://plus.google.com/share?url=' + encodeURIComponent(this.playUrl());
-        }
-
+        },
         tumblrLink () {
             return 'http://www.tumblr.com/share?v=3&u=' + encodeURIComponent(this.playUrl()) + '&t=' + encodeURIComponent(this.shareInfo.title);
-        }
-
+        },
         redditLink () {
             return 'http://www.reddit.com/submit?url=' + encodeURIComponent(this.playUrl()) + '&title=' + encodeURIComponent(this.shareInfo.title);
         }
-    }
-    Polymer(KanoShareModal);
+    });
 </script>

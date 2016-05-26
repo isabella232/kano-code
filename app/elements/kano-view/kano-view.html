@@ -10,42 +10,41 @@
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoView {
-        beforeRegister () {
-            this.is = 'kano-view';
-            this.properties = {
-                viewName: {
-                    type: String
+
+    Polymer({
+        is: 'kano-view',
+        properties: {
+            viewName: {
+                type: String
+            },
+            location: {
+                type: String,
+                value: 'views'
+            },
+            attributes: {
+                type: Object,
+                value: () => {
+                    return {};
                 },
-                location: {
-                    type: String,
-                    value: 'views'
-                },
-                attributes: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    },
-                    notify: true
-                },
-                flexEnabled: {
-                    type: Boolean,
-                    value: true
-                },
-                ready: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
-                }
-            };
-            this.observers = [
-                'viewChanged(viewName)',
-                'attributesChanged(attributes.*)'
-            ];
-        }
+                notify: true
+            },
+            flexEnabled: {
+                type: Boolean,
+                value: true
+            },
+            ready: {
+                type: Boolean,
+                value: false,
+                notify: true
+            }
+        },
+        observers: [
+            'viewChanged(viewName)',
+            'attributesChanged(attributes.*)'
+        ],
         getComponent () {
             return this.viewComponent;
-        }
+        },
         /**
          * Apply the attributes to the loaded component
          */
@@ -64,7 +63,7 @@
             }
             path = path.join('.');
             this.viewComponent.set(path, e.value);
-        }
+        },
         viewChanged () {
             if (!this.viewName || (this.viewName && !this.viewName.length) || !this.location) {
                 return;
@@ -76,14 +75,14 @@
                     this.fire('kano-error', new Error(`Could not load view ${this.viewName}`));
                 });
             this.set('ready', false);
-        }
+        },
         reloadView () {
             this.viewChanged();
-        }
+        },
         displayView () {
             let view = this.create(this.viewName, this.attributes);
             this.mountComponent(view);
-        }
+        },
         mountComponent (component) {
             component.style.flex = this.flexEnabled ? 1 : 'none';
 
@@ -93,7 +92,7 @@
             this.appendChild(component);
             this.viewComponent = component;
             this.set('ready', true);
-        }
+        },
         /**
          * Import the view component
          * @param  {String} partial   Name of the component to import
@@ -103,13 +102,12 @@
             return new Promise((resolve, reject) => {
                 this.importHref(`./${this.location}/${partial}/${partial}.html`, resolve, reject);
             });
-        }
+        },
         end () {
             if (this.viewComponent && typeof this.viewComponent.end == 'function') {
                 return this.viewComponent.end();
             }
             return Promise.resolve();
         }
-    }
-    Polymer(KanoView);
+    });
 </script>

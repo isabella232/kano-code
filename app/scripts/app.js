@@ -8,36 +8,31 @@ import Stories from './service/stories';
 import Components from './service/components';
 import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
-import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
-import FileUtils from './util/file';
-import ProgressService from './service/progress.js';
+import ProgressService from './service/progress';
 import config from './config';
 
-(function (app) {
-    app.config = config;
+window.Kano = window.Kano || {};
+
+(function (MakeApps) {
+    MakeApps.config = config;
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    app.registerBlockly = (Blockly) => {
-        blockly.register(Blockly);
-    };
+    MakeApps.blockly = blockly;
     modules.init(config);
 
-    app.part = Part;
-    app.stories = Stories;
-    app.components = Components;
-    app.modelManager = ModelManager;
-    app.dragAndDrop = DragAndDrop;
+    MakeApps.part = Part;
+    MakeApps.stories = Stories;
+    MakeApps.components = Components;
+    MakeApps.dragAndDrop = DragAndDrop;
 
-    app.defaultCategories = blockly.categories;
+    MakeApps.defaultCategories = blockly.categories;
 
-    app.sdk = KanoWorldSdk(config);
-    app.progress = ProgressService(app.sdk);
-    app.sdk.registerForms();
+    MakeApps.sdk = KanoWorldSdk(config);
+    MakeApps.progress = ProgressService(MakeApps.sdk);
+    MakeApps.sdk.registerForms();
 
 
-    window.KanoModules = modules;
-
-    app.file_utils = FileUtils;
-})(window.app = {});
+    MakeApps.Modules = modules;
+})(window.Kano.MakeApps = window.Kano.MakeApps || {});

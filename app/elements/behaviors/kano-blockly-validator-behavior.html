@@ -1,0 +1,144 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.BlocklyValidatorBehavior = {
+        properties: {
+            blockIds: {
+                type: Object,
+                value: () => {
+                    return {
+                        default_part_event: 'default_part_event_id'
+                    };
+                }
+            }
+        },
+        attached () {
+            this.eventsMap = {
+                create: 'create',
+                connect: 'move',
+                value: 'change',
+                delete: 'delete',
+                'open-flyout': 'open-flyout',
+                'close-flyout': 'close-flyout',
+            };
+            this.blocklyValidators = {
+                'create': this.matchCreate.bind(this),
+                'connect': this.matchConnect.bind(this),
+                'value': this.matchBlocklyValue.bind(this),
+                'delete': this.matchDelete.bind(this),
+                'open-flyout': this.matchCategory.bind(this)
+            };
+        },
+        matchCategory (validation, event) {
+            if (validation.part) {
+                validation = this.stepIds[validation.part];
+            }
+            return event.categoryId === validation;
+        },
+        matchBlockType (type, event) {
+            return event.xml.getAttribute('type') === type;
+        },
+        matchBlocklyEvent (type, event) {
+            return event.type === this.eventsMap[type];
+        },
+        getBlockType (validation) {
+            let target = this.stepIds[validation.target],
+                type;
+            // Use the type or the value directly
+            // Allows to declare shorthand creation as:
+            // create: 'text'
+            // or
+            // create: {
+            //     type: 'text'
+            // }
+            if (typeof validation === 'string') {
+                type = validation;
+            } else if (validation.type) {
+                type = validation.type;
+                type = target ? `${target}#${type}` : type;
+            }
+            return type;
+        },
+        matchDelete (validation, event) {
+            let target = validation.target || validation,
+                blockId = this.blockIds[target];
+            if (blockId !== event.blockId) {
+                return;
+            }
+            delete this.blockIds[target];
+            return true;
+        },
+        matchCreate (validation, event) {
+            let type = this.getBlockType(validation);
+            // Check the type of the added block
+            if (this.matchBlockType(type, event)) {
+                // The new block created is added to the step, using its
+                // step id for further reference
+                if (validation.id) {
+                    this.blockIds[validation.id] = event.blockId;
+                }
+                return true;
+            }
+        },
+        matchConnect (validation, event) {
+            // Extract the validation object, target and parent step ids and
+            // the block moved
+            let targetId = this.blockIds[validation.target],
+                parentId = this.blockIds[validation.parent];
+
+            // Check that the element moved is the one targeted and that its
+            // new parent is the right one
+            if (event.blockId === targetId && event.newParentId === parentId) {
+                return true;
+            }
+        },
+        matchBlocklyValue (validation, event) {
+            let targetId = this.blockIds[validation.target],
+                block = event,
+                failed = false;
+            // Check that the element that changed is the one we target
+            if (block.blockId === targetId) {
+                if (validation.minLength &&
+                        block.newValue.length &&
+                        block.newValue.length < validation.minLength) {
+                    failed = true;
+                }
+                // Check that
+                // the value is set to the one we expect
+                // We use the double equal to be sure we catch Number/String
+                // parsing
+                if (validation.value) {
+                    let value = validation.value;
+                    if (value.event_from) {
+                        value = `${this.stepIds[value.event_from]}.${value.event}`;
+                    }
+                    if (block.newValue != value) {
+                        failed = true;
+                    }
+                }
+                return !failed;
+            }
+        },
+        handleBlocklyChange (step, e) {
+            // Store current step object
+            Object.keys(step).forEach((type) => {
+                let validation;
+                if (!this.matchBlocklyEvent(type, e)) {
+                    return;
+                }
+                validation = step[type];
+                if (validation === true) {
+                    return this.nextStep();
+                }
+                if (typeof this.blocklyValidators[type] === 'function' &&
+                        this.blocklyValidators[type](validation, e)) {
+                    this.nextStep();
+                }
+            });
+        }
+    };
+
+</script>

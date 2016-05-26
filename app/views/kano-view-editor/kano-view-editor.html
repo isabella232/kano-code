@@ -1,6 +1,6 @@
-<link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
-<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
-<dom-module id="kano-view-workshop">
+<link rel="import" href="../../elements/editor-bundle.html">
+<link rel="import" href="../../elements/share-bundle.html">
+<dom-module id="kano-view-editor">
     <style>
     :host {
         display: block;
@@ -43,74 +43,69 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, app, KanoBehaviors */
-    class KanoViewWorkshop {
-
-        get behaviors () {
-            return [KanoBehaviors.SharingBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-view-workshop';
-            this.properties = {
-                addedParts: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
-                },
-                code: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                running: {
-                    type: Boolean,
-                    observer: 'runningChanged'
-                },
-                usedBlocks: {
-                    type: Object
-                },
-                remixMode: {
-                    type: Boolean,
-                    value: false
-                },
-                error: {
-                    type: Object,
-                    value: {
-                        title: '',
-                        description: ''
-                    },
-                    notify: true
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-editor',
+        behaviors: [Kano.Behaviors.SharingBehavior],
+        properties: {
+            addedParts: {
+                type: Array,
+                value: () => {
+                    return [];
                 }
-            };
-        }
-        attached () {
-            let editor = this.$.editor,
-                appToLoad,
-                slug = app.ctx.params.slug;
+            },
+            code: {
+                type: Object,
+                value: () => {
+                    return {};
+                }
+            },
+            running: {
+                type: Boolean,
+                observer: 'runningChanged'
+            },
+            usedBlocks: {
+                type: Object
+            },
+            remixMode: {
+                type: Boolean,
+                value: false
+            },
+            error: {
+                type: Object,
+                value: {
+                    title: '',
+                    description: ''
+                },
+                notify: true
+            }
+        },
+        listeners: {
+            'blockly-ready': '_registerBlockly'
+        },
+        _registerBlockly() {
+            let appToLoad,
+                slug = this.context.params.slug;
+            Kano.MakeApps.blockly.register(window.Blockly);
 
-            this.modal = this.$['share-modal'];
-            this.set('parts', app.part);
-            this.set('user', app.sdk.auth.getUser());
-            this.set('size', app.config.WORKSPACE_FULL_SIZE);
-            app.registerBlockly(window.Blockly);
-            this.set('defaultCategories', app.defaultCategories);
-            editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
-            editor.addEventListener('change', this.save.bind(this));
+            if (this.loaded) {
+                return;
+            }
+            this.loaded = true;
+            this.set('parts', Kano.MakeApps.part);
+            this.set('defaultCategories', Kano.MakeApps.defaultCategories);
 
             if (slug) {
                 this.remixMode = true;
                 //loading component for remixing, we need to get data from the slug
-                app.sdk.api.share.get.bySlug({ slug }).then(res => {
+                Kano.MakeApps.sdk.api.share.get.bySlug({ slug }).then(res => {
                     //getting the workspace info from the share
                     if (res.body.item.workspace_info_url) {
                         fetch(res.body.item.workspace_info_url)
                         .then(response => {
                             return response.json();
                         }).then(json => {
-                            editor.load(json, app.part);
+                            this.editor.load(json, Kano.MakeApps.part);
                         }).catch(err => {
                             console.error('loading failed', err);
                             this.set('error.title', 'Loading failed');
@@ -121,13 +116,20 @@
                 });
             } else {
                 appToLoad = JSON.parse(localStorage.getItem('savedApp'));
-                editor.load(appToLoad, app.part);
+                this.editor.load(appToLoad, Kano.MakeApps.part);
             }
-
-        }
+        },
+        ready () {
+            this.loaded = false;
+            this.editor = this.$.editor;
+            this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
+            this.editor.addEventListener('change', this.save.bind(this));
+            this.modal = this.$['share-modal'];
+            this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+        },
         updateWorkspaceRect (rect) {
-            app.dragAndDrop.setWorkspaceRect(rect);
-        }
+            Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
+        },
         save () {
             // Save after 3secs without changes
             if (!this.remixMode) {
@@ -137,12 +139,7 @@
                     localStorage.setItem('savedApp', JSON.stringify(savedApp));
                 }, 3000);
             }
-        }
-        uiAddedParts () {
-            return this.addedParts.filter((part) => {
-                return part.partType === 'ui';
-            });
-        }
+        },
         /**
          * When the current code changes, save it in the components store
          * @param  {Event} e  Informations about the code updated
@@ -150,18 +147,17 @@
         codeChanged (e) {
             let data = e.detail;
             // Add the new code and its rule to the components store
-            app.components.setCode(data.id, data.emitter, data.event, data.code);
-        }
+            Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
+        },
         detached () {
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
-        }
+        },
         runningChanged () {
             if (this.running) {
-                app.components.run(this.addedParts, this.code);
+                Kano.MakeApps.components.run(this.addedParts, this.code);
             } else {
-                app.components.stop(this.addedParts, this.code);
+                Kano.MakeApps.components.stop(this.addedParts, this.code);
             }
         }
-    }
-    Polymer(KanoViewWorkshop);
+    });
 </script>

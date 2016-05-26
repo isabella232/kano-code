@@ -1,3 +1,5 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../elements/behaviors/kano-scene-component-behavior.html">
 <link rel="import" href="../../../../elements/kano-power-up-modal/kano-power-up-modal.html">
 <link rel="import" href="../../../../elements/kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../../../../elements/kano-app-editor/kano-app-editor.html">
@@ -52,44 +54,37 @@
 </dom-module>
 <script type="text/javascript">
 
-    /* globals app, Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoSceneEditor {
-
-        get behaviors () {
-            return [KanoBehaviors.SceneComponentBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-scene-editor';
-            this.properties = {
-                running: {
-                    type: Boolean,
-                    observer: 'runningChanged'
-                },
-                storyName: {
-                    type: String
-                },
-                nextStory: {
-                    type: String
-                },
-                currentStep: {
-                    type: Number,
-                    value: 0
-                },
-                progress: {
-                    type: Number,
-                    computed: "computeProgress(currentStep, scene)"
-                },
-                extensions: {
-                    type: Array
-                }
-            };
-            this.observers = [
-                'endedChanged(scene.ended)'
-            ];
-        }
-
+    Polymer({
+        is: 'kano-scene-editor',
+        behaviors: [Kano.Behaviors.SceneComponentBehavior],
+        properties: {
+            running: {
+                type: Boolean,
+                observer: 'runningChanged'
+            },
+            storyName: {
+                type: String
+            },
+            nextStory: {
+                type: String
+            },
+            currentStep: {
+                type: Number,
+                value: 0
+            },
+            progress: {
+                type: Number,
+                computed: "computeProgress(currentStep, scene)"
+            },
+            extensions: {
+                type: Array
+            }
+        },
+        observers: [
+            'endedChanged(scene.ended)'
+        ],
         endedChanged () {
             if (this.scene.ended) {
                 this.$.editor.generateCover().then((image) => {
@@ -97,46 +92,39 @@
                     this.$['challenge-completed'].open();
                 });
             }
-        }
-
+        },
         computeProgress (currentStep, scene) {
             return currentStep / scene.steps.length;
-        }
-
+        },
         ready () {
             this.remix = false;
             this.code = {};
-        }
-
+        },
         attached () {
-            this.set('size', app.config.WORKSPACE_FULL_SIZE);
-        }
-
+            this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+        },
         shareApp () {
             this.$.editor.share();
-        }
-
+        },
         computeParts () {
-            return app.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
-        }
-
+            return Kano.MakeApps.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+        },
         computeCategories () {
             let cats = {};
             this.scene.modules.forEach(id => {
-                cats[id] = app.defaultCategories[id];
+                cats[id] = Kano.MakeApps.defaultCategories[id];
             });
-            cats.events = app.defaultCategories.events;
+            cats.events = Kano.MakeApps.defaultCategories.events;
             return cats;
-        }
-
+        },
         runningChanged () {
             let editor = this.$.editor;
             if (this.running) {
-                app.components.run(editor.addedParts, editor.code);
+                Kano.MakeApps.components.run(editor.addedParts, editor.code);
             } else {
-                app.components.stop(editor.addedParts, editor.code);
+                Kano.MakeApps.components.stop(editor.addedParts, editor.code);
             }
-        }
+        },
         saveApp (e) {
             let id = e.detail.id,
                 blockIds = e.detail.blockIds,
@@ -147,11 +135,11 @@
                 blockIds,
                 stepIds
             });
-        }
+        },
         saveToStorage () {
             let app = this.$.editor.save();
             localStorage.setItem('savedApp', JSON.stringify(app));
-        }
+        },
         loadApp (e) {
             let id = e.detail,
                 savedState,
@@ -161,15 +149,14 @@
             this.$.editor.load(savedState.app, this.computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
-        }
+        },
         goToRemixChallenge () {
             this.remix = true;
-        }
+        },
         powerUp (e) {
             let extensionId = e.detail.id;
             this.fire('extend-story', extensionId);
             e.stopPropagation();
         }
-    }
-    Polymer(KanoSceneEditor);
+    });
 </script>

@@ -1,3 +1,4 @@
+<link rel="import" href="../../elements/home-bundle.html">
 <dom-module id="kano-view-home">
     <style>
         :host {
@@ -85,7 +86,7 @@
             font-size: 15px;
             font-weight: bold;
             @apply(--kano-button);
-        }   
+        }
         :host #logo {
             height: 80px;
             width: 80px;
@@ -146,45 +147,41 @@
 </dom-module>
 
 <script>
-    /* globals Polymer */
-    /* globals app */
-    class KanoViewHome {
-        beforeRegister () {
-            this.is = 'kano-view-home';
-            this.properties = {
-                projects: {
-                    type: Array,
-                    value: []
-                },
-                user: {
-                    type: Object,
-                    observer: "userChanged"
-                },
-                app: {
-                    type: Object,
-                    value: app
-                }
-            };
-        }
-
-        userChanged () {
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-home',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        properties: {
+            projects: {
+                type: Array,
+                value: []
+            },
+            app: {
+                type: Object,
+                value: Kano.MakeApps
+            }
+        },
+        observers: [
+            '_userChanged(user)'
+        ],
+        _userChanged () {
             if (!this.user) {
                 return null;
             }
 
-            app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => this.set('user_apps', apps.body.entries))
-        }
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
+                .then((apps) => this.set('user_apps', apps.body.entries));
+        },
 
         ready () {
-            this.PLAY_URL = app.config.PLAY_URL;
+            this.PLAY_URL = Kano.MakeApps.config.PLAY_URL;
             this.loadingProjects = true;
-            app.stories.list()
+            Kano.MakeApps.stories.list()
                 .then((stories) => {
                     // Go through all the stories and update the `locked` key
                     let promises = stories.map((story) => {
                         // Load the story's progress group
-                        return app.progress.loadProgress(story.progress.group)
+                        return Kano.MakeApps.progress.loadProgress(story.progress.group)
                             .then((progress) => {
                                 // `storyNo` is the last completed story number of the user. If the story number is over
                                 // that number plus one, the story is locked
@@ -200,12 +197,10 @@
                     this.loadingProjects = false;
                     this.set('projects', projects);
                 });
-            app.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
         }
-    }
-
-    Polymer(KanoViewHome);
+    });
 </script>

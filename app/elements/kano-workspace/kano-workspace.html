@@ -1,5 +1,7 @@
-<link rel="import" href="../ui/kano-ui/kano-ui.html">
 <link rel="import" href="../ui/behaviors.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../ui/kano-ui/kano-ui.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <dom-module id="kano-workspace">
     <style>
     :host {
@@ -150,60 +152,54 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoWorkspace {
-
-        get behaviors () {
-            return [KanoBehaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-workspace';
-            this.properties = {
-                size: {
-                    type: Object
-                },
-                parts: {
-                    type: Array,
-                    notify: true
-                },
-                running: {
-                    type: Boolean,
-                    value: false,
-                    observer: 'runningChanged'
-                },
-                selected: {
-                    type: Object,
-                    notify: true
-                },
-                internalSelection: {
-                    type: Object,
-                    value: null
-                },
-                code: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'partsChanged(parts.*)'
-            ];
-            this.listeners = {
-                'part-tapped': 'onPartTapped'
-            };
-        }
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-workspace',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            size: {
+                type: Object
+            },
+            parts: {
+                type: Array,
+                notify: true
+            },
+            running: {
+                type: Boolean,
+                value: false,
+                observer: 'runningChanged'
+            },
+            selected: {
+                type: Object,
+                notify: true
+            },
+            internalSelection: {
+                type: Object,
+                value: null
+            },
+            code: {
+                type: Object
+            }
+        },
+        observers: [
+            'partsChanged(parts.*)'
+        ],
+        listeners: {
+            'part-tapped': 'onPartTapped'
+        },
         ready () {
             this.elements = {};
             this.tappedElement = null;
-        }
+        },
         canDelete (el) {
             return el && !!el.model;
-        }
+        },
         canEdit (el) {
             return (el && el.id === "dropzone") || (el && el.model && el.model.partType !== 'hardware');
-        }
+        },
         isSeparatorHidden (el) {
             return !this.canDelete(el) || !this.canEdit(el);
-        }
+        },
         onTap (e) {
             if (this.running) {
                 return;
@@ -221,14 +217,14 @@
                     this.fire('close-settings');
                 }
             }
-        }
+        },
         clearSelection () {
             this.$.selector.clearSelection();
             this.tappedElement = null;
             this.$.tooltip.close();
             this.set('tooltipTarget', null);
             this.notifyChange('close-settings-tooltip');
-        }
+        },
         partFromElement () {
             let model = this.tappedElement.model;
             for (let i = 0; i <= this.parts.length; i++) {
@@ -237,7 +233,7 @@
                     return part;
                 }
             }
-        }
+        },
         onPartTapped (e) {
             this.$.selector.clearSelection();
             this.tappedElement = e.detail;
@@ -246,7 +242,7 @@
             if (this.tappedElement !== e.detail) {
                 this.fire('close-settings');
             }
-        }
+        },
         openSettings () {
             this.$.tooltip.close();
             this.tooltipTarget = null;
@@ -258,7 +254,7 @@
                 selector = this.$.selector;
             selector.select(part);
             this.fire('settings-tapped');
-        }
+        },
         deletePart () {
             let part = this.partFromElement();
             this.aboutToDelete = part.name;
@@ -267,13 +263,13 @@
             } else {
                 this.$['confirm-delete'].open();
             }
-        }
+        },
         modalClosed (e) {
             let part = this.partFromElement();
             if (e.detail.confirmed) {
                 this.fire('delete-tapped', part);
             }
-        }
+        },
         checkBlockDependency (part) {
             let xmlString, xml, parser, blocks, block, blockId, pieces;
             // Get the blockly xml and parse it
@@ -293,7 +289,7 @@
                 }
             }
             return false;
-        }
+        },
         partsChanged (e) {
             let path;
             if (this.tooltipTarget) {
@@ -351,14 +347,14 @@
                 subPath = subPath.join('.');
                 this.propagateChange(key, subPath, e.value);
             }
-        }
+        },
         propagateChange (key, path, value) {
             let element = this.elements[key];
             if (!element) {
                 return;
             }
             element.set(path, value);
-        }
+        },
         insertPart (key) {
             let model = this.get(`parts.${key}`),
                 tagName,
@@ -379,7 +375,7 @@
             element.model = model;
             this.elements[key] = element;
             this.$.dropzone.appendChild(element);
-        }
+        },
         removePart (key) {
             let element = this.elements[key];
             if (!element) {
@@ -387,7 +383,7 @@
             }
             this.$.dropzone.removeChild(element);
             delete this.elements[key];
-        }
+        },
         runningChanged () {
             if (this.running) {
                 this.classList.add('running');
@@ -395,7 +391,7 @@
             } else {
                 this.classList.remove('running');
             }
-        }
+        },
         getPartIndexById (id) {
             let elements = this.parts;
             for (let i = 0, len = elements.length; i < len; i++) {
@@ -403,17 +399,16 @@
                     return i;
                 }
             }
-        }
+        },
         getViewport () {
             return this.$.dropzone;
-        }
+        },
         getViewportScale () {
             return this.$.content.getScale();
-        }
+        },
         setBackgroundColor (color) {
             this.$.dropzone.style.background = color;
-        }
-
+        },
         generateCover () {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
@@ -446,7 +441,7 @@
                 image.src = canvas.toDataURL();
                 return image;
             });
-        }
+        },
         /**
          * Helper to get style from element
          * @param  {Object} element  DOM element you want to inspect
@@ -467,7 +462,7 @@
                 strValue = element.currentStyle[css_rule];
             }
             return strValue;
-        }
+        },
         /**
          * Draws a rounded rectangle using the current state of the canvas.
          * If you omit the last three params, it will draw a rectangle
@@ -520,6 +515,5 @@
             }
 
         }
-    }
-    Polymer(KanoWorkspace);
+    });
 </script>

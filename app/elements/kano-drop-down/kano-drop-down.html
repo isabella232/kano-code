@@ -214,28 +214,26 @@
         </div>
     </template>
     <script>
-        class KanoDropDown {
-            beforeRegister () {
-                this.is = 'kano-drop-down'
-                this.properties = {
-                    items: {
-                        type: Object,
-                        observer: 'hasNotifications'
-                    },
-                    unread: Number,
-                    type: String
-                }
-                this.hasNotifications = (items, type) => {
-                    return type === 'notifications' && items.length;
-                }
-            }
-
+        /* globals Polymer */
+        Polymer({
+            is: 'kano-drop-down',
+            properties: {
+                items: {
+                    type: Object,
+                    observer: 'hasNotifications'
+                },
+                unread: Number,
+                type: String
+            },
+            hasNotifications (items, type) {
+                return type === 'notifications' && items.length;
+            },
             handleClick (ev) {
                 let item = ev.model.get('item');
 
                 if (!item.read && item.category === 'notification') {
-                    ev.target.classList.remove('notification-unread')
-                    ev.target.classList.add('notification-read')
+                    ev.target.classList.remove('notification-unread');
+                    ev.target.classList.add('notification-read');
                     this.fire('notification:read', {id: item.id });
                 }
 
@@ -243,12 +241,10 @@
                     ev.preventDefault();
                     this.fire('logout');
                 }
-            }
-
+            },
             readThemAll () {
                 this.fire('notifications:readAll');
             }
-        }
-        Polymer(KanoDropDown);
+        });
     </script>
 </dom-module>

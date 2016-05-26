@@ -43,7 +43,7 @@ Example:
         <label>{{label}}</label>
         <div class="colors">
             <template is="dom-repeat" items="{{colors}}" as="color">
-                <div class="color" style$="[[computeColor(color, value)]]" on-tap="selectColor"></div>
+                <div class="color" style$="[[_computeColor(color, value)]]" on-tap="_selectColor"></div>
             </template>
         </div>
     </template>
@@ -52,7 +52,7 @@ Example:
 
     Polymer({
 
-        behaviors: [KanoBehaviors.Input],
+        behaviors: [Kano.Behaviors.Input],
 
         is: 'kano-input-color',
 
@@ -78,7 +78,7 @@ Example:
             this.value = this.value || this.colors[0];
         },
 
-        computeColor (color, value) {
+        _computeColor (color, value) {
             let style = `background-color: ${color};`;
             if (color === value) {
                 style += `outline: 1px dashed ${color};
@@ -87,7 +87,7 @@ Example:
             return style;
         },
 
-        selectColor (e) {
+        _selectColor (e) {
             this.set('value', e.model.get('color'));
             this.fire('change', this.value);
         }

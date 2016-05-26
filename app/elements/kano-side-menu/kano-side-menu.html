@@ -132,39 +132,36 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, Kano */
 
-    class KanoSideMenu {
-        beforeRegister () {
-            this.is = 'kano-side-menu';
-            this.properties = {
-                user: {
-                    type: Object,
-                    value: null,
-                    observer: 'userChanged'
-                },
-                profile: {
-                    type: Object
-                },
-                editor: {
-                    type: Object
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-side-menu',
+        properties: {
+            user: {
+                type: Object,
+                value: null,
+                observer: 'userChanged'
+            },
+            profile: {
+                type: Object
+            },
+            editor: {
+                type: Object
+            }
+        },
         login () {
             this.fire('login');
-        }
-
+        },
         logout () {
             this.fire('logout');
-        }
+        },
         // Hack to make the app work on safari
         getUserAvatar (avatar) {
             return avatar || '';
-        }
+        },
         userChanged (newValue, old) {
             if (newValue) {
-                app.sdk.api.users.get.byId({id: this.user.id}).then((res) => {
+                Kano.MakeApps.sdk.api.users.get.byId({id: this.user.id}).then((res) => {
                     if (res.status == 200) {
                         let xp = res.body.user.profile.xp;
                         this.profile = {
@@ -179,23 +176,23 @@
                     level: "-"
                 };
             }
-        }
+        },
         isUserLoggedIn () {
             return !!this.user;
-        }
+        },
         toggleMenu (e) {
             this.fire('toggle-menu');
             e.stopPropagation();
-        }
+        },
         resetWorkspace () {
             if (this.editor) {
                 editor.reset();
             }
             this.fire('toggle-menu');
-        }
+        },
         backToProjects () {
             this.fire('toggle-menu');
-        }
+        },
         /* FIXME: This was copied out of Kano World. We need to put this
                   functionality into the API. */
         calculateLevel (xp) {
@@ -227,6 +224,5 @@
 
             return current;
         }
-    }
-    Polymer(KanoSideMenu);
+    });
 </script>

@@ -23,34 +23,30 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoUiButton {
-        get behaviors () {
-            return [KanoBehaviors.UIBehavior];
-        }
-        beforeRegister () {
-            this.is = 'kano-ui-button';
-        }
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-ui-button',
+        behaviors: [Kano.Behaviors.UIBehavior],
         buttonClicked () {
             this.fire('clicked');
-        }
+        },
         computeButtonStyle () {
             return this.getPartialStyle(['background-color', 'color']);
-        }
+        },
         getLabel () {
             return this.get('model.userProperties.label');
-        }
+        },
         setLabel (label) {
             this.set('model.userProperties.label', label);
-        }
+        },
         setBackgroundColour (color) {
             this.set('model.userStyle.background-color', color);
-        }
+        },
         setColour (color) {
             this.set('model.userStyle.color', color);
-        }
+        },
         renderOnCanvas (ctx, util) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let button = this.$.button,
                     text = this.model.userProperties.label,
                     width = button.offsetWidth,
@@ -69,6 +65,5 @@
                 ctx.restore();
             });
         }
-    }
-    Polymer(KanoUiButton);
+    });
 </script>
