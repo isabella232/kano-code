@@ -112,7 +112,7 @@
     }
     </style>
     <template>
-        <iron-pages selected="[[selectedPage]]" attr-for-selected="name">
+        <iron-pages selected="[[authView]]" attr-for-selected="name">
             <div name="signup">
                 <h3>Create your account</h3>
                 <kano-signup-form on-login-click="toggle" on-success="loginSuccess"></kano-signup-form>
@@ -128,11 +128,15 @@
     /* globals Polymer */
     Polymer({
         is: 'kano-auth',
-        attached () {
-            this.selectedPage = 'login';
+        properties: {
+            authView: {
+                type: String,
+                value: 'login',
+                notify: true
+            }
         },
         toggle () {
-            this.selectedPage = this.selectedPage === 'login' ? 'signup' : 'login';
+            this.authView = this.authView === 'login' ? 'signup' : 'login';
         },
         loginSuccess (e) {
             this.fire('login', e.details);
