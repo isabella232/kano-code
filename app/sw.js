@@ -35,10 +35,10 @@ function updateCache(request) {
             });
         }
         return response;
-    }).catch((e) => {
-        let url = new URL(request.url);
+    }).catch(function (e) {
+        var url = new URL(request.url);
         if (routes.test(url.pathname)) {
-            let spaRequest = new Request('index.html', {
+            var spaRequest = new Request('index.html', {
                 method: 'GET',
                 headers: new Headers()
             });

@@ -127,7 +127,7 @@ function getHtmlReplaceOptions() {
 
 // For a build with cordova, add this to html replace
 // <meta http-equiv="Content-Security-Policy" content="media-src *">
-gulp.task('js', ['babel', 'bundle', 'copy', 'polyfill'], () => {
+gulp.task('js', ['babel', 'bundle', 'polyfill'], () => {
     gulp.src('./.tmp/app/elements/elements.html')
         .pipe(utils.vulcanize({
             inlineScripts: true,
@@ -138,7 +138,7 @@ gulp.task('js', ['babel', 'bundle', 'copy', 'polyfill'], () => {
         .pipe(gulp.dest('www/elements'));
 });
 
-gulp.task('bundles', ['copy'], () => {
+gulp.task('bundles', ['copy', 'babel'], () => {
     getImports('./app/elements/elements.html').then((common) => {
         return gulp.src('.tmp/app/elements/*-bundle.html')
             .pipe(utils.vulcanize({
@@ -152,11 +152,11 @@ gulp.task('bundles', ['copy'], () => {
     }).catch(utils.notifyError);
 });
 
-gulp.task('babel', () => {
-    return gulp.src('app/elements/**/*.{js,html,css}')
+gulp.task('babel', ['copy'], () => {
+    return gulp.src(['app/elements/**/*.{js,html,css}', 'app/bower_components/kano-*/**/*.{html,js}'], { base: 'app' })
         .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
         .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
-        .pipe(gulp.dest('.tmp/app/elements'));
+        .pipe(gulp.dest('.tmp/app'));
 });
 
 gulp.task('copy', ['copy-index'], () => {
