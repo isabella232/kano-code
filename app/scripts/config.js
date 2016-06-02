@@ -38,7 +38,8 @@ let COMMON = {
             "API_URL": "http://localhost:8000"
         },
         "osonline": {
-            "TOKEN_ENDPOINT": "http://localhost:8000/gettoken"
+            "TOKEN_ENDPOINT": "http://localhost:8000/gettoken",
+            "SHUTDOWN_ENDPOINT": "http://localhost:8000/shutdown"
         }
     },
     config;

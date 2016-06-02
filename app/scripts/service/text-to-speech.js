@@ -15,7 +15,7 @@ class TextToSpeech {
     constructor () {
         this.config = config;
         this.backend = this.remote;
-        this.backendStop = this.remoteStop;
+        this.backendStop = () => {};
 
         this.cache = {};
     }

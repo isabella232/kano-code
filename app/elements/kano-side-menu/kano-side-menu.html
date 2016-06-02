@@ -125,7 +125,7 @@
             <li hidden$="{{!isUserLoggedIn(user)}}" on-tap="logout">
                 <a on-tap="logout">
                     <iron-image class="icon" src="/assets/icons/logout.png" sizing="contain"></iron-image>
-                    <div class="label">Logout</div>
+                    <div class="label">{{_getLogoutLabel(offline)}}</div>
                 </a>
             </li>
         </ul>
@@ -147,13 +147,17 @@
             },
             editor: {
                 type: Object
+            },
+            offline: {
+                type: Boolean,
+                value: false
             }
         },
         login () {
             this.fire('login');
         },
         logout () {
-            this.fire('logout');
+            this.offline ? this.fire('shutdown') : this.fire('logout');
         },
         // Hack to make the app work on safari
         getUserAvatar (avatar) {
@@ -223,6 +227,9 @@
             }
 
             return current;
+        },
+        _getLogoutLabel (offline) {
+            return offline ? 'Exit' : 'Log Out';
         }
     });
 </script>
