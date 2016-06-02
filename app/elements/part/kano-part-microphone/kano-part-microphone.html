@@ -1,0 +1,129 @@
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-microphone">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        width: 50px;
+        height: 50px;
+    }
+    .canvas-container, .ripple {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .ripple {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: red;
+    }
+    iron-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        @apply(--shadow-elevation-2dp);
+    }
+    </style>
+    <template>
+        <div class="container">
+            <div class="ripple" style$="[[_computeRippleStyle(volume)]]"></div>
+            <div class="ripple" style$="[[_computeRippleStyle(low)]]"></div>
+            <iron-image src="[[model.image]]" sizing="cover"></iron-image>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        // Cross browser tweaks
+        // Putting getUserMedia in navigator is a wrong practice, since the spec moved it inside MediaDevices
+        // but calling it outside of navigator will fail on chrome
+        window.MediaDevices = window.MediaDevices || {};
+        if (window.MediaDevices && window.MediaDevices.getUserMedia) {
+            navigator.getUserMedia = window.MediaDevices.getUserMedia;
+        }
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+
+        Polymer({
+            is: 'kano-part-microphone',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                volume: {
+                    type: Number,
+                    value: 0,
+                    readOnly: true,
+                    notify: true
+                },
+                low: {
+                    type: Number,
+                    value: 0,
+                    readOnly: true,
+                    notify: true
+                }
+            },
+            attached () {
+                this._onStreamReady = this._onStreamReady.bind(this);
+                this._onStreamError = this._onStreamError.bind(this);
+                navigator.getUserMedia({ audio: true }, this._onStreamReady, this._onStreamError);
+            },
+            detached () {
+                cancelAnimationFrame(this.requestId);
+            },
+            _onStreamReady (stream) {
+                this.stream = stream;
+                this.audioContext = new window.AudioContext();
+                this.analyser = this.audioContext.createAnalyser();
+                this.source = this.audioContext.createMediaStreamSource(stream);
+                this.analyser.smoothingTimeConstant = 0.3;
+                this.analyser.fftSize = 64;
+                this.soundData = new Uint8Array(this.analyser.frequencyBinCount);
+
+                this.source.connect(this.analyser);
+                this._updateVisualisation();
+            },
+            _onStreamError (e) {
+                console.log(e);
+            },
+            _updateVisualisation () {
+                let stats;
+                // Populates the sound data array
+                this.analyser.getByteFrequencyData(this.soundData);
+                stats = this._getSoundStats(this.soundData);
+                this._setVolume(Math.min(120, stats.volume) / 1.2);
+                this._setLow(Math.min(120, stats.low) / 1.2);
+                this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));
+            },
+            _computeRippleStyle (volume) {
+                return `box-shadow: 0px 0px 0px ${(volume * 0.5)}px rgba(255, 0, 0, 0.4);`;
+            },
+            _getSoundStats (array) {
+                let values = 0,
+                    lows = 0,
+                    length = array.length,
+                    average;
+
+                // get all the frequency amplitudes
+                for (let i = 0; i < length; i++) {
+                    values += array[i];
+                    if (i === 21) {
+                        lows = values;
+                    }
+                }
+
+                average = values / length;
+                return { volume: average, low: lows / 21 };
+            }
+        });
+    </script>
+</dom-module>
