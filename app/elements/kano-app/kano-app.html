@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 
 <link rel="import" href="../app.html">
@@ -113,6 +114,9 @@ Example:
         <paper-dialog id="auth-modal" class="auth-modal" modal>
             <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
         </paper-dialog>
+        <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
+            <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
+        </paper-toast>
     </template>
 </dom-module>
 <script>
@@ -132,7 +136,8 @@ Example:
         listeners: {
             logout: '_logout',
             shutdown: '_shutdown',
-            signup: '_signup'
+            signup: '_signup',
+            'kano-error': '_showErrorOnToast'
         },
         pollingInterval: {
             type: Number,
@@ -173,6 +178,18 @@ Example:
             } else {
                 initialiseSDK();
             }
+        },
+        attached () {
+            this.$.toast.close();
+        },
+        _showErrorOnToast (e) {
+            this.message = e.detail;
+            if (this.message.text) {
+                this.$.toast.open();
+            }
+        },
+        _closeToast () {
+            this.$.toast.close();
         },
         _shutdown (e) {
             if (!this.offline) {

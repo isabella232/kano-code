@@ -21,11 +21,15 @@
         @apply(--layout-center);
         @apply(--layout-center-justified);
     }
+    :host[disabled] .ripple {
+        background-color: #9e9e9e;
+    }
     .ripple {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: red;
+        background-color: rgb(229, 57, 53);
+        transition: background-color linear 150ms;
     }
     iron-image {
         width: 40px;
@@ -70,12 +74,28 @@
                     value: 0,
                     readOnly: true,
                     notify: true
+                },
+                disabled: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
                 }
             },
             attached () {
                 this._onStreamReady = this._onStreamReady.bind(this);
                 this._onStreamError = this._onStreamError.bind(this);
-                navigator.getUserMedia({ audio: true }, this._onStreamReady, this._onStreamError);
+                try {
+                    navigator.getUserMedia({ audio: true }, this._onStreamReady, this._onStreamError);
+                } catch (e) {
+                    this.fire('kano-error', {
+                        text: `Your browser doesn't support audio input. The microphone part has been disabled`,
+                        duration: 0,
+                        closeWithButton: true,
+                        buttonText: 'OK'
+                    });
+                    this.disabled = true;
+                }
             },
             detached () {
                 cancelAnimationFrame(this.requestId);
@@ -86,11 +106,12 @@
                 }
             },
             _onStreamReady (stream) {
+                this.disabled = false;
                 this.stream = stream;
                 this.audioContext = new window.AudioContext();
                 this.analyser = this.audioContext.createAnalyser();
                 this.source = this.audioContext.createMediaStreamSource(stream);
-                this.analyser.smoothingTimeConstant = 0.3;
+                this.analyser.smoothingTimeConstant = 0.5;
                 this.analyser.fftSize = 64;
                 this.soundData = new Uint8Array(this.analyser.frequencyBinCount);
 
@@ -98,7 +119,15 @@
                 this._updateVisualisation();
             },
             _onStreamError (e) {
-                console.log(e);
+                if (e.name === 'PermissionDeniedError') {
+                    this.fire('kano-error', {
+                        text: `Make apps need the right permissions to use the microphone. You can allow that in your browser's settings`,
+                        duration: 0,
+                        closeWithButton: true,
+                        buttonText: 'OK'
+                    });
+                }
+                this.disabled = true;
             },
             _updateVisualisation () {
                 let stats;
@@ -110,7 +139,7 @@
                 this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));
             },
             _computeRippleStyle (volume) {
-                return `box-shadow: 0px 0px 0px ${(volume * 0.5)}px rgba(255, 0, 0, 0.4);`;
+                return `box-shadow: 0px 0px 0px ${(volume * 0.5)}px rgba(229, 57, 53, 0.4);`;
             },
             _getSoundStats (array) {
                 let values = 0,
