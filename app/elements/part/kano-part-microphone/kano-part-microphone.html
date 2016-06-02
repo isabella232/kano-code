@@ -79,6 +79,11 @@
             },
             detached () {
                 cancelAnimationFrame(this.requestId);
+                if (this.stream) {
+                    this.stream.getAudioTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
             },
             _onStreamReady (stream) {
                 this.stream = stream;
