@@ -102,6 +102,10 @@ Example:
     :host .news-bar:hover {
         background-color: #8AC854;
     }
+    #toast button {
+        background-color: var(--color-green);
+        margin-left: 16px;
+    }
     </style>
     <template>
         <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank">
@@ -186,6 +190,8 @@ Example:
             this.message = e.detail;
             if (this.message.text) {
                 this.$.toast.open();
+                // The content changed, need to refit
+                this.$.toast.refit();
             }
         },
         _closeToast () {
