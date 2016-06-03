@@ -15,11 +15,12 @@ import Share from './data/kano/share';
 import Image from './image';
 import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
+import Light from './light';
 
 let part,
     partTypes;
 
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker];
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker, Light];
 
 partTypes = {
     'ui': UI,
