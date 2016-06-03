@@ -12,7 +12,7 @@ export default microphone = {
             return {
                 id: 'get_volume',
                 message0: 'Microphone: volume',
-                output: true
+                output: 'Number'
             };
         },
         javascript: (part) => {
