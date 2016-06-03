@@ -20,7 +20,7 @@ import Light from './light';
 let part,
     partTypes;
 
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker, Light];
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker];
 
 partTypes = {
     'ui': UI,
