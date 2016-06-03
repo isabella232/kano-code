@@ -89,6 +89,10 @@ Polymer({
         },
         title: {
             type: String
+        },
+        mode: {
+            type: String,
+            value: 'normal'
         }
     },
     observers: [

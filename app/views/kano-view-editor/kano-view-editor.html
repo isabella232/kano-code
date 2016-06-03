@@ -29,6 +29,7 @@
             default-categories="[[defaultCategories]]"
             ws-size="[[size]]"
             on-share="share"
+            mode="{{_getMode(context)}}"
             show-share-button></kano-app-editor>
         <paper-dialog id='error-dialog' with-backdrop>
             <h2 class="title">{{error.title}}</h2>
@@ -48,6 +49,7 @@
         is: 'kano-view-editor',
         behaviors: [Kano.Behaviors.SharingBehavior],
         properties: {
+            context: Object,
             addedParts: {
                 type: Array,
                 value: () => {
@@ -119,13 +121,30 @@
                 this.editor.load(appToLoad, Kano.MakeApps.part);
             }
         },
+        _getMode (context) {
+            var qs = '?' + context.querystring,
+                paramName = 'mode',
+                regex,
+                res;
+
+            if (qs.length > 1) {
+                regex = new RegExp("[?&]" + paramName + "(=([^&#]*)|&|#|$)"),
+                res = regex.exec(qs);
+                if (res && res[2]) {
+                    return decodeURIComponent(res[2].replace(/\+/g, " "))
+                }
+            }
+
+            return 'normal';
+        },
         ready () {
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
-            this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+            //this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+            this.set('size', Kano.MakeApps.config.WORKSPACE_LED_BORAD_SIZE);
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
