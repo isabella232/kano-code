@@ -68,6 +68,8 @@ export default class UI extends Part {
         this.rotation = opts.rotation || 0;
         this.scale = opts.scale || 100;
         this.visible = opts.visible || true;
+        // Each UI part has its specific component to render on the screen
+        this.tagName = `kano-ui-${this.type}`;
         this.blocks.push({
             block: (ui) => {
                 return {

@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 
 <link rel="import" href="../app.html">
@@ -101,6 +102,10 @@ Example:
     :host .news-bar:hover {
         background-color: #8AC854;
     }
+    #toast button {
+        background-color: var(--color-green);
+        margin-left: 16px;
+    }
     </style>
     <template>
         <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank">
@@ -113,6 +118,9 @@ Example:
         <paper-dialog id="auth-modal" class="auth-modal" modal>
             <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
         </paper-dialog>
+        <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
+            <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
+        </paper-toast>
     </template>
 </dom-module>
 <script>
@@ -132,7 +140,8 @@ Example:
         listeners: {
             logout: '_logout',
             shutdown: '_shutdown',
-            signup: '_signup'
+            signup: '_signup',
+            'kano-error': '_showErrorOnToast'
         },
         pollingInterval: {
             type: Number,
@@ -173,6 +182,20 @@ Example:
             } else {
                 initialiseSDK();
             }
+        },
+        attached () {
+            this.$.toast.close();
+        },
+        _showErrorOnToast (e) {
+            this.message = e.detail;
+            if (this.message.text) {
+                this.$.toast.open();
+                // The content changed, need to refit
+                this.$.toast.refit();
+            }
+        },
+        _closeToast () {
+            this.$.toast.close();
         },
         _shutdown (e) {
             if (!this.offline) {
