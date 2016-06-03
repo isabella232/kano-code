@@ -118,7 +118,16 @@
             this.visible = false;
             this.workspace = Blockly.inject(this.$.workspace, {
                 toolbox: this.toolboxXml,
-                media: '/assets/vendor/google-blockly/media/'
+                media: '/assets/vendor/google-blockly/media/',
+                zoom: {
+                    controls: true,
+                    wheel: true,
+                    startScale: 1.0,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                },
+                scrollbars: true
             });
             window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
