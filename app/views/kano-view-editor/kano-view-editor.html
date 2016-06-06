@@ -85,7 +85,7 @@
         listeners: {
             'blockly-ready': '_registerBlockly'
         },
-        _registerBlockly() {
+        _registerBlockly () {
             let appToLoad,
                 slug = this.context.params.slug;
             Kano.MakeApps.blockly.register(window.Blockly);
@@ -94,7 +94,19 @@
                 return;
             }
             this.loaded = true;
-            this.set('parts', Kano.MakeApps.part);
+
+            if (this._getMode(this.context) === 'lightboard') {
+                // Filter out UI parts in lightboard mode
+                this.set('parts', Kano.MakeApps.part.filter((part) => {
+                    return part.partType !== 'ui';
+                }));
+            } else {
+                // Don't show lightboard in normal mode
+                this.set('parts', Kano.MakeApps.part.filter((part) => {
+                    return part.type !== 'light';
+                }));
+            }
+
             this.set('defaultCategories', Kano.MakeApps.defaultCategories);
 
             if (slug) {

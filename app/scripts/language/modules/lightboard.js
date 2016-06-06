@@ -6,7 +6,7 @@ export default lightboard = {
     backgroundColor: '#000000',
     lights: Array(128),
     getIndex (x, y) {
-        return 15 * parseInt(y) + parseInt(x);
+        return 16 * parseInt(y) + parseInt(x);
     },
     drawLights () {
         return HardwareAPI.light.on(lightboard.lights);
