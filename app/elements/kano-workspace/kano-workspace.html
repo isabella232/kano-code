@@ -2,6 +2,7 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<link rel="import" href="../kano-lightboard-simulator/kano-lightboard-simulator.html">
 <dom-module id="kano-workspace">
     <style>
     :host {
@@ -20,12 +21,22 @@
         };
     }
     :host ::content #dropzone {
+        margin: auto;
+        position: relative;
+    }
+    :host ::content .dropzone {
         width: calc(100% - 10px);
         height: calc(100% - 10px);
         box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
-        margin: auto;
-        position: relative;
         border-radius: 5px;
+    }
+    :host ::content .dropzone-lightboard {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #ECECEC;
+        background: #000;
+        box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
+        border-radius: 4px;
     }
 
     :host ::content div#dropzone > *:not(.hole) {
@@ -76,6 +87,10 @@
         background-color: #454545;
     }
 
+    :host .hole.hidden {
+        display: none;
+    }
+
     :host .hole.hole-top-left {
         top: 5px;
         left: 5px;
@@ -100,6 +115,10 @@
         text-align: center;
         color: #B3B3B3;
     }
+    :host kano-lightboard-simulator {
+        width: 100%;
+        height: 100%;
+    }
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
@@ -108,11 +127,16 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone">
-                <div class="hole hole-top-left"></div>
-                <div class="hole hole-top-right"></div>
-                <div class="hole hole-bottom-right"></div>
-                <div class="hole hole-bottom-left"></div>
+            <div id="dropzone" class$="{{applyDropzoneClass(mode)}}">
+                <template is="dom-if" if="{{_isNormalMode(mode)}}">
+                    <div class="hole hole-top-left"></div>
+                    <div class="hole hole-top-right"></div>
+                    <div class="hole hole-bottom-right"></div>
+                    <div class="hole hole-bottom-left"></div>
+                </template>
+                <template is="dom-if" if="{{_isLightboardMode(mode)}}">
+                    <kano-lightboard-simulator id="lightboard-simulator"></kano-lightboard-simulator>
+                </template>
             </div>
             <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
@@ -179,7 +203,8 @@
             },
             code: {
                 type: Object
-            }
+            },
+            mode: String
         },
         observers: [
             'partsChanged(parts.*)'
@@ -190,6 +215,12 @@
         ready () {
             this.elements = {};
             this.tappedElement = null;
+
+            this.pixels = {
+                0: '#ff0000',
+                1: '#00ff00',
+                2: '#0000ff'
+            };
         },
         canDelete (el) {
             return el && !!el.model;
@@ -405,6 +436,7 @@
             return this.$.content.getScale();
         },
         setBackgroundColor (color) {
+            if (this.mode === 'lightboard') return;
             this.$.dropzone.style.background = color;
         },
         generateCover () {
@@ -512,6 +544,15 @@
                 ctx.stroke();
             }
 
+        },
+        applyDropzoneClass (mode) {
+            return mode === 'normal' ? 'dropzone' : 'dropzone-lightboard';
+        },
+        _isNormalMode (mode) {
+            return mode === 'normal';
+        },
+        _isLightboardMode (mode) {
+            return mode === 'lightboard';
         }
     });
 </script>

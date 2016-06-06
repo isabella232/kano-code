@@ -1,0 +1,71 @@
+<link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
+
+<dom-module id="kano-lightboard-simulator">
+    <style>
+        :host {
+            display: block;
+        }
+
+        :host kano-led-matrix {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+
+            --kano-led-matrix-row: {
+                background: transparent;
+            }
+
+            --kano-led-matrix-led: {
+                width: 22px;
+                height: 22px;
+                margin: 3px;
+
+                box-shadow: none;
+                border: none;
+                border-radius: 0px;
+            }
+        }
+    </style>
+    <template>
+        <kano-led-matrix id="led-matrix"></kano-led-matrix>
+    </template>
+    <script>
+        Polymer({
+            is: 'kano-lightboard-simulator',
+            properties: {
+                pixels: {
+                    type: Array,
+                    value: () => Array(128)
+                }
+            },
+            _getIndex (light) {
+                return 16 * parseInt(light.y) + parseInt(light.x);
+            },
+            turnOn (light, color) {
+                if (light.type === 'all') {
+                    for (let i = 0; i < this.pixels.length; i++) {
+                        this.set("pixels." + i, color);
+                    }
+                } else if (light.type === 'single') {
+                    this.set("pixels." + this._getIndex(light), color);
+                }
+
+                this.$['led-matrix'].render(this.pixels);
+            },
+            turnOff (light) {
+                if (light.type === 'all') {
+                    for (let i = 0; i < this.pixels.length; i++) {
+                        this.set("pixels." + i, this.$['led-matrix'].offLedColor);
+                    }
+                } else if (light.type === 'single') {
+                    this.set("pixels." + this._getIndex(light), this.$['led-matrix'].offLedColor);
+                }
+
+                this.$['led-matrix'].render(this.pixels);
+            },
+            setBackgroundColor (color) {
+                this.turnOn({type: 'all'}, color);
+            }
+        });
+    </script>
+</dom-module>

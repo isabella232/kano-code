@@ -1,0 +1,62 @@
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-lightboard">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+    }
+    iron-image {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        @apply(--shadow-elevation-2dp);
+        background-color: #FFB347;
+    }
+    </style>
+    <template>
+        <div class="container">
+            <iron-image src="[[model.image]]" sizing="cover"></iron-image>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-lightboard',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                ledMatrixElement: {
+                    type: Object,
+                    value: null,
+                    readOnly: true,
+                    notify: true
+                }
+            },
+            attached () {
+                this.lightboardSim = Polymer.dom(this.parentNode).querySelector('kano-lightboard-simulator');
+            },
+            turnOn (light, color) {
+                if (this.lightboardSim) {
+                    this.lightboardSim.turnOn(light, color);
+                }
+                Kano.MakeApps.Modules.lightboard.methods.turnOn(light, color);
+            },
+            turnOff (light) {
+                if (this.lightboardSim) {
+                    this.lightboardSim.turnOff(light);
+                }
+                Kano.MakeApps.Modules.lightboard.methods.turnOff(light);
+            },
+            setBackgroundColor (color) {
+                if (this.lightboardSim) {
+                    this.lightboardSim.setBackgroundColor(color);
+                }
+                Kano.MakeApps.Modules.lightboard.methods.setBackgroundColor(color);
+            }
+        });
+    </script>
+</dom-module>
