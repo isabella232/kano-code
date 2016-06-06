@@ -1,0 +1,39 @@
+<link rel="import" href="../../elements/play-bundle.html">
+<dom-module id="kano-view-play">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+        }
+    </style>
+    <template>
+
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-play',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        ready () {
+            let slug = this.context.params.slug;
+            Kano.MakeApps.sdk.api.share.get.byId({ id: slug })
+                .then((res) => {
+                    let appFileUrl = res.body.item.attachment_url;
+                    this.importHref(appFileUrl, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
+                });
+        },
+        _onAppFileLoad () {
+            console.log('success');
+            window.KanoModules = window.Kano.MakeApps.Modules;
+            let c = this.create('kano-user-component');
+            this.appendChild(c);
+        },
+        _onAppFileError (e) {
+            console.log(e);
+        }
+    });
+</script>
