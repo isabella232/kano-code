@@ -10,7 +10,7 @@ let COMMON = {
         "VOICE_API_URL": "http://api.voicerss.org",
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
-        "HARDWARE_ENDPOINT": "http://localhost:4444"
+        "HARDWARE_API_URL": "http://localhost:4444"
     },
     ENV = {
         "production": {

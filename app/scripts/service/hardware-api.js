@@ -12,7 +12,7 @@ const MODULES = {
 
 export default HardwareAPI = {
     config (c) {
-        this.endpoint = c.HARDWARE_ENDPOINT;
+        this.endpoint = c.HARDWARE_API_URL;
     },
     getPath (module, action) {
         return `${this.endpoint}/${MODULES[module]}/${ACTIONS[action]}`;
