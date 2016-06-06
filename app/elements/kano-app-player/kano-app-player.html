@@ -1,0 +1,38 @@
+<dom-module id="kano-app-player">
+    <style>
+        :host {
+          display: block;
+          @apply(--layout-horizontal);
+        }
+        :host ::content kano-user-component {
+            @apply(--layout-flex);
+        }
+    </style>
+    <template>
+
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-app-player',
+            properties: {
+                src: {
+                    type: String,
+                    observer: '_srcChanged'
+                }
+            },
+            _srcChanged () {
+                if (!this.src) {
+                    return;
+                }
+                this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
+            },
+            _onAppFileLoad () {
+                let c = this.create('kano-user-component');
+                this.appendChild(c);
+            },
+            _onAppFileError (e) {
+                console.log(e);
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,237 @@
+<dom-module id="kano-user">
+    <style>
+        :host {
+            color: #5BB700;
+            display: block;
+        }
+
+        :host img {
+            height: 100%;
+            width: 100%;
+            vertical-align: middle;
+        }
+
+        :host a {
+            display: inline-block;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            color: #5BB700;
+        }
+
+        :host a.follow {
+            width: 19px;
+        }
+
+        :host a.username {
+            padding: 0 15px  0 0;
+            font-size: 16px;
+        }
+        :host ::content kano-login-form,
+        :host ::content kano-signup-form {
+          background-color: white;
+          display: block;
+          padding: 25px;
+          font-size: 25px;
+          border: 1px solid black;
+          line-height: 1em;
+        }
+
+        :host ::content kano-login-form label,
+        :host ::content kano-signup-form label {
+          display: block;
+          min-height: 20px;
+          color: black;
+        }
+
+        :host ::content kano-login-form input,
+        :host ::content kano-signup-form input {
+          width: 100%;
+          border-radius: 4px;
+          background: #eee;
+          border: 2px solid #FF842A;
+          margin-bottom: 20px;
+          height: 25px;
+          vertical-align: middle;
+          margin-top: 5px;
+          font-size: 0.7em;
+        }
+
+        :host ::content kano-login-form .password-field,
+        :host ::content kano-signup-form .password-field {
+            position: relative;
+        }
+
+        :host ::content kano-login-form .password-indicator,
+        :host ::content kano-signup-form .password-indicator {
+            position: absolute;
+            right: 10px;
+            top: 13px;
+            width: 30px;
+            height: 17px;
+            background-size: 30px 17px;
+        }
+
+        :host ::content kano-login-form button,
+        :host ::content kano-signup-form button {
+            margin: 0;
+            box-shadow: none;
+            font-size: 1em;
+        }
+
+        :host ::content kano-login-form a,
+        :host ::content kano-signup-form a {
+            font-size: 0.7em;
+        }
+
+        :host ::content kano-signup-form .generate-nickname {
+            float: right;
+            font-size: 0.8em;
+            color: #FF842A;
+            font-weight: 800;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 1px dotted;
+        }
+
+        :host ::content kano-signup-form kano-username-field label {
+            float: left;
+        }
+
+        :host ::content kano-signup-form kano-tc-check input{
+            height: initial;
+            vertical-align: initial;
+            margin-top: 0px;
+            width: auto;
+        }
+
+        :host ::content kano-login-form button,
+        :host ::content kano-signup-form button {
+            border-radius: 5px;
+            text-transform: uppercase;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 15px;
+            font-size: 1.3em;
+            font-family: bariol;
+            color: white;
+            padding-top: 7px !important;
+            padding-bottom: 7px !important;
+            background-color: #FF842A;
+        }
+
+    </style>
+    <template>
+        <template is="dom-if" if="{{!following}}">
+          <a class="follow" on-tap="follow">
+              <img src="/assets/images/layout/kano-user/follow-icon.png">
+          </a>
+        </template>
+        <a class="username" href="{{url}}"> {{username}} </a>
+    </template>
+</dom-module>
+
+<script>
+    class KanoUser {
+        beforeRegister () {
+            this.is = 'kano-user';
+            this.properties = {
+                username: {
+                    type: String
+                },
+                url: {
+                    type: String
+                },
+                id: {
+                    type: String
+                },
+                following: {
+                    type: Boolean,
+                    value: false
+                },
+                sdk: Object
+            };
+        }
+
+        handleLoginEvent (user) {
+          this.user = user;
+          this.isFollowed()
+        }
+
+        attached () {
+            this.addEventListener('logged-in', (ev) => this.handleLoginEvent(ev.detail.user));
+            document.querySelector('kano-share-info').addEventListener('logged-in', (ev) => this.handleLoginEvent(ev.detail.user));
+
+            this.addEventListener('user:follow', () => {
+              this.sdk.api.users.follow({ id: this.id })
+                .then(() => this.following = true)
+            })
+
+            this.sdk.auth.initSession(() => {
+                this.user = this.sdk.auth.getUser();
+                if (this.user) {
+                    this.fire('logged-in', { user: this.user })
+                }
+            });
+        }
+
+        isFollowed () {
+            this.sdk.api.users.get.byId({ id: this.user.id })
+                .then((res) => {
+                    const data = res.body.user.profile;
+                    if (data.following.indexOf(this.id) >= 0) {
+                        this.following = true;
+                    }
+                });
+        }
+
+        follow () {
+          const handleSwitch = (ev) => {
+              if (ev.target.localName === 'kano-login-form') {
+                  modal.setContent(document.createElement('kano-signup-form'));
+                  document.querySelector('#already-signedup-button')
+                      .addEventListener('click', handleSwitch);
+              }
+              if (ev.target.id === 'already-signedup-button') {
+                  modal.setContent(document.createElement('kano-login-form'));
+                  document.querySelector('kano-login-form')
+                      .addEventListener('signup-click', handleSwitch);
+              }
+          },
+
+            handleLogin = (data) => {
+                this.sdk.auth.setToken(data.details.token);
+                this.fire('logged-in', { user: data.details.user })
+                modal.close()
+            },
+
+            modal = document.createElement('kano-modal'),
+            loginForm = document.createElement('kano-login-form');
+
+          if (this.user !== null) {
+              this.fire('user:follow');
+              return;
+          }
+
+          modal.setContent(loginForm);
+          modal.show(() => {
+              let loginForm = document.querySelector('kano-login-form');
+              loginForm.addEventListener('signup-click', handleSwitch);
+              loginForm.addEventListener('success', handleLogin);
+          });
+
+          modal.addEventListener('modal-close', () => {
+              this.fire('user:follow');
+              this.removeChild(modal);
+          });
+
+          this.appendChild(modal);
+        }
+    }
+
+
+
+    Polymer(KanoUser);
+
+</script>
