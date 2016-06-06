@@ -1,0 +1,57 @@
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-ui-picture-list">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    .container {
+        position: relative;
+        width: 280px;
+        height: 150px;
+    }
+    .picture {
+        position: absolute;
+        border-radius: 4px;
+        background-color: lightgrey;
+        padding: 15px;
+        width: 280px;
+        height: 150px;
+    }
+    </style>
+    <template>
+        <div class="container">
+            <div class="picture"></div>
+            <div class="picture"></div>
+            <div class="picture"></div>
+            <div class="picture"></div>
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-ui-picture-list',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        attached () {
+
+        },
+        renderOnCanvas (ctx) {
+            Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments);
+            let width = this.$.box.offsetWidth,
+                height = this.$.box.offsetHeight,
+                padding = this.model.userProperties.strokeSize;
+
+            ctx.fillStyle = this.model.userProperties.strokeColor;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = this.model.userStyle['background-color'];
+            ctx.fillRect(padding, padding, width - padding * 2, height - padding * 2);
+
+            ctx.stroke();
+            ctx.restore();
+        }
+    });
+</script>
