@@ -11,7 +11,7 @@
         }
     </style>
     <template>
-        <kano-app-player src="[[appFileUrl]]"></kano-app-player>
+        <kano-app-player src="[[appFileUrl]]" failed="{{failed}}"></kano-app-player>
         <template is="dom-if" if="[[!embedded]]">
             <kano-play-toolbar author="[[author]]"
                 following="[[following]]"
@@ -63,7 +63,7 @@
                 if (this.profile) {
                     this._updateInfo();
                 }
-            });
+            }).catch(() => this.failed = true);
             this._getShares()
                 .then((shares) => {
                     this.shares = shares;

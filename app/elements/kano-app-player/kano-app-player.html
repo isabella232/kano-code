@@ -7,9 +7,25 @@
         :host ::content kano-user-component {
             @apply(--layout-flex);
         }
+        #container {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
+            position: relative;
+            height: calc(100% - 40px);
+        }
+        h1.error {
+            color: var(--color-red);
+        }
     </style>
     <template>
-
+        <div id="container">
+            <template is="dom-if" if="{{failed}}">
+                <h1 class="error">Something went wrong :(</h1>
+                <div>The app just won't run, will it?</div>
+            </template>
+        </div>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -18,6 +34,10 @@
                 src: {
                     type: String,
                     observer: '_srcChanged'
+                },
+                failed: {
+                    type: Boolean,
+                    value:false
                 }
             },
             _srcChanged () {
@@ -29,9 +49,10 @@
             _onAppFileLoad () {
                 let c = this.create('kano-user-component');
                 this.appendChild(c);
+                this.removeChild(this.$.container);
             },
             _onAppFileError (e) {
-                console.log(e);
+                this.failed = true;
             }
         });
     </script>
