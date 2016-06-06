@@ -7,7 +7,7 @@ let COMMON = {
             "width": 512,
             "height": 384
         },
-        "WORKSPACE_LED_BORAD_SIZE": {
+        "WORKSPACE_LED_BOARD_SIZE": {
             "width": 466,
             "height": 240
         },

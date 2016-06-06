@@ -143,8 +143,12 @@
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
-            //this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
-            this.set('size', Kano.MakeApps.config.WORKSPACE_LED_BORAD_SIZE);
+
+            if (this._getMode(this.context) === 'lightboard') {
+                this.set('size', Kano.MakeApps.config.WORKSPACE_LED_BOARD_SIZE);
+            } else {
+                this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+            }
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
