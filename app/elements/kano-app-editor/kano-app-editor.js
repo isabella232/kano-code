@@ -89,6 +89,11 @@ Polymer({
         },
         title: {
             type: String
+        },
+        mode: {
+            type: String,
+            value: 'normal',
+            observer: '_modeChanged'
         }
     },
     observers: [
@@ -104,6 +109,16 @@ Polymer({
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
+    },
+    _modeChanged (newVal) {
+        // TODO: This still needs some work
+        /* Add and remove the light part automatically when entering, exiting
+           the lightboard mode. */
+        /*if (newVal === 'lightboard') {
+            this.set('addedParts', this.addedParts.push(this.parts.map((p) => p.type === 'light')));
+        } else {
+            this.set('addedParts', this.addedParts.filter((p) => p.type === 'light'));
+        }*/
     },
     toggleMenu () {
         this.fire('toggle-menu');
