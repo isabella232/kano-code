@@ -17,11 +17,14 @@ import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
 import Microphone from './microphone';
 import PictureList from './picture-list';
+import Light from './light';
 
 let part,
     partTypes;
 
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share, Image, ScrollingText, RSS, Sports, Speaker, Microphone, PictureList];
+export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
+                       Image, ScrollingText, RSS, Sports, Speaker, Microphone,
+                       Light, PictureList];
 
 partTypes = {
     'ui': UI,
