@@ -2,6 +2,8 @@
 <script src="./file_utils.js"></script>
 <script type="text/javascript">
 
+    /* globals Kano */
+
     window.Kano = window.Kano || {};
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
@@ -17,6 +19,9 @@
                notify: true
            }
        },
+       observers: [
+           '_userChanged(user)'
+       ],
 
        shareApp () {
            // Generates the standalone component
@@ -74,9 +79,23 @@
            this.modal.open();
        },
 
+       _userChanged (user) {
+           // user just logged out, nothing to do
+           if (!user) {
+               return;
+           }
+           // The user logged in and the sharing was waiting authentication, trigger the share
+           if (this.waitingAuth) {
+               this.confirmShare();
+           }
+       },
+
        confirmShare () {
-           if (!Kano.MakeApps.sdk.auth.getToken()) {
-               return this.createAuthModal();
+           // The user is not authenticated
+           if (!this.user) {
+               // Flag the sharing as waiting authentication and trigger a login event
+               this.waitingAuth = true;
+               return this.fire('login');
            }
            this.set('shareInfo.page', 1);
            this.shareApp();
@@ -84,27 +103,7 @@
 
        dismissShare () {
            this.modal.close();
-       },
-
-       onLoginSuccess (e) {
-           this.fire('login', e.detail);
-           this.authModal.close();
-           this.removeChild(this.authModal);
-           this.authModal = null;
-           this.confirmShare();
-       },
-
-       createAuthModal () {
-           let auth = this.create('kano-auth');
-           this.authModal = this.create('paper-dialog', {
-               withBackdrop: true
-           });
-           this.authModal.appendChild(auth);
-           auth.addEventListener('login', (e) => this.onLoginSuccess(e));
-           this.appendChild(this.authModal);
-           this.authModal.open();
        }
-
    };
 
    window.Kano.Behaviors.SharingBehavior = [window.Kano.Behaviors.ViewBehavior, SharingBehavior];
