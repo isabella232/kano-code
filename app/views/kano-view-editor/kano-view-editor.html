@@ -95,16 +95,24 @@
             }
             this.loaded = true;
 
-            if (this._getMode(this.context) === 'lightboard') {
-                // Filter out UI parts in lightboard mode
-                this.set('parts', Kano.MakeApps.part.filter((part) => {
-                    return part.partType !== 'ui';
-                }));
-            } else {
-                // Don't show lightboard in normal mode
-                this.set('parts', Kano.MakeApps.part.filter((part) => {
-                    return part.type !== 'light';
-                }));
+            switch (this._getMode(this.context)) {
+                case 'lightboard':
+                    // Filter out UI and camera parts in lightboard mode
+                    this.set('parts', Kano.MakeApps.part.filter((part) => {
+                        return part.partType !== 'ui' && part.type !== 'camera';
+                    }));
+                    break;
+                case 'camera':
+                    // Don't show lightboard in camera mode
+                    this.set('parts', Kano.MakeApps.part.filter((part) => {
+                        return part.type !== 'light';
+                    }));
+                    break;
+                default:
+                    // Don't show lightboard and camera in normal mode
+                    this.set('parts', Kano.MakeApps.part.filter((part) => {
+                        return part.type !== 'light' && part.type !== 'camera';
+                    }));
             }
 
             this.set('defaultCategories', Kano.MakeApps.defaultCategories);
