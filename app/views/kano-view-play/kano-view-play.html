@@ -30,7 +30,7 @@
 </dom-module>
 
 <script>
-    /* globals Polymer, Kano */
+    /* globals Polymer, Kano, MobileDetect */
     Polymer({
         is: 'kano-view-play',
         behaviors: [Kano.Behaviors.ViewBehavior],
@@ -104,10 +104,16 @@
             Kano.MakeApps.sdk.api.share.unlike({ id: e.detail }).then(() => {});
         },
         _getShare () {
-            return Kano.MakeApps.sdk.api.share.get.byId({ id: this.slug })
-                .then((res) => {
-                    return res.body.item;
-                });
+            let idRegExp = /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
+                p;
+            if (idRegExp.test(this.slug)) {
+                p = Kano.MakeApps.sdk.api.share.get.byId({ id: this.slug });
+            } else {
+                p = Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.slug });
+            }
+            return p.then((res) => {
+                return res.body.item;
+            });
         },
         _getUserProfile () {
             return Kano.MakeApps.sdk.api.users.get.byId({ id: this.user.id })
