@@ -1,0 +1,152 @@
+<link rel="import" href="../../elements/play-bundle.html">
+<dom-module id="kano-view-play">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            @apply(--layout-vertical);
+        }
+        kano-app-player {
+            @apply(--layout-flex);
+        }
+    </style>
+    <template>
+        <kano-app-player src="[[appFileUrl]]" failed="{{failed}}"></kano-app-player>
+        <template is="dom-if" if="[[!embedded]]">
+            <kano-play-toolbar author="[[author]]"
+                following="[[following]]"
+                liked="[[liked]]"
+                share="[[share]]"
+                shares="[[shares]]"
+                mode="[[_computeMode()]]"
+                world-url="[[worldUrl]]"></kano-play-toolbar>
+        </template>
+        <kano-meta-tags url="[[_computeShareUrl(share)]]"
+                        title="[[share.title]]"
+                        description="[[share.description]]"
+                        site-name="Make Apps"
+                        image="[[share.cover_url]]"><kano-meta-tags>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-play',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        observers: [
+            '_userChanged(user)'
+        ],
+        listeners: {
+            'like': '_likeShare',
+            'unlike': '_unlikeShare',
+            'send-email': '_sendEmail',
+            'follow': '_follow'
+        },
+        ready () {
+            // Ugly quick trick to hide the news bar
+            document.querySelector('.news-bar').style.display = 'none';
+            this.actionsStack = [];
+            // Use slug here, but for now, we really deal with ids
+            this.slug = this.context.params.slug;
+            let pieces = this.context.path.split('/');
+            if (pieces[1]) {
+                this.embedded = pieces[1] === 'embed';
+            }
+            //this.embedded = this.context.
+            // Alias to make sure the apps use the right modules
+            window.KanoModules = window.Kano.MakeApps.Modules;
+            this._getShare().then((share) => {
+                this.share = share;
+                this.appFileUrl = share.attachment_url;
+                this.author = share.user;
+                if (this.profile) {
+                    this._updateInfo();
+                }
+            }).catch(() => this.failed = true);
+            this._getShares()
+                .then((shares) => {
+                    this.shares = shares;
+                });
+            this.worldUrl = Kano.MakeApps.config.WORLD_URL;
+        },
+        _follow (e) {
+            if (!this.user) {
+                this.fire('login');
+                this.actionsStack.push({ name: 'follow', detail: e.detail });
+                return;
+            }
+            Kano.MakeApps.sdk.api.users.follow({ id: e.detail }).then(() => {});
+        },
+        _computeMode () {
+            let md = new MobileDetect(window.navigator.userAgent);
+            return md.mobile() ? 'mobile' : 'desktop';
+        },
+        _getShares () {
+            return Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 20 })
+                .then((res) => {
+                    return res.body.entries;
+                });
+        },
+        _likeShare (e) {
+            if (!this.user) {
+                this.fire('login');
+                this.actionsStack.push({ name: 'like', detail: e.detail });
+                return;
+            }
+            Kano.MakeApps.sdk.api.share.like({ id: e.detail }).then(() => {});
+        },
+        _unlikeShare (e) {
+            if (!this.user) {
+                this.fire('login');
+                this.actionsStack.push({ name: 'unlike', detail: e.detail });
+                return;
+            }
+            Kano.MakeApps.sdk.api.share.unlike({ id: e.detail }).then(() => {});
+        },
+        _getShare () {
+            return Kano.MakeApps.sdk.api.share.get.byId({ id: this.slug })
+                .then((res) => {
+                    return res.body.item;
+                });
+        },
+        _getUserProfile () {
+            return Kano.MakeApps.sdk.api.users.get.byId({ id: this.user.id })
+                .then((res) => {
+                    return res.body.user.profile;
+                });
+        },
+        _userChanged () {
+            if (this.user) {
+                this._getUserProfile().then((profile) => {
+                    this.profile = profile;
+                    if (this.author) {
+                        this._updateInfo();
+                    }
+                });
+                if (this.actionsStack) {
+                    // Apply any stacked action while not logged
+                    this.actionsStack.forEach((action) => {
+                        this.fire(action.name, action.detail);
+                    });
+                    this.actionsStack = [];
+                }
+            }
+        },
+        _updateInfo() {
+            this.following = this.user.id === this.author.id || this.profile.following.indexOf(this.author.id) !== -1;
+            this.liked = this.share.likes.some((item) => item.user === this.user.id);
+        },
+        _sendEmail (e) {
+            let mailData = e.detail.mailData;
+            mailData.title = this.share.title;
+
+            Kano.MakeApps.email.send(mailData).then(res => {
+                e.detail.sentCallback();
+            });
+        },
+        _computeShareUrl (share) {
+            return `${this.worldUrl}/shared/${share.slug}`;
+        }
+    });
+</script>

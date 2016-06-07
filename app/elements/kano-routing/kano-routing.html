@@ -47,6 +47,9 @@
         <template is="iron-lazy-page" name="apps" path="/views/kano-view-apps/kano-view-apps.html">
             <kano-view-apps context="[[context]]" user="{{user}}"></kano-view-apps>
         </template>
+        <template is="iron-lazy-page" name="play" path="/views/kano-view-play/kano-view-play.html">
+            <kano-view-play context="[[context]]" user="{{user}}"></kano-view-play>
+        </template>
     </iron-lazy-pages>
     <paper-progress indeterminate class$="[[_computeLoadingClass(loading)]]"></paper-progress>
   </template>
@@ -77,6 +80,8 @@
           page('/preview',      this._showPageThunk('preview'));
           page('/story/:id',    this._showPageThunk('story'));
           page('/remix/:slug',  this._showPageThunk('editor'));
+          page('/app/:slug',   this._showPageThunk('play'));
+          page('/embed/:slug',   this._showPageThunk('play'));
           // Used for debugging apps export
           //page('/preview', this.partial('kano-view-preview'));
           page('*', () => {});

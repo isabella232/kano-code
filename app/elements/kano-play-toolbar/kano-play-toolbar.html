@@ -1,0 +1,253 @@
+<link rel="import" href="../kano-share-info/kano-share-info.html">
+<link rel="import" href="../kano-external-share/kano-external-share.html">
+<link rel="import" href="../kano-carousel/kano-carousel.html">
+<link rel="import" href="../kano-app-share-card/kano-app-share-card.html">
+<link rel="import" href="../kano-user/kano-user.html">
+
+<dom-module id="kano-play-toolbar">
+    <style>
+
+        :host {
+            width: 100%;
+            background: var(--color-header);
+            -webkit-font-smoothing: antialiased;
+            font-smoothing: antialiased;
+            --kano-carousel-button: {
+                margin: 0px 5px;
+            };
+
+        }
+
+        kano-share-info, a.over-layout {
+            display: inline-block;
+        }
+
+        kano-share-info {
+            width: 100%;
+        }
+
+        a.over-layout  {
+            cursor: pointer;
+            line-height: 30px;
+            float: right;
+            position: relative;
+            color: white;
+            font-weight: bold;
+            margin: 6px 15px;
+        }
+
+        .over-layout img {
+            width: 53px;
+        }
+
+        .over-layout img, .over-layout span {
+            vertical-align: middle;
+        }
+
+        #toolbarContainer {
+            transition: 0.3s;
+            display: block;
+            line-height: 0;
+            height: 0;
+            min-height: 0;
+            max-height: 0;
+            overflow: hidden;
+            clear: both;
+            background-color: var(--color-header);
+        }
+
+        .container:hover #toolbarContainer,
+        #toolbarContainer.expand {
+            min-height: 100px;
+            line-height: 20px;
+            height: auto;
+            max-height: 500px;
+        }
+
+        kano-carousel {
+            padding: 15px 0;
+            max-width: 100%;
+        }
+
+        kano-app-share-card {
+            height: 120px;
+            width: 160px;
+            background-color: #323232;
+            border: 3px solid white;
+            border-radius: 3px;
+        }
+
+        .explore-buttons {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .explore-buttons a {
+            flex: 1;
+            display: flex;
+            text-decoration: none;
+        }
+
+        .explore-buttons a:nth-child(2) {
+            margin-top: 10px;
+        }
+
+        .explore-buttons a button {
+            height: 120px;
+            width: 160px;
+            color: var(--color-grey-lighter);
+            background-color: var(--color-black);
+            border: 3px solid var(--color-grey-lighter);
+            box-shadow: none;
+            font-weight: bold;
+            transition: all ease 0.3s;
+            border-radius: 3px;
+        }
+
+        .explore-buttons a button:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        @media screen and (max-width: 568px) {
+            span.text {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .details {
+                flex-direction: column-reverse !important;
+            }
+            .details .right {
+                width: 100% !important;
+            }
+        }
+
+        :host .bottom-bar {
+          height: 40px;
+          overflow: hidden;
+        }
+        .author-info {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+            color: #5BB700;
+            margin-left: 15px;
+        }
+        .author-info img {
+            width: 100%;
+        }
+        .author-info a {
+            display: inline-block;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            color: #5BB700;
+        }
+        .author-info .follow {
+            width: 19px;
+            margin-right: 4px;
+            line-height: 0;
+        }
+        .author-info a.username {
+            font-size: 16px;
+        }
+        .details,
+        .bottom-bar {
+            @apply(--layout-horizontal);
+            @apply(--layout-justified);
+        }
+        .details .left {
+            flex: 9;
+        }
+        .details .right {
+            flex: 15;
+            width: 66%;
+            @apply(--layout-horizontal);
+        }
+    </style>
+    <template>
+        <div class="container">
+            <div id="toolbarContainer">
+                <div class="details">
+                    <div class="left">
+                        <kano-external-share></kano-external-share>
+                        <div class="author-info">
+                            <a class="follow" on-tap="_follow" hidden$="[[following]]">
+                                <img src="/assets/icons/follow-icon.png" alt="Follow user icon">
+                            </a>
+                            <a class="username" href="[[_computeAuthorUrl(share.user.username)]]">[[share.user.username]]</a>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <kano-carousel mode="[[mode]]">
+                            <div class="explore-buttons">
+                                <a href="[[_getShareUrl(share)]]">
+                                    <button type="button" class="button-orange">See the code</button>
+                                </a>
+                                <!-- TODO Hidden until we figure out where to link -->
+                                <!--<a href="./make/{{appData.id}}"><button type="button" class="button-orange">Make this</button></a>-->
+                            </div>
+                            <template is="dom-repeat" items="{{shares}}">
+                                <kano-app-share-card img="{{item.cover_url}}" href="/app/{{item.id}}">{{item.title}}</kano--shareapp-card>
+                            </template>
+                        </kano-carousel>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-bar" on-tap="toggleHovered">
+                <div class="left">
+                    <kano-share-info share="[[share]]" liked="[[liked]]" world-url="[[worldUrl]]"></kano-share-info>
+                </div>
+                <div class="right">
+                    <a class="over-layout">
+                        <span class="text">Made with</span>
+                        <img src="/assets/logo_inverted.png" alt="Kano logo">
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    Polymer({
+        is: 'kano-play-toolbar',
+        properties: {
+            shares: {
+                type: Array,
+                notify: true
+            },
+            worldUrl: String,
+            mode: String,
+            share: {
+                type: Object
+            },
+            liked: {
+                type: Boolean,
+                value: false
+            },
+            following: {
+                type: Boolean,
+                value: false
+            }
+        },
+        /**
+         * Used for expanding toolbar on mobile as we have no hover event
+         */
+        toggleHovered () {
+            let container = this.$.toolbarContainer;
+            this.toggleClass('expand', this.hovered, container);
+        },
+        _getShareUrl (share) {
+            return `/remix/${share.slug}`;
+        },
+        _computeAuthorUrl (username) {
+            return `${this.worldUrl}/users/${username}`;
+        },
+        _follow () {
+            this.fire('follow', this.share.user.id);
+        }
+    });
+</script>
