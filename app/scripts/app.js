@@ -6,6 +6,7 @@ import modules from './language/modules';
 import blockly from './blockly';
 import Stories from './service/stories';
 import Components from './service/components';
+import email from './service/email';
 import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
 import DragAndDrop from './drag-and-drop';
@@ -33,6 +34,8 @@ window.Kano = window.Kano || {};
     MakeApps.progress = ProgressService(MakeApps.sdk);
     MakeApps.sdk.registerForms();
 
-
     MakeApps.Modules = modules;
+
+    MakeApps.email = email;
+
 })(window.Kano.MakeApps = window.Kano.MakeApps || {});

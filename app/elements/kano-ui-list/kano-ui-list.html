@@ -38,7 +38,7 @@
     </style>
     <template>
         <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
-        <template is="dom-repeat" items={{categories}} as="cat">
+        <template is="dom-repeat" items="{{_usedCategories(categories, items)}}" as="cat">
             <div class="categoryHead">{{cat.title}}</div>
             <div class="category">
                 <template is="dom-repeat" items="{{items}}" filter="[[cat.partType]]Filter" observe="partType">
@@ -132,6 +132,17 @@
         },
         hardwareFilter (item) {
             return item.partType === 'hardware';
+        },
+        _usedCategories (categories, parts) {
+            let usedCategories = [];
+
+            for (let p = 0; p < parts.length; p++) {
+                if (usedCategories.indexOf(parts[p].partType) < 0) {
+                    usedCategories.push(parts[p].partType);
+                }
+            }
+
+            return categories.filter((cat) => usedCategories.indexOf(cat.partType) >= 0);
         }
     });
 </script>
