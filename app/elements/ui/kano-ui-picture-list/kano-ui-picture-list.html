@@ -1,5 +1,5 @@
 <link rel="import" href="../behaviors.html">
-
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <dom-module id="kano-ui-picture-list">
     <style>
     :host {
@@ -7,16 +7,83 @@
     }
     .container {
         position: relative;
-        width: 280px;
-        height: 150px;
+        width: 220px;
+        height: 120px;
+    }
+    :host.playing .container .picture {
+        transform: none;
+        box-shadow: none;
+    }
+    :host.playing .container .picture .counter {
+        display: none;
+    }
+    :host.playing .top {
+        display: none;
+    }
+    :host.playing .frame {
+        display: block;
+    }
+    .frame {
+        display: none;
     }
     .picture {
+        @apply(--shadow-elevation-4dp);
         position: absolute;
-        border-radius: 4px;
+        border-radius: 6px;
+        border: 2px solid white;
         background-color: lightgrey;
-        padding: 15px;
-        width: 280px;
-        height: 150px;
+        min-width: 220px;
+        min-height: 120px;
+        transition: all ease-out 150ms;
+    }
+    .picture:nth-child(1) {
+        transform: rotate(5deg) translate(0px, -7px);
+    }
+    .picture:nth-child(2) {
+        transform: rotate(-3deg) translate(0px, -5px);
+    }
+    .picture:nth-child(3) {
+        transform: rotate(3deg) translate(5px);
+    }
+    .picture:nth-child(4) {
+        transform: rotate(1deg);
+        position: relative;
+    }
+    .container:hover .picture {
+        @apply(--shadow-elevation-2dp);
+        transform-origin: 20px 80px;
+    }
+    .container:hover .picture:nth-child(1) {
+        transform: rotate(-6deg);
+    }
+    .container:hover .picture:nth-child(2) {
+        transform: rotate(-4deg);
+    }
+    .container:hover .picture:nth-child(3) {
+        transform: rotate(-2deg);
+    }
+    .container:hover .picture:nth-child(4) {
+        transform: rotate(-1deg);
+    }
+    .counter {
+        position: absolute;
+        right: 0px;
+        top: calc(50% - 11px);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        background-color: rgba(0, 0, 0, 0.45);
+        border-top-left-radius: 11px;
+        border-bottom-left-radius: 11px;
+        color: white;
+        width: 32px;
+        height: 22px;
+        padding-left: 11px;
+        font-size: 14px;
+    }
+    iron-image {
+        width: 190px;
+        height: 90px;
+        margin: 15px;
     }
     </style>
     <template>
@@ -24,7 +91,11 @@
             <div class="picture"></div>
             <div class="picture"></div>
             <div class="picture"></div>
-            <div class="picture"></div>
+            <div class="picture">
+                <iron-image class="top" src="[[topPicture]]" sizing="cover" preload fade></iron-image>
+                <iron-image class="frame" src="[[frame]]" sizing="cover" preload fade></iron-image>
+                <div class="counter">[[pictures.length]]</div>
+            </div>
         </div>
     </template>
 </dom-module>
@@ -35,8 +106,37 @@
     Polymer({
         is: 'kano-ui-picture-list',
         behaviors: [Kano.Behaviors.UIBehavior],
-        attached () {
-
+        properties: {
+            topPicture: {
+                type: String,
+                computed: '_computeTopPicture(pictures.*)'
+            }
+        },
+        ready () {
+            this.pictures = [];
+            this.frameId = 0;
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            this.pictures = [];
+            this.pause();
+        },
+        _computeTopPicture () {
+            return this.pictures[this.pictures.length - 1];
+        },
+        play () {
+            this.toggleClass('playing', true);
+            this.interval = setInterval(() => {
+                this.frameId++;
+                if (this.frameId >= this.pictures.length) {
+                    this.frameId = 0;
+                }
+                this.frame = this.pictures[this.frameId];
+            }, 100);
+        },
+        pause () {
+            this.toggleClass('playing', false);
+            clearInterval(this.interval);
         },
         renderOnCanvas (ctx) {
             Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments);
