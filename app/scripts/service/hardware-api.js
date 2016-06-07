@@ -8,21 +8,62 @@ const MODULES = {
           'allon': 'allon',
           'alloff': 'alloff',
           'on': 'on'
-      };
+      },
+      MAX_CALL_PER_SEC = 2;
 
 export default HardwareAPI = {
+    callStack: [],
+    timeoutId: null,
     config (c) {
         this.endpoint = c.HARDWARE_API_URL;
     },
     getPath (module, action) {
         return `${this.endpoint}/${MODULES[module]}/${ACTIONS[action]}`;
     },
+    /**
+     * Throttling method wrapper for fetch
+     */
+    request () {
+        this.callStack.push(arguments);
+        return HardwareAPI.nextCall();
+    },
+    /**
+     * Make the next call in the stack to the API
+     */
+    nextCall () {
+        // Currently throttling, do nothing
+        if (HardwareAPI.timeoutId) {
+            return Promise.resolve();
+        }
+        // The stack is not empty
+        if (HardwareAPI.callStack.length) {
+            // Make the stacked call
+            return fetch.apply(window, HardwareAPI.callStack.pop())
+            // Defer the next call
+            .then(HardwareAPI.deferNextCall, HardwareAPI.deferNextCall);
+        }
+        return Promise.resolve();
+    },
+    deferNextCall (res) {
+        // Defer the next call to the API
+        HardwareAPI.timeoutId = setTimeout(() => {
+            // Reset the timeout id when done
+            HardwareAPI.timeoutId = null;
+            // Trigger the next call
+            return HardwareAPI.nextCall();
+        }, 1000 / MAX_CALL_PER_SEC);
+        return res;
+    },
+    clearAllCalls () {
+        clearTimeout(HardwareAPI.timeoutId);
+        HardwareAPI.callStack = [];
+    },
     light: {
         getPath (action) {
             return HardwareAPI.getPath('lightboard', action);
         },
         allOn (color) {
-            return fetch(HardwareAPI.light.getPath('allon'), {
+            return HardwareAPI.request(HardwareAPI.light.getPath('allon'), {
                 method: 'POST',
                 headers: new Headers({
                     'Content-Type': 'application/json'
@@ -31,13 +72,13 @@ export default HardwareAPI = {
             }).then(() => {});
         },
         allOff () {
-            return fetch(HardwareAPI.light.getPath('alloff'), {
+            return HardwareAPI.request(HardwareAPI.light.getPath('alloff'), {
                 method: 'POST'
             }).then(() => {});
         },
         singleOn (index, color) {
             let path = HardwareAPI.light.getPath('on');
-            return fetch(`${path}/${index}`, {
+            return HardwareAPI.request(`${path}/${index}`, {
                 method: 'POST',
                 headers: new Headers({
                     'Content-Type': 'application/json'
@@ -46,7 +87,7 @@ export default HardwareAPI = {
             }).then(() => {});
         },
         on (bitmap) {
-            return fetch(HardwareAPI.light.getPath('on'), {
+            return HardwareAPI.request(HardwareAPI.light.getPath('on'), {
                 method: 'POST',
                 headers: new Headers({
                     'Content-Type': 'application/json'
