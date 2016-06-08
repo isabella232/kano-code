@@ -95,6 +95,37 @@ export default HardwareAPI = {
                 }),
                 body: JSON.stringify({ pixels: bitmap })
             }).then(() => {});
+        },
+        camera: {
+            getPath (action) {
+                return HardwareAPI.getPath('camera', action);
+            },
+            takePicture () {
+                return fetch(HardwareAPI.light.getPath('/imgs/takepicture'))
+                    .then((res) => {
+                        if (!res.ok) {
+                            console.log("Failed to reach camera kit");
+                            return null;
+                        }
+
+                        return res.json();
+                    }).then((data) => {
+                        return data.filename;
+                    });
+            },
+            lastPictureTaken () {
+                return fetch(HardwareAPI.light.getPath('/imgs/last'))
+                    .then((res) => {
+                        if (!res.ok) {
+                            console.log("Failed to reach camera kit");
+                            return null;
+                        }
+
+                        return res.json();
+                    }).then((data) => {
+                        return data.filename;
+                    });
+            }
         }
     }
 };

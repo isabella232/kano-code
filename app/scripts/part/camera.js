@@ -7,22 +7,18 @@ export default Camera = {
     type: 'camera',
     label: 'Camera',
     image: '/assets/part/camera.svg',
+    component: 'kano-part-camera',
     colour: '#FFB347',
+    events: [{
+        label: 'takes picture',
+        id: 'picture-taken'
+    }],
     blocks: [{
         block: () => {
             return {
-                id: 'turn_on',
-                message0: 'Lights: turn on %1 set color %2',
-                args0: [{
-                    type: "input_value",
-                    name: "TARGET",
-                    check: 'Light'
-                },{
-                    type: "input_value",
-                    name: "COLOR",
-                    check: "Colour",
-                    align: "RIGHT"
-                }],
+                id: 'take_picture',
+                message0: 'Camera: take picture',
+                args0: [],
                 inputsInline: false,
                 previousStatement: null,
                 nextStatement: null
@@ -30,114 +26,37 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '',
-                    code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '',
-                    code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         }
     },{
         block: () => {
             return {
-                id: 'turn_off',
-                message0: 'Lights: turn off %1',
+                id: 'last_picture',
+                message0: 'Camera: last picture taken',
                 inputsInline: false,
-                args0: [{
-                    type: "input_value",
-                    name: "TARGET",
-                    check: 'Light'
-                }],
+                args0: [],
                 previousStatement: null,
                 nextStatement: null
             };
         },
         javascript: (part) => {
             return (block) => {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    code = `devices.get('${part.id}').turnOff(${target});\n`;
+                let code = `devices.get('${part.id}').lastPicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
-                    code = `devices.get('${part.id}').turnOff(${target});\n`;
+                let code = `devices.get('${part.id}').lastPicture();\n`;
                 return code;
-            };
-        }
-    },{
-        block: () => {
-            return {
-                id: 'lights_all',
-                message0: 'all lights',
-                output: 'Light'
-            };
-        },
-        javascript: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
-            };
-        },
-        pseudo: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
-            };
-        }
-    },{
-        block: () => {
-            return {
-                id: 'light_x_y',
-                message0: 'light at %1 %2',
-                inputsInline: true,
-                output: 'Light',
-                args0: [{
-                    type: "input_value",
-                    name: "X",
-                    check: 'Number'
-                },
-                {
-                    type: "input_value",
-                    name: "Y",
-                    check: "Number"
-                }],
-                shadow: {
-                    'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
-                }
-            };
-        },
-        javascript: () => {
-            return (block) => {
-                let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
-                return [JSON.stringify({
-                    type: 'single',
-                    x: x,
-                    y: y
-                })];
-            };
-        },
-        pseudo: () => {
-            return (block) => {
-                let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
-                return [JSON.stringify({
-                    type: 'single',
-                    x: x,
-                    y: y
-                })];
             };
         }
     }]
