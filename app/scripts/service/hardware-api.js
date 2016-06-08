@@ -2,12 +2,16 @@
 let HardwareAPI;
 
 const MODULES = {
-          lightboard: 'lightboard'
+          lightboard: 'lightboard',
+          camera: 'camera'
       },
       ACTIONS = {
           'allon': 'allon',
           'alloff': 'alloff',
-          'on': 'on'
+          'on': 'on',
+          'takePicture': '/imgs/takepicture',
+          'lastPicture': '/imgs/last',
+          'lastPictureData': '/imgs/last.jpg'
       },
       MAX_CALL_PER_SEC = 2;
 
@@ -95,6 +99,41 @@ export default HardwareAPI = {
                 }),
                 body: JSON.stringify({ pixels: bitmap })
             }).then(() => {});
+        }
+    },
+    camera: {
+        getPath (action) {
+            return HardwareAPI.getPath('camera', action);
+        },
+        takePicture () {
+            return fetch(HardwareAPI.camera.getPath('takePicture'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.log("Failed to reach camera kit");
+                        return null;
+                    }
+
+                    return res.json();
+                }).then((data) => {
+                    console.log(data);
+                    return data.filename;
+                });
+        },
+        lastPicture () {
+            /*return fetch(HardwareAPI.camera.getPath('lastPicture'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.log("Failed to reach camera kit");
+                        return null;
+                    }
+
+                    return res.json();
+                }).then((data) => {
+                    console.log(data);
+                    return data.filename;
+                });*/
+            // Just return path to the endpoint
+            return HardwareAPI.camera.getPath('lastPictureData');
         }
     }
 };
