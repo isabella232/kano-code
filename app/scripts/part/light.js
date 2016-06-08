@@ -32,7 +32,7 @@ export default light = {
         javascript: (part) => {
             return (block) => {
                 let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '',
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
@@ -40,7 +40,7 @@ export default light = {
         pseudo: (part) => {
             return (block) => {
                 let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '',
+                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '""',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
@@ -123,22 +123,22 @@ export default light = {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                     y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
-                return [JSON.stringify({
+                return [`{
                     type: 'single',
-                    x: x,
-                    y: y
-                })];
+                    x: ${x},
+                    y: ${y}
+                }`];
             };
         },
         pseudo: () => {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
                     y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
-                return [JSON.stringify({
+                return [`{
                     type: 'single',
-                    x: x,
-                    y: y
-                })];
+                    x: ${x},
+                    y: ${y}
+                }`];
             };
         }
     }]
