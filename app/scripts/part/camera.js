@@ -1,8 +1,8 @@
 /* globals Blockly */
 
-let camera;
+let Camera;
 
-export default camera = {
+export default Camera = {
     partType: 'hardware',
     type: 'camera',
     label: 'Camera',
