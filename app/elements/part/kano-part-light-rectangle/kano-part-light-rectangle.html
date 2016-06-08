@@ -1,0 +1,58 @@
+<link rel="import" href="../../ui/behaviors.html">
+<dom-module id="kano-part-light-rectangle">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        background-color: red;
+    }
+    </style>
+    <template>
+        <div class="container"></div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-light-rectangle',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                shape: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            x: 0,
+                            y: 0,
+                            width: 1,
+                            height: 1,
+                            color: '#ffffff',
+                            type: 'rectangle'
+                        };
+                    }
+                }
+            },
+            observers: [
+                '_shapeChanged(shape.*)'
+            ],
+            _shapeChanged () {
+                this.debounce('updateShape', () => {
+                    if (this.isRunning) {
+                        let bitmap = Kano.MakeApps.Modules.lightboard.methods.updateOrCreateShape(this.model.id, this.shape);
+                        this.fire('update-lightboard', bitmap);
+                    }
+                });
+            },
+            draw (x, y, width, height, color) {
+                this.set('shape.x', x || this.shape.x);
+                this.set('shape.y', y || this.shape.y);
+                this.set('shape.width', width || this.shape.width);
+                this.set('shape.height', height || this.shape.height);
+                this.set('shape.color', color || this.shape.color);
+            }
+        });
+    </script>
+</dom-module>

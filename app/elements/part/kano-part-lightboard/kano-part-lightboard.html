@@ -28,34 +28,25 @@
         Polymer({
             is: 'kano-part-lightboard',
             behaviors: [Kano.Behaviors.UIBehavior],
-            properties: {
-                ledMatrixElement: {
-                    type: Object,
-                    value: null,
-                    readOnly: true,
-                    notify: true
-                }
-            },
             attached () {
                 this.lightboardSim = Polymer.dom(this.parentNode).querySelector('kano-lightboard-simulator');
             },
             turnOn (light, color) {
-                if (this.lightboardSim) {
-                    this.lightboardSim.turnOn(light, color);
-                }
-                Kano.MakeApps.Modules.lightboard.methods.turnOn(light, color);
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOn(light, color);
+                this.renderOnSimulator(bitmap);
             },
             turnOff (light) {
-                if (this.lightboardSim) {
-                    this.lightboardSim.turnOff(light);
-                }
-                Kano.MakeApps.Modules.lightboard.methods.turnOff(light);
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOff(light);
+                this.renderOnSimulator(bitmap);
             },
             setBackgroundColor (color) {
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.setBackgroundColor(color);
+                this.renderOnSimulator(bitmap);
+            },
+            renderOnSimulator (bitmap) {
                 if (this.lightboardSim) {
-                    this.lightboardSim.setBackgroundColor(color);
+                    this.lightboardSim.render(bitmap);
                 }
-                Kano.MakeApps.Modules.lightboard.methods.setBackgroundColor(color);
             }
         });
     </script>

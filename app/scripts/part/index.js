@@ -17,13 +17,14 @@ import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
 import Microphone from './microphone';
 import Light from './light';
+import LightRectangle from './light-rectangle';
 
 let part,
     partTypes;
 
 export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
                        Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-                       Light];
+                       Light, LightRectangle];
 
 partTypes = {
     'ui': UI,

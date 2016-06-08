@@ -35,36 +35,11 @@
             properties: {
                 pixels: {
                     type: Array,
-                    value: () => Array(128)
+                    value: () => new Array(128)
                 }
             },
-            _getIndex (light) {
-                return 16 * parseInt(light.y) + parseInt(light.x);
-            },
-            turnOn (light, color) {
-                if (light.type === 'all') {
-                    for (let i = 0; i < this.pixels.length; i++) {
-                        this.set("pixels." + i, color);
-                    }
-                } else if (light.type === 'single') {
-                    this.set("pixels." + this._getIndex(light), color);
-                }
-
-                this.$['led-matrix'].render(this.pixels);
-            },
-            turnOff (light) {
-                if (light.type === 'all') {
-                    for (let i = 0; i < this.pixels.length; i++) {
-                        this.set("pixels." + i, this.$['led-matrix'].offLedColor);
-                    }
-                } else if (light.type === 'single') {
-                    this.set("pixels." + this._getIndex(light), this.$['led-matrix'].offLedColor);
-                }
-
-                this.$['led-matrix'].render(this.pixels);
-            },
-            setBackgroundColor (color) {
-                this.turnOn({type: 'all'}, color);
+            render (bitmap) {
+                this.$['led-matrix'].render(bitmap);
             }
         });
     </script>

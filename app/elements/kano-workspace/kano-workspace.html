@@ -210,7 +210,8 @@
             'partsChanged(parts.*)'
         ],
         listeners: {
-            'part-tapped': 'onPartTapped'
+            'part-tapped': 'onPartTapped',
+            'update-lightboard': '_updateLightboard'
         },
         ready () {
             this.elements = {};
@@ -553,6 +554,11 @@
         },
         _isLightboardMode (mode) {
             return mode === 'lightboard';
+        },
+        _updateLightboard (e) {
+            if (this.mode === 'lightboard') {
+                this.$$('#lightboard-simulator').render(e.detail);
+            }
         }
     });
 </script>
