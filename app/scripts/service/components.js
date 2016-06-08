@@ -125,8 +125,16 @@ class ComponentStore {
                 <style>
                     :host {
                         ${backgroundStyle}
+                        position: relative;
                     }
-                    :host kano-ui-viewport * {
+                    kano-ui-viewport {
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        width: 100%;
+                        height: 100%;
+                    }
+                    kano-ui-viewport * {
                         position: absolute;
                     }
                 </style>
