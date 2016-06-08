@@ -56,6 +56,7 @@ export default HardwareAPI = {
     },
     clearAllCalls () {
         clearTimeout(HardwareAPI.timeoutId);
+        HardwareAPI.timeoutId = null;
         HardwareAPI.callStack = [];
     },
     light: {
