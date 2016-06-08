@@ -41,22 +41,21 @@ export default Camera = {
             return {
                 id: 'last_picture',
                 message0: 'Camera: last picture taken',
-                inputsInline: false,
                 args0: [],
-                previousStatement: null,
-                nextStatement: null
+                inputsInline: true,
+                output: 'String'
             };
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').lastPicture();\n`;
-                return code;
+                let code = `devices.get('${part.id}').lastPicture()`;
+                return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').lastPicture();\n`;
-                return code;
+                let code = `devices.get('${part.id}').lastPicture()`;
+                return [code];
             };
         }
     }]
