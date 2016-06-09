@@ -77,7 +77,7 @@
         </template>
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
-                <a class="app-list-item" href="{{playUrl}}/app/{{app.id}}">
+                <a class="app-list-item" href$="/app/[[app.id]]">
                     <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
@@ -107,9 +107,6 @@
             },
             apps: {
                 type: Array
-            },
-            playUrl: {
-                type: String
             }
         },
         attached () {

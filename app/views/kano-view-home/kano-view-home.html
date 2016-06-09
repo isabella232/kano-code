@@ -157,9 +157,9 @@
             <h1>Projects</h1>
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
-            <kano-app-list limit="3" view="my" apps="[[user_apps]]" play-url="{{PLAY_URL}}"></kano-app-list>
+            <kano-app-list limit="3" view="my" apps="[[user_apps]]"></kano-app-list>
             <h1>Latest Apps</h1><a class="see-all" href="/apps">See all &gt;</a>
-            <kano-app-list limit="4" apps="[[apps]]" play-url="{{PLAY_URL}}"></kano-app-list>
+            <kano-app-list limit="4" apps="[[apps]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -188,7 +188,6 @@
         },
         ready () {
             this.worldRoot = Kano.MakeApps.config.WORLD_URL;
-            this.PLAY_URL = Kano.MakeApps.config.PLAY_URL;
             this.loadingProjects = true;
             Kano.MakeApps.stories.list()
                 .then((stories) => {
