@@ -1,19 +1,19 @@
 /* globals Blockly */
 
-let lightRectangle;
+let lightCircle;
 
-export default lightRectangle = {
+export default lightCircle = {
     partType: 'hardware',
-    type: 'light-rectangle',
-    label: 'Light rectangle',
+    type: 'light-circle',
+    label: 'Light circle',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',
-    component: 'kano-part-light-rectangle',
+    component: 'kano-part-light-circle',
     blocks: [{
         block: (part) => {
             return {
                 id: 'draw',
-                message0: `${part.name} draw: x %1 y %2 width %3 height %4 color %5`,
+                message0: `${part.name} draw: x %1 y %2 radius %3 color %4`,
                 args0: [{
                     type: "input_value",
                     name: "X",
@@ -26,12 +26,7 @@ export default lightRectangle = {
                     align: 'RIGHT'
                 },{
                     type: "input_value",
-                    name: "WIDTH",
-                    check: 'Number',
-                    align: 'RIGHT'
-                },{
-                    type: "input_value",
-                    name: "HEIGHT",
+                    name: "RADIUS",
                     check: 'Number',
                     align: 'RIGHT'
                 },{
@@ -46,8 +41,7 @@ export default lightRectangle = {
                 shadow: {
                     'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
                     'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'WIDTH': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
-                    'HEIGHT': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
+                    'RADIUS': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
                     'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ff0000</field></shadow>'
                 }
             };
@@ -56,10 +50,9 @@ export default lightRectangle = {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                     y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                    width = Blockly.JavaScript.valueToCode(block, 'WIDTH') || 0,
-                    height = Blockly.JavaScript.valueToCode(block, 'HEIGHT') || 0,
+                    radius = Blockly.JavaScript.valueToCode(block, 'RADIUS') || 0,
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${width}, ${height}, ${color});\n`;
+                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${radius}, ${color});\n`;
                 return code;
             };
         },
@@ -67,10 +60,9 @@ export default lightRectangle = {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
                     y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                    width = Blockly.Pseudo.valueToCode(block, 'WIDTH') || 0,
-                    height = Blockly.Pseudo.valueToCode(block, 'HEIGHT') || 0,
+                    radius = Blockly.Pseudo.valueToCode(block, 'RADIUS') || 0,
                     color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${width}, ${height}, ${color});\n`;
+                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${radius}, ${color});\n`;
                 return code;
             };
         }
@@ -141,64 +133,32 @@ export default lightRectangle = {
     },{
         block: (part) => {
             return {
-                id: 'set_width',
-                message0: `${part.name} set width to %1`,
+                id: 'set_size',
+                message0: `${part.name} set radius to %1`,
                 args0: [{
                     type: "input_value",
-                    name: "WIDTH",
+                    name: "RADIUS",
                     check: 'Number'
                 }],
                 inputsInline: false,
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'WIDTH': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'RADIUS': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
                 }
             };
         },
         javascript: (part) => {
             return (block) => {
-                let width = Blockly.JavaScript.valueToCode(block, 'WIDTH') || 1,
-                    code = `devices.get('${part.id}').set('shape.width', ${width});\n`;
+                let radius = Blockly.JavaScript.valueToCode(block, 'RADIUS') || 1,
+                    code = `devices.get('${part.id}').set('shape.radius', ${radius});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let width = Blockly.Pseudo.valueToCode(block, 'WIDTH') || 1,
-                    code = `devices.get('${part.id}').set('shape.width', ${width});\n`;
-                return code;
-            };
-        }
-    },{
-        block: (part) => {
-            return {
-                id: 'set_height',
-                message0: `${part.name} set height to %1`,
-                args0: [{
-                    type: "input_value",
-                    name: "HEIGHT",
-                    check: 'Number'
-                }],
-                inputsInline: false,
-                previousStatement: null,
-                nextStatement: null,
-                shadow: {
-                    'HEIGHT': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
-                }
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let height = Blockly.JavaScript.valueToCode(block, 'HEIGHT') || 1,
-                    code = `devices.get('${part.id}').set('shape.height', ${height});\n`;
-                return code;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let height = Blockly.Pseudo.valueToCode(block, 'HEIGHT') || 1,
-                    code = `devices.get('${part.id}').set('shape.height', ${height});\n`;
+                let radius = Blockly.Pseudo.valueToCode(block, 'RADIUS') || 1,
+                    code = `devices.get('${part.id}').set('shape.radius', ${radius});\n`;
                 return code;
             };
         }
@@ -274,40 +234,20 @@ export default lightRectangle = {
     },{
         block: (part) => {
             return {
-                id: 'get_width',
-                message0: `${part.name} width`,
+                id: 'get_radius',
+                message0: `${part.name} radius`,
                 output: 'Number'
             };
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.width')`;
+                let code = `devices.get('${part.id}').get('shape.radius')`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.width')`;
-                return [code];
-            };
-        }
-    },{
-        block: (part) => {
-            return {
-                id: 'get_height',
-                message0: `${part.name} height`,
-                output: 'Number'
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let code = `devices.get('${part.id}').get('shape.height')`;
-                return [code];
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let code = `devices.get('${part.id}').get('shape.height')`;
+                let code = `devices.get('${part.id}').get('shape.radius')`;
                 return [code];
             };
         }

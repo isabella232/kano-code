@@ -6,7 +6,7 @@ export default Camera = {
     allowBackground: true,
     component: 'kano-part-camera',
     colour: '#333333',
-    excludeParts: ['light-rectangle'],
+    excludeParts: ['light-rectangle', 'light-circle'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
