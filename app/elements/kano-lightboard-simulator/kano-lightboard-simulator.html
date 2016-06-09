@@ -4,6 +4,8 @@
     <style>
         :host {
             display: block;
+            width: 100%;
+            height: 100%;
         }
 
         :host #led-matrix {
@@ -30,6 +32,7 @@
         <kano-led-matrix id="led-matrix"></kano-led-matrix>
     </template>
     <script>
+        /* globals Polymer, Kano */
         Polymer({
             is: 'kano-lightboard-simulator',
             properties: {
@@ -40,6 +43,21 @@
             },
             render (bitmap) {
                 this.$['led-matrix'].render(bitmap);
+            },
+            turnOn (light, color) {
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOn(light, color);
+                this.render(bitmap);
+            },
+            turnOff (light) {
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOff(light);
+                this.render(bitmap);
+            },
+            setBackgroundColor (color) {
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.setBackgroundColor(color);
+                this.render(bitmap);
+            },
+            update (data) {
+                this.render(data);
             }
         });
     </script>

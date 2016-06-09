@@ -4,10 +4,10 @@ let lightboard;
 
 export default lightboard = {
     backgroundColor: '#333333',
-    lights: Array(128),
+    lights: new Array(128),
     shapes: {},
     debounceId: null,
-    bitmap: Array(128),
+    bitmap: new Array(128),
     getIndex (x, y) {
         return 16 * parseInt(y) + parseInt(x);
     },
@@ -50,7 +50,9 @@ export default lightboard = {
         turnOn (light, color) {
             if (light.type === 'all') {
                 // Set all the saved lights to the color
-                lightboard.lights = lightboard.lights.map(_ => color);
+                for (let i = 0; i < 128; i++) {
+                    lightboard.lights[i] = color;
+                }
                 lightboard.updateBitmap();
                 lightboard.syncApi();
                 return lightboard.bitmap;

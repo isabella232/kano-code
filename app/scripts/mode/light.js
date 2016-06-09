@@ -3,12 +3,19 @@
 let light;
 
 export default light = {
-    partType: 'hardware',
-    type: 'light',
-    label: 'Lights',
-    image: '/assets/part/lights.svg',
-    colour: '#FFB347',
-    component: 'kano-part-lightboard',
+    id: 'light',
+    name: 'Lightboard',
+    colour: '#CCCCCC',
+    excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image', 'scrolling-text', 'picture-list'],
+    sizeKey: 'WORKSPACE_LED_BOARD_SIZE',
+    component: 'kano-lightboard-simulator',
+    dropzoneStyle: `width: 100%;
+                    height: 100%;
+                    border: 1px solid #ECECEC;
+                    background: #000;
+                    box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
+                    border-radius: 4px;`,
+    hideHoles: true,
     blocks: [{
         block: () => {
             return {

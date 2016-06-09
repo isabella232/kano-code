@@ -6,6 +6,7 @@ import modules from './language/modules';
 import blockly from './blockly';
 import Stories from './service/stories';
 import Components from './service/components';
+import Mode from './mode';
 import email from './service/email';
 import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
@@ -37,5 +38,7 @@ window.Kano = window.Kano || {};
     MakeApps.Modules = modules;
 
     MakeApps.email = email;
+
+    MakeApps.Mode = Mode;
 
 })(window.Kano.MakeApps = window.Kano.MakeApps || {});

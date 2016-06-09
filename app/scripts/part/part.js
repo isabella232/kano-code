@@ -46,6 +46,7 @@ export default class Part {
         this.codes = {};
         this.userStyle = Object.assign({}, opts.userStyle);
         this.userProperties = Object.assign({}, opts.userProperties);
+        this.removable = typeof opts.removable === 'undefined' ? true : opts.removable;
     }
     getUniqueName (value, inc=0) {
         let newName = inc ? `${value} ${inc}` : value;
@@ -80,6 +81,7 @@ export default class Part {
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
         plain.position = this.position;
+        plain.partType = this.partType;
         return plain;
     }
 }
