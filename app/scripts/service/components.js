@@ -89,12 +89,11 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (parts, backgroundStyle, workspaceRect, codes) {
+    generateStandaloneComponent (componentName, parts, backgroundStyle, workspaceRect, codes) {
         let template = [],
             tagName,
             components,
             code = this.generateCode(codes),
-            id = 'kano-user-component',
             component,
             partsString;
 
@@ -121,7 +120,7 @@ class ComponentStore {
             `;
 
         component = `
-            <dom-module id="${id}">
+            <dom-module id="${componentName}">
                 <style>
                     :host {
                         ${backgroundStyle}
@@ -149,7 +148,7 @@ class ComponentStore {
             </dom-module>
             <${scr}>
                 Polymer({
-                    is: '${id}',
+                    is: '${componentName}',
                     properties: {
                         parts: {
                             type: Object,

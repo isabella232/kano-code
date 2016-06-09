@@ -5,8 +5,9 @@
           align-items: center;
           @apply(--layout-horizontal);
         }
-        :host ::content kano-user-component {
+        :host ::content .user-app {
             @apply(--layout-flex);
+            height: 100%;
         }
         #container {
             @apply(--layout-vertical);
@@ -36,6 +37,9 @@
                     type: String,
                     observer: '_srcChanged'
                 },
+                slug: {
+                    type: String
+                },
                 failed: {
                     type: Boolean,
                     value:false
@@ -48,7 +52,14 @@
                 this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
             },
             _onAppFileLoad () {
-                let c = this.create('kano-user-component');
+                let c;
+                // Create the component. Older shares were generated with the tagName `kano-user-component`
+                try {
+                    c = this.create(this.slug);
+                } catch (e) {
+                    c = this.create('kano-user-component');
+                }
+                c.className = 'user-app';
                 this.appendChild(c);
                 this.removeChild(this.$.container);
             },
