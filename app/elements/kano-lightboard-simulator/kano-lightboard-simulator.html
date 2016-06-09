@@ -4,6 +4,8 @@
     <style>
         :host {
             display: block;
+            width: 100%;
+            height: 100%;
         }
 
         :host #led-matrix {
@@ -30,41 +32,32 @@
         <kano-led-matrix id="led-matrix"></kano-led-matrix>
     </template>
     <script>
+        /* globals Polymer, Kano */
         Polymer({
             is: 'kano-lightboard-simulator',
             properties: {
                 pixels: {
                     type: Array,
-                    value: () => Array(128)
+                    value: () => new Array(128)
                 }
             },
-            _getIndex (light) {
-                return 16 * parseInt(light.y) + parseInt(light.x);
+            render (bitmap) {
+                this.$['led-matrix'].render(bitmap);
             },
             turnOn (light, color) {
-                if (light.type === 'all') {
-                    for (let i = 0; i < this.pixels.length; i++) {
-                        this.set("pixels." + i, color);
-                    }
-                } else if (light.type === 'single') {
-                    this.set("pixels." + this._getIndex(light), color);
-                }
-
-                this.$['led-matrix'].render(this.pixels);
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOn(light, color);
+                this.render(bitmap);
             },
             turnOff (light) {
-                if (light.type === 'all') {
-                    for (let i = 0; i < this.pixels.length; i++) {
-                        this.set("pixels." + i, this.$['led-matrix'].offLedColor);
-                    }
-                } else if (light.type === 'single') {
-                    this.set("pixels." + this._getIndex(light), this.$['led-matrix'].offLedColor);
-                }
-
-                this.$['led-matrix'].render(this.pixels);
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.turnOff(light);
+                this.render(bitmap);
             },
             setBackgroundColor (color) {
-                this.turnOn({type: 'all'}, color);
+                let bitmap = Kano.MakeApps.Modules.lightboard.methods.setBackgroundColor(color);
+                this.render(bitmap);
+            },
+            update (data) {
+                this.render(data);
             }
         });
     </script>

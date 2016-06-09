@@ -40,12 +40,16 @@
                 type: Object,
                 notify: true,
                 observer: 'codeChanged'
+            },
+            mode: {
+                type: Object
             }
         },
         observers: [
             'computeToolbox(parts)',
             'computeToolboxDebounced(parts.*)',
             'computeToolboxDebounced(defaultCategories.*)',
+            'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)'
         ],
         codeChanged () {
@@ -61,6 +65,12 @@
                     options.push([`${part.name} ${ev.label}`, `${part.id}.${ev.id}`]);
                 });
             });
+            // Add events of the current mode
+            if (this.mode.events) {
+                this.mode.events.forEach((ev) => {
+                    options.push([`${this.mode.name} ${ev.label}`, `${this.mode.id}.${ev.id}`]);
+                });
+            }
             return options;
         },
         saveCode (e) {
@@ -110,26 +120,29 @@
             this.parts
                 .forEach((part) => {
                     part.blocks.forEach((definition) => {
-                        let block = definition.block(part);
-                        block.colour = part.colour;
-                        block.id = `${part.id}#${block.id}`;
-                        Blockly.Blocks[block.id] = {
-                            init: function () {
-                                this.jsonInit(block);
-                            }
-                        };
-                        Blockly.JavaScript[block.id] = definition.javascript(part);
-                        Blockly.Pseudo[block.id] = definition.pseudo(part);
-                        return {
-                            id: block.id,
-                            colour: block.colour,
-                            shadow: block.shadow
-                        };
+                        this._registerBlock(part, definition);
                     });
                     part.events.forEach((ev) => {
                         events.push(ev);
                     });
                 });
+            if (this.mode.blocks) {
+                this.mode.blocks.forEach((definition) => {
+                    this._registerBlock(this.mode, definition);
+                });
+            }
+        },
+        _registerBlock (part, definition) {
+            let block = definition.block(part);
+            block.colour = part.colour;
+            block.id = `${part.id}#${block.id}`;
+            Blockly.Blocks[block.id] = {
+                init: function () {
+                    this.jsonInit(block);
+                }
+            };
+            Blockly.JavaScript[block.id] = definition.javascript(part);
+            Blockly.Pseudo[block.id] = definition.pseudo(part);
         },
         computeToolbox () {
             let categories,
@@ -185,6 +198,24 @@
 
             toolbox = toolbox
                 .concat({ type: 'separator' });
+            // Generate the toolbox for the special mode
+            if (this.mode.blocks && this.mode.blocks.length) {
+                let modeCat = {
+                    name: this.mode.name,
+                    id: this.mode.id,
+                    colour: this.mode.colour
+                };
+                modeCat.blocks = this.mode.blocks.map((definition) => {
+                    let block = definition.block(this.mode);
+                    return {
+                        id: `${this.mode.id}#${block.id}`,
+                        colour: this.mode.colour,
+                        shadow: block.shadow
+                    };
+                });
+                toolbox.push(modeCat);
+                toolbox.push({ type: 'separator' });
+            }
             if (this.defaultCategories.background) {
                 toolbox.push(this.defaultCategories.background);
             }

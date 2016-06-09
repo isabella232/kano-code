@@ -1,14 +1,12 @@
-/* globals Blockly */
-
 let Camera;
 
 export default Camera = {
-    partType: 'hardware',
-    type: 'camera',
-    label: 'Camera',
-    image: '/assets/part/camera.svg',
+    id: 'camera',
+    name: 'Camera',
+    allowBackground: true,
     component: 'kano-part-camera',
-    colour: '#FFB347',
+    colour: '#333333',
+    excludeParts: ['light-rectangle'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'

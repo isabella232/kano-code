@@ -4,23 +4,10 @@
 <dom-module id="kano-part-camera">
     <style>
     :host {
-        display: block;
-    }
-    .container {
-        position: relative;
-    }
-    iron-image {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        @apply(--shadow-elevation-2dp);
-        background-color: #FFB347;
+        display: none;
     }
     </style>
     <template>
-        <div class="container">
-            <iron-image src="[[model.image]]" sizing="cover"></iron-image>
-        </div>
     </template>
     <script type="text/javascript">
         /* globals Polymer, Kano */
@@ -39,13 +26,13 @@
             takePicture () {
                 Kano.MakeApps.Modules.camera.methods.takePicture()
                     .then((pictureUrl) => {
-                        this.lastPictureUrl = pictureUrl;
-                        this.fire('picture-taken', pictureUrl);
+                        let filename = pictureUrl.split('/').pop();
+                        this.lastPictureUrl = Kano.MakeApps.Modules.camera.methods.getPicture(filename);
+                        this.fire('picture-taken', this.lastPictureUrl);
                     });
             },
             lastPicture () {
-                return Kano.MakeApps.Modules.camera.methods.lastPicture();
-                //return this.lastPictureUrl;
+                return this.lastPictureUrl;
             }
         });
     </script>

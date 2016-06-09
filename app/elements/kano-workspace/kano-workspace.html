@@ -30,15 +30,6 @@
         box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
         border-radius: 5px;
     }
-    :host ::content .dropzone-lightboard {
-        width: 100%;
-        height: 100%;
-        border: 1px solid #ECECEC;
-        background: #000;
-        box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
-        border-radius: 4px;
-    }
-
     :host ::content div#dropzone > *:not(.hole) {
         position: absolute;
         top: 0px;
@@ -78,7 +69,6 @@
     :host paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
-
     :host .hole {
         position: absolute;
         width: 10px;
@@ -86,38 +76,28 @@
         border-radius: 50%;
         background-color: #454545;
     }
-
     :host .hole.hidden {
         display: none;
     }
-
     :host .hole.hole-top-left {
         top: 5px;
         left: 5px;
     }
-
     :host .hole.hole-top-right {
         top: 5px;
         right: 5px;
     }
-
     :host .hole.hole-bottom-right {
         bottom: 5px;
         right: 5px;
     }
-
     :host .hole.hole-bottom-left {
         bottom: 5px;
         left: 5px;
     }
-
     :host .made-with-kano {
         text-align: center;
         color: #B3B3B3;
-    }
-    :host kano-lightboard-simulator {
-        width: 100%;
-        height: 100%;
     }
     </style>
     <template>
@@ -127,15 +107,12 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone" class$="{{applyDropzoneClass(mode)}}">
-                <template is="dom-if" if="{{_isNormalMode(mode)}}">
+            <div id="dropzone" style$="[[mode.dropzoneStyle]]" class="dropzone">
+                <template is="dom-if" if="[[!mode.hideHoles]]">
                     <div class="hole hole-top-left"></div>
                     <div class="hole hole-top-right"></div>
                     <div class="hole hole-bottom-right"></div>
                     <div class="hole hole-bottom-left"></div>
-                </template>
-                <template is="dom-if" if="{{_isLightboardMode(mode)}}">
-                    <kano-lightboard-simulator id="lightboard-simulator"></kano-lightboard-simulator>
                 </template>
             </div>
             <h3 class="made-with-kano">made with Kano</h3>
@@ -204,13 +181,17 @@
             code: {
                 type: Object
             },
-            mode: String
+            mode: {
+                type: Object,
+                observer: '_modeChanged'
+            }
         },
         observers: [
             'partsChanged(parts.*)'
         ],
         listeners: {
-            'part-tapped': 'onPartTapped'
+            'part-tapped': 'onPartTapped',
+            'update-mode': '_updateMode'
         },
         ready () {
             this.elements = {};
@@ -221,6 +202,16 @@
                 1: '#00ff00',
                 2: '#0000ff'
             };
+        },
+        _modeChanged (mode) {
+            if (this.modeComponent) {
+                this.$.dropzone.removeChild(this.modeComponent);
+            }
+            if (mode.component) {
+                this.modeComponent = document.createElement(mode.component);
+                this.modeComponent.setAttribute('id', mode.id);
+                this.$.dropzone.appendChild(this.modeComponent);
+            }
         },
         canDelete (el) {
             return el && !!el.model;
@@ -436,8 +427,9 @@
             return this.$.content.getScale();
         },
         setBackgroundColor (color) {
-            if (this.mode === 'lightboard') return;
-            this.$.dropzone.style.background = color;
+            if (this.mode.allowBackground === true) {
+                this.$.dropzone.style.background = color;
+            }
         },
         generateCover () {
             let canvas = document.createElement('canvas'),
@@ -545,14 +537,13 @@
             }
 
         },
-        applyDropzoneClass (mode) {
-            return mode === 'normal' ? 'dropzone' : 'dropzone-lightboard';
-        },
         _isNormalMode (mode) {
             return mode === 'normal';
         },
-        _isLightboardMode (mode) {
-            return mode === 'lightboard';
+        _updateMode (e) {
+            if (this.modeComponent) {
+                this.modeComponent.update(e.detail);
+            }
         }
     });
 </script>

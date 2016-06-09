@@ -9,9 +9,9 @@ const MODULES = {
           'allon': 'allon',
           'alloff': 'alloff',
           'on': 'on',
-          'takePicture': '/imgs/takepicture',
-          'lastPicture': '/imgs/last',
-          'lastPictureData': '/imgs/last.jpg'
+          'takePicture': 'imgs/takepicture',
+          'lastPicture': 'imgs/last',
+          'lastPictureData': 'imgs/last.jpg'
       },
       MAX_CALL_PER_SEC = 2;
 
@@ -115,9 +115,11 @@ export default HardwareAPI = {
 
                     return res.json();
                 }).then((data) => {
-                    console.log(data);
                     return data.filename;
                 });
+        },
+        getPicture (filename) {
+            return `${HardwareAPI.endpoint}/takenpics/${filename}`;
         },
         lastPicture () {
             /*return fetch(HardwareAPI.camera.getPath('lastPicture'))

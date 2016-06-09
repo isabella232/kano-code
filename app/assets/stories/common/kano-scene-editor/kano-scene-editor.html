@@ -37,7 +37,8 @@
                             ws-size="[[size]]"
                             running="{{running}}"
                             title="[[storyName]]"
-                            code="{{code}}">
+                            code="{{code}}"
+                            mode="[[mode]]">
               <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory.id]]" on-share-app="shareApp" remix-mode="[[remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
@@ -101,7 +102,12 @@
             this.code = {};
         },
         attached () {
-            this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
+            let workspaceSizeKey;
+            this.mode = Kano.MakeApps.Mode[(this.scene.mode || 'normal')];
+
+            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
+
+            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
         },
         shareApp () {
             this.$.editor.share();

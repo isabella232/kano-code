@@ -48,13 +48,6 @@ Polymer({
             value: false,
             notify: true
         },
-        leftPanelView: {
-            type: String,
-            value: 'code'
-        },
-        selectedTrigger: {
-            type: Object
-        },
         background: {
             type: Object,
             value: getDefaultBackground()
@@ -273,10 +266,17 @@ Polymer({
         return code;
     },
     reset () {
-        this.set('addedParts', []);
+        this.set('addedParts', this._getDefaultParts());
         this.set('code', getDefaultCode());
         this.set('background', getDefaultBackground());
         this.save();
+    },
+    _getDefaultParts () {
+        if (this.mode === 'camera') {
+            return [Part.create(Part.statics.camera, this.wsSize)];
+        } else if (this.mode === 'lightboard') {
+            return [Part.create(Part.statics.light, this.wsSize)];
+        }
     },
     closeDrawer () {
         this.$.partsPanel.closeDrawer();

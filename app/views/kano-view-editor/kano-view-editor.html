@@ -29,7 +29,7 @@
             default-categories="[[defaultCategories]]"
             ws-size="[[size]]"
             on-share="share"
-            mode="{{_getMode(context)}}"
+            mode="[[mode]]"
             show-share-button></kano-app-editor>
         <paper-dialog id='error-dialog' with-backdrop>
             <h2 class="title">{{error.title}}</h2>
@@ -95,24 +95,11 @@
             }
             this.loaded = true;
 
-            switch (this._getMode(this.context)) {
-                case 'lightboard':
-                    // Filter out UI and camera parts in lightboard mode
-                    this.set('parts', Kano.MakeApps.part.filter((part) => {
-                        return part.partType !== 'ui' && part.type !== 'camera';
-                    }));
-                    break;
-                case 'camera':
-                    // Don't show lightboard in camera mode
-                    this.set('parts', Kano.MakeApps.part.filter((part) => {
-                        return part.type !== 'light';
-                    }));
-                    break;
-                default:
-                    // Don't show lightboard and camera in normal mode
-                    this.set('parts', Kano.MakeApps.part.filter((part) => {
-                        return part.type !== 'light' && part.type !== 'camera';
-                    }));
+            // Remove the parts exculded in the mode
+            if (this.mode.excludeParts) {
+                this.set('parts', Kano.MakeApps.part.filter((part) => {
+                    return this.mode.excludeParts.indexOf(part.type) === -1;
+                }));
             }
 
             this.set('defaultCategories', Kano.MakeApps.defaultCategories);
@@ -158,17 +145,18 @@
             return 'normal';
         },
         ready () {
+            let workspaceSizeKey;
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
 
-            if (this._getMode(this.context) === 'lightboard') {
-                this.set('size', Kano.MakeApps.config.WORKSPACE_LED_BOARD_SIZE);
-            } else {
-                this.set('size', Kano.MakeApps.config.WORKSPACE_FULL_SIZE);
-            }
+            this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
+
+            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
+
+            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);

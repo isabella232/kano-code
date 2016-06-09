@@ -9,6 +9,9 @@ export default camera = {
         },
         lastPicture () {
             return HardwareAPI.camera.lastPicture();
+        },
+        getPicture (filename) {
+            return HardwareAPI.camera.getPicture(filename);
         }
     },
     lifecycle: {
