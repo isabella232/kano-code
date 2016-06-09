@@ -20,20 +20,17 @@ let COMMON = {
         "production": {
             "API_URL": "https://api.kano.me",
             "DATA_API_URL": "https://apps-data.kano.me",
-            "WORLD_URL": "https://world.kano.me",
-            "PLAY_URL": "https://app.kano.me"
+            "WORLD_URL": "https://world.kano.me"
         },
         "staging": {
             "API_URL": "https://api-staging.kano.me",
             "DATA_API_URL": "https://apps-data-staging.kano.me",
-            "WORLD_URL": "http://world-staging.kano.me",
-            "PLAY_URL": "https://app-staging.kano.me"
+            "WORLD_URL": "http://world-staging.kano.me"
         },
         "development": {
             "API_URL": "http://localhost:1234",
             "DATA_API_URL": "http://localhost:2020",
-            "WORLD_URL": "http://localhost:5000",
-            "PLAY_URL": "http://localhost:4001"
+            "WORLD_URL": "http://localhost:5000"
         }
     },
     TARGET = {
