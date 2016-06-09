@@ -112,15 +112,21 @@ let register = (Blockly) => {
     };
 
     Blockly.JavaScript.repeat_x_times = (block) => {
-        let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
+        let n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
+            code,
+            branch = Blockly.JavaScript.statementToCode(block, 'DO'),
+            loopVar = Blockly.JavaScript.variableDB_.getDistinctName('i', Blockly.Variables.NAME_TYPE);
+        branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
+        code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
         return code;
     };
     Blockly.Pseudo.repeat_x_times = (block) => {
-        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-            n = Blockly.Pseudo.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
+        let n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
+            code,
+            branch = Blockly.JavaScript.statementToCode(block, 'DO'),
+            loopVar = Blockly.JavaScript.variableDB_.getDistinctName('i', Blockly.Variables.NAME_TYPE);
+        branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
+        code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
         return code;
     };
 
