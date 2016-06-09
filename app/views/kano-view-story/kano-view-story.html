@@ -1,3 +1,5 @@
+<script src="../../scripts/util/router.js"></script>
+
 <link rel="import" href="../../elements/share-bundle.html">
 <link rel="import" href="../../elements/story-bundle.html">
 <link rel="import" href="../../elements/editor-bundle.html">
@@ -59,6 +61,11 @@
                     return Kano.MakeApps.progress.loadProgress(story.progress.group);
                 })
                 .then((progress) => this.updateExtensions(progress));
+
+            Kano.MakeApps.HardwareAPI.config({
+                HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
+                PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
+            });
         },
         _registerBlockly () {
             Kano.MakeApps.blockly.register(window.Blockly);

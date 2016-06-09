@@ -19,7 +19,17 @@ export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
     config (c) {
-        this.endpoint = c.HARDWARE_API_URL;
+        console.log(c);
+        if (c.HOST) {
+            let url = 'http://' + c.HOST;
+            if (c.PORT) {
+                url += ':' + c.PORT;
+            }
+            this.endpoint = url;
+        } else {
+            this.endpoint = c.HARDWARE_API_URL;
+        }
+
     },
     getPath (module, action) {
         return `${this.endpoint}/${MODULES[module]}/${ACTIONS[action]}`;

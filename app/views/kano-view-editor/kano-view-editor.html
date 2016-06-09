@@ -1,3 +1,5 @@
+<script src="../../scripts/util/router.js"></script>
+
 <link rel="import" href="../../elements/editor-bundle.html">
 <link rel="import" href="../../elements/share-bundle.html">
 <dom-module id="kano-view-editor">
@@ -129,23 +131,8 @@
             }
         },
         _getMode (context) {
-            var modeFromQs = this._parseQsParam('mode');
+            var modeFromQs = window.RouterUtil.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
-        },
-        _parseQsParam (name) {
-            var qs = '?' + this.context.querystring,
-                regex,
-                res;
-
-            if (qs.length > 1) {
-                regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-                res = regex.exec(qs);
-                if (res && res[2]) {
-                    return decodeURIComponent(res[2].replace(/\+/g, " "))
-                }
-            }
-
-            return null;
         },
         ready () {
             let workspaceSizeKey;
@@ -156,15 +143,10 @@
             this.modal = this.$['share-modal'];
 
             this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
-            if (this.mode.id === 'lightboard' || this.mode.id === 'camera')  {
-                let host = this._parseQsParam('host') || 'localhost',
-                    port = this._parseQsParam('port') || '3000',
-                    url = 'http://' + host + ':' + port;
-
-                Kano.MakeApps.HardwareAPI.config({
-                    HARDWARE_API_URL: url
-                });
-            }
+            Kano.MakeApps.HardwareAPI.config({
+                HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
+                PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
+            });
 
             workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
 
