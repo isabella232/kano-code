@@ -129,20 +129,23 @@
             }
         },
         _getMode (context) {
-            var qs = '?' + context.querystring,
-                paramName = 'mode',
+            var modeFromQs = this._parseQsParam('mode');
+            return modeFromQs ? modeFromQs : 'normal';
+        },
+        _parseQsParam (name) {
+            var qs = '?' + this.context.querystring,
                 regex,
                 res;
 
             if (qs.length > 1) {
-                regex = new RegExp("[?&]" + paramName + "(=([^&#]*)|&|#|$)"),
+                regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
                 res = regex.exec(qs);
                 if (res && res[2]) {
                     return decodeURIComponent(res[2].replace(/\+/g, " "))
                 }
             }
 
-            return 'normal';
+            return null;
         },
         ready () {
             let workspaceSizeKey;
@@ -153,6 +156,15 @@
             this.modal = this.$['share-modal'];
 
             this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
+            if (this.mode.id === 'lightboard' || this.mode.id === 'camera')  {
+                let host = this._parseQsParam('host') || 'localhost',
+                    port = this._parseQsParam('port') || '3000',
+                    url = 'http://' + host + ':' + port;
+
+                Kano.MakeApps.HardwareAPI.config({
+                    HARDWARE_API_URL: url
+                });
+            }
 
             workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
 
