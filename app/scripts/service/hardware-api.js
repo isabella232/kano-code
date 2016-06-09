@@ -19,7 +19,6 @@ export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
     config (c) {
-        console.log(c);
         if (c.HOST) {
             let url = 'http://' + c.HOST;
             if (c.PORT) {
