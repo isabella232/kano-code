@@ -67,7 +67,8 @@ let register = (Blockly) => {
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }
@@ -103,7 +104,8 @@ let register = (Blockly) => {
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }

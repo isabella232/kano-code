@@ -17,6 +17,7 @@ import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
 import Microphone from './microphone';
 import LightRectangle from './light-rectangle';
+import LightCircle from './light-circle';
 import PictureList from './picture-list';
 
 let part,
@@ -24,7 +25,7 @@ let part,
 
 export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
                        Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-                       LightRectangle, PictureList];
+                       LightRectangle, LightCircle, PictureList];
 
 partTypes = {
     'ui': UI,
