@@ -12,6 +12,7 @@ import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
 import DragAndDrop from './drag-and-drop';
 import ProgressService from './service/progress';
+import HardwareAPI from './service/hardware-api';
 import config from './config';
 
 window.Kano = window.Kano || {};
@@ -33,6 +34,7 @@ window.Kano = window.Kano || {};
 
     MakeApps.sdk = KanoWorldSdk(config);
     MakeApps.progress = ProgressService(MakeApps.sdk);
+    MakeApps.HardwareAPI = HardwareAPI;
     MakeApps.sdk.registerForms();
 
     MakeApps.Modules = modules;
