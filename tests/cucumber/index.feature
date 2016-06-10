@@ -3,10 +3,6 @@ Feature: Landing page
   Background:
     Given the landing page is opened
 
-  @loggedout
-  Scenario: Logged out visitor loads page
-    Then the authentication modal is opened
-
   Scenario: Logged in visitor loads page
      Then the user creations are displayed
 

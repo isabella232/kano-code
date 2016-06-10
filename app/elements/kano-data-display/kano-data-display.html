@@ -56,26 +56,24 @@
 
     /* globals Polymer */
 
-    class KanoDataDisplay {
-        beforeRegister () {
-            this.is = 'kano-data-display';
-            this.properties = {
-                dataDefinition: {
-                    type: Array
-                },
-                dataValues: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                trailingComma: Boolean
-            };
-            this.observers = [
-                'computeValues(dataValues.*)',
-                'computeValues(dataDefinition)'
-            ];
-        }
+    Polymer({
+        is: 'kano-data-display',
+        properties: {
+            dataDefinition: {
+                type: Array
+            },
+            dataValues: {
+                type: Object,
+                value: () => {
+                    return {};
+                }
+            },
+            trailingComma: Boolean
+        },
+        observers: [
+            'computeValues(dataValues.*)',
+            'computeValues(dataDefinition)'
+        ],
         computeValues () {
             if (!this.dataDefinition) {
                 return;
@@ -85,6 +83,6 @@
                 this.set(`dataDefinition.${index}.value`, value);
             });
         }
-    }
-    Polymer(KanoDataDisplay);
+    });
+
 </script>

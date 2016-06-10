@@ -1,0 +1,302 @@
+{
+    "parts": ["text", "scrolling-text", "button", "image", "weather", "sports", "speaker"],
+    "modules": ["control", "operators", "variables", "background"],
+    "steps": [
+      {
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "This app needs two<br />parts:<br />an arrow image<br />and weather data"
+        }],
+        "validation": {
+            "open-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-image",
+            "position": "right",
+            "text": "Drag the image<br />part to your app"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-image",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "image",
+                "id": "image_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-weather",
+            "position": "right",
+            "text": "Drag the Weather Data<br />part in too"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-weather",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "weather",
+                "id": "weather_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "Close the parts drawer"
+        }],
+        "validation": {
+            "close-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "path": "workspace",
+                "part": "image_1"
+            },
+            "position": "right",
+            "text": "Click on the image part"
+        }],
+        "validation": {
+            "open-settings-tooltip": {
+                "target": "image_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "workspace.tooltip",
+            "position": "bottom",
+            "text": "Click 'settings'"
+        }],
+        "validation": {
+            "open-part-settings": {
+                "target": "image_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "part-editor.ui-editor.look.properties",
+            "position": "right",
+            "text": "Click ‘change image’ to<br />select a picture",
+            "next_button": true
+        }],
+        "validation": {
+            "selected-part-change": {
+                "property": "userStyle.width",
+                "count": 3
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "modal",
+            "position": "right",
+            "text": "Click ‘change image’ to<br />select a picture",
+            "next_button": true
+        }],
+        "validation": {
+            "selected-part-change": {
+                "property": "userStyle.width",
+                "count": 3
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "close-drawer",
+            "position": "bottom",
+            "text": "Close the settings when you’re done"
+        }],
+        "validation": {
+            "close-part-settings": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "top",
+            "text": "This is your event block.<br />Change ‘app starts’ to ‘Sports updated’"
+        }],
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "default_part_event",
+                    "value": {
+                        "event_from": "sports_1",
+                        "event": "update"
+                    }
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "sports"
+            },
+            "position": "left",
+            "text": "Open the sports tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "sports"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "sports_1",
+                    "type": "for_each"
+                }
+            },
+            "position": "right",
+            "text": "Grab a<br />‘for each’ block"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "sports_1",
+                    "type": "for_each",
+                    "id": "sports_for_each_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "left",
+            "text": "Connect it to your event block"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "sports_for_each_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "scrolling-text"
+            },
+            "position": "left",
+            "text": "Open the scroll text tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "scrolling-text"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "scrolling_text_1",
+                    "type": "scroll"
+                }
+            },
+            "position": "left",
+            "text": "Drag the ‘Scroll text<br />scroll’ block onto your<br />code space"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "scrolling_text_1",
+                    "type": "scroll",
+                    "id": "scroll_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "sports_for_each_1"
+            },
+            "position": "left",
+            "text": "Connect the blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "sports_for_each_1",
+                    "target": "scroll_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "sports"
+            },
+            "position": "left",
+            "text": "Open the sports<br />tray again"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "sports"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "sports_1",
+                    "type": "get_value_at"
+                }
+            },
+            "position": "right",
+            "text": "Drag out the<br />‘sports title’"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "sports_1",
+                    "type": "get_value_at",
+                    "id": "sports_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "scroll_1"
+            },
+            "position": "bottom",
+            "text": "Connect the blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "scroll_1",
+                    "target": "sports_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "make-button",
+            "position": "bottom",
+            "text": "Click play"
+        }],
+        "validation": {
+            "running": {
+                "value": true
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "left-panel",
+            "position": "right",
+            "text": "<strong>You did it!</strong><br />Your text scroller shows the latest sports news.",
+            "next_button": true
+        }]
+    }]
+}

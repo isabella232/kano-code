@@ -151,7 +151,7 @@ class World {
         if (!route) {
             return Promise.reject(new Error(`Tried to open a non registered page: ${page}`));
         }
-        viewPath = user ? `kano-app kano-routing kano-view ${this.viewMap[page]}` : 'kano-app';
+        viewPath = user ? `kano-app kano-routing ${this.viewMap[page]}` : 'kano-app';
         return this.driver.get(`http://localhost:${getPort()}${route}${ext}`)
             .then(() => this.clearStorage())
             .then(() => {

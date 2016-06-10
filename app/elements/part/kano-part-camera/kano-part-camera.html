@@ -1,0 +1,39 @@
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-camera">
+    <style>
+    :host {
+        display: none;
+    }
+    </style>
+    <template>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-camera',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                lastPictureUrl: {
+                    type: String,
+                    value: 'http://i.imgur.com/VyzbVFrr.jpg'
+                }
+            },
+            attached () {
+            },
+            takePicture () {
+                Kano.MakeApps.Modules.camera.methods.takePicture()
+                    .then((pictureUrl) => {
+                        let filename = pictureUrl.split('/').pop();
+                        this.lastPictureUrl = Kano.MakeApps.Modules.camera.methods.getPicture(filename);
+                        this.fire('picture-taken', this.lastPictureUrl);
+                    });
+            },
+            lastPicture () {
+                return this.lastPictureUrl;
+            }
+        });
+    </script>
+</dom-module>

@@ -6,6 +6,8 @@ import speaker from './speaker';
 import math from './math';
 import colour from './colour';
 import mouse from './mouse';
+import lightboard from './lightboard';
+import camera from './camera';
 
 let modules;
 
@@ -18,6 +20,8 @@ export default modules = {
     math,
     colour,
     mouse,
+    lightboard,
+    camera,
     init (config) {
         let mod;
         // Loop through the modules and register every block

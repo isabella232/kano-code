@@ -45,35 +45,33 @@
 
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoSidebar {
-        beforeRegister () {
-            this.is = 'kano-sidebar';
-            this.properties = {
-                uiElements: {
-                    type: Array,
-                    value: () => []
-                },
-                parts: {
-                    type: Array
-                },
-                selected: {
-                    type: Array,
-                    notify: true
-                }
-            };
-        }
+
+    Polymer({
+        is: 'kano-sidebar',
+        properties: {
+            uiElements: {
+                type: Array,
+                value: () => []
+            },
+            parts: {
+                type: Array
+            },
+            selected: {
+                type: Array,
+                notify: true
+            }
+        },
         ready () {
             this.fire('parts-menu-ready');
-        }
+        },
         handleTapped () {
             this.fire('close');
-        }
+        },
         done () {
             this.fire('done');
-        }
+        },
         clearSelection () {
             this.$.parts.clearSelection();
         }
-    }
-    Polymer(KanoSidebar);
+    });
 </script>

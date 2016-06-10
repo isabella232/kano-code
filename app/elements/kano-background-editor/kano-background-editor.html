@@ -27,22 +27,20 @@
 <script type="text/javascript">
     /* globals Polymer */
 
-    class KanoBackgroundEditor {
-        beforeRegister () {
-            this.is = 'kano-background-editor';
-            this.properties = {
-                background: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            name: 'My app',
-                            userStyle: {}
-                        };
-                    },
-                    notify: true
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-background-editor',
+        properties: {
+            background: {
+                type: Object,
+                value: () => {
+                    return {
+                        name: 'My app',
+                        userStyle: {}
+                    };
+                },
+                notify: true
+            }
+        },
         attached () {
             this.set('backgroundOptions', [{
                 key: 'background',
@@ -50,6 +48,5 @@
                 label: 'Background'
             }]);
         }
-    }
-    Polymer(KanoBackgroundEditor);
+    });
 </script>

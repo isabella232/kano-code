@@ -26,7 +26,7 @@ export default class Data extends Part {
         this.dataType = opts.dataType || 'object';
         this.dataLength = opts.dataLength || 1;
         this.parameters = opts.parameters || [];
-        this.config = this.parameters.reduce((acc, param) => {
+        this.config = opts.config || this.parameters.reduce((acc, param) => {
             acc[param.key] = param.value;
             return acc;
         }, {});
@@ -212,6 +212,7 @@ export default class Data extends Part {
         plain.refreshFreq = this.refreshFreq;
         plain.refreshEnabled = this.refreshEnabled;
         plain.method = this.method;
+        plain.config = this.config;
         return plain;
     }
 }

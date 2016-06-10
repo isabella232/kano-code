@@ -26,31 +26,29 @@
 <script type="text/javascript">
     /* globals Polymer, DOMUtil */
 
-    class KanoArrow {
-        beforeRegister () {
-            this.is = 'kano-arrow';
-            this.properties = {
-                source: {
-                    type: Object
-                },
-                target: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'updatePosition(target.*, source.*)'
-            ];
-        }
+    Polymer({
+        is: 'kano-arrow',
+        properties: {
+            source: {
+                type: Object
+            },
+            target: {
+                type: Object
+            }
+        },
+        observers: [
+            'updatePosition(target.*, source.*)'
+        ],
         ready () {
             this.arrowImage = Polymer.dom(this.$.content).getDistributedNodes()[0];
             window.addEventListener('resize', this.updatePosition.bind(this));
-        }
+        },
         detached () {
             window.removeEventListener('resize', this.updatePosition.bind(this));
-        }
+        },
         hide () {
             this.style.display = 'none';
-        }
+        },
         updatePosition () {
             if (!this.arrowImage) {
                 return;
@@ -110,6 +108,5 @@
 
             }, 10);
         }
-    }
-    Polymer(KanoArrow);
+    });
 </script>

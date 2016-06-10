@@ -1,5 +1,8 @@
-<link rel="import" href="../ui/kano-ui/kano-ui.html">
 <link rel="import" href="../ui/behaviors.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../ui/kano-ui/kano-ui.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<link rel="import" href="../kano-lightboard-simulator/kano-lightboard-simulator.html">
 <dom-module id="kano-workspace">
     <style>
     :host {
@@ -18,14 +21,15 @@
         };
     }
     :host ::content #dropzone {
+        margin: auto;
+        position: relative;
+    }
+    :host ::content .dropzone {
         width: calc(100% - 10px);
         height: calc(100% - 10px);
         box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
-        margin: auto;
-        position: relative;
         border-radius: 5px;
     }
-
     :host ::content div#dropzone > *:not(.hole) {
         position: absolute;
         top: 0px;
@@ -65,7 +69,6 @@
     :host paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
-
     :host .hole {
         position: absolute;
         width: 10px;
@@ -73,27 +76,25 @@
         border-radius: 50%;
         background-color: #454545;
     }
-
+    :host .hole.hidden {
+        display: none;
+    }
     :host .hole.hole-top-left {
         top: 5px;
         left: 5px;
     }
-
     :host .hole.hole-top-right {
         top: 5px;
         right: 5px;
     }
-
     :host .hole.hole-bottom-right {
         bottom: 5px;
         right: 5px;
     }
-
     :host .hole.hole-bottom-left {
         bottom: 5px;
         left: 5px;
     }
-
     :host .made-with-kano {
         text-align: center;
         color: #B3B3B3;
@@ -106,11 +107,13 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone">
-                <div class="hole hole-top-left"></div>
-                <div class="hole hole-top-right"></div>
-                <div class="hole hole-bottom-right"></div>
-                <div class="hole hole-bottom-left"></div>
+            <div id="dropzone" style$="[[mode.dropzoneStyle]]" class="dropzone">
+                <template is="dom-if" if="[[!mode.hideHoles]]">
+                    <div class="hole hole-top-left"></div>
+                    <div class="hole hole-top-right"></div>
+                    <div class="hole hole-bottom-right"></div>
+                    <div class="hole hole-bottom-left"></div>
+                </template>
             </div>
             <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
@@ -150,60 +153,75 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoWorkspace {
-
-        get behaviors () {
-            return [KanoBehaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-workspace';
-            this.properties = {
-                size: {
-                    type: Object
-                },
-                parts: {
-                    type: Array,
-                    notify: true
-                },
-                running: {
-                    type: Boolean,
-                    value: false,
-                    observer: 'runningChanged'
-                },
-                selected: {
-                    type: Object,
-                    notify: true
-                },
-                internalSelection: {
-                    type: Object,
-                    value: null
-                },
-                code: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'partsChanged(parts.*)'
-            ];
-            this.listeners = {
-                'part-tapped': 'onPartTapped'
-            };
-        }
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-workspace',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            size: {
+                type: Object
+            },
+            parts: {
+                type: Array,
+                notify: true
+            },
+            running: {
+                type: Boolean,
+                value: false,
+                observer: 'runningChanged'
+            },
+            selected: {
+                type: Object,
+                notify: true
+            },
+            internalSelection: {
+                type: Object,
+                value: null
+            },
+            code: {
+                type: Object
+            },
+            mode: {
+                type: Object,
+                observer: '_modeChanged'
+            }
+        },
+        observers: [
+            'partsChanged(parts.*)'
+        ],
+        listeners: {
+            'part-tapped': 'onPartTapped',
+            'update-mode': '_updateMode'
+        },
         ready () {
             this.elements = {};
             this.tappedElement = null;
-        }
+
+            this.pixels = {
+                0: '#ff0000',
+                1: '#00ff00',
+                2: '#0000ff'
+            };
+        },
+        _modeChanged (mode) {
+            if (this.modeComponent) {
+                this.$.dropzone.removeChild(this.modeComponent);
+            }
+            if (mode.component) {
+                this.modeComponent = document.createElement(mode.component);
+                this.modeComponent.setAttribute('id', mode.id);
+                this.$.dropzone.appendChild(this.modeComponent);
+            }
+        },
         canDelete (el) {
             return el && !!el.model;
-        }
+        },
         canEdit (el) {
             return (el && el.id === "dropzone") || (el && el.model && el.model.partType !== 'hardware');
-        }
+        },
         isSeparatorHidden (el) {
             return !this.canDelete(el) || !this.canEdit(el);
-        }
+        },
         onTap (e) {
             if (this.running) {
                 return;
@@ -221,14 +239,14 @@
                     this.fire('close-settings');
                 }
             }
-        }
+        },
         clearSelection () {
             this.$.selector.clearSelection();
             this.tappedElement = null;
             this.$.tooltip.close();
             this.set('tooltipTarget', null);
             this.notifyChange('close-settings-tooltip');
-        }
+        },
         partFromElement () {
             let model = this.tappedElement.model;
             for (let i = 0; i <= this.parts.length; i++) {
@@ -237,7 +255,7 @@
                     return part;
                 }
             }
-        }
+        },
         onPartTapped (e) {
             this.$.selector.clearSelection();
             this.tappedElement = e.detail;
@@ -246,7 +264,7 @@
             if (this.tappedElement !== e.detail) {
                 this.fire('close-settings');
             }
-        }
+        },
         openSettings () {
             this.$.tooltip.close();
             this.tooltipTarget = null;
@@ -258,7 +276,7 @@
                 selector = this.$.selector;
             selector.select(part);
             this.fire('settings-tapped');
-        }
+        },
         deletePart () {
             let part = this.partFromElement();
             this.aboutToDelete = part.name;
@@ -267,13 +285,13 @@
             } else {
                 this.$['confirm-delete'].open();
             }
-        }
+        },
         modalClosed (e) {
             let part = this.partFromElement();
             if (e.detail.confirmed) {
                 this.fire('delete-tapped', part);
             }
-        }
+        },
         checkBlockDependency (part) {
             let xmlString, xml, parser, blocks, block, blockId, pieces;
             // Get the blockly xml and parse it
@@ -293,7 +311,7 @@
                 }
             }
             return false;
-        }
+        },
         partsChanged (e) {
             let path;
             if (this.tooltipTarget) {
@@ -322,8 +340,6 @@
                             for (let  i = 0; i < idxSplice.addedCount; i++) {
                                 this.insertPart.bind(this)(`#${idxSplice.index + i}`);
                             }
-                            //TODO: I'm not quite certain about the format of removals
-                            // Add them when we can test them
                         });
                     }
                 }
@@ -351,19 +367,19 @@
                 subPath = subPath.join('.');
                 this.propagateChange(key, subPath, e.value);
             }
-        }
+        },
         propagateChange (key, path, value) {
             let element = this.elements[key];
             if (!element) {
                 return;
             }
             element.set(path, value);
-        }
+        },
         insertPart (key) {
             let model = this.get(`parts.${key}`),
                 tagName,
                 element;
-            tagName = model.tagName ? model.tagName : `kano-ui-${model.type}`;
+            tagName = model.tagName;
             element = document.createElement(tagName);
             element.setAttribute('id', model.id);
             element.addEventListener('model-changed', (e) => {
@@ -379,7 +395,7 @@
             element.model = model;
             this.elements[key] = element;
             this.$.dropzone.appendChild(element);
-        }
+        },
         removePart (key) {
             let element = this.elements[key];
             if (!element) {
@@ -387,7 +403,7 @@
             }
             this.$.dropzone.removeChild(element);
             delete this.elements[key];
-        }
+        },
         runningChanged () {
             if (this.running) {
                 this.classList.add('running');
@@ -395,7 +411,7 @@
             } else {
                 this.classList.remove('running');
             }
-        }
+        },
         getPartIndexById (id) {
             let elements = this.parts;
             for (let i = 0, len = elements.length; i < len; i++) {
@@ -403,17 +419,18 @@
                     return i;
                 }
             }
-        }
+        },
         getViewport () {
             return this.$.dropzone;
-        }
+        },
         getViewportScale () {
             return this.$.content.getScale();
-        }
+        },
         setBackgroundColor (color) {
-            this.$.dropzone.style.background = color;
-        }
-
+            if (this.mode.allowBackground === true) {
+                this.$.dropzone.style.background = color;
+            }
+        },
         generateCover () {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
@@ -446,7 +463,7 @@
                 image.src = canvas.toDataURL();
                 return image;
             });
-        }
+        },
         /**
          * Helper to get style from element
          * @param  {Object} element  DOM element you want to inspect
@@ -467,7 +484,7 @@
                 strValue = element.currentStyle[css_rule];
             }
             return strValue;
-        }
+        },
         /**
          * Draws a rounded rectangle using the current state of the canvas.
          * If you omit the last three params, it will draw a rectangle
@@ -519,7 +536,14 @@
                 ctx.stroke();
             }
 
+        },
+        _isNormalMode (mode) {
+            return mode === 'normal';
+        },
+        _updateMode (e) {
+            if (this.modeComponent) {
+                this.modeComponent.update(e.detail);
+            }
         }
-    }
-    Polymer(KanoWorkspace);
+    });
 </script>

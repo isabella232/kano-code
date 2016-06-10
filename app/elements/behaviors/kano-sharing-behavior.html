@@ -1,0 +1,110 @@
+<link rel="import" href="./kano-view-behavior.html">
+<script src="./file_utils.js"></script>
+<script type="text/javascript">
+
+    /* globals Kano */
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    var SharingBehavior = {
+
+       properties: {
+           shareInfo: {
+               type: Object,
+               value: function () {
+                   return {};
+               },
+               notify: true
+           }
+       },
+       observers: [
+           '_userChanged(user)'
+       ],
+
+       shareApp () {
+           // Generates the standalone component
+           let savedApp = Kano.MakeApps.components.generateStandaloneComponent(
+                   this.shareInfo.parts,
+                   this.shareInfo.background,
+                   this.shareInfo.size,
+                   this.shareInfo.code
+               ),
+               attachment = new Blob([savedApp], { type: 'text/html' }),
+               cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+               workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+
+           attachment.filename = 'code.html';
+           cover.filename = 'cover.png';
+           workspaceInfo.filename = 'workspace_info.json';
+
+           //Share by calling the API
+           Kano.MakeApps.sdk.api.share.post({
+               app: 'make-apps',
+               title: this.shareInfo.title,
+               description: this.shareInfo.description,
+               files: {
+                   attachment: attachment,
+                   cover: cover,
+                   workspace_info: workspaceInfo
+               }
+           }).then((res) => {
+               if (res.status == 200) {
+                   this.set('shareInfo.page', 2);
+                   this.set('shareInfo.id', res.body.item.id);
+               } else {
+                   this.set('shareInfo.page', 3);
+               }
+           });
+       },
+       /**
+        * Opens the sharing modal and share the app
+        */
+       share (e) {
+           let shareInfo = {
+                   image: e.detail.cover,
+                   workspaceInfo: e.detail.workspaceInfo,
+                   page: 0,
+                   title: '',
+                   description: '',
+                   id: null,
+                   background: e.detail.background,
+                   parts: e.detail.parts,
+                   code: e.detail.code,
+                   size: e.detail.size,
+               };
+
+           this.set('shareInfo', shareInfo);
+           this.modal.open();
+       },
+
+       _userChanged (user) {
+           // user just logged out, nothing to do
+           if (!user) {
+               return;
+           }
+           // The user logged in and the sharing was waiting authentication, trigger the share
+           if (this.waitingAuth) {
+               this.confirmShare();
+           }
+       },
+
+       confirmShare () {
+           // The user is not authenticated
+           if (!this.user) {
+               // Flag the sharing as waiting authentication and trigger a login event
+               this.waitingAuth = true;
+               return this.fire('login');
+           }
+           this.set('shareInfo.page', 1);
+           this.shareApp();
+       },
+
+       dismissShare () {
+           this.modal.close();
+       }
+   };
+
+   window.Kano.Behaviors.SharingBehavior = [window.Kano.Behaviors.ViewBehavior, SharingBehavior];
+</script>

@@ -46,27 +46,25 @@
 
 <script type="text/javascript">
     /* globals Polymer, DOMUtil */
-
     const ANIMATION_DELAY = 400;
-    class KanoFocusOn {
-        beforeRegister () {
-            this.is = 'kano-focus-on';
-            this.properties = {
-                padding: {
-                    type: Number,
-                    value: 3
-                },
-                borders: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
+
+    Polymer({
+        is: 'kano-focus-on',
+        properties: {
+            padding: {
+                type: Number,
+                value: 3
+            },
+            borders: {
+                type: Array,
+                value: () => {
+                    return [];
                 }
-            };
-            this.observers = [
-                'bordersChanged(border.*)'
-            ];
-        }
+            }
+        },
+        observers: [
+            'bordersChanged(border.*)'
+        ],
         ready () {
             let canvas = this.$.canvas,
                 ctx = canvas.getContext('2d');
@@ -77,7 +75,7 @@
 
             DOMUtil.addVendorProperty(this, 'transition', `transform ${ANIMATION_DELAY}ms`);
             DOMUtil.addVendorProperty(this.$.canvas, 'transition', `opacity ${ANIMATION_DELAY}ms`);
-        }
+        },
         show (elements) {
             let rect,
                 origin;
@@ -103,7 +101,7 @@
 
             this.style.visibility = 'visible';
             this.toggleClass('show', true);
-        }
+        },
         computeBorderStyle (border) {
             let padding = this.padding + 4;
             return `transition: opacity ${ANIMATION_DELAY};
@@ -111,7 +109,7 @@
                     top: ${border.top - padding}px;
                     width: ${border.width + padding * 2}px;
                     height: ${border.height + padding * 2}px;`;
-        }
+        },
         drawCanvas () {
             let padding = this.padding,
                 ctx = this.ctx,
@@ -138,7 +136,7 @@
                 );
                 this.push('borders', rect);
             });
-        }
+        },
         hide () {
             window.removeEventListener('resize', this.drawCanvas.bind(this));
             this.toggleClass('show', false);
@@ -150,6 +148,5 @@
                 this.fire('animation-finish');
             }, ANIMATION_DELAY);
         }
-    }
-    Polymer(KanoFocusOn);
+    });
 </script>

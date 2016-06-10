@@ -1,0 +1,21 @@
+<script type="text/javascript">
+
+    /* globals Kano */
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.NavBarViewBehavior = {
+        listeners: {
+            'notifications-read': '_read',
+            'notifications-read-all': '_readAll'
+        },
+        _readAll () {
+            Kano.MakeApps.sdk.api.notifications.readAll().then(() => {});
+        },
+        _read (e) {
+            Kano.MakeApps.sdk.api.notifications.read({ id: e.detail.id }).then(() => {});
+        }
+    };
+</script>

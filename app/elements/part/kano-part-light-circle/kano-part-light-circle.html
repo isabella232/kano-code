@@ -1,0 +1,81 @@
+<link rel="import" href="../../ui/behaviors.html">
+<dom-module id="kano-part-light-circle">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: #87d7f7;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-wrap);
+        padding: 9px;
+        box-shadow: 0px 0px 10px 2px #87d7f7;
+    }
+    .container div.square {
+        width: 15px;
+        height: 15px;
+        margin: 1px;
+        background-color: rgba(0, 0, 0, 0.45);
+    }
+    .container .middle {
+        @apply(--layout-horizontal);
+    }
+    </style>
+    <template>
+        <div class="container">
+            <div class="square"></div>
+            <div class="middle">
+                <div class="square"></div>
+                <div class="square"></div>
+                <div class="square"></div>
+            </div>
+            <div class="square"></div>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-light-circle',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                shape: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            x: 0,
+                            y: 0,
+                            width: 1,
+                            height: 1,
+                            color: '#ffffff',
+                            type: 'circle'
+                        };
+                    }
+                }
+            },
+            observers: [
+                '_shapeChanged(shape.*)'
+            ],
+            _shapeChanged () {
+                this.debounce('updateShape', () => {
+                    if (this.isRunning) {
+                        let bitmap = Kano.MakeApps.Modules.lightboard.methods.updateOrCreateShape(this.model.id, this.shape);
+                        this.fire('update-mode', bitmap);
+                    }
+                });
+            },
+            draw (x, y, radius, color) {
+                this.set('shape.x', x || this.shape.x);
+                this.set('shape.y', y || this.shape.y);
+                this.set('shape.radius', radius || this.shape.radius);
+                this.set('shape.color', color || this.shape.color);
+            }
+        });
+    </script>
+</dom-module>

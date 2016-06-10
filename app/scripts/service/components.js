@@ -106,7 +106,7 @@ class ComponentStore {
             template.push(`<${tagName} id="${part.id}" model="{{parts.${part.id}}}" auto-start></${tagName}>`);
             return acc;
         }, {});
-        partsString = JSON.stringify(components).replace(/"/g, '\\"');
+        partsString = JSON.stringify(components);
 
         template = template.join('\n');
         // TODO find a better way to avoid having this script tag swallowed by
@@ -125,8 +125,16 @@ class ComponentStore {
                 <style>
                     :host {
                         ${backgroundStyle}
+                        position: relative;
                     }
-                    :host kano-ui-viewport * {
+                    kano-ui-viewport {
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        width: 100%;
+                        height: 100%;
+                    }
+                    kano-ui-viewport * {
                         position: absolute;
                     }
                 </style>
@@ -145,7 +153,7 @@ class ComponentStore {
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}")
+                            value: ${partsString}
                         }
                     },
                     attached: function () {
