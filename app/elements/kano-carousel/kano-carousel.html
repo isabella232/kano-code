@@ -1,0 +1,292 @@
+<!--
+
+## kano-carousel
+
+This component is a responsive, touch-enabled, scrollable carousel. Put in
+some elements and style it as you wish.
+
+### Example
+
+<style>
+    --kano-carousel-button {
+        background: red;
+    }
+}
+</style>
+
+<kano-carousel>
+    <div>One</div>
+    <div>Two</div>
+    <div>Three</div>
+</kano-carousel>
+
+ -->
+
+<dom-module id="kano-carousel">
+    <style>
+        :host {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .prev-button, .next-button {
+            @apply(--kano-carousel-button);
+            position: relative;
+
+            margin: 0;
+            padding: 0;
+
+            z-index: 1;
+
+            color: var(--color-grey-lighter);
+            font-size: 40px;
+
+            border: none;
+            outline: none;
+            cursor: pointer;
+
+            visibility: visible;
+            opacity: 1;
+            transition: opacity ease 0.5s, visibility ease 0.5s;
+        }
+
+        .prev-button i, .next-button i {
+            margin: auto;
+        }
+
+        .prev-button:hover, .next-button:hover {
+            color: #fff;
+        }
+
+        .prev-button {
+            margin-right: -40px;
+            background: linear-gradient(90deg, #444 0%, transparent);
+        }
+
+        .next-button {
+            margin-left: -40px;
+            background: linear-gradient(-90deg, #444 0%, transparent);
+        }
+
+        .hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        #viewport {
+            flex: 1 0;
+
+            display: flex;
+        }
+
+        #viewport.desktop {
+            overflow-x: hidden;
+        }
+
+        #viewport.mobile {
+            overflow-x: scroll;
+            -webkit-overflow-scrolling: touch;
+            -ms-scroll-chaining: chained;
+        }
+
+        #content {
+            flex: 1 0 auto;
+
+            overflow: visible;
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+        }
+
+        #content ::content > * {
+            flex-grow: 1;
+            flex-shrink: 0;
+
+            margin: 5px 5px;
+        }
+
+        .ease {
+            transition: all ease 0.5s;
+        }
+    </style>
+    <template>
+        <button type="button" on-tap="moveLeft"
+                class$="prev-button {{applyHiddenClass(mode, buttonsNeeded)}}">
+            <i class="icon-arrow-left"></i>
+        </button>
+        <div id="viewport" class$="{{mode}}"
+             on-mousedown="dragStart" on-mousemove="dragMove"
+             on-mouseup="dragStop" on-mouseout="dragCancel">
+            <div id="content" class$="{{applyEaseClass(moving)}}">
+                <content></content>
+            </div>
+        </div>
+        <button type="button" on-tap="moveRight"
+                class$="next-button {{applyHiddenClass(mode, buttonsNeeded)}}">
+            <i class="icon-arrow-right"></i>
+        </button>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    class KanoCarousel {
+        beforeRegister () {
+            this.is = 'kano-carousel';
+            this.properties = {
+                offset: {
+                    type: Number,
+                    value: 0,
+                    notify: true
+                },
+                moving: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+                mode: {
+                    type: String,
+                    value: 'desktop',
+                    observer: 'modeChanged'
+                },
+                withMouseScroll: {
+                    type: Boolean,
+                    value: false
+                },
+                buttonsNeeded: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                }
+            };
+        }
+
+        moveLeft () {
+            this.offset += this.$.viewport.offsetWidth * 0.75;
+            this.translate(this.offset);
+
+            this.enforceBoundaries();
+        }
+
+        moveRight () {
+            this.offset -= this.$.viewport.offsetWidth * 0.75;
+            this.translate(this.offset);
+
+            this.enforceBoundaries();
+        }
+
+        translate (offset) {
+            this.$.content.style.transform = `translateX(${offset}px)`;
+        }
+
+        dragStart (event) {
+            if (this.withMouseScroll) {
+                this.moving = true;
+                this.lastX = event.clientX;
+            }
+        }
+
+        dragMove (event) {
+            if (this.moving) {
+                this.offset += (event.clientX - this.lastX);
+                this.lastX = event.clientX;
+
+                this.translate(this.offset);
+            }
+        }
+
+        dragStop (event) {
+            if (this.moving) {
+                this.moving = false;
+
+                this.enforceBoundaries();
+            }
+        }
+
+        dragCancel (event) {
+            if (this.moving) {
+                let viewport = this.$.viewport,
+                    x = viewport.offsetLeft,
+                    y = viewport.offsetTop,
+                    w = viewport.offsetWidth,
+                    h = viewport.offsetHeight;
+
+                if ((event.clientX <= x || event.clientX >= (x + w)) ||
+                    (event.clientY <= y || event.clientY >= (y + h))) {
+                    this.stop(event);
+                }
+            }
+        }
+
+        onMouseOver (event) {
+            this.updateNeedButtons(true);
+        }
+
+        onMouseOut (event) {
+            this.updateNeedButtons(false);
+        }
+
+
+        enforceBoundaries () {
+            let nodes = this.$,
+                contentWidth = nodes.content.scrollWidth,
+                viewportWidth = nodes.viewport.offsetWidth;
+
+            if (this.offset > 0) {
+                this.offset = 0;
+            } else if (Math.abs(this.offset) > contentWidth - viewportWidth) {
+                this.offset = -(contentWidth - viewportWidth);
+            }
+
+            this.updateNeedButtons();
+
+            this.translate(this.offset);
+        }
+
+        updateNeedButtons (mouseInside) {
+            let nodes = this.$,
+                contentWidth = nodes.content.scrollWidth,
+                viewportWidth = nodes.viewport.offsetWidth;
+
+            if (mouseInside === undefined) {
+                mouseInside = this.buttonsNeeded;
+            }
+
+            this.buttonsNeeded = (contentWidth > viewportWidth) && mouseInside;
+        }
+
+        applyEaseClass (moving) {
+            if (!moving) {
+                return 'ease';
+            }
+            return '';
+        }
+
+        applyHiddenClass (mode, buttonsNeeded) {
+            if (mode !== 'mobile' && buttonsNeeded) {
+                return '';
+            } else {
+                return 'hidden'
+            }
+        }
+
+        modeChanged (newValue, oldValue) {
+            if (newValue === 'desktop') {
+                if (!this.eventsAttached) {
+                    window.addEventListener('resize',
+                                            this.enforceBoundaries.bind(this));
+                    this.addEventListener('mouseover', this.onMouseOver.bind(this));
+                    this.addEventListener('mouseout', this.onMouseOut.bind(this));
+                    this.eventsAttached = true;
+                }
+            } else {
+                if (this.eventsAttached) {
+                    window.removeEventListener('resize', this.enforceBoundaries);
+                    this.removeEventListener('mouseover', this.onMouseOver);
+                    this.removeEventListener('mouseout', this.onMouseOut);
+                    this.eventsAttached = false;
+                }
+            }
+        }
+    }
+    Polymer(KanoCarousel);
+</script>

@@ -1,0 +1,22 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+    
+    window.Kano.Behaviors.AnimatableBehavior = {
+        properties: {
+            noAnimations: {
+                type: Boolean,
+                value: false,
+                observer: 'noAnimationsChanged'
+            }
+        },
+        ready () {
+            this.toggleClass('animatable', true);
+        },
+        noAnimationsChanged (noAnimations) {
+            this.toggleClass('no-animations', noAnimations);
+        }
+    };
+</script>

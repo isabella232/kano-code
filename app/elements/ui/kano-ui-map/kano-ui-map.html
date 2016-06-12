@@ -27,31 +27,25 @@
 
 <script type="text/javascript">
 
-    /* globals Polymer, KanoBehaviors, google */
+    /* globals Polymer, Kano, google */
 
-    class KanoUiMap {
-
-        get behaviors () {
-            return [KanoBehaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-map';
-            this.properties = {
-                coordinates: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
+    Polymer({
+        is: 'kano-ui-map',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        properties: {
+            coordinates: {
+                type: Array,
+                value: () => {
+                    return [];
                 }
-            };
-        }
+            }
+        },
         attached () {
             this.mapOptions = {
                 draggable: false,
                 scrollWheel: false
             };
-        }
+        },
         showMarker (latitude, longitude) {
             let pos = { latitude, longitude },
                 path;
@@ -71,12 +65,12 @@
 
             this.push('coordinates', pos);
             this.set('position', pos);
-        }
+        },
         computeMapStyle () {
             return this.getPartialStyle(['width', 'height']);
-        }
+        },
         renderOnCanvas (ctx) {
-            return KanoBehaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
                 let img,
                     map = this.$.map,
                     width = map.offsetWidth,
@@ -106,11 +100,10 @@
                         resolve();
                     };
                     img.onerror = () => {
-                        resolve(KanoBehaviors.UIBehavior.renderFallback.apply(this, arguments));
+                        resolve(Kano.Behaviors.UIBehavior.renderFallback.apply(this, arguments));
                     };
                 });
             });
         }
-    }
-    Polymer(KanoUiMap);
+    });
 </script>

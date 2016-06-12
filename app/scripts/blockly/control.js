@@ -40,17 +40,35 @@ let register = (Blockly) => {
             let json = {
                 id: 'every_x_seconds',
                 colour: COLOUR,
-                message0: 'Every %1 seconds',
+                message0: 'Every %1 %2',
                 args0: [{
                     type: "input_value",
                     name: "INTERVAL"
+                },{
+                    type: "field_dropdown",
+                    name: "UNIT",
+                    options: [
+                        [
+                            'seconds',
+                            'seconds'
+                        ],
+                        [
+                            'milliseconds',
+                            'milliseconds'
+                        ],
+                        [
+                            'frames',
+                            'frames'
+                        ]
+                    ]
                 }],
                 message1: 'do %1',
                 args1: [{
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }
@@ -59,13 +77,15 @@ let register = (Blockly) => {
     Blockly.JavaScript.every_x_seconds = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
             interval = Blockly.JavaScript.valueToCode(block, 'INTERVAL') || 5,
-            code = `time.every(${interval}, function () {\n${statement}});\n`;
+            unit = block.getFieldValue('UNIT') || 'seconds',
+            code = `time.every(${interval}, '${unit}', function () {\n${statement}});\n`;
         return code;
     };
     Blockly.Pseudo.every_x_seconds = (block) => {
         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
             interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
-            code = `every ${interval} seconds, do {\n${statement}}\n`;
+            unit = block.getFieldValue('UNIT') || 'seconds',
+            code = `every ${interval} ${unit}, do {\n${statement}}\n`;
         return code;
     };
 
@@ -84,7 +104,8 @@ let register = (Blockly) => {
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }

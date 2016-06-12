@@ -233,12 +233,14 @@ Here is how the JSON file can look like:
 
 ```json
 {
+    "mode": "normal",
     "parts": ["map", "iss"],
     "modules": ["control", "operators", "variables"],
     "steps": ["..."]
 }
 ```
 
+ - `mode`: Which mode to set the editor to (normal, lightboard, camera...)
  - `parts`: An array containing the parts you want to be available from the `add parts` menu
  - `modules`: An array containing the default categories listed in the blocks view. available are: (`controls`, `operators`, `variables`, `background`). The `events` category is here by default
  - `steps`: This array contain objects defining each step of the scene and is the most complicated

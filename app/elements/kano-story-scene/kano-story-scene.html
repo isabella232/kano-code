@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../kano-view/kano-view.html">
 <dom-module id="kano-story-scene">
     <style>
@@ -33,54 +32,52 @@
 <script type="text/javascript">
     /* globals Polymer */
 
-    class KanoStoryScene {
-        beforeRegister () {
-            this.is = 'kano-story-scene';
-            this.properties = {
-                scene: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                storyName: {
-                    type: String,
-                    value: ''
-                },
-                nextStory: {
-                    type: Object
-                },
-                location: {
-                    type: String
-                },
-                name: {
-                    type: String
-                },
-                attributes: {
-                    type: Object
-                },
-                store: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                extensions: {
-                    type: Array
+    Polymer({
+        is: 'kano-story-scene',
+        properties: {
+            scene: {
+                type: Object,
+                value: () => {
+                    return {};
                 }
-            };
-            this.observers = [
-                'componentChanged(scene.component)',
-                'extensionsChanged(extensions.*)'
-            ];
-        }
+            },
+            storyName: {
+                type: String,
+                value: ''
+            },
+            nextStory: {
+                type: Object
+            },
+            location: {
+                type: String
+            },
+            name: {
+                type: String
+            },
+            attributes: {
+                type: Object
+            },
+            store: {
+                type: Object,
+                value: () => {
+                    return {};
+                }
+            },
+            extensions: {
+                type: Array
+            }
+        },
+        observers: [
+            'componentChanged(scene.component)',
+            'extensionsChanged(extensions.*)'
+        ],
         extensionsChanged(e) {
             this.set(`attributes.${e.path}`, e.value);
-        }
+        },
         ready () {
             this.overlayDone = this.overlayDone.bind(this);
             this.overlay = null;
-        }
+        },
         sceneFinished (e) {
             if (this.scene.overlay_after) {
                 e.stopPropagation();
@@ -88,7 +85,7 @@
             } else if (this.scene.show_remix_options) {
                 this.set('attributes.scene.ended', true);
             }
-        }
+        },
         componentChanged () {
             let scene = this.scene,
                 attributes = {},
@@ -121,7 +118,7 @@
             }
             this.set('attributes', attributes);
             this.set('name', `kano-scene-${name}`);
-        }
+        },
         overlayDone () {
             let started = false;
             if (!this.beforeDone && this.scene.overlay_before) {
@@ -140,7 +137,7 @@
                     this.set('attributes.scene.started', true);
                 }
             });
-        }
+        },
         setupOverlay (overlayConfig) {
             let pieces,
                 name,
@@ -170,6 +167,5 @@
             this.overlay = el;
             this.$.overlay.appendChild(el);
         }
-    }
-    Polymer(KanoStoryScene);
+    });
 </script>

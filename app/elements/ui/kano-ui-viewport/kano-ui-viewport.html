@@ -79,38 +79,35 @@ the content out of proportions to make it fit inside the available space.
 <script>
     /* globals Polymer */
 
-    class KanoUiViewport {
-        beforeRegister () {
-            this.is = 'kano-ui-viewport';
-            this.properties = {
-                viewWidth: {
-                    type: Number,
-                    value: 0,
-                    reflectToAttribute: true
-                },
-                viewHeight: {
-                    type: Number,
-                    value: 0,
-                    reflectToAttribute: true
-                },
-                mode: {
-                    type: String,
-                    value: 'responsive'
-                },
-                aspectRatio: {
-                    type: String,
-                    value: 'auto'
-                },
-                debug: {
-                    type: Boolean,
-                    value: false
-                }
-            };
-            this.observers = [
-                'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
-            ];
-        }
-
+    Polymer({
+        is: 'kano-ui-viewport',
+        properties: {
+            viewWidth: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true
+            },
+            viewHeight: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true
+            },
+            mode: {
+                type: String,
+                value: 'responsive'
+            },
+            aspectRatio: {
+                type: String,
+                value: 'auto'
+            },
+            debug: {
+                type: Boolean,
+                value: false
+            }
+        },
+        observers: [
+            'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
+        ],
         resizeView () {
             requestAnimationFrame(() => {
                 switch (this.mode) {
@@ -127,8 +124,7 @@ the content out of proportions to make it fit inside the available space.
                         console.log('Mode "' + this.mode + '" not supported.');
                 }
             });
-        }
-
+        },
         resize () {
             var scale = this.parseAspectRatio(this.aspectRatio);
 
@@ -148,8 +144,7 @@ the content out of proportions to make it fit inside the available space.
 
             /* Resize the view without scaling it */
             this.scale(1, 1);
-        }
-
+        },
         getScale () {
             var xScale = this.offsetWidth / this.viewWidth,
                 yScale = this.offsetHeight / this.viewHeight,
@@ -172,8 +167,7 @@ the content out of proportions to make it fit inside the available space.
                     console.log('Mode "' + this.mode + '" not supported.');
                     return {x: 1, y: 1};
             }
-        }
-
+        },
         scale (xScale, yScale) {
             var xOffset = (this.offsetWidth - this.viewWidth * xScale) / 2,
                 yOffset = (this.offsetHeight - this.viewHeight * yScale) / 2,
@@ -191,8 +185,7 @@ the content out of proportions to make it fit inside the available space.
             style.transform = 'scale(' + xScale + ', ' + yScale + ')';
 
             this.fire('viewport-resize', this.$.view.getBoundingClientRect());
-        }
-
+        },
         parseAspectRatio (aspect) {
             if (aspect === 'auto') {
                 return this.offsetWidth / this.offsetHeight;
@@ -200,8 +193,7 @@ the content out of proportions to make it fit inside the available space.
                 var numbers = aspect.split(':');
                 return parseInt(numbers[0]) / parseInt(numbers[1]);
             }
-        }
-
+        },
         attached () {
             /* If not set, initialise the view dimensions to max possible. */
             this.viewWidth = this.viewWidth || this.offsetWidth;
@@ -213,11 +205,9 @@ the content out of proportions to make it fit inside the available space.
 
             window.addEventListener('resize', this.resizeView.bind(this));
             this.resizeView();
-        }
-
+        },
         detached () {
             window.addEventListener('resize', this.resizeView.bind(this));
         }
-    }
-    Polymer(KanoUiViewport);
+    });
 </script>

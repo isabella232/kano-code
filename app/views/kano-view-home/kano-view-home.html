@@ -1,3 +1,4 @@
+<link rel="import" href="../../elements/home-bundle.html">
 <dom-module id="kano-view-home">
     <style>
         :host {
@@ -6,7 +7,30 @@
             @apply(--layout-vertical);
             @apply(--layout-center);
             background-color: #DCDCDC;
-
+        }
+        :host kano-nav-bar {
+            width: 100%;
+            display: block;
+            z-index: 1;
+            /* Hi safari, how are you? */
+            flex-shrink: 0
+        }
+        /* Hi safari, glad to see you again */
+        :host ::content kano-nav-bar .center {
+            flex: 2 !important;
+        }
+        :host ::content kano-nav-bar .link i {
+            align-self: center;
+            margin-left: 4px;
+        }
+        /* FIXME investigate that later */
+        :host ::content kano-nav-bar button {
+            font-family: bariol !important;
+        }
+        /* FIXME investigate that later */
+        :host ::content kano-nav-bar .user-avatar {
+            width: 44px !important;
+            height: 44px !important;
         }
         :host .pure-g [class *= "pure-u"] {
             font-family: 'Bariol', Helvetica, Arial, sans-serif;
@@ -40,7 +64,8 @@
             text-align: center;
             background-repeat: no-repeat;
             background-size: cover;
-            margin-top: 70px;
+            /* Hi safari, how are you? */
+            flex-shrink: 0
         }
         :host .banner-content {
             display: inline-block;
@@ -85,7 +110,7 @@
             font-size: 15px;
             font-weight: bold;
             @apply(--kano-button);
-        }   
+        }
         :host #logo {
             height: 80px;
             width: 80px;
@@ -115,15 +140,9 @@
             }
         }
 
-        @media screen and (max-width: 768px) {
-            :host .banner {
-                margin-top: 0;
-            }
-        }
-
     </style>
     <template>
-        <kano-header user="[[user]]" app="[[app]]"></kano-header>
+        <kano-nav-bar user="[[user]]" xp="[[user.profile.xp]]" assets-path="/assets/navbar/" notifications="[[_computeNotifications(user.notifications)]]" world-root="[[worldRoot]]" default-avatar="/assets/avatar/judoka_1_white_circular.png"></kano-nav-bar>
         <div class="banner">
             <div class="banner-content pure-g">
                 <div class="banner-text pure-u-1">
@@ -146,45 +165,37 @@
 </dom-module>
 
 <script>
-    /* globals Polymer */
-    /* globals app */
-    class KanoViewHome {
-        beforeRegister () {
-            this.is = 'kano-view-home';
-            this.properties = {
-                projects: {
-                    type: Array,
-                    value: []
-                },
-                user: {
-                    type: Object,
-                    observer: "userChanged"
-                },
-                app: {
-                    type: Object,
-                    value: app
-                }
-            };
-        }
-
-        userChanged () {
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-home',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        properties: {
+            projects: {
+                type: Array,
+                value: []
+            }
+        },
+        observers: [
+            '_userChanged(user)'
+        ],
+        _userChanged () {
             if (!this.user) {
                 return null;
             }
 
-            app.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => this.set('user_apps', apps.body.entries))
-        }
-
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
+                .then((apps) => this.set('user_apps', apps.body.entries));
+        },
         ready () {
-            this.PLAY_URL = app.config.PLAY_URL;
+            this.worldRoot = Kano.MakeApps.config.WORLD_URL;
+            this.PLAY_URL = Kano.MakeApps.config.PLAY_URL;
             this.loadingProjects = true;
-            app.stories.list()
+            Kano.MakeApps.stories.list()
                 .then((stories) => {
                     // Go through all the stories and update the `locked` key
                     let promises = stories.map((story) => {
                         // Load the story's progress group
-                        return app.progress.loadProgress(story.progress.group)
+                        return Kano.MakeApps.progress.loadProgress(story.progress.group)
                             .then((progress) => {
                                 // `storyNo` is the last completed story number of the user. If the story number is over
                                 // that number plus one, the story is locked
@@ -200,12 +211,13 @@
                     this.loadingProjects = false;
                     this.set('projects', projects);
                 });
-            app.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
+            Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                 });
+        },
+        _computeNotifications (notifications) {
+            return notifications || [];
         }
-    }
-
-    Polymer(KanoViewHome);
+    });
 </script>

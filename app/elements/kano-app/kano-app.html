@@ -1,13 +1,17 @@
-<script src="../../scripts/app.js"></script>
 <script src="../../scripts/util/client.js"></script>
 
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
+
+<link rel="import" href="../app.html">
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-style/kano-style.html">
 <link rel="import" href="../kano-auth/kano-auth.html">
+<link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <!--
 `kano-app` provides the whole Make apps app.
 Example:
@@ -17,12 +21,22 @@ Example:
 -->
 <dom-module id="kano-app">
     <style>
-    :host, :host .main {
-        display: block;
-        width: 100%;
-        height: 100%;
-        @apply(--layout-vertical);
+    :host {
         font-family: var(--font-body);
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    :host paper-drawer-panel {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        --paper-drawer-panel-main-container: {
+            @apply(--layout-flex);
+        };
+    }
+    :host kano-routing {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
         overflow: auto;
     }
     :host button,
@@ -66,21 +80,12 @@ Example:
         @apply(--layout-flex);
         position: relative;
     }
-    :host .main iron-pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-    }
-    :host .main iron-pages > * {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-    }
     :host .logged-out {
         background: white;
     }
-    :host kano-routing {
+    :host .main {
         @apply(--layout-flex);
+        @apply(--layout-vertical);
     }
     :host .auth-modal {
         border-radius: 5px;
@@ -97,65 +102,65 @@ Example:
     :host .news-bar:hover {
         background-color: #8AC854;
     }
+    #toast button {
+        background-color: var(--color-green);
+        margin-left: 16px;
+    }
     </style>
     <template>
         <a class="news-bar" href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank">
             Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
         </a>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
-            <kano-side-menu drawer user="[[user]]" on-login="login" on-logout="logout" on-toggle-menu="toggleMenu" editor="{{editor}}"></kano-side-menu>
-            <div class="main" main>
-                <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="onLogin"></kano-routing>
-            </div>
+            <kano-side-menu drawer user="[[user]]" on-toggle-menu="toggleMenu" editor="{{editor}}" offline="[[offline]]" on-login="_login"></kano-side-menu>
+            <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" main></kano-routing>
         </paper-drawer-panel>
         <paper-dialog id="auth-modal" class="auth-modal" modal>
-            <kano-auth on-login="onLogin" id="auth"></kano-auth>
+            <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
         </paper-dialog>
+        <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
+            <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
+        </paper-toast>
     </template>
 </dom-module>
 <script>
-    /* globals Polymer, app, ClientUtil, page */
+    /* globals Polymer, Kano, ClientUtil, page */
 
-    class KanoApp {
-        beforeRegister () {
-            this.is = 'kano-app';
-            this.properties = {
-                user: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'ctxChanged(ctx.*)'
-            ];
-        }
-        pageChanged () {
-            // Trigger a resize event. iron-pages uses the `display` css property to hide pages
-            // This causes the boudingClientRect to be empty. This notifies the elements depending on
-            // this value to recompute their sizes
-            var ev = new Event('resize');
-            window.dispatchEvent(ev);
-        }
-        /**
-         * When the router changes the ctx, we update it in the app
-         */
-        ctxChanged () {
-            app.ctx = this.ctx;
-        }
-        isUserLoggedIn () {
-            return !!this.user;
-        }
+    Polymer({
+        is: 'kano-app',
+        properties: {
+            user: {
+                type: Object
+            },
+            offline: {
+                type: Boolean,
+                value: false
+            }
+        },
+        listeners: {
+            logout: '_logout',
+            shutdown: '_shutdown',
+            signup: '_signup',
+            'kano-error': '_showErrorOnToast'
+        },
+        pollingInterval: {
+            type: Number,
+            value: 30000
+        },
         ready () {
             this.editor = null;
+            this.offline = Kano.MakeApps.config.TARGET === 'osonline' && ClientUtil.isPi();
             let initialiseSDK = () => {
-                app.sdk.auth.initSession((err, user) => {
+                Kano.MakeApps.sdk.auth.initSession((err, user) => {
                     if (user) {
                         this.set('user', user);
+                        this._populateUser();
+                        this._startNotificationsPolling();
                     }
                 });
             };
-            if (window.app.config.TARGET === 'osonline' && ClientUtil.isPi()) {
-
-                fetch(window.app.config.TOKEN_ENDPOINT)
+            if (this.offline) {
+                fetch(Kano.MakeApps.config.TOKEN_ENDPOINT, {method: 'POST'})
                 .then((response) => {
                     if (response.ok) {
                         // The API has responded, need to set the token
@@ -164,7 +169,7 @@ Example:
                 })
                 .then((retObj) => {
                     if (retObj.hasOwnProperty('token')) {
-                        app.sdk.auth.setToken(retObj.token);
+                        Kano.MakeApps.sdk.auth.setToken(retObj.token);
                     }
 
                     initialiseSDK();
@@ -177,30 +182,89 @@ Example:
             } else {
                 initialiseSDK();
             }
-        }
-        logout (e) {
+        },
+        attached () {
+            this.$.toast.close();
+        },
+        _showErrorOnToast (e) {
+            this.message = e.detail;
+            if (this.message.text) {
+                this.$.toast.open();
+                // The content changed, need to refit
+                this.$.toast.refit();
+            }
+        },
+        _closeToast () {
+            this.$.toast.close();
+        },
+        _shutdown (e) {
+            if (!this.offline) {
+                console.log("Can't shutdown outside of offline mode.");
+                return;
+            }
+
+            fetch(Kano.MakeApps.config.SHUTDOWN_ENDPOINT)
+            .then((response) => {
+                if (!response.ok) {
+                    console.log("Failed to shutdown.");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        },
+        _logout (e) {
             e.preventDefault();
-            app.sdk.auth.setToken(null);
+            Kano.MakeApps.sdk.auth.setToken(null);
             this.user = null;
             page.redirect("/");
             this.$.drawer.closeDrawer();
             this.$.auth.reset();
-            app.progress.reset();
-        }
-        login () {
+            Kano.MakeApps.progress.reset();
+            clearInterval(this._pollingIntervalId);
+        },
+        _login () {
             let modal = this.$['auth-modal'];
             modal.open();
-        }
-        onLogin (e) {
+        },
+        _signup () {
+            this._login();
+            this.authView = 'signup';
+        },
+        _onLogin (e) {
             let data = e.detail;
-            app.sdk.auth.setToken(data.token);
+            Kano.MakeApps.sdk.auth.setToken(data.token);
+            data.user.notifications = [];
             this.user = data.user;
             this.$['auth-modal'].close();
-        }
+            this._populateUser();
+            this._startNotificationsPolling();
+        },
+        _populateUser () {
+            this._updateProfile();
+            this._updateNotifications();
+        },
         toggleMenu () {
             this.editor = document.getElementById('editor');
             this.$.drawer.togglePanel();
+        },
+        _startNotificationsPolling () {
+            this._pollingIntervalId = setInterval(this._updateNotifications.bind(this), 30000);
+        },
+        _updateNotifications () {
+            Kano.MakeApps.sdk.api.notifications.get()
+                .then((res) => {
+                    this.set('user.notifications', res.body.entries.map((notification) => {
+                        notification.time = notification.date_created;
+                        return notification;
+                    }));
+                });
+        },
+        _updateProfile () {
+            Kano.MakeApps.sdk.api.users.get.byUsername({ username: this.user.username })
+                .then((res) => {
+                    this.set('user.profile', res.body.user.profile);
+                });
         }
-    }
-    Polymer(KanoApp);
+    });
 </script>

@@ -123,3 +123,7 @@ if (window.addEventListener) {
 } else {
     window.onload = deferLoading;
 }
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(function (registration) {}).catch(function (err) {});
+}

@@ -1,5 +1,5 @@
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
-<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-ui-editor">
     <style>
@@ -18,23 +18,16 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoUiEditor {
-
-        get behaviors () {
-            return [KanoBehaviors.AppEditorBehavior];
+    Polymer({
+        is: 'kano-ui-editor',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            selected: {
+                type: Object,
+                notify: true
+            }
         }
-
-        beforeRegister () {
-            this.is = 'kano-ui-editor';
-            this.properties = {
-                selected: {
-                    type: Object,
-                    notify: true
-                }
-            };
-        }
-    }
-    Polymer(KanoUiEditor);
+    });
 </script>

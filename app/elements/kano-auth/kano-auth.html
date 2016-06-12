@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <dom-module id="kano-auth">
     <style>
     :host {
@@ -111,7 +112,7 @@
     }
     </style>
     <template>
-        <iron-pages selected="[[selectedPage]]" attr-for-selected="name">
+        <iron-pages selected="[[authView]]" attr-for-selected="name">
             <div name="signup">
                 <h3>Create your account</h3>
                 <kano-signup-form on-login-click="toggle" on-success="loginSuccess"></kano-signup-form>
@@ -124,32 +125,27 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-
     /* globals Polymer */
-
-    class KanoAuth {
-        beforeRegister () {
-            this.is = 'kano-auth';
-        }
-
-        attached () {
-            this.selectedPage = 'login';
-        }
-
+    Polymer({
+        is: 'kano-auth',
+        properties: {
+            authView: {
+                type: String,
+                value: 'login',
+                notify: true
+            }
+        },
         toggle () {
-            this.selectedPage = this.selectedPage === 'login' ? 'signup' : 'login';
-        }
-
+            this.authView = this.authView === 'login' ? 'signup' : 'login';
+        },
         loginSuccess (e) {
             this.fire('login', e.details);
-        }
-
+        },
         reset () {
             let inputs = this.querySelectorAll('input');
             for (let i = 0, len = inputs.length; i < len; i++) {
                 inputs[i].value = "";
             }
         }
-    }
-    Polymer(KanoAuth);
+    });
 </script>

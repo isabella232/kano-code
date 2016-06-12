@@ -53,23 +53,21 @@
 
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoUIConfiguration {
 
-        beforeRegister () {
-            this.is = 'kano-ui-configuration';
-            this.properties = {
-                element: {
-                    type: Object,
-                    notify: true
-                },
-                roundPosition: {
-                    type: Object
-                }
-            };
-            this.observers = [
-                'computeRoundPosition(element.position.*)'
-            ];
-        }
+    Polymer({
+        is: 'kano-ui-configuration',
+        properties: {
+            element: {
+                type: Object,
+                notify: true
+            },
+            roundPosition: {
+                type: Object
+            }
+        },
+        observers: [
+            'computeRoundPosition(element.position.*)'
+        ],
         computeRoundPosition () {
             let pos;
             if (!this.element) {
@@ -84,6 +82,5 @@
                 y: Math.ceil(pos.y) || 0
             });
         }
-    }
-    Polymer(KanoUIConfiguration);
+    });
 </script>

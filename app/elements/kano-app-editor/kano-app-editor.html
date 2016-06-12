@@ -1,15 +1,14 @@
 <script src="../../bower_components/interact/interact.js"></script>
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../kano-sidebar/kano-sidebar.html">
-<link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../kano-workspace/kano-workspace.html">
 <link rel="import" href="../kano-ui-configuration/kano-ui-configuration.html">
 <link rel="import" href="../kano-part-editor/kano-part-editor.html">
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-app-editor">
     <style>
@@ -257,7 +256,8 @@
                                 on-close-settings="closeSettings"
                                 on-delete-tapped="deletePart"
                                 running="{{running}}"
-                                code="[[code]]"></kano-workspace>
+                                code="[[code]]"
+                                mode="[[mode]]"></kano-workspace>
                 <div class$="parts-toggle {{applyOpenClass(partsPanelState, drawerPage)}}">
                     <label>{{partsMenuLabel(partsPanelState, drawerPage)}}</label>
                     <button type="button" class="parts-button" on-tap="toggleParts" id="add-part-button">
@@ -296,6 +296,7 @@
                             on-previous="previous"
                             parts="{{addedParts}}"
                             code="{{code}}"
+                            mode="[[mode]]"
                             default-categories="{{defaultCategories}}"></kano-root-view>
                         <button type="button" class="share-button" on-tap="share" id="share-button" hidden$="[[!showShareButton]]">Share App</button>
                         <content></content>
