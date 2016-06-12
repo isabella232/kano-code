@@ -1,6 +1,7 @@
 <link rel="import" href="../../elements/share-bundle.html">
 <link rel="import" href="../../elements/story-bundle.html">
 <link rel="import" href="../../elements/editor-bundle.html">
+<script src="../../scripts/util/tracking.js"></script>
 <dom-module id="kano-view-story">
     <style>
         :host {
@@ -59,6 +60,10 @@
                     return Kano.MakeApps.progress.loadProgress(story.progress.group);
                 })
                 .then((progress) => this.updateExtensions(progress));
+
+            this.async(function() {
+                trackPage();
+            });
         },
         _registerBlockly () {
             Kano.MakeApps.blockly.register(window.Blockly);

@@ -1,5 +1,6 @@
 <link rel="import" href="../../elements/editor-bundle.html">
 <link rel="import" href="../../elements/share-bundle.html">
+<script src="../../scripts/util/tracking.js"></script>
 <dom-module id="kano-view-editor">
     <style>
     :host {
@@ -179,6 +180,11 @@
             let data = e.detail;
             // Add the new code and its rule to the components store
             Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
+        },
+        attached () {
+            this.async(function() {
+                trackPage();
+            });
         },
         detached () {
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));

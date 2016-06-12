@@ -1,4 +1,5 @@
 <link rel="import" href="../../elements/home-bundle.html">
+<script src="../../scripts/util/tracking.js"></script>
 <dom-module id="kano-view-apps">
     <style>
         :host {
@@ -126,6 +127,10 @@
 
             this.appListHeader = appListHeader;
             this.view = view;
+
+            this.async(function() {
+                trackPage();
+            });
         },
         _computeNotifications (notifications) {
             return notifications || [];
