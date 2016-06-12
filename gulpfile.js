@@ -182,7 +182,8 @@ gulp.task('copy', ['copy-index'], () => {
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
-            'app/scripts/util/tracking.js'
+            'app/scripts/util/tracking.js',
+            'app/scripts/util/router.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
 });
@@ -331,6 +332,7 @@ gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/util/tracking.js',
+            'app/scripts/util/router.js',
             'app/scripts/index.js'
         ], { base: 'app'})
         .pipe($.connect.reload())
@@ -364,6 +366,7 @@ gulp.task('watch', () => {
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/util/tracking.js',
+            'app/scripts/util/router.js',
             'app/scripts/index.js'
         ], ['copy-dev']),
         gulp.watch(['app/elements/**/*'], ['elements-dev']),

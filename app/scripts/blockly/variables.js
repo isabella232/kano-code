@@ -34,6 +34,8 @@ let category = {
     },{
         id: 'colour_picker'
     },{
+        id: 'colour_rgb'
+    },{
         id: 'random_colour'
     },{
         id: 'variables_set'

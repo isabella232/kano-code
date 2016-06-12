@@ -129,20 +129,8 @@
             }
         },
         _getMode (context) {
-            var qs = '?' + context.querystring,
-                paramName = 'mode',
-                regex,
-                res;
-
-            if (qs.length > 1) {
-                regex = new RegExp("[?&]" + paramName + "(=([^&#]*)|&|#|$)"),
-                res = regex.exec(qs);
-                if (res && res[2]) {
-                    return decodeURIComponent(res[2].replace(/\+/g, " "))
-                }
-            }
-
-            return 'normal';
+            var modeFromQs = window.RouterUtil.parseQsParam(this.context.querystring, 'mode');
+            return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
             let workspaceSizeKey;
@@ -153,6 +141,10 @@
             this.modal = this.$['share-modal'];
 
             this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
+            Kano.MakeApps.HardwareAPI.config({
+                HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
+                PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
+            });
 
             workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
 
