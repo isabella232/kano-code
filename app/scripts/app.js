@@ -33,6 +33,11 @@ window.Kano = window.Kano || {};
     MakeApps.defaultCategories = blockly.categories;
 
     MakeApps.sdk = KanoWorldSdk(config);
+    // Add attach route until supported by the SDK
+    MakeApps.sdk.api.add('share.attach', {
+        method: 'post',
+        route: '/share/attach/:id'
+    });
     MakeApps.progress = ProgressService(MakeApps.sdk);
     MakeApps.HardwareAPI = HardwareAPI;
     MakeApps.sdk.registerForms();
