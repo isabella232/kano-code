@@ -2,10 +2,11 @@ Feature: Challenge
 
 Extends Editor
 
+  @test
   Scenario: Progress tracking updates each step
-    When a user completes a step
-    Then the progress meter updates
-     And the next tooltip loads with the next step
+    Given the story test_tooltip page is opened
+     When the user completes a step
+     Then the progress meter updates
 
   Scenario: No way out
     Given that a user is in the middle of a project

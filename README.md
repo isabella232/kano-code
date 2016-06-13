@@ -97,6 +97,12 @@ For testing features you're working on, see the workflow above.
 
 # Testing & Deployment
 
+## Testing
+
+The task `test:local` is present in gulp and will perform unit tests on individual components (WIP)
+Functional tests are located in `tests/` and can be run with `cucumber-js test/`. At the moment, it will spawn a static server and run tests using `selenium-webdriver`. The tests expects `make-apps` to be built for a staging environment.
+You can choose the target browser by setting the env variable `TARGET_BROWSER` to `chrome`, `firefox` or `safari`, will default to `chrome` (WIP)
+
 ### Staging
 Master is automatically deployed to Heroku. May be found here: http://kano-make-apps-again.herokuapp.com/
 
