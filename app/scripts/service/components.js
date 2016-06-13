@@ -120,7 +120,7 @@ class ComponentStore {
             `;
 
         component = `
-            <dom-module id="${componentName}">
+            <dom-module id="kano-${componentName}">
                 <style>
                     :host {
                         ${backgroundStyle}
@@ -148,7 +148,7 @@ class ComponentStore {
             </dom-module>
             <${scr}>
                 Polymer({
-                    is: '${componentName}',
+                    is: 'kano-${componentName}',
                     properties: {
                         parts: {
                             type: Object,
