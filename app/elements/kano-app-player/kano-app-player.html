@@ -56,6 +56,9 @@
                 // Create the component. Older shares were generated with the tagName `kano-user-component`
                 try {
                     c = this.create(`kano-${this.slug}`);
+                    if (c.constructor === HTMLElement) {
+                        throw new Error('Element not registered');
+                    }
                 } catch (e) {
                     c = this.create('kano-user-component');
                 }
