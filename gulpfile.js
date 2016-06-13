@@ -12,8 +12,7 @@ let gulp = require('gulp'),
     es = require('event-stream'),
     htmlAutoprefixer = require("html-autoprefixer"),
     bundler,
-    utils,
-    env = 'prod';
+    utils;
 
 require('web-component-tester').gulp.init(gulp, ['copy-test', 'build-dev']);
 
@@ -126,7 +125,7 @@ function getHtmlReplaceOptions() {
         </style>`;
     }
 
-    if (env === 'prod') {
+    if (process.env.NODE_ENV === 'production') {
         mapping.gtm = `<noscript>
             <iframe src='//www.googletagmanager.com/ns.html?id=GTM-WMGKFR' height='0' width='0' style='display: none; visibility: hidden;'></iframe>
         </noscript>
@@ -403,11 +402,7 @@ gulp.task('copy-doc', () => {
         .pipe(gulp.dest('www-doc'));
 });
 
-gulp.task('configure-dev', () => {
-    env = 'dev';
-});
-
 gulp.task('sw', updateSW);
 
 gulp.task('dev', ['watch', 'serve']);
-gulp.task('build-dev', ['configure-dev', 'sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev'], updateSW);
+gulp.task('build-dev', ['sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev'], updateSW);
