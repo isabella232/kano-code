@@ -27,29 +27,34 @@
                 }
             },
             observers: [
-                'updateMetaTags(url, title, description, siteName, image)',
-                'updateTitle(title)'
+                'update(url, title, description, siteName, image)'
             ],
-            updateMetaTags () {
+            update () {
                 this.debounce('update', () => {
                     let openTagDict = {
                             "og:url": this.url || "",
                             "og:title": this.title || "",
                             "og:description": this.description || "",
                             "og:site_name": this.siteName || "",
-                            "og:image": this.image || ""
+                            "og:image": this.image || "",
+                            "twitter:card": "summary_large_image",
+                            "twitter:site": "@teamkano"
                         },
-                        propertyValues;
+                        propertyValues = Object.keys(openTagDict);
 
+                    for (let i = 0; i < propertyValues.length; i++) {
+                        let key = propertyValues[i];
 
-                    propertyValues = Object.keys(openTagDict);
-
-                    propertyValues.forEach((key) => {
-                        //Only add or update when a value is there
+                        // Only add or update when a value is there
                         if (openTagDict[key]) {
                             this.addOrUpdateMetaTag(key, openTagDict[key]);
                         }
-                    });
+                    }
+
+                    this.updatePageTitle(this.title);
+
+                    /* Tell prerender to save the page now */
+                    document.prerenderReady = true;
                 });
             },
             addOrUpdateMetaTag (propertyAttr, value) {
