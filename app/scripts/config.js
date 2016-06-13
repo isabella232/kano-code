@@ -14,23 +14,26 @@ let COMMON = {
         "VOICE_API_URL": "http://api.voicerss.org",
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
-        "HARDWARE_API_URL": "http://localhost:3000"
+        "HARDWARE_API_URL": "http://localhost:3000",
     },
     ENV = {
         "production": {
             "API_URL": "https://api.kano.me",
             "DATA_API_URL": "https://apps-data.kano.me",
-            "WORLD_URL": "https://world.kano.me"
+            "WORLD_URL": "https://world.kano.me",
+            "GOOGLE_API_KEY": "AIzaSyDPqXOx9Xsyjw2xP9VLcjtJQl8sbUWznqk"
         },
         "staging": {
             "API_URL": "https://api-staging.kano.me",
             "DATA_API_URL": "https://apps-data-staging.kano.me",
-            "WORLD_URL": "http://world-staging.kano.me"
+            "WORLD_URL": "http://world-staging.kano.me",
+            "GOOGLE_API_KEY": "AIzaSyDPqXOx9Xsyjw2xP9VLcjtJQl8sbUWznqk"
         },
         "development": {
             "API_URL": "http://localhost:1234",
             "DATA_API_URL": "http://localhost:2020",
-            "WORLD_URL": "http://localhost:5000"
+            "WORLD_URL": "http://localhost:5000",
+            "GOOGLE_API_KEY": "AIzaSyBEEqGElf1RWRS0vkoia0Vs_o0Tpni43UM"
         }
     },
     TARGET = {

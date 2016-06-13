@@ -146,10 +146,10 @@
         <div class="banner">
             <div class="banner-content pure-g">
                 <div class="banner-text pure-u-1">
-                    <img id="logo" src="/assets/make-apps-logo.svg" />
+                    <img id="logo" src="/assets/make-apps-logo.svg" preload fade/>
                     <h1>Make Apps</h1>
                     <div>Want to control color? Check wind-speed on Mount Everest? Track astronauts in space? Make an app for that! Then share it with friends.</div>
-                    <a class="link style-scope kano-app button make-app-button" href="/story/background_color">Get started</a>
+                    <a id="get-started" class="link style-scope kano-app button make-app-button" href="/story/background_color">Get started</a>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
             <kano-app-list limit="3" view="my" apps="[[user_apps]]"></kano-app-list>
-            <h1>Latest Apps</h1><a class="see-all" href="/apps">See all &gt;</a>
+            <h1>Latest Apps</h1><a  id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
             <kano-app-list limit="4" apps="[[apps]]"></kano-app-list>
         </div>
     </template>
@@ -196,9 +196,10 @@
                         // Load the story's progress group
                         return Kano.MakeApps.progress.loadProgress(story.progress.group)
                             .then((progress) => {
+                                let progressGroup = progress[story.progress.group] || { storyNo: 0 };
                                 // `storyNo` is the last completed story number of the user. If the story number is over
                                 // that number plus one, the story is locked
-                                if (progress.storyNo + 1 > story.progress.storyNo) {
+                                if (progressGroup.storyNo + 1 < story.progress.storyNo) {
                                     story.locked = true;
                                 }
                                 return story;

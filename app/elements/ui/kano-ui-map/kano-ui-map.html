@@ -17,7 +17,7 @@
                     additional-map-options="[[mapOptions]]"
                     latitude="{{position.latitude}}" longitude="{{position.longitude}}"
                     style$="[[computeMapStyle(model.userStyle.*)]]"
-                    api-key="AIzaSyBEEqGElf1RWRS0vkoia0Vs_o0Tpni43UM"
+                    api-key="[[googleAPIKey]]"
                     map="{{map}}">
             <google-map-marker latitude="{{position.latitude}}" longitude="{{position.longitude}}"
               draggable="true" title="ISS Space station"></google-map-marker>
@@ -45,6 +45,8 @@
                 draggable: false,
                 scrollWheel: false
             };
+
+            this.googleAPIKey = Kano.MakeApps.config.GOOGLE_API_KEY;
         },
         showMarker (latitude, longitude) {
             let pos = { latitude, longitude },
