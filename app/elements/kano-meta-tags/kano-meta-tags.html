@@ -27,7 +27,8 @@
                 }
             },
             observers: [
-                'updateMetaTags(url, title, description, siteName, image)'
+                'updateMetaTags(url, title, description, siteName, image)',
+                'updateTitle(title)'
             ],
             updateMetaTags () {
                 this.debounce('update', () => {
@@ -77,6 +78,21 @@
                 meta.setAttribute('property', propertyValue);
                 meta.setAttribute('content', contentValue);
                 head.appendChild(meta);
+            },
+            updatePageTitle (title) {
+                let titles = document.head.getElementsByTagName('title');
+
+                for (let i = 0; i < titles.length; i++) {
+                    let t = titles[i];
+
+                    t.innerHTML = title;
+                }
+
+                if (titles.length <= 0) {
+                    let t = document.createElement('title');
+                    t.innerHTML = title;
+                    document.head.appendChild(t);
+                }
             }
         });
     </script>
