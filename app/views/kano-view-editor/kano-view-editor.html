@@ -172,6 +172,11 @@
             // Add the new code and its rule to the components store
             Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
         },
+        attached () {
+            this.async(function() {
+                trackPage();
+            });
+        },
         detached () {
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
         },

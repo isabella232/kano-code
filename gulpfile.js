@@ -108,12 +108,14 @@ gulp.task('serve-prod', () => {
 });
 
 function getHtmlReplaceOptions() {
+
     let mapping = {
         config: `<script type="text/javascript">
                 ${utils.getEnvVars()}
             </script>`,
         base: `<base href="/" />`
     };
+
     if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
         mapping.style = `<style>
             .animatable {
@@ -122,6 +124,17 @@ function getHtmlReplaceOptions() {
             }
         </style>`;
     }
+
+    if (process.env.NODE_ENV === 'production') {
+        mapping.gtm = `<noscript>
+            <iframe src='//www.googletagmanager.com/ns.html?id=GTM-WMGKFR' height='0' width='0' style='display: none; visibility: hidden;'></iframe>
+        </noscript>
+        <script type='text/javascript'>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-WMGKFR');
+        </script>`;
+    }
+
     return mapping;
 }
 
@@ -168,6 +181,7 @@ gulp.task('copy', ['copy-index'], () => {
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
             'app/scripts/util/router.js'
         ], { base: 'app'})
         .pipe(gulp.dest('.tmp/app'));
@@ -316,6 +330,7 @@ gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
             'app/assets/vendor/cache-polyfill/cache-polyfill.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
             'app/scripts/util/router.js',
             'app/scripts/index.js'
         ], { base: 'app'})
@@ -349,6 +364,7 @@ gulp.task('watch', () => {
             'app/bower_components/**/*',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
             'app/scripts/util/router.js',
             'app/scripts/index.js'
         ], ['copy-dev']),

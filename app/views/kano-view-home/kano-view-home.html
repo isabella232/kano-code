@@ -186,6 +186,11 @@
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
                 .then((apps) => this.set('user_apps', apps.body.entries));
         },
+        attached () {
+            this.async(function() {
+                trackPage();
+            });
+        },
         ready () {
             this.worldRoot = Kano.MakeApps.config.WORLD_URL;
             this.loadingProjects = true;
