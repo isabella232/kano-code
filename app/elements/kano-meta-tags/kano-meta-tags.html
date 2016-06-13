@@ -54,10 +54,11 @@
                     this.updatePageTitle(this.title);
 
                     /* Tell prerender to save the page now */
-                    document.prerenderReady = true;
+                    window.prerenderReady = true;
                 });
             },
             addOrUpdateMetaTag (propertyAttr, value) {
+                console.log(propertyAttr, value);
                 let nodeList = [],
                     tag,
                     updated = false;
@@ -65,7 +66,7 @@
                 nodeList = Array.from(document.getElementsByTagName('meta'));
 
                 for (tag of nodeList) {
-                    if (tag.getAttribute('property') === propertyAttr && tag.getAttribute('content') !== value) {
+                    if (tag.getAttribute('property') === propertyAttr) {
                         tag.setAttribute('content', value);
                         updated = true;
                         break;
