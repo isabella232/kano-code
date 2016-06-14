@@ -1,3 +1,4 @@
+<!-- Overrides page's meta tags and title based on supplied data -->
 <dom-module id="kano-meta-tags">
     <style></style>
     <template></template>
@@ -5,60 +6,38 @@
         Polymer({
             is: 'kano-meta-tags',
             properties: {
-                url: {
-                    type: String,
-                    value: ''
-                },
-                title: {
-                    type: String,
-                    value: ''
-                },
-                description: {
-                    type: String,
-                    value: ''
-                },
-                siteName: {
-                    type: String,
-                    value: ''
-                },
-                image: {
-                    type: String,
-                    value: ''
+                /* Recognised keys: url, title, description, siteName, image */
+                metaData: {
+                    type: Object
                 }
             },
             observers: [
-                'update(url, title, description, siteName, image)'
+                'update(metaData.*)'
             ],
             update () {
-                this.debounce('update', () => {
-                    let openTagDict = {
-                            "og:url": this.url || "",
-                            "og:title": this.title || "",
-                            "og:description": this.description || "",
-                            "og:site_name": this.siteName || "",
-                            "og:image": this.image || "",
-                            "twitter:card": "summary_large_image",
-                            "twitter:site": "@teamkano"
-                        },
-                        propertyValues = Object.keys(openTagDict);
+                let openTagDict = {
+                        "og:url": this.metaData.url || "",
+                        "og:title": this.metaData.title || "",
+                        "og:description": this.metaData.description || "",
+                        "og:site_name": this.metaData.siteName || "",
+                        "og:image": this.metaData.image || ""
+                    },
+                    propertyValues = Object.keys(openTagDict);
 
-                    for (let i = 0; i < propertyValues.length; i++) {
-                        let key = propertyValues[i];
+                for (let i = 0; i < propertyValues.length; i++) {
+                    let key = propertyValues[i];
 
-                        // Only add or update when a value is there
-                        if (openTagDict[key]) {
-                            this.addOrUpdateMetaTag(key, openTagDict[key]);
-                        }
+                    // Only add or update when a value is there
+                    if (openTagDict[key]) {
+                        this.addOrUpdateMetaTag(key, openTagDict[key]);
                     }
+                }
 
-                    this.updatePageTitle(this.title);
+                this.updatePageTitle(this.metaData.title);
 
-                    /* Tell prerender to save the page now */
-                    window.prerenderReady = true;
-                });
+                this.fire('meta-tags-updated');
             },
             addOrUpdateMetaTag (propertyAttr, value) {
-                console.log(propertyAttr, value);
                 let nodeList = [],
                     tag,
                     updated = false;
@@ -66,7 +45,7 @@
                 nodeList = Array.from(document.getElementsByTagName('meta'));
 
                 for (tag of nodeList) {
-                    if (tag.getAttribute('property') === propertyAttr) {
+                    if (tag.getAttribute('name') === propertyAttr) {
                         tag.setAttribute('content', value);
                         updated = true;
                         break;
@@ -81,7 +60,7 @@
                 let head = document.head,
                     meta = document.createElement('meta');
 
-                meta.setAttribute('property', propertyValue);
+                meta.setAttribute('name', propertyValue);
                 meta.setAttribute('content', contentValue);
                 head.appendChild(meta);
             },

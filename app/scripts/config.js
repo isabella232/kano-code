@@ -1,8 +1,8 @@
-import es6Assign from 'es6-object-assign';
+var es6Assign = require('es6-object-assign');
 
 es6Assign.polyfill();
 
-let COMMON = {
+var COMMON = {
         "WORKSPACE_FULL_SIZE": {
             "width": 512,
             "height": 384
@@ -15,6 +15,16 @@ let COMMON = {
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
         "HARDWARE_API_URL": "http://localhost:3000",
+        "DEFAULT_META_DATA": [
+            ["og:title", "Make Apps"],
+            ["og:description", "Make real apps, real fast"],
+            ["og:site-name", "Make Apps"],
+            ["og:url", "https://apps.kano.me/"],
+            ["og:image", ""],
+            ["twitter:card", "summary_large_image"],
+            ["twitter:site", "@teamkano"],
+            ["theme-color", "#ff842a"]
+        ]
     },
     ENV = {
         "production": {
@@ -57,6 +67,12 @@ function getConfig(env, target) {
            ENV[env], {"ENV": env, "TARGET": target});
 }
 
+if (typeof window === 'undefined') {
+    window = {};
+}
+
 /* These window.* variables are exported in both make and play apps. */
 config = getConfig(window.ENV, window.TARGET);
-export default config;
+config.getConfig = getConfig;
+
+module.exports = config;
