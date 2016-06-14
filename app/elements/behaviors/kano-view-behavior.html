@@ -5,7 +5,6 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
     window.Kano.Behaviors.ViewBehavior = {
-
         properties: {
             context: {
                 type: Object
@@ -13,6 +12,14 @@
             user: {
                 type: Object,
                 notify: true
+            }
+        },
+        created () {
+            this.notifyOnLoad = true;
+        },
+        attached () {
+            if (this.notifyOnLoad) {
+                this.fire('view-loaded');
             }
         }
     };

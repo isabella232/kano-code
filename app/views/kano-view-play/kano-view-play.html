@@ -21,11 +21,7 @@
                 mode="[[_computeMode()]]"
                 world-url="[[worldUrl]]"></kano-play-toolbar>
         </template>
-        <kano-meta-tags url="[[_computeShareUrl(share)]]"
-                        title="[[share.title]]"
-                        description="[[share.description]]"
-                        site-name="Make Apps"
-                        image="[[share.cover_url]]"><kano-meta-tags>
+        <kano-meta-tags meta-data="[[pageMetaData]]" on-meta-tags-updated="_metaTagsReady"><kano-meta-tags>
     </template>
 </dom-module>
 
@@ -34,8 +30,15 @@
     Polymer({
         is: 'kano-view-play',
         behaviors: [Kano.Behaviors.ViewBehavior],
+        properties: {
+            pageMetaData: {
+                type: Object,
+                value: {}
+            }
+        },
         observers: [
-            '_userChanged(user)'
+            '_userChanged(user)',
+            '_updatePageMetaData(share)'
         ],
         listeners: {
             'like': '_likeShare',
@@ -49,6 +52,8 @@
             });
         },
         ready () {
+            this.notifyOnLoad = false;
+
             // Ugly quick trick to hide the news bar
             document.querySelector('.news-bar').style.display = 'none';
             this.actionsStack = [];
@@ -157,6 +162,20 @@
         },
         _computeShareUrl (share) {
             return `${this.worldUrl}/shared/${share.slug}`;
+        },
+        _updatePageMetaData (share) {
+            if (share) {
+                this.pageMetaData = {
+                    url: this._computeShareUrl(share),
+                    title: share.title,
+                    description: share.description,
+                    siteName: "Make Apps",
+                    image: share.cover_url
+                };
+            }
+        },
+        _metaTagsReady () {
+            this.fire('view-loaded');
         }
     });
 </script>

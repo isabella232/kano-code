@@ -141,7 +141,8 @@ Example:
             logout: '_logout',
             shutdown: '_shutdown',
             signup: '_signup',
-            'kano-error': '_showErrorOnToast'
+            'kano-error': '_showErrorOnToast',
+            'view-loaded': '_viewLoaded'
         },
         pollingInterval: {
             type: Number,
@@ -265,6 +266,9 @@ Example:
                 .then((res) => {
                     this.set('user.profile', res.body.user.profile);
                 });
+        },
+        _viewLoaded () {
+            window.prerenderReady = true;
         }
     });
 </script>

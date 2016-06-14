@@ -11,6 +11,8 @@ let gulp = require('gulp'),
     getCacheable = require('./tasks/get-cacheable'),
     es = require('event-stream'),
     htmlAutoprefixer = require("html-autoprefixer"),
+    config = require('./app/scripts/config').getConfig(process.env.NODE_ENV,
+                                                     process.env.TARGET),
     bundler,
     utils;
 
@@ -113,7 +115,11 @@ function getHtmlReplaceOptions() {
         config: `<script type="text/javascript">
                 ${utils.getEnvVars()}
             </script>`,
-        base: `<base href="/" />`
+        base: `<base href="/" />`,
+        meta: {
+            src: config.DEFAULT_META_DATA,
+            tpl: '<meta name="%s" content="%s">'
+        }
     };
 
     if (process.env.TARGET === 'rpi' || process.env.TARGET === 'osonline') {
