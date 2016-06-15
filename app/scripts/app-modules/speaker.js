@@ -1,4 +1,4 @@
-import TextToSpeech from '../../service/text-to-speech';
+import TextToSpeech from './service/text-to-speech';
 
 let speaker;
 

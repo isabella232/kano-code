@@ -18,7 +18,7 @@
             height: calc(100% - 40px);
         }
         h1.error {
-            color: var(--color-red);
+            color: var(--color-red, red);
         }
     </style>
     <template>
@@ -46,10 +46,15 @@
                 }
             },
             _srcChanged () {
-                if (!this.src) {
+                // Check that we are loading and html file. Bsing that on the extension is not the best solution
+                // as any server coulde return html content. This prevents loading of late setups bindings. For
+                // exanple, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
+                if (!this.src || !/.*\.html/.test(this.src)) {
                     return;
                 }
-                this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
+                this.debounce('importApp', () => {
+                    this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
+                });
             },
             _onAppFileLoad () {
                 let c;

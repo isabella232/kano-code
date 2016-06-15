@@ -51,23 +51,29 @@ var SharingBehavior = {
                     this.shareInfo.parts,
                     this.shareInfo.background,
                     this.shareInfo.size,
-                    this.shareInfo.code
+                    this.shareInfo.code,
+                    Kano.AppModules.modules
                 );
                 // Create the attachment
                 attachment = new Blob([savedApp], { type: 'text/html' });
                 attachment.filename = 'code.html';
                 // Attach the file to the share
-                Kano.MakeApps.sdk.api.share.attach({ id: share.id, files: { attachment } }).then((res) => {
+                return Kano.MakeApps.sdk.api.share.attach({ id: share.id, files: { attachment } }).then((res) => {
                     if (res.status == 200) {
-                        this.set('shareInfo.page', 2);
-                        this.set('shareInfo.id', share.id);
+                        return res.body.item;
                     } else {
-                        this.set('shareInfo.page', 3);
+                        throw new Error('Could not share the app');
                     }
                 });
             } else {
-                this.set('shareInfo.page', 3);
+                throw new Error('Could not share the app');
             }
+        }).then((share) => {
+            this.set('shareInfo.page', 2);
+            this.set('shareInfo.id', share.id);
+        }).catch((e) => {
+            console.error(e);
+            this.set('shareInfo.page', 3);
         });
     },
     /**

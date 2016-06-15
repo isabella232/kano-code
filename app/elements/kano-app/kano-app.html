@@ -113,7 +113,7 @@ Example:
         </a>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
             <kano-side-menu drawer user="[[user]]" on-toggle-menu="toggleMenu" editor="{{editor}}" offline="[[offline]]" on-login="_login"></kano-side-menu>
-            <kano-routing id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" main></kano-routing>
+            <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
         </paper-drawer-panel>
         <paper-dialog id="auth-modal" class="auth-modal" modal>
             <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
@@ -135,6 +135,10 @@ Example:
             offline: {
                 type: Boolean,
                 value: false
+            },
+            route: {
+                type: String,
+                observer: '_routeChanged'
             }
         },
         listeners: {
@@ -144,9 +148,21 @@ Example:
             'kano-error': '_showErrorOnToast',
             'view-loaded': '_viewLoaded'
         },
-        pollingInterval: {
-            type: Number,
-            value: 30000
+        _routeChanged (route) {
+            // User not authenticated not actions to be done
+            if (!this.user) {
+                return;
+            }
+            // Stop the notifications polling on every route change
+            this._stopNotificationsPolling();
+            // Restart the polling if we need it on this route
+            if (this._needsNotifications()) {
+                this._startNotificationsPolling();
+            }
+        },
+        _needsNotifications () {
+            // If the route is apps or home ( routes with the navbar )
+            return this.route === 'apps' || this.route === 'home';
         },
         ready () {
             this.editor = null;
@@ -156,7 +172,9 @@ Example:
                     if (user) {
                         this.set('user', user);
                         this._populateUser();
-                        this._startNotificationsPolling();
+                        if (this._needsNotifications()) {
+                            this._startNotificationsPolling();
+                        }
                     }
                 });
             };
@@ -239,7 +257,9 @@ Example:
             this.user = data.user;
             this.$['auth-modal'].close();
             this._populateUser();
-            this._startNotificationsPolling();
+            if (this._needsNotifications()) {
+                this._startNotificationsPolling();
+            }
         },
         _populateUser () {
             this._updateProfile();
@@ -251,6 +271,9 @@ Example:
         },
         _startNotificationsPolling () {
             this._pollingIntervalId = setInterval(this._updateNotifications.bind(this), 30000);
+        },
+        _stopNotificationsPolling () {
+            clearInterval(this._pollingIntervalId);
         },
         _updateNotifications () {
             Kano.MakeApps.sdk.api.notifications.get()

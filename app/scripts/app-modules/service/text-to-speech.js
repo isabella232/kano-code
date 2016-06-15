@@ -7,12 +7,10 @@
  *
  */
 
-import config from '../config';
-
 /* globals SpeechSynthesisUtterance*/
 
 class TextToSpeech {
-    constructor () {
+    constructor (config) {
         this.config = config;
         this.backend = this.remote;
         this.backendStop = () => {};

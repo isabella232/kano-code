@@ -97,7 +97,7 @@
 
             // Remove the parts exculded in the mode
             if (this.mode.excludeParts) {
-                this.set('parts', Kano.MakeApps.part.filter((part) => {
+                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
                     return this.mode.excludeParts.indexOf(part.type) === -1;
                 }));
             }
@@ -114,7 +114,7 @@
                         .then(response => {
                             return response.json();
                         }).then(json => {
-                            this.editor.load(json, Kano.MakeApps.part);
+                            this.editor.load(json, Kano.MakeApps.Parts.list);
                         }).catch(err => {
                             console.error('loading failed', err);
                             this.set('error.title', 'Loading failed');
@@ -125,7 +125,7 @@
                 });
             } else {
                 appToLoad = JSON.parse(localStorage.getItem('savedApp'));
-                this.editor.load(appToLoad, Kano.MakeApps.part);
+                this.editor.load(appToLoad, Kano.MakeApps.Parts.list);
             }
         },
         _getMode (context) {
@@ -141,7 +141,7 @@
             this.modal = this.$['share-modal'];
 
             this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
-            Kano.MakeApps.HardwareAPI.config({
+            this.set('mode.config', {
                 HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
                 PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
             });
@@ -149,6 +149,7 @@
             workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
 
             this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
+            Kano.AppModules.init(Kano.MakeApps.config);
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
@@ -182,9 +183,9 @@
         },
         runningChanged () {
             if (this.running) {
-                Kano.MakeApps.components.run(this.addedParts, this.code);
+                Kano.MakeApps.components.run(this.addedParts, this.code, Kano.AppModules.modules);
             } else {
-                Kano.MakeApps.components.stop(this.addedParts, this.code);
+                Kano.MakeApps.components.stop(this.addedParts, this.code, Kano.AppModules.modules);
             }
         }
     });

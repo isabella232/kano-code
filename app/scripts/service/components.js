@@ -1,6 +1,4 @@
 import CodeService from './code';
-import part from '../part';
-import modules from '../language/modules';
 
 let componentStore;
 
@@ -49,27 +47,34 @@ class ComponentStore {
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts, code) {
+    run (parts, code, modules) {
         let codeString = this.generateCode(code);
-        this.start(parts);
+        this.start(parts, modules);
         // Run the code using this store. Only expose the get function
         CodeService.run(codeString, {
             get (id) {
                 return document.querySelector(`kano-workspace #${id}`);
             }
-        });
+        }, modules);
     }
-    start (parts) {
-        CodeService.start();
+    start (parts, modules) {
+        this.executeLifecycleStep('stop', modules);
         this.startAll(parts);
     }
     /**
      * Stop the current running code. Will take care to stop the components
      * and the pure JS modules
      */
-    stop (parts) {
-        CodeService.stop();
+    stop (parts, modules) {
+        this.executeLifecycleStep('stop', modules);
         this.stopAll(parts);
+    }
+    executeLifecycleStep (name, modules) {
+        Object.keys(modules).forEach((moduleName) => {
+            if (modules[moduleName].lifecycle && modules[moduleName].lifecycle[name]) {
+                modules[moduleName].lifecycle[name]();
+            }
+        });
     }
     save (id, rect) {
         let component = this.get(id);
@@ -89,7 +94,7 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (componentName, parts, backgroundStyle, workspaceRect, codes) {
+    generateStandaloneComponent (componentName, parts, backgroundStyle, workspaceRect, codes, modules) {
         let template = [],
             tagName,
             components,
@@ -112,7 +117,7 @@ class ComponentStore {
         // crisper
         let scr = 'script',
             moduleNames = Object.keys(modules),
-            moduleValues = moduleNames.map(m => `KanoModules.${m}.methods`),
+            moduleValues = moduleNames.map(m => `Kano.AppModules.getModule('${m}')`),
             wrappedCode = `
                 (function (devices, ${moduleNames.join(', ')}) {
                     ${code};
@@ -171,17 +176,6 @@ class ComponentStore {
         `;
 
         return component;
-    }
-    loadAll (components) {
-        Object.keys(components).forEach((id) => {
-            this.load(part.fromSaved(components[id].model), components[id].codes);
-        });
-    }
-    load (model, codes) {
-        this.add(model, codes);
-    }
-    getAll () {
-        return this.components;
     }
 }
 

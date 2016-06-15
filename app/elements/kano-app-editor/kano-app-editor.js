@@ -247,7 +247,7 @@ Polymer({
                     break;
                 }
             }
-            part = Part.create(savedPart, this.wsSize);
+            part = Kano.MakeApps.Parts.create(savedPart, this.wsSize);
             return part;
         });
         savedApp.code = this._formatCode(savedApp.code);
@@ -273,9 +273,9 @@ Polymer({
     },
     _getDefaultParts () {
         if (this.mode === 'camera') {
-            return [Part.create(Part.statics.camera, this.wsSize)];
+            return [Kano.MakeApps.Parts.create(Part.statics.camera, this.wsSize)];
         } else if (this.mode === 'lightboard') {
-            return [Part.create(Part.statics.light, this.wsSize)];
+            return [Kano.MakeApps.Parts.create(Part.statics.light, this.wsSize)];
         }
     },
     closeDrawer () {
@@ -447,7 +447,7 @@ Polymer({
                     x: (targetRect.left - viewportRect.left) / viewportScale.x,
                     y: (targetRect.top - viewportRect.top) / viewportScale.y
                 };
-                part = Part.create(model, this.wsSize);
+                part = Kano.MakeApps.Parts.create(model, this.wsSize);
                 this.push('addedParts', part);
                 this.fire('change', {
                     type: 'add-part',
@@ -458,7 +458,7 @@ Polymer({
         this.bindEvents();
     },
     detached () {
-        Part.clear();
+        Kano.MakeApps.Parts.clear();
         this.detachEvents();
     },
     updateWorkspaceRect (e) {
