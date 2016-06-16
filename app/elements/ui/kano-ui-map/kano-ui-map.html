@@ -11,17 +11,21 @@
     }
     </style>
     <template>
-        <google-map id="map"
-                    disable-default-ui zoom="4"
-                    disable-zoom
-                    additional-map-options="[[mapOptions]]"
-                    latitude="{{position.latitude}}" longitude="{{position.longitude}}"
-                    style$="[[computeMapStyle(model.userStyle.*)]]"
-                    api-key="[[apiKey]]"
-                    map="{{map}}">
-            <google-map-marker latitude="{{position.latitude}}" longitude="{{position.longitude}}"
-              draggable="true" title="ISS Space station"></google-map-marker>
+        <!-- Add the map only when the Api Key is set -->
+        <template is="dom-if" if="[[apiKey]]" restamp>
+            <google-map id="map"
+                disable-default-ui
+                zoom="4"
+                disable-zoom
+                additional-map-options="[[mapOptions]]"
+                latitude="{{position.latitude}}"
+                longitude="{{position.longitude}}"
+                style$="[[computeMapStyle(model.userStyle.*)]]"
+                api-key="[[apiKey]]"
+                map="{{map}}">
+                <google-map-marker latitude="{{position.latitude}}" longitude="{{position.longitude}}" draggable="true"></google-map-marker>
         </google-map>
+        </template>
     </template>
 </dom-module>
 
