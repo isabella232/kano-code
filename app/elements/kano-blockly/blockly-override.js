@@ -1143,3 +1143,56 @@ Blockly.BlockSvg.prototype.renderDrawLeft_ =
 
       return element;
     };
+
+/**
+* Event handler for a change in variable name.
+* Special case the 'New variable...' and 'Rename variable...' options.
+* In both of these special cases, prompt the user for a new name.
+* @param {string} text The selected dropdown menu option.
+* @return {null|undefined|string} An acceptable new variable name, or null if
+*     change is to be either aborted (cancel button) or has been already
+*     handled (rename), or undefined if an existing variable was chosen.
+* @this {!Blockly.FieldVariable}
+*/
+Blockly.FieldVariable.dropdownChange = function(text) {
+    // Default prompt behavior from Blockly
+    function defaultPromptFunction (promptText, defaultText) {
+        return Promise.resolve(window.prompt(promptText, defaultText));
+    }
+    var workspace = this.sourceBlock_.workspace,
+        // Get optional custom prompt behavior
+        promptFunction = workspace.options.modalFunction || defaultPromptFunction,
+        // generate new name for 'New variable...'
+        newVarName = Blockly.Variables.generateUniqueName(workspace),
+        // Get current value
+        oldVar = this.getText();
+    // Callback of the async prompt
+    function promptCallback(newVar) {
+        Blockly.hideChaff();
+        // Merge runs of whitespace.  Strip leading and trailing whitespace.
+        // Beyond this, all names are legal.
+        if (newVar) {
+            newVar = newVar.replace(/[\s\xa0]+/g, ' ').replace(/^ | $/g, '');
+            if (newVar == Blockly.Msg.RENAME_VARIABLE || newVar == Blockly.Msg.NEW_VARIABLE) {
+                // Ok, not ALL names are legal...
+                newVar = null;
+            }
+        }
+        if (text == Blockly.Msg.RENAME_VARIABLE) {
+            Blockly.Variables.renameVariable(oldVar, newVar, workspace);
+        } else if (text == Blockly.Msg.NEW_VARIABLE) {
+            // If the prompt was canceled, restore old value
+            newVar = newVar || oldVar;
+            Blockly.Variables.renameVariable(newVarName, newVar, workspace);
+        }
+    }
+    if (text == Blockly.Msg.RENAME_VARIABLE) {
+        promptFunction(Blockly.Msg.RENAME_VARIABLE_TITLE.replace('%1', oldVar), oldVar).then(promptCallback);
+        return null;
+    } else if (text == Blockly.Msg.NEW_VARIABLE) {
+        promptFunction(Blockly.Msg.NEW_VARIABLE_TITLE, '').then(promptCallback);
+        // Preemptively update the value to simulate a sync behavior. Will be renamed by the callback
+        return newVarName;
+    }
+    return undefined;
+};

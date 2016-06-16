@@ -1,4 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="./import.html">
 
 <dom-module id="kano-blockly">
@@ -86,9 +88,39 @@
         :host::content rect.blocklyMainBackground {
             display: none !important;
         }
+        .buttons button {
+            @apply(--kano-button);
+            background-color: var(--color-green, green);
+        }
+        input {
+            @apply(--kano-input);
+            width: 100%;
+            border: 2px solid var(--color-lightgrey, grey);;
+            padding: 5px;
+            font-size: 17px;
+        }
+        input:focus {
+            outline: none;
+            border: 2px solid var(--color-orange, orange);
+        }
+        .container {
+            padding: 8px 24px 8px 24px;
+        }
+        .buttons {
+            padding: 8px 24px 16px 24px
+        }
     </style>
     <template>
         <div id="workspace"></div>
+        <paper-dialog id="var-modal" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h2>[[modalText]]</h2>
+          <div class="container">
+              <input type="text" name="name" value="{{modalInput::input}}" on-keyup="_modalInputKeyup">
+          </div>
+          <div class="buttons">
+              <button dialog-confirm>Confirm</button>
+          </div>
+        </paper-dialog>
     </template>
 </dom-module>
 
@@ -129,6 +161,7 @@
                 },
                 scrollbars: true
             });
+            this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
             window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.onResize();
@@ -138,6 +171,32 @@
         },
         detached () {
             this.workspace.dispose();
+        },
+        _blocklyVarModal (promptText, defaultText) {
+            return new Promise((resolve, reject) => {
+                let modal = this.$['var-modal'],
+                onModalClose = function (e) {
+                    let reason = e.detail,
+                        varName = this.modalInput;
+                    modal.removeEventListener('iron-overlay-closed', onModalClose);
+                    if (reason.canceled) {
+                        return resolve(null);
+                    }
+                    if (!varName.length) {
+                        varName = null;
+                    }
+                    return resolve(varName);
+                }.bind(this);
+                this.modalText = promptText;
+                this.modalInput = defaultText;
+                modal.addEventListener('iron-overlay-closed', onModalClose);
+                modal.open();
+            });
+        },
+        _modalInputKeyup (e) {
+            if (e.keyCode === 13) {
+                this.$['var-modal'].close();
+            }
         },
         /**
          * Triggers the resize event on the window
