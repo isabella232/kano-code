@@ -39,5 +39,11 @@ module.exports = AppModules = {
     },
     getModule (name) {
         return AppModules.modules[name].methods;
+    },
+    enablePreviousVersionsSupport () {
+        window.Kano.MakeApps = window.Kano.MakeApps || {};
+        window.Kano.MakeApps.Modules = AppModules.modules;
+        window.KanoModules = AppModules.modules;
+        window.KanoModules.init = { methods: {} };
     }
 };
