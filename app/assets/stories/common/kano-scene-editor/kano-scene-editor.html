@@ -113,7 +113,7 @@
             this.$.editor.share();
         },
         computeParts () {
-            return Kano.MakeApps.part.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+            return Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
         },
         computeCategories () {
             let cats = {};
@@ -126,9 +126,9 @@
         runningChanged () {
             let editor = this.$.editor;
             if (this.running) {
-                Kano.MakeApps.components.run(editor.addedParts, editor.code);
+                Kano.MakeApps.components.run(editor.addedParts, editor.code, Kano.AppModules.modules);
             } else {
-                Kano.MakeApps.components.stop(editor.addedParts, editor.code);
+                Kano.MakeApps.components.stop(editor.addedParts, editor.code, Kano.AppModules.modules);
             }
         },
         saveApp (e) {

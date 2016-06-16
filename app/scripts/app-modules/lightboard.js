@@ -1,4 +1,4 @@
-import HardwareAPI from '../../service/hardware-api';
+import HardwareAPI from './service/hardware-api';
 
 let lightboard;
 

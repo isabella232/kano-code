@@ -64,7 +64,8 @@
                 this.embedded = pieces[1] === 'embed';
             }
             // Alias to support older apps
-            window.KanoModules = window.Kano.MakeApps.Modules;
+            window.Kano.MakeApps.Modules = window.Kano.AppModules.modules;
+            window.KanoModules = window.Kano.AppModules.modules;
             this._getShare().then((share) => {
                 this.share = share;
                 this.appFileUrl = share.attachment_url;
@@ -78,6 +79,7 @@
                     this.shares = shares;
                 });
             this.worldUrl = Kano.MakeApps.config.WORLD_URL;
+            Kano.AppModules.init(Kano.MakeApps.config);
         },
         _follow (e) {
             if (!this.user) {
@@ -114,6 +116,7 @@
             Kano.MakeApps.sdk.api.share.unlike({ id: e.detail }).then(() => {});
         },
         _getShare () {
+            console.log(this.context);
             let idRegExp = /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
                 p;
             if (idRegExp.test(this.slug)) {

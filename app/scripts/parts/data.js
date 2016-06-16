@@ -1,6 +1,5 @@
 /* globals Blockly */
 import Part from './part';
-import modules from '../language/modules';
 
 /**
  * Check if a block is the ancestor of another one
@@ -203,9 +202,6 @@ export default class Data extends Part {
                 }
             });
         }
-    }
-    refresh () {
-        return modules.data.methods.generateRequest(this.id, this.method, this.config);
     }
     toJSON () {
         let plain = super.toJSON.call(this);

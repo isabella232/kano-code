@@ -20,20 +20,18 @@ import LightRectangle from './light-rectangle';
 import LightCircle from './light-circle';
 import PictureList from './picture-list';
 
-let part,
+let Parts,
     partTypes;
-
-export default part = [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-                       Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-                       LightRectangle, LightCircle, PictureList];
 
 partTypes = {
     'ui': UI,
     'data': Data,
     'hardware': Hardware
 };
-
-window.Part = {
+module.exports = Parts = {
+    list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone,
+           LightRectangle, LightCircle, PictureList],
     create (model, size) {
         return new partTypes[model.partType](model, size);
     },

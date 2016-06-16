@@ -1,8 +1,5 @@
 let data;
 
-import fetchData from '../../util/fetch-data';
-import appConfig from '../../config';
-
 export default data = {
     get (id, fetchImpl) {
         let event = new Event('request');
@@ -21,6 +18,44 @@ export default data = {
                 return r;
             });
     },
+    /**
+     * A wrapper around the fetch API for our data proxy.
+     */
+    fetchData (srcId, queryParams) {
+        let baseUrl = data.DATA_API_URL + '/data-src/' + srcId + '/',
+            queryString = '';
+
+        if (queryParams) {
+            queryString = Object.keys(queryParams).reduce((prev, key) => {
+                let pair = key + "=" + encodeURIComponent(queryParams[key]);
+
+                if (prev.length) {
+                    prev += '&';
+                } else {
+                    prev += '?';
+                }
+
+                return prev + pair;
+            }, '');
+        }
+
+        return fetch(baseUrl + queryString)
+            .then((r) => {
+                return r.json().then((data) => {
+                    let s,
+                        init = {"status" : r.status, "statusText" : r.statusText};
+
+                    if (data.success) {
+                        s = JSON.stringify(data.value);
+                    } else {
+                        console.error('Failed to retrieve data');
+                        s = '{}';
+                    }
+
+                    return new Response(s, init);
+                });
+            });
+    },
     methods: {
         generateRequest (id, methodPath, config) {
             let pieces = methodPath.split('.'),
@@ -32,7 +67,7 @@ export default data = {
         },
         kano: {
             getShares (id) {
-                return data.get(id, fetch(appConfig.API_URL + "/share"))
+                return data.get(id, fetch(data.API_URL + "/share"))
                     .then(r => r.json())
                     .then(data => {
                         return data.entries.map(share => {
@@ -48,7 +83,7 @@ export default data = {
         },
         weather: {
             getWeather (id, config) {
-                return data.get(id, fetchData('weather-city',
+                return data.get(id, data.fetchData('weather-city',
                                               {q: config.location,
                                                units: config.units}))
                     .then(r => r.json())
@@ -64,7 +99,7 @@ export default data = {
         },
         space: {
             getISSStatus (id) {
-                return data.get(id, fetchData('iss'))
+                return data.get(id, data.fetchData('iss'))
                     .then(r => r.json());
             }
         },
@@ -84,7 +119,7 @@ export default data = {
         },
         rss: {
             getFeed (id, config) {
-                return data.get(id, fetchData('rss',
+                return data.get(id, data.fetchData('rss',
                                               { src: config.src }))
                     .then(r => r.json())
                     .then((data) => {
@@ -94,7 +129,7 @@ export default data = {
         },
         sports: {
             getResults (id, config) {
-                return data.get(id, fetchData('rss-sports',
+                return data.get(id, data.fetchData('rss-sports',
                                               { src: config.src }))
                     .then(r => r.json())
                     .then((data) => {
@@ -107,5 +142,9 @@ export default data = {
         stop () {
 
         }
+    },
+    config (c) {
+        data.API_URL = c.API_URL;
+        data.DATA_API_URL = c.DATA_API_URL;
     }
 };

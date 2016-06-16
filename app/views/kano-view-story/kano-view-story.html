@@ -43,6 +43,9 @@
         listeners: {
             'blockly-ready': '_registerBlockly'
         },
+        ready () {
+            Kano.AppModules.init(Kano.MakeApps.config);
+        },
         attached () {
             this.modal = this.$['share-modal'];
             Kano.MakeApps.stories.getById(this.context.params.id)
@@ -61,11 +64,6 @@
                     return Kano.MakeApps.progress.loadProgress(story.progress.group);
                 })
                 .then((progress) => this.updateExtensions(progress));
-
-            Kano.MakeApps.HardwareAPI.config({
-                HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
-                PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
-            });
 
             this.async(function() {
                 trackPage();
@@ -108,6 +106,10 @@
             Kano.MakeApps.stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
                     this.set('scene', scene);
+                    this.set('scene.modeConfig', {
+                        HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
+                        PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
+                    });
                 });
         },
         extendStory (e) {

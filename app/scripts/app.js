@@ -2,17 +2,14 @@ import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
-import modules from './language/modules';
 import blockly from './blockly';
 import Stories from './service/stories';
 import Components from './service/components';
 import Mode from './mode';
 import email from './service/email';
-import Part from './part';
 import KanoWorldSdk from 'kano-world-sdk';
 import DragAndDrop from './drag-and-drop';
 import ProgressService from './service/progress';
-import HardwareAPI from './service/hardware-api';
 import config from './config';
 
 window.Kano = window.Kano || {};
@@ -23,9 +20,7 @@ window.Kano = window.Kano || {};
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
     MakeApps.blockly = blockly;
-    modules.init(config);
 
-    MakeApps.part = Part;
     MakeApps.stories = Stories;
     MakeApps.components = Components;
     MakeApps.dragAndDrop = DragAndDrop;
@@ -39,10 +34,7 @@ window.Kano = window.Kano || {};
         route: '/share/attach/:id'
     });
     MakeApps.progress = ProgressService(MakeApps.sdk);
-    MakeApps.HardwareAPI = HardwareAPI;
     MakeApps.sdk.registerForms();
-
-    MakeApps.Modules = modules;
 
     MakeApps.email = email;
 
