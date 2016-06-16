@@ -104,7 +104,10 @@
             border: 2px solid var(--color-orange, orange);
         }
         .container {
-            padding: 8px 24px 8px 24px;;
+            padding: 8px 24px 8px 24px;
+        }
+        .buttons {
+            padding: 8px 24px 16px 24px
         }
     </style>
     <template>
@@ -112,7 +115,7 @@
         <paper-dialog id="var-modal" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h2>[[modalText]]</h2>
           <div class="container">
-              <input type="text" name="name" value="{{modalInput::input}}">
+              <input type="text" name="name" value="{{modalInput::input}}" on-keyup="_modalInputKeyup">
           </div>
           <div class="buttons">
               <button dialog-confirm>Confirm</button>
@@ -189,6 +192,11 @@
                 modal.addEventListener('iron-overlay-closed', onModalClose);
                 modal.open();
             });
+        },
+        _modalInputKeyup (e) {
+            if (e.keyCode === 13) {
+                this.$['var-modal'].close();
+            }
         },
         /**
          * Triggers the resize event on the window
