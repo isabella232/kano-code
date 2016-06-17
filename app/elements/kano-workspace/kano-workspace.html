@@ -167,16 +167,24 @@
                 this.dropzone = this.$.dropzone;
             }
 
-            let newDropzone;
+            let oldDropzone = this.dropzone,
+                newDropzone;
             if (mode && mode.workspace.component) {
                 newDropzone = document.createElement(mode.workspace.component);
             } else {
                 newDropzone = document.createElement('div');
             }
 
-            this.dropzone.parentNode.replaceChild(newDropzone, this.dropzone);
+            oldDropzone.parentNode.replaceChild(newDropzone, oldDropzone);
             this.dropzone = newDropzone;
             this.dropzone.setAttribute('id', 'dropzone');
+
+            for (let n = 0; n < oldDropzone.childNodes.length; n++) {
+                let node = oldDropzone.childNodes[n];
+                console.log("Reparenting", node);
+                oldDropzone.removeChild(node);
+                newDropzone.appendChild(node);
+            }
         },
         canDelete (el) {
             return el && !!el.model;
@@ -359,7 +367,6 @@
             });
             element.model = model;
             this.elements[key] = element;
-            console.log(this.dropzone);
             this.dropzone.appendChild(element);
         },
         removePart (key) {
@@ -393,7 +400,7 @@
             return this.$.content.getScale();
         },
         setBackgroundColor (color) { // TODO MOVE TO ELEMENT
-            this.dropzone.style.background = color;
+            //this.dropzone.style.background = color;
         },
         generateCover () {
             let canvas = document.createElement('canvas'),
