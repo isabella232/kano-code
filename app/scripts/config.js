@@ -43,7 +43,7 @@ var COMMON = {
             "API_URL": "http://localhost:1234",
             "DATA_API_URL": "http://localhost:2020",
             "WORLD_URL": "http://localhost:5000",
-            "GOOGLE_API_KEY": "AIzaSyBEEqGElf1RWRS0vkoia0Vs_o0Tpni43UM"
+            "GOOGLE_API_KEY": "AIzaSyCk3HlbKJV4-ZJcRqwViaZ8mCIKU2LsnE0"
         }
     },
     TARGET = {
