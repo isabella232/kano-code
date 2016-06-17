@@ -2,7 +2,10 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
-<link rel="import" href="../kano-lightboard-simulator/kano-lightboard-simulator.html">
+
+<link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
+<link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
+
 <dom-module id="kano-workspace">
     <style>
     :host {
@@ -23,17 +26,6 @@
     :host ::content #dropzone {
         margin: auto;
         position: relative;
-    }
-    :host ::content .dropzone {
-        width: calc(100% - 10px);
-        height: calc(100% - 10px);
-        box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
-        border-radius: 5px;
-    }
-    :host ::content div#dropzone > *:not(.hole) {
-        position: absolute;
-        top: 0px;
-        left: 0px
     }
     :host kano-tooltip {
         --kano-tooltip-background-color: #88c840;
@@ -69,32 +61,6 @@
     :host paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
-    :host .hole {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #454545;
-    }
-    :host .hole.hidden {
-        display: none;
-    }
-    :host .hole.hole-top-left {
-        top: 5px;
-        left: 5px;
-    }
-    :host .hole.hole-top-right {
-        top: 5px;
-        right: 5px;
-    }
-    :host .hole.hole-bottom-right {
-        bottom: 5px;
-        right: 5px;
-    }
-    :host .hole.hole-bottom-left {
-        bottom: 5px;
-        left: 5px;
-    }
     :host .made-with-kano {
         text-align: center;
         color: #B3B3B3;
@@ -102,19 +68,12 @@
     </style>
     <template>
         <kano-ui-viewport mode="scaled"
-                    view-width="[[size.width]]"
-                    view-height="[[size.height]]"
+                    view-width="[[mode.workspace.viewport.width]]"
+                    view-height="[[mode.workspace.viewport.height]]"
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone" style$="[[mode.dropzoneStyle]]" class="dropzone">
-                <template is="dom-if" if="[[!mode.hideHoles]]">
-                    <div class="hole hole-top-left"></div>
-                    <div class="hole hole-top-right"></div>
-                    <div class="hole hole-bottom-right"></div>
-                    <div class="hole hole-bottom-left"></div>
-                </template>
-            </div>
+            <div id="dropzone"></div>
             <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
         <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
@@ -204,14 +163,20 @@
             };
         },
         _modeChanged (mode) {
-            if (this.modeComponent) {
-                this.$.dropzone.removeChild(this.modeComponent);
+            if (!this.dropzone) {
+                this.dropzone = this.$.dropzone;
             }
-            if (mode.component) {
-                this.modeComponent = document.createElement(mode.component);
-                this.modeComponent.setAttribute('id', mode.id);
-                this.$.dropzone.appendChild(this.modeComponent);
+
+            let newDropzone;
+            if (mode && mode.workspace.component) {
+                newDropzone = document.createElement(mode.workspace.component);
+            } else {
+                newDropzone = document.createElement('div');
             }
+
+            this.dropzone.parentNode.replaceChild(newDropzone, this.dropzone);
+            this.dropzone = newDropzone;
+            this.dropzone.setAttribute('id', 'dropzone');
         },
         canDelete (el) {
             return el && !!el.model;
@@ -394,14 +359,15 @@
             });
             element.model = model;
             this.elements[key] = element;
-            this.$.dropzone.appendChild(element);
+            console.log(this.dropzone);
+            this.dropzone.appendChild(element);
         },
         removePart (key) {
             let element = this.elements[key];
             if (!element) {
                 return;
             }
-            this.$.dropzone.removeChild(element);
+            this.dropzone.removeChild(element);
             delete this.elements[key];
         },
         runningChanged () {
@@ -421,20 +387,18 @@
             }
         },
         getViewport () {
-            return this.$.dropzone;
+            return this.dropzone;
         },
         getViewportScale () {
             return this.$.content.getScale();
         },
-        setBackgroundColor (color) {
-            if (this.mode.allowBackground === true) {
-                this.$.dropzone.style.background = color;
-            }
+        setBackgroundColor (color) { // TODO MOVE TO ELEMENT
+            this.dropzone.style.background = color;
         },
         generateCover () {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
-                rect = this.$.dropzone.getBoundingClientRect(),
+                rect = this.dropzone.getBoundingClientRect(),
                 scaleFactor = rect.width / this.size.width,
                 util = {
                     getStyle: this.getStyle,
@@ -448,7 +412,7 @@
             canvas.height = this.size.height;
 
             //setting background color
-            ctx.fillStyle = this.getStyle(this.$.dropzone, 'background-color');
+            ctx.fillStyle = this.getStyle(this.dropzone, 'background-color');
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             this.parts.forEach((part) => {
                 let el = this.$$(`#${part.id}`);
@@ -536,9 +500,6 @@
                 ctx.stroke();
             }
 
-        },
-        _isNormalMode (mode) {
-            return mode === 'normal';
         },
         _updateMode (e) {
             if (this.modeComponent) {
