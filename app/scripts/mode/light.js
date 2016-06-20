@@ -7,7 +7,6 @@ export default light = {
     name: 'Lightboard',
     colour: '#CCCCCC',
     excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image', 'scrolling-text', 'picture-list'],
-    sizeKey: 'WORKSPACE_LED_BOARD_SIZE',
     workspace: {
         viewport: {
             width: 466,

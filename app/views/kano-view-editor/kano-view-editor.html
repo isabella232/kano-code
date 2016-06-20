@@ -133,7 +133,6 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
-            let workspaceSizeKey;
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
@@ -146,9 +145,7 @@
                 PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
             });
 
-            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
-
-            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
+            this.set('size', this.mode.workspace.viewport);
             Kano.AppModules.init(Kano.MakeApps.config);
         },
         updateWorkspaceRect (rect) {

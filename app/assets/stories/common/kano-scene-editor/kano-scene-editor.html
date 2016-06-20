@@ -102,12 +102,9 @@
             this.code = {};
         },
         attached () {
-            let workspaceSizeKey;
             this.mode = Kano.MakeApps.Mode[(this.scene.mode || 'normal')];
 
-            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
-
-            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
+            this.set('size', this.mode.workspace.viewport);
         },
         shareApp () {
             this.$.editor.share();
