@@ -43,7 +43,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/elements'));
     });
 
-    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules'], () => {
+    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api'], () => {
         getImports('./app/elements/elements.html').then((common) => {
             return gulp.src('.tmp/app/elements/*-bundle.html')
                 .pipe($.utils.vulcanize({

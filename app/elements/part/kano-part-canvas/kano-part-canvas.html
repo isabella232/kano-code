@@ -1,0 +1,57 @@
+<script src="../../../assets/vendor/kano-canvas-api/kano-canvas-api.js"></script>
+<link rel="import" href="../behaviors.html">
+
+<dom-module id="kano-part-canvas">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    </style>
+    <template>
+        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.*)]]"></canvas>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-part-canvas',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        ready () {
+            this.modules = Kano.CanvasAPI.modules;
+            this.session = Kano.CanvasAPI.session;
+            this.ctx = this.$.canvas.getContext('2d');
+            this.resetSession();
+        },
+        _computeCanvasStyle () {
+            this._updateCanvasSize();
+            return this.getPartialStyle(['width', 'height']);
+        },
+        _updateCanvasSize () {
+            if (!this.model) {
+                return;
+            }
+            this.$.canvas.setAttribute('width', parseInt(this.model.userStyle.width));
+            this.$.canvas.setAttribute('height', parseInt(this.model.userStyle.height));
+            if (!this.sessionReady) {
+                this.resetSession();
+            }
+        },
+        resetSession () {
+            if (!this.model) {
+                return;
+            }
+            Kano.CanvasAPI.resetSession({
+                ctx: this.ctx,
+                width: parseInt(this.model.userStyle.width),
+                height: parseInt(this.model.userStyle.height)
+            });
+            this.sessionReady = true;
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            this.resetSession();
+        }
+    });
+</script>

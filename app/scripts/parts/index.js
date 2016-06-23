@@ -19,6 +19,7 @@ import Microphone from './microphone';
 import LightRectangle from './light-rectangle';
 import LightCircle from './light-circle';
 import PictureList from './picture-list';
+import Canvas from './canvas/canvas';
 
 let Parts,
     partTypes;
@@ -31,7 +32,7 @@ partTypes = {
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
            Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-           LightRectangle, LightCircle, PictureList],
+           LightRectangle, LightCircle, PictureList, Canvas],
     create (model, size) {
         return new partTypes[model.partType](model, size);
     },
