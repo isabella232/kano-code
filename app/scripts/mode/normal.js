@@ -1,9 +1,12 @@
+import backgroundBlocks from './common/background-blocks';
+
 let normal;
 
 export default normal = {
     id: 'normal',
-    name: 'Normal',
-    blocks: [],
+    name: 'Background',
+    colour: '#82C23D',
+    blocks: backgroundBlocks,
     allowBackground: true,
     workspace: {
         viewport: {

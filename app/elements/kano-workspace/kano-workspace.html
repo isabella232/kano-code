@@ -73,7 +73,7 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <div id="dropzone"></div>
+            <!-- The variable workspace component will be inserted here -->
             <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
         <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
@@ -117,9 +117,6 @@
         is: 'kano-workspace',
         behaviors: [Kano.Behaviors.AppEditorBehavior],
         properties: {
-            size: {
-                type: Object
-            },
             parts: {
                 type: Array,
                 notify: true
@@ -143,10 +140,14 @@
             mode: {
                 type: Object,
                 observer: '_modeChanged'
+            },
+            background: {
+                type: String
             }
         },
         observers: [
-            'partsChanged(parts.*)'
+            'partsChanged(parts.*)',
+            'backgroundChanged(background)'
         ],
         listeners: {
             'part-tapped': 'onPartTapped',
@@ -155,6 +156,7 @@
         ready () {
             this.elements = {};
             this.tappedElement = null;
+            this.dropzone = null;
 
             this.pixels = {
                 0: '#ff0000',
@@ -162,29 +164,41 @@
                 2: '#0000ff'
             };
         },
-        _modeChanged (mode) {
-            if (!this.dropzone) {
-                this.dropzone = this.$.dropzone;
+        backgroundChanged (bg) {
+            if (this.dropzone && this.dropzone.setBackgroundColor) {
+                this.dropzone.setBackgroundColor(bg);
             }
-
+        },
+        _modeChanged (mode) {
             let oldDropzone = this.dropzone,
+                viewport = this.$.content,
+                vpLabel = this.$$('.made-with-kano'),
                 newDropzone;
+
             if (mode && mode.workspace.component) {
                 newDropzone = document.createElement(mode.workspace.component);
             } else {
-                newDropzone = document.createElement('div');
+                newDropzone = document.createElement('kano-workspace-normal');
             }
 
-            oldDropzone.parentNode.replaceChild(newDropzone, oldDropzone);
+            newDropzone.setAttribute('id', 'dropzone');
+
+            if (newDropzone.setBackgroundColor) {
+                newDropzone.setBackgroundColor(this.background);
+            }
+
+            /* Remove old dropzone and add new one */
+            if (oldDropzone) {
+                Polymer.dom(viewport).removeChild(oldDropzone);
+            }
+            Polymer.dom(viewport).insertBefore(newDropzone, vpLabel);
+
+            /* Update dropzone reference */
             this.dropzone = newDropzone;
-            this.dropzone.setAttribute('id', 'dropzone');
 
-            for (let n = 0; n < oldDropzone.childNodes.length; n++) {
-                let node = oldDropzone.childNodes[n];
-                console.log("Reparenting", node);
-                oldDropzone.removeChild(node);
-                newDropzone.appendChild(node);
-            }
+            this.parts.forEach((model, index) => {
+                this.insertPart(`#${index}`);
+            });
         },
         canDelete (el) {
             return el && !!el.model;
@@ -399,14 +413,11 @@
         getViewportScale () {
             return this.$.content.getScale();
         },
-        setBackgroundColor (color) { // TODO MOVE TO ELEMENT
-            //this.dropzone.style.background = color;
-        },
         generateCover () {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
                 rect = this.dropzone.getBoundingClientRect(),
-                scaleFactor = rect.width / this.size.width,
+                scaleFactor = rect.width / this.mode.workspace.viewport.width,
                 util = {
                     getStyle: this.getStyle,
                     roundRect: this.roundRect
@@ -415,14 +426,14 @@
                 promise = Promise.resolve();
 
             canvas.id = 'screenshot';
-            canvas.width  = this.size.width;
-            canvas.height = this.size.height;
+            canvas.width  = this.mode.workspace.viewport.width;
+            canvas.height = this.mode.workspace.viewport.height;
 
             //setting background color
-            ctx.fillStyle = this.getStyle(this.dropzone, 'background-color');
+            ctx.fillStyle = this.background;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             this.parts.forEach((part) => {
-                let el = this.$$(`#${part.id}`);
+                let el = this.querySelector(`#${part.id}`);
                 if (typeof el.renderOnCanvas === 'function') {
                     promise = promise.then(() => {
                         return el.renderOnCanvas(ctx, util, scaleFactor);

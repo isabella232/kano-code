@@ -50,12 +50,10 @@ Polymer({
         },
         background: {
             type: Object,
+            notify: true,
             value: getDefaultBackground()
         },
         defaultCategories: {
-            type: Object
-        },
-        wsSize: {
             type: Object
         },
         isResizing: {
@@ -134,9 +132,6 @@ Polymer({
                 }, {});
 
             grouped.ui = grouped.ui || [];
-            if (this.defaultCategories.background) {
-                grouped.ui.unshift(this.defaultCategories.background);
-            }
 
             Object.keys(grouped).forEach((partType) => {
                 let parts = grouped[partType];
@@ -151,7 +146,6 @@ Polymer({
         let property = e.path.split('.');
         property.shift();
         property = property.join('.');
-        this.$.workspace.setBackgroundColor(e.value);
         this.notifyChange('background', {
             property,
             value: e.value
@@ -195,6 +189,7 @@ Polymer({
         savedApp.parts = savedParts;
         savedApp.code = this.code;
         savedApp.background = this.background;
+        savedApp.mode = this.mode;
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
@@ -204,20 +199,18 @@ Polymer({
     },
     share () {
         this.generateCover().then(image => {
-            let backgroundColor = this.computeBackground();
             this.fire('share', {
                 cover: image,
                 workspaceInfo: JSON.stringify(this.save()),
-                background: backgroundColor,
-                size: this.wsSize,
+                background: this.background.userStyle.background,
+                mode: this.mode,
                 code: this.code,
                 parts: this.addedParts
             });
         });
     },
     generateCover () {
-        let backgroundColor = this.computeBackground();
-        return this.$.workspace.generateCover(backgroundColor);
+        return this.$.workspace.generateCover();
     },
     /**
      * Load the saved work from the local storage
@@ -228,6 +221,7 @@ Polymer({
         if (!savedApp) {
             return;
         }
+
         addedParts = savedApp.parts.map((savedPart) => {
             for (let i = 0, len = parts.length; i < len; i++) {
                 if (parts[i].type === savedPart.type) {
@@ -235,7 +229,8 @@ Polymer({
                     break;
                 }
             }
-            part = Kano.MakeApps.Parts.create(savedPart, this.wsSize);
+            part = Kano.MakeApps.Parts.create(savedPart,
+                                              this.mode.workspace.viewport);
             return part;
         });
         savedApp.code = this._formatCode(savedApp.code);
@@ -261,9 +256,9 @@ Polymer({
     },
     _getDefaultParts () {
         if (this.mode === 'camera') {
-            return [Kano.MakeApps.Parts.create(Part.statics.camera, this.wsSize)];
+            return [Kano.MakeApps.Parts.create(Part.statics.camera, this.mode.workspace.viewport)];
         } else if (this.mode === 'lightboard') {
-            return [Kano.MakeApps.Parts.create(Part.statics.light, this.wsSize)];
+            return [Kano.MakeApps.Parts.create(Part.statics.light, this.mode.workspace.viewport)];
         }
     },
     closeDrawer () {
@@ -419,7 +414,6 @@ Polymer({
 
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
-        this.$.workspace.size = this.wsSize;
 
         interact(this.$['left-panel']).dropzone({
             // TODO rename to kano-part-item
@@ -435,7 +429,7 @@ Polymer({
                     x: (targetRect.left - viewportRect.left) / viewportScale.x,
                     y: (targetRect.top - viewportRect.top) / viewportScale.y
                 };
-                part = Kano.MakeApps.Parts.create(model, this.wsSize);
+                part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
                 this.push('addedParts', part);
                 this.fire('change', {
                     type: 'add-part',
@@ -503,7 +497,7 @@ Polymer({
     },
     scaleToWorkspace (point) {
         let rect = this.workspaceRect,
-            fullSize = this.wsSize;
+            fullSize = this.mode.workspace.viewport;
 
         return {
             x: point.x / rect.width * fullSize.width,
