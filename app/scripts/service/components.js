@@ -94,7 +94,7 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (componentName, parts, backgroundStyle, workspaceRect, codes, modules) {
+    generateStandaloneComponent (componentName, parts, background, mode, codes, modules) {
         let template = [],
             tagName,
             components,
@@ -128,7 +128,6 @@ class ComponentStore {
             <dom-module id="kano-${componentName}">
                 <style>
                     :host {
-                        ${backgroundStyle}
                         position: relative;
                     }
                     kano-ui-viewport {
@@ -144,10 +143,12 @@ class ComponentStore {
                 </style>
                 <template>
                     <kano-ui-viewport mode="scaled"
-                                view-width="${workspaceRect.width}"
-                                view-height="${workspaceRect.height}"
+                                view-width="${mode.workspace.viewport.width}"
+                                view-height="${mode.workspace.viewport.height}"
                                 no-overflow>
-                        ${template}
+                        <${mode.workspace.component} id="screen">
+                            ${template}
+                        </${mode.workspace.component}>
                     </kano-ui-viewport>
                 </template>
             </dom-module>
@@ -162,13 +163,19 @@ class ComponentStore {
                     },
                     attached: function () {
                         var devices = {
-                            get: function (id) {
-                                if (id === 'dropzone') {
-                                    return this;
-                                }
-                                return this.$$('#' + id);
-                            }.bind(this)
-                        };
+                                get: function (id) {
+                                    if (id === 'dropzone') {
+                                        return this;
+                                    }
+                                    return this.$$('#' + id);
+                                }.bind(this)
+                            },
+                            screen = this.$.screen;
+
+                        if (screen.setBackgroundColor) {
+                            screen.setBackgroundColor('${background}');
+                        }
+
                         ${wrappedCode}
                     }
                 });

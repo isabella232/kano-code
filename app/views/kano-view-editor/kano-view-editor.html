@@ -27,7 +27,6 @@
             code="{{code}}"
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
-            ws-size="[[size]]"
             on-share="share"
             mode="[[mode]]"
             show-share-button></kano-app-editor>
@@ -133,7 +132,6 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
-            let workspaceSizeKey;
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
@@ -146,9 +144,6 @@
                 PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
             });
 
-            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
-
-            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
             Kano.AppModules.init(Kano.MakeApps.config);
         },
         updateWorkspaceRect (rect) {
