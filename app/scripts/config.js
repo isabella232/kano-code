@@ -80,6 +80,24 @@ function updateFlags(flags) {
     localStorage.setItem('flags', JSON.stringify(flags));
 }
 
+function addExperiments(type, experiments) {
+    var experiment,
+        flags = config.getFlags();
+    Object.keys(experiments).forEach(key => {
+        flags.available[key] = flags.available[key] || {};
+        experiment = flags.available[key];
+        experiment[type] = experiment[type] || [];
+        experiment[type].push(experiments[key]);
+    });
+}
+
+function getFlags() {
+    config.FLAGS = config.FLAGS || {};
+    config.FLAGS.experiments = config.FLAGS.experiments || [];
+    config.FLAGS.available = config.FLAGS.available || {};
+    return config.FLAGS;
+}
+
 if (typeof window === 'undefined') {
     window = {};
 }
@@ -88,5 +106,7 @@ if (typeof window === 'undefined') {
 config = getConfig(window.ENV, window.TARGET);
 config.getConfig = getConfig;
 config.updateFlags = updateFlags;
+config.addExperiments = addExperiments;
+config.getFlags = getFlags;
 
 module.exports = config;

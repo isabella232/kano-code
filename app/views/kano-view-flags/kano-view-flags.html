@@ -16,11 +16,17 @@
             background-color: #acacf9;
             border-top: 1px solid #505088;
             padding: 12px;
+            margin-bottom: 4px;
         }
         .line {
+            width: 100%;
             padding: 7px;
             background-color: lightgrey;
             border-bottom: 1px solid grey;
+            @apply(--layout-horizontal);
+        }
+        .details {
+            @apply(--layout-flex);
         }
         .sub-heading {
             margin-bottom: 0px;
@@ -28,21 +34,27 @@
         .info {
             margin-top: 0px;
         }
+        h4 {
+            margin: 0px;
+        }
+        .contains {
+            text-decoration: underline;
+        }
     </style>
     <template>
         <h1>Careful, these experiments may bite!</h1>
         <div class="heading">Experiments</div>
-        <div class="experimental-parts">
-            <h2 class="sub-heading">Experimental Parts</h2>
-            <p class="info">
-                Enable or disable Parts still in development
-            </p>
-            <template is="dom-repeat" items="[[experimentalParts]]" as="exp">
+        <template is="dom-repeat" items="[[available]]" as="exp">
+            <div>
                 <div class="line">
-                    <paper-checkbox checked="[[_isExperimentalPartEnabled(exp)]]" on-change="_expPartChanged">[[exp]]</paper-checkbox>
+                    <div class="details">
+                        <h4>[[_labelFilter(exp.id)]]</h4>
+                        <span class="contains">Contains:</span><span> [[exp.groups]]</span>
+                    </div>
+                    <paper-toggle-button checked="[[_isEnabled(exp.id)]]" on-change="_expChanged"></paper-toggle-button>
                 </div>
-            </template>
-        </div>
+            </div>
+        </template>
         <paper-toast id="toast" text="Your changes will be effective upon refresh" duration="0">
             <a href="#" on-tap="_refresh" class="refresh-link">Refresh</a>
         </paper-toast>
@@ -55,9 +67,23 @@
         is: 'kano-view-flags',
         behaviors: [Kano.Behaviors.ViewBehavior],
         ready () {
-            this.flags = Kano.MakeApps.config.FLAGS || {};
-            this.experimentalParts = Object.keys(Kano.MakeApps.Parts.experiments);
+            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
+            Kano.AppModules.init(Kano.MakeApps.config);
+            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            this.flags = Kano.MakeApps.config.getFlags();
+            this.available = Object.keys(Kano.MakeApps.config.FLAGS.available).map(key => {
+                return {
+                    id: key,
+                    groups: Object.keys(Kano.MakeApps.config.FLAGS.available[key]).join(', ')
+                };
+            });
             this.changed = false;
+            this.labels = {
+                light: 'Lightboard support',
+                camera: 'Camera support',
+                canvas: 'Canvas part from Make Art',
+                fun: 'Fun blocks'
+            };
         },
         _notifyReload () {
             if (!this.changed) {
@@ -65,18 +91,18 @@
                 this.changed = true;
             }
         },
-        _isExperimentalPartEnabled (exp) {
-            return this.flags.experimentalParts && ~this.flags.experimentalParts.indexOf(exp);
+        _isEnabled (exp) {
+            return this.flags.experiments && this.flags.experiments.indexOf(exp) !== -1;
         },
-        _expPartChanged (e) {
-            let exp = e.model.get('exp'),
+        _expChanged (e) {
+            let exp = e.model.get('exp.id'),
                 index;
-            this.flags.experimentalParts = this.flags.experimentalParts || [];
-            index = this.flags.experimentalParts.indexOf(exp);
+            this.flags.experiments = this.flags.experiments || [];
+            index = this.flags.experiments.indexOf(exp);
             if (index !== -1) {
-                this.flags.experimentalParts.splice(index, 1);
+                this.flags.experiments.splice(index, 1);
             } else {
-                this.flags.experimentalParts.push(exp);
+                this.flags.experiments.push(exp);
             }
             Kano.MakeApps.config.updateFlags(this.flags);
             this._notifyReload();
@@ -84,6 +110,9 @@
         _refresh (e) {
             e.preventDefault();
             location.reload();
+        },
+        _labelFilter (id) {
+            return this.labels[id];
         }
     });
 </script>

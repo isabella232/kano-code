@@ -44,12 +44,12 @@ module.exports = Parts = {
         return Part.clear();
     },
     init (c) {
-        if (c.FLAGS && Array.isArray(c.FLAGS.experimentalParts)) {
-            c.FLAGS.experimentalParts.forEach(exp => {
-                if (Parts.experiments[exp]) {
-                    Parts.list = Parts.list.concat(Parts.experiments[exp]);
-                }
-            });
-        }
+        let flags = c.getFlags();
+        flags.experiments.forEach(exp => {
+            if (Parts.experiments[exp]) {
+                Parts.list = Parts.list.concat(Parts.experiments[exp]);
+            }
+        });
+        c.addExperiments('parts', Parts.experiments);
     }
 };

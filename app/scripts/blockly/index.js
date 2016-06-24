@@ -3,6 +3,17 @@ import operators from './operators';
 import control from './control';
 import variables from './variables';
 import events from './events';
+import fun from './fun';
+
+let categories = {
+        control: control.category,
+        operators: operators.category,
+        variables: variables.category,
+        events: events.category
+    },
+    experiments = {
+        fun: fun.category
+    };
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -23,16 +34,20 @@ let registered = false,
         variables.register(Blockly);
         events.register(Blockly);
         registered = true;
+    },
+    init = (c) => {
+        let flags = c.getFlags();
+        flags.experiments.forEach(exp => {
+            if (experiments[exp]) {
+                categories[exp] = experiments[exp];
+            }
+        });
+        c.addExperiments('blocks', experiments);
     };
 
-let categories = {
-    control: control.category,
-    operators: operators.category,
-    variables: variables.category,
-    events: events.category
-};
 
 export default {
     register,
-    categories
+    categories,
+    init
 };
