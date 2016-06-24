@@ -60,11 +60,24 @@ var COMMON = {
     config;
 
 function getConfig(env, target) {
+    var flags;
     env = env || 'development';
     target = target || 'web';
 
+    if (typeof localStorage !== 'undefined' && env !== 'production') {
+        // Fail safely read the flags from the localstorage
+        try {
+            flags = JSON.parse(localStorage.getItem('flags'));
+        } catch (e) {}
+    }
+
     return Object.assign(COMMON, TARGET[target],
-           ENV[env], {"ENV": env, "TARGET": target});
+           ENV[env], {"ENV": env, "TARGET": target}, { "FLAGS": flags });
+}
+
+function updateFlags(flags) {
+    config.FLAGS = flags;
+    localStorage.setItem('flags', JSON.stringify(flags));
 }
 
 if (typeof window === 'undefined') {
@@ -74,5 +87,6 @@ if (typeof window === 'undefined') {
 /* These window.* variables are exported in both make and play apps. */
 config = getConfig(window.ENV, window.TARGET);
 config.getConfig = getConfig;
+config.updateFlags = updateFlags;
 
 module.exports = config;

@@ -1,0 +1,83 @@
+<link rel="import" href="../../elements/flags-bundle.html">
+<link rel="import" href="../../elements/editor-bundle.html">
+<dom-module id="kano-view-flags">
+    <style>
+        :host {
+            display: block;
+            padding: 7px;
+        }
+        .refresh-link {
+            text-transform: uppercase;
+            color: yellow;
+            padding: 4px;
+            text-decoration: none;
+        }
+        .heading {
+            background-color: #acacf9;
+            border-top: 1px solid #505088;
+            padding: 12px;
+        }
+        .line {
+            padding: 7px;
+            background-color: lightgrey;
+            border-bottom: 1px solid grey;
+        }
+    </style>
+    <template>
+        <h1>Careful, these experiments may bite!</h1>
+        <div class="heading">Experiments</div>
+        <div class="experimental-parts">
+            <h2>Experimental Parts</h2>
+            <p>
+                Enable or disable Parts still in development
+            </p>
+            <template is="dom-repeat" items="[[experimentalParts]]" as="exp">
+                <div class="line">
+                    <paper-checkbox checked="[[_isExperimentalPartEnabled(exp)]]" on-change="_expPartChanged">[[exp]]</paper-checkbox>
+                </div>
+            </template>
+        </div>
+        <paper-toast id="toast" text="Your changes will be effective upon refresh" duration="0">
+            <a href="#" on-tap="_refresh" class="refresh-link">Refresh</a>
+        </paper-toast>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-flags',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        ready () {
+            this.flags = Kano.MakeApps.config.FLAGS || {};
+            this.experimentalParts = Object.keys(Kano.MakeApps.Parts.experiments);
+            this.changed = false;
+        },
+        _notifyReload () {
+            if (!this.changed) {
+                this.$.toast.show();
+                this.changed = true;
+            }
+        },
+        _isExperimentalPartEnabled (exp) {
+            return this.flags.experimentalParts && ~this.flags.experimentalParts.indexOf(exp);
+        },
+        _expPartChanged (e) {
+            let exp = e.model.get('exp'),
+                index;
+            this.flags.experimentalParts = this.flags.experimentalParts || [];
+            index = this.flags.experimentalParts.indexOf(exp);
+            if (index !== -1) {
+                this.flags.experimentalParts.splice(index, 1);
+            } else {
+                this.flags.experimentalParts.push(exp);
+            }
+            Kano.MakeApps.config.updateFlags(this.flags);
+            this._notifyReload();
+        },
+        _refresh (e) {
+            e.preventDefault();
+            location.reload();
+        }
+    });
+</script>

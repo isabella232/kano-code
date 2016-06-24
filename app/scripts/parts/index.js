@@ -31,12 +31,25 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-           LightRectangle, LightCircle, PictureList, Canvas],
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone],
+    experiments: {
+        'light': [LightRectangle, LightCircle],
+        'camera': [PictureList],
+        'canvas': [Canvas]
+    },
     create (model, size) {
         return new partTypes[model.partType](model, size);
     },
     clear () {
         return Part.clear();
+    },
+    init (c) {
+        if (c.FLAGS && Array.isArray(c.FLAGS.experimentalParts)) {
+            c.FLAGS.experimentalParts.forEach(exp => {
+                if (Parts.experiments[exp]) {
+                    Parts.list = Parts.list.concat(Parts.experiments[exp]);
+                }
+            });
+        }
     }
 };

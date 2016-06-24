@@ -6,9 +6,15 @@
     :host {
         display: inline-block;
     }
+    canvas {
+        border: 1px solid lightgrey;
+    }
+    canvas[running] {
+        border: 0px;
+    }
     </style>
     <template>
-        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.*)]]"></canvas>
+        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.*)]]" running$="[[isRunning]]"></canvas>
     </template>
 </dom-module>
 
