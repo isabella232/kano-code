@@ -57,12 +57,6 @@ let category = {
         id: 'lists_getIndex'
     },{
         id: 'lists_setIndex'
-    },{
-        id: 'lists_getSublist'
-    },{
-        id: 'lists_sort'
-    },{
-        id: 'lists_split'
     }]
 };
 

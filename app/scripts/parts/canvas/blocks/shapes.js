@@ -180,4 +180,39 @@ export default [{
             return `devices.get('${ui.id}').modules.shapes.arc(${radius}, ${start}, ${end}, ${close});`;
         };
     }
+},{
+    block: (ui) => {
+        return {
+            id: 'polygon',
+            message0: `${ui.name}: polygon %1 %2`,
+            args0: [{
+                type: "input_value",
+                name: "POINTS",
+                check: 'Array'
+            },{
+                type: "input_value",
+                name: "CLOSE",
+                check: 'Boolean'
+            }],
+            previousStatement: null,
+            nextStatement: null,
+            shadow: {
+                'CLOSE': '<shadow type="logic_boolean"></shadow>'
+            }
+        };
+    },
+    javascript: (ui) => {
+        return function (block) {
+            let points = Blockly.JavaScript.valueToCode(block, 'POINTS') || 'null',
+                close = block.getFieldValue('CLOSE') || false;
+            return `devices.get('${ui.id}').polygon(${points}, ${close});`;
+        };
+    },
+    pseudo: (ui) => {
+        return function (block) {
+            let points = Blockly.Pseudo.valueToCode(block, 'POINTS') || 'null',
+                close = block.getFieldValue('CLOSE') || false;
+            return `devices.get('${ui.id}').polygon(${points}, ${close});`;
+        };
+    }
 }];
