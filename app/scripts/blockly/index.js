@@ -3,7 +3,6 @@ import operators from './operators';
 import control from './control';
 import variables from './variables';
 import events from './events';
-import background from './background';
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -23,7 +22,6 @@ let registered = false,
         operators.register(Blockly);
         variables.register(Blockly);
         events.register(Blockly);
-        background.register(Blockly);
         registered = true;
     };
 
@@ -31,8 +29,7 @@ let categories = {
     control: control.category,
     operators: operators.category,
     variables: variables.category,
-    events: events.category,
-    background: background.category
+    events: events.category
 };
 
 export default {

@@ -34,7 +34,6 @@
                             parts="[[computeParts(scene.*)]]"
                             default-categories="[[computeCategories(scene.*)]]"
                             class="editor"
-                            ws-size="[[size]]"
                             running="{{running}}"
                             title="[[storyName]]"
                             code="{{code}}"
@@ -102,12 +101,7 @@
             this.code = {};
         },
         attached () {
-            let workspaceSizeKey;
             this.mode = Kano.MakeApps.Mode[(this.scene.mode || 'normal')];
-
-            workspaceSizeKey = this.mode.sizeKey || 'WORKSPACE_FULL_SIZE';
-
-            this.set('size', Kano.MakeApps.config[workspaceSizeKey]);
         },
         shareApp () {
             this.$.editor.share();
