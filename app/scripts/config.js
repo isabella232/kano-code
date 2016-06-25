@@ -83,11 +83,12 @@ function updateFlags(flags) {
 function addExperiments(type, experiments) {
     var experiment,
         flags = config.getFlags();
-    Object.keys(experiments).forEach(key => {
-        flags.available[key] = flags.available[key] || {};
+    experiments.forEach(key => {
+        flags.available[key] = flags.available[key] || [];
         experiment = flags.available[key];
-        experiment[type] = experiment[type] || [];
-        experiment[type].push(experiments[key]);
+        if (experiment.indexOf(type) === -1) {
+            experiment.push(type);
+        }
     });
 }
 

@@ -50,6 +50,6 @@ module.exports = Parts = {
                 Parts.list = Parts.list.concat(Parts.experiments[exp]);
             }
         });
-        c.addExperiments('parts', Parts.experiments);
+        c.addExperiments('parts', Object.keys(Parts.experiments));
     }
 };

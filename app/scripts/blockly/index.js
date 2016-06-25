@@ -5,15 +5,24 @@ import variables from './variables';
 import events from './events';
 import fun from './fun';
 
-let categories = {
-        control: control.category,
-        operators: operators.category,
-        variables: variables.category,
-        events: events.category
+let modules = {
+        control,
+        operators,
+        variables,
+        events
     },
+    categories = Object.keys(modules).reduce((acc, key) => {
+        acc[key] = modules[key].category;
+        return acc;
+    }, {}),
     experiments = {
-        fun: fun.category
-    };
+        fun: [fun]
+    },
+    available = Object.keys(modules)
+        .filter(key => modules[key].experiments)
+        .reduce((acc, key) => {
+            return acc.concat(Object.keys(modules[key].experiments));
+        }, []);
 
 /**
  * Except for the natural declaration of language, each module will return a
@@ -33,16 +42,24 @@ let registered = false,
         operators.register(Blockly);
         variables.register(Blockly);
         events.register(Blockly);
+        fun.register(Blockly);
         registered = true;
     },
     init = (c) => {
         let flags = c.getFlags();
         flags.experiments.forEach(exp => {
             if (experiments[exp]) {
-                categories[exp] = experiments[exp];
+                experiments[exp].forEach(m => {
+                    categories[exp] = m.category;
+                });
             }
+            Object.keys(modules).forEach(key => {
+                if (modules[key].experiments && modules[key].experiments[exp]) {
+                    categories[key].blocks = categories[key].blocks.concat(modules[key].experiments[exp]);
+                }
+            });
         });
-        c.addExperiments('blocks', experiments);
+        c.addExperiments('blocks', available.concat(Object.keys(experiments)));
     };
 
 

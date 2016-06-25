@@ -6,8 +6,10 @@ import speaker from './speaker';
 import math from './math';
 import colour from './colour';
 import mouse from './mouse';
+import keyboard from './keyboard';
 import lightboard from './lightboard';
 import camera from './camera';
+import cat from './cat';
 import HardwareAPI from './service/hardware-api';
 
 let AppModules;
@@ -26,9 +28,24 @@ module.exports = AppModules = {
         lightboard,
         camera
     },
+    experiments: {
+        fun: {
+            cat
+        },
+        keyboard_events: {
+            keyboard
+        }
+    },
     HardwareAPI,
     init (config) {
-        let mod;
+        let flags = config.getFlags(),
+            mod;
+        flags.experiments.forEach(exp => {
+            if (AppModules.experiments[exp]) {
+                Object.assign(AppModules.modules, AppModules.experiments[exp]);
+            }
+        });
+        config.addExperiments('modules', Object.keys(AppModules.experiments));
         // Loop through the modules and call their config method
         Object.keys(AppModules.modules).forEach((moduleName) => {
             mod = AppModules.modules[moduleName];
