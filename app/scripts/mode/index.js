@@ -5,7 +5,20 @@ import Camera from './camera';
 let Mode;
 
 export default Mode = {
-    normal: Normal,
-    lightboard: Light,
-    camera: Camera
+    modes: {
+        normal: Normal
+    },
+    experiments: {
+        lightboard: Light,
+        camera: Camera
+    },
+    init (config) {
+        let flags = config.getFlags();
+        flags.experiments.forEach(exp => {
+            if (Mode.experiments[exp]) {
+                Object.assign(Mode.modes, Mode.experiments[exp]);
+            }
+        });
+        config.addExperiments('modes', Object.keys(Mode.experiments));
+    }
 };

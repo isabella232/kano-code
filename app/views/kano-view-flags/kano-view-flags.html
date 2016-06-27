@@ -70,6 +70,7 @@
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
             Kano.AppModules.init(Kano.MakeApps.config);
             Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             this.flags = Kano.MakeApps.config.getFlags();
             this.available = Object.keys(Kano.MakeApps.config.FLAGS.available).map(key => {
                 return {
@@ -79,7 +80,7 @@
             });
             this.changed = false;
             this.labels = {
-                light: 'Lightboard support',
+                lightboard: 'Lightboard support',
                 camera: 'Camera support',
                 canvas: 'Canvas part from Make Art',
                 fun: 'Fun blocks',
@@ -113,7 +114,7 @@
             location.reload();
         },
         _labelFilter (id) {
-            return this.labels[id];
+            return this.labels[id] || id;
         }
     });
 </script>

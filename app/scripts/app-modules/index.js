@@ -24,13 +24,17 @@ module.exports = AppModules = {
         data,
         math,
         colour,
-        mouse,
-        lightboard,
-        camera
+        mouse
     },
     experiments: {
         fun: {
             cat
+        },
+        lightboard: {
+            lightboard
+        },
+        camera: {
+            camera
         },
         keyboard_events: {
             keyboard

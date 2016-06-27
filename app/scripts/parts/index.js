@@ -33,7 +33,7 @@ module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
            Image, ScrollingText, RSS, Sports, Speaker, Microphone],
     experiments: {
-        'light': [LightRectangle, LightCircle],
+        'lightboard': [LightRectangle, LightCircle],
         'camera': [PictureList],
         'canvas': [Canvas]
     },
