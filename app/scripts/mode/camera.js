@@ -1,11 +1,19 @@
+import backgroundBlocks from './common/background-blocks';
+
 let Camera;
 
 export default Camera = {
     id: 'camera',
     name: 'Camera',
     allowBackground: true,
-    component: 'kano-part-camera',
-    colour: '#333333',
+    workspace: {
+        viewport: {
+            width: 512,
+            height: 384
+        },
+        component: 'kano-workspace-camera'
+    },
+    colour: '#9c39fe',
     excludeParts: ['light-rectangle', 'light-circle'],
     events: [{
         label: 'takes picture',
@@ -24,13 +32,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').takePicture();\n`;
+                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').takePicture();\n`;
+                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
                 return code;
             };
         }
@@ -46,15 +54,15 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').lastPicture()`;
+                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').lastPicture()`;
+                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
                 return [code];
             };
         }
-    }]
+    }].concat(backgroundBlocks)
 };
