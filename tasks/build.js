@@ -45,7 +45,21 @@ module.exports = (gulp, $) => {
 
     gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules'], () => {
         getImports('./app/elements/elements.html').then((common) => {
-            return gulp.src('.tmp/app/elements/*-bundle.html')
+            return gulp.src(['.tmp/app/elements/*-bundle.html', '!.tmp/app/elements/story-bundle.html'])
+                .pipe($.utils.vulcanize({
+                    inlineScripts: true,
+                    inlineCss: true,
+                    stripExcludes: common,
+                    stripComments: true
+                }))
+                .pipe($.crisper({ scriptInHead: false }))
+                .pipe(gulp.dest('www/elements'));
+        }).catch($.utils.notifyError);
+    });
+
+    gulp.task('story-bundle', ['bundles'], () => {
+        getImports('./app/elements/editor-bundle.html').then((common) => {
+            return gulp.src(['.tmp/app/elements/story-bundle.html'])
                 .pipe($.utils.vulcanize({
                     inlineScripts: true,
                     inlineCss: true,
@@ -152,7 +166,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('build', () => {
-        $.runSequence(['views', 'js', 'sass', 'assets', 'bundles'], 'sw');
+        $.runSequence(['views', 'js', 'sass', 'assets', 'bundles', 'story-bundle'], 'sw');
     });
     gulp.task('default', ['build']);
 };
