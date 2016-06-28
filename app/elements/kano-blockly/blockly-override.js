@@ -129,7 +129,6 @@ Blockly.Flyout.prototype.show = function(xmlList) {
         this.permanentlyDisabled_.push(block);
       }
       blocks.push(block);
-      console.log(block, block.type);
       Blockly.Flyout.blocks[block.type] = block;
       var gap = parseInt(xml.getAttribute('gap'), 10);
       gaps.push(isNaN(gap) ? margin * 3 : gap);
