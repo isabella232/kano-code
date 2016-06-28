@@ -5,7 +5,7 @@ export default sports = {
     type: 'sports',
     label: 'Sports',
     colour: '#cddc39',
-    image: '',
+    image: '/assets/part/sports.svg',
     dataType: 'list',
     dataLength: 10,
     parameters: [{
