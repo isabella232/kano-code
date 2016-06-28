@@ -9,7 +9,6 @@ export default cat = {
     colour: COLOUR,
     methods: {
         random () {
-            console.log('CAT');
             let index = Math.floor(Math.random() * cats.length);
             return `${CAT_API_PREFIX}${cats[index]}`;
         }
