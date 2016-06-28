@@ -1,0 +1,99 @@
+<dom-module id="kano-pixel-canvas">
+    <style>
+    :host {
+        display: block;
+    }
+    .content {
+        padding: 8px;
+    }
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+    }
+    .canvas {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+    }
+    </style>
+    <template>
+        <div class="content">
+            <div class="canvas" on-mousedown="_mouseDown" on-mouseup="_mouseUp" style$="[[_computeCanvasStyle(width)]]">
+                <template is="dom-repeat" items="[[bitmap]]" as="pixel" id="repeat">
+                    <div class="pixel" style$="[[_computePixelStyle(pixel)]]" on-mouseover="_pixelOver" on-mouseout="_pixelOut"></div>
+                </template>
+            </div>
+            <kano-input-color value="{{penColor}}"></kano-input-color>
+        </div>
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-pixel-canvas',
+            properties: {
+                bitmap: {
+                    type: Array,
+                    value: () => {
+                        return [['#000000']];
+                    }
+                },
+                width: {
+                    type: Number,
+                    value: 1
+                },
+                height: {
+                    type: Number,
+                    value: 1
+                }
+            },
+            observers: [
+                '_sizeChanged(width, height)'
+            ],
+            _computeCanvasStyle (width) {
+                return `max-width: ${width * 28}px;`;
+            },
+            _sizeChanged () {
+                let newBitmap = [];
+                for (var i = 0; i < this.height * this.width; i++) {
+                    let color = '#000000';
+                    if (this.bitmap[i] && this.bitmap[i]) {
+                        color = this.bitmap[i];
+                    }
+                    newBitmap.push(color);
+                }
+                this.set('bitmap', newBitmap);
+            },
+            _computePixelStyle (pixel) {
+                return `background-color: ${pixel};`;
+            },
+            _pixelOver (e) {
+                if (this.isMouseDown) {
+                    let model = this.$$('#repeat').modelForElement(e.target),
+                        index;
+                    if (model) {
+                        index = model.get('index');
+                        this.set(`bitmap.${index}`, this.penColor);
+                        console.log(this.bitmap);
+                        this.$$('#repeat').render();
+                    }
+                } else {
+                    e.target.style.backgroundColor = this.penColor;
+                }
+            },
+            _pixelOut (e) {
+                console.log(e.model.get('pixel'));
+                if (e.model.get('pixel')) {
+                    e.target.style.backgroundColor = e.model.get('pixel');
+                }
+            },
+            _mouseDown (e) {
+                this.isMouseDown = true;
+                if (e.target.classList.contains('pixel')) {
+                    this._pixelOver(e);
+                }
+            },
+            _mouseUp () {
+                this.isMouseDown = false;
+            }
+        });
+    </script>
+</dom-module>

@@ -1,5 +1,6 @@
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
+<link rel="import" href="../kano-light-frame-editor/kano-light-frame-editor.html">
 <dom-module id="kano-part-editor">
     <style>
     :host {
@@ -32,10 +33,17 @@
     </style>
     <template>
         <div class="title">[[selected.name]] settings</div>
-        <iron-pages selected="[[selected.partType]]" attr-for-selected="name">
-            <kano-ui-editor id="ui-editor" selected="{{selected}}" name="ui"></kano-ui-editor>
-            <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
-        </iron-pages>
+        <iron-lazy-pages selected="[[selected.configPanel]]" attr-for-selected="name">
+            <template is="iron-lazy-page" name="ui">
+                <kano-ui-editor id="ui-editor" selected="{{selected}}"></kano-ui-editor>
+            </template>
+            <template is="iron-lazy-page" name="data">
+                <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
+            </template>
+            <template is="iron-lazy-page" name="light-frame">
+                <kano-light-frame-editor id="frame-editor" selected="{{selected}}" name="light-frame"></kano-light-frame-editor>
+            </template>
+        </iron-lazy-pages>
     </template>
 </dom-module>
 <script type="text/javascript">

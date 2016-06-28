@@ -18,6 +18,7 @@ import Speaker from './speaker';
 import Microphone from './microphone';
 import LightRectangle from './light-rectangle';
 import LightCircle from './light-circle';
+import LightFrame from './lightboard/light-frame';
 import PictureList from './picture-list';
 import Canvas from './canvas/canvas';
 
@@ -33,7 +34,7 @@ module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
            Image, ScrollingText, RSS, Sports, Speaker, Microphone],
     experiments: {
-        'lightboard': [LightRectangle, LightCircle],
+        'lightboard': [LightRectangle, LightCircle, LightFrame],
         'camera': [PictureList],
         'canvas': [Canvas]
     },

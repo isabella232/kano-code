@@ -1,0 +1,74 @@
+<link rel="import" href="../../ui/behaviors.html">
+<dom-module id="kano-part-light-frame">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        border: 1px solid blue;
+    }
+    </style>
+    <template>
+        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]">
+
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-light-frame',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            properties: {
+                shape: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            x: 0,
+                            y: 0,
+                            width: 1,
+                            height: 1,
+                            color: '#ffffff',
+                            type: 'circle'
+                        };
+                    }
+                }
+            },
+            observers: [
+                '_shapeChanged(shape.*)'
+            ],
+            _computeContainerStyle () {
+                let width = this.model.userProperties.width * 28,
+                    height = this.model.userProperties.height * 28;
+                return `width: ${width}px; height: ${height}px;`;
+            },
+            _shapeChanged () {
+                this.debounce('updateShape', () => {
+                    if (this.isRunning) {
+                        let bitmap = Kano.MakeApps.Modules.lightboard.methods.updateOrCreateShape(this.model.id, this.shape);
+                        this.fire('update-mode', bitmap);
+                    }
+                });
+            },
+            draw (x, y, radius, color) {
+                this.set('shape.x', x || this.shape.x);
+                this.set('shape.y', y || this.shape.y);
+                this.set('shape.radius', radius || this.shape.radius);
+                this.set('shape.color', color || this.shape.color);
+            },
+            applyTransform () {
+                if (!this.model) {
+                    return;
+                }
+                let position = this.model.position || { x: 0, y: 0 },
+                    x = Math.max(9, 9 + 28 * Math.floor(position.x / 28)),
+                    y = Math.max(8, 8 + 28 * Math.floor(position.y / 28)),
+                    transform;
+
+                transform = `translate(${x}px, ${y}px)`;
+                this.style.webkitTransform = this.style.transform = transform;
+            },
+        });
+    </script>
+</dom-module>
