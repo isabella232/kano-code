@@ -5,7 +5,7 @@ export default rss = {
     type: 'rss',
     label: 'RSS',
     colour: '#cddc39',
-    image: '',
+    image: '/assets/part/rss.svg',
     dataType: 'list',
     dataLength: 10,
     parameters: [{
