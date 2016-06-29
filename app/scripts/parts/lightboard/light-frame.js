@@ -18,6 +18,10 @@ export default lightFrame = {
             key: 'height',
             type: 'range',
             label: 'Height'
+        },{
+            key: 'bitmap',
+            type: 'bitmap',
+            label: 'Bitmap'
         }],
         style: []
     },

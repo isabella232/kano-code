@@ -8,10 +8,23 @@
         position: relative;
         border: 1px solid blue;
     }
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+    }
+    .canvas {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+    }
     </style>
     <template>
         <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]">
-
+            <div class="canvas" style$="[[_computeCanvasStyle(model.userProperties.width)]]">
+                <template is="dom-repeat" items="[[model.userProperties.bitmap]]" as="pixel" id="repeat">
+                    <div class="pixel" style$="[[_computePixelStyle(pixel)]]"></div>
+                </template>
+            </div>
         </div>
     </template>
     <script type="text/javascript">
@@ -20,9 +33,12 @@
         Polymer({
             is: 'kano-part-light-frame',
             behaviors: [Kano.Behaviors.UIBehavior],
+            ready () {
+                this.set('model.userProperties.bitmap', []);
+            },
             _computeContainerStyle () {
-                let width = this.model.userProperties.width * 28,
-                    height = this.model.userProperties.height * 28;
+                let width = this.model.userProperties.width * 28 + 2,
+                    height = this.model.userProperties.height * 28 + 2;
                 return `width: ${width}px; height: ${height}px;`;
             },
             applyTransform () {
@@ -30,13 +46,19 @@
                     return;
                 }
                 let position = this.model.position || { x: 0, y: 0 },
-                    x = Math.max(9, 9 + 28 * Math.floor(position.x / 28)),
-                    y = Math.max(8, 8 + 28 * Math.floor(position.y / 28)),
+                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 +(16 - this.model.userProperties.width) * 28),
+                    y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
                     transform;
 
                 transform = `translate(${x}px, ${y}px)`;
                 this.style.webkitTransform = this.style.transform = transform;
             },
+            _computeCanvasStyle (width) {
+                return `max-width: ${width * 28}px;`;
+            },
+            _computePixelStyle (pixel) {
+                return `background-color: ${pixel};`;
+            }
         });
     </script>
 </dom-module>

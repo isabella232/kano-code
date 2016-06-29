@@ -5,7 +5,7 @@
         display: block;
     }
     .content {
-        padding: 8px;
+        min-width: 465px;
     }
     .pixel {
         width: 22px;
@@ -15,16 +15,34 @@
     .canvas {
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
+        padding: 10px;
+        background-color: #444;
+        border-radius: 4px;
+        box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.05);
+        border: solid 1px #ececec;
+    }
+    .pen {
+        width: 26px;
+        height: 26px;
+        margin-right: 5px;
+    }
+    .picker {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        margin-top: 16px;
     }
     </style>
     <template>
         <div class="content">
-            <div class="canvas" on-mousedown="_mouseDown" on-mouseup="_mouseUp" style$="[[_computeCanvasStyle(width)]]">
+            <div class="canvas" style$="[[_computeCanvasStyle(width)]]">
                 <template is="dom-repeat" items="[[bitmap]]" as="pixel" id="repeat">
                     <div class="pixel" style$="[[_computePixelStyle(pixel)]]" on-mouseover="_pixelOver" on-mouseout="_pixelOut"></div>
                 </template>
             </div>
-            <kano-color-picker value="{{penColor}}"></kano-color-picker>
+            <div class="picker">
+                <iron-image src="/assets/icons/pencil.svg" sizing="contain" class="pen"></iron-image>
+                <kano-color-picker value="{{penColor}}" palette="[[palette]]"></kano-color-picker>
+            </div>
         </div>
     </template>
     <script type="text/javascript">
@@ -35,7 +53,8 @@
                     type: Array,
                     value: () => {
                         return [['#000000']];
-                    }
+                    },
+                    notify: true
                 },
                 width: {
                     type: Number,
@@ -44,27 +63,64 @@
                 height: {
                     type: Number,
                     value: 1
+                },
+                palette: {
+                    type: Array
                 }
             },
             observers: [
-                '_sizeChanged(width, height)'
+                '_sizeChanged(width, height)',
+                '_computePalette(bitmap.*)'
             ],
+            ready () {
+                this._mouseDown = this._mouseDown.bind(this);
+                this._mouseUp = this._mouseUp.bind(this);
+            },
+            attached () {
+                document.addEventListener('mousedown', this._mouseDown);
+                document.addEventListener('mouseup', this._mouseUp);
+            },
+            detached () {
+                document.removeEventListener('mousedown', this._mouseDown);
+                document.removeEventListener('mouseup', this._mouseUp);
+            },
+            _computePalette () {
+                this.debounce('palette', () => {
+                    if (!this.bitmap) {
+                        return;
+                    }
+                    this.set('palette', this.bitmap.filter((elem, pos) => {
+                        return this.bitmap.indexOf(elem) === pos;
+                    }).splice(-16, 16));
+                }, 16);
+            },
             _computeCanvasStyle (width) {
-                return `max-width: ${width * 28}px;`;
+                return `max-width: ${(width * 28) + 22}px;`;
             },
             _sizeChanged () {
                 let newBitmap = [];
+                this.bitmap = this.bitmap || [];
                 for (var i = 0; i < this.height * this.width; i++) {
-                    let color = '#000000';
-                    if (this.bitmap[i] && this.bitmap[i]) {
-                        color = this.bitmap[i];
-                    }
-                    newBitmap.push(color);
+                    newBitmap.push('#000000');
                 }
+
+                if (this.prevSize) {
+                    this.bitmap.forEach((color, i) => {
+                        let x = Math.floor(i / this.prevSize.width),
+                            y = i % this.prevSize.height,
+                            newPos = x + y * this.width;
+                        newBitmap[newPos] = color;
+                    });
+                }
+
+                this.prevSize = {
+                    width: this.width,
+                    height: this.height
+                };
+
                 this.set('bitmap', newBitmap);
             },
             _computePixelStyle (pixel) {
-                console.log(pixel);
                 return `background-color: ${pixel};`;
             },
             _pixelOver (e) {

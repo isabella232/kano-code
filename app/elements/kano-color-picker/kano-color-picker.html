@@ -3,42 +3,93 @@
     <style>
     :host {
         display: block;
-        min-width: 50px;
-        min-height: 50px;
         position: relative;
     }
     .preview {
         width: 52px;
-          height: 26px;
-          border-radius: 3px;
-          border: solid 1px #5f5f5f;
+        height: 26px;
+        border-radius: 3px;
+        border: solid 1px #5f5f5f;
+        cursor: pointer;
     }
     .tooltip {
         position: absolute;
         z-index: 101;
-        left: -117px;
-        top: -px;
+        left: 60px;
+        top: -142px;
         --kano-tooltip-background-color: #e7e7e7;
         --kano-tooltip-border-color: #9b9b9b;
         --kano-tooltip-border-width: 1px;
         --kano-tooltip: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
-            padding: 37px 50px;
             font-size: 20px;
             line-height: 25px;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
         };
         --kano-tooltip-caret: {
-            box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
+            box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
     #canvas {
         border-radius: 50%;
         border: 1px solid black;
+        margin: 37px 50px;
+        cursor: pointer;
+    }
+    .magn {
+        position: absolute;
+        opacity: 0;
+        transform: scale(0);
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        pointer-events: none;
+        transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 150ms, opacity cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
+        transform-origin: 50% 110%;
+        @apply(--shadow-elevation-2dp);
+        border: 2px solid white;
+    }
+    .magn.open {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .palette {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-center-justified);
+        padding-bottom: 36px;
+        min-height: 50px;
+        max-width: 200px;
+    }
+    .palette-item {
+        width: 21px;
+        height: 21px;
+        border-radius: 3px;
+        border: solid 1px #5f5f5f;
+        margin: 2px;
+    }
+    .close {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        color: rgba(0, 0, 0, 0.55);
+        border: 0px;
+        background-color: transparent;
+        font-size: 20px;
+        cursor: pointer;
     }
     </style>
     <template>
-        <kano-tooltip class="tooltip" position="top" id="tooltip">
+        <kano-tooltip class="tooltip" position="right" id="tooltip">
             <canvas id="canvas"></canvas>
+            <div class="palette">
+                <template is="dom-repeat" items="[[palette]]" as="color">
+                    <div class="palette-item" style$="[[_computePreviewStyle(color)]]" on-tap="_paletteItemTap"></div>
+                </template>
+            </div>
+            <div id="magn" class="magn" style$="[[_computePreviewStyle(magnColor)]]"></div>
+            <button type="button" name="button" class="close" on-tap="_close">&times;</button>
         </kano-tooltip>
         <div class="preview" id="preview" style$="[[_computePreviewStyle(value)]]" on-tap="_onPreviewTap"></div>
     </template>
@@ -49,20 +100,58 @@
                 value: {
                     type: String,
                     notify: true
+                },
+                palette: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
+                }
+            },
+            ready () {
+                this.$.canvas.addEventListener('click', this._onClick.bind(this));
+                this.$.canvas.addEventListener('mousemove', this._onMouseMove.bind(this));
+                this.$.canvas.addEventListener('mouseout', this._onMouseOut.bind(this));
+                this.$.canvas.addEventListener('mouseover', this._onMouseOver.bind(this));
+            },
+            _paletteItemTap (e) {
+                let color = e.model.get('color');
+                this.set('value', color);
+                this._close();
+            },
+            _onClick () {
+                this.set('value', this.magnColor);
+                this._close();
+            },
+            _close () {
+                this.$.tooltip.close();
+            },
+            _onMouseOut () {
+                this._isMouseOver = false;
+                this.toggleClass('open', false, this.$.magn);
+            },
+            _onMouseOver () {
+                this._isMouseOver = true;
+                this.toggleClass('open', true, this.$.magn);
+            },
+            _onMouseMove (e) {
+                if (this._isMouseOver) {
+                    let x = e.x - this.wheelRect.left,
+                    y = e.y - this.wheelRect.top,
+                    r = (170 - 2) / 2,
+                    dist = Math.sqrt(Math.pow(r - x, 2) + Math.pow(r - y, 2)),
+                    a = 180 - Math.atan2(r - y, r - x);
+                    this.set('magnColor', `hsl(${a * 180 / Math.PI}, ${100 - (dist * 40 / r)}%, ${115 - (dist * 70 / r)}%)`);
+                    this.$.magn.style.top = `${y - 80}px`;
+                    this.$.magn.style.left = `${x}px`;
                 }
             },
             _computePreviewStyle (value) {
                 return `background-color: ${value};`;
             },
             _onPreviewTap () {
-                if (this.open) {
-
-                    this.open = false;
-                } else {
-                    this.$.tooltip.open();
-                    this._drawWheel(this.$.canvas, 170);
-                    this.open = true;
-                }
+                this._drawWheel(this.$.canvas, 170);
+                this.$.tooltip.open();
             },
             _drawWheel (canvas, size) {
                 var r = (size - 2) / 2,
@@ -82,6 +171,7 @@
                         ctx.fillRect(r + x, r + y, 2, 2);
                     }
                 }
+                this.wheelRect = canvas.getBoundingClientRect();
             }
         });
     </script>
