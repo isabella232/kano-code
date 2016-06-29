@@ -221,21 +221,25 @@
                     style.left = `${target.left - rect.width - 20}px`;
                 }
 
-                style.visibility = 'visible';
-
-                if (this.noAnimations || this.alreadyAnimated) {
-                    return;
-                }
-                style.transition = 'none';
-                style.transform = 'scale(0.5)';
-                style.opacity = '0';
-
-                this.getBoundingClientRect();
-                style.transition = 'all cubic-bezier(0.2, 0, 0.13, 1.5) 150ms';
-                style.transform = 'scale(1)';
-                style.opacity = '1';
-                this.alreadyAnimated = true;
+                this.open();
             }, 10);
+        },
+        open () {
+            let style = this.style;
+            style.visibility = 'visible';
+
+            if (this.noAnimations || this.alreadyAnimated) {
+                return;
+            }
+            style.transition = 'none';
+            style.transform = 'scale(0.5)';
+            style.opacity = '0';
+
+            this.getBoundingClientRect();
+            style.transition = 'all cubic-bezier(0.2, 0, 0.13, 1.5) 150ms';
+            style.transform = 'scale(1)';
+            style.opacity = '1';
+            this.alreadyAnimated = true;
         },
         close () {
             let style = this.style;

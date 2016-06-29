@@ -5,6 +5,7 @@
         display: block;
         min-width: 50px;
         min-height: 50px;
+        position: relative;
     }
     .preview {
         width: 52px;
@@ -13,12 +14,16 @@
           border: solid 1px #5f5f5f;
     }
     .tooltip {
+        position: absolute;
+        z-index: 101;
+        left: -117px;
+        top: -px;
         --kano-tooltip-background-color: #e7e7e7;
         --kano-tooltip-border-color: #9b9b9b;
         --kano-tooltip-border-width: 1px;
         --kano-tooltip: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
-            padding: 18px 26px 20px;
+            padding: 37px 50px;
             font-size: 20px;
             line-height: 25px;
         };
@@ -26,12 +31,16 @@
             box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
         };
     }
+    #canvas {
+        border-radius: 50%;
+        border: 1px solid black;
+    }
     </style>
     <template>
-        <div class="preview" id="preview" style$="[[_computePreviewStyle(value)]]" on-tap="_onPreviewTap"></div>
-        <kano-tooltip class="tooltip" position="top" target="[[target]]">
+        <kano-tooltip class="tooltip" position="top" id="tooltip">
             <canvas id="canvas"></canvas>
         </kano-tooltip>
+        <div class="preview" id="preview" style$="[[_computePreviewStyle(value)]]" on-tap="_onPreviewTap"></div>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -48,9 +57,10 @@
             _onPreviewTap () {
                 if (this.open) {
 
+                    this.open = false;
                 } else {
-                    this._drawWheel(this.$.canvas, 200);
-                    this.target = this.$.preview.getBoundingClientRect();
+                    this.$.tooltip.open();
+                    this._drawWheel(this.$.canvas, 170);
                     this.open = true;
                 }
             },
@@ -61,7 +71,7 @@
                 canvas.setAttribute('height', size);
                 ctx = canvas.getContext('2d');
 
-                for (var i = 0; i < r; i++) {
+                for (var i = 0; i < r + 1; i++) {
                     // A ring
                     var c = 2 * Math.PI * i;
                     for (var j = 0; j < c; j++) {
