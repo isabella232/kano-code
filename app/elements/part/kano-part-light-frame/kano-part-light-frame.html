@@ -20,42 +20,10 @@
         Polymer({
             is: 'kano-part-light-frame',
             behaviors: [Kano.Behaviors.UIBehavior],
-            properties: {
-                shape: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            x: 0,
-                            y: 0,
-                            width: 1,
-                            height: 1,
-                            color: '#ffffff',
-                            type: 'circle'
-                        };
-                    }
-                }
-            },
-            observers: [
-                '_shapeChanged(shape.*)'
-            ],
             _computeContainerStyle () {
                 let width = this.model.userProperties.width * 28,
                     height = this.model.userProperties.height * 28;
                 return `width: ${width}px; height: ${height}px;`;
-            },
-            _shapeChanged () {
-                this.debounce('updateShape', () => {
-                    if (this.isRunning) {
-                        let bitmap = Kano.MakeApps.Modules.lightboard.methods.updateOrCreateShape(this.model.id, this.shape);
-                        this.fire('update-mode', bitmap);
-                    }
-                });
-            },
-            draw (x, y, radius, color) {
-                this.set('shape.x', x || this.shape.x);
-                this.set('shape.y', y || this.shape.y);
-                this.set('shape.radius', radius || this.shape.radius);
-                this.set('shape.color', color || this.shape.color);
             },
             applyTransform () {
                 if (!this.model) {

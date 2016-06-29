@@ -1,0 +1,78 @@
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<dom-module id="kano-color-picker">
+    <style>
+    :host {
+        display: block;
+        min-width: 50px;
+        min-height: 50px;
+    }
+    .preview {
+        width: 52px;
+          height: 26px;
+          border-radius: 3px;
+          border: solid 1px #5f5f5f;
+    }
+    .tooltip {
+        --kano-tooltip-background-color: #e7e7e7;
+        --kano-tooltip-border-color: #9b9b9b;
+        --kano-tooltip-border-width: 1px;
+        --kano-tooltip: {
+            box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
+            padding: 18px 26px 20px;
+            font-size: 20px;
+            line-height: 25px;
+        };
+        --kano-tooltip-caret: {
+            box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
+        };
+    }
+    </style>
+    <template>
+        <div class="preview" id="preview" style$="[[_computePreviewStyle(value)]]" on-tap="_onPreviewTap"></div>
+        <kano-tooltip class="tooltip" position="top" target="[[target]]">
+            <canvas id="canvas"></canvas>
+        </kano-tooltip>
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-color-picker',
+            properties: {
+                value: {
+                    type: String,
+                    notify: true
+                }
+            },
+            _computePreviewStyle (value) {
+                return `background-color: ${value};`;
+            },
+            _onPreviewTap () {
+                if (this.open) {
+
+                } else {
+                    this._drawWheel(this.$.canvas, 200);
+                    this.target = this.$.preview.getBoundingClientRect();
+                    this.open = true;
+                }
+            },
+            _drawWheel (canvas, size) {
+                var r = (size - 2) / 2,
+                    ctx;
+                canvas.setAttribute('width', size);
+                canvas.setAttribute('height', size);
+                ctx = canvas.getContext('2d');
+
+                for (var i = 0; i < r; i++) {
+                    // A ring
+                    var c = 2 * Math.PI * i;
+                    for (var j = 0; j < c; j++) {
+                        var a = j * 2 * Math.PI / c,
+                        y = Math.cos(a) * i,
+                        x = Math.sin(a) * i;
+                        ctx.fillStyle = `hsl(${a * 180 / Math.PI}, ${100 - (i * 40 / r)}%, ${115 - (i * 70 / r)}%)`;
+                        ctx.fillRect(r + x, r + y, 2, 2);
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>
