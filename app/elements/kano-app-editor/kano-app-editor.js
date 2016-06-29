@@ -249,17 +249,10 @@ Polymer({
         return code;
     },
     reset () {
-        this.set('addedParts', this._getDefaultParts());
+        this.set('addedParts', []);
         this.set('code', getDefaultCode());
         this.set('background', getDefaultBackground());
         this.save();
-    },
-    _getDefaultParts () {
-        if (this.mode === 'camera') {
-            return [Kano.MakeApps.Parts.create(Part.statics.camera, this.mode.workspace.viewport)];
-        } else if (this.mode === 'lightboard') {
-            return [Kano.MakeApps.Parts.create(Part.statics.light, this.mode.workspace.viewport)];
-        }
     },
     closeDrawer () {
         this.$.partsPanel.closeDrawer();
