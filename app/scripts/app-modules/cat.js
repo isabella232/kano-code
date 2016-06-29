@@ -13,20 +13,5 @@ export default cat = {
             return `${CAT_API_PREFIX}${cats[index]}`;
         }
     },
-    lifecycle: {},
-    blocks: [{
-        block: {
-            id: 'get_cat_picture',
-            output: true,
-            message0: 'random cat picture'
-        },
-        javascript: () => {
-            let code = `cat.random()`;
-            return [code];
-        },
-        pseudo: () => {
-            let code = `cat.random()`;
-            return [code];
-        }
-    }]
+    lifecycle: {}
 };

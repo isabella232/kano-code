@@ -19,6 +19,7 @@ import Microphone from './microphone';
 import LightRectangle from './light-rectangle';
 import LightCircle from './light-circle';
 import PictureList from './picture-list';
+import Canvas from './canvas/canvas';
 
 let Parts,
     partTypes;
@@ -30,12 +31,25 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone,
-           LightRectangle, LightCircle, PictureList],
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone],
+    experiments: {
+        'lightboard': [LightRectangle, LightCircle],
+        'camera': [PictureList],
+        'canvas': [Canvas]
+    },
     create (model, size) {
         return new partTypes[model.partType](model, size);
     },
     clear () {
         return Part.clear();
+    },
+    init (c) {
+        let flags = c.getFlags();
+        flags.experiments.forEach(exp => {
+            if (Parts.experiments[exp]) {
+                Parts.list = Parts.list.concat(Parts.experiments[exp]);
+            }
+        });
+        c.addExperiments('parts', Object.keys(Parts.experiments));
     }
 };

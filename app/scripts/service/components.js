@@ -41,7 +41,7 @@ class ComponentStore {
     }
     generateCode (code = {}) {
         code.snapshot = code.snapshot || {};
-        return code.snapshot.javascript + `\nglobal.emit('start');` || '';
+        return `\n${code.snapshot.javascript}\nglobal.emit('start');` || '';
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
@@ -58,7 +58,7 @@ class ComponentStore {
         }, modules);
     }
     start (parts, modules) {
-        this.executeLifecycleStep('stop', modules);
+        this.executeLifecycleStep('start', modules);
         this.startAll(parts);
     }
     /**

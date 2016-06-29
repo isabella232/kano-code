@@ -5,7 +5,7 @@ module.exports = (gulp, $) => {
         bundler = $.browserify('app/scripts/app.js', { cache: {}, packageCache: {} })
             .transform($.babelify.configure({ presets: ['es2015'] }));
 
-    gulp.task('elements-dev', () => {
+    gulp.task('elements-dev', ['kano-canvas-api-dev'], () => {
         return babelOrCopy('app/elements/**/*.{js,html,css}', { base: 'app/elements/' })
             .pipe($.connect.reload())
             .pipe(gulp.dest('www/elements'));

@@ -139,13 +139,16 @@
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
 
-            this.mode = Kano.MakeApps.Mode[this._getMode(this.context)];
+            Kano.AppModules.init(Kano.MakeApps.config);
+            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
+            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+
+            this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
             this.set('mode.config', {
                 HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
                 PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
             });
-
-            Kano.AppModules.init(Kano.MakeApps.config);
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
@@ -181,7 +184,7 @@
             if (this.running) {
                 Kano.MakeApps.components.run(this.addedParts, this.code, Kano.AppModules.modules);
             } else {
-                Kano.MakeApps.components.stop(this.addedParts, this.code, Kano.AppModules.modules);
+                Kano.MakeApps.components.stop(this.addedParts, Kano.AppModules.modules);
             }
         }
     });

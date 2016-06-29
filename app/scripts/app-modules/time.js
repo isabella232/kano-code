@@ -20,6 +20,10 @@ export default time = {
                 // Round and min to 1
                 interval = Math.max(1, Math.round(interval));
                 func = () => {
+                    // Stop right here is the code is not running
+                    if (!time.isRunning) {
+                        return;
+                    }
                     // Only execute the callback on the right frames
                     if (counter % interval === 0) {
                         callback();
@@ -49,6 +53,10 @@ export default time = {
             time.timeouts.forEach((id) => clearTimeout(id));
             time.intervals.forEach((id) => clearInterval(id));
             time.frames.forEach((id) => cancelAnimationFrame(id));
+            time.isRunning = false;
+        },
+        start () {
+            time.isRunning = true;
         }
     }
 };

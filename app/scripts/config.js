@@ -60,11 +60,43 @@ var COMMON = {
     config;
 
 function getConfig(env, target) {
+    var flags;
     env = env || 'development';
     target = target || 'web';
 
+    if (typeof localStorage !== 'undefined' && env !== 'production') {
+        // Fail safely read the flags from the localstorage
+        try {
+            flags = JSON.parse(localStorage.getItem('flags'));
+        } catch (e) {}
+    }
+
     return Object.assign(COMMON, TARGET[target],
-           ENV[env], {"ENV": env, "TARGET": target});
+           ENV[env], {"ENV": env, "TARGET": target}, { "FLAGS": flags });
+}
+
+function updateFlags(flags) {
+    config.FLAGS = flags;
+    localStorage.setItem('flags', JSON.stringify(flags));
+}
+
+function addExperiments(type, experiments) {
+    var experiment,
+        flags = config.getFlags();
+    experiments.forEach(key => {
+        flags.available[key] = flags.available[key] || [];
+        experiment = flags.available[key];
+        if (experiment.indexOf(type) === -1) {
+            experiment.push(type);
+        }
+    });
+}
+
+function getFlags() {
+    config.FLAGS = config.FLAGS || {};
+    config.FLAGS.experiments = config.FLAGS.experiments || [];
+    config.FLAGS.available = config.FLAGS.available || {};
+    return config.FLAGS;
 }
 
 if (typeof window === 'undefined') {
@@ -74,5 +106,8 @@ if (typeof window === 'undefined') {
 /* These window.* variables are exported in both make and play apps. */
 config = getConfig(window.ENV, window.TARGET);
 config.getConfig = getConfig;
+config.updateFlags = updateFlags;
+config.addExperiments = addExperiments;
+config.getFlags = getFlags;
 
 module.exports = config;

@@ -50,11 +50,14 @@
         <template is="iron-lazy-page" name="play" path="/views/kano-view-play/kano-view-play.html">
             <kano-view-play context="[[context]]" user="{{user}}"></kano-view-play>
         </template>
+        <template is="iron-lazy-page" name="flags" path="/views/kano-view-flags/kano-view-flags.html">
+            <kano-view-flags context="[[context]]" user="{{user}}"></kano-view-flags>
+        </template>
     </iron-lazy-pages>
     <paper-progress indeterminate class$="[[_computeLoadingClass(loading)]]"></paper-progress>
   </template>
   <script>
-  /* globals Polymer, page */
+  /* globals Polymer, page, Kano */
   Polymer({
       is: 'kano-routing',
       properties: {
@@ -81,8 +84,13 @@
           page('/preview',      this._showPageThunk('preview'));
           page('/story/:id',    this._showPageThunk('story'));
           page('/remix/:slug',  this._showPageThunk('editor'));
-          page('/app/:slug',   this._showPageThunk('play'));
-          page('/embed/:slug',   this._showPageThunk('play'));
+          page('/app/:slug',    this._showPageThunk('play'));
+          page('/embed/:slug',  this._showPageThunk('play'));
+          // Add the flags page when not in production
+          if (Kano.MakeApps.config.ENV !== 'production') {
+              page('/flags', this._showPageThunk('flags'));
+          }
+
           // Used for debugging apps export
           //page('/preview', this.partial('kano-view-preview'));
           page('*', () => {});
