@@ -16,7 +16,7 @@ export default Mode = {
         let flags = config.getFlags();
         flags.experiments.forEach(exp => {
             if (Mode.experiments[exp]) {
-                Object.assign(Mode.modes, Mode.experiments[exp]);
+                Mode.modes[exp] = Mode.experiments[exp];
             }
         });
         config.addExperiments('modes', Object.keys(Mode.experiments));
