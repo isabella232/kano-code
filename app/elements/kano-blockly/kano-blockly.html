@@ -87,7 +87,7 @@
             fill-opacity: 1;
         }
         :host::content rect.blocklyMainBackground {
-            display: none !important;
+            opacity: 0 !important;
         }
         .buttons button {
             @apply(--kano-button);
@@ -152,20 +152,18 @@
             this.workspace = Blockly.inject(this.$.workspace, {
                 toolbox: this.toolboxXml,
                 media: '/assets/vendor/google-blockly/media/',
+                scrollbars: true,
                 zoom: {
                     controls: true,
-                    wheel: true,
                     startScale: 1.0,
                     maxScale: 3,
                     minScale: 0.3,
                     scaleSpeed: 1.2
-                },
-                scrollbars: true
+                }
             });
+            Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
             this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
-            window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
-            this.onResize();
             this.async(() => {
                 this.fire('blockly-ready');
             });
@@ -207,19 +205,6 @@
                 return;
             }
             Blockly.resizeSvgContents(this.workspace);
-        },
-        /**
-         * Debounce function that will apply style rules to the workspace
-         * element to let know Blockly the new dimensions.
-         */
-        onResize () {
-            requestAnimationFrame(() => {
-                let workspace = this.$.workspace;
-                workspace.style.top = '0px';
-                workspace.style.bottom = '0px';
-                workspace.style.left = '0px';
-                workspace.style.right = '0px';
-            });
         },
         /**
          * Takes a categories definition in JSON and generates the XML
