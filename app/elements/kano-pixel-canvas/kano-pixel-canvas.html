@@ -69,7 +69,6 @@
                 }
             },
             observers: [
-                '_sizeChanged(width, height)',
                 '_computePalette(bitmap.*)'
             ],
             ready () {
@@ -96,29 +95,6 @@
             },
             _computeCanvasStyle (width) {
                 return `max-width: ${(width * 28) + 22}px;`;
-            },
-            _sizeChanged () {
-                let newBitmap = [];
-                this.bitmap = this.bitmap || [];
-                for (var i = 0; i < this.height * this.width; i++) {
-                    newBitmap.push('#000000');
-                }
-
-                if (this.prevSize) {
-                    this.bitmap.forEach((color, i) => {
-                        let x = Math.floor(i / this.prevSize.width),
-                            y = i % this.prevSize.height,
-                            newPos = x + y * this.width;
-                        newBitmap[newPos] = color;
-                    });
-                }
-
-                this.prevSize = {
-                    width: this.width,
-                    height: this.height
-                };
-
-                this.set('bitmap', newBitmap);
             },
             _computePixelStyle (pixel) {
                 return `background-color: ${pixel};`;
