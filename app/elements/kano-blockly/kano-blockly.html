@@ -78,8 +78,9 @@
         :host::content div.blocklyToolboxDiv {
             background-color: transparent;
         }
-        :host::content div.blocklyTreeSeparator {
+        :host::content div.goog-tree-item {
             border: 0px;
+            visibility: hidden;
         }
         :host::content path.blocklyFlyoutBackground {
             fill: #E8E8E8;
@@ -202,7 +203,10 @@
          * Triggers the resize event on the window
          */
         resize () {
-            Blockly.fireUiEvent(window, 'resize');
+            if (!this.workspace) {
+                return;
+            }
+            Blockly.resizeSvgContents(this.workspace);
         },
         /**
          * Debounce function that will apply style rules to the workspace
@@ -325,7 +329,7 @@
             let xml = Blockly.Xml.textToDom(blocks);
             this.clearWorkspace();
             try {
-                Blockly.Xml.domToWorkspace(this.workspace, xml);
+                Blockly.Xml.domToWorkspace(xml, this.workspace);
             } catch (e) {} // Ignore loading errors
         },
         getScreenshot () {
