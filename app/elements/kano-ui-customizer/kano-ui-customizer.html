@@ -37,27 +37,24 @@
 
 <script type="text/javascript">
     /* globals Polymer */
-    class KanoUiCustomizer {
-        beforeRegister () {
-            this.is = 'kano-ui-customizer';
-            this.properties = {
-                userValues: {
-                    type: Object,
-                    notify: true
-                },
-                customizable: {
-                    type: Array,
-                    value: () => []
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-ui-customizer',
+        properties: {
+            userValues: {
+                type: Object,
+                notify: true
+            },
+            customizable: {
+                type: Array,
+                value: () => []
+            }
+        },
         propertyChanged (e) {
             let propertyName = e.model.get('property.key');
             this.set(`userValues.${propertyName}`, e.detail.value);
-        }
+        },
         computeValue (propertyName) {
             return this.userValues[propertyName];
         }
-    }
-    Polymer(KanoUiCustomizer);
+    });
 </script>

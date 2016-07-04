@@ -2,42 +2,42 @@ import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
-import modules from './language/modules';
 import blockly from './blockly';
 import Stories from './service/stories';
 import Components from './service/components';
-import Part from './part';
+import Mode from './mode';
+import email from './service/email';
 import KanoWorldSdk from 'kano-world-sdk';
-import ModelManager from './service/modelManager';
 import DragAndDrop from './drag-and-drop';
-import FileUtils from './util/file';
-import ProgressService from './service/progress.js';
+import ProgressService from './service/progress';
 import config from './config';
 
-(function (app) {
-    app.config = config;
+window.Kano = window.Kano || {};
+
+(function (MakeApps) {
+    MakeApps.config = config;
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    app.registerBlockly = (Blockly) => {
-        blockly.register(Blockly);
-    };
-    modules.init(config);
+    MakeApps.blockly = blockly;
 
-    app.part = Part;
-    app.stories = Stories;
-    app.components = Components;
-    app.modelManager = ModelManager;
-    app.dragAndDrop = DragAndDrop;
+    MakeApps.stories = Stories;
+    MakeApps.components = Components;
+    MakeApps.dragAndDrop = DragAndDrop;
 
-    app.defaultCategories = blockly.categories;
+    MakeApps.defaultCategories = blockly.categories;
 
-    app.sdk = KanoWorldSdk(config);
-    app.progress = ProgressService(app.sdk);
-    app.sdk.registerForms();
+    MakeApps.sdk = KanoWorldSdk(config);
+    // Add attach route until supported by the SDK
+    MakeApps.sdk.api.add('share.attach', {
+        method: 'post',
+        route: '/share/attach/:id'
+    });
+    MakeApps.progress = ProgressService(MakeApps.sdk);
+    MakeApps.sdk.registerForms();
 
+    MakeApps.email = email;
 
-    window.KanoModules = modules;
+    MakeApps.Mode = Mode;
 
-    app.file_utils = FileUtils;
-})(window.app = {});
+})(window.Kano.MakeApps = window.Kano.MakeApps || {});

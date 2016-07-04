@@ -1,3 +1,6 @@
+<link rel="import" href="../../../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../../../elements/behaviors/kano-scene-component-behavior.html">
+<link rel="import" href="../../../../elements/behaviors/kano-animatable-behavior.html">
 <dom-module id="kano-scene-challenge-overlay">
     <style>
         @keyframes jump-in {
@@ -153,22 +156,14 @@
   </template>
 </dom-module>
 <script type="text/javascript">
+    /* globals Polymer, Kano */
 
-    /* globals Polymer, KanoBehaviors */
-
-    class KanoSceneChallengeOverlay {
-        get behaviors () {
-            return [KanoBehaviors.SceneComponentBehavior, KanoBehaviors.AnimatableBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-scene-challenge-overlay';
-        }
-
+    Polymer({
+        is: 'kano-scene-challenge-overlay',
+        behaviors: [Kano.Behaviors.SceneComponentBehavior, Kano.Behaviors.AnimatableBehavior],
         overlayDone () {
             this.fire('overlay-done');
-        }
-
+        },
         end () {
             this.toggleClass('animate-out', true, this.$.character);
             this.toggleClass('animate-out', true, this.$.background);
@@ -177,6 +172,5 @@
                 setTimeout(resolve, 700);
             });
         }
-    }
-    Polymer(KanoSceneChallengeOverlay);
+    });
 </script>

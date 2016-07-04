@@ -1,0 +1,165 @@
+<link rel="import" href="../behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<dom-module id="kano-ui-picture-list">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    .container {
+        position: relative;
+        width: 220px;
+        height: 120px;
+    }
+    :host.playing .container .picture {
+        transform: none;
+        box-shadow: none;
+    }
+    :host.playing .container .picture .counter {
+        display: none;
+    }
+    :host.playing .top {
+        display: none;
+    }
+    :host.playing .frame {
+        display: block;
+    }
+    .frame {
+        display: none;
+    }
+    .picture {
+        @apply(--shadow-elevation-4dp);
+        position: absolute;
+        border-radius: 6px;
+        border: 2px solid white;
+        background-color: lightgrey;
+        min-width: 220px;
+        min-height: 120px;
+        transition: all ease-out 150ms;
+    }
+    .picture:nth-child(1) {
+        transform: rotate(5deg) translate(0px, -7px);
+    }
+    .picture:nth-child(2) {
+        transform: rotate(-3deg) translate(0px, -5px);
+    }
+    .picture:nth-child(3) {
+        transform: rotate(3deg) translate(5px);
+    }
+    .picture:nth-child(4) {
+        transform: rotate(1deg);
+        position: relative;
+    }
+    .container:hover .picture {
+        @apply(--shadow-elevation-2dp);
+        transform-origin: 20px 80px;
+    }
+    .container:hover .picture:nth-child(1) {
+        transform: rotate(-6deg);
+    }
+    .container:hover .picture:nth-child(2) {
+        transform: rotate(-4deg);
+    }
+    .container:hover .picture:nth-child(3) {
+        transform: rotate(-2deg);
+    }
+    .container:hover .picture:nth-child(4) {
+        transform: rotate(-1deg);
+    }
+    .counter {
+        position: absolute;
+        right: 0px;
+        top: calc(50% - 11px);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-justified);
+        background-color: rgba(0, 0, 0, 0.45);
+        border-top-left-radius: 11px;
+        border-bottom-left-radius: 11px;
+        color: white;
+        width: 40px;
+        height: 22px;
+        font-size: 14px;
+        padding-left: 9px;
+        padding-right: 6px;
+    }
+    iron-image {
+        width: 190px;
+        height: 90px;
+        margin: 15px;
+    }
+    img {
+        width: 11px;
+    }
+    </style>
+    <template>
+        <div class="container">
+            <div class="picture"></div>
+            <div class="picture"></div>
+            <div class="picture"></div>
+            <div class="picture">
+                <iron-image class="top" src="[[topPicture]]" sizing="cover" preload fade placeholder="/assets/part/picture-list-placeholder.svg"></iron-image>
+                <iron-image class="frame" src="[[frame]]" sizing="cover" preload fade placeholder="/assets/part/picture-list-placeholder.svg"></iron-image>
+                <div class="counter">
+                    <img src="/assets/part/camera.png" alt="Camera icon"/>
+                    <span>[[pictures.length]]</span>
+                </div>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-ui-picture-list',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        properties: {
+            topPicture: {
+                type: String,
+                computed: '_computeTopPicture(pictures.*)'
+            }
+        },
+        ready () {
+            this.pictures = [];
+            this.frameId = 0;
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            this.pictures = [];
+            this.pause();
+        },
+        _computeTopPicture () {
+            return this.pictures[this.pictures.length - 1];
+        },
+        play () {
+            this.toggleClass('playing', true);
+            this.interval = setInterval(() => {
+                this.frameId++;
+                if (this.frameId >= this.pictures.length) {
+                    this.frameId = 0;
+                }
+                this.frame = this.pictures[this.frameId];
+            }, 100);
+        },
+        pause () {
+            this.toggleClass('playing', false);
+            clearInterval(this.interval);
+        },
+        renderOnCanvas (ctx) {
+            Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments);
+            let width = this.$.box.offsetWidth,
+                height = this.$.box.offsetHeight,
+                padding = this.model.userProperties.strokeSize;
+
+            ctx.fillStyle = this.model.userProperties.strokeColor;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = this.model.userStyle['background-color'];
+            ctx.fillRect(padding, padding, width - padding * 2, height - padding * 2);
+
+            ctx.stroke();
+            ctx.restore();
+        }
+    });
+</script>

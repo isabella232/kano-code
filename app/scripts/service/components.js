@@ -1,6 +1,4 @@
 import CodeService from './code';
-import part from '../part';
-import modules from '../language/modules';
 
 let componentStore;
 
@@ -43,33 +41,40 @@ class ComponentStore {
     }
     generateCode (code = {}) {
         code.snapshot = code.snapshot || {};
-        return code.snapshot.javascript + `\nglobal.emit('start');` || '';
+        return `\n${code.snapshot.javascript}\nglobal.emit('start');` || '';
     }
     /**
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts, code) {
+    run (parts, code, modules) {
         let codeString = this.generateCode(code);
-        this.start(parts);
+        this.start(parts, modules);
         // Run the code using this store. Only expose the get function
         CodeService.run(codeString, {
             get (id) {
                 return document.querySelector(`kano-workspace #${id}`);
             }
-        });
+        }, modules);
     }
-    start (parts) {
-        CodeService.start();
+    start (parts, modules) {
+        this.executeLifecycleStep('start', modules);
         this.startAll(parts);
     }
     /**
      * Stop the current running code. Will take care to stop the components
      * and the pure JS modules
      */
-    stop (parts) {
-        CodeService.stop();
+    stop (parts, modules) {
+        this.executeLifecycleStep('stop', modules);
         this.stopAll(parts);
+    }
+    executeLifecycleStep (name, modules) {
+        Object.keys(modules).forEach((moduleName) => {
+            if (modules[moduleName].lifecycle && modules[moduleName].lifecycle[name]) {
+                modules[moduleName].lifecycle[name]();
+            }
+        });
     }
     save (id, rect) {
         let component = this.get(id);
@@ -89,12 +94,11 @@ class ComponentStore {
 
         return components;
     }
-    generateStandaloneComponent (parts, backgroundStyle, workspaceRect, codes) {
+    generateStandaloneComponent (componentName, parts, background, mode, codes, modules) {
         let template = [],
             tagName,
             components,
             code = this.generateCode(codes),
-            id = 'kano-user-component',
             component,
             partsString;
 
@@ -106,14 +110,14 @@ class ComponentStore {
             template.push(`<${tagName} id="${part.id}" model="{{parts.${part.id}}}" auto-start></${tagName}>`);
             return acc;
         }, {});
-        partsString = JSON.stringify(components).replace(/"/g, '\\"');
+        partsString = JSON.stringify(components);
 
         template = template.join('\n');
         // TODO find a better way to avoid having this script tag swallowed by
         // crisper
         let scr = 'script',
             moduleNames = Object.keys(modules),
-            moduleValues = moduleNames.map(m => `KanoModules.${m}.methods`),
+            moduleValues = moduleNames.map(m => `Kano.AppModules.getModule('${m}')`),
             wrappedCode = `
                 (function (devices, ${moduleNames.join(', ')}) {
                     ${code};
@@ -121,42 +125,57 @@ class ComponentStore {
             `;
 
         component = `
-            <dom-module id="${id}">
+            <dom-module id="kano-${componentName}">
                 <style>
                     :host {
-                        ${backgroundStyle}
+                        position: relative;
                     }
-                    :host kano-ui-viewport * {
+                    kano-ui-viewport {
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        width: 100%;
+                        height: 100%;
+                    }
+                    kano-ui-viewport * {
                         position: absolute;
                     }
                 </style>
                 <template>
                     <kano-ui-viewport mode="scaled"
-                                view-width="${workspaceRect.width}"
-                                view-height="${workspaceRect.height}"
+                                view-width="${mode.workspace.viewport.width}"
+                                view-height="${mode.workspace.viewport.height}"
                                 no-overflow>
-                        ${template}
+                        <${mode.workspace.component} id="screen">
+                            ${template}
+                        </${mode.workspace.component}>
                     </kano-ui-viewport>
                 </template>
             </dom-module>
             <${scr}>
                 Polymer({
-                    is: '${id}',
+                    is: 'kano-${componentName}',
                     properties: {
                         parts: {
                             type: Object,
-                            value: JSON.parse("${partsString}")
+                            value: ${partsString}
                         }
                     },
                     attached: function () {
                         var devices = {
-                            get: function (id) {
-                                if (id === 'dropzone') {
-                                    return this;
-                                }
-                                return this.$$('#' + id);
-                            }.bind(this)
-                        };
+                                get: function (id) {
+                                    if (id === 'dropzone') {
+                                        return this;
+                                    }
+                                    return this.$$('#' + id);
+                                }.bind(this)
+                            },
+                            screen = this.$.screen;
+
+                        if (screen.setBackgroundColor) {
+                            screen.setBackgroundColor('${background}');
+                        }
+
                         ${wrappedCode}
                     }
                 });
@@ -164,17 +183,6 @@ class ComponentStore {
         `;
 
         return component;
-    }
-    loadAll (components) {
-        Object.keys(components).forEach((id) => {
-            this.load(part.fromSaved(components[id].model), components[id].codes);
-        });
-    }
-    load (model, codes) {
-        this.add(model, codes);
-    }
-    getAll () {
-        return this.components;
     }
 }
 

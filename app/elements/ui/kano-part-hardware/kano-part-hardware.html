@@ -1,4 +1,3 @@
-<link rel="import" href="../../kano-ui-item/kano-ui-item.html">
 <dom-module id="kano-part-hardware">
     <style>
     :host {
@@ -8,7 +7,6 @@
     <template>
         <div class="part">
             <kano-ui-item model="[[model]]"
-                on-tap="partTapped"
                 size="50"
                 id$="part-[[model.id]]"
                 instance></kano-ui-item>
@@ -16,18 +14,10 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoPartHardware {
-
-        get behaviors () {
-            return [KanoBehaviors.UIBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-part-hardware';
-        }
-        partTapped () {}
-    }
-    Polymer(KanoPartHardware);
+    Polymer({
+        is: 'kano-part-hardware',
+        behaviors: [Kano.Behaviors.UIBehavior]
+    });
 </script>

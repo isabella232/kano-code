@@ -1,0 +1,39 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.SceneComponentBehavior = {
+
+        properties: {
+            scene: Object,
+            store: {
+                type: Object,
+                notify: true
+            },
+            storyName: {
+                type: String
+            },
+            nextStory: {
+                type: Object
+            },
+            extensions: {
+                type: Array
+            }
+        },
+
+        finish () {
+            this.fire('scene-done');
+        },
+
+        addToStore (id, data) {
+            this.store[id] = data;
+        },
+
+        fromStore (id) {
+            return this.store[id];
+        }
+
+    };
+</script>

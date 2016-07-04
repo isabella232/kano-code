@@ -1,0 +1,86 @@
+<dom-module id="kano-share-info">
+    <style>
+        :host {
+            font-size: 25px;
+        };
+        :host .row {
+            margin: 4px 15px;
+        }
+        :host .kano-link {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            margin-right: 20px;
+            color: white;
+            display: inline-block;
+            font-size: 20px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .icon-heart.liked {
+            color: #ff5e5e;
+        }
+        @media screen and (max-width: 568px) {
+            .kano-link.title {
+                display: block;
+            }
+        }
+    </style>
+    <template>
+        <div class="row">
+            <a class="kano-link ellipsis title" href$="[[shareUrl]]">
+                <span>{{share.title}}</span>
+            </a>
+            <a class="kano-link" href$="[[shareUrl]]">
+                <i class="icon-comment"></i>
+                <span>{{share.comments_count}}</span>
+            </a>
+            <a class="kano-link" on-tap="_toggleLike">
+                <i class$="icon-heart [[_computeLikeClass(liked)]]"></i>
+                <span>{{likeCount}}</span>
+            </a>
+            <a class="kano-link" href$="[[shareUrl]]">
+                <i class="icon-view"></i>
+                <span>{{share.views_count}}</span>
+            </a>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'kano-share-info',
+        properties: {
+            share: {
+                type: Object,
+                observer: '_shareChanged'
+            },
+            liked: {
+                type: Boolean,
+                value: false
+            },
+            worldUrl: String
+        },
+        _shareChanged () {
+            if (!this.share) {
+                return;
+            }
+            this.likeCount = this.share.likes.length;
+            this.shareUrl = `${this.worldUrl}/shared/${this.share.slug}`;
+        },
+        _computeLikeClass (liked) {
+            return liked ? 'liked' : '';
+        },
+        _toggleLike () {
+            if (this.liked) {
+                this.fire('unlike', this.share.id);
+                this.likeCount--;
+                this.liked = false;
+            } else {
+                this.fire('like', this.share.id);
+                this.likeCount++;
+                this.liked = true;
+            }
+        }
+    });
+</script>

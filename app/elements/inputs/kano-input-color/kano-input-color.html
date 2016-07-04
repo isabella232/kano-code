@@ -43,42 +43,50 @@ Example:
         <label>{{label}}</label>
         <div class="colors">
             <template is="dom-repeat" items="{{colors}}" as="color">
-                <div class="color" style$="[[computeColor(color, value)]]" on-tap="selectColor"></div>
+                <div class="color" style$="[[_computeColor(color, value)]]" on-tap="_selectColor"></div>
             </template>
         </div>
     </template>
 </dom-module>
 <script type="text/javascript">
 
+    const COLORS = [
+        '#F5F5F5',  // White
+        '#CCCCCC',  // Light Gray
+        '#7D7A73',  // Gray
+        '#000000',  // Black
+        '#E95C5A',  // Red
+        '#FF842A',  // Kano Orange
+        '#F8EB1E',  // Yellow
+        '#70C222',  // Light Green
+        '#3CAA36',  // Green
+        '#0E6633',  // Dark Green
+        '#59b3d0',  // Light Blue
+        '#2A3080',  // Dark Blue
+        '#642682',  // Violet
+        '#E61974',  // Fuschia
+        '#DB7D92',  // Pink
+        '#683D12'   // Brown
+    ];
+
     Polymer({
 
-        behaviors: [KanoBehaviors.Input],
+        behaviors: [Kano.Behaviors.Input],
 
         is: 'kano-input-color',
 
-        attached () {
-            this.colors = [
-                '#F5F5F5',  // White
-                '#CCCCCC',  // Light Gray
-                '#7D7A73',  // Gray
-                '#000000',  // Black
-                '#E95C5A',  // Red
-                '#FF842A',  // Kano Orange
-                '#F8EB1E',  // Yellow
-                '#70C222',  // Light Green
-                '#3CAA36',  // Green
-                '#0E6633',  // Dark Green
-                '#59b3d0',  // Light Blue
-                '#2A3080',  // Dark Blue
-                '#642682',  // Violet
-                '#E61974',  // Fuschia
-                '#DB7D92',  // Pink
-                '#683D12'   // Brown
-            ];
-            this.value = this.value || this.colors[0];
+        properties: {
+            colors: {
+                type: Array,
+                value: () => COLORS
+            },
+            value: {
+                type: String,
+                value: COLORS[0]
+            }
         },
 
-        computeColor (color, value) {
+        _computeColor (color, value) {
             let style = `background-color: ${color};`;
             if (color === value) {
                 style += `outline: 1px dashed ${color};
@@ -87,7 +95,7 @@ Example:
             return style;
         },
 
-        selectColor (e) {
+        _selectColor (e) {
             this.set('value', e.model.get('color'));
             this.fire('change', this.value);
         }

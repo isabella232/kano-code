@@ -1,0 +1,55 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.ValidatorBehavior = {
+        properties: {
+            step: {
+                type: Number,
+                value: 0
+            },
+            steps: {
+                type: Array,
+                value: () => []
+            },
+            instruction: {
+                type: String,
+                computed: 'computeInstruction(step, steps.*, done)',
+                readOnly: true
+            },
+            done: {
+                type: Boolean,
+                value: false
+            },
+            stepIds: {
+                type: Object,
+                value: () => {
+                    return {};
+                }
+            }
+        },
+        /**
+         * Get the instruction to display
+         */
+        computeInstruction () {
+            if (!this.steps[this.step]) {
+                return;
+            }
+            return this.done ? 'Done' : this.steps[this.step].instruction;
+        },
+        /**
+         * Move to the next step or set the challenge as done
+         */
+        nextStep () {
+            if (this.step < this.steps.length - 1) {
+                this.step++;
+            } else {
+                this.set('done', true);
+                this.fire('scene-done');
+            }
+        }
+    };
+
+</script>

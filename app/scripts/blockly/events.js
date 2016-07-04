@@ -1,6 +1,10 @@
+import KeyboardEvents from './blocks/keyboard-events';
+
 const COLOUR = '#33a7ff';
 
 let register = (Blockly) => {
+
+    KeyboardEvents.register(Blockly);
 
     Blockly.Blocks.part_event = {
         init: function () {
@@ -88,5 +92,8 @@ let category = {
 
 export default {
     register,
-    category
+    category,
+    experiments: {
+        'keyboard_events': KeyboardEvents.blocks
+    }
 };

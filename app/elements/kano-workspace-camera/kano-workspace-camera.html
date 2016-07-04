@@ -1,0 +1,36 @@
+<link rel="import" href="../part/kano-part-camera/kano-part-camera.html">
+
+<dom-module id="kano-workspace-camera">
+    <style>
+        :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        :host ::content>* {
+            position: absolute;
+            top: 0px;
+            left: 0px
+        }
+    </style>
+    <template>
+        <kano-workspace-normal id="screen">
+            <kano-part-camera id="camera-part"></kano-part-camera>
+            <content></content>
+        </kano-workspace-normal>
+    </template>
+    <script>
+        /* globals Polymer, Kano */
+        Polymer({
+            is: 'kano-workspace-camera',
+            properties: {
+            },
+            setBackgroundColor (color) {
+                this.$.screen.style.background = color;
+            },
+            getCamera () {
+                return this.$['camera-part'];
+            }
+        });
+    </script>
+</dom-module>

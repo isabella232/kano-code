@@ -20,23 +20,16 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoInputList {
-
-        get behaviors () {
-            return [KanoBehaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-list';
-            this.observers = [
-                'valueChanged(value)'
-            ];
-        }
+    Polymer({
+        is: 'kano-input-list',
+        behaviors: [Kano.Behaviors.Input],
+        observers: [
+            'valueChanged(value)'
+        ],
         valueChanged () {
             this.fire('change');
         }
-    }
-    Polymer(KanoInputList);
+    });
 </script>

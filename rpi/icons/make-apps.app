@@ -5,7 +5,7 @@
     "slug": "make-apps",
 
     "icon": "make-apps",
-    "colour": "#7BAA64",
+    "colour": "#34495E",
 
     "categories": ["code"],
 

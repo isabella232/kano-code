@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../kano-ui-item/kano-ui-item.html">
-<link rel="import" href="../behaviors.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <dom-module id="kano-ui-list">
     <style>
     :host {
@@ -38,7 +37,7 @@
     </style>
     <template>
         <array-selector id="selector" items="{{items}}" selected="{{selected}}" multi toggle></array-selector>
-        <template is="dom-repeat" items={{categories}} as="cat">
+        <template is="dom-repeat" items="{{_usedCategories(categories, items)}}" as="cat">
             <div class="categoryHead">{{cat.title}}</div>
             <div class="category">
                 <template is="dom-repeat" items="{{items}}" filter="[[cat.partType]]Filter" observe="partType">
@@ -58,52 +57,46 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
-    class KanoUiList {
+    /* globals Polymer, Kano */
 
-        get behaviors () {
-            return [KanoBehaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-ui-list';
-            this.properties = {
-                items: {
-                    type: Array,
-                    value: () => []
-                },
-                selected: {
-                    type: Array,
-                    notify: true
-                },
-                parts: {
-                    type: Array
-                },
-                categories: {
-                    type: Object,
-                    value: [
-                        {
-                            partType: 'ui',
-                            title: 'Interface',
-                            colour: '#7eb081'
-                        },
-                        {
-                            partType: 'data',
-                            title: 'Data',
-                            colour: '#fb5a4c'
-                        },
-                        {
-                            partType: 'hardware',
-                            title: 'Hardware',
-                            colour: '#3ba9d8'
-                        }
-                    ]
-                }
-            };
-        }
+    Polymer({
+        is: 'kano-ui-list',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            items: {
+                type: Array,
+                value: () => []
+            },
+            selected: {
+                type: Array,
+                notify: true
+            },
+            parts: {
+                type: Array
+            },
+            categories: {
+                type: Object,
+                value: [
+                    {
+                        partType: 'ui',
+                        title: 'Interface',
+                        colour: '#7eb081'
+                    },
+                    {
+                        partType: 'data',
+                        title: 'Data',
+                        colour: '#fb5a4c'
+                    },
+                    {
+                        partType: 'hardware',
+                        title: 'Hardware',
+                        colour: '#3ba9d8'
+                    }
+                ]
+            }
+        },
         toggleSelection (e) {
-            let itemName = e.detail.name,
-                item;
+            let item;
 
             for (let i = 0; i < this.items.length; i++) {
                 if (this.items[i].name === name) {
@@ -118,27 +111,37 @@
             if (this.$.selector.isSelected(item)) {
                 this.notifyChange('select-new-part', { part: item });
             }
-        }
+        },
         isHardwareAdded (item) {
             return this.parts.some(part => {
                 return part.partType === 'hardware' && part.type === item.type;
             });
-        }
+        },
         isPartSelected (part) {
             return this.$.selector.isSelected(part);
-        }
+        },
         clearSelection () {
             this.$.selector.clearSelection();
-        }
+        },
         uiFilter (item) {
             return item.partType === 'ui';
-        }
+        },
         dataFilter (item) {
             return item.partType === 'data';
-        }
+        },
         hardwareFilter (item) {
             return item.partType === 'hardware';
+        },
+        _usedCategories (categories, parts) {
+            let usedCategories = [];
+
+            for (let p = 0; p < parts.length; p++) {
+                if (usedCategories.indexOf(parts[p].partType) < 0) {
+                    usedCategories.push(parts[p].partType);
+                }
+            }
+
+            return categories.filter((cat) => usedCategories.indexOf(cat.partType) >= 0);
         }
-    }
-    Polymer(KanoUiList);
+    });
 </script>

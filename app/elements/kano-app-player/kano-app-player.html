@@ -1,0 +1,79 @@
+<dom-module id="kano-app-player">
+    <style>
+        :host {
+          display: flex;
+          align-items: center;
+          @apply(--layout-horizontal);
+        }
+        :host ::content .user-app {
+            @apply(--layout-flex);
+            height: 100%;
+        }
+        #container {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
+            position: relative;
+            height: calc(100% - 40px);
+        }
+        h1.error {
+            color: var(--color-red, red);
+        }
+    </style>
+    <template>
+        <div id="container">
+            <template is="dom-if" if="{{failed}}">
+                <h1 class="error">Something went wrong :(</h1>
+                <div>The app just won't run, will it?</div>
+            </template>
+        </div>
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-app-player',
+            properties: {
+                src: {
+                    type: String,
+                    observer: '_srcChanged'
+                },
+                slug: {
+                    type: String
+                },
+                failed: {
+                    type: Boolean,
+                    value:false
+                }
+            },
+            _srcChanged () {
+                // Check that we are loading and html file. Bsing that on the extension is not the best solution
+                // as any server coulde return html content. This prevents loading of late setups bindings. For
+                // exanple, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
+                if (!this.src || !/.*\.html/.test(this.src)) {
+                    return;
+                }
+                this.debounce('importApp', () => {
+                    this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
+                });
+            },
+            _onAppFileLoad () {
+                let c;
+                // Create the component. Older shares were generated with the tagName `kano-user-component`
+                try {
+                    c = this.create(`kano-${this.slug}`);
+                    if (c.constructor === HTMLElement) {
+                        throw new Error('Element not registered');
+                    }
+                } catch (e) {
+                    c = this.create('kano-user-component');
+                }
+                c.className = 'user-app';
+                this.appendChild(c);
+                this.removeChild(this.$.container);
+            },
+            _onAppFileError (e) {
+                this.failed = true;
+            }
+        });
+    </script>
+</dom-module>

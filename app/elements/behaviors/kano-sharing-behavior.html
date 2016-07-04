@@ -1,0 +1,128 @@
+<link rel="import" href="./kano-view-behavior.html">
+<script src="./file_utils.js"></script>
+<script type="text/javascript">
+
+/* globals Kano, FileUtils */
+
+window.Kano = window.Kano || {};
+
+window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+var SharingBehavior = {
+
+    properties: {
+        shareInfo: {
+            type: Object,
+            value: function () {
+                return {};
+            },
+            notify: true
+        }
+    },
+    observers: [
+        '_userChanged(user)'
+    ],
+
+    shareApp () {
+        // Generates the standalone component
+        let savedApp,
+        attachment,
+        cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+
+        cover.filename = 'cover.png';
+        workspaceInfo.filename = 'workspace_info.json';
+
+        //Share by calling the API
+        Kano.MakeApps.sdk.api.share.post({
+            app: 'make-apps',
+            title: this.shareInfo.title,
+            description: this.shareInfo.description,
+            files: {
+                cover: cover,
+                workspace_info: workspaceInfo
+            }
+        }).then((res) => {
+            if (res.status == 200) {
+                let share = res.body.item;
+                // Generate the html file with the slug as component name
+                savedApp = Kano.MakeApps.components.generateStandaloneComponent(
+                    share.slug,
+                    this.shareInfo.parts,
+                    this.shareInfo.background,
+                    this.shareInfo.mode,
+                    this.shareInfo.code,
+                    Kano.AppModules.modules
+                );
+                // Create the attachment
+                attachment = new Blob([savedApp], { type: 'text/html' });
+                attachment.filename = 'code.html';
+                // Attach the file to the share
+                return Kano.MakeApps.sdk.api.share.attach({ id: share.id, files: { attachment } }).then((res) => {
+                    if (res.status == 200) {
+                        return res.body.item;
+                    } else {
+                        throw new Error('Could not share the app');
+                    }
+                });
+            } else {
+                throw new Error('Could not share the app');
+            }
+        }).then((share) => {
+            this.set('shareInfo.page', 2);
+            this.set('shareInfo.id', share.id);
+        }).catch((e) => {
+            console.error(e);
+            this.set('shareInfo.page', 3);
+        });
+    },
+    /**
+    * Opens the sharing modal and share the app
+    */
+    share (e) {
+        let shareInfo = {
+            image: e.detail.cover,
+            workspaceInfo: e.detail.workspaceInfo,
+            page: 0,
+            title: '',
+            description: '',
+            id: null,
+            background: e.detail.background,
+            parts: e.detail.parts,
+            code: e.detail.code,
+            mode: e.detail.mode
+        };
+
+        this.set('shareInfo', shareInfo);
+        this.modal.open();
+    },
+
+    _userChanged (user) {
+        // user just logged out, nothing to do
+        if (!user) {
+            return;
+        }
+        // The user logged in and the sharing was waiting authentication, trigger the share
+        if (this.waitingAuth) {
+            this.confirmShare();
+        }
+    },
+
+    confirmShare () {
+        // The user is not authenticated
+        if (!this.user) {
+            // Flag the sharing as waiting authentication and trigger a login event
+            this.waitingAuth = true;
+            return this.fire('login');
+        }
+        this.set('shareInfo.page', 1);
+        this.shareApp();
+    },
+
+    dismissShare () {
+        this.modal.close();
+    }
+};
+
+window.Kano.Behaviors.SharingBehavior = [window.Kano.Behaviors.ViewBehavior, SharingBehavior];
+</script>

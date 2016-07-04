@@ -21,6 +21,7 @@
             @apply(--layout-vertical);
             @apply(--layout-center);
             margin-bottom: 20px;
+            z-index: 0;
         }
         @media screen and (min-width: 768px) {
             .block {
@@ -68,16 +69,16 @@
     <template>
     <div class="app-list">
         <template is="dom-if" if="{{isMyApps}}">
-        <div class="block">
-            <a class="app-list-item new-app" href="/make">
-                + New App
-            </a>
-        </div>
+            <div class="block">
+                <a id="new-app" class="app-list-item new-app" href="/make">
+                    + New App
+                </a>
+            </div>
         </template>
         <template is="dom-repeat" items="{{apps}}" as="app">
             <div class="block">
-                <a class="app-list-item" href='{{playUrl}}/app/{{app.id}}'>
-                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image"></iron-image>
+                <a class="app-list-item" href$="/app/[[app.id]]">
+                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
                     <div class="info">
                         <div class="app-name">{{app.title}}</div>
                     </div>
@@ -89,55 +90,29 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, app */
-    class KanoAppList {
+    /* globals Polymer */
 
-        get behaviors () {
-            return [
-                Polymer.NeonAnimationRunnerBehavior,
-                Polymer.NeonSharedElementAnimatableBehavior
-            ];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-app-list';
-            this.properties = {
-                limit: {
-                    type: Number,
-                    value: 48
-                },
-                view: {
-                    type: String
-                },
-                viewFlags: {
-                    type: Object
-                },
-                apps: {
-                    type: Array
-                },
-                playUrl: {
-                    type: String
-                }
-            };
-        }
-
+    Polymer({
+        is: 'kano-app-list',
+        properties: {
+            limit: {
+                type: Number,
+                value: 48
+            },
+            view: {
+                type: String
+            },
+            viewFlags: {
+                type: Object
+            },
+            apps: {
+                type: Array
+            }
+        },
         attached () {
             if (this.view === 'my') {
                 this.isMyApps = true;
             }
-
-            this.playUrl =  app.config.PLAY_URL;
         }
-
-        getMyApps () {
-            let userId = this.user ? this.user.id : null;
-
-            if (this.view === 'my' && userId !== null) {
-                this.getApps(userId);
-            }
-
-        }
-    }
-
-    Polymer(KanoAppList);
+    });
 </script>

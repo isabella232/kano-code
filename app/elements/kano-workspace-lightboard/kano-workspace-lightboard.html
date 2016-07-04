@@ -1,0 +1,74 @@
+<link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
+
+<dom-module id="kano-workspace-lightboard">
+    <style>
+        :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ECECEC;
+            background: #000;
+            box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        :host #led-matrix {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+
+            --kano-led-matrix-led: {
+                width: 22px;
+                height: 22px;
+                margin: 3px;
+
+                box-shadow: none;
+                border: none;
+                border-radius: 0px;
+            }
+
+            --kano-led-matrix-row: {
+                background-color: transparent;
+            }
+        }
+
+        :host ::content > * {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+    <template>
+        <kano-led-matrix id="led-matrix"></kano-led-matrix>
+    </template>
+    <script>
+        /* globals Polymer, Kano */
+        Polymer({
+            is: 'kano-workspace-lightboard',
+            properties: {
+                pixels: {
+                    type: Array,
+                    value: () => new Array(128)
+                }
+            },
+            render (bitmap) {
+                this.$['led-matrix'].render(bitmap);
+            },
+            turnOn (light, color) {
+                let bitmap = Kano.AppModules.getModule('lightboard').turnOn(light, color);
+                this.render(bitmap);
+            },
+            turnOff (light) {
+                let bitmap = Kano.AppModules.getModule('lightboard').turnOff(light);
+                this.render(bitmap);
+            },
+            setBackgroundColor (color) {
+                let bitmap = Kano.AppModules.getModule('lightboard').setBackgroundColor(color);
+                this.render(bitmap);
+            },
+            update (data) {
+                this.render(data);
+            }
+        });
+    </script>
+</dom-module>

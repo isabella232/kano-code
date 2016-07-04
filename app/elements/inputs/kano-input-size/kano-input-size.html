@@ -25,37 +25,29 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors */
+    /* globals Polymer, Kano */
 
-    class KanoInputSize {
-
-        get behaviors () {
-            return [KanoBehaviors.Input];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-input-size';
-            this.properties = {
-                value: {
-                    type: String,
-                    observer: 'valueChanged'
-                },
-                unit: {
-                    type: String
-                },
-                number: {
-                    type: Number
-                }
-            };
-            this.observers = [
-                'computeValue(number)'
-            ];
-        }
-
+    Polymer({
+        is: 'kano-input-size',
+        behaviors: [Kano.Behaviors.Input],
+        properties: {
+            value: {
+                type: String,
+                observer: 'valueChanged'
+            },
+            unit: {
+                type: String
+            },
+            number: {
+                type: Number
+            }
+        },
+        observers: [
+            'computeValue(number)'
+        ],
         computeValue () {
             this.set('value', `${this.number}px`);
-        }
-
+        },
         valueChanged () {
             let number;
 
@@ -66,11 +58,9 @@
             number = parseInt(this.value, 10);
             this.set('number', number);
             this.fire('change');
-        }
-
+        },
         numberChanged (e) {
             e.stopPropagation();
         }
-    }
-    Polymer(KanoInputSize);
+    });
 </script>

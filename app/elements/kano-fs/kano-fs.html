@@ -86,23 +86,21 @@
     const ICON_SRCS = {
 
     };
-    class KanoFS {
-        beforeRegister () {
-            this.is = 'kano-fs';
-            this.properties = {
-                files: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    },
-                    observer: 'filesChanged'
-                },
-                folder: {
-                    type: Object
-                }
-            };
-        }
 
+    Polymer({
+        is: 'kano-fs',
+        properties: {
+            files: {
+                type: Array,
+                value: () => {
+                    return [];
+                },
+                observer: 'filesChanged'
+            },
+            folder: {
+                type: Object
+            }
+        },
         filesChanged () {
             let folder;
             if (!this.files) {
@@ -113,20 +111,16 @@
                 item.parent = folder;
             });
             this.folder = folder;
-        }
-
+        },
         isFile (item) {
             return !this.isFolder(item);
-        }
-
+        },
         isFolder (item) {
             return item.children;
-        }
-
+        },
         selectedClass (item) {
             return item === this.selectedFile ? 'selected' : '';
-        }
-
+        },
         computeIcon (item) {
             if (this.isFolder(item)) {
                 return item.icon || '/assets/icons/folder.png';
@@ -135,8 +129,7 @@
                 return item.data.src;
             }
             return ICON_SRCS[item.type];
-        }
-
+        },
         openFolder (e) {
             let folder = e.model.get('folder');
             folder.parent = this.folder;
@@ -145,19 +138,16 @@
             });
             this.folder = folder;
             this.fire('browse', this.folder);
-        }
-
+        },
         goBack () {
             this.folder = this.folder.parent;
             this.fire('browse', this.folder);
-        }
-
+        },
         selectFile (e) {
             let file = e.model.get('file');
             this.selectedFile = file;
             this.fire('select-file', file);
-        }
-
+        },
         computePath (item) {
             let path = '',
                 name = item.name || '';
@@ -167,6 +157,5 @@
 
             return `${path}${name}`;
         }
-    }
-    Polymer(KanoFS);
+    });
 </script>

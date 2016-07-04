@@ -40,17 +40,35 @@ let register = (Blockly) => {
             let json = {
                 id: 'every_x_seconds',
                 colour: COLOUR,
-                message0: 'Every %1 seconds',
+                message0: 'Every %1 %2',
                 args0: [{
                     type: "input_value",
                     name: "INTERVAL"
+                },{
+                    type: "field_dropdown",
+                    name: "UNIT",
+                    options: [
+                        [
+                            'seconds',
+                            'seconds'
+                        ],
+                        [
+                            'milliseconds',
+                            'milliseconds'
+                        ],
+                        [
+                            'frames',
+                            'frames'
+                        ]
+                    ]
                 }],
                 message1: 'do %1',
                 args1: [{
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }
@@ -59,13 +77,15 @@ let register = (Blockly) => {
     Blockly.JavaScript.every_x_seconds = (block) => {
         let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
             interval = Blockly.JavaScript.valueToCode(block, 'INTERVAL') || 5,
-            code = `time.every(${interval}, function () {\n${statement}});\n`;
+            unit = block.getFieldValue('UNIT') || 'seconds',
+            code = `time.every(${interval}, '${unit}', function () {\n${statement}});\n`;
         return code;
     };
     Blockly.Pseudo.every_x_seconds = (block) => {
         let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
             interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
-            code = `every ${interval} seconds, do {\n${statement}}\n`;
+            unit = block.getFieldValue('UNIT') || 'seconds',
+            code = `every ${interval} ${unit}, do {\n${statement}}\n`;
         return code;
     };
 
@@ -84,22 +104,29 @@ let register = (Blockly) => {
                     type: "input_statement",
                     name: "DO"
                 }],
-                previousStatement: null
+                previousStatement: null,
+                nextStatement: null
             };
             this.jsonInit(json);
         }
     };
 
     Blockly.JavaScript.repeat_x_times = (block) => {
-        let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-            n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
+        let n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
+            code,
+            branch = Blockly.JavaScript.statementToCode(block, 'DO'),
+            loopVar = Blockly.JavaScript.variableDB_.getDistinctName('i', Blockly.Variables.NAME_TYPE);
+        branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
+        code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
         return code;
     };
     Blockly.Pseudo.repeat_x_times = (block) => {
-        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-            n = Blockly.Pseudo.valueToCode(block, 'N') || 2,
-            code = `for (var i = 0; i < ${n}; i++) {\n${statement}}\n`;
+        let n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
+            code,
+            branch = Blockly.JavaScript.statementToCode(block, 'DO'),
+            loopVar = Blockly.JavaScript.variableDB_.getDistinctName('i', Blockly.Variables.NAME_TYPE);
+        branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
+        code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
         return code;
     };
 

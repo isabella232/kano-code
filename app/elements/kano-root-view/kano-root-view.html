@@ -1,6 +1,5 @@
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../kano-blockly/kano-blockly.html">
-<link rel="import" href="../kano-style/kano-style.html">
-<link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-root-view">
     <style>
@@ -21,45 +20,44 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-    /* globals Polymer, KanoBehaviors, Blockly */
+    /* globals Polymer, Kano, Blockly */
 
-    class KanoRootView {
-
-        get behaviors () {
-            return [KanoBehaviors.AppEditorBehavior];
-        }
-
-        beforeRegister () {
-            this.is = 'kano-root-view';
-            this.properties = {
-                parts: {
-                    type: Array,
-                    notify: true
-                },
-                toolbox: {
-                    type: Array
-                },
-                defaultCategories: {
-                    type: Object
-                },
-                code: {
-                    type: Object,
-                    notify: true,
-                    observer: 'codeChanged'
-                }
-            };
-            this.observers = [
-                'computeToolbox(parts.*)',
-                'computeToolbox(defaultCategories.*)',
-                'defaultCategoriesLoaded(defaultCategories.events)'
-            ];
-        }
+    Polymer({
+        is: 'kano-root-view',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            parts: {
+                type: Array,
+                notify: true
+            },
+            toolbox: {
+                type: Array
+            },
+            defaultCategories: {
+                type: Object
+            },
+            code: {
+                type: Object,
+                notify: true,
+                observer: 'codeChanged'
+            },
+            mode: {
+                type: Object
+            }
+        },
+        observers: [
+            'computeToolbox(parts)',
+            'computeToolboxDebounced(parts.*)',
+            'computeToolboxDebounced(defaultCategories.*)',
+            'computeToolboxDebounced(mode)',
+            'defaultCategoriesLoaded(defaultCategories.events)'
+        ],
         codeChanged () {
             if (!this.code) {
                 return;
             }
             this.$['code-editor'].load(this.code.snapshot);
-        }
+        },
         computeTriggerOptions () {
             let options = [['app starts', 'global.start']];
             this.parts.forEach((part) => {
@@ -67,9 +65,16 @@
                     options.push([`${part.name} ${ev.label}`, `${part.id}.${ev.id}`]);
                 });
             });
+            // Add events of the current mode
+            if (this.mode.events) {
+                this.mode.events.forEach((ev) => {
+                    options.push([`${this.mode.name} ${ev.label}`, `${this.mode.id}.${ev.id}`]);
+                });
+            }
             return options;
-        }
-        saveCode () {
+        },
+        saveCode (e) {
+            this.notifyChange('blockly', { event: e.detail });
             this.debounce('saveCode', () => {
                 let codeEditor = this.$['code-editor'];
 
@@ -78,10 +83,10 @@
                     this.set('code.snapshot', snapshot);
                 });
             }, 300);
-        }
+        },
         ready () {
             this.toolboxReady = false;
-        }
+        },
         defaultCategoriesLoaded (newVal, oldVal) {
             if (!newVal) {
                 return;
@@ -109,103 +114,120 @@
                 }
             };
             this.$['code-editor'].load(this.code.snapshot);
-        }
+        },
         computeBlocks () {
             let events = [];
             this.parts
                 .forEach((part) => {
                     part.blocks.forEach((definition) => {
-                        let block = definition.block(part);
-                        block.colour = part.colour;
-                        block.id = `${part.id}#${block.id}`;
-                        Blockly.Blocks[block.id] = {
-                            init: function () {
-                                this.jsonInit(block);
-                            }
-                        };
-                        Blockly.JavaScript[block.id] = definition.javascript(part);
-                        Blockly.Pseudo[block.id] = definition.pseudo(part);
+                        this._registerBlock(part, definition);
+                    });
+                    part.events.forEach((ev) => {
+                        events.push(ev);
+                    });
+                });
+            if (this.mode.blocks) {
+                this.mode.blocks.forEach((definition) => {
+                    this._registerBlock(this.mode, definition);
+                });
+            }
+        },
+        _registerBlock (part, definition) {
+            let block = definition.block(part);
+            block.colour = part.colour;
+            block.id = `${part.id}#${block.id}`;
+            Blockly.Blocks[block.id] = {
+                init: function () {
+                    this.jsonInit(block);
+                }
+            };
+            Blockly.JavaScript[block.id] = definition.javascript(part);
+            Blockly.Pseudo[block.id] = definition.pseudo(part);
+        },
+        computeToolbox () {
+            let categories,
+                toolbox,
+                parts = this.parts,
+                blocks,
+                weight;
+            if (!parts || !this.defaultCategories) {
+                return;
+            }
+            this.computeBlocks();
+            // Reset events blocks
+            weight = {
+                'ui': 1,
+                'data': 2,
+                'hardware': 3
+            };
+            categories = parts
+                .map((ui) => {
+                    blocks = ui.blocks.map((definition) => {
+                        let block = definition.block(ui);
+                        block.colour = ui.colour;
+                        block.id = `${ui.id}#${block.id}`;
                         return {
                             id: block.id,
                             colour: block.colour,
                             shadow: block.shadow
                         };
                     });
-                    part.events.forEach((ev) => {
-                        events.push(ev);
-                    });
+                    return {
+                        name: ui.name,
+                        colour: ui.colour,
+                        id: ui.type,
+                        weight: weight[ui.partType],
+                        blocks
+                    };
+                })
+                .sort((a, b) => {
+                    return a.weight - b.weight;
                 });
-        }
-        computeToolbox () {
-            this.debounce('computeToolbox', () => {
-                let categories,
-                    toolbox,
-                    parts = this.parts,
-                    blocks,
-                    weight;
-                if (!parts || !this.defaultCategories) {
-                    return;
-                }
-                this.computeBlocks();
-                // Reset events blocks
-                weight = {
-                    'ui': 1,
-                    'data': 2,
-                    'hardware': 3
+
+            categories = categories || [];
+            categories = categories.filter((category) => category.blocks.length);
+
+            Object.keys(this.defaultCategories).forEach((id) => {
+                let cat = this.defaultCategories[id];
+                cat.blocks.forEach((block) => {
+                    block.colour = cat.colour;
+                });
+            });
+
+            toolbox = Object.keys(this.defaultCategories).map(id => this.defaultCategories[id]);
+
+            toolbox = toolbox
+                .concat({ type: 'separator' });
+            // Generate the toolbox for the special mode
+            if (this.mode.blocks && this.mode.blocks.length) {
+                let modeCat = {
+                    name: this.mode.name,
+                    id: this.mode.id,
+                    colour: this.mode.colour
                 };
-                categories = parts
-                    .map((ui) => {
-                        blocks = ui.blocks.map((definition) => {
-                            let block = definition.block(ui);
-                            block.colour = ui.colour;
-                            block.id = `${ui.id}#${block.id}`;
-                            return {
-                                id: block.id,
-                                colour: block.colour,
-                                shadow: block.shadow
-                            };
-                        });
-                        return {
-                            name: ui.name,
-                            colour: ui.colour,
-                            id: ui.type,
-                            weight: weight[ui.partType],
-                            blocks
-                        };
-                    })
-                    .sort((a, b) => {
-                        return a.weight - b.weight;
-                    });
-
-                categories = categories || [];
-                categories = categories.filter((category) => category.blocks.length);
-
-                Object.keys(this.defaultCategories).forEach((id) => {
-                    let cat = this.defaultCategories[id];
-                    cat.blocks.forEach((block) => {
-                        block.colour = cat.colour;
-                    });
+                modeCat.blocks = this.mode.blocks.map((definition) => {
+                    let block = definition.block(this.mode);
+                    return {
+                        id: `${this.mode.id}#${block.id}`,
+                        colour: this.mode.colour,
+                        shadow: block.shadow
+                    };
                 });
-
-                toolbox = Object.keys(this.defaultCategories).filter(id => id !== 'background').map(id => this.defaultCategories[id]);
-
-                toolbox = toolbox
-                    .concat({ type: 'separator' });
-                if (this.defaultCategories.background) {
-                    toolbox.push(this.defaultCategories.background);
-                }
-                toolbox = toolbox.concat(categories);
-                this.set('toolbox', toolbox);
-                if (!this.toolboxReady) {
-                    this.$['code-editor'].resize();
-                }
-                this.toolboxReady = true;
-            }, 200);
-        }
-
+                toolbox.push(modeCat);
+                toolbox.push({ type: 'separator' });
+            }
+            toolbox = toolbox.concat(categories);
+            this.set('toolbox', toolbox);
+            if (!this.toolboxReady) {
+                this.$['code-editor'].resize();
+            }
+            this.toolboxReady = true;
+        },
+        computeToolboxDebounced () {
+            this.debounce('computeToolbox', () => this.computeToolbox(), 200);
+        },
         getBlocklyWorkspace () {
             return this.$['code-editor'].getWorkspace();
         }
-    }
-    Polymer(KanoRootView);
+    });
 </script>
