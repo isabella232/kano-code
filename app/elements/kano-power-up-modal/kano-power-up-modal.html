@@ -4,6 +4,8 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/transform-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/scale-down-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/cascaded-animation.html">
@@ -303,6 +305,18 @@ Custom property | Description | Default
         observers: [
             'optionsChanged(options.*)'
         ],
+        ready () {
+            this.$.modal.animationConfig = {
+                'entry': [{
+                    name: 'transform-animation',
+                    transformFrom: 'scale(5)',
+                    node: this.$.modal
+                },{
+                    name: 'fade-in-animation',
+                    node: this.$.modal
+                }]
+            };
+        },
         computeClass (completed) {
             return completed ? 'completed' : 'new';
         },
