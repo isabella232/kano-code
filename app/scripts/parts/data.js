@@ -21,11 +21,12 @@ export default class Data extends Part {
         let setConfigOptions,
             getValueOptions;
         this.partType = 'data';
-        this.tagName = 'kano-part-data';
+        this.tagName = opts.component || 'kano-part-data';
         this.configPanel = opts.configPanel || 'data';
         this.dataType = opts.dataType || 'object';
         this.dataLength = opts.dataLength || 1;
         this.parameters = opts.parameters || [];
+        this.excludeBlocks = opts.excludeBlocks || [];
         this.config = opts.config || this.parameters.reduce((acc, param) => {
             acc[param.key] = param.value;
             return acc;
@@ -47,28 +48,30 @@ export default class Data extends Part {
             label: 'updated',
             id: 'update'
         }];
-        this.blocks.push({
-            block: (part) => {
-                return {
-                    id: 'refresh',
-                    message0: `${part.name}: refresh data`,
-                    previousStatement: null,
-                    nextStatement: null
-                };
-            },
-            javascript: (part) => {
-                return () => {
-                    let code = `devices.get('${part.id}').refresh();`;
-                    return code;
-                };
-            },
-            pseudo: (part) => {
-                return () => {
-                    let code = `${part.id}.refresh();\n`;
-                    return code;
-                };
-            }
-        });
+        if (this.excludeBlocks.indexOf('refresh') === -1) {
+            this.blocks.push({
+                block: (part) => {
+                    return {
+                        id: 'refresh',
+                        message0: `${part.name}: refresh data`,
+                        previousStatement: null,
+                        nextStatement: null
+                    };
+                },
+                javascript: (part) => {
+                    return () => {
+                        let code = `devices.get('${part.id}').refresh();`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return () => {
+                        let code = `${part.id}.refresh();\n`;
+                        return code;
+                    };
+                }
+            });
+        }
         if (setConfigOptions.length) {
             this.blocks.push({
                 block: (part) => {
@@ -210,6 +213,7 @@ export default class Data extends Part {
         plain.refreshEnabled = this.refreshEnabled;
         plain.method = this.method;
         plain.config = this.config;
+        plain.component = this.component;
         return plain;
     }
 }

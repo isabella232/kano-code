@@ -136,6 +136,11 @@ export default data = {
                         return data.slice(0, 10);
                     });
             }
+        },
+        clock: {
+            noop (id, config) {
+                return Promise.resolve();
+            }
         }
     },
     lifecycle: {

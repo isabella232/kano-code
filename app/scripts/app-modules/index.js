@@ -11,6 +11,7 @@ import lightboard from './lightboard';
 import camera from './camera';
 import cat from './cat';
 import HardwareAPI from './service/hardware-api';
+import date from './date';
 
 let AppModules;
 
@@ -24,7 +25,8 @@ module.exports = AppModules = {
         data,
         math,
         colour,
-        mouse
+        mouse,
+        date
     },
     experiments: {
         fun: {
