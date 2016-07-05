@@ -1,0 +1,36 @@
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+
+<dom-module id="kano-light-frame-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        position: relative;
+    }
+    .content>* {
+        margin-top: 32px;
+    }
+    </style>
+    <template>
+        <div class="content">
+            <kano-input-range value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+            <kano-input-range value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+            <kano-pixel-canvas width="{{selected.userProperties.width}}" height="{{selected.userProperties.height}}" bitmap="{{selected.userProperties.bitmap}}"></kano-pixel-canvas>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-light-frame-editor',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            selected: {
+                type: Object,
+                notify: true
+            }
+        }
+    });
+</script>

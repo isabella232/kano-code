@@ -200,7 +200,8 @@
             return el && !!el.model;
         },
         canEdit (el) {
-            return (el && el.id === "dropzone") || (el && el.model && el.model.partType !== 'hardware');
+            // No config panel is set for the hardware parts yet, disable the edit menu when the configPanel is set to `hardware`
+            return (el && el.id === "dropzone") || (el && el.model && el.model.configPanel !== 'hardware');
         },
         isSeparatorHidden (el) {
             return !this.canDelete(el) || !this.canEdit(el);

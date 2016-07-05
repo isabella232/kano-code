@@ -1,0 +1,90 @@
+<link rel="import" href="../../ui/behaviors.html">
+<dom-module id="kano-part-light-frame">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        border: 1px solid blue;
+    }
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+    }
+    .canvas {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+    }
+    </style>
+    <template>
+        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]">
+            <div class="canvas" style$="[[_computeCanvasStyle(model.userProperties.width)]]">
+                <template is="dom-repeat" items="[[model.userProperties.bitmap]]" as="pixel" id="repeat">
+                    <div class="pixel" style$="[[_computePixelStyle(pixel)]]"></div>
+                </template>
+            </div>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-light-frame',
+            behaviors: [Kano.Behaviors.UIBehavior],
+            observers: [
+                '_sizeChanged(model.userProperties.width, model.userProperties.height)'
+            ],
+            _computeContainerStyle () {
+                let width = this.model.userProperties.width * 28 + 2,
+                    height = this.model.userProperties.height * 28 + 2;
+                return `width: ${width}px; height: ${height}px;`;
+            },
+            applyTransform () {
+                if (!this.model) {
+                    return;
+                }
+                let position = this.model.position || { x: 0, y: 0 },
+                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 +(16 - this.model.userProperties.width) * 28),
+                    y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
+                    transform;
+
+                transform = `translate(${x}px, ${y}px)`;
+                this.style.webkitTransform = this.style.transform = transform;
+            },
+            _computeCanvasStyle (width) {
+                return `max-width: ${width * 28}px;`;
+            },
+            _computePixelStyle (pixel) {
+                return `background-color: ${pixel};`;
+            },
+            _sizeChanged () {
+                let newBitmap = [],
+                    width = this.model.userProperties.width,
+                    height = this.model.userProperties.height;
+                for (var i = 0; i < height * width; i++) {
+                    newBitmap.push('#000000');
+                }
+
+                if (this.prevSize) {
+                    this.model.userProperties.bitmap.forEach((color, i) => {
+                        let y = Math.floor(i / this.prevSize.width),
+                            x = i % this.prevSize.width,
+                            newPos = x + y * width;
+                        if (newPos < newBitmap.length) {
+                            newBitmap[newPos] = color;
+                        }
+                    });
+                }
+
+                this.prevSize = {
+                    width: width,
+                    height: height
+                };
+
+                this.set('model.userProperties.bitmap', newBitmap);
+            }
+        });
+    </script>
+</dom-module>
