@@ -17,41 +17,46 @@
             left: 0px;
             right: 0px;
         }
-        :host ::content svg {
+        svg {
             @apply(--kano-crossed-background);
         }
 
-        :host::content .blocklyPathDark,
-        :host::content .blocklyPathLight {
+        .blocklyEditableText>rect {
+            fill: white;
+            fill-opacity: 0.6;
+        }
+
+        .blocklyPathDark,
+        .blocklyPathLight {
             fill: transparent !important;
             stroke-width: 0px !important;
         }
-        :host::content .blocklySelected > .blocklyPath {
+        .blocklySelected > .blocklyPath {
             stroke-width: 1px !important;
             stroke: rgba(0, 0, 0, 0.5) !important;
             stroke-linejoin: round !important;
         }
-        :host::content .blocklyHighlightedConnectionPath {
+        .blocklyHighlightedConnectionPath {
             stroke-width: 2px !important;
         }
-        :host::content text.blocklyText {
+        text.blocklyText {
             font-family: bariol;
             font-size: 1em;
         }
-        :host::content .blocklyEditableText:hover > rect {
+        .blocklyEditableText:hover > rect {
             stroke-width: 1px !important;
         }
-        :host::content .blocklyEditableText .blocklyText {
+        .blocklyEditableText .blocklyText {
             font-size: 1em !important;
         }
-        :host::content div.blocklyTreeRoot {
+        div.blocklyTreeRoot {
             padding: 0px;
         }
-        :host::content span.blocklyTreeLabel {
+        span.blocklyTreeLabel {
             font-family: bariol;
             font-size: 1.1em;
         }
-        :host::content div.blocklyTreeRow {
+        div.blocklyTreeRow {
             position: relative;
             height: auto !important;
             line-height: 20px !important;
@@ -60,11 +65,11 @@
             color: white;
             font-size: 1em;
         }
-        :host::content div.blocklyTreeRow:hover,
-        :host::content span.blocklyTreeLabel:hover {
+        div.blocklyTreeRow:hover,
+        span.blocklyTreeLabel:hover {
             cursor: pointer;
         }
-        :host::content div.blocklyTriangle {
+        div.blocklyTriangle {
             position: absolute;
             left: 140px;
             display: none;
@@ -73,21 +78,22 @@
             border-right-width: 10px;
             border-right-color: #E8E8E8;
         }
-        :host::content span.blocklyTreeIcon {
+        span.blocklyTreeIcon {
             width: 0px;
         }
-        :host::content div.blocklyToolboxDiv {
+        div.blocklyToolboxDiv {
             background-color: transparent;
+            position: absolute;
         }
-        :host::content div.goog-tree-item {
+        div.goog-tree-item {
             border: 0px;
             visibility: hidden;
         }
-        :host::content path.blocklyFlyoutBackground {
+        path.blocklyFlyoutBackground {
             fill: #E8E8E8;
             fill-opacity: 1;
         }
-        :host::content rect.blocklyMainBackground {
+        rect.blocklyMainBackground {
             opacity: 0 !important;
         }
         .buttons button {
@@ -164,6 +170,8 @@
             });
             // Oddly, panning doesn't work if the background has a fill property
             Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
+            Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
+            this.workspace.componentRoot_ = Polymer.dom(this.root);
             this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.async(() => {

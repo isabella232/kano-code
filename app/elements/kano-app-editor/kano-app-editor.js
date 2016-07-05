@@ -613,5 +613,8 @@ Polymer({
 
     applyOpenClass () {
         return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'open' : '';
+    },
+    getWorkspace () {
+        return this.$.workspace;
     }
 });

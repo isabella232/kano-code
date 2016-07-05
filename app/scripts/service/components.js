@@ -12,28 +12,28 @@ class ComponentStore {
      * Call all the start functions of the registered components
      * @return
      */
-    startAll (parts) {
-        return this.callAll(parts, 'start');
+    startAll (parts, devices) {
+        return this.callAll(parts, 'start', devices);
     }
     /**
      * Call all the stop functions of the registered components
      * @return
      */
-    stopAll (parts) {
-        return this.callAll(parts, 'stop');
+    stopAll (parts, devices) {
+        return this.callAll(parts, 'stop', devices);
     }
     /**
      * Call a function by name on all the registered components
      * @param  {String} func Name of the function to call
      * @return
      */
-    callAll (parts, func) {
+    callAll (parts, func, devices) {
         let element;
         parts.forEach((part) => {
             if (!part.id) {
                 return;
             }
-            element = document.querySelector(`kano-workspace #${part.id}`);
+            element = devices.get(part.id);
             if (element && typeof element[func] == 'function') {
                 element[func]();
             }
@@ -47,27 +47,23 @@ class ComponentStore {
      * Bundle the pieces of code created by the user and evaluates it
      * @return
      */
-    run (parts, code, modules) {
+    run (parts, code, modules, devices) {
         let codeString = this.generateCode(code);
-        this.start(parts, modules);
+        this.start(parts, modules, devices);
         // Run the code using this store. Only expose the get function
-        CodeService.run(codeString, {
-            get (id) {
-                return document.querySelector(`kano-workspace #${id}`);
-            }
-        }, modules);
+        CodeService.run(codeString, devices, modules);
     }
-    start (parts, modules) {
-        this.executeLifecycleStep('start', modules);
-        this.startAll(parts);
+    start (parts, modules, devices) {
+        this.executeLifecycleStep('start', modules, devices);
+        this.startAll(parts, devices);
     }
     /**
      * Stop the current running code. Will take care to stop the components
      * and the pure JS modules
      */
-    stop (parts, modules) {
+    stop (parts, modules, devices) {
         this.executeLifecycleStep('stop', modules);
-        this.stopAll(parts);
+        this.stopAll(parts, devices);
     }
     executeLifecycleStep (name, modules) {
         Object.keys(modules).forEach((moduleName) => {

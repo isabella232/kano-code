@@ -61,6 +61,49 @@ function rgbToHex(r,g,b){
     })(bin.toString(16).toUpperCase())
 }
 
+var injectMethods = {
+    bindDocumentEvents_: Blockly.inject.bindDocumentEvents_,
+    loadSounds_: Blockly.inject.loadSounds_,
+};
+
+goog.ui.Component.prototype.getElement = function() {
+    if (!this.element_) {
+        this.createDom();
+    }
+  return this.element_;
+};
+
+
+/**
+ * Inject a Blockly editor into the specified container element (usually a div).
+ * @param {!Element|string} container Containing element, or its ID,
+ *     or a CSS selector.
+ * @param {Object=} opt_options Optional dictionary of options.
+ * @return {!Blockly.Workspace} Newly created main workspace.
+ */
+Blockly.inject = function(container, opt_options) {
+  if (goog.isString(container)) {
+    container = document.getElementById(container) ||
+        document.querySelector(container);
+  }
+  // Verify that the container is in document.
+  // No relevant using shadow dom
+  /*if (!goog.dom.contains(document, container)) {
+    throw 'Error: container is not in current document.';
+  }*/
+  var options = new Blockly.Options(opt_options || {});
+  var svg = Blockly.createDom_(container, options);
+  var workspace = Blockly.createMainWorkspace_(svg, options);
+  Blockly.init_(workspace);
+  workspace.markFocused();
+  Blockly.bindEvent_(svg, 'focus', workspace, workspace.markFocused);
+  Blockly.svgResize(workspace);
+  return workspace;
+};
+
+Blockly.inject.bindDocumentEvents_ = injectMethods.bindDocumentEvents_;
+Blockly.inject.loadSounds_ = injectMethods.loadSounds_;
+
 var d2b = Blockly.Xml.domToBlock;
 
 Blockly.Xml.domToBlock = function (xmlBlock, ws) {
