@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="./import.html">
@@ -145,7 +146,7 @@
             }
         },
         /**
-         * Inject blockly to the workspace div and register the resize event
+         * Inject blockly to the workspace div
          */
         attached () {
             this.visible = false;
@@ -161,11 +162,13 @@
                     scaleSpeed: 1.2
                 }
             });
+            // Oddly, panning doesn't work if the background has a fill property
             Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
             this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
             this.async(() => {
                 this.fire('blockly-ready');
+                this.resize();
             });
         },
         detached () {
@@ -201,6 +204,8 @@
          * Triggers the resize event on the window
          */
         resize () {
+            let ev = new Event('resize');
+            window.dispatchEvent(ev);
             if (!this.workspace) {
                 return;
             }
@@ -245,7 +250,6 @@
                 try {
                     this.workspace.updateToolbox(xml);
                 } catch (e) {} // Ignore toolbox loading errors
-                this.resize();
             }
             return xml;
         },
