@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="./import.html">
@@ -78,15 +79,16 @@
         :host::content div.blocklyToolboxDiv {
             background-color: transparent;
         }
-        :host::content div.blocklyTreeSeparator {
+        :host::content div.goog-tree-item {
             border: 0px;
+            visibility: hidden;
         }
         :host::content path.blocklyFlyoutBackground {
             fill: #E8E8E8;
             fill-opacity: 1;
         }
         :host::content rect.blocklyMainBackground {
-            display: none !important;
+            opacity: 0 !important;
         }
         .buttons button {
             @apply(--kano-button);
@@ -144,29 +146,29 @@
             }
         },
         /**
-         * Inject blockly to the workspace div and register the resize event
+         * Inject blockly to the workspace div
          */
         attached () {
             this.visible = false;
             this.workspace = Blockly.inject(this.$.workspace, {
                 toolbox: this.toolboxXml,
                 media: '/assets/vendor/google-blockly/media/',
+                scrollbars: true,
                 zoom: {
                     controls: true,
-                    wheel: true,
                     startScale: 1.0,
                     maxScale: 3,
                     minScale: 0.3,
                     scaleSpeed: 1.2
-                },
-                scrollbars: true
+                }
             });
+            // Oddly, panning doesn't work if the background has a fill property
+            Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
             this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
-            window.addEventListener('resize', this.onResize.bind(this), false);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
-            this.onResize();
             this.async(() => {
                 this.fire('blockly-ready');
+                this.resize();
             });
         },
         detached () {
@@ -202,20 +204,12 @@
          * Triggers the resize event on the window
          */
         resize () {
-            Blockly.fireUiEvent(window, 'resize');
-        },
-        /**
-         * Debounce function that will apply style rules to the workspace
-         * element to let know Blockly the new dimensions.
-         */
-        onResize () {
-            requestAnimationFrame(() => {
-                let workspace = this.$.workspace;
-                workspace.style.top = '0px';
-                workspace.style.bottom = '0px';
-                workspace.style.left = '0px';
-                workspace.style.right = '0px';
-            });
+            let ev = new Event('resize');
+            window.dispatchEvent(ev);
+            if (!this.workspace) {
+                return;
+            }
+            Blockly.resizeSvgContents(this.workspace);
         },
         /**
          * Takes a categories definition in JSON and generates the XML
@@ -256,7 +250,6 @@
                 try {
                     this.workspace.updateToolbox(xml);
                 } catch (e) {} // Ignore toolbox loading errors
-                this.resize();
             }
             return xml;
         },
@@ -325,7 +318,7 @@
             let xml = Blockly.Xml.textToDom(blocks);
             this.clearWorkspace();
             try {
-                Blockly.Xml.domToWorkspace(this.workspace, xml);
+                Blockly.Xml.domToWorkspace(xml, this.workspace);
             } catch (e) {} // Ignore loading errors
         },
         getScreenshot () {

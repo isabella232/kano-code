@@ -297,12 +297,12 @@ Polymer({
                 this.$.partsPanel.closeDrawer();
             } else {
                 this.drawerPage = 'background-editor';
-                this.drawerWidth = '50%';
+                this.drawerWidth = '60%';
                 this.$.partsPanel.openDrawer();
             }
         } else {
             this.drawerPage = 'part-editor';
-            this.drawerWidth = '50%';
+            this.drawerWidth = '60%';
             this.$.partsPanel.openDrawer();
             this.notifyChange('open-part-settings', { part: this.selected });
         }

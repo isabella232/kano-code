@@ -82,6 +82,7 @@ export default class Part {
         plain.userProperties = this.userProperties;
         plain.position = this.position;
         plain.partType = this.partType;
+        plain.configPanel = this.configPanel;
         return plain;
     }
 }

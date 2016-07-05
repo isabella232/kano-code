@@ -70,6 +70,7 @@ export default class UI extends Part {
         this.visible = opts.visible || true;
         // Each UI part has its specific component to render on the screen
         this.tagName = opts.component || `kano-ui-${this.type}`;
+        this.configPanel = opts.configPanel || 'ui';
         this.blocks.push({
             block: (ui) => {
                 return {

@@ -8,6 +8,7 @@ export default clock = {
     component: 'kano-part-clock',
     excludeBlocks: ['refresh'],
     method: 'clock.noop',
+    configPanel: 'disabled',
     blocks: [{
         block: () => {
             return {
