@@ -4,7 +4,7 @@ export default clock = {
     partType: 'data',
     type: 'clock',
     label: 'Clock',
-    image: '',
+    image: '/assets/part/clock.svg',
     component: 'kano-part-clock',
     excludeBlocks: ['refresh'],
     method: 'clock.noop',
