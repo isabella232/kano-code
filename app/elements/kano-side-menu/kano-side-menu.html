@@ -79,6 +79,7 @@
             height: 0;
             border: 8px solid transparent;
             border-right: 8px solid var(--color-grey-light);
+            pointer-events: all;
         }
         .triangle:hover {
             border-right: 10px solid var(--color-grey);
@@ -107,14 +108,12 @@
                     <div class="triangle" on-tap="toggleMenu"></div>
                 </div>
             </li>
-            <template is="dom-if" if="{{editor}}">
-                <li>
-                    <a on-tap="resetWorkspace">
-                        <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
-                        <div class="label">Reset Workspace</div>
-                    </a>
-                </li>
-            </template>
+            <li>
+                <a on-tap="resetWorkspace">
+                    <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
+                    <div class="label">Reset Workspace</div>
+                </a>
+            </li>
             <li>
                 <a href="/" on-tap="backToProjects">
                     <iron-image class="icon" src="/assets/icons/projects.png" sizing="contain"></iron-image>
@@ -150,9 +149,6 @@
                 observer: 'userChanged'
             },
             profile: {
-                type: Object
-            },
-            editor: {
                 type: Object
             },
             offline: {
@@ -196,9 +192,7 @@
             e.stopPropagation();
         },
         resetWorkspace () {
-            if (this.editor) {
-                editor.reset();
-            }
+            this.fire('reset-workspace');
             this.fire('toggle-menu');
         },
         backToProjects () {
