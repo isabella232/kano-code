@@ -104,6 +104,22 @@ Blockly.inject = function(container, opt_options) {
 Blockly.inject.bindDocumentEvents_ = injectMethods.bindDocumentEvents_;
 Blockly.inject.loadSounds_ = injectMethods.loadSounds_;
 
+/**
+ * Is this event targeting a text input widget?
+ * @param {!Event} e An event.
+ * @return {boolean} True if text input.
+ * @private
+ */
+Blockly.isTargetInput_ = function(e) {
+  // In a shadow DOM the first element of the path is more accurate
+  var target = e.path ? e.path[0] : e.target;
+  return target.type == 'textarea' || target.type == 'text' ||
+         target.type == 'number' || target.type == 'email' ||
+         target.type == 'password' || target.type == 'search' ||
+         target.type == 'tel' || target.type == 'url' ||
+         target.isContentEditable;
+};
+
 var d2b = Blockly.Xml.domToBlock;
 
 Blockly.Xml.domToBlock = function (xmlBlock, ws) {
