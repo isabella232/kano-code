@@ -379,6 +379,7 @@ Polymer({
         let sidebar = this.$.drawer;
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
         this.panelStateChanged = this.panelStateChanged.bind(this);
+        document.addEventListener('reset-workspace', this.reset);
 
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
         if (sidebar.classList.contains('animatable')) {
@@ -390,6 +391,7 @@ Polymer({
     detachEvents () {
         let sidebar = this.$.drawer;
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
+        document.addEventListener('reset-workspace', this.reset);
         if (sidebar.classList.contains('animatable')) {
             sidebar.removeEventListener('transitionend', this.panelStateChanged);
         } else {
@@ -401,6 +403,7 @@ Polymer({
             stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
             running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
         };
+        this.reset = this.reset.bind(this);
     },
     attached () {
         this.title = this.title ? "My " + this.title.toLowerCase() : "Make Apps";
