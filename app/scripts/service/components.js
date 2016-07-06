@@ -161,7 +161,7 @@ class ComponentStore {
                         var devices = {
                                 get: function (id) {
                                     if (id === 'dropzone') {
-                                        return this;
+                                        return this.$.screen;
                                     }
                                     return this.$$('#' + id);
                                 }.bind(this)

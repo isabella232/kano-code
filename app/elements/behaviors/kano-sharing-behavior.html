@@ -71,9 +71,11 @@ var SharingBehavior = {
         }).then((share) => {
             this.set('shareInfo.page', 2);
             this.set('shareInfo.id', share.id);
+            this.modal.refit();
         }).catch((e) => {
             console.error(e);
             this.set('shareInfo.page', 3);
+            this.modal.refit();
         });
     },
     /**
@@ -94,6 +96,29 @@ var SharingBehavior = {
         };
 
         this.set('shareInfo', shareInfo);
+        this.modal.animationConfig = {
+            entry: [{
+                name: 'transform-animation',
+                transformFrom: 'scale(1.5)',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            },{
+                name: 'fade-in-animation',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            }],
+            exit: {
+                name: 'fade-out-animation',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            }
+        };
         this.modal.open();
     },
 
@@ -117,6 +142,7 @@ var SharingBehavior = {
         }
         this.set('shareInfo.page', 1);
         this.shareApp();
+        this.modal.refit();
     },
 
     dismissShare () {
