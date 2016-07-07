@@ -41,8 +41,12 @@
             top: 0px;
             left: 0px
         }
+        canvas {
+            border-radius: 5px;
+        }
     </style>
     <template>
+        <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
         <div class="hole hole-top-left"></div>
         <div class="hole hole-top-right"></div>
         <div class="hole hole-bottom-right"></div>
@@ -50,17 +54,28 @@
         <content></content>
     </template>
     <script>
-        /* globals Polymer, Kano */
+        /* globals Polymer */
         Polymer({
             is: 'kano-workspace-normal',
             properties: {
-                pixels: {
-                    type: Array,
-                    value: () => new Array(128)
-                }
+                width: Number,
+                height: Number
+            },
+            attached () {
+                this.ctx = this.$.canvas.getContext('2d');
             },
             setBackgroundColor (color) {
                 this.style.background = color;
+            },
+            start () {
+                this.reset();
+            },
+            reset () {
+                this.modules = new Kano.CanvasAPI({
+                    ctx: this.ctx,
+                    width: this.width,
+                    height: this.height
+                });
             }
         });
     </script>

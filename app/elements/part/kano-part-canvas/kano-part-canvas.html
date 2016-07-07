@@ -1,4 +1,4 @@
-<script src="../../../assets/vendor/kano-canvas-api/kano-canvas-api.js"></script>
+<link rel="import" href="./kano-canvas-api/kano-canvas-api.html">
 <link rel="import" href="../../ui/behaviors.html">
 
 <dom-module id="kano-part-canvas">
@@ -14,7 +14,7 @@
     }
     </style>
     <template>
-        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.*)]]" running$="[[isRunning]]"></canvas>
+        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.width, model.userStyle.height)]]" running$="[[isRunning]]"></canvas>
     </template>
 </dom-module>
 
@@ -25,9 +25,8 @@
         is: 'kano-part-canvas',
         behaviors: [Kano.Behaviors.UIBehavior],
         ready () {
-            this.modules = Kano.CanvasAPI.modules;
-            this.session = Kano.CanvasAPI.session;
             this.ctx = this.$.canvas.getContext('2d');
+            this.prevSize = {};
             this.resetSession();
         },
         _computeCanvasStyle () {
@@ -38,10 +37,11 @@
             if (!this.model) {
                 return;
             }
-            this.$.canvas.setAttribute('width', parseInt(this.model.userStyle.width));
-            this.$.canvas.setAttribute('height', parseInt(this.model.userStyle.height));
-            if (!this.sessionReady) {
-                this.resetSession();
+            if (this.prevSize.width !== this.model.userStyle.width || this.prevSize.height !== this.model.userStyle.height) {
+                this.$.canvas.setAttribute('width', parseInt(this.model.userStyle.width));
+                this.$.canvas.setAttribute('height', parseInt(this.model.userStyle.height));
+                this.prevSize.width = this.model.userStyle.width;
+                this.prevSize.height = this.model.userStyle.height;
             }
         },
         polygon (points, close) {
@@ -51,15 +51,14 @@
             if (!this.model) {
                 return;
             }
-            Kano.CanvasAPI.resetSession({
+            this.modules = new Kano.CanvasAPI({
                 ctx: this.ctx,
                 width: parseInt(this.model.userStyle.width),
                 height: parseInt(this.model.userStyle.height)
             });
-            this.sessionReady = true;
         },
-        stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
             this.resetSession();
         }
     });
