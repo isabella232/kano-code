@@ -14,7 +14,7 @@ export default clock = {
             return {
                 id: 'get_time',
                 message0: 'Clock: current %1',
-                output: true,
+                output: 'Number',
                 args0: [{
                     type: "field_dropdown",
                     name: "FIELD",
