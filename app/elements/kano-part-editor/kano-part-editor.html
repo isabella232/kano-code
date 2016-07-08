@@ -9,7 +9,7 @@
         border-radius: 6px;
         @apply(--layout-vertical);
     }
-    :host iron-pages {
+    :host iron-lazy-pages {
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
@@ -19,13 +19,6 @@
         height: 100%;
         @apply(--layout-flex);
     }
-    :host .head h2 {
-        margin-left: 15px;
-        margin-right: 15px;
-        text-overflow: ellipsis;
-        color: white;
-        font-weight: 400;
-    }
     :host .title {
         margin-bottom: 7px;
         font-size: 20px;
@@ -33,15 +26,18 @@
     </style>
     <template>
         <div class="title">[[selected.name]] settings</div>
-        <iron-lazy-pages selected="[[selected.configPanel]]" attr-for-selected="name">
+        <iron-lazy-pages selected="[[configPanel]]" attr-for-selected="name" restamp>
             <template is="iron-lazy-page" name="ui">
                 <kano-ui-editor id="ui-editor" selected="{{selected}}"></kano-ui-editor>
             </template>
             <template is="iron-lazy-page" name="data">
-                <kano-data-editor id="data-editor" selected="{{selected}}" name="data"></kano-data-editor>
+                <kano-data-editor id="data-editor" selected="{{selected}}"></kano-data-editor>
             </template>
             <template is="iron-lazy-page" name="light-frame">
-                <kano-light-frame-editor id="frame-editor" selected="{{selected}}" name="light-frame"></kano-light-frame-editor>
+                <kano-light-frame-editor id="frame-editor" selected="{{selected}}"></kano-light-frame-editor>
+            </template>
+            <template is="iron-lazy-page" name="empty">
+                <div></div>
             </template>
         </iron-lazy-pages>
     </template>
@@ -54,10 +50,15 @@
             selected: {
                 type: Object,
                 notify: true
+            },
+            configPanel: {
+                type: String,
+                computed: '_computeConfigPanel(selected.configPanel)'
             }
         },
-        computeHeadStyle (colour) {
-            return `background: ${colour}`;
+        _computeConfigPanel (panel) {
+            console.log(panel);
+            return panel || 'empty';
         }
     });
 </script>
