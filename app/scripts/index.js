@@ -23,7 +23,7 @@ function onFirstPageLoaded() {
         timeout = setTimeout(onElementsLoaded, 1500 - duration);
         return;
     }
-    document.removeEventListener('kano-routing-first-load-finish', onFirstPageLoaded);
+    document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
     loader = document.getElementById('loader');
     logo = document.getElementById('logo');
     loader.className += ' animate-out';
@@ -45,7 +45,7 @@ function onElementsLoaded() {
     var app = document.createElement('kano-app'),
         loader = document.getElementById('loader');
     document.body.insertBefore(app, loader);
-    document.addEventListener('kano-routing-first-load-finish', onFirstPageLoaded);
+    document.addEventListener('kano-routing-load-finish', onFirstPageLoaded);
 }
 
 /**

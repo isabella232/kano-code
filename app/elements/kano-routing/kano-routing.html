@@ -81,8 +81,6 @@
        * Initialize the views
        */
       ready () {
-          this.firstLoad = false;
-          this.firstLoadFinished = false;
           page('/',             this._showPageThunk('home'));
           page('/apps',         this._showPageThunk('apps'));
           page('/apps/:view',   this._showPageThunk('apps'));
@@ -120,13 +118,10 @@
       _computeLoadingClass (loading) {
           return loading ? 'loading' : '';
       },
-      _loadingChanged (value) {
-          if (!this.firstLoad && value) {
-              this.firstLoad = true;
-          }
-          if (this.firstLoad && !this.firstLoadFinished && !value) {
-              this.firstLoadFinished = true;
-              this.fire('kano-routing-first-load-finish');
+      _loadingChanged (newValue, oldValue) {
+          // When loading goes from true to false, trigger an event to notify a page load end
+          if (oldValue && !newValue) {
+              this.fire('kano-routing-load-finish');
           }
       }
   });
