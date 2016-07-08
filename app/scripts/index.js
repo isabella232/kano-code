@@ -20,7 +20,7 @@ function onFirstPageLoaded() {
         loader,
         logo;
     if (duration < 1500) {
-        timeout = setTimeout(onElementsLoaded, 1500 - duration);
+        timeout = setTimeout(onFirstPageLoaded, 1500 - duration);
         return;
     }
     document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
@@ -37,6 +37,9 @@ function onFirstPageLoaded() {
 function startBreathing() {
     setTimeout(function () {
         var title = document.getElementById('title');
+        if (!title) {
+            return;
+        }
         title.className += ' animate-breathe';
     }, 300);
 }
