@@ -71,6 +71,10 @@
               type: String,
               reflectToAttribute: true,
               notify: true
+          },
+          loading: {
+              type: Boolean,
+              observer: '_loadingChanged'
           }
       },
       /**
@@ -113,6 +117,12 @@
       },
       _computeLoadingClass (loading) {
           return loading ? 'loading' : '';
+      },
+      _loadingChanged (newValue, oldValue) {
+          // When loading goes from true to false, trigger an event to notify a page load end
+          if (oldValue === true && newValue === false) {
+              this.fire('kano-routing-load-finish');
+          }
       }
   });
   </script>

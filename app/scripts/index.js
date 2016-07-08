@@ -6,6 +6,7 @@ var webComponentsSupported = ('registerElement' in document &&
     'import' in document.createElement('link') &&
     'content' in document.createElement('template')),
     msg = 'Loading',
+    loaded = false,
     started,
     timeout,
     wcPoly;
@@ -14,21 +15,40 @@ var webComponentsSupported = ('registerElement' in document &&
  * Makes the transition between the loader and the app itself
  * Makes sure that the loader is displayed at least 1.5s to prevent flashing
  */
-function onElementsLoaded() {
+function onFirstPageLoaded() {
     var duration = new Date() - started,
         loader,
-        app;
+        logo;
     if (duration < 1500) {
-        timeout = setTimeout(onElementsLoaded, 1500 - duration);
+        timeout = setTimeout(onFirstPageLoaded, 1500 - duration);
         return;
     }
+    document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
     loader = document.getElementById('loader');
-    app = document.createElement('kano-app');
-    document.body.insertBefore(app, loader);
+    logo = document.getElementById('logo');
     loader.className += ' animate-out';
+    logo.className += ' animate-out';
+    loaded = true;
     setTimeout(function () {
         loader.parentNode.removeChild(loader);
+    }, 400);
+}
+
+function startBreathing() {
+    setTimeout(function () {
+        var title = document.getElementById('title');
+        if (!title) {
+            return;
+        }
+        title.className += ' animate-breathe';
     }, 300);
+}
+
+function onElementsLoaded() {
+    var app = document.createElement('kano-app'),
+        loader = document.getElementById('loader');
+    document.body.insertBefore(app, loader);
+    document.addEventListener('kano-routing-load-finish', onFirstPageLoaded);
 }
 
 /**
@@ -94,12 +114,13 @@ function animateLoader() {
             var l = msgCopy.split('');
             l[i] = letters[i].shift();
             msgCopy = l.join('');
-            title.innerText = msgCopy;
+            title.innerText = msgCopy + '   ';
             if (!letters[i].length) {
                 l = msgCopy.split('');
                 l[i] = msg[i];
                 msgCopy = l.join('');
-                title.innerText = msgCopy;
+                title.innerText = msgCopy + '   ';
+                startBreathing();
                 return;
             }
             updateLetter(i);

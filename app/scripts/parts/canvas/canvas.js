@@ -3,7 +3,6 @@ import paths from './blocks/paths';
 import setters from './blocks/setters';
 import shapes from './blocks/shapes';
 import space from './blocks/space';
-import text from './blocks/text';
 
 let canvas,
     blocks = [{
@@ -32,12 +31,11 @@ blocks = blocks.concat(paths);
 blocks = blocks.concat(setters);
 blocks = blocks.concat(shapes);
 blocks = blocks.concat(space);
-blocks = blocks.concat(text);
 
 export default canvas = {
     partType: 'ui',
     type: 'canvas',
-    label: 'Canvas',
+    label: 'Draw',
     image: '/assets/part/box.svg',
     component: 'kano-part-canvas',
     colour: '#E73544',

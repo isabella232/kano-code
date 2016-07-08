@@ -11,7 +11,7 @@ const globs = [
     '../www/manifest.json',
     '../www/sw.js',
     '../www/css/*.css',
-    '../www/assets/**/*.{png,svg,eot,woff,ttf, html,js,json}'
+    '../www/assets/**/*.{png,svg,eot,woff,ttf,html,js,json}'
 ];
 
 function getFiles(pattern) {
