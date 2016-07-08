@@ -23,9 +23,9 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/views'));
     });
 
-    gulp.task('sass-dev', () => {
-        gulp.src('app/style/main.sass')
-            .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', $.utils.notifyError))
+    gulp.task('style-dev', () => {
+        gulp.src('app/style/*.css')
+            .pipe($.concat('main.css'))
             .pipe($.autoprefixer())
             .pipe($.connect.reload())
             .pipe(gulp.dest('www/css'));
@@ -84,7 +84,7 @@ module.exports = (gulp, $) => {
             ], ['copy-dev']),
             gulp.watch(['app/elements/**/*'], ['elements-dev']),
             gulp.watch(['app/views/**/*'], ['views-dev']),
-            gulp.watch(['app/style/**/*'], ['sass-dev']),
+            gulp.watch(['app/style/**/*'], ['style-dev']),
             gulp.watch(['app/assets/stories/**/*'], ['assets-dev']),
             gulp.watch(['app/scripts/parts/**/*'], ['parts-module-dev']),
             gulp.watch(['app/scripts/app-modules/**/*'], ['app-modules-dev']),
@@ -100,5 +100,5 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('dev', ['watch', 'serve']);
-    gulp.task('build-dev', ['sass-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev']);
+    gulp.task('build-dev', ['style-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev']);
 };

@@ -146,9 +146,9 @@ module.exports = (gulp, $) => {
             }).catch($.utils.notifyError);
     });
 
-    gulp.task('sass', () => {
-        gulp.src('app/style/main.sass')
-            .pipe($.sass({ includePaths: 'app/bower_components' }).on('error', $.utils.notifyError))
+    gulp.task('style', () => {
+        gulp.src('app/style/*.css')
+            .pipe($.concat('main.css'))
             .pipe($.autoprefixer())
             .pipe(gulp.dest('www/css'));
     });
@@ -166,7 +166,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('build', () => {
-        $.runSequence(['views', 'js', 'sass', 'assets', 'bundles', 'story-bundle'], 'sw');
+        $.runSequence(['views', 'js', 'style', 'assets', 'bundles', 'story-bundle'], 'sw');
     });
     gulp.task('default', ['build']);
 };

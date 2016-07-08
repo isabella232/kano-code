@@ -11,7 +11,6 @@
 <link rel="import" href="../kano-input-image/kano-input-image.html">
 <link rel="import" href="../kano-input-font-family/kano-input-font-family.html">
 
-
 <dom-module id="kano-input">
     <style>
     :host {
@@ -33,7 +32,8 @@
             '_valueChanged(value)',
         ],
         _typeChanged () {
-            let input = document.createElement(this._getTagName());
+            let input = document.createElement(this._getTagName()),
+                root = Polymer.dom(this.root);
             input.value = this.value;
             input.label = this.label;
             input.min = this.min;
@@ -45,10 +45,10 @@
             });
 
             this.input = input;
-            while (this.firstChild) {
-                this.removeChild(this.firstChild);
+            while (root.firstChild) {
+                root.removeChild(root.firstChild);
             }
-            this.appendChild(this.input);
+            root.appendChild(this.input);
         },
         _valueChanged () {
             if (this.input) {

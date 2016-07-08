@@ -1,10 +1,11 @@
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="./kano-share-info-icons.html">
 <dom-module id="kano-share-info">
     <style>
         :host {
             font-size: 25px;
-        };
-        :host .row {
             margin: 4px 15px;
+            @apply(--layout-horizontal);
         }
         :host .kano-link {
             text-decoration: none;
@@ -17,33 +18,35 @@
             vertical-align: middle;
             cursor: pointer;
         }
-        .icon-heart.liked {
-            color: #ff5e5e;
+        iron-icon.liked {
+            --iron-icon-fill-color: #ff5e5e;
         }
         @media screen and (max-width: 568px) {
             .kano-link.title {
                 display: block;
             }
         }
+        .kano-link:not(.title) {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+        }
     </style>
     <template>
-        <div class="row">
-            <a class="kano-link ellipsis title" href$="[[shareUrl]]">
-                <span>{{share.title}}</span>
-            </a>
-            <a class="kano-link" href$="[[shareUrl]]">
-                <i class="icon-comment"></i>
-                <span>{{share.comments_count}}</span>
-            </a>
-            <a class="kano-link" on-tap="_toggleLike">
-                <i class$="icon-heart [[_computeLikeClass(liked)]]"></i>
-                <span>{{likeCount}}</span>
-            </a>
-            <a class="kano-link" href$="[[shareUrl]]">
-                <i class="icon-view"></i>
-                <span>{{share.views_count}}</span>
-            </a>
-        </div>
+        <a class="kano-link ellipsis title" href$="[[shareUrl]]">
+            <span>{{share.title}}</span>
+        </a>
+        <a class="kano-link" href$="[[shareUrl]]">
+            <iron-icon icon="share-info-icons:comment"></iron-icon>
+            <span>{{share.comments_count}}</span>
+        </a>
+        <a class="kano-link" on-tap="_toggleLike">
+            <iron-icon icon="share-info-icons:heart" class$="[[_computeLikeClass(liked)]]"></iron-icon>
+            <span>{{likeCount}}</span>
+        </a>
+        <a class="kano-link" href$="[[shareUrl]]">
+            <iron-icon icon="share-info-icons-view:view"></iron-icon>
+            <span>{{share.views_count}}</span>
+        </a>
     </template>
 </dom-module>
 

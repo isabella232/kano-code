@@ -4,6 +4,8 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/transform-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/scale-down-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/cascaded-animation.html">
@@ -45,14 +47,15 @@ Custom property | Description | Default
         border-radius: 4px;
         color: white;
     }
-    :host .content {
+    .content {
         @apply(--layout-horizontal);
         background-color: var(--kano-power-up-modal-background-color);
         font-family: bariol;
         position: relative;
-        margin: 0px;
-        padding: 0px;
+        margin: 0px !important;
+        padding: 0px !important;
         border-radius: 4px;
+        box-sizing: border-box;
     }
     :host .preview-image {
         width: 100%;
@@ -302,6 +305,24 @@ Custom property | Description | Default
         observers: [
             'optionsChanged(options.*)'
         ],
+        ready () {
+            this.$.modal.animationConfig = {
+                'entry': [{
+                    name: 'transform-animation',
+                    transformFrom: 'scale(1.5)',
+                    node: this.$.modal,
+                    timing: {
+                        duration: 200
+                    }
+                },{
+                    name: 'fade-in-animation',
+                    node: this.$.modal,
+                    timing: {
+                        duration: 200
+                    }
+                }]
+            };
+        },
         computeClass (completed) {
             return completed ? 'completed' : 'new';
         },

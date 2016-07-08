@@ -8,12 +8,13 @@
             @apply(--layout-center);
             background-color: #DCDCDC;
         }
-        :host kano-nav-bar {
+        kano-nav-bar {
             width: 100%;
             display: block;
             z-index: 1;
             /* Hi safari, how are you? */
-            flex-shrink: 0
+            flex-shrink: 0;
+            --kano-nav-bar-font-family: Bariol;
         }
         /* Hi safari, glad to see you again */
         :host ::content kano-nav-bar .center {
@@ -32,9 +33,6 @@
             width: 44px !important;
             height: 44px !important;
         }
-        :host .pure-g [class *= "pure-u"] {
-            font-family: 'Bariol', Helvetica, Arial, sans-serif;
-        }
         :host a:hover,
         :host a:visited,
         :host a:link,
@@ -50,6 +48,7 @@
         :host .container {
             width: 100%;
             padding: 0 100px;
+            box-sizing: border-box;
         }
 
         @media screen and (max-width: 568px) {
@@ -144,8 +143,8 @@
     <template>
         <kano-nav-bar user="[[user]]" xp="[[user.profile.xp]]" assets-path="/assets/navbar/" notifications="[[_computeNotifications(user.notifications)]]" world-root="[[worldRoot]]" default-avatar="/assets/avatar/judoka_1_white_circular.png"></kano-nav-bar>
         <div class="banner">
-            <div class="banner-content pure-g">
-                <div class="banner-text pure-u-1">
+            <div class="banner-content">
+                <div class="banner-text">
                     <img id="logo" src="/assets/make-apps-logo.svg" preload fade/>
                     <h1>Make Apps</h1>
                     <div>Want to control color? Check wind-speed on Mount Everest? Track astronauts in space? Make an app for that! Then share it with friends.</div>

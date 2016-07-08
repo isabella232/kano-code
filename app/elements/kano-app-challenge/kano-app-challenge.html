@@ -52,7 +52,7 @@
         color: #435055;
         text-shadow: none;
     }
-    :host kano-tooltip {
+    kano-tooltip {
         z-index: 101;
         --kano-tooltip-background-color: var(--tooltip-color);
         --kano-tooltip-border-color: white;
@@ -68,17 +68,17 @@
             box-shadow: 0px 0px 0px 0px;
         };
     }
-    :host kano-tooltip[position="top"] {
+    kano-tooltip[position="top"] {
         --kano-tooltip-caret: {
             box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
         };
     }
-    :host kano-tooltip[position="left"] {
+    kano-tooltip[position="left"] {
         --kano-tooltip-caret: {
             box-shadow: 2px 0px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
-    :host kano-tooltip[position="right"] {
+    kano-tooltip[position="right"] {
         --kano-tooltip-caret: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
@@ -154,12 +154,13 @@
             // Reset everything when the challenge is done
             if (done) {
                 this.set('tooltips', []);
+                this.$.arrow.hide();
                 this.set('arrow', {});
                 this.focus.hide();
                 this.modal.close();
 
                 if (this.editor.running) {
-                    editor.toggleRunning();
+                    this.editor.toggleRunning();
                 }
             }
         },
@@ -212,7 +213,9 @@
         computeArrow (step) {
             let source, target;
             if (!step.arrow) {
-                return this.set('arrow', {});
+                this.$.arrow.hide();
+                this.set('arrow', {});
+                return;
             }
             source = this.getDeepElement(step.arrow.source);
             target = this.getDeepElement(step.arrow.target);
@@ -279,7 +282,8 @@
             let pieces,
                 element = this.editor,
                 partId,
-                piece;
+                piece,
+                found;
             if (typeof selector == 'object') {
                 if (selector.block) {
                     return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
@@ -302,7 +306,13 @@
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
                 piece = pieces[i].split(',').join(',#');
-                element = element.querySelector(`#${piece}`);
+                if (element.root) {
+                    found = element.root.querySelector(`#${piece}`);
+                }
+                if (!found) {
+                    found = element.querySelector(`#${piece}`);
+                }
+                element = found;
             }
             return element;
         },

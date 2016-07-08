@@ -1,51 +1,41 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../kano-style/input.html">
+
 <dom-module id="kano-auth">
+    <style is="custom-style" include="input-text"></style>
     <style>
     :host {
         display: block;
         font-family: bariol;
     }
-    :host ::content input[type="text"],
-    :host ::content input[type="email"],
-    :host ::content input[type="password"] {
-        border-radius: 4px;
-        background: #f5f5f5;
-        border: 2px solid #ccc;
-        margin-bottom: 20px;
-        padding: 9px 15px;
-        display: inline-block;
-        font-size: 16px;
-        box-shadow: 0 2px 0 0 rgba(0,0,0,0.03) inset;
-        width: 100%;
-    }
-    :host ::content .x-username-field label {
+    :host .x-username-field label {
         display: inline-block;
     }
-    :host ::content label {
+    :host label {
         font-size: 20px;
         display: block;
         margin-bottom: 2px;
         color: #6e6e6e;
     }
-    :host ::content button {
+    :host button {
         @apply(--kano-button);
     }
-    :host ::content .success {
+    :host .success {
         width: 100%;
         background: var(--color-green, green);
     }
-    :host ::content .buttons {
+    :host .buttons {
         @apply(--layout-vertical);
     }
-    :host ::content .buttons .already-registered-button {
+    :host .buttons .already-registered-button {
         @apply(--layout-self-center);
         margin-top: 30px;
     }
-    :host ::content .password-field {
+    :host .password-field {
         position: relative;
     }
-    :host ::content .password-indicator {
+    :host .password-indicator {
         position: absolute;
         right: 10px;
         top: 13px;
@@ -54,22 +44,22 @@
         background-size: 30px 17px;
         background-image: url("/assets/icons/show-icon.png");
     }
-    :host ::content kano-login-form kano-password-field .password-indicator {
+    :host kano-login-form kano-password-field .password-indicator {
         display: none;
     }
-    :host ::content .password-indicator.hide-password {
+    :host .password-indicator.hide-password {
         background-image: url("/assets/icons/hide-icon.png");
     }
     @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
-        :host ::content .password-indicator {
+        :host .password-indicator {
             background-image: url("/assets/icons/show-icon@2x.png");
         }
 
-        :host ::content .password-indicator.hide-password {
+        :host .password-indicator.hide-password {
             background-image: url("/assets/icons/hide-icon@2x.png");
         }
     }
-    :host ::content .errors {
+    :host .errors {
         background: var(--color-red, red);
         padding: 10px;
         border-radius: 10px;
@@ -77,32 +67,32 @@
         display: none;
         font-size: 16px;
     }
-    :host ::content hr {
+    :host hr {
         border: 0;
         background: rgba(0,0,0,0.05);
         height: 1px;
     }
-    :host ::content kano-login-form .actions {
+    :host kano-login-form .actions {
         text-align: center;
     }
-    :host ::content a {
+    :host a {
         color: var(--color-orange);
         text-decoration: none;
         font-weight: bold;
         font-size: 15px;
     }
-    :host ::content a#terms {
+    :host a#terms {
         font-size: 20px;
         font-weight: 500;
     }
-    :host ::content h3 {
+    :host h3 {
         color: var(--color-orange, orange);
         font-weight: 600;
         text-align: center;
         margin-bottom: 40px;
         font-size: 30px;
     }
-    :host ::content .generate-nickname {
+    :host .generate-nickname {
         float: right;
         font-size: 15px;
         color: var(--color-orange);
@@ -145,6 +135,16 @@
             let inputs = this.querySelectorAll('input');
             for (let i = 0, len = inputs.length; i < len; i++) {
                 inputs[i].value = "";
+            }
+        },
+        attached () {
+            // Trick to enable shadow DOM like styling of xtag generated components
+            if (!Polymer.Settings.useNativeShadow) {
+                let elems = Polymer.dom(this.root).querySelectorAll('input, label, button, h3, hr, a, div');
+
+                for (let i = 0; i < elems.length; i++) {
+                    this.toggleClass('kano-auth', true, elems[i]);
+                }
             }
         }
     });
