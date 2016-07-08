@@ -23,7 +23,7 @@
         margin: auto;
         position: relative;
     }
-    :host kano-tooltip {
+    kano-tooltip {
         --kano-tooltip-background-color: #88c840;
         color: white;
         --kano-tooltip: {
@@ -159,6 +159,14 @@
                 1: '#00ff00',
                 2: '#0000ff'
             };
+            this.devices = {};
+            this.devices.get = this._getPartById.bind(this);
+        },
+        _getPartById (id) {
+            if (id === 'dropzone') {
+                return this.dropzone;
+            }
+            return this.dropzone.querySelector(`#${id}`);
         },
         backgroundChanged (bg) {
             if (this.dropzone && this.dropzone.setBackgroundColor) {
@@ -441,7 +449,7 @@
             ctx.fillStyle = this.background;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             this.parts.forEach((part) => {
-                let el = this.querySelector(`#${part.id}`);
+                let el = this.dropzone.querySelector(`#${part.id}`);
                 if (typeof el.renderOnCanvas === 'function') {
                     promise = promise.then(() => {
                         return el.renderOnCanvas(ctx, util, scaleFactor);

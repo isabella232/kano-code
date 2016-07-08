@@ -1,82 +1,56 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../kano-style/input.html">
 
 <dom-module id="kano-share-modal">
+    <style is="custom-style" include="input-text"></style>
     <style>
         :host {
             display: block;
             position: relative;
             @apply(--layout-vertical);
-            font-family: bariol;
+            font-family: Bariol;
         }
         :host .dialog button {
             @apply(--kano-button);
             margin-left: 5px;
         }
-        :host button.share {
+        button.share {
             background-color: var(--color-green, green);
         }
-
-        :host .p-box {
-            padding: 1em;
-        }
-
-        :host .screenshot {
-            width: 100%;
-        }
-
-        :host .dialog .buttons {
-            justify-content: center;
-            margin: 1em;
-        }
-
-        :host .success iron-image {
+        .success iron-image {
             flex: 1 1 300px;
             margin-bottom: 20px;
         }
-        :host .success {
+        .success {
             @apply(--layout-vertical);
         }
-        :host .success .buttons {
+        .success .buttons {
             @apply(--layout-horizonal);
             padding: 0px;
             margin-top: 10px;
         }
-        :host .success .buttons iron-image {
+        .success .buttons iron-image {
             margin-left: 5px;
             width: 40px;
             height: 40px;
         }
-        :host .success .buttons .spacer {
+        .success .buttons .spacer {
             @apply(--layout-flex);
         }
-        :host .success .title, :host .fail .title {
+        .success .title, .fail .title {
             font-size: 2.0em;
             margin-bottom: 10px;
             font-weight: 600;
         }
-        :host .fail button {
+        .fail button {
             @apply(--kano-button);
             background: var(--color-red);
         }
-        :host .success .instructions, :host .fail .instructions {
+        .success .instructions, .fail .instructions {
             font-size: 1.2em;
             margin: 15px 0;
-        }
-        :host input[type="text"],
-        :host input[type="email"],
-        :host input[type="password"],
-        :host textarea {
-            border-radius: 4px;
-            background: #f5f5f5;
-            border: 2px solid #ccc;
-            margin-bottom: 20px;
-            padding: 9px 15px;
-            display: inline-block;
-            font-size: 16px;
-            box-shadow: 0 2px 0 0 rgba(0,0,0,0.03) inset;
-            width: 100%;
         }
         :host label {
             font-size: 20px;
@@ -91,31 +65,44 @@
             margin-left: 5px;
             padding-top: 12px;
         }
+        .dialog {
+            @apply(--layout-horizontal);
+        }
+        @media screen and (max-width: 960px) {
+            .dialog {
+                @apply(--layout-vertical);
+            }
+            .screenshot {
+                width: 100%;
+            }
+        }
+        .form {
+            @apply(--layout-vertical);
+            padding: 0px 16px;
+        }
+        .buttons {
+            @apply(--layout-horizontal);
+            @apply(--layout-around-justified);
+        }
     </style>
     <template>
         <iron-pages selected="[[shareInfo.page]]">
-            <div class="dialog pure-g">
-                <div class="pure-u-1 pure-u-md-1-2">
-                    <div class="p-box">
-                        <img class="screenshot" src$="[[shareInfo.image.src]]">
+            <div class="dialog">
+                <img class="screenshot" src$="[[shareInfo.image.src]]">
+                <div class="form">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" value="{{shareInfo.title::change}}">
                     </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-2">
-                    <div class="p-box">
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" value="{{shareInfo.title::change}}">
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea rows="8"
-                                    cols="40"
-                                    value="{{shareInfo.description::change}}"></textarea>
-                        </div>
-                        <div class="buttons">
-                            <button on-tap="dismiss">Cancel</button>
-                            <button on-tap="confirm" class="share">Publish</button>
-                        </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea rows="8"
+                            cols="40"
+                            value="{{shareInfo.description::change}}"></textarea>
+                    </div>
+                    <div class="buttons">
+                        <button on-tap="dismiss">Cancel</button>
+                        <button on-tap="confirm" class="share">Publish</button>
                     </div>
                 </div>
             </div>

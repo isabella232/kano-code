@@ -79,7 +79,7 @@ function animateLoader() {
             'Learning to code is like learning a new language (learning to construct sentences, etc.)',
             'A text file written in a particular language is called a program',
             'Ada Lovelace is the first computer programmer. She created the first program ever',
-            'The first game was created in 1961'
+            'The first video game was created in 1961'
         ],
         rndIndex = Math.floor(Math.random() * funFacts.length),
         title = document.getElementById('title'),
@@ -123,5 +123,10 @@ if (window.addEventListener) {
 } else {
     window.onload = deferLoading;
 }
+
+window.Polymer = {
+    dom: 'shadow',
+    lazyRegister: false
+};
 
 /* build:sw */

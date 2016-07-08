@@ -5,7 +5,7 @@
           align-items: center;
           @apply(--layout-horizontal);
         }
-        :host ::content .user-app {
+        :host .user-app {
             @apply(--layout-flex);
             height: 100%;
         }
@@ -57,7 +57,8 @@
                 });
             },
             _onAppFileLoad () {
-                let c;
+                let root = Polymer.dom(this.root),
+                    c;
                 // Create the component. Older shares were generated with the tagName `kano-user-component`
                 try {
                     c = this.create(`kano-${this.slug}`);
@@ -67,9 +68,9 @@
                 } catch (e) {
                     c = this.create('kano-user-component');
                 }
-                c.className = 'user-app';
-                this.appendChild(c);
-                this.removeChild(this.$.container);
+                c.className = 'user-app kano-app-player';
+                root.appendChild(c);
+                root.removeChild(this.$.container);
             },
             _onAppFileError (e) {
                 this.failed = true;

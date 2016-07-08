@@ -5,6 +5,9 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/transform-animation.html">
 
 
 <link rel="import" href="../app.html">
@@ -27,6 +30,9 @@ Example:
         display: block;
         @apply(--layout-vertical);
         @apply(--layout-flex);
+    }
+    :host button {
+        font-family: Bariol;
     }
     :host paper-drawer-panel {
         @apply(--layout-vertical);
@@ -91,7 +97,7 @@ Example:
     :host .auth-modal {
         border-radius: 5px;
     }
-    :host .news-bar {
+    .news-bar {
         background-color: #7DC242;
         min-height: 40px;
         color: white;
@@ -99,8 +105,9 @@ Example:
         text-decoration: none;
         padding: 7px;
         text-align: center;
+        box-sizing: border-box;
     }
-    :host .news-bar:hover {
+    .news-bar:hover {
         background-color: #8AC854;
     }
     #toast button {
@@ -113,10 +120,10 @@ Example:
             Hey, coder! We need your help to improve Make Apps. Click here to share feedback and report bugs!
         </a>
         <paper-drawer-panel id="drawer" force-narrow disable-edge-swipe disable-swipe>
-            <kano-side-menu drawer user="[[user]]" on-toggle-menu="toggleMenu" editor="{{editor}}" offline="[[offline]]" on-login="_login"></kano-side-menu>
+            <kano-side-menu drawer user="[[user]]" on-toggle-menu="toggleMenu" offline="[[offline]]" on-login="_login"></kano-side-menu>
             <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
         </paper-drawer-panel>
-        <paper-dialog id="auth-modal" class="auth-modal" modal>
+        <paper-dialog id="auth-modal" class="auth-modal" with-backdrop>
             <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
         </paper-dialog>
         <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
@@ -168,6 +175,29 @@ Example:
         ready () {
             this.editor = null;
             this.offline = Kano.MakeApps.config.TARGET === 'osonline' && ClientUtil.isPi();
+            this.$['auth-modal'].animationConfig = {
+                entry: [{
+                    name: 'transform-animation',
+                    transformFrom: 'scale(1.5)',
+                    node: this.$['auth-modal'],
+                    timing: {
+                        duration: 200
+                    }
+                },{
+                    name: 'fade-in-animation',
+                    node: this.$['auth-modal'],
+                    timing: {
+                        duration: 200
+                    }
+                }],
+                exit: {
+                    name: 'fade-out-animation',
+                    node: this.$['auth-modal'],
+                    timing: {
+                        duration: 200
+                    }
+                }
+            };
             let initialiseSDK = () => {
                 Kano.MakeApps.sdk.auth.initSession((err, user) => {
                     if (user) {

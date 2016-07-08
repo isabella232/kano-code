@@ -84,12 +84,14 @@
             this.mountComponent(view);
         },
         mountComponent (component) {
+            let root = Polymer.dom(this.root);
             component.style.flex = this.flexEnabled ? 1 : 'none';
+            component.style.height = '100%';
 
-            while (this.firstChild) {
-                this.removeChild(this.firstChild);
+            while (root.firstChild) {
+                root.removeChild(root.firstChild);
             }
-            this.appendChild(component);
+            root.appendChild(component);
             this.viewComponent = component;
             this.set('ready', true);
         },

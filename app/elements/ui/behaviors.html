@@ -17,7 +17,7 @@ window.Kano.Behaviors.UIBehavior = {
             type: Object,
             notify: true
         },
-        listeners: {
+        userListeners: {
             type: Object,
             value: () => {
                 return {};
@@ -60,10 +60,10 @@ window.Kano.Behaviors.UIBehavior = {
         }, '');
     },
     when (name, callback) {
-        if (!this.listeners[name]) {
-            this.listeners[name] = [];
+        if (!this.userListeners[name]) {
+            this.userListeners[name] = [];
         }
-        this.listeners[name].push(callback);
+        this.userListeners[name].push(callback);
         this.addEventListener(name, callback);
     },
     start () {
@@ -82,12 +82,12 @@ window.Kano.Behaviors.UIBehavior = {
     },
     stop () {
         let savedState = this.savedState || {};
-        Object.keys(this.listeners).forEach((name) => {
-            this.listeners[name].forEach((callback) => {
+        Object.keys(this.userListeners).forEach((name) => {
+            this.userListeners[name].forEach((callback) => {
                 this.removeEventListener(name, callback);
             });
         });
-        this.listeners = {};
+        this.userListeners = {};
         savedState.position = savedState.position || { x: 0, y: 0 };
         this.set('model.position.x', savedState.position.x);
         this.set('model.position.y', savedState.position.y);

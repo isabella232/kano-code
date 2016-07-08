@@ -2,6 +2,7 @@
 <link rel="import" href="../kano-focus-on/kano-focus-on.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
+<link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
 <link rel="import" href="../behaviors/kano-validator-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
 <dom-module id="kano-app-challenge">
@@ -52,7 +53,7 @@
         color: #435055;
         text-shadow: none;
     }
-    :host kano-tooltip {
+    kano-tooltip {
         z-index: 101;
         --kano-tooltip-background-color: var(--tooltip-color);
         --kano-tooltip-border-color: white;
@@ -68,20 +69,25 @@
             box-shadow: 0px 0px 0px 0px;
         };
     }
-    :host kano-tooltip[position="top"] {
+    kano-tooltip[position="top"] {
         --kano-tooltip-caret: {
             box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.25);
         };
     }
-    :host kano-tooltip[position="left"] {
+    kano-tooltip[position="left"] {
         --kano-tooltip-caret: {
             box-shadow: 2px 0px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
-    :host kano-tooltip[position="right"] {
+    kano-tooltip[position="right"] {
         --kano-tooltip-caret: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
+    }
+    .tooltip-text kano-blockly-block {
+        line-height: 0px;
+        vertical-align: middle;
+        display: inline-block;
     }
     </style>
     <template>
@@ -154,12 +160,13 @@
             // Reset everything when the challenge is done
             if (done) {
                 this.set('tooltips', []);
+                this.$.arrow.hide();
                 this.set('arrow', {});
                 this.focus.hide();
                 this.modal.close();
 
                 if (this.editor.running) {
-                    editor.toggleRunning();
+                    this.editor.toggleRunning();
                 }
             }
         },
@@ -204,15 +211,29 @@
                     let target = this.getDeepElement(tooltip.location),
                         rect = target.getBoundingClientRect();
                     tooltip.target = rect;
+                    tooltip.text = this._processMarkdown(tooltip.text);
                     return tooltip;
                 });
                 this.set('tooltips', tooltips);
             }, 200);
         },
+        _processMarkdown (text) {
+            let reg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
+            return text.replace(reg, (match, before, type, after) => {
+                let pieces = type.split('#');
+                if (pieces.length > 1) {
+                    pieces[0] = this.stepIds[pieces[0]] || pieces[0];
+                }
+                type = pieces.join('#');
+                return `<kano-blockly-block${before}type="${type}"${after}></kano-blockly-block>`;
+            });
+        },
         computeArrow (step) {
             let source, target;
             if (!step.arrow) {
-                return this.set('arrow', {});
+                this.$.arrow.hide();
+                this.set('arrow', {});
+                return;
             }
             source = this.getDeepElement(step.arrow.source);
             target = this.getDeepElement(step.arrow.target);
@@ -268,6 +289,7 @@
                 }
                 this.modal.close();
                 if (step.modal) {
+                    step.modal.text = this._processMarkdown(step.modal.text);
                     this.modal.open();
                 }
                 this.set('currentStep', this.currentStep + 1);
@@ -279,7 +301,8 @@
             let pieces,
                 element = this.editor,
                 partId,
-                piece;
+                piece,
+                found;
             if (typeof selector == 'object') {
                 if (selector.block) {
                     return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
@@ -302,7 +325,13 @@
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
                 piece = pieces[i].split(',').join(',#');
-                element = element.querySelector(`#${piece}`);
+                if (element.root) {
+                    found = element.root.querySelector(`#${piece}`);
+                }
+                if (!found) {
+                    found = element.querySelector(`#${piece}`);
+                }
+                element = found;
             }
             return element;
         },
