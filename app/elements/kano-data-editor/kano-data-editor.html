@@ -87,6 +87,9 @@
         border: 1px solid grey;
         background-color: var(--color-white, white);
     }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
         <div class="content">
@@ -101,7 +104,7 @@
                     <paper-toggle-button checked="{{selected.refreshEnabled}}" noink>Refresh</paper-toggle-button>
                 </div>
                 <div class="line" id="refresh-frequency">
-                    <paper-dropdown-menu label="Refresh every" disabled="[[!selected.refreshEnabled]]" noink no-animations>
+                    <paper-dropdown-menu label="Refresh every" disabled="[[!selected.refreshEnabled]]">
                         <paper-menu class="dropdown-content" selected="{{selected.refreshFreq}}" attr-for-selected="value">
                             <paper-item value="5">5 seconds</paper-item>
                             <paper-item value="30">30 seconds</paper-item>
@@ -191,8 +194,9 @@
             this.notifyChange('manual-refresh', {});
         },
         paramChanged (e) {
-            let key = e.model.get('param').key;
-            this.set(`selected.config.${key}`, e.target.value);
+            let key = e.model.get('param.key'),
+                value = e.model.get('param.value');
+            this.set(`selected.config.${key}`, value);
         },
         computeDataSample () {
             if (!this.selected || !this.selected.data) {
