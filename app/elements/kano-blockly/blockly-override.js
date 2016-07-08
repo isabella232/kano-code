@@ -66,11 +66,43 @@ var injectMethods = {
     loadSounds_: Blockly.inject.loadSounds_,
 };
 
-goog.ui.Component.prototype.getElement = function() {
-    if (!this.element_) {
-        this.createDom();
+/**
+ * Sets the state or property of an element.
+ * @param {!Element} element DOM node where we set state.
+ * @param {!(goog.a11y.aria.State|string)} stateName State attribute being set.
+ *     Automatically adds prefix 'aria-' to the state name if the attribute is
+ *     not an extra attribute.
+ * @param {string|boolean|number|!Array<string>} value Value
+ * for the state attribute.
+ */
+goog.a11y.aria.setState = function(element, stateName, value) {
+  if (goog.isArray(value)) {
+    value = value.join(' ');
+  }
+  var attrStateName = goog.a11y.aria.getAriaAttributeName_(stateName);
+  if (!element) {
+      return;
+  }
+  if (value === '' || value == undefined) {
+    var defaultValueMap = goog.a11y.aria.datatables.getDefaultValuesMap();
+    // Work around for browsers that don't properly support ARIA.
+    // According to the ARIA W3C standard, user agents should allow
+    // setting empty value which results in setting the default value
+    // for the ARIA state if such exists. The exact text from the ARIA W3C
+    // standard (http://www.w3.org/TR/wai-aria/states_and_properties):
+    // "When a value is indicated as the default, the user agent
+    // MUST follow the behavior prescribed by this value when the state or
+    // property is empty or undefined."
+    // The defaultValueMap contains the default values for the ARIA states
+    // and has as a key the goog.a11y.aria.State constant for the state.
+    if (stateName in defaultValueMap) {
+      element.setAttribute(attrStateName, defaultValueMap[stateName]);
+    } else {
+      element.removeAttribute(attrStateName);
     }
-  return this.element_;
+  } else {
+    element.setAttribute(attrStateName, value);
+  }
 };
 
 
@@ -375,11 +407,11 @@ Blockly.Toolbox.prototype.addColour_ = function(opt_tree) {
             if (element.classList.contains('blocklyTreeRow')) {
                 next = element.parentNode.nextSibling;
                 previous = element.parentNode.previousSibling;
-                if (!next || next.classList.contains('goog-tree-item')) {
+                if (!next || next.classList.contains('goog-tree-item') || next.getAttribute('role') !== "treeitem") {
                     element.style.borderBottomLeftRadius = '8px';
                     element.style.borderBottomRightRadius = '8px';
                 }
-                if (!previous || previous.classList.contains('goog-tree-item')) {
+                if (!previous || previous.classList.contains('goog-tree-item') || previous.getAttribute('role') !== "treeitem") {
                     element.style.borderTopLeftRadius = '8px';
                     element.style.borderTopRightRadius = '8px';
                 }

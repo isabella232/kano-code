@@ -10,7 +10,7 @@
         border: 1px solid lightgrey;
     }
     canvas[running] {
-        border: 0px;
+        border-color: transparent;
     }
     </style>
     <template>
@@ -30,8 +30,11 @@
             this.resetSession();
         },
         _computeCanvasStyle () {
+            let style;
             this._updateCanvasSize();
-            return this.getPartialStyle(['width', 'height']);
+            style = this.getPartialStyle(['width', 'height']);
+            style += `background: ${this.background};`;
+            return style;
         },
         _updateCanvasSize () {
             if (!this.model) {
@@ -44,6 +47,10 @@
                 this.prevSize.height = this.model.userStyle.height;
             }
         },
+        setBackgroundColor (color) {
+            this.$.canvas.style.background = color;
+            this.background = color;
+        },
         polygon (points, close) {
             return this.modules.shapes.polygon.apply(this.modules.shapes.polygon, points.concat(close));
         },
@@ -51,6 +58,8 @@
             if (!this.model) {
                 return;
             }
+            this.$.canvas.style.background = 'transparent';
+            this.background = 'transparent';
             this.modules = new Kano.CanvasAPI({
                 ctx: this.ctx,
                 width: parseInt(this.model.userStyle.width),

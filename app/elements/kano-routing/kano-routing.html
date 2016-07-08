@@ -71,12 +71,18 @@
               type: String,
               reflectToAttribute: true,
               notify: true
+          },
+          loading: {
+              type: Boolean,
+              observer: '_loadingChanged'
           }
       },
       /**
        * Initialize the views
        */
       ready () {
+          this.firstLoad = false;
+          this.firstLoadFinished = false;
           page('/',             this._showPageThunk('home'));
           page('/apps',         this._showPageThunk('apps'));
           page('/apps/:view',   this._showPageThunk('apps'));
@@ -113,6 +119,15 @@
       },
       _computeLoadingClass (loading) {
           return loading ? 'loading' : '';
+      },
+      _loadingChanged (value) {
+          if (!this.firstLoad && value) {
+              this.firstLoad = true;
+          }
+          if (this.firstLoad && !this.firstLoadFinished && !value) {
+              this.firstLoadFinished = true;
+              this.fire('kano-routing-first-load-finish');
+          }
       }
   });
   </script>

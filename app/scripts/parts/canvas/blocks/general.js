@@ -16,13 +16,13 @@ export default [{
     javascript: (ui) => {
         return function (block) {
             let color = Blockly.JavaScript.valueToCode(block, 'COLOR');
-            return `devices.get('${ui.id}').modules.general.background(${color});\n`;
+            return `devices.get('${ui.id}').setBackgroundColor(${color});\n`;
         };
     },
     pseudo: (ui) => {
         return function (block) {
             let color = Blockly.Pseudo.valueToCode(block, 'COLOR');
-            return `devices.get('${ui.id}').modules.general.background(${color});\n`;
+            return `devices.get('${ui.id}').setBackgroundColor(${color});\n`;
         };
     }
 }];
