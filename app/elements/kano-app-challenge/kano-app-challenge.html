@@ -2,6 +2,7 @@
 <link rel="import" href="../kano-focus-on/kano-focus-on.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
+<link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
 <link rel="import" href="../behaviors/kano-validator-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
 <dom-module id="kano-app-challenge">
@@ -82,6 +83,11 @@
         --kano-tooltip-caret: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
+    }
+    .tooltip-text kano-blockly-block {
+        line-height: 0px;
+        vertical-align: middle;
+        display: inline-block;
     }
     </style>
     <template>
@@ -205,10 +211,22 @@
                     let target = this.getDeepElement(tooltip.location),
                         rect = target.getBoundingClientRect();
                     tooltip.target = rect;
+                    tooltip.text = this._processMarkdown(tooltip.text);
                     return tooltip;
                 });
                 this.set('tooltips', tooltips);
             }, 200);
+        },
+        _processMarkdown (text) {
+            let reg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
+            return text.replace(reg, (match, before, type, after) => {
+                let pieces = type.split('#');
+                if (pieces.length > 1) {
+                    pieces[0] = this.stepIds[pieces[0]] || pieces[0];
+                }
+                type = pieces.join('#');
+                return `<kano-blockly-block${before}type="${type}"${after}></kano-blockly-block>`;
+            });
         },
         computeArrow (step) {
             let source, target;
@@ -271,6 +289,7 @@
                 }
                 this.modal.close();
                 if (step.modal) {
+                    step.modal.text = this._processMarkdown(step.modal.text);
                     this.modal.open();
                 }
                 this.set('currentStep', this.currentStep + 1);
