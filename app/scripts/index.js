@@ -17,18 +17,21 @@ var webComponentsSupported = ('registerElement' in document &&
  */
 function onFirstPageLoaded() {
     var duration = new Date() - started,
-        loader;
+        loader,
+        logo;
     if (duration < 1500) {
         timeout = setTimeout(onElementsLoaded, 1500 - duration);
         return;
     }
     document.removeEventListener('kano-routing-first-load-finish', onFirstPageLoaded);
     loader = document.getElementById('loader');
+    logo = document.getElementById('logo');
     loader.className += ' animate-out';
+    logo.className += ' animate-out';
     loaded = true;
     setTimeout(function () {
         loader.parentNode.removeChild(loader);
-    }, 300);
+    }, 400);
 }
 
 function startBreathing() {

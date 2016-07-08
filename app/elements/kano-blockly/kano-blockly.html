@@ -21,46 +21,48 @@
             @apply(--kano-crossed-background);
         }
 
-        .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]) {
+        .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]), ::content .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]) {
             display: none;
         }
 
-        .blocklyEditableText>rect {
+        .blocklyEditableText>rect, ::content .blocklyEditableText>rect {
             fill: white;
             fill-opacity: 0.6;
         }
 
         .blocklyPathDark,
-        .blocklyPathLight {
+        .blocklyPathLight,
+        ::content .blocklyPathDark,
+        ::content .blocklyPathLight {
             fill: transparent !important;
             stroke-width: 0px !important;
         }
-        .blocklySelected > .blocklyPath {
+        .blocklySelected > .blocklyPath, ::content .blocklySelected > .blocklyPath {
             stroke-width: 1px !important;
             stroke: rgba(0, 0, 0, 0.5) !important;
             stroke-linejoin: round !important;
         }
-        .blocklyHighlightedConnectionPath {
+        .blocklyHighlightedConnectionPath, ::content .blocklyHighlightedConnectionPath {
             stroke-width: 2px !important;
         }
-        text.blocklyText {
+        text.blocklyText, ::content text.blocklyText {
             font-family: bariol;
             font-size: 1em;
         }
-        .blocklyEditableText:hover > rect {
+        .blocklyEditableText:hover > rect, ::content .blocklyEditableText:hover > rect {
             stroke-width: 1px !important;
         }
-        .blocklyEditableText .blocklyText {
+        .blocklyEditableText .blocklyText, ::content .blocklyEditableText .blocklyText {
             font-size: 1em !important;
         }
-        div.blocklyTreeRoot {
+        div.blocklyTreeRoot, ::content div.blocklyTreeRoot {
             padding: 0px;
         }
-        span.blocklyTreeLabel {
+        span.blocklyTreeLabel, ::content span.blocklyTreeLabel {
             font-family: bariol;
             font-size: 1.1em;
         }
-        div.blocklyTreeRow {
+        div.blocklyTreeRow, ::content div.blocklyTreeRow {
             position: relative;
             height: auto !important;
             line-height: 20px !important;
@@ -70,7 +72,9 @@
             font-size: 1em;
         }
         div.blocklyTreeRow:hover,
-        span.blocklyTreeLabel:hover {
+        span.blocklyTreeLabel:hover,
+        ::content div.blocklyTreeRow:hover,
+        ::content span.blocklyTreeLabel:hover {
             cursor: pointer;
         }
         div.blocklyTriangle {
@@ -82,22 +86,22 @@
             border-right-width: 10px;
             border-right-color: #E8E8E8;
         }
-        span.blocklyTreeIcon {
+        span.blocklyTreeIcon, ::content span.blocklyTreeIcon {
             width: 0px;
         }
-        div.blocklyToolboxDiv {
+        div.blocklyToolboxDiv, ::content div.blocklyToolboxDiv {
             background-color: transparent;
             position: absolute;
         }
-        div.goog-tree-item {
+        div.goog-tree-item, ::content div.goog-tree-item {
             border: 0px;
             visibility: hidden;
         }
-        path.blocklyFlyoutBackground {
+        path.blocklyFlyoutBackground, ::content path.blocklyFlyoutBackground {
             fill: #E8E8E8;
             fill-opacity: 1;
         }
-        rect.blocklyMainBackground {
+        rect.blocklyMainBackground, ::content rect.blocklyMainBackground {
             opacity: 0 !important;
         }
         .buttons button {
@@ -181,6 +185,14 @@
             this.async(() => {
                 this.fire('blockly-ready');
                 this.resize();
+                // Trick to enable shadow DOM like styling of xtag generated components
+                if (!Polymer.Settings.useNativeShadow) {
+                    let elems = Polymer.dom(this.root).querySelectorAll('svg, div');
+
+                    for (let i = 0; i < elems.length; i++) {
+                        this.toggleClass('kano-blockly', true, elems[i]);
+                    }
+                }
             });
         },
         detached () {

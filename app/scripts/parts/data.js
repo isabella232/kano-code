@@ -207,6 +207,9 @@ export default class Data extends Part {
             });
         }
     }
+    refresh () {
+        return Kano.AppModules.getModule('data').generateRequest(this.id, this.method, this.config);
+    }
     toJSON () {
         let plain = super.toJSON.call(this);
         plain.refreshFreq = this.refreshFreq;
