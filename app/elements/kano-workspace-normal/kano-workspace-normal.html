@@ -59,10 +59,14 @@
             is: 'kano-workspace-normal',
             properties: {
                 width: Number,
-                height: Number
+                height: Number,
+                autoStart: Boolean
             },
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
+                if (this.autoStart) {
+                    this.start();
+                }
             },
             setBackgroundColor (color) {
                 this.$.canvas.style.background = color;
