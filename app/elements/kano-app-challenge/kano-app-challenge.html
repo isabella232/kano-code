@@ -302,10 +302,12 @@
                 element = this.editor,
                 partId,
                 piece,
-                found;
+                found,
+                block;
             if (typeof selector == 'object') {
                 if (selector.block) {
-                    return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
+                    block = this.getTargetBlock(selector.block);
+                    return block.getSvgRoot();
                 } else if (selector.category) {
                     let cat = selector.category;
                     if (cat.part) {

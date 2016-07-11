@@ -8,8 +8,12 @@
     <body>
         <script src="./views/kano-view-tutorial/challenge.js"></script>
         <script type="text/javascript">
-            var app = JSON.parse(localStorage.getItem('savedApp'));
-            console.log(Kano.MakeApps.Challenge.createFromApp(app));
+            fetch('https://s3-eu-west-1.amazonaws.com/world.kano.me.staging/share-items/workspace-info/5783d028eca20c8f0ef543b0.json')
+                .then(r => r.json())
+                .then(app => {
+                    var steps = Kano.MakeApps.Challenge.createFromApp(app).data.steps;
+                    console.log(JSON.stringify(steps, null, '\t'));
+                });
         </script>
     </body>
 </html>
