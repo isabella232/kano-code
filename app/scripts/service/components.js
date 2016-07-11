@@ -136,13 +136,17 @@ class ComponentStore {
                     kano-ui-viewport * {
                         position: absolute;
                     }
+                    #screen {
+                        width: 100%;
+                        height: 100%;
+                    }
                 </style>
                 <template>
                     <kano-ui-viewport mode="scaled"
                                 view-width="${mode.workspace.viewport.width}"
                                 view-height="${mode.workspace.viewport.height}"
                                 no-overflow>
-                        <${mode.workspace.component} id="screen">
+                        <${mode.workspace.component} id="screen" width="${mode.workspace.viewport.width}" height="${mode.workspace.viewport.height}">
                             ${template}
                         </${mode.workspace.component}>
                     </kano-ui-viewport>
