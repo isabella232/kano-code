@@ -117,7 +117,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('views', ['copy'], () => {
-        return gulp.src('app/views/**/*.html')
+        return gulp.src('app/views/**/*')
             .pipe($.crisper({ scriptInHead: false }))
             .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
