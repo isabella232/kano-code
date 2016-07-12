@@ -156,9 +156,9 @@
             <h1>Projects</h1>
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
-            <kano-app-list limit="3" view="my" apps="[[user_apps]]"></kano-app-list>
+            <kano-app-list limit="3" view="my" apps="[[user_apps]]" app-base-url="[[appBaseUrl]]"></kano-app-list>
             <h1>Latest Apps</h1><a  id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
-            <kano-app-list limit="4" apps="[[apps]]"></kano-app-list>
+            <kano-app-list limit="4" apps="[[apps]]" app-base-url="[[appBaseUrl]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -172,6 +172,12 @@
             projects: {
                 type: Array,
                 value: []
+            },
+            appBaseUrl: {
+                type: String,
+                value: () => {
+                    return Kano.MakeApps.config.WORLD_URL + "/shared";
+                }
             }
         },
         observers: [

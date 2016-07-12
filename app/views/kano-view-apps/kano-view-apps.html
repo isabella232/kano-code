@@ -74,7 +74,7 @@
         <div class="container">
             <a href="/" class="back-to-home">&lt; Home</a>
             <h1>{{appListHeader}}</h1>
-            <kano-app-list view="[[view]]" apps="[[apps]]"></kano-app-list>
+            <kano-app-list view="[[view]]" apps="[[apps]]" app-base-url="[[appBaseUrl]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -90,6 +90,12 @@
             },
             appListHeader: {
                 type: String
+            },
+            appBaseUrl: {
+                type: String,
+                value: () => {
+                    return Kano.MakeApps.config.WORLD_URL + "/shared";
+                }
             }
         },
         observers: [
@@ -125,7 +131,7 @@
             this.appListHeader = appListHeader;
             this.view = view;
 
-            this.async(function() {
+            this.async(function () {
                 trackPage();
             });
         },
