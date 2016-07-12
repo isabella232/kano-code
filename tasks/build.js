@@ -47,17 +47,23 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('story-bundle', ['bundles'], () => {
-        getImports('./app/elements/editor-bundle.html').then((common) => {
-            return gulp.src(['.tmp/app/elements/story-bundle.html'])
-                .pipe($.utils.vulcanize({
-                    inlineScripts: true,
-                    inlineCss: true,
-                    stripExcludes: common,
-                    stripComments: true
-                }))
-                .pipe($.crisper({ scriptInHead: false }))
-                .pipe(gulp.dest('www/elements'));
-        }).catch($.utils.notifyError);
+        Promise.all([getImports('./app/elements/elements.html'), getImports('./app/elements/editor-bundle.html')])
+            .then((commons) => {
+                return commons.reduce((acc, common) => {
+                    return acc.concat(common);
+                }, []);
+            })
+            .then((common) => {
+                return gulp.src(['.tmp/app/elements/story-bundle.html'])
+                    .pipe($.utils.vulcanize({
+                        inlineScripts: true,
+                        inlineCss: true,
+                        stripExcludes: common,
+                        stripComments: true
+                    }))
+                    .pipe($.crisper({ scriptInHead: false }))
+                    .pipe(gulp.dest('www/elements'));
+            }).catch($.utils.notifyError);
     });
 
     gulp.task('babel', ['copy'], () => {
