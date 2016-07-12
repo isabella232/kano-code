@@ -1,34 +1,36 @@
 'use strict';
 
 module.exports = (gulp, $) => {
-    let babelOrCopy = require('./babel-or-copy')(gulp, $),
-        bundler = $.browserify('app/scripts/app.js', { cache: {}, packageCache: {} })
-            .transform($.babelify.configure({ presets: ['es2015'] }));
+    let babelOrCopy = require('./babel-or-copy')(gulp, $);
 
     gulp.task('elements-dev', ['kano-canvas-api-dev'], () => {
         return babelOrCopy('app/elements/**/*.{js,html,css}', { base: 'app/elements/' })
-            .pipe(gulp.dest('www/elements'));
+            .pipe(gulp.dest('www/elements'))
+            .pipe($.browserSync.stream());
     });
 
     gulp.task('scenes-dev', () => {
         return babelOrCopy('app/assets/stories/**/*.html')
-            .pipe(gulp.dest('www/assets/stories'));
+            .pipe(gulp.dest('www/assets/stories'))
+            .pipe($.browserSync.stream());
     });
 
     gulp.task('views-dev', () => {
         return babelOrCopy('app/views/**/*.{js,html,css}')
-            .pipe(gulp.dest('www/views'));
+            .pipe(gulp.dest('www/views'))
+            .pipe($.browserSync.stream());
     });
 
     gulp.task('style-dev', () => {
-        gulp.src('app/style/*.css')
+        return gulp.src('app/style/*.css')
             .pipe($.concat('main.css'))
             .pipe($.autoprefixer())
-            .pipe(gulp.dest('www/css'));
+            .pipe(gulp.dest('www/css'))
+            .pipe($.browserSync.stream());
     });
 
     gulp.task('index-dev', () => {
-        gulp.src('app/index.html')
+        return gulp.src('app/index.html')
             .pipe($.htmlReplace($.utils.getHtmlReplaceOptions()))
             .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
             .pipe(gulp.dest('www'));
@@ -53,19 +55,18 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], () => {
-        gulp.src([
+        return gulp.src([
             'app/assets/**/*',
             'app/assets/**/*',
             'app/manifest.json',
             '!app/assets/stories/**/*.{js,html}',
             '!app/assets/vendor/**/*'
         ], { base: 'app' })
-            .pipe(gulp.dest('www'));
+            .pipe(gulp.dest('www'))
+            .pipe($.browserSync.stream());
     });
 
-    gulp.task('bundle-dev', $.utils.bundleDev);
-
-    gulp.task('watch', ['app-modules-watch'], () => {
+    gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch'], () => {
         let watchers = [
             gulp.watch([
                 'app/index.html',
@@ -80,8 +81,6 @@ module.exports = (gulp, $) => {
             gulp.watch(['app/views/**/*'], ['views-dev']),
             gulp.watch(['app/style/**/*'], ['style-dev']),
             gulp.watch(['app/assets/stories/**/*'], ['assets-dev']),
-            gulp.watch(['app/scripts/parts/**/*'], ['parts-module-dev']),
-            gulp.watch(['app/scripts/app-modules/**/*'], ['app-modules-dev']),
             gulp.watch(['app/sw.js'], ['sw'])
         ];
         watchers.forEach((watcher) => {
@@ -89,10 +88,8 @@ module.exports = (gulp, $) => {
                 $.utils.notifyUpdate('File ' + event.path + ' was ' + event.type + ', running tasks...');
             });
         });
-        bundler = bundler.plugin($.watchify).on('update', $.utils.bundleDev);
-        $.utils.bundleDev();
     });
 
     gulp.task('dev', ['watch', 'serve']);
-    gulp.task('build-dev', ['style-dev', 'bundle-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev']);
+    gulp.task('build-dev', ['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev']);
 };

@@ -35,20 +35,6 @@ utils = {
         return $.vulcanize(options)
             .on('error', utils.notifyError);
     },
-    bundle () {
-        utils.notifyUpdate('Browserify: compiling JS...');
-        return bundler.bundle()
-            .on('error', utils.notifyError)
-            .pipe(source('app.js'))
-            .pipe(gulp.dest('.tmp/app/scripts'));
-    },
-    bundleDev () {
-        utils.notifyUpdate('Browserify: compiling JS...');
-        return bundler.bundle()
-            .on('error', utils.notifyError)
-            .pipe(source('app.js'))
-            .pipe(gulp.dest('www/scripts'));
-    },
     /*
      * gulp-html-autoprefixer points to an outdated version.
      * Putting this here until they fix it.
@@ -131,7 +117,8 @@ gulp.task('serve', () => {
         server: {
             baseDir: './www',
             middleware: [$.historyApiFallback()]
-        }
+        },
+        port: 4000
     });
 });
 
@@ -144,6 +131,7 @@ gulp.task('polyfill', () => {
 $.updateSW = require('./tasks/service-worker')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
 require('./tasks/parts-module')(gulp, $);
+require('./tasks/app')(gulp, $);
 require('./tasks/kano-canvas-api')(gulp, $);
 require('./tasks/dev')(gulp, $);
 require('./tasks/build')(gulp, $);

@@ -4,8 +4,6 @@ let getImports = require('./get-imports');
 
 module.exports = (gulp, $) => {
 
-    gulp.task('bundle', $.utils.bundle);
-
     gulp.task('serve-doc', () => {
         return $.connect.server({
             root: 'app',
@@ -23,7 +21,7 @@ module.exports = (gulp, $) => {
 
     // For a build with cordova, add this to html replace
     // <meta http-equiv="Content-Security-Policy" content="media-src *">
-    gulp.task('js', ['babel', 'bundle', 'polyfill'], () => {
+    gulp.task('js', ['babel', 'app', 'polyfill'], () => {
         gulp.src('./.tmp/app/elements/elements.html')
             .pipe($.utils.vulcanize({
                 inlineScripts: true,
