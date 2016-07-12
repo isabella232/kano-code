@@ -14,7 +14,9 @@ export default glob = {
             }
             listeners.forEach(function (cb) {
                 if (typeof cb === 'function') {
-                    cb.call({}, data);
+                    setTimeout(() => {
+                        cb.call({}, data);
+                    });
                 }
             });
         }
