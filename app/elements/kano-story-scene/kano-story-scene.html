@@ -30,12 +30,12 @@
     <template>
         <iron-lazy-pages class="scene" attr-for-selected="name" selected="[[name]]" restamp>
             <template is="iron-lazy-page" name="editor">
-                <kano-scene-editor store="{{store}}" story-name="[[storyName]]" scene="[[scene]]" extensions="[[extensions]]" on-scene-done="sceneFinished"></kano-scene-editor>
+                <kano-scene-editor store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneFinished"></kano-scene-editor>
             </template>
         </iron-lazy-pages>
         <iron-lazy-pages class="overlay" attr-for-selected="name" selected="[[overlayName]]" restamp hidden$="[[overlayHidden]]">
             <template is="iron-lazy-page" name="challenge-overlay">
-                <kano-scene-challenge-overlay id="overlay" scene="[[overlayScene]]"></kano-scene-challenge-overlay>
+                <kano-scene-challenge-overlay id="overlay" scene="[[overlayScene]]" on-overlay-done="overlayDone"></kano-scene-challenge-overlay>
             </template>
         </iron-lazy-pages>
     </template>
@@ -59,15 +59,6 @@
             nextStory: {
                 type: Object
             },
-            location: {
-                type: String
-            },
-            name: {
-                type: String
-            },
-            attributes: {
-                type: Object
-            },
             store: {
                 type: Object,
                 value: () => {
@@ -79,14 +70,17 @@
             }
         },
         observers: [
-            'componentChanged(scene.component)',
-            'extensionsChanged(extensions.*)'
+            'componentChanged(scene.component)'
         ],
-        listeners: {
-            'overlay-done': 'overlayDone'
-        },
-        extensionsChanged(e) {
-            this.set(`attributes.${e.path}`, e.value);
+        _parseSceneComponent (sceneComponent) {
+            let pieces, component = {};
+            // Cut using '/'
+            pieces = sceneComponent.split('/');
+            // Extract the last piece
+            component.name = pieces.pop();
+            component.prefix = pieces.join('/');
+            component.common = component.prefix === 'common';
+            return component;
         },
         ready () {
             this.overlayDone = this.overlayDone.bind(this);
@@ -97,61 +91,50 @@
                 e.stopPropagation();
                 this.setupOverlay(this.scene.overlay_after);
             } else if (this.scene.show_remix_options) {
-                this.set('scene.ended', true);
+                this.set('sceneData.ended', true);
             }
         },
         componentChanged () {
             let scene = this.scene,
-                pieces,
-                name,
-                loc;
+                component;
             if (!scene.component && !scene.load) {
                 return;
             }
             this.setupOverlay(scene.overlay_before);
-            // Cut using '/'
-            pieces = scene.component.split('/');
-            // Extract the last piece
-            name = pieces.pop();
-            // Join back the first pieces to get the location
-            loc = pieces.join('/');
-            this.scene = Object.assign({}, scene.data);
+            component = this._parseSceneComponent(scene.component);
+            this.sceneData = Object.assign({}, scene.data);
             // Let the end of the overlay load the data
             if (!this.scene.overlay_before) {
-                this.set('scene.started', true);
+                this.set('sceneData.started', true);
             }
-            this.set('name', name);
+            this.set('name', component.name);
         },
-        overlayDone () {
+        overlayDone (e) {
+            console.log(e);
             let started = false;
-            console.log(this.scene);
             if (!this.beforeDone && this.scene.overlay_before) {
                 this.beforeDone = true;
                 started = true;
             } else if (this.scene.overlay_after) {
                 if (this.scene.show_remix_options) {
-                    this.set('scene.ended', true);
+                    this.set('sceneData.ended', true);
                 }
                 this.fire('scene-done');
             }
             this.$$('#overlay').end().then(() => {
                 this.overlayHidden = true;
                 if (started) {
-                    this.set('scene.started', true);
+                    this.set('sceneData.started', true);
                 }
             });
         },
         setupOverlay (overlayConfig) {
-            let pieces,
-                name;
+            let component;
             if (!overlayConfig || !overlayConfig.component) {
                 return;
             }
-            // Cut using '/'
-            pieces = overlayConfig.component.split('/');
-            // Extract the last piece
-            name = pieces.pop();
-            this.set('overlayName', name);
+            component = this._parseSceneComponent(overlayConfig.component);
+            this.set('overlayName', component.name);
             this.set('overlayScene', overlayConfig.data);
             this.overlayHidden = false;
         }
