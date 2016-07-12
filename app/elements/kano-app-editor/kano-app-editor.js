@@ -99,7 +99,7 @@ Polymer({
     _codeChanged () {
         this.code = this._formatCode(this.code);
     },
-    _editorChanged (e) {
+    _proxyChange (e) {
         // Bug on chrome 49 on the kit, the event from kano-blockly stops here
         e.preventDefault();
         e.stopPropagation();
