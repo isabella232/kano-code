@@ -118,7 +118,12 @@ gulp.task('serve', () => {
             baseDir: './www',
             middleware: [$.historyApiFallback()]
         },
-        port: 4000
+        port: 4000,
+        ghostMode: {
+            clicks: true,
+            forms: true,
+            scroll: true
+        }
     });
 });
 

@@ -1,33 +1,114 @@
 'use strict';
 
 module.exports = (gulp, $) => {
-    let babelOrCopy = require('./babel-or-copy')(gulp, $);
+    let babelOrCopy = require('./babel-or-copy')(gulp, $),
+        watchMap = {};
 
-    gulp.task('elements-dev', ['kano-canvas-api-dev'], () => {
-        return babelOrCopy('app/elements/**/*.{js,html,css}', { base: 'app/elements/' })
-            .pipe(gulp.dest('www/elements'))
-            .pipe($.browserSync.stream());
-    });
+    function copy(src) {
+        return () => {
+            return gulp.src(src, { base: 'app'})
+                .pipe(gulp.dest('www'));
+        };
+    }
 
-    gulp.task('scenes-dev', () => {
-        return babelOrCopy('app/assets/stories/**/*.html')
+    function elements(src) {
+        return () => {
+            return babelOrCopy(src, { base: 'app/elements/' })
+                .pipe(gulp.dest('www/elements'))
+                .pipe($.browserSync.stream());
+        };
+    }
+
+    function scenes(src) {
+        return () => {
+            return babelOrCopy(src)
             .pipe(gulp.dest('www/assets/stories'))
             .pipe($.browserSync.stream());
-    });
+        };
+    }
 
-    gulp.task('views-dev', () => {
-        return babelOrCopy('app/views/**/*.{js,html,css}')
+    function views(src) {
+        return () => {
+            return babelOrCopy(src)
             .pipe(gulp.dest('www/views'))
             .pipe($.browserSync.stream());
-    });
+        };
+    }
 
-    gulp.task('style-dev', () => {
-        return gulp.src('app/style/*.css')
+    function styles(src) {
+        return () => {
+            return gulp.src(src)
             .pipe($.concat('main.css'))
             .pipe($.autoprefixer())
             .pipe(gulp.dest('www/css'))
             .pipe($.browserSync.stream());
-    });
+        };
+    }
+
+    function assets(src) {
+        return () => {
+            return gulp.src(src, { base: 'app' })
+            .pipe(gulp.dest('www'))
+            .pipe($.browserSync.stream());
+        };
+    }
+
+    watchMap.copy = {
+        src: [
+            'app/bower_components/**/*',
+            'app/assets/vendor/google-blockly/blockly_compressed.js',
+            'app/assets/vendor/google-blockly/blocks_compressed.js',
+            'app/assets/vendor/google-blockly/javascript_compressed.js',
+            'app/assets/vendor/google-blockly/msg/js/en.js',
+            'app/assets/vendor/google-blockly/media/**/*',
+            'app/assets/vendor/cache-polyfill/cache-polyfill.js',
+            'app/scripts/util/dom.js',
+            'app/scripts/util/client.js',
+            'app/scripts/util/tracking.js',
+            'app/scripts/util/router.js',
+            'app/scripts/index.js'
+        ],
+        process: copy
+    };
+
+    watchMap.elements = {
+        src: 'app/elements/**/*.{js,html,css}',
+        process: elements
+    };
+
+    watchMap.scenes = {
+        src: 'app/assets/stories/**/*.html',
+        process: scenes
+    };
+
+    watchMap.views = {
+        src: 'app/views/**/*.{js,html,css}',
+        process: views
+    };
+
+    watchMap.styles = {
+        src: 'app/style/*.css',
+        process: styles
+    };
+
+    watchMap.assets = {
+        src: [
+            'app/assets/**/*',
+            'app/assets/**/*',
+            'app/manifest.json',
+            '!app/assets/stories/**/*.{js,html}',
+            '!app/assets/vendor/**/*'
+        ],
+        process: assets
+    };
+
+    gulp.task('elements-dev', ['kano-canvas-api-dev'], elements(watchMap.elements.src));
+
+    gulp.task('scenes-dev', scenes(watchMap.scenes.src));
+
+    gulp.task('views-dev', views(watchMap.views.src));
+
+    gulp.task('style-dev', styles(watchMap.styles.src));
 
     gulp.task('index-dev', () => {
         return gulp.src('app/index.html')
@@ -36,57 +117,17 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www'));
     });
 
-    gulp.task('copy-dev', ['index-dev', 'polyfill'], () => {
-        return gulp.src([
-                'app/bower_components/**/*',
-                'app/assets/vendor/google-blockly/blockly_compressed.js',
-                'app/assets/vendor/google-blockly/blocks_compressed.js',
-                'app/assets/vendor/google-blockly/javascript_compressed.js',
-                'app/assets/vendor/google-blockly/msg/js/en.js',
-                'app/assets/vendor/google-blockly/media/**/*',
-                'app/assets/vendor/cache-polyfill/cache-polyfill.js',
-                'app/scripts/util/dom.js',
-                'app/scripts/util/client.js',
-                'app/scripts/util/tracking.js',
-                'app/scripts/util/router.js',
-                'app/scripts/index.js'
-            ], { base: 'app'})
-            .pipe(gulp.dest('www'));
-    });
+    gulp.task('copy-dev', ['index-dev', 'polyfill'], copy(watchMap.copy.src));
 
-    gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], () => {
-        return gulp.src([
-            'app/assets/**/*',
-            'app/assets/**/*',
-            'app/manifest.json',
-            '!app/assets/stories/**/*.{js,html}',
-            '!app/assets/vendor/**/*'
-        ], { base: 'app' })
-            .pipe(gulp.dest('www'))
-            .pipe($.browserSync.stream());
-    });
+    gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], assets(watchMap.assets.src));
 
     gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch'], () => {
-        let watchers = [
-            gulp.watch([
-                'app/index.html',
-                'app/bower_components/**/*',
-                'app/scripts/util/dom.js',
-                'app/scripts/util/client.js',
-                'app/scripts/util/tracking.js',
-                'app/scripts/util/router.js',
-                'app/scripts/index.js'
-            ], ['copy-dev']),
-            gulp.watch(['app/elements/**/*'], ['elements-dev']),
-            gulp.watch(['app/views/**/*'], ['views-dev']),
-            gulp.watch(['app/style/**/*'], ['style-dev']),
-            gulp.watch(['app/assets/stories/**/*'], ['assets-dev']),
-            gulp.watch(['app/sw.js'], ['sw'])
-        ];
-        watchers.forEach((watcher) => {
-            watcher.on('change', function (event) {
-                $.utils.notifyUpdate('File ' + event.path + ' was ' + event.type + ', running tasks...');
-            });
+        Object.keys(watchMap).forEach(key => {
+            gulp.watch(watchMap[key].src)
+                .on('change', (e) => {
+                    $.utils.notifyUpdate(`File ${e.path} was ${e.type}...`);
+                    watchMap[key].process(e.path)();
+                });
         });
     });
 

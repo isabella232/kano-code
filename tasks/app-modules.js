@@ -4,7 +4,7 @@ module.exports = (gulp, $) => {
             .transform($.babelify.configure({ presets: ['es2015'] }));
 
     function bundle(target, refresh) {
-        return () => {
+        return (src) => {
             let stream = bundler
                 .bundle()
                 .on('error', $.utils.notifyError)
