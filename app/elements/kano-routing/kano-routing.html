@@ -88,8 +88,9 @@
           page('/preview',      this._showPageThunk('preview'));
           page('/story/:id',    this._showPageThunk('story'));
           page('/remix/:slug',  this._showPageThunk('editor'));
-          page('/app/:slug',    this._showPageThunk('play'));
-          page('/embed/:slug',  this._showPageThunk('play'));
+          page('/app/:slug', (ctx) => {
+              window.location = Kano.MakeApps.config.WORLD_URL + "/shared/" + ctx.params.slug;
+          });
           // Add the flags page when not in production
           if (Kano.MakeApps.config.ENV !== 'production') {
               page('/flags', this._showPageThunk('flags'));
