@@ -100,7 +100,6 @@
     Challenge.prototype.loadFromApp = function (app) {
         var xml = Blockly.Xml.textToDom(app.code.snapshot.blocks),
             block, i;
-        console.log(xml);
         this.data.steps.push({
             "tooltips": [{
                 "location": "add-part-button",
@@ -223,7 +222,6 @@
             case 'field': {
                 if (node.firstChild.nodeValue !== null) {
                     fieldName = parentSelector.shadow || node.getAttribute('name');
-                    console.log(fieldName, parentType);
                     if (fieldName) {
                         fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
                     }
@@ -378,9 +376,6 @@
                     steps = steps.concat(this.nodeToSteps(child, blockChallengeId, blockId));
                 }
                 break;
-            }
-            default: {
-                console.log(node.tagName);
             }
         }
         return steps;
