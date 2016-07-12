@@ -11,6 +11,8 @@ let gulp = require('gulp'),
     htmlAutoprefixer = require("html-autoprefixer"),
     config = require('./app/scripts/config').getConfig(process.env.NODE_ENV,
                                                      process.env.TARGET),
+    browserSync = require('browser-sync').create(),
+    historyApiFallback = require('connect-history-api-fallback'),
     runSequence = require('run-sequence'),
     bundler,
     utils;
@@ -45,7 +47,6 @@ utils = {
         return bundler.bundle()
             .on('error', utils.notifyError)
             .pipe(source('app.js'))
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www/scripts'));
     },
     /*
@@ -116,36 +117,23 @@ utils = {
     }
 };
 
-gulp.task('serve', () => {
-    return $.connect.server({
-        root: 'www',
-        port: 4000,
-        fallback: './www/index.html',
-        livereload: true
-    });
-});
-
-gulp.task('serve-doc', () => {
-    return $.connect.server({
-        root: 'app',
-        port: process.env.PORT || 5000
-    });
-});
-
-gulp.task('serve-prod', () => {
-    return $.connect.server({
-        root: 'www',
-        port: process.env.PORT,
-        fallback: './www/index.html'
-    });
-});
-
 $.browserify = browserify;
 $.babelify = babelify;
 $.utils = utils;
 $.source = source;
 $.watchify = watchify;
 $.runSequence = runSequence;
+$.browserSync = browserSync;
+$.historyApiFallback = historyApiFallback;
+
+gulp.task('serve', () => {
+    $.browserSync.init({
+        server: {
+            baseDir: './www',
+            middleware: [$.historyApiFallback()]
+        }
+    });
+});
 
 // Copy the webcomponents polyfill to the vendor folder
 gulp.task('polyfill', () => {

@@ -7,19 +7,16 @@ module.exports = (gulp, $) => {
 
     gulp.task('elements-dev', ['kano-canvas-api-dev'], () => {
         return babelOrCopy('app/elements/**/*.{js,html,css}', { base: 'app/elements/' })
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www/elements'));
     });
 
     gulp.task('scenes-dev', () => {
         return babelOrCopy('app/assets/stories/**/*.html')
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www/assets/stories'));
     });
 
     gulp.task('views-dev', () => {
         return babelOrCopy('app/views/**/*.{js,html,css}')
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www/views'));
     });
 
@@ -27,7 +24,6 @@ module.exports = (gulp, $) => {
         gulp.src('app/style/*.css')
             .pipe($.concat('main.css'))
             .pipe($.autoprefixer())
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www/css'));
     });
 
@@ -53,7 +49,6 @@ module.exports = (gulp, $) => {
                 'app/scripts/util/router.js',
                 'app/scripts/index.js'
             ], { base: 'app'})
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www'));
     });
 
@@ -65,13 +60,12 @@ module.exports = (gulp, $) => {
             '!app/assets/stories/**/*.{js,html}',
             '!app/assets/vendor/**/*'
         ], { base: 'app' })
-            .pipe($.connect.reload())
             .pipe(gulp.dest('www'));
     });
 
     gulp.task('bundle-dev', $.utils.bundleDev);
 
-    gulp.task('watch', () => {
+    gulp.task('watch', ['app-modules-watch'], () => {
         let watchers = [
             gulp.watch([
                 'app/index.html',

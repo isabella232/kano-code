@@ -6,15 +6,6 @@ module.exports = (gulp, $) => {
 
     gulp.task('bundle', $.utils.bundle);
 
-    gulp.task('serve', () => {
-        return $.connect.server({
-            root: 'www',
-            port: 4000,
-            fallback: './www/index.html',
-            livereload: true
-        });
-    });
-
     gulp.task('serve-doc', () => {
         return $.connect.server({
             root: 'app',

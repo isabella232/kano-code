@@ -32,11 +32,13 @@
             <template is="iron-lazy-page" name="editor">
                 <kano-scene-editor store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneFinished"></kano-scene-editor>
             </template>
+            <template is="iron-lazy-page" name="empty"></template>
         </iron-lazy-pages>
         <iron-lazy-pages class="overlay" attr-for-selected="name" selected="[[overlayName]]" restamp hidden$="[[overlayHidden]]">
             <template is="iron-lazy-page" name="challenge-overlay">
                 <kano-scene-challenge-overlay id="overlay" scene="[[overlayScene]]" on-overlay-done="overlayDone"></kano-scene-challenge-overlay>
             </template>
+            <template is="iron-lazy-page" name="empty"></template>
         </iron-lazy-pages>
     </template>
 </dom-module>
@@ -107,11 +109,13 @@
             if (!this.scene.overlay_before) {
                 this.set('sceneData.started', true);
             }
+            // Force a trip to emptiness, resets the component if the name is the same
+            this.set('name', 'empty');
             this.set('name', component.name);
         },
         overlayDone (e) {
-            console.log(e);
-            let started = false;
+            let started = false,
+                target = e.path ? e.path[0] : e.target;
             if (!this.beforeDone && this.scene.overlay_before) {
                 this.beforeDone = true;
                 started = true;
@@ -121,10 +125,11 @@
                 }
                 this.fire('scene-done');
             }
-            this.$$('#overlay').end().then(() => {
+            target.end().then(() => {
                 this.overlayHidden = true;
                 if (started) {
                     this.set('sceneData.started', true);
+                    this.set('overlayName', 'empty');
                 }
             });
         },
