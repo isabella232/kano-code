@@ -162,6 +162,9 @@ window.Kano.Behaviors.UIBehavior = {
         this.style.visibility = visibility;
     },
     renderOnCanvas (ctx) {
+        if (this.model.partType !== 'ui') {
+            return Promise.resolve();
+        }
         let position = this.model.position || { x: 0, y: 0 },
             rotation = this.model.rotation || 0,
             scale = this.model.scale / 100 || 1,

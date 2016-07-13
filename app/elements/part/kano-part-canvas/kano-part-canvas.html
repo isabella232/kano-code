@@ -70,7 +70,10 @@
             Kano.Behaviors.UIBehavior.start.apply(this, arguments);
             this.resetSession();
         },
-        renderOnCanvas () {
+        renderOnCanvas (ctx, util, scaleFactor) {
+            var image = new Image();
+            image.src = this.$.canvas.toDataURL();
+            ctx.drawImage(image, 0, 0);
             return Promise.resolve();
         }
     });
