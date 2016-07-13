@@ -17,7 +17,6 @@ module.exports = (gulp, $) => {
             handleFetch,
             // Max 3Mb
             maximumFileSizeToCacheInBytes: 3145728,
-            verbose: true,
             runtimeCaching: [{
                 urlPattern: /^https:\/\/fonts\.googleapis\.com\/css/,
                 handler: 'cacheFirst'
@@ -51,10 +50,10 @@ module.exports = (gulp, $) => {
             }));
     }
 
-    gulp.task('sw', (cb) => {
+    gulp.task('sw', ['appcache'], (cb) => {
         writeServiceWorker(true, cb);
     });
-    gulp.task('sw-dev', (cb) => {
+    gulp.task('sw-dev', ['appcache-dev'], (cb) => {
         writeServiceWorker(false, cb);
     });
 
