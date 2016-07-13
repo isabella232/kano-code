@@ -83,6 +83,14 @@
         }
     };
 
+    Challenge.labels = {
+        'GT': '>',
+        'GTE': '>=',
+        'LT': '<',
+        'LTE': '<=',
+        'EQ': '='
+    };
+
     Challenge.createFromApp = function (app) {
         var challenge = new Challenge();
         challenge.loadFromApp(app);
@@ -211,6 +219,7 @@
             type = node.getAttribute('type'),
             blockChallengeId,
             fieldDefault,
+            fieldValue,
             categoryId,
             fieldName,
             blockId,
@@ -227,6 +236,7 @@
                     }
                     // Loose check of the value
                     if (node.firstChild.nodeValue != fieldDefault) {
+                        fieldValue = Challenge.labels[node.firstChild.nodeValue] || node.firstChild.nodeValue;
                         // Add a `change value` step to get the right value
                         steps.push({
                             "tooltips": [{
@@ -234,7 +244,7 @@
                                     "block": parentSelector
                                 },
                                 "position": "top",
-                                "text": 'Change to <kano-value-preview>' + node.firstChild.nodeValue + '</kano-value-preview>'
+                                "text": 'Change to <kano-value-preview>' + fieldValue + '</kano-value-preview>'
                             }],
                             "validation": {
                                 "blockly": {
