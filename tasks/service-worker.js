@@ -15,6 +15,7 @@ module.exports = (gulp, $) => {
             stripPrefix: 'www',
             navigateFallback: '/index.html',
             handleFetch,
+            verbose: true,
             // Max 3Mb
             maximumFileSizeToCacheInBytes: 3145728,
             runtimeCaching: [{
