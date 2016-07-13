@@ -254,6 +254,68 @@ let register = (Blockly) => {
         return CONSTANTS[block.getFieldValue('CONSTANT')];
     };
 
+    Blockly.Blocks.unary = {
+        init: function () {
+            var properties;
+            properties = [
+                ['+=','+='],
+                ['-=','-='],
+                ['*=','*='],
+                ['/=','/=']
+            ];
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldVariable(Blockly.Msg.VARIABLES_DEFAULT_NAME), 'LEFT_HAND');
+            this.appendDummyInput()
+                .appendField(new Blockly.FieldDropdown(properties), 'OPERATOR');
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
+            this.setInputsInline(true);
+        },
+        updateShape_: function (rightHandInput) {
+            var inputExists = this.getInput('RIGHT_HAND');
+            if (rightHandInput) {
+                if (!inputExists) {
+                    this.appendValueInput('RIGHT_HAND');
+                }
+            } else {
+                this.removeInput('RIGHT_HAND');
+            }
+        },
+        hasRightHand (operator) {
+            return (operator !== '++' && operator !== '--');
+        },
+        mutationToDom: function () {
+            var container = document.createElement('mutation'),
+                rightHandInput = this.hasRightHand(this.getFieldValue('OPERATOR'));
+            container.setAttribute('right_hand_input', rightHandInput);
+            return container;
+        },
+        domToMutation: function (xmlElement) {
+            var hasRightHand = (xmlElement.getAttribute('right_hand_input') == 'true');
+            this.updateShape_(hasRightHand);  // Helper function for adding/removing 2nd input.
+        }
+    };
+
+    Blockly.JavaScript.unary = (block) => {
+        let leftHand = Blockly.JavaScript.valueToCode(block, 'LEFT_HAND'),
+            op = block.getFieldValue('OPERATOR') || '++',
+            rightHand = '',
+            code;
+        if (block.hasRightHand(op)) {
+            op = ` ${op} `;
+            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND');
+        }
+        code = `${leftHand}${op}${rightHand};\n`;
+        return code;
+    };
+    Blockly.Pseudo.unary = (block) => {
+        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+            interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
+            unit = block.getFieldValue('UNIT') || 'seconds',
+            code = `every ${interval} ${unit}, do {\n${statement}}\n`;
+        return code;
+    };
+
     Blockly.Pseudo.math_arithmetic = Blockly.JavaScript.math_arithmetic;
     Blockly.Pseudo.math_trig = Blockly.Pseudo.math_single;
     Blockly.Pseudo.math_round = Blockly.Pseudo.math_single;
@@ -267,6 +329,8 @@ let category = {
     colour: COLOUR,
     blocks: [{
         id: 'math_arithmetic'
+    }, {
+        id: 'unary'
     }, {
         id: 'text_join'
     }, {
