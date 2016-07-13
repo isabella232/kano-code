@@ -161,5 +161,6 @@ if ('serviceWorker' in navigator) {
             console.error(e);
         });
 } else {
-    // Add fallback using appcache here
+    // Add fallback using appcache
+    document.write('<iframe src="/appcache.html" width="0" height="0" style="display: none"></iframe>');
 }
