@@ -11,6 +11,8 @@ let gulp = require('gulp'),
     htmlAutoprefixer = require("html-autoprefixer"),
     config = require('./app/scripts/config').getConfig(process.env.NODE_ENV,
                                                      process.env.TARGET),
+    browserSync = require('browser-sync').create(),
+    historyApiFallback = require('connect-history-api-fallback'),
     runSequence = require('run-sequence'),
     bundler,
     utils;
@@ -32,21 +34,6 @@ utils = {
     vulcanize (options) {
         return $.vulcanize(options)
             .on('error', utils.notifyError);
-    },
-    bundle () {
-        utils.notifyUpdate('Browserify: compiling JS...');
-        return bundler.bundle()
-            .on('error', utils.notifyError)
-            .pipe(source('app.js'))
-            .pipe(gulp.dest('.tmp/app/scripts'));
-    },
-    bundleDev () {
-        utils.notifyUpdate('Browserify: compiling JS...');
-        return bundler.bundle()
-            .on('error', utils.notifyError)
-            .pipe(source('app.js'))
-            .pipe($.connect.reload())
-            .pipe(gulp.dest('www/scripts'));
     },
     /*
      * gulp-html-autoprefixer points to an outdated version.
@@ -116,36 +103,29 @@ utils = {
     }
 };
 
-gulp.task('serve', () => {
-    return $.connect.server({
-        root: 'www',
-        port: 4000,
-        fallback: './www/index.html',
-        livereload: true
-    });
-});
-
-gulp.task('serve-doc', () => {
-    return $.connect.server({
-        root: 'app',
-        port: process.env.PORT || 5000
-    });
-});
-
-gulp.task('serve-prod', () => {
-    return $.connect.server({
-        root: 'www',
-        port: process.env.PORT,
-        fallback: './www/index.html'
-    });
-});
-
 $.browserify = browserify;
 $.babelify = babelify;
 $.utils = utils;
 $.source = source;
 $.watchify = watchify;
 $.runSequence = runSequence;
+$.browserSync = browserSync;
+$.historyApiFallback = historyApiFallback;
+
+gulp.task('serve', () => {
+    $.browserSync.init({
+        server: {
+            baseDir: './www',
+            middleware: [$.historyApiFallback()]
+        },
+        port: 4000,
+        ghostMode: {
+            clicks: true,
+            forms: true,
+            scroll: true
+        }
+    });
+});
 
 // Copy the webcomponents polyfill to the vendor folder
 gulp.task('polyfill', () => {
@@ -153,9 +133,10 @@ gulp.task('polyfill', () => {
         .pipe(gulp.dest('www/assets/vendor/webcomponentsjs/'));
 });
 
-$.updateSW = require('./tasks/service-worker')(gulp, $);
+require('./tasks/service-worker')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
 require('./tasks/parts-module')(gulp, $);
+require('./tasks/app')(gulp, $);
 require('./tasks/kano-canvas-api')(gulp, $);
 require('./tasks/dev')(gulp, $);
 require('./tasks/build')(gulp, $);
