@@ -254,6 +254,52 @@ let register = (Blockly) => {
         return CONSTANTS[block.getFieldValue('CONSTANT')];
     };
 
+    Blockly.Blocks.unary = {
+        init: function () {
+            let json = {
+                id: 'unary',
+                message0: '%1 %2 %3',
+                args0: [{
+                    type: "field_variable",
+                    name: "LEFT_HAND",
+                    variable: Blockly.Msg.VARIABLES_DEFAULT_NAME
+                },{
+                    type: "field_dropdown",
+                    name: "OPERATOR",
+                    options: [
+                        ['+=','+='],
+                        ['-=','-='],
+                        ['*=','*='],
+                        ['/=','/=']
+                    ]
+                },{
+                    type: "input_value",
+                    name: "RIGHT_HAND",
+                    check: "Number"
+                }],
+                inputsInline: true,
+                previousStatement: null,
+                nextStatement: null
+            };
+            this.jsonInit(json);
+        }
+    };
+
+    Blockly.JavaScript.unary = (block) => {
+        let leftHand = block.getFieldValue('LEFT_HAND'),
+            op = block.getFieldValue('OPERATOR') || '+=',
+            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND'),
+            code = `${leftHand} ${op} ${rightHand};\n`;
+        return code;
+    };
+    Blockly.Pseudo.unary = (block) => {
+        let leftHand = block.getFieldValue('LEFT_HAND'),
+            op = block.getFieldValue('OPERATOR') || '+=',
+            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND'),
+            code = `${leftHand} ${op} ${rightHand};\n`;
+        return code;
+    };
+
     Blockly.Pseudo.math_arithmetic = Blockly.JavaScript.math_arithmetic;
     Blockly.Pseudo.math_trig = Blockly.Pseudo.math_single;
     Blockly.Pseudo.math_round = Blockly.Pseudo.math_single;
@@ -267,6 +313,11 @@ let category = {
     colour: COLOUR,
     blocks: [{
         id: 'math_arithmetic'
+    }, {
+        id: 'unary',
+        shadow: {
+            'RIGHT_HAND': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
+        }
     }, {
         id: 'text_join'
     }, {
