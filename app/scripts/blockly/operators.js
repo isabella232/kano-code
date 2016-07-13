@@ -256,63 +256,47 @@ let register = (Blockly) => {
 
     Blockly.Blocks.unary = {
         init: function () {
-            var properties;
-            properties = [
-                ['+=','+='],
-                ['-=','-='],
-                ['*=','*='],
-                ['/=','/=']
-            ];
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldVariable(Blockly.Msg.VARIABLES_DEFAULT_NAME), 'LEFT_HAND');
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown(properties), 'OPERATOR');
-            this.setPreviousStatement(true);
-            this.setNextStatement(true);
-            this.setInputsInline(true);
-        },
-        updateShape_: function (rightHandInput) {
-            var inputExists = this.getInput('RIGHT_HAND');
-            if (rightHandInput) {
-                if (!inputExists) {
-                    this.appendValueInput('RIGHT_HAND');
-                }
-            } else {
-                this.removeInput('RIGHT_HAND');
-            }
-        },
-        hasRightHand (operator) {
-            return (operator !== '++' && operator !== '--');
-        },
-        mutationToDom: function () {
-            var container = document.createElement('mutation'),
-                rightHandInput = this.hasRightHand(this.getFieldValue('OPERATOR'));
-            container.setAttribute('right_hand_input', rightHandInput);
-            return container;
-        },
-        domToMutation: function (xmlElement) {
-            var hasRightHand = (xmlElement.getAttribute('right_hand_input') == 'true');
-            this.updateShape_(hasRightHand);  // Helper function for adding/removing 2nd input.
+            let json = {
+                id: 'unary',
+                message0: '%1 %2 %3',
+                args0: [{
+                    type: "field_variable",
+                    name: "LEFT_HAND",
+                    variable: Blockly.Msg.VARIABLES_DEFAULT_NAME
+                },{
+                    type: "field_dropdown",
+                    name: "OPERATOR",
+                    options: [
+                        ['+=','+='],
+                        ['-=','-='],
+                        ['*=','*='],
+                        ['/=','/=']
+                    ]
+                },{
+                    type: "input_value",
+                    name: "RIGHT_HAND",
+                    check: "Number"
+                }],
+                inputsInline: true,
+                previousStatement: null,
+                nextStatement: null
+            };
+            this.jsonInit(json);
         }
     };
 
     Blockly.JavaScript.unary = (block) => {
-        let leftHand = Blockly.JavaScript.valueToCode(block, 'LEFT_HAND'),
-            op = block.getFieldValue('OPERATOR') || '++',
-            rightHand = '',
-            code;
-        if (block.hasRightHand(op)) {
-            op = ` ${op} `;
-            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND');
-        }
-        code = `${leftHand}${op}${rightHand};\n`;
+        let leftHand = block.getFieldValue('LEFT_HAND'),
+            op = block.getFieldValue('OPERATOR') || '+=',
+            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND'),
+            code = `${leftHand} ${op} ${rightHand};\n`;
         return code;
     };
     Blockly.Pseudo.unary = (block) => {
-        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-            interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
-            unit = block.getFieldValue('UNIT') || 'seconds',
-            code = `every ${interval} ${unit}, do {\n${statement}}\n`;
+        let leftHand = block.getFieldValue('LEFT_HAND'),
+            op = block.getFieldValue('OPERATOR') || '+=',
+            rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND'),
+            code = `${leftHand} ${op} ${rightHand};\n`;
         return code;
     };
 
@@ -330,7 +314,10 @@ let category = {
     blocks: [{
         id: 'math_arithmetic'
     }, {
-        id: 'unary'
+        id: 'unary',
+        shadow: {
+            'RIGHT_HAND': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
+        }
     }, {
         id: 'text_join'
     }, {
