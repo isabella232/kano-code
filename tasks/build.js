@@ -4,17 +4,6 @@ let getImports = require('./get-imports');
 
 module.exports = (gulp, $) => {
 
-    gulp.task('bundle', $.utils.bundle);
-
-    gulp.task('serve', () => {
-        return $.connect.server({
-            root: 'www',
-            port: 4000,
-            fallback: './www/index.html',
-            livereload: true
-        });
-    });
-
     gulp.task('serve-doc', () => {
         return $.connect.server({
             root: 'app',
@@ -32,7 +21,7 @@ module.exports = (gulp, $) => {
 
     // For a build with cordova, add this to html replace
     // <meta http-equiv="Content-Security-Policy" content="media-src *">
-    gulp.task('js', ['babel', 'bundle', 'polyfill'], () => {
+    gulp.task('js', ['babel', 'app', 'polyfill'], () => {
         gulp.src('./.tmp/app/elements/elements.html')
             .pipe($.utils.vulcanize({
                 inlineScripts: true,
@@ -58,17 +47,23 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('story-bundle', ['bundles'], () => {
-        getImports('./app/elements/editor-bundle.html').then((common) => {
-            return gulp.src(['.tmp/app/elements/story-bundle.html'])
-                .pipe($.utils.vulcanize({
-                    inlineScripts: true,
-                    inlineCss: true,
-                    stripExcludes: common,
-                    stripComments: true
-                }))
-                .pipe($.crisper({ scriptInHead: false }))
-                .pipe(gulp.dest('www/elements'));
-        }).catch($.utils.notifyError);
+        Promise.all([getImports('./app/elements/elements.html'), getImports('./app/elements/editor-bundle.html')])
+            .then((commons) => {
+                return commons.reduce((acc, common) => {
+                    return acc.concat(common);
+                }, []);
+            })
+            .then((common) => {
+                return gulp.src(['.tmp/app/elements/story-bundle.html'])
+                    .pipe($.utils.vulcanize({
+                        inlineScripts: true,
+                        inlineCss: true,
+                        stripExcludes: common,
+                        stripComments: true
+                    }))
+                    .pipe($.crisper({ scriptInHead: false }))
+                    .pipe(gulp.dest('www/elements'));
+            }).catch($.utils.notifyError);
     });
 
     gulp.task('babel', ['copy'], () => {
@@ -117,7 +112,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('views', ['copy'], () => {
-        return gulp.src('app/views/**/*.html')
+        return gulp.src('app/views/**/*')
             .pipe($.crisper({ scriptInHead: false }))
             .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
