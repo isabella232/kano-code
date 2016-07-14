@@ -103,6 +103,7 @@ function animateLoader() {
         ],
         rndIndex = Math.floor(Math.random() * funFacts.length),
         title = document.getElementById('title'),
+        loader = document.getElementById('loader'),
         letters = [],
         msgCopy = msg,
         updateLetter,
@@ -133,6 +134,7 @@ function animateLoader() {
     }
     started = new Date();
     messageBoard.innerText = funFacts[rndIndex];
+    loader.style.opacity = 1;
 }
 
 
@@ -150,4 +152,15 @@ window.Polymer = {
     lazyRegister: false
 };
 
-/* build:sw */
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(function () {
+            // SW registration successfull
+        })
+        .catch(function (e) {
+            console.error(e);
+        });
+} else {
+    // Add fallback using appcache
+    document.write('<iframe src="/appcache.html" width="0" height="0" style="display: none"></iframe>');
+}

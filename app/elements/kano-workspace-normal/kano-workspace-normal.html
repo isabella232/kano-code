@@ -54,7 +54,7 @@
         <content></content>
     </template>
     <script>
-        /* globals Polymer */
+        /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-normal',
             properties: {
@@ -63,18 +63,18 @@
                 autoStart: Boolean
             },
             attached () {
-                this.ctx = this.$.canvas.getContext('2d');
                 if (this.autoStart) {
                     this.start();
                 }
             },
             setBackgroundColor (color) {
-                this.$.canvas.style.background = color;
+                this.style.background = color;
             },
             start () {
                 this.reset();
             },
             reset () {
+                this.ctx = this.$.canvas.getContext('2d');
                 this.modules = new Kano.CanvasAPI({
                     ctx: this.ctx,
                     width: this.width,

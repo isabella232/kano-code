@@ -133,7 +133,7 @@ gulp.task('polyfill', () => {
         .pipe(gulp.dest('www/assets/vendor/webcomponentsjs/'));
 });
 
-$.updateSW = require('./tasks/service-worker')(gulp, $);
+require('./tasks/service-worker')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
 require('./tasks/parts-module')(gulp, $);
 require('./tasks/app')(gulp, $);

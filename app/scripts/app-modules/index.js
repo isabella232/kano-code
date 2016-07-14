@@ -65,6 +65,19 @@ module.exports = AppModules = {
             return AppModules.modules[name].methods;
         }
     },
+    start () {
+        AppModules.executeLifecycleStep('start');
+    },
+    stop () {
+        AppModules.executeLifecycleStep('stop');
+    },
+    executeLifecycleStep (name) {
+        Object.keys(AppModules.modules).forEach((moduleName) => {
+            if (AppModules.modules[moduleName].lifecycle && AppModules.modules[moduleName].lifecycle[name]) {
+                AppModules.modules[moduleName].lifecycle[name]();
+            }
+        });
+    },
     enablePreviousVersionsSupport () {
         window.Kano.MakeApps = window.Kano.MakeApps || {};
         window.Kano.MakeApps.Modules = AppModules.modules;
