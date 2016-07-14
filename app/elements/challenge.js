@@ -1,3 +1,4 @@
+/* globals Blockly */
 (function (Kano) {
     var Challenge = function () {
         // Namespaces for the unique ids
@@ -8,10 +9,40 @@
         this.data.parts = [];
         this.data.modules = [];
 
+        this.appParts = {};
         this.partsIds = {};
     };
     Kano.MakeApps = Kano.MakeApps || {};
     Kano.MakeApps.Challenge = Challenge;
+
+    Challenge.actionsMap = {
+        'add-parts': [
+            "We'll start by adding parts to our app.",
+            "To build the interface of the app, we need parts"
+        ],
+        'open-parts-drawer': [
+            "Click here to see all the parts.",
+            "Open the parts drawer by clicking here."
+        ],
+        'start-code': [
+            "Now we can start coding.",
+            "All the parts are here, let's code!"
+        ],
+        'close-parts-drawer': [
+            "Close the drawer.",
+            "Hit that button"
+        ]
+    };
+
+    Challenge.randomizedAction = function (action) {
+        var values = Challenge.actionsMap[action],
+            r;
+        if (!values) {
+            throw new Error("Action '" + action + "' has no translation associated");
+        }
+        r = Math.floor(Math.random() * values.length);
+        return values[r];
+    };
 
     Challenge.categoryMap = {
         'text': 'variables',
@@ -84,17 +115,38 @@
     };
 
     Challenge.labels = {
-        'GT': '>',
-        'GTE': '>=',
-        'LT': '<',
-        'LTE': '<=',
-        'EQ': '='
+        field: {
+            'GT': '>',
+            'GTE': '>=',
+            'LT': '<',
+            'LTE': '<=',
+            'EQ': '='
+        },
+        category: {
+            'variables': 'Variables',
+            'operators': 'Operators',
+            'control': 'Control'
+        }
+    };
+
+    Challenge.translate = function (type, key) {
+        return Challenge.labels[type] && Challenge.labels[type][key] ? Challenge.labels[type][key] : key;
     };
 
     Challenge.createFromApp = function (app) {
         var challenge = new Challenge();
         challenge.loadFromApp(app);
         return challenge;
+    };
+
+    Challenge.prototype.translate = function (type, key) {
+        var result = Challenge.translate(type, key);
+        if (result === key) {
+            if (type === 'category') {
+                result = this.appParts[key] && this.appParts[key].name ? this.appParts[key].name : result;
+            }
+        }
+        return result;
     };
 
     Challenge.prototype.uid = function (ns) {
@@ -112,7 +164,7 @@
             "tooltips": [{
                 "location": "add-part-button",
                 "position": "top",
-                "text": "We'll start by adding parts to our app. Click here to see all the parts."
+                "text": Challenge.randomizedAction('add-parts') + "<br>" + Challenge.randomizedAction('open-parts-drawer')
             }],
             "validation": {
                 "open-parts": true
@@ -124,6 +176,7 @@
                 this.data.parts.push(part.type);
             }
             this.partsIds[part.id] = "part_" + this.uid('part');
+            this.appParts[part.id] = part;
             return {
                 "tooltips": [{
                     "location": location,
@@ -147,7 +200,7 @@
             "tooltips": [{
                 "location": "add-part-button",
                 "position": "top",
-                "text": "Now we can start coding. Close the tray."
+                "text": Challenge.randomizedAction('start-code') + "<br>" + Challenge.randomizedAction('close-parts-drawer')
             }],
             "validation": {
                 "close-parts": true
@@ -236,7 +289,7 @@
                     }
                     // Loose check of the value
                     if (node.firstChild.nodeValue != fieldDefault) {
-                        fieldValue = Challenge.labels[node.firstChild.nodeValue] || node.firstChild.nodeValue;
+                        fieldValue = this.translate('field', node.firstChild.nodeValue);
                         // Add a `change value` step to get the right value
                         steps.push({
                             "tooltips": [{
@@ -327,7 +380,7 @@
                                 "category": categoryId
                             },
                             "position": "left",
-                            "text": "Open the " + categoryId + " tray"
+                            "text": "Open the " + this.translate('category', categoryId) + " tray"
                         }],
                         "validation": {
                             "blockly": {
@@ -344,13 +397,11 @@
                             "text": 'Drag the <kano-blockly-block type="' + type + '"></kano-blockly-block> block onto your code space'
                         }],
                         "arrow": {
-                            "source": {
+                            "target": {
                                 "flyout_block": type
                             },
-                            "target": {
-                                "block": parentSelector
-                            },
-                            "size": 120
+                            "angle": 315,
+                            "size": 80
                         },
                         "validation": {
                             "blockly": {

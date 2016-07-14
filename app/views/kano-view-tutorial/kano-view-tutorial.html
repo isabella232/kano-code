@@ -36,6 +36,12 @@
         .challenge-modal div.buttons {
             @apply(--layout-center-justified);
         }
+        .buttons {
+            transition: opacity linear 500ms;
+        }
+        *[invisible] {
+            opacity: 0 !important;
+        }
     </style>
     <template>
         <template is="dom-if" if="[[shareLoaded]]">
@@ -47,23 +53,26 @@
                               share-info="{{shareInfo}}"></kano-share-modal>
         </paper-dialog>
         <paper-dialog class="challenge-modal" id="start-modal" modal on-iron-overlay-closed="_startTutorial">
-          <h2>How to build [[share.user.username]]'s [[share.title]] app</h2>
-          <paper-dialog-scrollable>
-              <iron-image src="[[share.cover_url]]" sizing="cover" preload fade></iron-image>
-              <p>
-                  Hi there. In this tutorial you will learn how to create [[share.user.username]]'s app, and then you will be able to remix it to make it your own.
-              </p>
-              <div hidden$="[[!share.description]]">
-                  <p>Here's what the app does:</p>
-                  <p>[[share.description]]</p>
-              </div>
-              <p>
-                  If you're ready, hit the start button!
-              </p>
-              <div class="buttons">
-                  <button class="start-button" dialog-confirm>Start!</button>
-              </div>
-          </paper-dialog-scrollable>
+            <iron-pages selected="[[selectedStartPage]]" attr-for-selected="name">
+                <div name="loading">Loading...</div>
+                <div name="loaded">
+                    <h2>How to build [[share.user.username]]'s [[share.title]] app</h2>
+                    <iron-image src="[[share.cover_url]]" sizing="cover" preload fade></iron-image>
+                    <p>
+                        Hi there. In this tutorial you will learn how to create [[share.user.username]]'s app, and then you will be able to remix it to make it your own.
+                    </p>
+                    <div hidden$="[[!share.description]]">
+                        <p>Here's what the app does:</p>
+                        <p>[[share.description]]</p>
+                    </div>
+                    <p>
+                        If you're ready, hit the start button!
+                    </p>
+                    <div class="buttons" invisible$="[[!shareLoaded]]">
+                        <button class="start-button" dialog-confirm>Start!</button>
+                    </div>
+                </div>
+            </iron-pages>
         </paper-dialog>
         <paper-dialog class="challenge-modal" id="end-modal" modal on-iron-overlay-closed="_enableRemixMode">
           <h2>Well done!</h2>
@@ -102,10 +111,15 @@
         },
         attached () {
             this.modal = this.$['share-modal'];
+            this.$['start-modal'].open();
+            this.selectedStartPage = 'loading';
+            this.shareLoaded = false;
             Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.context.params.slug })
                 .then((res) => res.body.item)
                 .then((share) => {
                     this.share = share;
+                    this.selectedStartPage = 'loaded';
+                    this.$['start-modal'].refit();
                     return fetch(share.workspace_info_url);
                 })
                 .then((res) => res.json())
@@ -113,9 +127,6 @@
                     let challenge = Kano.MakeApps.Challenge.createFromApp(app);
                     this.scene = challenge.data;
                     this.shareLoaded = true;
-                    requestAnimationFrame(() => {
-                        this.$['start-modal'].open();
-                    });
                 }).catch((e) => {
                     console.error(e);
                 });

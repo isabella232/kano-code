@@ -93,7 +93,7 @@
     <template>
         <content select=".editor" id="content"></content>
         <kano-focus-on id="focus" breathe></kano-focus-on>
-        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" id="arrow">
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
@@ -235,14 +235,17 @@
                 this.set('arrow', {});
                 return;
             }
-            source = this.getDeepElement(step.arrow.source);
+            if (step.arrow.source) {
+                source = this.getDeepElement(step.arrow.source);
+                source = source.getBoundingClientRect();
+            }
             target = this.getDeepElement(step.arrow.target);
-            source = source.getBoundingClientRect();
             target = target.getBoundingClientRect();
             this.set('arrow', {
                 source,
                 target,
-                size: step.arrow.size || 70
+                size: step.arrow.size || 70,
+                angle: step.arrow.angle || 0
             });
         },
         stepChanged () {
