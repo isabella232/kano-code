@@ -341,7 +341,12 @@ let category = {
     }, {
         id: 'math_sign'
     }, {
-        id: 'math_random'
+        id: 'math_random',
+        shadow: {
+            'MIN': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
+            'MAX': '<shadow type="math_number"><field name="NUM">10</field></shadow>'
+        }
+
     }]
 };
 
