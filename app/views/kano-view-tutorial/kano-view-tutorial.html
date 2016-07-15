@@ -9,6 +9,7 @@
             display: block;
             position: relative;
             @apply(--layout-vertical);
+            font-family: Bariol;
         }
         :host kano-story-scene {
             @apply(--layout-flex);
@@ -36,15 +37,9 @@
         .challenge-modal div.buttons {
             @apply(--layout-center-justified);
         }
-        .buttons {
-            transition: opacity linear 500ms;
-        }
-        *[invisible] {
-            opacity: 0 !important;
-        }
     </style>
     <template>
-        <template is="dom-if" if="[[shareLoaded]]">
+        <template is="dom-if" if="[[shareLoaded]]" on-dom-change="_editorDomChanged">
             <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[share.title]]" on-scene-done="_showEndModal"></kano-scene-editor>
         </template>
         <paper-dialog id="share-modal" with-backdrop>
@@ -54,10 +49,10 @@
         </paper-dialog>
         <paper-dialog class="challenge-modal" id="start-modal" modal on-iron-overlay-closed="_startTutorial">
             <iron-pages selected="[[selectedStartPage]]" attr-for-selected="name">
-                <div name="loading">Loading...</div>
+                <div name="loading">Loading tutorial...</div>
                 <div name="loaded">
                     <h2>How to build [[share.user.username]]'s [[share.title]] app</h2>
-                    <iron-image src="[[share.cover_url]]" sizing="cover" preload fade></iron-image>
+                    <iron-image src="[[share.cover_url]]" sizing="contain" preload fade></iron-image>
                     <p>
                         Hi there. In this tutorial you will learn how to create [[share.user.username]]'s app, and then you will be able to remix it to make it your own.
                     </p>
@@ -68,8 +63,8 @@
                     <p>
                         If you're ready, hit the start button!
                     </p>
-                    <div class="buttons" invisible$="[[!shareLoaded]]">
-                        <button class="start-button" dialog-confirm>Start!</button>
+                    <div class="buttons">
+                        <button class="start-button" disabled$="[[!shareLoaded]]" dialog-confirm>Start!</button>
                     </div>
                 </div>
             </iron-pages>
@@ -110,28 +105,42 @@
             this.configureModal(this.$['start-modal'], 'fade-out');
         },
         attached () {
+            let editor = window.RouterUtil.parseQsParam(this.context.querystring, 'editor');
             this.modal = this.$['share-modal'];
             this.$['start-modal'].open();
             this.selectedStartPage = 'loading';
             this.shareLoaded = false;
-            Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.context.params.slug })
-                .then((res) => res.body.item)
-                .then((share) => {
-                    this.share = share;
-                    this.selectedStartPage = 'loaded';
-                    this.$['start-modal'].refit();
-                    return fetch(share.workspace_info_url);
-                })
-                .then((res) => res.json())
-                .then((app) => {
-                    let challenge = Kano.MakeApps.Challenge.createFromApp(app);
-                    this.scene = challenge.data;
-                    this.shareLoaded = true;
-                }).catch((e) => {
-                    console.error(e);
-                });
+            if (editor) {
+                this.share = {
+                    user: this.user || { username: 'Current user' },
+                    title: 'From Local Storage',
+                    description: 'App loaded from the localStorage'
+                };
+                this.selectedStartPage = 'loaded';
+                this.$['start-modal'].refit();
+                let challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem('savedApp')));
+                this.scene = challenge.data;
+                this.shareLoaded = true;
+            } else {
+                Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.context.params.slug })
+                    .then((res) => res.body.item)
+                    .then((share) => {
+                        this.share = share;
+                        this.selectedStartPage = 'loaded';
+                        this.$['start-modal'].refit();
+                        return fetch(share.workspace_info_url);
+                    })
+                    .then((res) => res.json())
+                    .then((app) => {
+                        let challenge = Kano.MakeApps.Challenge.createFromApp(app);
+                        this.scene = challenge.data;
+                        this.shareLoaded = true;
+                    }).catch((e) => {
+                        console.error(e);
+                    });
+            }
 
-            this.async(function() {
+            this.async(function () {
                 trackPage();
             });
         },
@@ -146,6 +155,19 @@
         },
         _enableRemixMode () {
             this.$$('#editor').goToRemixChallenge();
+        },
+        _editorDomChanged () {
+            let editor = this.$$('#editor');
+            if (editor) {
+                editor.animate([{
+                    opacity: 0
+                },{
+                    opacity: 1
+                }], {
+                    duration: 500,
+                    easing: 'ease-out'
+                });
+            }
         }
     });
 </script>

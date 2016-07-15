@@ -85,8 +85,14 @@
         },
         observers: [
             'endedChanged(scene.ended)',
-            '_sceneChanged(scene)'
+            '_sceneChanged(scene)',
+            '_sceneStarted(scene.started)'
         ],
+        _sceneStarted (started) {
+            if (started) {
+                this.$['challenge-progress'].animateIn();
+            }
+        },
         _blocklyReady (scene) {
             this._loadVariables();
         },

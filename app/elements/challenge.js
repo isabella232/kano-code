@@ -32,6 +32,9 @@
         'close-parts-drawer': [
             "Close the drawer.",
             "Hit that button"
+        ],
+        'connect-blocks': [
+            "Connect it to this block"
         ]
     };
 
@@ -85,7 +88,6 @@
     };
 
     Challenge.fieldDefaults = {
-        'text': '',
         'colour_picker': {
             'COLOUR': '#ff0000'
         },
@@ -102,6 +104,7 @@
             'EVENT': 'global.start'
         },
         'every_x_seconds': {
+            'INTERVAL': 1,
             'UNIT': 'seconds'
         },
         'math_arithmetic': {
@@ -110,8 +113,26 @@
         'logic_compare': {
             'OP': 'EQ'
         },
+        'logic_boolean': {
+            'BOOL': 'TRUE'
+        },
         'stroke': {
             'SIZE': 1
+        },
+        'get_time': {
+            'FIELD': 'year'
+        },
+        'arc': {
+            'RADIUS': 5,
+            'START': 0,
+            'END': 1,
+            'CLOSE': 'TRUE'
+        },
+        'polygon': {
+            'CLOSE': 'TRUE'
+        },
+        'text': {
+            'TEXT': ''
         }
     };
 
@@ -121,13 +142,37 @@
             'GTE': '>=',
             'LT': '<',
             'LTE': '<=',
-            'EQ': '='
+            'EQ': '=',
+            'DIVIDE': '/',
+            'MULTIPLY': 'x',
+            'ADD': '+',
+            'SUBSTRACT': '-',
+            'TRUE': 'true',
+            'FALSE': 'false',
+            'year': 'Year',
+            'month': 'Month',
+            'day': 'Day',
+            'hour': 'Hour',
+            'minute': 'Minute',
+            'seconds': 'Seconds'
         },
         category: {
             'variables': 'Variables',
             'operators': 'Operators',
             'control': 'Control'
         }
+    };
+
+    Challenge.parseBlockType = function (type) {
+        var pieces = type.split('#'),
+            result = {};
+        if (pieces.length > 1) {
+            result.category = pieces[0];
+            result.block = pieces[1];
+        } else {
+            result.block = pieces[0];
+        }
+        return result;
     };
 
     Challenge.translate = function (type, key) {
@@ -272,13 +317,13 @@
     Challenge.prototype.nodeToSteps = function (node, parentSelector, parentType) {
         var steps = [],
             type = node.getAttribute('type'),
+            parentBlockType,
             blockChallengeId,
+            categoryLabel,
             fieldDefault,
             fieldValue,
-            categoryId,
             fieldName,
-            blockId,
-            pieces,
+            blockType = Challenge.parseBlockType(type || ''),
             child,
             i;
 
@@ -289,9 +334,14 @@
                 }
                 if (node.firstChild.nodeValue !== null) {
                     fieldName = parentSelector.shadow || node.getAttribute('name');
+                    if (node.parentNode.tagName === 'shadow') {
+                        parentBlockType = Challenge.parseBlockType(node.parentNode.parentNode.parentNode.getAttribute('type'));
+                        parentType = parentBlockType.block;
+                    }
                     if (fieldName) {
                         fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
                     }
+                    console.log(parentType, fieldName, fieldDefault);
                     // Loose check of the value
                     if (node.firstChild.nodeValue != fieldDefault) {
                         fieldValue = this.translate('field', node.firstChild.nodeValue);
@@ -342,77 +392,101 @@
                 break;
             }
             case 'shadow': {
-                pieces = type.split('#');
-                if (pieces.length > 1) {
-                    categoryId = pieces[0];
-                    blockId = pieces[1];
-                } else {
-                    blockId = pieces[0];
-                }
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];
-                    steps = steps.concat(this.nodeToSteps(child, parentSelector, blockId));
+                    steps = steps.concat(this.nodeToSteps(child, parentSelector, blockType.block));
                 }
                 break;
             }
             case 'block': {
                 if (type === 'part_event') {
                     blockChallengeId = 'default_part_event';
-                    blockId = 'part_event';
+                    blockType.block = 'part_event';
                     steps = steps.concat(this.eventBlockToSteps(node));
                 } else {
-                    pieces = type.split('#');
                     blockChallengeId = 'block_' + this.uid('block');
 
-                    if (pieces.length > 1) {
-                        categoryId = pieces[0];
-                        blockId = pieces[1];
-                    } else {
-                        blockId = pieces[0];
-                    }
+                    // Defines the location of the toolbox category. Can be the category itself or from a previously added part
+                    var categoryLocation,
+                        blockLocation,
+                        markdownType,
+                        creationType;
 
-                    if (!categoryId) {
-                        categoryId = Challenge.categoryMap[blockId];
-                        if (this.data.modules.indexOf(categoryId) === -1) {
-                            this.data.modules.push(categoryId);
+
+                    // The block from the original app isn't from a created part, thus doens't contain a category field
+                    if (!blockType.category) {
+                        categoryLocation = blockType.category = Challenge.categoryMap[blockType.block];
+                        blockLocation = markdownType = blockType.block;
+                        creationType = {
+                            type: blockLocation,
+                            id: blockChallengeId
+                        };
+                        if (this.data.modules.indexOf(blockType.category) === -1) {
+                            this.data.modules.push(blockType.category);
                         }
+                    } else if (this.partsIds[blockType.category]) {
+                        blockLocation = {
+                            part: this.partsIds[blockType.category],
+                            type: blockType.block
+                        };
+                        categoryLocation = {
+                            part: blockLocation.part
+                        };
+                        creationType = {
+                            target: blockLocation.part,
+                            type: blockLocation.type,
+                            id: blockChallengeId
+                        };
+                        markdownType = blockLocation.part + "#" + blockLocation.type;
+                    } else {
+                        blockLocation = creationType = markdownType = type;
+                        categoryLocation = blockType.category;
+                        creationType = {
+                            type: blockLocation,
+                            id: blockChallengeId
+                        };
+                    }
+                    console.log(blockType, categoryLocation, blockLocation, markdownType, creationType);
+
+                    categoryLabel = this.translate('category', blockType.category);
+                    if (categoryLabel !== blockType.category) {
+                        categoryLabel = "the " + categoryLabel;
+                    } else {
+                        categoryLabel = "this";
                     }
 
                     steps.push({
                         "tooltips": [{
                             "location": {
-                                "category": categoryId
+                                "category": categoryLocation
                             },
                             "position": "left",
-                            "text": "Open the " + this.translate('category', categoryId) + " tray"
+                            "text": "Open " + categoryLabel + " tray"
                         }],
                         "validation": {
                             "blockly": {
-                                "open-flyout": categoryId
+                                "open-flyout": categoryLocation
                             }
                         }
                     });
                     steps.push({
                         "tooltips": [{
                             "location": {
-                                "flyout_block": type
+                                "flyout_block": blockLocation
                             },
                             "position": "left",
-                            "text": 'Drag the <kano-blockly-block type="' + type + '"></kano-blockly-block> block onto your code space'
+                            "text": 'Drag the <kano-blockly-block type="' + markdownType + '"></kano-blockly-block> block onto your code space'
                         }],
                         "arrow": {
                             "target": {
-                                "flyout_block": type
+                                "flyout_block": blockLocation
                             },
                             "angle": 315,
                             "size": 80
                         },
                         "validation": {
                             "blockly": {
-                                "create": {
-                                    "type": type,
-                                    "id": blockChallengeId
-                                }
+                                "create": creationType
                             }
                         }
                     });
@@ -424,7 +498,7 @@
                                 "block": parentSelector
                             },
                             "position": "left",
-                            "text": "Connect the blocks"
+                            "text": Challenge.randomizedAction('connect-blocks')
                         }],
                         "validation": {
                             "blockly": {
@@ -438,7 +512,7 @@
                 }
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];
-                    steps = steps.concat(this.nodeToSteps(child, blockChallengeId, blockId));
+                    steps = steps.concat(this.nodeToSteps(child, blockChallengeId, blockType.block));
                 }
                 break;
             }
