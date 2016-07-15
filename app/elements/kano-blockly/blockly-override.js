@@ -152,6 +152,59 @@ Blockly.isTargetInput_ = function(e) {
          target.isContentEditable;
 };
 
+Blockly.Variables.variablesDB = {};
+
+/**
+ * Find all user-created variables.
+ * @param {!Blockly.Block|!Blockly.Workspace} root Root block or workspace.
+ * @return {!Array.<string>} Array of variable names.
+ */
+Blockly.Variables.allVariables = function(root) {
+  var blocks;
+  if (root.getDescendants) {
+    // Root is Block.
+    blocks = root.getDescendants();
+  } else if (root.getAllBlocks) {
+    // Root is Workspace.
+    blocks = root.getAllBlocks();
+  } else {
+    throw 'Not Block or Workspace: ' + root;
+  }
+  var variableHash = Object.create(null);
+  // Iterate through every block and add each variable to the hash.
+  for (var i = 0; i < blocks.length; i++) {
+    var blockVariables = blocks[i].getVars();
+    for (var j = 0; j < blockVariables.length; j++) {
+      var varName = blockVariables[j];
+      // Variable name may be null if the block is only half-built.
+      if (varName) {
+        variableHash[varName.toLowerCase()] = varName;
+      }
+    }
+  }
+  // Flatten the hash into a list.
+  var variableList = [];
+  for (var name in variableHash) {
+    variableList.push(variableHash[name]);
+  }
+  if (Blockly.Variables.variablesDB[root.id]) {
+      variableList = variableList.concat(Blockly.Variables.variablesDB[root.id]);
+  }
+  variableList = variableList.filter(function(value, index, self) {
+    return self.indexOf(value) === index;
+  });
+  return variableList;
+};
+
+Blockly.Variables.addVariable = function(variable, root) {
+    if (!Blockly.Variables.variablesDB[root.id]) {
+        Blockly.Variables.variablesDB[root.id] = [];
+    }
+    if (Blockly.Variables.variablesDB[root.id].indexOf(variable) === -1) {
+        Blockly.Variables.variablesDB[root.id].push(variable);
+    }
+};
+
 var d2b = Blockly.Xml.domToBlock;
 
 Blockly.Xml.domToBlock = function (xmlBlock, ws) {

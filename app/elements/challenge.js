@@ -8,6 +8,7 @@
         this.data.steps = [];
         this.data.parts = [];
         this.data.modules = [];
+        this.data.variables = [];
 
         this.appParts = {};
         this.partsIds = {};
@@ -183,6 +184,7 @@
                     "position": "right",
                     "text": "Drag the " + part.name + " to your app"
                 }],
+                "highlight": location,
                 "arrow": {
                     "source": location,
                     "target": "left-panel",
@@ -282,6 +284,9 @@
 
         switch (node.tagName) {
             case 'field': {
+                if (parentType === 'variables_set' && this.data.variables.indexOf(node.firstChild.nodeValue) === -1) {
+                    this.data.variables.push(node.firstChild.nodeValue);
+                }
                 if (node.firstChild.nodeValue !== null) {
                     fieldName = parentSelector.shadow || node.getAttribute('name');
                     if (fieldName) {
@@ -357,7 +362,6 @@
                     steps = steps.concat(this.eventBlockToSteps(node));
                 } else {
                     pieces = type.split('#');
-
                     blockChallengeId = 'block_' + this.uid('block');
 
                     if (pieces.length > 1) {

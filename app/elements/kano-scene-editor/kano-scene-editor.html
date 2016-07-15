@@ -37,7 +37,8 @@
                             running="{{running}}"
                             title="[[storyName]]"
                             code="{{code}}"
-                            mode="[[mode]]">
+                            mode="[[mode]]"
+                            on-blockly-ready="_blocklyReady">
               <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory.id]]" on-share-app="shareApp" remix-mode="[[remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
@@ -83,8 +84,23 @@
             }
         },
         observers: [
-            'endedChanged(scene.ended)'
+            'endedChanged(scene.ended)',
+            '_sceneChanged(scene)'
         ],
+        _blocklyReady (scene) {
+            this._loadVariables();
+        },
+        _sceneChanged () {
+            this._loadVariables();
+        },
+        _loadVariables () {
+            let workspace = this.$.editor.getBlocklyWorkspace();
+            if (this.scene && this.scene.variables && workspace) {
+                this.scene.variables.forEach((v) => {
+                    Blockly.Variables.addVariable(v, workspace);
+                });
+            }
+        },
         endedChanged () {
             if (this.scene.ended) {
                 this.$.editor.generateCover().then((image) => {

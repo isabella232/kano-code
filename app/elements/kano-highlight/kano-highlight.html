@@ -1,0 +1,92 @@
+<dom-module id="kano-highlight">
+    <style>
+    :host {
+        display: block;
+        visibility: hidden;
+        border: 2px solid #a6fbff;
+        border-radius: 4px;
+        @apply(--shadow-elevation-4dp);
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        padding: 7px;
+        box-sizing: border-box;
+        pointer-events: none;
+    }
+    </style>
+    <template></template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-highlight',
+            properties: {
+                x: {
+                    type: Number,
+                    value: 0
+                },
+                y: {
+                    type: Number,
+                    value: 0
+                },
+                width: {
+                    type: Number,
+                    value: 50
+                },
+                height: {
+                    type: Number,
+                    value: 50
+                }
+            },
+            observers: [
+                '_update(x, y, width, height)'
+            ],
+            ready () {
+                this.hidden = true;
+            },
+            _update () {
+                this.style.width = `${this.width + 14}px`;
+                this.style.height = `${this.height + 14}px`;
+            },
+            show () {
+                this.style.visibility = 'visible';
+                this._pause();
+                this.animation = this.animate([{
+                    transform: `translate(${this.x - 7}px, ${this.y - 7}px) scale(4)`,
+                    opacity: 0
+                },{
+                    transform: `translate(${this.x - 7}px, ${this.y - 7}px)`,
+                    opacity: 1
+                }], {
+                    duration: 200,
+                    fill: 'forwards'
+                });
+                this.hidden = false;
+            },
+            hide () {
+                if (this.hidden) {
+                    return;
+                }
+                this._pause();
+                this.animation = this.animate([{
+                    transform: `translate(${this.x - 5}px, ${this.y - 5}px)`,
+                    opacity: 1
+                },{
+                    transform: `translate(${this.x - 5}px, ${this.y - 5}px) scale(4)`,
+                    opacity: 0
+                }], {
+                    duration: 200,
+                    fill: 'forwards'
+                });
+
+                this.animation.finished.then(() => {
+                    this.style.visibility = 'hidden';
+                });
+                this.hidden = true;
+            },
+            _pause () {
+                if (this.animation) {
+                    this.animation.pause();
+                }
+            }
+        });
+    </script>
+</dom-module>
