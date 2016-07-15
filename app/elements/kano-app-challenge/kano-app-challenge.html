@@ -97,7 +97,10 @@
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
-            <kano-tooltip target="[[tooltip.target]]" position="[[tooltip.position]]">
+            <kano-tooltip target="[[tooltip.target]]"
+                          position="[[tooltip.position]]"
+                          z-index="[[tooltip.zIndex]]"
+                          track-target="[[tooltip.tracking]]">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
                         <marked-element markdown="[[tooltip.text]]">
@@ -190,7 +193,8 @@
                 "disable-refresh": this.matchPartTarget.bind(this),
                 "manual-refresh": this.matchPartTarget.bind(this),
                 "open-settings-tooltip": this.matchPartTarget.bind(this),
-                "open-part-settings": this.matchPartTarget.bind(this)
+                "open-part-settings": this.matchPartTarget.bind(this),
+                "settings-interaction": this.matchSettingsInteraction.bind(this)
             };
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
@@ -208,9 +212,8 @@
             this.debounce('computeTooltips', () => {
                 let tooltips = step.tooltips || [];
                 tooltips = tooltips.map((tooltip) => {
-                    let target = this.getDeepElement(tooltip.location),
-                        rect = target.getBoundingClientRect();
-                    tooltip.target = rect;
+                    let target = this.getDeepElement(tooltip.location);
+                    tooltip.target = target;
                     tooltip.text = this._processMarkdown(tooltip.text);
                     return tooltip;
                 });
@@ -318,9 +321,13 @@
                         type = `${this.stepIds[type.part]}#${type.type}`;
                     }
                     return this.editor.getBlocklyWorkspace().getFlyoutBlockByType(type).svgPath_;
+                } else if (selector.root) {
+                    element = document.querySelector(selector.root);
+                    selector = selector.path;
+                } else {
+                    partId = this.stepIds[selector.part];
+                    selector = `${selector.path}.part-${partId},${partId}`;
                 }
-                partId = this.stepIds[selector.part];
-                selector = `${selector.path}.part-${partId},${partId}`;
             }
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
@@ -420,6 +427,9 @@
         },
         matchPartType (validation, event) {
             return validation.type === event.part.type;
+        },
+        matchSettingsInteraction (validation, event) {
+            return validation.setting === event.setting;
         },
         isStepTarget (validation, id) {
             let target = this.stepIds[validation.target];

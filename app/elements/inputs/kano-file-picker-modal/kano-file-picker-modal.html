@@ -42,7 +42,7 @@
     }
     </style>
     <template>
-        <paper-dialog id="modal" with-backdrop>
+        <paper-dialog id="modal" opened="{{opened}}" with-backdrop>
             <header>
                 <h2>Click an image to select</h2>
                 <button type="button" name="button" class="cancel" dialog-dismiss><span>Cancel&nbsp;&nbsp;</span><span class="times">&times;</span></button>
@@ -57,9 +57,14 @@
     /* globals Polymer */
     Polymer({
         is: 'kano-file-picker-modal',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
         properties: {
             files: {
                 type: Array
+            },
+            opened: {
+                type: Boolean,
+                observer: 'openedChanged'
             }
         },
         open () {
@@ -72,6 +77,10 @@
 
         refitModal () {
             this.$.modal.refit();
+        },
+
+        openedChanged (opened) {
+            this.notifyChange('file-picker-' + (opened ? 'open' : 'close'));
         }
     });
 </script>
