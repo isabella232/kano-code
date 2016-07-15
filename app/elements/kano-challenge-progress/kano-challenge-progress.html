@@ -109,15 +109,21 @@ by a `progress` variable, this would be:
           justify-content: center;
           align-items: center;
         }
+        .action-link {
+            transition: opacity 200ms ease-in 300ms;
+        }
+        *[invisible] {
+            opacity: 0 !important;
+        }
     </style>
     <template>
-        <div class="actions" id="actions" hidden$="{{!remixMode}}">
+        <div class="actions" id="actions">
             <div class="empty-space"></div>
             <template is="dom-if" if="{{nextChallenge}}">
-                <a on-tap="goToNextStory"> Next Challenge </a>
+                <a on-tap="goToNextStory" class="action-link" invisible$="[[!remixMode]]"> Next Challenge </a>
                 <div class="separator"></div>
             </template>
-            <a on-tap="shareApp"> Share App </a>
+            <a on-tap="shareApp"  class="action-link" invisible$="[[!remixMode]]"> Share App </a>
         </div>
         <div class="progress">
             <div id="title-container" class="title">
@@ -166,7 +172,7 @@ by a `progress` variable, this would be:
             }
         },
         ready () {
-            this.actionsAnimation = new Animation([{
+            this.actionsAnimation = this.$.actions.animate([{
                 transform: 'scale(1, 0)'
             }, {
                 transform: 'scale(1, 1)'
@@ -175,22 +181,22 @@ by a `progress` variable, this would be:
                 fill: 'forwards',
                 easing: 'ease-in'
             });
+            this.actionsAnimation.pause();
         },
         shareApp () {
             this.fire('share-app');
         },
         _remixModeChanged (remix) {
-            if (remix) {
-                this._openActions();
-            } else {
-                this._closeActions();
+            if (!this.actionsAnimation) {
+                return;
             }
-        },
-        _openActions () {
-            this.actionsAnimation.play();
-        },
-        _closeActions () {
-            this.actionsAnimation.reverse();
+            if (remix) {
+                this.actionsAnimation.playbackRate = 1;
+                this.actionsAnimation.play();
+            } else {
+                this.actionsAnimation.playbackRate = -1;
+                this.actionsAnimation.play();
+            }
         },
         goToNextStory () {
             this.fire('next-story');

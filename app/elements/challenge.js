@@ -84,7 +84,8 @@
         'math_max': 'operators',
         'math_min': 'operators',
         'math_sign': 'operators',
-        'math_random': 'operators'
+        'math_random': 'operators',
+        'unary': 'operators'
     };
 
     Challenge.fieldDefaults = {
@@ -107,6 +108,12 @@
             'INTERVAL': 1,
             'UNIT': 'seconds'
         },
+        'repeat_x_times': {
+            'N': 10
+        },
+        'unary': {
+            'LEFT_HAND': 'item'
+        },
         'math_arithmetic': {
             'OP': 'ADD'
         },
@@ -116,11 +123,50 @@
         'logic_boolean': {
             'BOOL': 'TRUE'
         },
+        'get_time': {
+            'FIELD': 'year'
+        },
+        'text': {
+            'TEXT': ''
+        },
+        'lists_getIndex': {
+            'MODE': 'GET'
+        },
+        'lists_setIndex': {
+            'MODE': 'SET'
+        },
         'stroke': {
             'SIZE': 1
         },
-        'get_time': {
-            'FIELD': 'year'
+        'line_to': {
+            'X': 5,
+            'Y': 5
+        },
+        'line': {
+            'X': 5,
+            'Y': 5
+        },
+        'move_to': {
+            'X': 5,
+            'Y': 5
+        },
+        'move': {
+            'X': 5,
+            'Y': 5
+        },
+        'circle': {
+            'RADIUS': 5
+        },
+        'ellipse': {
+            'RADIUSX': 5,
+            'RADIUSY': 5
+        },
+        'square': {
+            'SIZE': 5
+        },
+        'rectangle': {
+            'WIDTH': 5,
+            'HEIGHT': 5
         },
         'arc': {
             'RADIUS': 5,
@@ -130,9 +176,6 @@
         },
         'polygon': {
             'CLOSE': 'TRUE'
-        },
-        'text': {
-            'TEXT': ''
         }
     };
 
@@ -341,7 +384,6 @@
                     if (fieldName) {
                         fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
                     }
-                    console.log(parentType, fieldName, fieldDefault);
                     // Loose check of the value
                     if (node.firstChild.nodeValue != fieldDefault) {
                         fieldValue = this.translate('field', node.firstChild.nodeValue);
@@ -415,7 +457,9 @@
 
                     // The block from the original app isn't from a created part, thus doens't contain a category field
                     if (!blockType.category) {
+                        console.log(blockType.block);
                         categoryLocation = blockType.category = Challenge.categoryMap[blockType.block];
+                        console.log(blockType.category)
                         blockLocation = markdownType = blockType.block;
                         creationType = {
                             type: blockLocation,
@@ -446,7 +490,6 @@
                             id: blockChallengeId
                         };
                     }
-                    console.log(blockType, categoryLocation, blockLocation, markdownType, creationType);
 
                     categoryLabel = this.translate('category', blockType.category);
                     if (categoryLabel !== blockType.category) {
