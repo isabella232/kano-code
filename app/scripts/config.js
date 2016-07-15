@@ -11,10 +11,10 @@ var COMMON = {
             "width": 466,
             "height": 240
         },
-        "VOICE_API_URL": "http://api.voicerss.org",
+        "VOICE_API_URL": "//api.voicerss.org",
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
-        "HARDWARE_API_URL": "http://localhost:3000",
+        "HARDWARE_API_URL": "//localhost:3000",
         "DEFAULT_META_DATA": [
             ["og:title", "Make Apps"],
             ["og:description", "Make real apps, real fast"],
