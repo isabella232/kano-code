@@ -26,7 +26,7 @@
 
     Polymer({
         is: 'kano-input',
-        behaviors: [Kano.Behaviors.Input],
+        behaviors: [Kano.Behaviors.Input, Kano.Behaviors.AppEditorBehavior],
         observers: [
             '_typeChanged(type)',
             '_valueChanged(value)',
@@ -42,6 +42,10 @@
 
             input.addEventListener('value-changed', (e) => {
                 this.notifyPath('value', e.detail.value);
+            });
+
+            input.addEventListener('click', (e) => {
+                this.notifyChange('settings-interaction', {setting: this.type});
             });
 
             this.input = input;
