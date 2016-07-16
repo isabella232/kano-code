@@ -46,16 +46,9 @@
             'send-email': '_sendEmail',
             'follow': '_follow'
         },
-        attached () {
-            this.async(function() {
-                trackPage();
-            });
-        },
         ready () {
             this.notifyOnLoad = false;
 
-            // Ugly quick trick to hide the news bar
-            Polymer.dom(document.querySelector('kano-app').root).querySelector('.news-bar').style.display = 'none';
             this.actionsStack = [];
             // Use slug here, but for now, we really deal with ids
             this.slug = this.context.params.slug;

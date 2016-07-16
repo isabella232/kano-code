@@ -64,7 +64,6 @@ module.exports = (gulp, $) => {
             'app/assets/vendor/cache-polyfill/cache-polyfill.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
-            'app/scripts/util/tracking.js',
             'app/scripts/util/router.js',
             'app/scripts/index.js'
         ],

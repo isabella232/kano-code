@@ -112,7 +112,9 @@
             'N': 10
         },
         'unary': {
-            'LEFT_HAND': 'item'
+            'LEFT_HAND': 'item',
+            'OPERATOR': '+=',
+            'RIGHT_HAND': 1
         },
         'math_arithmetic': {
             'OP': 'ADD'
