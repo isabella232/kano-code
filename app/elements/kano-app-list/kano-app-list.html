@@ -40,13 +40,20 @@
             margin-bottom: 20px;
             z-index: 0;
         }
-        :host .app-list-item {
+        .app-list-item {
             display: inline-block;
             @apply(--layout-vertical);
             @apply(--layout-center);
             border-radius: 4px;
             overflow: hidden;
             @apply(--shadow-elevation-2dp);
+        }
+        .app-list-item>* {
+            pointer-events: none;
+        }
+        .app-list-item:focus {
+            outline: none;
+            @apply(--shadow-elevation-8dp);
         }
         :host .app-list-item:hover {
             cursor: pointer;
@@ -110,7 +117,7 @@
                 </div>
                 <template is="dom-repeat" items="{{apps}}" as="app" on-dom-change="_updateAnimation">
                     <div class="block">
-                        <a class="app-list-item" href$="/app/[[app.id]]">
+                        <a class="app-list-item" href$="/app/[[app.slug]]">
                             <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
                             <div class="info">
                                 <div class="app-name">{{app.title}}</div>
@@ -159,7 +166,6 @@
             return this.loadingState === 'loaded' || !this._isMyApps(this.view);
         },
         _isMyApps (view) {
-            console.log(view);
             return view === 'my';
         },
         _loadingStateChanged () {

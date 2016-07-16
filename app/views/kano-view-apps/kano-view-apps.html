@@ -45,20 +45,25 @@
             font-weight: 600;
             text-align: center;
         }
-        :host .container {
+        .container {
             width: 100%;
             padding: 0 35px;
+            box-sizing: border-box;
         }
         :host .logo-holder {
             width: 100%;
             text-align: center;
         }
-        :host .back-to-home {
+        .back-to-home {
             float:left;
             font-size: 14px;
             font-weight: 600;
             margin-top: 45px;
             position: absolute;
+        }
+        .back-to-home:focus {
+            outline: none;
+            color: var(--color-orange);
         }
         @media screen and (min-width: 550px) {
             .container {
@@ -74,7 +79,7 @@
         <div class="container">
             <a href="/" class="back-to-home">&lt; Home</a>
             <h1>{{appListHeader}}</h1>
-            <kano-app-list view="[[view]]" apps="[[apps]]"></kano-app-list>
+            <kano-app-list view="[[view]]" apps="[[apps]]" loading="[[appsLoading]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -100,15 +105,19 @@
                 return null;
             }
 
+            this.appsLoading = true;
+
             if (this.view === 'my') {
                 Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
+                    this.appsLoading = false;
                 });
             } else {
                 Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps' })
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
+                    this.appsLoading = false;
                 });
             }
         },
