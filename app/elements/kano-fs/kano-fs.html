@@ -64,7 +64,9 @@
         </header>
         <div class="explorer">
             <template is="dom-repeat" items="{{folder.children}}" as="file" filter="isFile">
-                <div class$="item file [[selectedClass(file, selectedFile)]]" on-tap="selectFile">
+                <div id$="{{_filenameToId(file.name)}}"
+                     class$="item file [[selectedClass(file, selectedFile)]]"
+                     on-tap="selectFile">
                     <div class="icon">
                         <iron-image src="[[computeIcon(file)]]" preload fade sizing="contain"></iron-image>
                     </div>
@@ -156,6 +158,9 @@
             }
 
             return `${path}${name}`;
+        },
+        _filenameToId (str) {
+            return str.replace(/\s+/g, '-').toLowerCase();
         }
     });
 </script>

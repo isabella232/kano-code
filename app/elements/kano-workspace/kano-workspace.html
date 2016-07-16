@@ -439,7 +439,7 @@
                     roundRect: this.roundRect
                 },
                 image,
-                promise = Promise.resolve();
+                promise;
 
             canvas.id = 'screenshot';
             canvas.width  = this.mode.workspace.viewport.width;
@@ -448,6 +448,7 @@
             //setting background color
             ctx.fillStyle = this.background;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            promise = this.renderOnCanvas(ctx, util, scaleFactor);
             this.parts.forEach((part) => {
                 let el = this.dropzone.querySelector(`#${part.id}`);
                 if (typeof el.renderOnCanvas === 'function') {
@@ -461,6 +462,12 @@
                 image.src = canvas.toDataURL();
                 return image;
             });
+        },
+        renderOnCanvas (ctx, util, scaleFactor) {
+            if (!this.dropzone || !this.dropzone.renderOnCanvas) {
+                return Promise.resolve();
+            }
+            return this.dropzone.renderOnCanvas(ctx, util, scaleFactor);
         },
         /**
          * Helper to get style from element

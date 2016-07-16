@@ -169,10 +169,19 @@
             },
             target: {
                 type: Object
+            },
+            trackTarget: {
+                type: Boolean,
+                value: false
+            },
+            zIndex: {
+                type: Number,
+                value: null
             }
         },
         observers: [
-            'updatePosition(target.*, position)'
+            'updatePosition(target.*, position, zIndex)',
+            'setupTargetTracking(target, trackTarget)'
         ],
         attached () {
             let observer = new MutationObserver(() => {
@@ -183,6 +192,10 @@
         },
         detached () {
             window.removeEventListener('resize', this.updatePosition.bind(this));
+
+            if (this.targetTracker) {
+                clearInterval(this.targetTracker);
+            }
         },
         updatePosition () {
             this.debounce('updatePosition', () => {
@@ -192,18 +205,28 @@
                     style,
                     tooltipStyle,
                     widthCenter,
-                    heightCenter;
+                    heightCenter,
+                    tRect;
 
                 if (!target) {
                     return;
                 }
+
+                /* See whether the target was a rect or an element */
+                if ('left' in target && 'top' in target &&
+                    'width' in target && 'height' in target) {
+                    tRect = target;
+                } else {
+                    tRect = target.getBoundingClientRect()
+                }
+
                 style = this.style;
                 tooltip = this.$.tooltip;
                 tooltipStyle = tooltip.style;
                 rect = tooltip.getBoundingClientRect();
 
-                widthCenter = target.left + (target.width / 2) - (rect.width / 2);
-                heightCenter = target.top + (target.height / 2) - (rect.height / 2);
+                widthCenter = tRect.left + (tRect.width / 2) - (rect.width / 2);
+                heightCenter = tRect.top + (tRect.height / 2) - (rect.height / 2);
 
                 if (['top', 'bottom'].indexOf(this.position) !== -1) {
                     style.left = `${widthCenter}px`;
@@ -212,13 +235,17 @@
                 }
 
                 if (this.position === 'top') {
-                    style.top = `${target.top - rect.height - 20}px`;
+                    style.top = `${tRect.top - rect.height - 20}px`;
                 } else if (this.position === 'bottom') {
-                    style.top = `${target.bottom + 20}px`;
+                    style.top = `${tRect.bottom + 20}px`;
                 } else if (this.position === 'right') {
-                    style.left = `${target.right + 20}px`;
+                    style.left = `${tRect.right + 20}px`;
                 } else if (this.position === 'left') {
-                    style.left = `${target.left - rect.width - 20}px`;
+                    style.left = `${tRect.left - rect.width - 20}px`;
+                }
+
+                if (this.zIndex !== null) {
+                    style['z-index'] = this.zIndex;
                 }
 
                 this.open();
@@ -266,6 +293,17 @@
             this.alreadyAnimated = false;
             style.visibility = 'hidden';
             style.transform = 'scale(1)';
+        },
+        setupTargetTracking () {
+            let target = this.target;
+
+            if (this.targetTracker) {
+                clearInterval(this.targetTracker);
+            }
+
+            if (this.trackTarget && target && 'getBoundingClientRect' in target) {
+                this.targetTracker = setInterval(this.updatePosition.bind(this), 1000);
+            }
         }
     });
 </script>

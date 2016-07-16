@@ -440,10 +440,16 @@ Polymer({
             }
         });
         this.bindEvents();
+
+        window.onbeforeunload = () => {
+            return 'Any unsaved changes to your app will be lost. Continue?';
+        };
     },
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
+
+        window.onbeforeunload = null;
     },
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
