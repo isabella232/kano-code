@@ -109,6 +109,9 @@
             <div name="not-authenticated" class="message">
                 <p>Log in to see your apps</p>
             </div>
+            <div name="failed" class="message">
+                <p>Couldn't load apps :(</p>
+            </div>
             <div name="loaded" id="apps">
                 <div class="block" hidden$="[[!_isMyApps(view)]]">
                     <a id="new-app" class="app-list-item new-app" href="/make">
@@ -155,10 +158,15 @@
             loading: {
                 type: Boolean,
                 value: false
+            },
+            failed: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
             '_loadingStateChanged(loading)',
+            '_loadingStateChanged(failed)',
             '_loadingStateChanged(apps)',
             '_loadingStateChanged(view)'
         ],
@@ -172,6 +180,8 @@
             let state;
             if (this.loading) {
                 state = 'loading';
+            } else if (this.failed) {
+                state = 'failed';
             } else if (this.apps && this.apps.length) {
                 state = 'loaded';
             } else if (this.view !== 'my') {

@@ -156,9 +156,9 @@
             <h1>Projects</h1>
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
-            <kano-app-list limit="3" view="my" apps="[[user_apps]]" loading="[[myAppsLoading]]"></kano-app-list>
+            <kano-app-list limit="3" view="my" apps="[[user_apps]]" loading="[[myAppsLoading]]" failed="[[myAppsFailed]]"></kano-app-list>
             <h1>Latest Apps</h1><a  id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
-            <kano-app-list limit="4" apps="[[apps]]" loading="[[communityAppsLoading]]"></kano-app-list>
+            <kano-app-list limit="4" apps="[[apps]]" loading="[[communityAppsLoading]]" failed="[[communityAppsFailed]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -179,16 +179,20 @@
         ],
         _userChanged () {
             if (!this.user) {
-                this.myAppsloading = false;
+                this.myAppsLoading = false;
                 return null;
             }
-            this.myAppsloading = true;
+            this.myAppsLoading = true;
 
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => {
-                    this.set('user_apps', apps.body.entries);
-                    this.myAppsloading = false;
-                });
+            .then((apps) => {
+                this.set('user_apps', apps.body.entries);
+                this.myAppsLoading = false;
+            })
+            .catch(() => {
+                this.myAppsFailed = true;
+            });
+
         },
         ready () {
             this.worldRoot = Kano.MakeApps.config.WORLD_URL;
@@ -220,6 +224,9 @@
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
                     this.communityAppsLoading = false;
+                })
+                .catch(() => {
+                    this.communityAppsFailed = true;
                 });
         },
         _computeNotifications (notifications) {
