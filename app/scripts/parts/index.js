@@ -22,6 +22,7 @@ import LightFrame from './lightboard/light-frame';
 import PictureList from './picture-list';
 import Canvas from './canvas/canvas';
 import Clock from './clock';
+import Kaleidoscope from './kaleidoscope';
 
 let Parts,
     partTypes;
@@ -33,7 +34,8 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock],
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
+           Kaleidoscope],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame],
         'camera': [PictureList],

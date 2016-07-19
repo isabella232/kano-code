@@ -1,0 +1,75 @@
+<link rel="import" href="../../ui/behaviors.html">
+
+<dom-module id="kano-part-kaleidoscope">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    canvas {
+        border: 1px solid lightgrey;
+    }
+    canvas[running] {
+        border-color: transparent;
+    }
+    </style>
+    <template>
+        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.width, model.userStyle.height)]]" running$="[[isRunning]]"></canvas>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-part-kaleidoscope',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        ready () {
+            this.ctx = this.$.canvas.getContext('2d');
+            this.prevSize = {};
+            this.resetSession();
+            this.slices = 20;
+        },
+        _computeCanvasStyle () {
+            let style;
+            this._updateCanvasSize();
+            style = this.getPartialStyle(['width', 'height']);
+            return style;
+        },
+        _updateCanvasSize () {
+            if (!this.model) {
+                return;
+            }
+            if (this.prevSize.width !== this.model.userStyle.width || this.prevSize.height !== this.model.userStyle.height) {
+                this.$.canvas.setAttribute('width', parseInt(this.model.userStyle.width));
+                this.$.canvas.setAttribute('height', parseInt(this.model.userStyle.height));
+                this.prevSize.width = this.model.userStyle.width;
+                this.prevSize.height = this.model.userStyle.height;
+            }
+        },
+        resetSession () {
+            if (!this.model) {
+                return;
+            }
+            this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
+        },
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            this.resetSession();
+        },
+        renderOnCanvas (ctx, util, scaleFactor) {
+            let image = new Image();
+            image.src = this.$.canvas.toDataURL();
+            ctx.drawImage(image, 0, 0);
+            return Promise.resolve();
+        },
+        setSource (src) {
+            this.src = src;
+            this.image = new Image();
+            this.image.onload = this._updateRender.bind(this);
+            this.image.src = this.src;
+        },
+        _updateRender () {
+            this.ctx.drawImage(this.image, 0, 0, this.$.canvas.width, this.$.canvas.height);
+        }
+    });
+</script>
