@@ -82,6 +82,9 @@
                     reflectToAttribute: true
                 }
             },
+            ready () {
+                this.reset();
+            },
             attached () {
                 this._onStreamReady = this._onStreamReady.bind(this);
                 this._onStreamError = this._onStreamError.bind(this);
@@ -100,10 +103,18 @@
             detached () {
                 cancelAnimationFrame(this.requestId);
                 if (this.stream) {
-                    this.stream.getAudioTracks().forEach(function(track) {
+                    this.stream.getAudioTracks().forEach((track) => {
                         track.stop();
                     });
                 }
+            },
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+                this.reset();
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                this.reset();
             },
             _onStreamReady (stream) {
                 this.disabled = false;
@@ -136,7 +147,29 @@
                 stats = this._getSoundStats(this.soundData);
                 this._setVolume(Math.min(120, stats.volume) / 1.2);
                 this._setLow(Math.min(120, stats.low) / 1.2);
+
+                this._executeThresholds();
+
                 this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));
+            },
+            _executeThresholds () {
+                this.thresholds.forEach((threshold, index, self) => {
+                    if (this.volume > threshold.top) {
+                        if (threshold.over && !threshold.isOver) {
+                            self[index].isOver = true;
+                            threshold.cb.call({});
+                        } else if (!threshold.over && threshold.isUnder) {
+                            self[index].isUnder = false;
+                        }
+                    } else if (this.volume < threshold.bottom) {
+                        if (threshold.over && threshold.isOver) {
+                            self[index].isOver = false;
+                        } else if (!threshold.over && !threshold.isUnder) {
+                            self[index].isUnder = true;
+                            threshold.cb.call({});
+                        }
+                    }
+                });
             },
             _computeRippleStyle (volume) {
                 return `box-shadow: 0px 0px 0px ${(volume * 0.5)}px rgba(229, 57, 53, 0.4);`;
@@ -157,6 +190,19 @@
 
                 average = values / length;
                 return { volume: average, low: lows / 21 };
+            },
+            onVolumeThreshold (value, over, cb) {
+                let threshold = {
+                    value: Math.max(0, Math.min(100, value)),
+                    over,
+                    cb
+                };
+                threshold.top = Math.min(100 - 2.5, threshold.value + 2.5);
+                threshold.bottom = Math.max(2.5, threshold.value - 2.5);
+                this.thresholds.push(threshold);
+            },
+            reset () {
+                this.thresholds = [];
             }
         });
     </script>
