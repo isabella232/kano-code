@@ -63,13 +63,13 @@ export default kaleidoscope = {
         javascript: (ui) => {
             return function (block) {
                 let source = Blockly.JavaScript.valueToCode(block, 'SOURCE');
-                return `devices.get('${ui.id}').setSource(${source});`;
+                return `devices.get('${ui.id}').setSource(${source});\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let source = Blockly.JavaScript.valueToCode(block, 'SOURCE');
-                return `devices.get('${ui.id}').setSource(${source});`;
+                return `devices.get('${ui.id}').setSource(${source});\n`;
             };
         }
     },{
@@ -89,13 +89,13 @@ export default kaleidoscope = {
         javascript: (ui) => {
             return function (block) {
                 let speed = Blockly.JavaScript.valueToCode(block, 'SPEED');
-                return `devices.get('${ui.id}').setSpeed(Math.max(0, Math.min(100, ${speed})));`;
+                return `devices.get('${ui.id}').setSpeed(Math.max(0, Math.min(100, ${speed})));\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let speed = Blockly.JavaScript.valueToCode(block, 'SPEED');
-                return `devices.get('${ui.id}').setSpeed(Math.max(0, Math.min(100, ${speed})));`;
+                return `devices.get('${ui.id}').setSpeed(Math.max(0, Math.min(100, ${speed})));\n`;
             };
         }
     },{
@@ -115,13 +115,13 @@ export default kaleidoscope = {
         javascript: (ui) => {
             return function (block) {
                 let rotation = Blockly.JavaScript.valueToCode(block, 'ROTATION');
-                return `devices.get('${ui.id}').setOffsetRotation(Math.max(0, Math.min(360, ${rotation})));`;
+                return `devices.get('${ui.id}').setOffsetRotation(Math.max(0, Math.min(360, ${rotation})));\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let rotation = Blockly.JavaScript.valueToCode(block, 'ROTATION');
-                return `devices.get('${ui.id}').setOffsetRotation(Math.max(0, Math.min(360, ${rotation})));`;
+                return `devices.get('${ui.id}').setOffsetRotation(Math.max(0, Math.min(360, ${rotation})));\n`;
             };
         }
     },{
@@ -141,13 +141,13 @@ export default kaleidoscope = {
         javascript: (ui) => {
             return function (block) {
                 let slices = Blockly.JavaScript.valueToCode(block, 'SLICES');
-                return `devices.get('${ui.id}').setSlices(Math.max(1, Math.min(30, ${slices})));`;
+                return `devices.get('${ui.id}').setSlices(Math.max(1, Math.min(30, ${slices})));\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let slices = Blockly.JavaScript.valueToCode(block, 'SLICES');
-                return `devices.get('${ui.id}').setSlices(Math.max(1, Math.min(30, ${slices})));`;
+                return `devices.get('${ui.id}').setSlices(Math.max(1, Math.min(30, ${slices})));\n`;
             };
         }
     },{
@@ -167,13 +167,69 @@ export default kaleidoscope = {
         javascript: (ui) => {
             return function (block) {
                 let zoom = Blockly.JavaScript.valueToCode(block, 'ZOOM');
-                return `devices.get('${ui.id}').setZoom(Math.max(1, Math.min(10, ${zoom})));`;
+                return `devices.get('${ui.id}').setZoom(Math.max(1, Math.min(10, ${zoom})));\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let zoom = Blockly.JavaScript.valueToCode(block, 'ZOOM');
-                return `devices.get('${ui.id}').setZoom(Math.max(1, Math.min(10, ${zoom})));`;
+                return `devices.get('${ui.id}').setZoom(Math.max(1, Math.min(10, ${zoom})));\n`;
+            };
+        }
+    },{
+        block: (ui) => {
+            return {
+                id: 'get_property',
+                message0: `${ui.name}: %1`,
+                args0: [{
+                    type: "field_dropdown",
+                    name: "PROPERTY",
+                    options: [
+                        ['speed', 'model.userProperties.speed'],
+                        ['slices', 'model.userProperties.slices'],
+                        ['rotation offset', 'model.userProperties.offsetRotation'],
+                        ['zoom', 'model.userProperties.zoom'],
+                    ]
+                }],
+                output: 'Number'
+            };
+        },
+        javascript: (ui) => {
+            return function (block) {
+                var parent = block.getParent(),
+                    property = block.getFieldValue('PROPERTY'),
+                    method = `.getProperty('${property}')`,
+                    parentType,
+                    pieces,
+                    blockType;
+                if (parent) {
+                    parentType = parent.type;
+                    pieces = parentType.split('#');
+                    blockType = pieces.length > 1 ? pieces[1] : pieces[0];
+                    if (blockType === 'connect') {
+                        method = `.getConnectable('${property}')`;
+                    }
+                }
+                return [`devices.get('${ui.id}')${method}`];
+            };
+        },
+        pseudo: (ui) => {
+            return function (block) {
+                var parent = block.getParent(),
+                    property = block.getFieldValue('PROPERTY'),
+                    method = `.getProperty('${property}')`,
+                    parentType,
+                    pieces,
+                    blockType;
+                if (parent) {
+                    parentType = parent.type;
+                    pieces = parentType.split('#');
+                    blockType = pieces.length > 1 ? pieces[1] : pieces[0];
+                    if (blockType === 'connect') {
+                        method = `.getConnectable('${property}')`;
+                    }
+                }
+                return [`devices.get('${ui.id}')${method}`];
             };
         }
     }]

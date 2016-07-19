@@ -1,0 +1,55 @@
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../kano-style/input.html">
+
+<dom-module id="kano-part-slider">
+    <style is="custom-style" include="input-range"></style>
+    <style>
+    :host {
+        display: block;
+    }
+    </style>
+    <template>
+        <input type="range"
+                min="{{model.userProperties.min}}"
+                max="{{model.userProperties.max}}"
+                value="{{value::input}}">
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-part-slider',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        properties: {
+            value: {
+                type: Number,
+                value: 0,
+                observer: '_valueChanged'
+            }
+        },
+        connectTo (target) {
+            this.target = target;
+            console.log(target);
+            if (target.bounds) {
+                this.set('model.userProperties.min', this.target.bounds.min || this.model.userProperties.min);
+                this.set('model.userProperties.max', this.target.bounds.max || this.model.userProperties.max);
+            }
+            this.set('value', this.target.node.get(this.target.property));
+        },
+        getValue () {
+            return this.get('value');
+        },
+        _valueChanged () {
+            if (this.target) {
+                this.target.node.set(this.target.property, this.value);
+            }
+            this.fire('update', this.value);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            this.target = null;
+        }
+    });
+</script>
