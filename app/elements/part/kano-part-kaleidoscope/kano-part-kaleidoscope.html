@@ -27,7 +27,9 @@
             this.ctx = this.$.canvas.getContext('2d');
             this.prevSize = {};
             this.resetSession();
-            this.slices = 20;
+            this.offsetScale = 1;
+            this.offsetX = 0;
+            this.offsetY = 0;
         },
         _computeCanvasStyle () {
             let style;
@@ -47,6 +49,8 @@
             }
         },
         resetSession () {
+            this.offsetX = 0;
+            this.offsetY = 0;
             if (!this.model) {
                 return;
             }
@@ -55,21 +59,67 @@
         start () {
             Kano.Behaviors.UIBehavior.start.apply(this, arguments);
             this.resetSession();
+            this._updateRender();
         },
         renderOnCanvas (ctx, util, scaleFactor) {
             let image = new Image();
-            image.src = this.$.canvas.toDataURL();
-            ctx.drawImage(image, 0, 0);
+            // Images may come from other origins, and taint the canvas
+            try {
+                image.src = this.$.canvas.toDataURL();
+                ctx.drawImage(image, 0, 0);
+            } catch (e) {}
             return Promise.resolve();
         },
         setSource (src) {
             this.src = src;
             this.image = new Image();
-            this.image.onload = this._updateRender.bind(this);
             this.image.src = this.src;
         },
+        setSpeed (speed) {
+            this.model.userProperties.speed = speed;
+        },
+        setOffsetRotation (offset) {
+            this.model.userProperties.offsetRotation = offset;
+        },
+        setSlices (slices) {
+            this.model.userProperties.slices = slices;
+        },
+        setZoom (zoom) {
+            this.model.userProperties.zoom = zoom;
+        },
         _updateRender () {
-            this.ctx.drawImage(this.image, 0, 0, this.$.canvas.width, this.$.canvas.height);
+            if (this.isRunning && this.image) {
+                let step = 2 * Math.PI / this.model.userProperties.slices,
+                    radius = Math.min(this.$.canvas.width, this.$.canvas.height) / 2,
+                    scale = this.model.userProperties.zoom * (radius / Math.min(this.image.naturalWidth, this.image.naturalHeight)),
+                    cx = this.image.naturalWidth / 2;
+                this.offsetX -= this.model.userProperties.speed;
+                this.offsetY -= this.model.userProperties.speed;
+                this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
+                for (let i = 0; i < this.model.userProperties.slices; i++) {
+                    this.ctx.save();
+                    this.ctx.translate(radius, radius);
+                    this.ctx.translate(this.$.canvas.width / 2 - radius, this.$.canvas.height / 2 - radius);
+                    this.ctx.rotate(i * step);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(-0.5, -0.5);
+                    this.ctx.arc(0, 0, radius, step * -0.51, step * 0.51);
+                    this.ctx.lineTo(0.5, 0.5);
+                    this.ctx.closePath();
+
+                    this.ctx.rotate(Math.PI / 2);
+                    this.ctx.scale(scale, scale);
+                    this.ctx.scale([-1,1][i % 2], 1);
+                    this.ctx.translate(this.offsetX - cx, this.offsetY);
+                    this.ctx.rotate(this.model.userProperties.offsetRotation / 180 * Math.PI);
+                    this.ctx.scale(this.offsetScale, this.offsetScale);
+
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+            }
+            cancelAnimationFrame(this.frameId);
+            this.frameId = requestAnimationFrame(this._updateRender.bind(this));
         }
     });
 </script>
