@@ -1,4 +1,16 @@
-let data;
+let data,
+    emojiMap = {};
+
+
+emojiMap['01d'] = '☀️';
+emojiMap['02d'] = '🌤';
+emojiMap['03d'] = '🌥';
+emojiMap['04d'] = '☁️';
+emojiMap['09d'] = '🌧';
+emojiMap['10d'] = '🌦';
+emojiMap['11d'] = '⛈';
+emojiMap['13d'] = '🌨';
+emojiMap['50d'] = '🌫';
 
 export default data = {
     get (id, fetchImpl) {
@@ -88,11 +100,15 @@ export default data = {
                                                units: config.units}))
                     .then(r => r.json())
                     .then((data) => {
+                        let icon = data.weather[0] ? data.weather[0].icon : '01d';
+                        // Force daily emojis
+                        icon = icon.replace('n', 'd');
                         return {
                             temperature: data.main.temp,
                             wind_speed: data.wind.speed,
                             wind_angle: data.wind.deg,
-                            clouds: data.clouds.all
+                            clouds: data.clouds.all,
+                            emoji: emojiMap[icon] || '☀️'
                         };
                     });
             }
