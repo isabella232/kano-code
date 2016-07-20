@@ -156,9 +156,9 @@
             <h1>Projects</h1>
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
-            <kano-app-list limit="3" view="my" apps="[[user_apps]]" loading="[[myAppsLoading]]" failed="[[myAppsFailed]]"></kano-app-list>
+            <kano-app-list limit="3" view="my" apps="[[user_apps]]" app-base-url="[[appBaseUrl]]" loading="[[myAppsLoading]]" failed="[[myAppsFailed]]"></kano-app-list>
             <h1>Latest Apps</h1><a  id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
-            <kano-app-list limit="4" apps="[[apps]]" loading="[[communityAppsLoading]]" failed="[[communityAppsFailed]]"></kano-app-list>
+            <kano-app-list limit="4" apps="[[apps]]" app-base-url="[[appBaseUrl]]" loading="[[communityAppsLoading]]" failed="[[communityAppsFailed]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -172,6 +172,12 @@
             projects: {
                 type: Array,
                 value: []
+            },
+            appBaseUrl: {
+                type: String,
+                value: () => {
+                    return Kano.MakeApps.config.WORLD_URL + "/shared";
+                }
             }
         },
         observers: [
@@ -179,25 +185,25 @@
         ],
         _userChanged () {
             if (!this.user) {
-                this.myAppsLoading = false;
+                this.set('myAppsLoading', false);
                 return null;
             }
-            this.myAppsLoading = true;
+            this.set('myAppsLoading', true);
 
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
             .then((apps) => {
                 this.set('user_apps', apps.body.entries);
-                this.myAppsLoading = false;
+                this.set('myAppsLoading', false);
             })
             .catch(() => {
-                this.myAppsFailed = true;
+                this.set('myAppsFailed', true);
             });
 
         },
         ready () {
             this.worldRoot = Kano.MakeApps.config.WORLD_URL;
             this.loadingProjects = true;
-            this.communityAppsLoading = true;
+            this.set('communityAppsLoading', true);
             Kano.MakeApps.stories.list()
                 .then((stories) => {
                     // Go through all the stories and update the `locked` key
@@ -223,10 +229,10 @@
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
-                    this.communityAppsLoading = false;
+                    this.set('communityAppsLoading', false);
                 })
                 .catch(() => {
-                    this.communityAppsFailed = true;
+                    this.set('communityAppsFailed', true);
                 });
         },
         _computeNotifications (notifications) {

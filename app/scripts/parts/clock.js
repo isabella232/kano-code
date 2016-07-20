@@ -61,5 +61,51 @@ export default clock = {
                 return [code];
             };
         }
+    },{
+        block: () => {
+            return {
+                id: 'get_formatted_time',
+                message0: 'Clock: current %1',
+                output: 'String',
+                args0: [{
+                    type: "field_dropdown",
+                    name: "FIELD",
+                    options: [
+                        [
+                            "Date",
+                            "date"
+                        ],
+                        [
+                            "Time",
+                            "time"
+                        ]
+                    ]
+                }]
+            };
+        },
+        javascript: () => {
+            return (block) => {
+                let field = block.getFieldValue('FIELD'),
+                    code;
+                if (field === 'date') {
+                    code = `date.getFormattedDate()`;
+                } else {
+                    code = `date.getFormattedTime()`;
+                }
+                return [code];
+            };
+        },
+        pseudo: () => {
+            return (block) => {
+                let field = block.getFieldValue('FIELD'),
+                    code;
+                if (field === 'date') {
+                    code = `date.getFormattedDate()`;
+                } else {
+                    code = `date.getFormattedTime()`;
+                }
+                return [code];
+            };
+        }
     }]
 };

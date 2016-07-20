@@ -120,7 +120,7 @@
                 </div>
                 <template is="dom-repeat" items="{{apps}}" as="app" on-dom-change="_updateAnimation">
                     <div class="block">
-                        <a class="app-list-item" href$="/app/[[app.slug]]">
+                        <a class="app-list-item" href$="[[getAppUrl(app)]]">
                             <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
                             <div class="info">
                                 <div class="app-name">{{app.title}}</div>
@@ -162,6 +162,9 @@
             failed: {
                 type: Boolean,
                 value: false
+            },
+            appBaseUrl: {
+                type: String
             }
         },
         observers: [
@@ -205,6 +208,9 @@
                 }]
             };
             this.playAnimation('entry');
+        },
+        getAppUrl (app) {
+            return this.appBaseUrl + "/" + app.id;
         }
     });
 </script>

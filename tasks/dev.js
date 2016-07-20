@@ -53,6 +53,14 @@ module.exports = (gulp, $) => {
         };
     }
 
+    function scripts(src) {
+        return () => {
+            return gulp.src(src, { base: 'app' })
+            .pipe(gulp.dest('www'))
+            .pipe($.browserSync.stream());
+        };
+    }
+
     watchMap.copy = {
         src: [
             'app/bower_components/**/*',
@@ -90,6 +98,11 @@ module.exports = (gulp, $) => {
         process: styles
     };
 
+    watchMap.scripts = {
+        src: 'app/scripts/kano/**/*.js',
+        process: scripts
+    };
+
     watchMap.assets = {
         src: [
             'app/assets/**/*',
@@ -108,6 +121,8 @@ module.exports = (gulp, $) => {
     gulp.task('views-dev', views(watchMap.views.src));
 
     gulp.task('style-dev', styles(watchMap.styles.src));
+
+    gulp.task('scripts-dev', scripts(watchMap.scripts.src));
 
     gulp.task('index-dev', () => {
         return gulp.src('app/index.html')
@@ -132,6 +147,6 @@ module.exports = (gulp, $) => {
 
     gulp.task('dev', ['watch', 'serve']);
     gulp.task('build-dev', () => {
-        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev'], 'sw-dev');
+        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev', 'scripts'], 'sw-dev');
     });
 };

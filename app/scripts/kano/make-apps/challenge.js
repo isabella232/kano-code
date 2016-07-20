@@ -251,16 +251,18 @@
     Challenge.prototype.loadFromApp = function (app) {
         var xml = Blockly.Xml.textToDom(app.code.snapshot.blocks),
             block, i;
-        this.data.steps.push({
-            "tooltips": [{
-                "location": "add-part-button",
-                "position": "top",
-                "text": Challenge.randomizedAction('add-parts') + "<br>" + Challenge.randomizedAction('open-parts-drawer')
-            }],
-            "validation": {
-                "open-parts": true
-            }
-        });
+        if (app.parts.length) {
+            this.data.steps.push({
+                "tooltips": [{
+                    "location": "add-part-button",
+                    "position": "top",
+                    "text": Challenge.randomizedAction('add-parts') + "<br>" + Challenge.randomizedAction('open-parts-drawer')
+                }],
+                "validation": {
+                    "open-parts": true
+                }
+            });
+        }
         this.data.steps = this.data.steps.concat(app.parts.map(function (part, index) {
             var location = "sidebar.parts.part-" + part.type;
             if (this.data.parts.indexOf(part.type) === -1) {
@@ -288,16 +290,18 @@
                 }
             };
         }.bind(this)));
-        this.data.steps.push({
-            "tooltips": [{
-                "location": "add-part-button",
-                "position": "top",
-                "text": Challenge.randomizedAction('start-code') + "<br>" + Challenge.randomizedAction('close-parts-drawer')
-            }],
-            "validation": {
-                "close-parts": true
-            }
-        });
+        if (app.parts.length) {
+            this.data.steps.push({
+                "tooltips": [{
+                    "location": "add-part-button",
+                    "position": "top",
+                    "text": Challenge.randomizedAction('start-code') + "<br>" + Challenge.randomizedAction('close-parts-drawer')
+                }],
+                "validation": {
+                    "close-parts": true
+                }
+            });
+        }
         for (i = 0; i < xml.children.length; i++) {
             block = xml.children[i];
             this.data.steps = this.data.steps.concat(this.nodeToSteps(block));
@@ -459,9 +463,7 @@
 
                     // The block from the original app isn't from a created part, thus doens't contain a category field
                     if (!blockType.category) {
-                        console.log(blockType.block);
                         categoryLocation = blockType.category = Challenge.categoryMap[blockType.block];
-                        console.log(blockType.category)
                         blockLocation = markdownType = blockType.block;
                         creationType = {
                             type: blockLocation,
