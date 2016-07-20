@@ -35,11 +35,10 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
-           Kaleidoscope, Slider],
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame],
-        'camera': [PictureList],
+        'camera': [PictureList, Kaleidoscope, Slider],
         'canvas': [Canvas]
     },
     create (model, size) {
