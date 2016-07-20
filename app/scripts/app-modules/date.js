@@ -13,6 +13,12 @@ export default date = {
             current.minute = date.getMinutes();
             current.seconds = date.getSeconds();
             return current;
+        },
+        getFormattedDate () {
+            return (new Date()).toLocaleDateString();
+        },
+        getFormattedTime () {
+            return (new Date()).toLocaleTimeString();
         }
     },
     lifecycle: {
