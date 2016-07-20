@@ -16,6 +16,7 @@
     .canvas {
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
+        padding: 2px;
     }
     </style>
     <template>
@@ -37,8 +38,8 @@
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
             _computeContainerStyle () {
-                let width = this.model.userProperties.width * 28 + 2,
-                    height = this.model.userProperties.height * 28 + 2;
+                let width = this.model.userProperties.width * 28 + 4,
+                    height = this.model.userProperties.height * 28 + 4;
                 return `width: ${width}px; height: ${height}px;`;
             },
             applyTransform () {
@@ -46,7 +47,7 @@
                     return;
                 }
                 let position = this.model.position || { x: 0, y: 0 },
-                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 +(16 - this.model.userProperties.width) * 28),
+                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 + (16 - this.model.userProperties.width) * 28),
                     y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
                     transform;
 
@@ -54,7 +55,7 @@
                 this.style.webkitTransform = this.style.transform = transform;
             },
             _computeCanvasStyle (width) {
-                return `max-width: ${width * 28}px;`;
+                return `max-width: ${width * 28 + 4}px;`;
             },
             _computePixelStyle (pixel) {
                 return `background-color: ${pixel};`;
@@ -63,7 +64,7 @@
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
-                for (var i = 0; i < height * width; i++) {
+                for (let i = 0; i < height * width; i++) {
                     newBitmap.push('#000000');
                 }
 
@@ -84,6 +85,25 @@
                 };
 
                 this.set('model.userProperties.bitmap', newBitmap);
+            },
+            move (x, y) {
+                x *= 28;
+                y *= 28;
+                Kano.Behaviors.UIBehavior.move.call(this, x, y);
+            },
+            setX (x) {
+                x *= 28;
+                Kano.Behaviors.UIBehavior.setX.call(this, x);
+            },
+            setY (y) {
+                y *= 28;
+                Kano.Behaviors.UIBehavior.setY.call(this, y);
+            },
+            getX () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28);
+            },
+            getY () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28);
             }
         });
     </script>

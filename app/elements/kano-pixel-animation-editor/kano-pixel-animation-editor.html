@@ -1,0 +1,103 @@
+<link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+<link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
+<dom-module id="kano-pixel-animation-editor">
+    <style>
+    :host {
+        display: block;
+    }
+    .content {
+        min-width: 465px;
+    }
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+    }
+    .canvas {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        padding: 10px;
+        background-color: #444;
+        border-radius: 4px;
+        box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.05);
+        border: solid 1px #ececec;
+        box-sizing: border-box;
+    }
+    .pen {
+        width: 26px;
+        height: 26px;
+        margin-right: 5px;
+    }
+    .frame-list {
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        overflow-x: auto;
+    }
+    .frames {
+        @apply(--layout-horizontal);
+    }
+    kano-bitmap-renderer {
+        border: 1px solid transparent;
+    }
+    kano-bitmap-renderer.selected {
+        border-color: blue;
+    }
+    </style>
+    <template>
+        <array-selector id="selector" items="{{bitmaps}}" selected="{{bitmap}}"></array-selector>
+        <div class="content">
+            <div class="frames">
+                <div class="frame-list">
+                    <template is="dom-repeat" items="[[bitmaps]]" as="bm">
+                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="12" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
+                    </template>
+                </div>
+                <button type="button" name="button" on-tap="_addFrame">+</button>
+            </div>
+            <kano-pixel-canvas bitmap="{{bitmap}}" width="[[width]]" height="[[height]]"></kano-pixel-canvas>
+        </div>
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-pixel-animation-editor',
+            properties: {
+                bitmaps: {
+                    type: Array,
+                    value: () => {
+                        return [['#000000']];
+                    },
+                    notify: true
+                },
+                width: {
+                    type: Number,
+                    value: 1
+                },
+                height: {
+                    type: Number,
+                    value: 1
+                }
+            },
+            _addFrame () {
+                let copy;
+                if (!this.bitmaps.length) {
+                    copy = [];
+                    for (let i = 0; i < this.width * this.height; i++) {
+                        copy.push('#000000');
+                    }
+                } else {
+                    copy = this.bitmaps[this.bitmaps.length - 1].slice(0);
+                }
+                this.push('bitmaps', copy);
+                this.$.selector.select(copy);
+            },
+            _selectFrame (e) {
+                this.$.selector.select(e.model.get('bm'));
+            },
+            _isFrameSelectedClass (bm, selected) {
+                console.log(selected);
+                return this.$.selector.isSelected(bm) ? 'selected' : '';
+            }
+        });
+    </script>
+</dom-module>
