@@ -54,7 +54,7 @@ module.exports = (gulp, $) => {
     gulp.task('scripts', () => {
         gulp.src('app/scripts/kano/**/*.js', { base: 'app' })
             .pipe($.babel({ presets: ['es2015'] }))
-            .pipe(gulp.dest('.tmp'));
+            .pipe(gulp.dest('.tmp/app'));
     });
 
     gulp.task('story-bundle', ['bundles', 'scripts'], () => {
