@@ -125,8 +125,8 @@
                 };
                 this.selectedStartPage = 'loaded';
                 this.$['start-modal'].refit();
-                let challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem('savedApp')));
-                this.scene = challenge.data;
+                this.challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem('savedApp')));
+                this.scene = Object.assign({}, this.challenge.data);
                 this.shareLoaded = true;
             } else {
                 Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.context.params.slug })
@@ -139,13 +139,16 @@
                     })
                     .then((res) => res.json())
                     .then((app) => {
-                        let challenge = Kano.MakeApps.Challenge.createFromApp(app);
-                        this.scene = challenge.data;
+                        this.challenge = Kano.MakeApps.Challenge.createFromApp(app);
+                        this.scene = Object.assign({}, this.challenge.data);
                         this.shareLoaded = true;
                     }).catch((e) => {
                         console.error(e);
                     });
             }
+            window.dumpChallenge = () => {
+                return JSON.stringify(this.challenge, null, '\t');
+            };
         },
         _registerBlockly () {
             Kano.MakeApps.blockly.register(window.Blockly);

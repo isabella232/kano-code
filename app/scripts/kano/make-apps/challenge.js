@@ -95,6 +95,11 @@
         'math_number': {
             'NUM': 0
         },
+        'math_random': {
+            'TYPE': 'integer',
+            'MIN': 0,
+            'MAX': 10
+        },
         'variables_set': {
             'VAR': 'item'
         },

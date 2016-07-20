@@ -147,6 +147,6 @@ module.exports = (gulp, $) => {
 
     gulp.task('dev', ['watch', 'serve']);
     gulp.task('build-dev', () => {
-        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev', 'scripts'], 'sw-dev');
+        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev', 'scripts-dev'], 'sw-dev');
     });
 };
