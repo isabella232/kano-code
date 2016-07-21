@@ -21,6 +21,16 @@
             if (this.notifyOnLoad) {
                 this.fire('view-loaded');
             }
+            this.async(() => {
+                this.trackPage();
+            });
+        },
+        trackPage () {
+            window.dataLayer.push({
+                'event'            : 'virtualPageView',
+                'virtualPageTitle' : document.title,
+                'virtualPageURL'   : window.location.pathname
+            });
         }
     };
 

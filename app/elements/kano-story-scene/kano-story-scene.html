@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../kano-view/kano-view.html">
+<link rel="import" href="../kano-scene-editor/kano-scene-editor.html">
+<link rel="import" href="../kano-scene-challenge-overlay/kano-scene-challenge-overlay.html">
 <dom-module id="kano-story-scene">
     <style>
     :host {
@@ -8,18 +9,24 @@
         @apply(--layout-vertical);
         overflow: hidden;
     }
-    :host #view {
+    .scene, .overlay {
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
-    :host #overlay {
+    .scene>*:not(template), .overlay>*:not(template) {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    .overlay {
         position: absolute;
         top: 0px;
         bottom: 0px;
         left: 0px;
         right: 0px;
         @apply(--layout-vertical);
-        display: none;
+    }
+    *[hidden] {
+        display: none !important;
     }
     :host #overlay>* {
         @apply(--layout-flex);
@@ -27,12 +34,18 @@
     }
     </style>
     <template>
-        <kano-view id="view"
-                location="[[location]]"
-                view-name="[[name]]"
-                attributes="{{attributes}}"
-                on-scene-done="sceneFinished"></kano-view>
-        <div id="overlay"></div>
+        <iron-lazy-pages class="scene" attr-for-selected="name" selected="[[name]]" restamp>
+            <template is="iron-lazy-page" name="editor">
+                <kano-scene-editor store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneFinished"></kano-scene-editor>
+            </template>
+            <template is="iron-lazy-page" name="empty"></template>
+        </iron-lazy-pages>
+        <iron-lazy-pages class="overlay" attr-for-selected="name" selected="[[overlayName]]" restamp hidden$="[[overlayHidden]]">
+            <template is="iron-lazy-page" name="challenge-overlay">
+                <kano-scene-challenge-overlay id="overlay" scene="[[overlayScene]]" on-overlay-done="overlayDone"></kano-scene-challenge-overlay>
+            </template>
+            <template is="iron-lazy-page" name="empty"></template>
+        </iron-lazy-pages>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -54,15 +67,6 @@
             nextStory: {
                 type: Object
             },
-            location: {
-                type: String
-            },
-            name: {
-                type: String
-            },
-            attributes: {
-                type: Object
-            },
             store: {
                 type: Object,
                 value: () => {
@@ -74,104 +78,76 @@
             }
         },
         observers: [
-            'componentChanged(scene.component)',
-            'extensionsChanged(extensions.*)'
+            'componentChanged(scene.component)'
         ],
-        extensionsChanged(e) {
-            this.set(`attributes.${e.path}`, e.value);
+        _parseSceneComponent (sceneComponent) {
+            let pieces, component = {};
+            // Cut using '/'
+            pieces = sceneComponent.split('/');
+            // Extract the last piece
+            component.name = pieces.pop();
+            component.prefix = pieces.join('/');
+            component.common = component.prefix === 'common';
+            return component;
         },
         ready () {
             this.overlayDone = this.overlayDone.bind(this);
-            this.overlay = null;
+            this.overlayHidden = true;
         },
         sceneFinished (e) {
             if (this.scene.overlay_after) {
                 e.stopPropagation();
                 this.setupOverlay(this.scene.overlay_after);
             } else if (this.scene.show_remix_options) {
-                this.set('attributes.scene.ended', true);
+                this.set('sceneData.ended', true);
             }
         },
         componentChanged () {
             let scene = this.scene,
-                attributes = {},
-                pieces,
-                name,
-                loc;
+                component;
             if (!scene.component && !scene.load) {
                 return;
             }
-            if (scene.load) {
-                this.$.view.mountComponent(this.savedScenes[scene.load]);
-                return;
-            }
             this.setupOverlay(scene.overlay_before);
-            // Cut using '/'
-            pieces = scene.component.split('/');
-            // Extract the last piece
-            name = pieces.pop();
-            // Join back the first pieces to get the location
-            loc = pieces.join('/');
-            this.set('location', `assets/stories/${loc}`);
-            attributes.store = this.store;
-            attributes.storyName = this.storyName;
-            attributes.nextStory = this.nextStory;
-            attributes.scene = Object.assign({}, scene.data);
-            attributes.extensions = this.extensions;
+            component = this._parseSceneComponent(scene.component);
+            this.sceneData = Object.assign({}, scene.data);
             // Let the end of the overlay load the data
-            if (!scene.overlay_before) {
-                attributes.scene.started = true;
+            if (!this.scene.overlay_before) {
+                this.set('sceneData.started', true);
             }
-            this.set('attributes', attributes);
-            this.set('name', `kano-scene-${name}`);
+            // Force a trip to emptiness, resets the component if the name is the same
+            this.set('name', 'empty');
+            this.set('name', component.name);
         },
-        overlayDone () {
-            let started = false;
+        overlayDone (e) {
+            let started = false,
+                target = e.path ? e.path[0] : e.target;
             if (!this.beforeDone && this.scene.overlay_before) {
                 this.beforeDone = true;
                 started = true;
             } else if (this.scene.overlay_after) {
                 if (this.scene.show_remix_options) {
-                    this.set('attributes.scene.ended', true);
+                    this.set('sceneData.ended', true);
                 }
-
                 this.fire('scene-done');
             }
-            this.overlay.end().then(() => {
-                this.$.overlay.style.display = 'none';
+            target.end().then(() => {
+                this.overlayHidden = true;
                 if (started) {
-                    this.set('attributes.scene.started', true);
+                    this.set('sceneData.started', true);
+                    this.set('overlayName', 'empty');
                 }
             });
         },
         setupOverlay (overlayConfig) {
-            let pieces,
-                name,
-                loc,
-                el;
+            let component;
             if (!overlayConfig || !overlayConfig.component) {
                 return;
             }
-            // Cut using '/'
-            pieces = overlayConfig.component.split('/');
-            // Extract the last piece
-            name = pieces.pop();
-            // Join back the first pieces to get the location
-            loc = pieces.join('/');
-            el = document.createElement('kano-view');
-            el.location = `assets/stories/${loc}`;
-            el.viewName = `kano-scene-${name}`;
-            el.attributes = {
-                scene: overlayConfig.data
-            };
-            this.$.overlay.style.display = 'flex';
-            el.addEventListener('overlay-done', this.overlayDone);
-            el.style.flex = 1;
-            while (this.$.overlay.firstChild) {
-                this.$.overlay.removeChild(this.$.overlay.firstChild);
-            }
-            this.overlay = el;
-            this.$.overlay.appendChild(el);
+            component = this._parseSceneComponent(overlayConfig.component);
+            this.set('overlayName', component.name);
+            this.set('overlayScene', overlayConfig.data);
+            this.overlayHidden = false;
         }
     });
 </script>
