@@ -1,4 +1,16 @@
-let data;
+let data,
+    emojiMap = {};
+
+
+emojiMap['01d'] = '\u2600\uFE0F';
+emojiMap['02d'] = '\uD83C\uDF24';
+emojiMap['03d'] = '\uD83C\uDF25';
+emojiMap['04d'] = '\u2601\uFE0F';
+emojiMap['09d'] = '\uD83C\uDF27';
+emojiMap['10d'] = '\uD83C\uDF26';
+emojiMap['11d'] = '\u26C8 ';
+emojiMap['13d'] = '\uD83C\uDF28';
+emojiMap['50d'] = '\uD83C\uDF2B';
 
 export default data = {
     get (id, fetchImpl) {
@@ -88,11 +100,15 @@ export default data = {
                                                units: config.units}))
                     .then(r => r.json())
                     .then((data) => {
+                        let icon = data.weather[0] ? data.weather[0].icon : '01d';
+                        // Force daily emojis
+                        icon = icon.replace('n', 'd');
                         return {
                             temperature: data.main.temp,
                             wind_speed: data.wind.speed,
                             wind_angle: data.wind.deg,
-                            clouds: data.clouds.all
+                            clouds: data.clouds.all,
+                            emoji: emojiMap[icon] || '\u2600\uFE0F'
                         };
                     });
             }

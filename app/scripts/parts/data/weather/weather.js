@@ -45,5 +45,9 @@ export default weather = {
         label: 'Clouds',
         key: 'clouds',
         description: 'The percentage of the sky covered by clouds'
+    },{
+        label: 'Emoji',
+        key: 'emoji',
+        description: 'The emoji matching the weather'
     }]
 };
