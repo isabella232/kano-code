@@ -189,6 +189,26 @@ window.Kano.Behaviors.UIBehavior = {
         ctx.fillText(this.model.name, width / 2, height / 2);
         ctx.restore();
         return Promise.resolve();
+    },
+    getConnectable (property) {
+        let connectable = {
+            node: this,
+            property
+        },
+            customizable;
+        if (property.indexOf('model.userProperties') === 0) {
+            for (let i = 0; i < this.model.customizable.properties.length; i++) {
+                customizable = this.model.customizable.properties[i];
+                if (customizable.key === property.replace('model.userProperties.', '')) {
+                    connectable.bounds = {
+                        min: customizable.min,
+                        max: customizable.max
+                    };
+                    break;
+                }
+            }
+        }
+        return connectable;
     }
 };
 
