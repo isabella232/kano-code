@@ -1,0 +1,33 @@
+<dom-module id="kano-value-preview">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    .color-value {
+        border-radius: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.55);
+        width: 24px;
+        height: 18px;
+    }
+    </style>
+    <template>
+        <content></content>
+    </template>
+    <script type="text/javascript">
+        const HEX_COLOR_REGEXP = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        Polymer({
+            is: 'kano-value-preview',
+            attached () {
+                let value = this.innerHTML,
+                    container;
+                if (HEX_COLOR_REGEXP.test(value)) {
+                    container = document.createElement('div');
+                    container.style.backgroundColor = value;
+                    container.className = 'color-value';
+                    Polymer.dom(this.root).appendChild(container);
+                    this.innerHTML = '';
+                }
+            }
+        });
+    </script>
+</dom-module>

@@ -42,7 +42,7 @@
                 <input type="text" name="name" value="{{next::input}}">
                 <label for="">Remix mode:<input type="checkbox" name="name" checked="{{remix::change}}"></label>
             </div>
-            <kano-challenge-progress progress="[[val]]" title="Demo Progress" remix-mode="[[remix]]" next-challenge="[[next]]"></kano-challenge-progress>
+            <kano-challenge-progress id="progress" progress="[[val]]" title="Demo Progress" remix-mode="[[remix]]" next-challenge="[[next]]"></kano-challenge-progress>
             <div class="events">
                 <h2>Events</h2>
                 <template is="dom-repeat" items="[[events]]">
@@ -60,6 +60,9 @@
             });
             document.addEventListener('next-story', () => {
                 bind.push('events', 'next-story');
+            });
+            bind.addEventListener('dom-change', () => {
+                document.getElementById('progress').animateIn();
             });
         </script>
     </body>

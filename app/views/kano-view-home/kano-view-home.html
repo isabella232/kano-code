@@ -88,21 +88,21 @@
             color: white;
             margin-bottom: 0;
         }
-        :host .see-all {
+        .see-all {
             font-size: 14px;
             font-weight: 600;
             margin-top: 40px;
             margin-left: 10px;
         }
+        .see-all:focus {
+            outline: none;
+            color: var(--color-orange);
+        }
         :host a.button {
             background-color: #7DC242;
             color: #fff;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
             border-radius: 5px;
-            -webkit-font-smoothing: antialiased;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
             display: inline-block;
             padding: 10px 15px;
             text-transform: uppercase;
@@ -156,9 +156,9 @@
             <h1>Projects</h1>
             <kano-projects projects="[[projects]]" loading="[[loadingProjects]]"></kano-projects>
             <h1>My Apps</h1><a class="see-all" href="/apps/my">See all &gt;</a>
-            <kano-app-list limit="3" view="my" apps="[[user_apps]]" app-base-url="[[appBaseUrl]]"></kano-app-list>
+            <kano-app-list limit="3" view="my" apps="[[user_apps]]" app-base-url="[[appBaseUrl]]" loading="[[myAppsLoading]]" failed="[[myAppsFailed]]"></kano-app-list>
             <h1>Latest Apps</h1><a  id="see-all-community" class="see-all" href="/apps">See all &gt;</a>
-            <kano-app-list limit="4" apps="[[apps]]" app-base-url="[[appBaseUrl]]"></kano-app-list>
+            <kano-app-list limit="4" apps="[[apps]]" app-base-url="[[appBaseUrl]]" loading="[[communityAppsLoading]]" failed="[[communityAppsFailed]]"></kano-app-list>
         </div>
     </template>
 </dom-module>
@@ -185,20 +185,25 @@
         ],
         _userChanged () {
             if (!this.user) {
+                this.set('myAppsLoading', false);
                 return null;
             }
+            this.set('myAppsLoading', true);
 
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', user_id: this.user.id, limit: 3})
-                .then((apps) => this.set('user_apps', apps.body.entries));
-        },
-        attached () {
-            this.async(function() {
-                trackPage();
+            .then((apps) => {
+                this.set('user_apps', apps.body.entries);
+                this.set('myAppsLoading', false);
+            })
+            .catch(() => {
+                this.set('myAppsFailed', true);
             });
+
         },
         ready () {
             this.worldRoot = Kano.MakeApps.config.WORLD_URL;
             this.loadingProjects = true;
+            this.set('communityAppsLoading', true);
             Kano.MakeApps.stories.list()
                 .then((stories) => {
                     // Go through all the stories and update the `locked` key
@@ -224,6 +229,10 @@
             Kano.MakeApps.sdk.api.share.list({}, { app_name: 'make-apps', limit: 4})
                 .then((apps) => {
                     this.set('apps', apps.body.entries);
+                    this.set('communityAppsLoading', false);
+                })
+                .catch(() => {
+                    this.set('communityAppsFailed', true);
                 });
         },
         _computeNotifications (notifications) {

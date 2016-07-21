@@ -34,10 +34,21 @@
             },
             target: {
                 type: Object
+            },
+            angle: {
+                type: Number,
+                value: 0
+            },
+            bounce: {
+                type: Number,
+                value: 40
             }
         },
         observers: [
-            'updatePosition(target.*, source.*)'
+            'updatePosition(target.*)',
+            'updatePosition(source.*)',
+            'updatePosition(angle)',
+            'updatePosition(bounce)',
         ],
         ready () {
             this.arrowImage = Polymer.dom(this.$.content).getDistributedNodes()[0];
@@ -48,65 +59,119 @@
         },
         hide () {
             this.style.display = 'none';
+            this.transform(``, this.arrowImage);
         },
         updatePosition () {
             if (!this.arrowImage) {
                 return;
             }
             this.debounce('updatePosition', () => {
-                let target = this.target,
-                    source = this.source,
-                    arrowStyle = this.arrowImage.style,
-                    angle,
-                    dist,
-                    offsetX, offsetY,
-                    x1, x2, y1, y2, x, y;
-
-                if (!target || !source) {
+                if (!this.target) {
                     return this.hide();
                 }
                 this.style.display = 'block';
-                x1 = source.left + source.width / 2;
-                y1 = source.top + source.height / 2;
-                x2 = target.left + target.width / 2;
-                y2 = target.top + target.height / 2;
-
-                x = x1 + ((x2 - x1) / 2);
-                y = y1 + ((y2 - y1) / 2);
-
-                x -= this.arrowImage.offsetWidth / 2;
-                y -= this.arrowImage.offsetHeight / 2;
-
-                angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
-
-                dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-
-                offsetX = Math.cos(angle) * (dist * 0.2);
-                offsetY = Math.sin(angle) * (dist * 0.2);
-
-                arrowStyle.position = 'fixed';
-                arrowStyle.left = `${x}px`;
-                arrowStyle.top = `${y}px`;
-
-                DOMUtil.addVendorProperty(this.arrowImage, 'transform-origin', `50% 50%`);
-                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `rotate(${angle}rad)`);
-                this.style.visibility = 'visible';
-
-                if (this.noAnimations || this.alreadyAnimated) {
-                    return;
+                if (this.source) {
+                    this._showWithSource();
+                } else {
+                    this._showWithoutSource();
                 }
-                arrowStyle.transition = 'none';
-                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `translate(${offsetX}px, ${offsetY}px) rotate(${angle}rad)`);
-                arrowStyle.opacity = '0';
-
-                this.getBoundingClientRect();
-                // Animate for 500ms on the whole distance, compute the real animation time over the portion of the distance
-                arrowStyle.transition = `all cubic-bezier(0.2, 0, 0.13, 1.5) ${500 / dist * (dist * 0.2)}ms`;
-                DOMUtil.addVendorProperty(this.arrowImage, 'transform', `rotate(${angle}rad)`);
-                arrowStyle.opacity = '1';
-                this.alreadyAnimated = true;
-
             }, 10);
-        }
+        },
+        _showWithSource() {
+            let target = this.target,
+                source = this.source,
+                arrowStyle = this.arrowImage.style,
+                angle,
+                dist,
+                offsetX, offsetY,
+                x1, x2, y1, y2, x, y;
+            x1 = source.left + source.width / 2;
+            y1 = source.top + source.height / 2;
+            x2 = target.left + target.width / 2;
+            y2 = target.top + target.height / 2;
+
+            x = x1 + ((x2 - x1) / 2);
+            y = y1 + ((y2 - y1) / 2);
+
+            x -= this.arrowImage.offsetWidth / 2;
+            y -= this.arrowImage.offsetHeight / 2;
+
+            angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
+
+            dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+            offsetX = Math.cos(angle) * (dist * 0.2);
+            offsetY = Math.sin(angle) * (dist * 0.2);
+
+            arrowStyle.position = 'fixed';
+
+            DOMUtil.addVendorProperty(this.arrowImage, 'transform-origin', `50% 50%`);
+            this.style.visibility = 'visible';
+
+            if (this.noAnimations || this.alreadyAnimated) {
+                return;
+            }
+            this.arrowImage.animate([{
+                transform: `translate(${x + offsetX}px, ${y + offsetY}px) rotate(${angle}rad)`,
+                opacity: 0
+            },{
+                transform: `translate(${x}px, ${y}px) rotate(${angle}rad)`,
+                opacity: 1
+            }],{
+                duration: 700 / dist * (dist * 0.2),
+                easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)',
+                fill: 'forwards'
+            });
+            this.alreadyAnimated = true;
+        },
+        _showWithoutSource() {
+            let target = this.target,
+                arrowStyle = this.arrowImage.style,
+                a = (this.angle / 180) * Math.PI,
+                h = target.height,
+                w = target.width,
+                r = Math.sqrt(Math.pow(h / 2, 2) + Math.pow(w / 2, 2)),
+                x, y, offsetX, offsetY;
+
+            x = Math.min(Math.cos(a) * r, w / 2);
+            y = Math.min(Math.sin(a) * r, h / 2);
+
+            x += target.left;
+            y += target.top;
+
+            x += target.width / 2;
+            y += target.height / 2;
+
+            y -= this.arrowImage.offsetHeight / 2;
+
+            y = Math.max(y, target.top - this.arrowImage.height / 2);
+            x = Math.max(x, target.left - this.arrowImage.width / 2);
+
+            offsetX = Math.cos(a) * this.bounce;
+            offsetY = Math.sin(a) * this.bounce;
+
+            arrowStyle.position = 'fixed';
+            arrowStyle.visibility = 'visible';
+
+            DOMUtil.addVendorProperty(this.arrowImage, 'transform-origin', `0% 50%`);
+
+            if (!this.bounce) {
+                this.transform(`translate(${x}px, ${y}px) rotate(${a}rad)`, this.arrowImage);
+            } else {
+                this.arrowImage.animate([{
+                    transform: `translate(${x + offsetX}px, ${y + offsetY}px) rotate(${a}rad)`
+                },{
+                    transform: `translate(${x}px, ${y}px) rotate(${a}rad)`
+                },{
+                    transform: `translate(${x + offsetX}px, ${y + offsetY}px) rotate(${a}rad)`
+                }],{
+                    duration: this.bounce * 25,
+                    easing: 'ease-in-out',
+                    iterations: Infinity
+                });
+            }
+
+        },
+        _tickBounce () {}
     });
 </script>

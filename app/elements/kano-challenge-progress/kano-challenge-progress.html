@@ -41,6 +41,7 @@ by a `progress` variable, this would be:
             padding: 8px;
             border-radius: 50%;
             box-sizing: border-box;
+            transform: scale(0);
         }
 
         :host .title {
@@ -54,12 +55,15 @@ by a `progress` variable, this would be:
             border-radius: 5px;
             min-width: 150px;
             text-align: center;
+            transform-origin: 0% 50%;
+            transform: scale(0, 1);
         }
 
         :host .title p {
             margin: 0;
             color: white;
             padding: 0;
+            opacity: 0;
         }
 
         :host .progress {
@@ -74,6 +78,8 @@ by a `progress` variable, this would be:
             border-radius: 5px;
             margin-left: 25px;
             width: calc(100% - 25px);
+            transform: scale(1, 0);
+            transform-origin: 50% 0%;
         }
 
         :host .actions .empty-space {
@@ -103,23 +109,27 @@ by a `progress` variable, this would be:
           justify-content: center;
           align-items: center;
         }
+        .action-link {
+            transition: opacity 200ms ease-in 300ms;
+        }
+        *[invisible] {
+            opacity: 0 !important;
+        }
     </style>
     <template>
-        <template is="dom-if" if="{{remixMode}}">
-            <div class="actions">
-                <div class="empty-space"></div>
-                <template is="dom-if" if="{{nextChallenge}}">
-                    <a on-tap="goToNextStory"> Next Challenge </a>
-                    <div class="separator"></div>
-                </template>
-                <a on-tap="shareApp"> Share App </a>
-            </div>
-        </template>
+        <div class="actions" id="actions">
+            <div class="empty-space"></div>
+            <template is="dom-if" if="{{nextChallenge}}">
+                <a on-tap="goToNextStory" class="action-link" invisible$="[[!remixMode]]"> Next Challenge </a>
+                <div class="separator"></div>
+            </template>
+            <a on-tap="shareApp"  class="action-link" invisible$="[[!remixMode]]"> Share App </a>
+        </div>
         <div class="progress">
-            <div class="title">
-                <p>{{title}}</p>
+            <div id="title-container" class="title">
+                <p id="title">{{title}}</p>
             </div>
-            <div class="circular-progress">
+            <div id="circle" class="circular-progress">
                 <kano-circle-progress value="[[progress]]" radius="34"></kano-circle-progress>
             </div>
         </div>
@@ -150,7 +160,8 @@ by a `progress` variable, this would be:
              */
             remixMode: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: '_remixModeChanged'
             },
             /**
              * Id of the next challenge
@@ -160,13 +171,68 @@ by a `progress` variable, this would be:
                 value: ''
             }
         },
-
+        ready () {
+            this.actionsAnimation = this.$.actions.animate([{
+                transform: 'scale(1, 0)'
+            }, {
+                transform: 'scale(1, 1)'
+            }], {
+                duration: 300,
+                fill: 'forwards',
+                easing: 'ease-in'
+            });
+            this.actionsAnimation.pause();
+        },
         shareApp () {
             this.fire('share-app');
         },
-
+        _remixModeChanged (remix) {
+            if (!this.actionsAnimation) {
+                return;
+            }
+            if (remix) {
+                this.actionsAnimation.playbackRate = 1;
+                this.actionsAnimation.play();
+            } else {
+                this.actionsAnimation.playbackRate = -1;
+                this.actionsAnimation.play();
+            }
+        },
         goToNextStory () {
             this.fire('next-story');
+        },
+        animateIn () {
+            this.$.circle.animate([{
+                transform: 'scale(0)',
+                opacity: 0
+            },{
+                transform: 'scale(1)',
+                opacity: 1
+            }], {
+                duration: 300,
+                easing: 'ease-in',
+                fill: 'forwards'
+            });
+            this.$['title-container'].animate([{
+                transform: 'scale(0, 1)'
+            },{
+                transform: 'scale(1, 1)'
+            }], {
+                duration: 200,
+                delay: 300,
+                easing: 'ease-in',
+                fill: 'forwards'
+            });
+            this.$.title.animate([{
+                opacity: 0
+            },{
+                opacity: 1
+            }], {
+                duration: 200,
+                delay: 500,
+                easing: 'ease-in',
+                fill: 'forwards'
+            });
         }
 
     });
