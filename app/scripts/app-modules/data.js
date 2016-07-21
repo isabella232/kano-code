@@ -2,15 +2,15 @@ let data,
     emojiMap = {};
 
 
-emojiMap['01d'] = '☀️';
-emojiMap['02d'] = '🌤';
-emojiMap['03d'] = '🌥';
-emojiMap['04d'] = '☁️';
-emojiMap['09d'] = '🌧';
-emojiMap['10d'] = '🌦';
-emojiMap['11d'] = '⛈';
-emojiMap['13d'] = '🌨';
-emojiMap['50d'] = '🌫';
+emojiMap['01d'] = '\u2600\uFE0F';
+emojiMap['02d'] = '\uD83C\uDF24';
+emojiMap['03d'] = '\uD83C\uDF25';
+emojiMap['04d'] = '\u2601\uFE0F';
+emojiMap['09d'] = '\uD83C\uDF27';
+emojiMap['10d'] = '\uD83C\uDF26';
+emojiMap['11d'] = '\u26C8 ';
+emojiMap['13d'] = '\uD83C\uDF28';
+emojiMap['50d'] = '\uD83C\uDF2B';
 
 export default data = {
     get (id, fetchImpl) {
