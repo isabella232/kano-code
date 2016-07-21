@@ -92,14 +92,16 @@
                 let step = 2 * Math.PI / this.model.userProperties.slices,
                     radius = Math.min(this.$.canvas.width, this.$.canvas.height) / 2,
                     scale = this.model.userProperties.zoom * (radius / Math.min(this.image.naturalWidth, this.image.naturalHeight)),
-                    cx = this.image.naturalWidth / 2;
+                    cx = this.image.naturalWidth / 2,
+                    centerX = this.$.canvas.width / 2 - radius,
+                    centerY = this.$.canvas.height / 2 - radius;
                 this.offsetX -= this.model.userProperties.speed;
                 this.offsetY -= this.model.userProperties.speed;
                 this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
                 for (let i = 0; i < this.model.userProperties.slices; i++) {
                     this.ctx.save();
                     this.ctx.translate(radius, radius);
-                    this.ctx.translate(this.$.canvas.width / 2 - radius, this.$.canvas.height / 2 - radius);
+                    this.ctx.translate(centerX, centerY);
                     this.ctx.rotate(i * step);
                     this.ctx.beginPath();
                     this.ctx.moveTo(-0.5, -0.5);
