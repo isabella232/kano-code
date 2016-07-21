@@ -108,7 +108,7 @@ export default data = {
                             wind_speed: data.wind.speed,
                             wind_angle: data.wind.deg,
                             clouds: data.clouds.all,
-                            emoji: emojiMap[icon] || '☀️'
+                            emoji: emojiMap[icon] || '\u2600\uFE0F'
                         };
                     });
             }
