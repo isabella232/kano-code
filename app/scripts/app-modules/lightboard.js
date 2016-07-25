@@ -3,7 +3,7 @@ import HardwareAPI from './service/hardware-api';
 let lightboard;
 
 export default lightboard = {
-    backgroundColor: '#333333',
+    backgroundColor: '#000000',
     lights: new Array(128),
     shapes: {},
     debounceId: null,
