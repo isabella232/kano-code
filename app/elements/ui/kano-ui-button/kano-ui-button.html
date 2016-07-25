@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-style/button.html">
 <link rel="import" href="../../kano-style/typography.html">
@@ -26,7 +27,14 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-ui-button',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+        },
         buttonClicked () {
             this.fire('clicked');
         },

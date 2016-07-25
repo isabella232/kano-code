@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../ui/behaviors.html">
 <dom-module id="kano-part-light-circle">
     <style>
@@ -43,7 +44,7 @@
 
         Polymer({
             is: 'kano-part-light-circle',
-            behaviors: [Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
             properties: {
                 shape: {
                     type: Object,
@@ -62,6 +63,13 @@
             observers: [
                 '_shapeChanged(shape.*)'
             ],
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+            },
             _shapeChanged () {
                 this.debounce('updateShape', () => {
                     if (this.isRunning) {

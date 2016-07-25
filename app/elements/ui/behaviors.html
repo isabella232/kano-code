@@ -1,3 +1,4 @@
+<link rel="import" href="../behaviors/kano-emitter-behavior.html">
 <script type="text/javascript">
 
 
@@ -16,12 +17,6 @@ window.Kano.Behaviors.UIBehavior = {
         model: {
             type: Object,
             notify: true
-        },
-        userListeners: {
-            type: Object,
-            value: () => {
-                return {};
-            }
         },
         isRunning: {
             type: Boolean,
@@ -59,13 +54,6 @@ window.Kano.Behaviors.UIBehavior = {
             return acc;
         }, '');
     },
-    when (name, callback) {
-        if (!this.userListeners[name]) {
-            this.userListeners[name] = [];
-        }
-        this.userListeners[name].push(callback);
-        this.addEventListener(name, callback);
-    },
     start () {
         this.savedState = {
             position: {
@@ -82,12 +70,6 @@ window.Kano.Behaviors.UIBehavior = {
     },
     stop () {
         let savedState = this.savedState || {};
-        Object.keys(this.userListeners).forEach((name) => {
-            this.userListeners[name].forEach((callback) => {
-                this.removeEventListener(name, callback);
-            });
-        });
-        this.userListeners = {};
         savedState.position = savedState.position || { x: 0, y: 0 };
         this.set('model.position.x', savedState.position.x);
         this.set('model.position.y', savedState.position.y);

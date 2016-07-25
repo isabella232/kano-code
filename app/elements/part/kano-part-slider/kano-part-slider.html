@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../ui/behaviors.html">
 <link rel="import" href="../../kano-style/input.html">
 
@@ -21,13 +22,21 @@
 
     Polymer({
         is: 'kano-part-slider',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
         properties: {
             value: {
                 type: Number,
                 value: 0,
                 observer: '_valueChanged'
             }
+        },
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+            this.target = null;
         },
         connectTo (target) {
             this.target = target;
@@ -45,10 +54,6 @@
                 this.target.node.set(this.target.property, this.value);
             }
             this.fire('update', this.value);
-        },
-        stop () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-            this.target = null;
         }
     });
 </script>

@@ -163,7 +163,7 @@
             this.devices.get = this._getPartById.bind(this);
         },
         _getPartById (id) {
-            if (id === 'dropzone') {
+            if (id === this.dropzone.getAttribute('id')) {
                 return this.dropzone;
             }
             return this.dropzone.querySelector(`#${id}`);
@@ -185,7 +185,7 @@
                 newDropzone = document.createElement('kano-workspace-normal');
             }
 
-            newDropzone.setAttribute('id', 'dropzone');
+            newDropzone.setAttribute('id', this.mode.id);
             newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
             newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
 

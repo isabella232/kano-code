@@ -1,0 +1,27 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.EmitterBehavior = {
+        ready () {
+            this.userListeners = {};
+        },
+        when (name, callback) {
+            if (!this.userListeners[name]) {
+                this.userListeners[name] = [];
+            }
+            this.userListeners[name].push(callback);
+            this.addEventListener(name, callback);
+        },
+        stop () {
+            Object.keys(this.userListeners).forEach((name) => {
+                this.userListeners[name].forEach((callback) => {
+                    this.removeEventListener(name, callback);
+                });
+            });
+            this.userListeners = {};
+        }
+    };
+</script>
