@@ -20,6 +20,7 @@
         border-radius: 4px;
         box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.05);
         border: solid 1px #ececec;
+        box-sizing: border-box;
     }
     .pen {
         width: 26px;
@@ -100,15 +101,16 @@
                 return `background-color: ${pixel};`;
             },
             _pixelOver (e) {
+                let target = e.path ? e.path[0] : e.target;
                 if (this.isMouseDown) {
-                    let model = this.$$('#repeat').modelForElement(e.target),
+                    let model = this.$$('#repeat').modelForElement(target),
                         index;
                     if (model) {
                         index = model.get('index');
                         this.splice('bitmap', index, 1, this.penColor);
                     }
                 } else {
-                    e.target.style.backgroundColor = this.penColor;
+                    target.style.backgroundColor = this.penColor;
                 }
             },
             _pixelOut (e) {
@@ -117,8 +119,9 @@
                 }
             },
             _mouseDown (e) {
+                let target = e.path ? e.path[0] : e.target;
                 this.isMouseDown = true;
-                if (e.target.classList.contains('pixel')) {
+                if (target.classList.contains('pixel')) {
                     this._pixelOver(e);
                 }
             },

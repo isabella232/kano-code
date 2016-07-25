@@ -9,7 +9,16 @@ export default lightboard = {
     debounceId: null,
     bitmap: new Array(128),
     getIndex (x, y) {
-        return 16 * parseInt(y) + parseInt(x);
+        return lightboard.coordToIndex(x, y, 16);
+    },
+    coordToIndex (x, y, width) {
+        return width * parseInt(y) + parseInt(x);
+    },
+    indexToCoord (index, width) {
+        return {
+            x: index % width,
+            y: Math.floor(index / width)
+        };
     },
     updateBitmap () {
         let shape,
@@ -33,6 +42,13 @@ export default lightboard = {
                         }
                     }
                 }
+            } else if (shape.type === 'frame') {
+                shape.bitmap.forEach((color, index) => {
+                    let coord = lightboard.indexToCoord(index, shape.width);
+                    coord.x += shape.x;
+                    coord.y += shape.y;
+                    shapesBitmap[lightboard.getIndex(coord.x, coord.y)] = color;
+                });
             }
         });
         for (let i = 0; i < 128; i++) {

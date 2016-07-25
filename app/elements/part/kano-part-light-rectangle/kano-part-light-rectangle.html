@@ -67,8 +67,8 @@
             _shapeChanged () {
                 this.debounce('updateShape', () => {
                     if (this.isRunning) {
-                        let bitmap = Kano.MakeApps.Modules.lightboard.methods.updateOrCreateShape(this.model.id, this.shape);
-                        this.fire('update-mode', bitmap);
+                        this.shape.id = this.model.id;
+                        this.fire('update-shape', this.shape);
                     }
                 });
             },
