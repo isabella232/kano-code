@@ -32,13 +32,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('dropzone').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('dropzone').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
                 return code;
             };
         }
@@ -54,13 +54,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('dropzone').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('dropzone').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
                 return [code];
             };
         }
