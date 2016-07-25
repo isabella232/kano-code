@@ -195,7 +195,7 @@ Polymer({
         savedApp.parts = savedParts;
         savedApp.code = this.code;
         savedApp.background = this.background;
-        savedApp.mode = this.mode;
+        savedApp.mode = this.mode.id;
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
