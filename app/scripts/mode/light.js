@@ -3,7 +3,7 @@
 let light;
 
 export default light = {
-    id: 'light',
+    id: 'lightboard',
     name: 'Lightboard',
     colour: '#F8EB1E',
     excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',

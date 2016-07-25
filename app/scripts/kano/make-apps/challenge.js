@@ -256,6 +256,8 @@
     Challenge.prototype.loadFromApp = function (app) {
         var xml = Blockly.Xml.textToDom(app.code.snapshot.blocks),
             block, i;
+        // Support older apps that saved the whole mode
+        this.data.mode = app.mode.id || app.mode;
         if (app.parts.length) {
             this.data.steps.push({
                 "tooltips": [{
