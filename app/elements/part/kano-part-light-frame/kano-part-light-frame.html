@@ -16,10 +16,14 @@
     .canvas {
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
+        padding: 2px;
+    }
+    .container[running] {
+        display: none;
     }
     </style>
     <template>
-        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]">
+        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]" running$="[[isRunning]]">
             <div class="canvas" style$="[[_computeCanvasStyle(model.userProperties.width)]]">
                 <template is="dom-repeat" items="[[model.userProperties.bitmap]]" as="pixel" id="repeat">
                     <div class="pixel" style$="[[_computePixelStyle(pixel)]]"></div>
@@ -37,8 +41,8 @@
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
             _computeContainerStyle () {
-                let width = this.model.userProperties.width * 28 + 2,
-                    height = this.model.userProperties.height * 28 + 2;
+                let width = this.model.userProperties.width * 28 + 4,
+                    height = this.model.userProperties.height * 28 + 4;
                 return `width: ${width}px; height: ${height}px;`;
             },
             applyTransform () {
@@ -46,7 +50,7 @@
                     return;
                 }
                 let position = this.model.position || { x: 0, y: 0 },
-                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 +(16 - this.model.userProperties.width) * 28),
+                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 + (16 - this.model.userProperties.width) * 28),
                     y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
                     transform;
 
@@ -54,7 +58,7 @@
                 this.style.webkitTransform = this.style.transform = transform;
             },
             _computeCanvasStyle (width) {
-                return `max-width: ${width * 28}px;`;
+                return `max-width: ${width * 28 + 4}px;`;
             },
             _computePixelStyle (pixel) {
                 return `background-color: ${pixel};`;
@@ -84,6 +88,46 @@
                 };
 
                 this.set('model.userProperties.bitmap', newBitmap);
+            },
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
+                    let shape = {
+                        id: this.model.id,
+                        x: this.getX(),
+                        y: this.getY(),
+                        width: this.model.userProperties.width,
+                        height: this.model.userProperties.height,
+                        bitmap: this.model.userProperties.bitmap,
+                        type: 'frame'
+                    };
+                    this.fire('update-shape', shape);
+                });
+            },
+            start () {
+                Kano.Behaviors.UIBehavior.start.call(this);
+                this._updateLightboard();
+            },
+            move (x, y) {
+                x *= 28;
+                y *= 28;
+                Kano.Behaviors.UIBehavior.move.call(this, x, y);
+                this._updateLightboard();
+            },
+            setX (x) {
+                x *= 28;
+                Kano.Behaviors.UIBehavior.setX.call(this, x);
+                this._updateLightboard();
+            },
+            setY (y) {
+                y *= 28;
+                Kano.Behaviors.UIBehavior.setY.call(this, y);
+                this._updateLightboard();
+            },
+            getX () {
+                return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28));
+            },
+            getY () {
+                return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28));
             }
         });
     </script>

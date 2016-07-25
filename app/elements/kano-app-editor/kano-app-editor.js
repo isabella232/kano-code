@@ -525,6 +525,9 @@ Polymer({
         }
     },
     _cleanDraggables () {
+        if (!this.draggables) {
+            this.draggables = [];
+        }
         // If a part is removed, the element will disappear from the array
         this.draggables = this.draggables.filter((d) => !!d);
     },
