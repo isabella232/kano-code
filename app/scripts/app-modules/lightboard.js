@@ -67,6 +67,9 @@ export default lightboard = {
         lightboard.debounceId = setTimeout(lightboard.drawLights, 1);
     },
     methods: {
+        connect () {
+            HardwareAPI.connectToSocket();
+        },
         updateOrCreateShape (id, shape) {
             lightboard.shapes[id] = shape;
             lightboard.updateBitmap();

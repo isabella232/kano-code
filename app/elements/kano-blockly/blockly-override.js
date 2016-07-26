@@ -595,7 +595,7 @@ Blockly.Toolbox.prototype.populate_ = function(newTree) {
       switch (childIn.tagName.toUpperCase()) {
         case 'CATEGORY':
           var childOut = rootOut.createNode(childIn.getAttribute('name')),
-            catId = childIn.getAttribute('id')
+            catId = childIn.getAttribute('id');
           childOut.blocks = [];
           childOut.categoryId = catId;
           treeOut.add(childOut);

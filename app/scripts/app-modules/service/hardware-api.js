@@ -18,6 +18,9 @@ const MODULES = {
 export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
+    connectToSocket () {
+        this.socket = io.connect(this.endpoint);
+    },
     config (c) {
         if (c.HOST) {
             let url = 'http://' + c.HOST;
@@ -28,7 +31,6 @@ export default HardwareAPI = {
         } else {
             this.endpoint = c.HARDWARE_API_URL;
         }
-
     },
     getPath (module, action) {
         return `${this.endpoint}/${MODULES[module]}/${ACTIONS[action]}`;
