@@ -142,16 +142,15 @@
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
 
-            Kano.AppModules.init(Kano.MakeApps.config);
-            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.config.HOST = window.RouterUtil.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+            Kano.MakeApps.config.PORT = window.RouterUtil.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
+            Kano.AppModules.init(Kano.MakeApps.config);
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
-            this.set('mode.config', {
-                HOST: window.RouterUtil.parseQsParam(this.context.querystring, 'host'),
-                PORT: window.RouterUtil.parseQsParam(this.context.querystring, 'port')
-            });
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);

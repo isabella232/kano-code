@@ -183,6 +183,17 @@
         },
         'polygon': {
             'CLOSE': 'TRUE'
+        },
+        'threshold': {
+            'OVER': 'true',
+            'VALUE': 70
+        },
+        'light_x_y': {
+            'X': 0,
+            'Y': 0
+        },
+        'ui_show_hide': {
+            'VISIBILITY': 'show'
         }
     };
 
@@ -395,7 +406,11 @@
                         parentType = parentBlockType.block;
                     }
                     if (fieldName) {
-                        fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
+                        if (!Challenge.fieldDefaults[parentType]) {
+                            console.log('missing default field: ', parentType, fieldName);
+                        } else {
+                            fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
+                        }
                     }
                     // Loose check of the value
                     if (node.firstChild.nodeValue != fieldDefault) {

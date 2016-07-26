@@ -66,9 +66,12 @@
             _sizeChanged () {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
-                    height = this.model.userProperties.height;
-                for (var i = 0; i < height * width; i++) {
-                    newBitmap.push('#000000');
+                    height = this.model.userProperties.height,
+                    prevColor;
+                for (let i = 0; i < height * width; i++) {
+                    // If prevSize is not set, we load the previous bitmap
+                    prevColor = this.prevSize || !this.model.userProperties.bitmap ? '#000000' : this.model.userProperties.bitmap[i];
+                    newBitmap.push(prevColor);
                 }
 
                 if (this.prevSize) {
