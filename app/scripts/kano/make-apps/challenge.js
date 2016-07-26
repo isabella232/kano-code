@@ -85,7 +85,8 @@
         'math_min': 'operators',
         'math_sign': 'operators',
         'math_random': 'operators',
-        'unary': 'operators'
+        'unary': 'operators',
+        'part_event': 'events'
     };
 
     Challenge.fieldDefaults = {
@@ -363,7 +364,7 @@
                         "block": blockChallengeId
                     },
                     "position": "top",
-                    "text": "Change ‘app starts’ to ‘Button is clicked’"
+                    "text": `Change ‘app starts’ to ‘${pieces.join('.')}’`
                 }],
                 "validation": {
                     "blockly": {
@@ -378,6 +379,7 @@
                 }
             });
         }
+
         return steps;
     };
 
@@ -469,7 +471,8 @@
                 break;
             }
             case 'block': {
-                if (type === 'part_event') {
+                var id = node.getAttribute('id');
+                if (id === 'default_part_event_id') {
                     blockChallengeId = 'default_part_event';
                     blockType.block = 'part_event';
                     steps = steps.concat(this.eventBlockToSteps(node));
