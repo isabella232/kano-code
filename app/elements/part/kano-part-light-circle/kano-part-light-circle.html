@@ -1,5 +1,5 @@
 <link rel="import" href="../../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-light-shape-behavior.html">
 <dom-module id="kano-part-light-circle">
     <style>
     :host {
@@ -7,36 +7,25 @@
     }
     .container {
         position: relative;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background-color: #87d7f7;
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        @apply(--layout-wrap);
-        padding: 9px;
-        box-shadow: 0px 0px 10px 2px #87d7f7;
+        border: 1px solid blue;
     }
-    .container div.square {
-        width: 15px;
-        height: 15px;
-        margin: 1px;
-        background-color: rgba(0, 0, 0, 0.45);
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
     }
-    .container .middle {
+    .canvas {
         @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        padding: 2px;
+    }
+    .container[running] {
+        display: none;
     }
     </style>
     <template>
-        <div class="container">
-            <div class="square"></div>
-            <div class="middle">
-                <div class="square"></div>
-                <div class="square"></div>
-                <div class="square"></div>
-            </div>
-            <div class="square"></div>
+        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]" running$="[[isRunning]]">
+            <div id="pixel-array" class="canvas"></div>
         </div>
     </template>
     <script type="text/javascript">
@@ -44,45 +33,89 @@
 
         Polymer({
             is: 'kano-part-light-circle',
-            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
-            properties: {
-                shape: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            x: 0,
-                            y: 0,
-                            width: 1,
-                            height: 1,
-                            color: '#ffffff',
-                            type: 'circle'
-                        };
-                    }
-                }
-            },
-            observers: [
-                '_shapeChanged(shape.*)'
-            ],
+            behaviors: [Kano.Behaviors.LightShapeBehavior, Kano.Behaviors.EmitterBehavior],
             start () {
-                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+                Kano.Behaviors.LightShapeBehaviorImpl.start.apply(this, arguments);
             },
             stop () {
                 Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
                 Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
             },
-            _shapeChanged () {
-                this.debounce('updateShape', () => {
+            setRadius (r) {
+                this.set('model.userProperties.radius', r);
+                this._updateLightboard();
+            },
+            getRadius () {
+                return parseInt(this.get('model.userProperties.radius'));
+            },
+            setColor (c) {
+                this.set('model.userProperties.color', c);
+                this._updateLightboard();
+            },
+            getColor () {
+                return this.get('model.userProperties.color');
+            },
+            _computeContainerStyle () {
+                let radius = this.model.userProperties.radius,
+                    size = ((radius * 2) + 1) * 28 + 4,
+                    container = this.$['pixel-array'],
+                    bitmap = new Array(Math.pow(radius, 2)),
+                    i = 0,
+                    distance,
+                    div;
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+                for (let y = -radius; y <= radius; y++) {
+                    for (let x = -radius; x <= radius; x++) {
+                        distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+                        if (radius >= distance) {
+                            bitmap[i] = this.model.userProperties.color;
+                        } else {
+                            bitmap[i] = null;
+                        }
+                        i++;
+                    }
+                }
+                bitmap.forEach((color) => {
+                    div = document.createElement('div');
+                    div.className = 'pixel';
+                    div.style.backgroundColor = color;
+                    container.appendChild(div);
+                });
+                return `width: ${size}px; height: ${size}px;`;
+            },
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
                     if (this.isRunning) {
-                        this.shape.id = this.model.id;
-                        this.fire('update-shape', this.shape);
+                        let radius = parseInt(this.model.userProperties.radius),
+                            shape = {
+                            id: this.model.id,
+                            x: this.getX(),
+                            y: this.getY(),
+                            radius,
+                            color: this.model.userProperties.color,
+                            type: 'circle'
+                        };
+                        this.fire('update-shape', shape);
                     }
                 });
             },
-            draw (x, y, radius, color) {
-                this.set('shape.x', x || this.shape.x);
-                this.set('shape.y', y || this.shape.y);
-                this.set('shape.radius', radius || this.shape.radius);
-                this.set('shape.color', color || this.shape.color);
+            getX () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28);
+            },
+            getY () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28);
+            },
+            applyTransform () {
+                if (!this.model) {
+                    return;
+                }
+                let radius = parseInt(this.model.userProperties.radius),
+                    x = 7 + 28 * (this.getX() - radius),
+                    y = 6 + 28 * (this.getY() - radius);
+
+                this.transform(`translate(${x}px, ${y}px)`);
             }
         });
     </script>

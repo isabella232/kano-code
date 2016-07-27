@@ -1,0 +1,55 @@
+<link rel="import" href="../ui/behaviors.html">
+<script type="text/javascript">
+
+(function (Kano) {
+    Kano.Behaviors = Kano.Behaviors || {};
+
+    /**
+     * Behavior common to all UI components
+     * Adds the style object that can be used to give the user
+     * customization features
+     * @type {Object}
+     */
+    Kano.Behaviors.LightShapeBehaviorImpl = {
+        start () {
+            Kano.Behaviors.UIBehavior.start.call(this);
+            this._updateLightboard();
+        },
+        move (x, y) {
+            x *= 28;
+            y *= 28;
+            Kano.Behaviors.UIBehavior.move.call(this, x, y);
+            this._updateLightboard();
+        },
+        setX (x) {
+            x *= 28;
+            Kano.Behaviors.UIBehavior.setX.call(this, x);
+            this._updateLightboard();
+        },
+        setY (y) {
+            y *= 28;
+            Kano.Behaviors.UIBehavior.setY.call(this, y);
+            this._updateLightboard();
+        },
+        getX () {
+            return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28));
+        },
+        getY () {
+            return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28));
+        },
+        applyTransform () {
+            if (!this.model) {
+                return;
+            }
+            let x = Math.min(Math.max(7, 7 + 28 * this.getX()), 7 + (16 - parseInt(this.model.userProperties.width)) * 28),
+                y = Math.min(Math.max(6, 6 + 28 * this.getY()), 6 + (8 - parseInt(this.model.userProperties.height)) * 28);
+
+            this.transform(`translate(${x}px, ${y}px)`);
+        },
+        _updateLightboard () {}
+    };
+
+    Kano.Behaviors.LightShapeBehavior = [Kano.Behaviors.UIBehavior, Kano.Behaviors.LightShapeBehaviorImpl];
+})(window.Kano = window.Kano || {});
+
+</script>

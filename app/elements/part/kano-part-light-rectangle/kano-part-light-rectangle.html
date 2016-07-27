@@ -1,5 +1,5 @@
 <link rel="import" href="../../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-light-shape-behavior.html">
 <dom-module id="kano-part-light-rectangle">
     <style>
     :host {
@@ -7,30 +7,25 @@
     }
     .container {
         position: relative;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background-color: #87d7f7;
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        @apply(--layout-wrap);
-        padding: 18px;
-        box-shadow: 0px 0px 10px 2px #87d7f7;
+        border: 1px solid blue;
     }
-    .container div {
-        width: 15px;
-        height: 15px;
-        margin: 1px;
-        background-color: rgba(0, 0, 0, 0.45);
+    .pixel {
+        width: 22px;
+        height: 22px;
+        margin: 3px;
+    }
+    .canvas {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        padding: 2px;
+    }
+    .container[running] {
+        display: none;
     }
     </style>
     <template>
-        <div class="container">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]" running$="[[isRunning]]">
+            <div id="pixel-array" class="canvas"></div>
         </div>
     </template>
     <script type="text/javascript">
@@ -38,46 +33,46 @@
 
         Polymer({
             is: 'kano-part-light-rectangle',
-            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
-            properties: {
-                shape: {
-                    type: Object,
-                    value: () => {
-                        return {
-                            x: 0,
-                            y: 0,
-                            width: 1,
-                            height: 1,
-                            color: '#ffffff',
-                            type: 'rectangle'
-                        };
-                    }
+            behaviors: [Kano.Behaviors.LightShapeBehavior, Kano.Behaviors.EmitterBehavior],
+            _computeContainerStyle () {
+                let width = this.model.userProperties.width * 28 + 4,
+                    height = this.model.userProperties.height * 28 + 4,
+                    length = this.model.userProperties.width * this.model.userProperties.height,
+                    container = this.$['pixel-array'],
+                    div;
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
                 }
+                for (let i = 0; i < length; i++) {
+                    div = document.createElement('div');
+                    div.className = 'pixel';
+                    div.style.backgroundColor = this.model.userProperties.color;
+                    container.appendChild(div);
+                }
+                return `width: ${width}px; height: ${height}px;`;
             },
-            observers: [
-                '_shapeChanged(shape.*)'
-            ],
             start () {
-                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+                Kano.Behaviors.LightShapeBehaviorImpl.start.apply(this, arguments);
             },
             stop () {
                 Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
                 Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
             },
-            _shapeChanged () {
-                this.debounce('updateShape', () => {
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
                     if (this.isRunning) {
-                        this.shape.id = this.model.id;
-                        this.fire('update-shape', this.shape);
+                        let shape = {
+                            id: this.model.id,
+                            x: this.getX(),
+                            y: this.getY(),
+                            width: parseInt(this.model.userProperties.width),
+                            height: parseInt(this.model.userProperties.height),
+                            color: this.model.userProperties.color,
+                            type: 'rectangle'
+                        };
+                        this.fire('update-shape', shape);
                     }
                 });
-            },
-            draw (x, y, width, height, color) {
-                this.set('shape.x', x || this.shape.x);
-                this.set('shape.y', y || this.shape.y);
-                this.set('shape.width', width || this.shape.width);
-                this.set('shape.height', height || this.shape.height);
-                this.set('shape.color', color || this.shape.color);
             }
         });
     </script>
