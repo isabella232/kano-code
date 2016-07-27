@@ -50,8 +50,13 @@
                 'update-mode': 'update',
                 'update-shape': '_updateShape'
             },
+            ready () {
+                this.userListeners = [];
+            },
             attached () {
-                Kano.AppModules.getModule('lightboard').connect();
+                Kano.AppModules.getModule('lightboard').connect({
+                    name: 'Make Apps'
+                });
             },
             render (bitmap) {
                 this.$['led-matrix'].render(bitmap);
@@ -67,6 +72,21 @@
             update (data) {
                 this.render(data);
             },
+            onKeyDown (key, callback) {
+                let cb = this._keyDownCheck(key, callback);
+                this.userListeners.push({
+                    name: 'button-down',
+                    cb
+                });
+                Kano.AppModules.getModule('lightboard').on('button-down', cb);
+            },
+            _keyDownCheck (key, callback) {
+                return (data) => {
+                    if (data['button-id'] === key) {
+                        callback();
+                    }
+                };
+            },
             stop () {
                 this.reset();
             },
@@ -76,6 +96,10 @@
                     empty.push('#000000');
                 }
                 this.$['led-matrix'].render(empty);
+                this.userListeners.forEach((listener) => {
+                    Kano.AppModules.getModule('lightboard').removeListener(listener.name, listener.cb);
+                });
+                this.userListeners = [];
             },
             _updateShape (e) {
                 let shape = e.detail,
