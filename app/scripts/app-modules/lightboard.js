@@ -126,6 +126,23 @@ export default lightboard = {
             lightboard.updateBitmap();
             lightboard.syncApi();
             return lightboard.bitmap;
+        },
+        text (text, color, backgroundColor) {
+            HardwareAPI.light.text({
+                text,
+                color,
+                backgroundColor
+            });
+        },
+        scroll (text, color, backgroundColor, speed) {
+            // Transform speed 0 - 100 to 232 - 32
+            let framePeriod = 232 - speed * 2;
+            HardwareAPI.light.scroll({
+                text,
+                color,
+                backgroundColor,
+                framePeriod
+            });
         }
     },
     lifecycle: {

@@ -89,6 +89,12 @@ export default HardwareAPI = {
         },
         on (bitmap) {
             HardwareAPI.socket.emit('lightboard:on', { pixels: bitmap });
+        },
+        text (data) {
+            HardwareAPI.socket.emit('lightboard:text', data);
+        },
+        scroll (data) {
+            HardwareAPI.socket.emit('lightboard:scroll-text', data);
         }
     },
     camera: {

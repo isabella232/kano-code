@@ -195,6 +195,15 @@
         },
         'ui_show_hide': {
             'VISIBILITY': 'show'
+        },
+        'light_show_text': {
+            'COLOR': '#000000',
+            'BACKGROUND_COLOR': '#ffffff'
+        },
+        'light_scroll_text': {
+            'COLOR': '#000000',
+            'BACKGROUND_COLOR': '#ffffff',
+            'SPEED': 50
         }
     };
 
