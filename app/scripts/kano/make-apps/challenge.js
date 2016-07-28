@@ -195,6 +195,21 @@
         },
         'ui_show_hide': {
             'VISIBILITY': 'show'
+        },
+        'set_x': {
+            'X': 0
+        },
+        'set_y': {
+            'Y': 0
+        },
+        'set_width': {
+            'WIDTH': 0
+        },
+        'set_height': {
+            'HEIGHT': 0
+        },
+        'set_radius': {
+            'RADIUS': 0
         }
     };
 
