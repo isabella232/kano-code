@@ -1,4 +1,4 @@
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-light-shape-behavior.html">
 <dom-module id="kano-part-light-frame">
     <style>
     :host {
@@ -36,29 +36,17 @@
 
         Polymer({
             is: 'kano-part-light-frame',
-            behaviors: [Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.Behaviors.LightShapeBehavior],
             observers: [
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
             _computeContainerStyle () {
-                let width = this.model.userProperties.width * 28 + 4,
-                    height = this.model.userProperties.height * 28 + 4;
+                let width = this.model.userProperties.width * this.PIXEL_SIZE + 4,
+                    height = this.model.userProperties.height * this.PIXEL_SIZE + 4;
                 return `width: ${width}px; height: ${height}px;`;
             },
-            applyTransform () {
-                if (!this.model) {
-                    return;
-                }
-                let position = this.model.position || { x: 0, y: 0 },
-                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 + (16 - this.model.userProperties.width) * 28),
-                    y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
-                    transform;
-
-                transform = `translate(${x}px, ${y}px)`;
-                this.style.webkitTransform = this.style.transform = transform;
-            },
             _computeCanvasStyle (width) {
-                return `max-width: ${width * 28 + 4}px;`;
+                return `max-width: ${width * this.PIXEL_SIZE + 4}px;`;
             },
             _computePixelStyle (pixel) {
                 return `background-color: ${pixel};`;
@@ -105,32 +93,6 @@
                     };
                     this.fire('update-shape', shape);
                 });
-            },
-            start () {
-                Kano.Behaviors.UIBehavior.start.call(this);
-                this._updateLightboard();
-            },
-            move (x, y) {
-                x *= 28;
-                y *= 28;
-                Kano.Behaviors.UIBehavior.move.call(this, x, y);
-                this._updateLightboard();
-            },
-            setX (x) {
-                x *= 28;
-                Kano.Behaviors.UIBehavior.setX.call(this, x);
-                this._updateLightboard();
-            },
-            setY (y) {
-                y *= 28;
-                Kano.Behaviors.UIBehavior.setY.call(this, y);
-                this._updateLightboard();
-            },
-            getX () {
-                return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28));
-            },
-            getY () {
-                return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28));
             }
         });
     </script>
