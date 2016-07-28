@@ -293,6 +293,21 @@
          * @return {[type]}   [description]
          */
         onBlocklyChange (e) {
+            if (e.type === Blockly.Events.CREATE) {
+                this.lastCreated = e.blockId;
+            }
+            // If there is a move event or a click event, we check if it matches the last block created
+            if ((e.type === Blockly.Events.MOVE || e.type === Blockly.Events.UI && e.element === 'click') &&
+                this.lastCreated === e.blockId) {
+                // The block targetted by the last event matches the last created,
+                //  we trigger a drop event
+                let ev = {
+                    type: Blockly.Events.DROP_BLOCK,
+                    blockId: e.blockId
+                };
+                this.workspace.fireChangeListener(ev);
+                this.lastCreated = null;
+            }
             this.fire('change', e);
             this.set('code', this.getCode('JavaScript'));
         },
