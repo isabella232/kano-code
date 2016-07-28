@@ -6,26 +6,29 @@ let register = (Blockly) => {
 
     KeyboardEvents.register(Blockly);
 
-    Blockly.Blocks.part_event = {
-        init: function () {
-            let json = {
-                id: 'part_event',
-                colour: COLOUR,
-                message0: 'When %1',
-                args0: [{
-                    type: "field_dropdown",
-                    name: "EVENT",
-                    options: []
-                }],
-                message1: '%1',
-                args1: [{
-                    type: "input_statement",
-                    name: "DO"
-                }]
-            };
-            this.jsonInit(json);
-        }
-    };
+    // Create a block shell of the part_event if not there yet
+    if (!Blockly.Blocks.part_event) {
+        Blockly.Blocks.part_event = {
+            init: function () {
+                let json = {
+                    id: 'part_event',
+                    colour: COLOUR,
+                    message0: 'When %1',
+                    args0: [{
+                        type: "field_dropdown",
+                        name: "EVENT",
+                        options: []
+                    }],
+                    message1: '%1',
+                    args1: [{
+                        type: "input_statement",
+                        name: "DO"
+                    }]
+                };
+                this.jsonInit(json);
+            }
+        };
+    }
 
     Blockly.JavaScript.part_event = (block) => {
         let ev = block.getFieldValue('EVENT'),
