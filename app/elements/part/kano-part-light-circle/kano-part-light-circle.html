@@ -57,7 +57,7 @@
             },
             _computeContainerStyle () {
                 let radius = this.model.userProperties.radius,
-                    size = ((radius * 2) + 1) * 28 + 4,
+                    size = ((radius * 2) + 1) * this.PIXEL_SIZE + 4,
                     container = this.$['pixel-array'],
                     bitmap = new Array(Math.pow(radius, 2)),
                     i = 0,
@@ -102,18 +102,18 @@
                 });
             },
             getX () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28);
+                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / this.PIXEL_SIZE);
             },
             getY () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28);
+                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / this.PIXEL_SIZE);
             },
             applyTransform () {
                 if (!this.model) {
                     return;
                 }
                 let radius = parseInt(this.model.userProperties.radius),
-                    x = 7 + 28 * (this.getX() - radius),
-                    y = 6 + 28 * (this.getY() - radius);
+                    x = 7 + this.PIXEL_SIZE * (this.getX() - radius),
+                    y = 6 + this.PIXEL_SIZE * (this.getY() - radius);
 
                 this.transform(`translate(${x}px, ${y}px)`);
             }
