@@ -73,6 +73,18 @@ export default lightboard = {
         lightboard.debounceId = setTimeout(lightboard.drawLights, 1);
     },
     methods: {
+        connect (info) {
+            HardwareAPI.connectToSocket();
+            HardwareAPI.socket.on('connect', () => {
+                HardwareAPI.socket.emit('lightboard:init', info);
+            });
+        },
+        on () {
+            HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+        },
+        removeListener () {
+            HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
+        },
         updateOrCreateShape (id, shape) {
             lightboard.shapes[id] = shape;
             lightboard.updateBitmap();

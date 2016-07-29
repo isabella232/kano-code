@@ -147,5 +147,46 @@ export default light = {
                 }`];
             };
         }
+    },{
+        block: () => {
+            return {
+                id: 'button_down',
+                message0: 'when button %1 is pressed',
+                inputsInline: true,
+                args0: [{
+                    type: "field_dropdown",
+                    name: "KEY",
+                    options: [
+                        ['up', 'js-up'],
+                        ['down', 'js-down'],
+                        ['left', 'js-left'],
+                        ['right', 'js-right'],
+                        ['A', 'btn-A'],
+                        ['B', 'btn-B']
+                    ]
+                }],
+                message1: '%1',
+                args1: [{
+                    type: 'input_statement',
+                    name: 'DO'
+                }],
+                previousStatement: true,
+                nextStatement: true,
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let key = block.getFieldValue('KEY'),
+                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let key = block.getFieldValue('KEY'),
+                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
+            };
+        }
     }]
 };
