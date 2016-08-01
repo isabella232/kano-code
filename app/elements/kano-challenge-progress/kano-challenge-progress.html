@@ -115,12 +115,15 @@ by a `progress` variable, this would be:
         *[invisible] {
             opacity: 0 !important;
         }
+        *[click-through] {
+            pointer-events: none !important;
+        }
         #circle {
             display: block;
         }
     </style>
     <template>
-        <div class="actions" id="actions">
+        <div class="actions" id="actions" click-through$="[[!remixMode]]">
             <div class="empty-space"></div>
             <template is="dom-if" if="{{nextChallenge}}">
                 <a on-tap="goToNextStory" class="action-link" invisible$="[[!remixMode]]"> Next Challenge </a>
