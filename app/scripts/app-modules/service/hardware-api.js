@@ -89,6 +89,23 @@ export default HardwareAPI = {
         },
         on (bitmap) {
             HardwareAPI.socket.emit('lightboard:on', { pixels: bitmap });
+        },
+        text (data) {
+            // Change key names to UK spelling for the Kano 2 server
+            HardwareAPI.socket.emit('lightboard:text', {
+                text: data.text,
+                colour: data.color,
+                backgroundColour: data.backgroundColor
+            });
+        },
+        scroll (data) {
+            // Change key names to UK spelling for the Kano 2 server
+            HardwareAPI.socket.emit('lightboard:scroll-text', {
+                text: data.text,
+                colour: data.color,
+                backgroundColour: data.backgroundColor,
+                framePeriod: data.framePeriod
+            });
         }
     },
     camera: {
