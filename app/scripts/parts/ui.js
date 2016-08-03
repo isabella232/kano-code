@@ -71,6 +71,11 @@ export default class UI extends Part {
         // Each UI part has its specific component to render on the screen
         this.tagName = opts.component || `kano-ui-${this.type}`;
         this.configPanel = opts.configPanel || 'ui';
+        this.excludeDefaultBlocks = opts.excludeDefaultBlocks || false;
+
+        if (this.excludeDefaultBlocks) {
+            return;
+        }
         this.blocks.push({
             block: (ui) => {
                 return {
@@ -452,11 +457,10 @@ export default class UI extends Part {
                 };
             }
         });
-
-
     }
     toJSON () {
         let plain = super.toJSON.call(this);
+        plain.excludeDefaultBlocks = this.excludeDefaultBlocks;
         plain.customizable = {
             properties: this.customizable.properties,
             style: this.customizable.style.map(style => style.key)

@@ -508,6 +508,7 @@ Blockly.Block.prototype.setColour = function(colour) {
     }
 };
 
+Blockly.Events.DROP_BLOCK = 'drop-block';
 Blockly.Events.OPEN_FLYOUT = 'open-flyout';
 Blockly.Events.CLOSE_FLYOUT = 'close-flyout';
 

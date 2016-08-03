@@ -33,12 +33,18 @@ export default lightboard = {
                     }
                 }
             } else if (shape.type === 'circle') {
-                let distance;
+                let distance,
+                    index;
                 for (let x = -shape.radius; x <= shape.radius; x++) {
                     for (let y = -shape.radius; y <= shape.radius; y++) {
                         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-                        if (shape.radius >= distance) {
-                            shapesBitmap[lightboard.getIndex(shape.x + x, shape.y + y)] = shape.color;
+                        if (shape.radius >= distance &&
+                            shape.x + x <= 15 &&
+                            shape.x + x >= 0 &&
+                            shape.y + y >= 0 &&
+                            shape.y + y <= 7) {
+                            index = lightboard.getIndex(shape.x + x, shape.y + y);
+                            shapesBitmap[index] = shape.color;
                         }
                     }
                 }

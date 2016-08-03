@@ -3,70 +3,32 @@
 let lightCircle;
 
 export default lightCircle = {
-    partType: 'hardware',
+    partType: 'ui',
     type: 'light-circle',
     label: 'Light circle',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',
     component: 'kano-part-light-circle',
+    excludeDefaultBlocks: true,
+    customizable: {
+        properties: [{
+            key: 'radius',
+            type: 'range',
+            label: 'Radius',
+            min: 0,
+            max: 3
+        },{
+            key: 'color',
+            type: 'color',
+            label: 'Color'
+        }],
+        style: []
+    },
+    userProperties: {
+        radius: 2,
+        color: '#ffffff'
+    },
     blocks: [{
-        block: (part) => {
-            return {
-                id: 'draw',
-                message0: `${part.name} draw: x %1 y %2 radius %3 color %4`,
-                args0: [{
-                    type: "input_value",
-                    name: "X",
-                    check: 'Number',
-                    align: 'RIGHT'
-                },{
-                    type: "input_value",
-                    name: "Y",
-                    check: 'Number',
-                    align: 'RIGHT'
-                },{
-                    type: "input_value",
-                    name: "RADIUS",
-                    check: 'Number',
-                    align: 'RIGHT'
-                },{
-                    type: "input_value",
-                    name: "COLOR",
-                    check: 'Colour',
-                    align: 'RIGHT'
-                }],
-                inputsInline: false,
-                previousStatement: null,
-                nextStatement: null,
-                shadow: {
-                    'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'RADIUS': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ff0000</field></shadow>'
-                }
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                    radius = Blockly.JavaScript.valueToCode(block, 'RADIUS') || 0,
-                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${radius}, ${color});\n`;
-                return code;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                    radius = Blockly.Pseudo.valueToCode(block, 'RADIUS') || 0,
-                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('${part.id}').draw(${x}, ${y}, ${radius}, ${color});\n`;
-                return code;
-            };
-        }
-    },{
         block: (part) => {
             return {
                 id: 'set_x',
@@ -87,14 +49,14 @@ export default lightCircle = {
         javascript: (part) => {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').set('shape.x', ${x});\n`;
+                    code = `devices.get('${part.id}').setX( ${x});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').set('shape.x', ${x});\n`;
+                    code = `devices.get('${part.id}').setX( ${x});\n`;
                 return code;
             };
         }
@@ -119,14 +81,14 @@ export default lightCircle = {
         javascript: (part) => {
             return (block) => {
                 let y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').set('shape.y', ${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').set('shape.y', ${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y});\n`;
                 return code;
             };
         }
@@ -151,14 +113,14 @@ export default lightCircle = {
         javascript: (part) => {
             return (block) => {
                 let radius = Blockly.JavaScript.valueToCode(block, 'RADIUS') || 1,
-                    code = `devices.get('${part.id}').set('shape.radius', ${radius});\n`;
+                    code = `devices.get('${part.id}').setRadius(${radius});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let radius = Blockly.Pseudo.valueToCode(block, 'RADIUS') || 1,
-                    code = `devices.get('${part.id}').set('shape.radius', ${radius});\n`;
+                    code = `devices.get('${part.id}').setRadius(${radius});\n`;
                 return code;
             };
         }
@@ -180,14 +142,14 @@ export default lightCircle = {
         javascript: (part) => {
             return (block) => {
                 let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || 1,
-                    code = `devices.get('${part.id}').set('shape.color', ${color});\n`;
+                    code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || 1,
-                    code = `devices.get('${part.id}').set('shape.color', ${color});\n`;
+                    code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };
         }
@@ -201,13 +163,13 @@ export default lightCircle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.x')`;
+                let code = `devices.get('${part.id}').getX()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.x')`;
+                let code = `devices.get('${part.id}').getX()`;
                 return [code];
             };
         }
@@ -221,13 +183,13 @@ export default lightCircle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.y')`;
+                let code = `devices.get('${part.id}').getY()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.y')`;
+                let code = `devices.get('${part.id}').getY()`;
                 return [code];
             };
         }
@@ -241,13 +203,13 @@ export default lightCircle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.radius')`;
+                let code = `devices.get('${part.id}').getRadius()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.radius')`;
+                let code = `devices.get('${part.id}').getRadius()`;
                 return [code];
             };
         }
@@ -261,13 +223,13 @@ export default lightCircle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.color')`;
+                let code = `devices.get('${part.id}').getColor()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').get('shape.color')`;
+                let code = `devices.get('${part.id}').getColor()`;
                 return [code];
             };
         }

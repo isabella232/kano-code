@@ -23,13 +23,15 @@
                 delete: 'delete',
                 'open-flyout': 'open-flyout',
                 'close-flyout': 'close-flyout',
+                'drop': 'drop-block'
             };
             this.blocklyValidators = {
                 'create': this.matchCreate.bind(this),
                 'connect': this.matchConnect.bind(this),
                 'value': this.matchBlocklyValue.bind(this),
                 'delete': this.matchDelete.bind(this),
-                'open-flyout': this.matchCategory.bind(this)
+                'open-flyout': this.matchCategory.bind(this),
+                'drop': this.matchDrop.bind(this)
             };
         },
         matchCategory (validation, event) {
@@ -94,6 +96,12 @@
             if (event.blockId === targetId && event.newParentId === parentId) {
                 return true;
             }
+        },
+        matchDrop (validation, event) {
+            let targetId = this.getTargetBlock(validation.target).id,
+                block = event;
+            // Check that the element that changed is the one we target
+            return block.blockId === targetId;
         },
         matchBlocklyValue (validation, event) {
             let targetId = this.getTargetBlock(validation.target).id,
