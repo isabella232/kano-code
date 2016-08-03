@@ -7,6 +7,8 @@
     }
     .content {
         min-width: 465px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
     }
     .pixel {
         width: 22px;
@@ -36,21 +38,31 @@
     }
     .frames {
         @apply(--layout-horizontal);
+        margin: 16px 0px 16px;
+        max-width: 100%;
     }
-    kano-bitmap-renderer {
+    .frames kano-bitmap-renderer {
         border: 1px solid transparent;
+        padding: 2px;
     }
-    kano-bitmap-renderer.selected {
+    .frames kano-bitmap-renderer.selected {
         border-color: blue;
     }
     </style>
     <template>
         <array-selector id="selector" items="{{bitmaps}}" selected="{{bitmap}}"></array-selector>
         <div class="content">
+            <div class="preview">
+                <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="24" bitmap="[[preview]]"></kano-bitmap-renderer>
+                <div class="controls">
+                    <button type="button">&gt;</button>
+                    <button type="button">|</button>
+                </div>
+            </div>
             <div class="frames">
                 <div class="frame-list">
                     <template is="dom-repeat" items="[[bitmaps]]" as="bm">
-                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="12" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
+                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="6" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
                     </template>
                 </div>
                 <button type="button" name="button" on-tap="_addFrame">+</button>
@@ -85,6 +97,16 @@
                 '_bitmapChanged(bitmap, width, height)',
                 '_bitmapsChanged(bitmaps.splices)'
             ],
+            ready () {
+                let i = 0;
+                setInterval(() => {
+                    this.preview = this.bitmaps[i];
+                    i++;
+                    if (i > this.bitmaps.length - 1) {
+                        i = 0;
+                    }
+                }, 500);
+            },
             _generateEmptyBitmap (name, width, height, color='#000000') {
                 let length = width * height;
                 for (let i = 0; i < length; i++) {
