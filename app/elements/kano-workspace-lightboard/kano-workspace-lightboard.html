@@ -1,5 +1,5 @@
+<link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
-
 <dom-module id="kano-workspace-lightboard">
     <style>
         :host {
@@ -7,7 +7,7 @@
             width: 100%;
             height: 100%;
             border: 1px solid #ECECEC;
-            background: #000;
+            background: #444;
             box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
             border-radius: 4px;
         }
@@ -46,11 +46,18 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-lightboard',
-            properties: {
-                pixels: {
-                    type: Array,
-                    value: () => new Array(128)
-                }
+            behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            listeners: {
+                'update-mode': 'update',
+                'update-shape': '_updateShape'
+            },
+            ready () {
+                this.userListeners = [];
+            },
+            attached () {
+                Kano.AppModules.getModule('lightboard').connect({
+                    name: 'Make Apps'
+                });
             },
             render (bitmap) {
                 this.$['led-matrix'].render(bitmap);
@@ -63,12 +70,42 @@
                 let bitmap = Kano.AppModules.getModule('lightboard').turnOff(light);
                 this.render(bitmap);
             },
-            setBackgroundColor (color) {
-                let bitmap = Kano.AppModules.getModule('lightboard').setBackgroundColor(color);
-                this.render(bitmap);
-            },
             update (data) {
                 this.render(data);
+            },
+            onKeyDown (key, callback) {
+                let cb = this._keyDownCheck(key, callback);
+                this.userListeners.push({
+                    name: 'button-down',
+                    cb
+                });
+                Kano.AppModules.getModule('lightboard').on('button-down', cb);
+            },
+            _keyDownCheck (key, callback) {
+                return (data) => {
+                    if (data['button-id'] === key) {
+                        callback();
+                    }
+                };
+            },
+            stop () {
+                this.reset();
+            },
+            reset () {
+                let empty = [];
+                for (let i = 0; i < 128; i++) {
+                    empty.push('#000000');
+                }
+                this.$['led-matrix'].render(empty);
+                this.userListeners.forEach((listener) => {
+                    Kano.AppModules.getModule('lightboard').removeListener(listener.name, listener.cb);
+                });
+                this.userListeners = [];
+            },
+            _updateShape (e) {
+                let shape = e.detail,
+                    bitmap = Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape);
+                this.render(bitmap);
             }
         });
     </script>

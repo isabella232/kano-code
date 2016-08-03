@@ -1,0 +1,179 @@
+<link rel="import" href="../../elements/share-bundle.html">
+<link rel="import" href="../../elements/story-bundle.html">
+<link rel="import" href="../../elements/editor-bundle.html">
+<link rel="import" href="../../elements/tutorial-bundle.html">
+<link rel="import" href="../../elements/run-bundle.html">
+<dom-module id="kano-view-tutorial">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            @apply(--layout-vertical);
+            font-family: Bariol;
+        }
+        :host kano-story-scene {
+            @apply(--layout-flex);
+        }
+        paper-dialog {
+            border-radius: 5px;
+        }
+        kano-scene-editor {
+            height: 100%;
+        }
+        button {
+            @apply(--kano-button);
+            background-color: var(--color-green);
+        }
+        *[hidden] {
+            display: none !important;
+        }
+        .challenge-modal {
+            max-width: 514px;
+        }
+        .share-preview {
+            width: 100%;
+            height: 384px;
+            background: lightgrey;
+        }
+        .challenge-modal div.buttons {
+            @apply(--layout-center-justified);
+        }
+    </style>
+    <template>
+        <template is="dom-if" if="[[shareLoaded]]" on-dom-change="_editorDomChanged">
+            <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[_share.title]]" on-scene-done="_showEndModal" on-share="share"></kano-scene-editor>
+        </template>
+        <paper-dialog id="share-modal" with-backdrop>
+            <kano-share-modal on-confirm="confirmShare"
+                              on-dismiss="dismissShare"
+                              share-info="{{shareInfo}}"></kano-share-modal>
+        </paper-dialog>
+        <paper-dialog class="challenge-modal" id="start-modal" modal on-iron-overlay-closed="_startTutorial">
+            <iron-pages selected="[[selectedStartPage]]" attr-for-selected="name">
+                <div name="loading">Loading tutorial...</div>
+                <div name="loaded">
+                    <h2>How to build [[_share.user.username]]'s [[_share.title]] app</h2>
+                    <iron-image src="[[_share.cover_url]]" sizing="contain" preload fade class="share-preview"></iron-image>
+                    <p>
+                        Hi there. In this tutorial you will learn how to create [[_share.user.username]]'s app, and then you will be able to remix it to make it your own.
+                    </p>
+                    <div hidden$="[[!_share.description]]">
+                        <p>Here's what the app does:</p>
+                        <p>[[_share.description]]</p>
+                    </div>
+                    <p>
+                        If you're ready, hit the start button!
+                    </p>
+                    <div class="buttons">
+                        <button class="start-button" disabled$="[[!shareLoaded]]" dialog-confirm>Start!</button>
+                    </div>
+                </div>
+            </iron-pages>
+        </paper-dialog>
+        <paper-dialog class="challenge-modal" id="end-modal" modal on-iron-overlay-closed="_enableRemixMode">
+          <h2>Well done!</h2>
+          <paper-dialog-scrollable>
+              <p>You finished rebuilding [[_share.user.username]]'s app. You can now remix it to add your personnal touch or add more awesome features</p>
+              <div class="buttons">
+                  <button class="start-button" dialog-confirm>Start remixing</button>
+              </div>
+          </paper-dialog-scrollable>
+        </paper-dialog>
+        <paper-dialog id="share-modal" with-backdrop>
+            <kano-share-modal on-confirm="confirmShare"
+                              on-dismiss="dismissShare"
+                              share-info="{{shareInfo}}"></kano-share-modal>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano, page */
+    Polymer({
+        is: 'kano-view-tutorial',
+        behaviors: [Kano.Behaviors.SharingBehavior, Kano.Behaviors.ModalAnimatorBehavior],
+        properties: {
+            app: {
+                type: Object
+            }
+        },
+        listeners: {
+            'blockly-ready': '_registerBlockly'
+        },
+        ready () {
+            this.modal = this.$['share-modal'];
+            Kano.AppModules.init(Kano.MakeApps.config);
+            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
+            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+            this.configureModal(this.$['end-modal'], 'scale-down');
+            this.configureModal(this.$['end-modal'], 'fade-out');
+            this.configureModal(this.$['start-modal'], 'scale-down');
+            this.configureModal(this.$['start-modal'], 'fade-out');
+        },
+        attached () {
+            let editor = window.RouterUtil.parseQsParam(this.context.querystring, 'editor');
+            this.modal = this.$['share-modal'];
+            this.$['start-modal'].open();
+            this.selectedStartPage = 'loading';
+            this.shareLoaded = false;
+            if (editor) {
+                this._share = {
+                    user: this.user || { username: 'Current user' },
+                    title: 'From Local Storage',
+                    description: 'App loaded from the localStorage'
+                };
+                this.selectedStartPage = 'loaded';
+                this.$['start-modal'].refit();
+                this.challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem('savedApp')));
+                this.scene = Object.assign({}, this.challenge.data);
+                this.shareLoaded = true;
+            } else {
+                Kano.MakeApps.sdk.api.share.get.bySlug({ slug: this.context.params.slug })
+                    .then((res) => res.body.item)
+                    .then((share) => {
+                        this._share = share;
+                        this.selectedStartPage = 'loaded';
+                        this.$['start-modal'].refit();
+                        return fetch(share.workspace_info_url);
+                    })
+                    .then((res) => res.json())
+                    .then((app) => {
+                        this.challenge = Kano.MakeApps.Challenge.createFromApp(app);
+                        this.scene = Object.assign({}, this.challenge.data);
+                        this.shareLoaded = true;
+                    }).catch((e) => {
+                        console.error(e);
+                    });
+            }
+            window.dumpChallenge = () => {
+                return JSON.stringify(this.challenge, null, '\t');
+            };
+        },
+        _registerBlockly () {
+            Kano.MakeApps.blockly.register(window.Blockly);
+        },
+        _startTutorial () {
+            this.set('scene.started', true);
+        },
+        _showEndModal () {
+            this.$['end-modal'].open();
+        },
+        _enableRemixMode () {
+            this.$$('#editor').goToRemixChallenge();
+        },
+        _editorDomChanged () {
+            let editor = this.$$('#editor');
+            if (editor) {
+                editor.animate([{
+                    opacity: 0
+                },{
+                    opacity: 1
+                }], {
+                    duration: 500,
+                    easing: 'ease-out'
+                });
+            }
+        }
+    });
+</script>

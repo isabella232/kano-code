@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../kano-data-visualizer/kano-data-visualizer.html">
 <dom-module id="kano-part-data">
     <style>
@@ -6,6 +7,7 @@
     }
     :host .part {
         position: relative;
+        width: 70px;
     }
     :host kano-data-visualizer {
         position: absolute;
@@ -41,7 +43,7 @@
 
     Polymer({
         is: 'kano-part-data',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
         properties: {
             loading: {
                 type: Boolean
@@ -55,6 +57,7 @@
             return loading ? 1 : 0;
         },
         start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
             let model = this.model;
             if (model.refreshEnabled) {
                 this.refreshInterval = setInterval(this.refresh.bind(this), Math.max(1, model.refreshFreq) * 1000);
@@ -63,6 +66,8 @@
             this.refresh();
         },
         stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
             clearInterval(this.refreshInterval);
             Object.keys(this.listeners).forEach((name) => {
                 this.listeners[name].forEach((callback) => {

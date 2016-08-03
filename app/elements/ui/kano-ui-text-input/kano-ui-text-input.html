@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../kano-style/typography.html">
 <link rel="import" href="../../kano-style/input.html">
 <dom-module id="kano-ui-text-input">
@@ -31,7 +32,14 @@
 
     Polymer({
         is: 'kano-ui-text-input',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+        },
         onKeyUp () {
             this.fire('input-keyup', this.value);
         },

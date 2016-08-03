@@ -18,6 +18,9 @@ const MODULES = {
 export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
+    connectToSocket () {
+        this.socket = io.connect(this.endpoint);
+    },
     config (c) {
         if (c.HOST) {
             let url = 'http://' + c.HOST;
@@ -28,7 +31,6 @@ export default HardwareAPI = {
         } else {
             this.endpoint = c.HARDWARE_API_URL;
         }
-
     },
     getPath (module, action) {
         return `${this.endpoint}/${MODULES[module]}/${ACTIONS[action]}`;
@@ -77,37 +79,16 @@ export default HardwareAPI = {
             return HardwareAPI.getPath('lightboard', action);
         },
         allOn (color) {
-            return HardwareAPI.request(HardwareAPI.light.getPath('allon'), {
-                method: 'POST',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                }),
-                body: JSON.stringify({ colour: color })
-            }).then(() => {});
+            HardwareAPI.socket.emit('lightboard:allon', { colour: color });
         },
         allOff () {
-            return HardwareAPI.request(HardwareAPI.light.getPath('alloff'), {
-                method: 'POST'
-            }).then(() => {});
+            HardwareAPI.socket.emit('lightboard:alloff');
         },
         singleOn (index, color) {
-            let path = HardwareAPI.light.getPath('on');
-            return HardwareAPI.request(`${path}/${index}`, {
-                method: 'POST',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                }),
-                body: JSON.stringify({ colour: color })
-            }).then(() => {});
+            HardwareAPI.socket.emit('lightboard:one-on', { colour: color, led_id: index });
         },
         on (bitmap) {
-            return HardwareAPI.request(HardwareAPI.light.getPath('on'), {
-                method: 'POST',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                }),
-                body: JSON.stringify({ pixels: bitmap })
-            }).then(() => {});
+            HardwareAPI.socket.emit('lightboard:on', { pixels: bitmap });
         }
     },
     camera: {
@@ -115,17 +96,12 @@ export default HardwareAPI = {
             return HardwareAPI.getPath('camera', action);
         },
         takePicture () {
-            return fetch(HardwareAPI.camera.getPath('takePicture'))
-                .then((res) => {
-                    if (!res.ok) {
-                        console.log("Failed to reach camera kit");
-                        return null;
-                    }
-
-                    return res.json();
-                }).then((data) => {
-                    return data.filename;
+            return new Promise((resolve, reject) => {
+                HardwareAPI.socket.once('camera:takepicture', (data) => {
+                    return resolve(data.filename);
                 });
+                HardwareAPI.socket.emit('camera:takepicture');
+            });
         },
         getPicture (filename) {
             return `${HardwareAPI.endpoint}/takenpics/${filename}`;

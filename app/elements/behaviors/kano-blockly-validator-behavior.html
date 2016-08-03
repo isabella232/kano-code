@@ -23,13 +23,15 @@
                 delete: 'delete',
                 'open-flyout': 'open-flyout',
                 'close-flyout': 'close-flyout',
+                'drop': 'drop-block'
             };
             this.blocklyValidators = {
                 'create': this.matchCreate.bind(this),
                 'connect': this.matchConnect.bind(this),
                 'value': this.matchBlocklyValue.bind(this),
                 'delete': this.matchDelete.bind(this),
-                'open-flyout': this.matchCategory.bind(this)
+                'open-flyout': this.matchCategory.bind(this),
+                'drop': this.matchDrop.bind(this)
             };
         },
         matchCategory (validation, event) {
@@ -64,7 +66,7 @@
         },
         matchDelete (validation, event) {
             let target = validation.target || validation,
-                blockId = this.blockIds[target];
+                blockId = this.getTargetBlock(target).id;
             if (blockId !== event.blockId) {
                 return;
             }
@@ -86,8 +88,8 @@
         matchConnect (validation, event) {
             // Extract the validation object, target and parent step ids and
             // the block moved
-            let targetId = this.blockIds[validation.target],
-                parentId = this.blockIds[validation.parent];
+            let targetId = this.getTargetBlock(validation.target).id,
+                parentId = this.getTargetBlock(validation.parent).id;
 
             // Check that the element moved is the one targeted and that its
             // new parent is the right one
@@ -95,8 +97,14 @@
                 return true;
             }
         },
+        matchDrop (validation, event) {
+            let targetId = this.getTargetBlock(validation.target).id,
+                block = event;
+            // Check that the element that changed is the one we target
+            return block.blockId === targetId;
+        },
         matchBlocklyValue (validation, event) {
-            let targetId = this.blockIds[validation.target],
+            let targetId = this.getTargetBlock(validation.target).id,
                 block = event,
                 failed = false;
             // Check that the element that changed is the one we target
@@ -121,6 +129,16 @@
                 }
                 return !failed;
             }
+        },
+        getTargetBlock (selector) {
+            let block;
+            if (typeof selector === 'string') {
+                block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector]);
+            } else if (selector.shadow) {
+                block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.id]);
+                block = block.getInput(selector.shadow).connection.targetBlock();
+            }
+            return block;
         },
         handleBlocklyChange (step, e) {
             // Store current step object

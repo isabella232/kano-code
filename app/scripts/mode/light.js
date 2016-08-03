@@ -3,7 +3,7 @@
 let light;
 
 export default light = {
-    id: 'light',
+    id: 'lightboard',
     name: 'Lightboard',
     colour: '#F8EB1E',
     excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',
@@ -39,7 +39,7 @@ export default light = {
             return (block) => {
                 let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('dropzone').turnOn(${target}, ${color});\n`;
+                    code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
         },
@@ -47,7 +47,7 @@ export default light = {
             return (block) => {
                 let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
                     color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '""',
-                    code = `devices.get('dropzone').turnOn(${target}, ${color});\n`;
+                    code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
         }
@@ -69,14 +69,14 @@ export default light = {
         javascript: (part) => {
             return (block) => {
                 let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    code = `devices.get('dropzone').turnOff(${target});\n`;
+                    code = `devices.get('${part.id}').turnOff(${target});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
-                    code = `devices.get('dropzone').turnOff(${target});\n`;
+                    code = `devices.get('${part.id}').turnOff(${target});\n`;
                 return code;
             };
         }
@@ -145,6 +145,47 @@ export default light = {
                     x: ${x},
                     y: ${y}
                 }`];
+            };
+        }
+    },{
+        block: () => {
+            return {
+                id: 'button_down',
+                message0: 'when button %1 is pressed',
+                inputsInline: true,
+                args0: [{
+                    type: "field_dropdown",
+                    name: "KEY",
+                    options: [
+                        ['up', 'js-up'],
+                        ['down', 'js-down'],
+                        ['left', 'js-left'],
+                        ['right', 'js-right'],
+                        ['A', 'btn-A'],
+                        ['B', 'btn-B']
+                    ]
+                }],
+                message1: '%1',
+                args1: [{
+                    type: 'input_statement',
+                    name: 'DO'
+                }],
+                previousStatement: true,
+                nextStatement: true,
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let key = block.getFieldValue('KEY'),
+                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let key = block.getFieldValue('KEY'),
+                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
+                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
             };
         }
     }]

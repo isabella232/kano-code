@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../ui/behaviors.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -14,20 +15,25 @@
 
         Polymer({
             is: 'kano-part-camera',
-            behaviors: [Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
             properties: {
                 lastPictureUrl: {
                     type: String,
-                    value: 'http://i.imgur.com/VyzbVFrr.jpg'
+                    value: ''
                 }
             },
-            attached () {
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
             },
             takePicture () {
-                Kano.MakeApps.Modules.camera.methods.takePicture()
+                Kano.AppModules.getModule('camera').takePicture()
                     .then((pictureUrl) => {
                         let filename = pictureUrl.split('/').pop();
-                        this.lastPictureUrl = Kano.MakeApps.Modules.camera.methods.getPicture(filename);
+                        this.lastPictureUrl = Kano.AppModules.getModule('camera').getPicture(filename);
                         this.fire('picture-taken', this.lastPictureUrl);
                     });
             },

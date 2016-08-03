@@ -1,5 +1,7 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-style/background.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 
 <dom-module id="kano-ui-image">
     <style>
@@ -26,7 +28,14 @@
 
     Polymer({
         is: 'kano-ui-image',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+        },
         observers: [
             'loadedChanged(loaded)'
         ],

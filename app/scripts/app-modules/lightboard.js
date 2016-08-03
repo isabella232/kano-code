@@ -3,13 +3,22 @@ import HardwareAPI from './service/hardware-api';
 let lightboard;
 
 export default lightboard = {
-    backgroundColor: '#333333',
+    backgroundColor: '#000000',
     lights: new Array(128),
     shapes: {},
     debounceId: null,
     bitmap: new Array(128),
     getIndex (x, y) {
-        return 16 * parseInt(y) + parseInt(x);
+        return lightboard.coordToIndex(x, y, 16);
+    },
+    coordToIndex (x, y, width) {
+        return width * parseInt(y) + parseInt(x);
+    },
+    indexToCoord (index, width) {
+        return {
+            x: index % width,
+            y: Math.floor(index / width)
+        };
     },
     updateBitmap () {
         let shape,
@@ -24,15 +33,28 @@ export default lightboard = {
                     }
                 }
             } else if (shape.type === 'circle') {
-                let distance;
+                let distance,
+                    index;
                 for (let x = -shape.radius; x <= shape.radius; x++) {
                     for (let y = -shape.radius; y <= shape.radius; y++) {
                         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-                        if (shape.radius >= distance) {
-                            shapesBitmap[lightboard.getIndex(shape.x + x, shape.y + y)] = shape.color;
+                        if (shape.radius >= distance &&
+                            shape.x + x <= 15 &&
+                            shape.x + x >= 0 &&
+                            shape.y + y >= 0 &&
+                            shape.y + y <= 7) {
+                            index = lightboard.getIndex(shape.x + x, shape.y + y);
+                            shapesBitmap[index] = shape.color;
                         }
                     }
                 }
+            } else if (shape.type === 'frame') {
+                shape.bitmap.forEach((color, index) => {
+                    let coord = lightboard.indexToCoord(index, shape.width);
+                    coord.x += shape.x;
+                    coord.y += shape.y;
+                    shapesBitmap[lightboard.getIndex(coord.x, coord.y)] = color;
+                });
             }
         });
         for (let i = 0; i < 128; i++) {
@@ -51,6 +73,18 @@ export default lightboard = {
         lightboard.debounceId = setTimeout(lightboard.drawLights, 1);
     },
     methods: {
+        connect (info) {
+            HardwareAPI.connectToSocket();
+            HardwareAPI.socket.on('connect', () => {
+                HardwareAPI.socket.emit('lightboard:init', info);
+            });
+        },
+        on () {
+            HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+        },
+        removeListener () {
+            HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
+        },
         updateOrCreateShape (id, shape) {
             lightboard.shapes[id] = shape;
             lightboard.updateBitmap();

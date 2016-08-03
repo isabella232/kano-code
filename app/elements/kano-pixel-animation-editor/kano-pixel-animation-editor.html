@@ -69,6 +69,9 @@
                     },
                     notify: true
                 },
+                bitmap: {
+                    type: Object
+                },
                 width: {
                     type: Number,
                     value: 1
@@ -77,6 +80,30 @@
                     type: Number,
                     value: 1
                 }
+            },
+            observers: [
+                '_bitmapChanged(bitmap, width, height)',
+                '_bitmapsChanged(bitmaps.splices)'
+            ],
+            _generateEmptyBitmap (name, width, height, color='#000000') {
+                let length = width * height;
+                for (let i = 0; i < length; i++) {
+                    this.push(name, color);
+                }
+            },
+            _bitmapChanged () {
+                if (!this.bitmap) {
+                    return;
+                }
+                if (this.bitmap.length === 0) {
+                    this._generateEmptyBitmap('bitmap', this.width, this.height);
+                }
+            },
+            _bitmapsChanged () {
+                if (this.bitmaps.length === 0) {
+                    this.set('bitmaps', [[]]);
+                }
+                this.$.selector.select(this.bitmaps[0]);
             },
             _addFrame () {
                 let copy;
@@ -95,7 +122,6 @@
                 this.$.selector.select(e.model.get('bm'));
             },
             _isFrameSelectedClass (bm, selected) {
-                console.log(selected);
                 return this.$.selector.isSelected(bm) ? 'selected' : '';
             }
         });

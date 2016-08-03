@@ -1,5 +1,10 @@
 <dom-module id="kano-app-list">
     <style>
+        :host {
+            min-height: 300px;
+            display: block;
+            @apply(--layout-vertical);
+        }
         :host a:hover,
         :host a:visited,
         :host a:link,
@@ -8,6 +13,7 @@
             color: #4B4B4B;
         }
         :host .app-list {
+            @apply(--layout-flex);
             @apply(--layout-horizontal);
             @apply(--layout-wrap);
             @apply(--layout-center);
@@ -16,30 +22,38 @@
             justify-content: initial;
             align-items: initial;
         }
+        iron-pages {
+            @apply(--layout-flex);
+            @apply(--layout-horizontal);
+        }
+        iron-pages>* {
+            @apply(--layout-flex);
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-center);
+            @apply(--layout-around-justified);
+        }
         :host .block {
-            width: 100%;
+            width: 250px;
             @apply(--layout-vertical);
             @apply(--layout-center);
             margin-bottom: 20px;
             z-index: 0;
         }
-        @media screen and (min-width: 768px) {
-            .block {
-                width: 50%;
-            }
-        }
-        @media screen and (min-width: 1270px) {
-            .block {
-                width: 25%;
-            }
-        }
-        :host .app-list-item {
+        .app-list-item {
             display: inline-block;
             @apply(--layout-vertical);
             @apply(--layout-center);
             border-radius: 4px;
             overflow: hidden;
             @apply(--shadow-elevation-2dp);
+        }
+        .app-list-item>* {
+            pointer-events: none;
+        }
+        .app-list-item:focus {
+            outline: none;
+            @apply(--shadow-elevation-8dp);
         }
         :host .app-list-item:hover {
             cursor: pointer;
@@ -66,26 +80,56 @@
             justify-content: center;
             font-size: 36px;
         }
+        .message {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 20px;
+            white-space: nowrap;
+        }
+        *[hidden] {
+            display: none !important;
+        }
+        .block.default {
+            margin-left: 2.5%;
+        }
     </style>
     <template>
     <div class="app-list">
-        <template is="dom-if" if="{{isMyApps}}">
-            <div class="block">
-                <a id="new-app" class="app-list-item new-app" href="/make">
-                    + New App
-                </a>
+        <div class="block default" hidden$="[[_isDefaultBlockHidden(loadingState)]]">
+            <a id="new-app" class="app-list-item new-app" href="/make">
+                + New App
+            </a>
+        </div>
+        <iron-pages selected="[[loadingState]]" attr-for-selected="name">
+            <div name="loading" class="message">
+                <p>Loading apps...</p>
             </div>
-        </template>
-        <template is="dom-repeat" items="{{apps}}" as="app">
-            <div class="block">
-                <a class="app-list-item" href$="[[getAppUrl(app)]]">
-                    <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
-                    <div class="info">
-                        <div class="app-name">{{app.title}}</div>
+            <div name="empty" class="message">
+                <p>No apps...for the moment</p>
+            </div>
+            <div name="not-authenticated" class="message">
+                <p>Log in to see your apps</p>
+            </div>
+            <div name="failed" class="message">
+                <p>Couldn't load apps :(</p>
+            </div>
+            <div name="loaded" id="apps">
+                <div class="block" hidden$="[[!_isMyApps(view)]]">
+                    <a id="new-app" class="app-list-item new-app" href="/make">
+                        + New App
+                    </a>
+                </div>
+                <template is="dom-repeat" items="{{apps}}" as="app" on-dom-change="_updateAnimation">
+                    <div class="block">
+                        <a class="app-list-item" href$="[[getAppUrl(app)]]">
+                            <iron-image src="{{app.cover_url}}" sizing="cover" class="app-list-item-image" preload fade></iron-image>
+                            <div class="info">
+                                <div class="app-name">{{app.title}}</div>
+                            </div>
+                        </a>
                     </div>
-                </a>
+                </template>
             </div>
-        </template>
+        </iron-pages>
     </div>
     </template>
 </dom-module>
@@ -95,28 +139,75 @@
 
     Polymer({
         is: 'kano-app-list',
+        behaviors: [
+            Polymer.NeonAnimationRunnerBehavior,
+            Polymer.NeonSharedElementAnimatableBehavior
+        ],
         properties: {
             limit: {
                 type: Number,
                 value: 48
             },
             view: {
-                type: String
-            },
-            viewFlags: {
-                type: Object
+                type: String,
+                value: 'community'
             },
             apps: {
                 type: Array
+            },
+            loading: {
+                type: Boolean,
+                value: false
+            },
+            failed: {
+                type: Boolean,
+                value: false
             },
             appBaseUrl: {
                 type: String
             }
         },
-        attached () {
-            if (this.view === 'my') {
-                this.isMyApps = true;
+        observers: [
+            '_loadingStateChanged(loading)',
+            '_loadingStateChanged(failed)',
+            '_loadingStateChanged(apps)',
+            '_loadingStateChanged(view)'
+        ],
+        _isDefaultBlockHidden () {
+            return this.loadingState === 'loaded' || !this._isMyApps(this.view);
+        },
+        _isMyApps (view) {
+            return view === 'my';
+        },
+        _loadingStateChanged () {
+            let state;
+            if (this.loading) {
+                state = 'loading';
+            } else if (this.failed) {
+                state = 'failed';
+            } else if (this.apps && this.apps.length) {
+                state = 'loaded';
+            } else if (this.view !== 'my') {
+                state = 'empty';
+            } else {
+                state = 'not-authenticated';
             }
+            this.set('loadingState', state);
+        },
+        _updateAnimation () {
+            let nodes = Polymer.dom(this.root).querySelectorAll('#apps .block');
+            this.animationConfig = {
+                entry: [{
+                    name: 'cascaded-animation',
+                    animation: 'slide-from-bottom-animation',
+                    nodes
+                },{
+                    name: 'cascaded-animation',
+                    animation: 'fade-in-animation',
+                    nodes
+                }]
+            };
+            this.playAnimation('entry');
         },
         getAppUrl (app) {
             return this.appBaseUrl + "/" + app.id;

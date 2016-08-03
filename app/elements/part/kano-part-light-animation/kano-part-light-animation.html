@@ -1,4 +1,4 @@
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../kano-light-shape-behavior.html">
 <dom-module id="kano-part-light-animation">
     <style>
     :host {
@@ -20,7 +20,7 @@
 
         Polymer({
             is: 'kano-part-light-animation',
-            behaviors: [Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.Behaviors.LightShapeBehavior],
             observers: [
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
@@ -33,37 +33,6 @@
                         i = 0;
                     }
                 }, 500);
-            },
-            applyTransform () {
-                if (!this.model) {
-                    return;
-                }
-                let position = this.model.position || { x: 0, y: 0 },
-                    x = Math.min(Math.max(7, 7 + 28 * Math.floor(position.x / 28)), 7 + (16 - this.model.userProperties.width) * 28),
-                    y = Math.min(Math.max(6, 6 + 28 * Math.floor(position.y / 28)), 6 + (8 - this.model.userProperties.height) * 28),
-                    transform;
-
-                transform = `translate(${x}px, ${y}px)`;
-                this.style.webkitTransform = this.style.transform = transform;
-            },
-            move (x, y) {
-                x *= 28;
-                y *= 28;
-                Kano.Behaviors.UIBehavior.move.call(this, x, y);
-            },
-            setX (x) {
-                x *= 28;
-                Kano.Behaviors.UIBehavior.setX.call(this, x);
-            },
-            setY (y) {
-                y *= 28;
-                Kano.Behaviors.UIBehavior.setY.call(this, y);
-            },
-            getX () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / 28);
-            },
-            getY () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / 28);
             },
             _sizeChanged () {
                 let newBitmaps = [],

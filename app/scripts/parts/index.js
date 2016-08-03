@@ -16,13 +16,15 @@ import Image from './image';
 import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
 import Microphone from './microphone';
-import LightRectangle from './light-rectangle';
-import LightCircle from './light-circle';
+import LightRectangle from './lightboard/light-rectangle';
+import LightCircle from './lightboard/light-circle';
 import LightFrame from './lightboard/light-frame';
 import LightAnimation from './lightboard/light-animation';
 import PictureList from './picture-list';
 import Canvas from './canvas/canvas';
 import Clock from './clock';
+import Kaleidoscope from './kaleidoscope';
+import Slider from './slider';
 
 let Parts,
     partTypes;
@@ -37,7 +39,7 @@ module.exports = Parts = {
            Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation],
-        'camera': [PictureList],
+        'camera': [PictureList, Kaleidoscope, Slider],
         'canvas': [Canvas]
     },
     create (model, size) {

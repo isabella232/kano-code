@@ -1,0 +1,130 @@
+<link rel="import" href="../../ui/behaviors.html">
+
+<dom-module id="kano-part-kaleidoscope">
+    <style>
+    :host {
+        display: inline-block;
+    }
+    canvas {
+        border: 1px solid lightgrey;
+    }
+    canvas[running] {
+        border-color: transparent;
+    }
+    </style>
+    <template>
+        <canvas id="canvas" style$="[[_computeCanvasStyle(model.userStyle.width, model.userStyle.height)]]" running$="[[isRunning]]"></canvas>
+    </template>
+</dom-module>
+
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-part-kaleidoscope',
+        behaviors: [Kano.Behaviors.UIBehavior],
+        ready () {
+            this.ctx = this.$.canvas.getContext('2d');
+            this.prevSize = {};
+            this.resetSession();
+            this.offsetScale = 1;
+            this.offsetX = 0;
+            this.offsetY = 0;
+        },
+        _computeCanvasStyle () {
+            let style;
+            this._updateCanvasSize();
+            style = this.getPartialStyle(['width', 'height']);
+            return style;
+        },
+        _updateCanvasSize () {
+            if (!this.model) {
+                return;
+            }
+            if (this.prevSize.width !== this.model.userStyle.width || this.prevSize.height !== this.model.userStyle.height) {
+                this.$.canvas.setAttribute('width', parseInt(this.model.userStyle.width));
+                this.$.canvas.setAttribute('height', parseInt(this.model.userStyle.height));
+                this.prevSize.width = this.model.userStyle.width;
+                this.prevSize.height = this.model.userStyle.height;
+            }
+        },
+        resetSession () {
+            this.offsetX = 0;
+            this.offsetY = 0;
+            if (!this.model) {
+                return;
+            }
+            this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
+        },
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            this.resetSession();
+            this._updateRender();
+        },
+        renderOnCanvas (ctx, util, scaleFactor) {
+            let image = new Image();
+            // Images may come from other origins, and taint the canvas
+            try {
+                image.src = this.$.canvas.toDataURL();
+                ctx.drawImage(image, 0, 0);
+            } catch (e) {}
+            return Promise.resolve();
+        },
+        setSource (src) {
+            this.src = src;
+            this.image = new Image();
+            this.image.src = this.src;
+        },
+        setSpeed (speed) {
+            this.model.userProperties.speed = speed;
+        },
+        setOffsetRotation (offset) {
+            this.model.userProperties.offsetRotation = offset;
+        },
+        setSlices (slices) {
+            this.model.userProperties.slices = slices;
+        },
+        setZoom (zoom) {
+            this.model.userProperties.zoom = zoom;
+        },
+        _updateRender () {
+            if (this.isRunning && this.image) {
+                let step = 2 * Math.PI / this.model.userProperties.slices,
+                    radius = Math.min(this.$.canvas.width, this.$.canvas.height) / 2,
+                    scale = this.model.userProperties.zoom * (radius / Math.min(this.image.naturalWidth, this.image.naturalHeight)),
+                    cx = this.image.naturalWidth / 2,
+                    centerX = this.$.canvas.width / 2 - radius,
+                    centerY = this.$.canvas.height / 2 - radius;
+                this.offsetX -= this.model.userProperties.speed;
+                this.offsetY -= this.model.userProperties.speed;
+                this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
+                for (let i = 0; i < this.model.userProperties.slices; i++) {
+                    this.ctx.save();
+                    this.ctx.translate(radius, radius);
+                    this.ctx.translate(centerX, centerY);
+                    this.ctx.rotate(i * step);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(-0.5, -0.5);
+                    this.ctx.arc(0, 0, radius, step * -0.51, step * 0.51);
+                    this.ctx.lineTo(0.5, 0.5);
+                    this.ctx.closePath();
+
+                    this.ctx.rotate(Math.PI / 2);
+                    this.ctx.scale(scale, scale);
+                    this.ctx.scale([-1,1][i % 2], 1);
+                    this.ctx.translate(this.offsetX - cx, this.offsetY);
+                    this.ctx.rotate(this.model.userProperties.offsetRotation / 180 * Math.PI);
+                    this.ctx.scale(this.offsetScale, this.offsetScale);
+
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+            }
+            cancelAnimationFrame(this.frameId);
+            this.frameId = requestAnimationFrame(this._updateRender.bind(this));
+        },
+        getProperty (property) {
+            return this.get(`model.userProperties.${property}`);
+        }
+    });
+</script>

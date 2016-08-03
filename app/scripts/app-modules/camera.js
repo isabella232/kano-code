@@ -4,6 +4,18 @@ let camera;
 
 export default camera = {
     methods: {
+        connect (info) {
+            HardwareAPI.connectToSocket();
+            HardwareAPI.socket.on('connect', () => {
+                HardwareAPI.socket.emit('camera:init', info);
+            });
+        },
+        on () {
+            HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+        },
+        removeListener () {
+            HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
+        },
         takePicture () {
             return HardwareAPI.camera.takePicture();
         },

@@ -146,8 +146,7 @@
             'backgroundChanged(background)'
         ],
         listeners: {
-            'part-tapped': 'onPartTapped',
-            'update-mode': '_updateMode'
+            'part-tapped': 'onPartTapped'
         },
         ready () {
             this.elements = {};
@@ -163,7 +162,7 @@
             this.devices.get = this._getPartById.bind(this);
         },
         _getPartById (id) {
-            if (id === 'dropzone') {
+            if (id === this.dropzone.getAttribute('id')) {
                 return this.dropzone;
             }
             return this.dropzone.querySelector(`#${id}`);
@@ -185,7 +184,7 @@
                 newDropzone = document.createElement('kano-workspace-normal');
             }
 
-            newDropzone.setAttribute('id', 'dropzone');
+            newDropzone.setAttribute('id', this.mode.id);
             newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
             newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
 
@@ -446,7 +445,7 @@
             canvas.height = this.mode.workspace.viewport.height;
 
             //setting background color
-            ctx.fillStyle = this.background;
+            ctx.fillStyle = this.dropzone.getBackgroundColor();
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             promise = this.renderOnCanvas(ctx, util, scaleFactor);
             this.parts.forEach((part) => {
@@ -541,11 +540,6 @@
                 ctx.stroke();
             }
 
-        },
-        _updateMode (e) {
-            if (this.modeComponent) {
-                this.modeComponent.update(e.detail);
-            }
         }
     });
 </script>

@@ -195,7 +195,7 @@ Polymer({
         savedApp.parts = savedParts;
         savedApp.code = this.code;
         savedApp.background = this.background;
-        savedApp.mode = this.mode;
+        savedApp.mode = this.mode.id;
         if (snapshot) {
             savedApp.snapshot = true;
             savedApp.selectedPart = this.addedParts.indexOf(this.selected);
@@ -463,20 +463,11 @@ Polymer({
         if (element.instance) {
             return ;
         }
-        interact(element).draggable({
-            onmove: this.getDragMoveListener(true),
-            onend: (e) => {
-                let model = e.target.model;
-                this.fire('change', {
-                    type: 'move-part',
-                    part: model
-                });
-            },
-            restrict: {
-                restriction: this.$['left-panel'],
-                elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-            }
-        });
+        if (!this.draggables) {
+            this.draggables = [];
+        }
+        this.draggables.push(element);
+        this._enableDrag(element);
     },
     getDragMoveListener (scale=false) {
         return (event) => {
@@ -486,11 +477,6 @@ Polymer({
                     x: event.dx,
                     y: event.dy
                 };
-
-            // Do not move when running
-            if (this.running) {
-                return;
-            }
 
             if (scale) {
                 delta = this.scaleToWorkspace(delta);
@@ -531,11 +517,51 @@ Polymer({
         // Removes the elevate class only after the animation
         if (!this.running) {
             setTimeout(toggleElevate, 500);
+            this._enableDrag();
         } else {
             toggleElevate();
+            // Disable drag when starts
+            this._disableDrag();
         }
     },
-
+    _cleanDraggables () {
+        if (!this.draggables) {
+            this.draggables = [];
+        }
+        // If a part is removed, the element will disappear from the array
+        this.draggables = this.draggables.filter((d) => !!d);
+    },
+    _disableDrag () {
+        this._cleanDraggables();
+        this.draggables.forEach((draggable) => {
+            interact(draggable).draggable(false);
+        });
+    },
+    _enableDrag (el) {
+        let draggables;
+        this._cleanDraggables();
+        if (el) {
+            draggables = [el];
+        } else {
+            draggables = this.draggables;
+        }
+        draggables.forEach((draggable) => {
+            interact(draggable).draggable({
+                onmove: this.getDragMoveListener(true),
+                onend: (e) => {
+                    let model = e.target.model;
+                    this.fire('change', {
+                        type: 'move-part',
+                        part: model
+                    });
+                },
+                restrict: {
+                    restriction: this.$['left-panel'],
+                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+                }
+            });
+        });
+    },
     trapEvent (e) {
         e.preventDefault();
         e.stopPropagation();

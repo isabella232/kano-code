@@ -1,3 +1,4 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../kano-style/typography.html">
 <dom-module id='kano-ui-text'>
     <style>
@@ -19,7 +20,14 @@
 
     Polymer({
         is: 'kano-ui-text',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        start () {
+            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+        },
+        stop () {
+            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+        },
         computeLabelStyle () {
             return this.getPartialStyle(['font-size', 'color', 'font-family']);
         },

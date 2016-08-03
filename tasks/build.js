@@ -21,7 +21,7 @@ module.exports = (gulp, $) => {
 
     // For a build with cordova, add this to html replace
     // <meta http-equiv="Content-Security-Policy" content="media-src *">
-    gulp.task('js', ['babel', 'app', 'polyfill'], () => {
+    gulp.task('js', ['babel', 'app', 'polyfill', 'scripts'], () => {
         return gulp.src('./.tmp/app/elements/elements.html')
             .pipe($.utils.vulcanize({
                 inlineScripts: true,
@@ -32,7 +32,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/elements'));
     });
 
-    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api'], () => {
+    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api', 'scripts'], () => {
         return getImports('./app/elements/elements.html').then((common) => {
             return new Promise((resolve, reject) => {
                 gulp.src(['.tmp/app/elements/*-bundle.html', '!.tmp/app/elements/story-bundle.html'])
@@ -50,7 +50,14 @@ module.exports = (gulp, $) => {
         }).catch($.utils.notifyError);
     });
 
-    gulp.task('story-bundle', ['bundles'], () => {
+    // Processes scripts that don't need any browserification
+    gulp.task('scripts', () => {
+        gulp.src('app/scripts/kano/**/*.js', { base: 'app' })
+            .pipe($.babel({ presets: ['es2015'] }))
+            .pipe(gulp.dest('.tmp/app'));
+    });
+
+    gulp.task('story-bundle', ['bundles', 'scripts'], () => {
         return Promise.all([getImports('./app/elements/elements.html'), getImports('./app/elements/editor-bundle.html')])
             .then((commons) => {
                 return commons.reduce((acc, common) => {
@@ -90,7 +97,6 @@ module.exports = (gulp, $) => {
                 'app/assets/vendor/google-blockly/msg/js/en.js',
                 'app/scripts/util/dom.js',
                 'app/scripts/util/client.js',
-                'app/scripts/util/tracking.js',
                 'app/scripts/util/router.js'
             ], { base: 'app'})
             .pipe(gulp.dest('.tmp/app'));
@@ -127,7 +133,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/views'));
     });
 
-    gulp.task('scenes', ['copy'], () => {
+    gulp.task('scenes', ['copy', 'scripts'], () => {
         // The core elements and the elements already present in the view are removed
         return Promise.all([getImports('./app/elements/elements.html'), getImports('./app/views/kano-view-story/kano-view-story.html')])
             .then((commons) => {

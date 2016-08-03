@@ -2,7 +2,7 @@ let lightFrame;
 
 export default lightFrame = {
     partType: 'ui',
-    type: 'light-frame',
+    type: 'lightframe',
     label: 'Light frame',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',

@@ -119,6 +119,7 @@ gulp.task('serve', () => {
             middleware: [$.historyApiFallback()]
         },
         port: 4000,
+        open: false,
         ghostMode: {
             clicks: true,
             forms: true,

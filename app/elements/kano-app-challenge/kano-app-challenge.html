@@ -1,8 +1,8 @@
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
-<link rel="import" href="../kano-focus-on/kano-focus-on.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
 <link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
+<link rel="import" href="../kano-highlight/kano-highlight.html">
 <link rel="import" href="../behaviors/kano-validator-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
 <dom-module id="kano-app-challenge">
@@ -92,8 +92,8 @@
     </style>
     <template>
         <content select=".editor" id="content"></content>
-        <kano-focus-on id="focus" breathe></kano-focus-on>
-        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" id="arrow">
+        <kano-highlight id="highlight" x="[[highlight.x]]" y="[[highlight.y]]" width="[[highlight.width]]" height="[[highlight.height]]"></kano-highlight>
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
@@ -165,7 +165,7 @@
                 this.set('tooltips', []);
                 this.$.arrow.hide();
                 this.set('arrow', {});
-                this.focus.hide();
+                this.$.highlight.hide();
                 this.modal.close();
 
                 if (this.editor.running) {
@@ -198,8 +198,8 @@
             };
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
-            this.focus = this.$.focus;
             this.modal = this.$.modal;
+            this.highlight = {};
         },
         attached () {
             this.isAttached = true;
@@ -238,19 +238,21 @@
                 this.set('arrow', {});
                 return;
             }
-            source = this.getDeepElement(step.arrow.source);
+            if (step.arrow.source) {
+                source = this.getDeepElement(step.arrow.source);
+                source = source.getBoundingClientRect();
+            }
             target = this.getDeepElement(step.arrow.target);
-            source = source.getBoundingClientRect();
             target = target.getBoundingClientRect();
             this.set('arrow', {
                 source,
                 target,
-                size: step.arrow.size || 70
+                size: step.arrow.size || 70,
+                angle: step.arrow.angle || 0
             });
         },
         stepChanged () {
-            let step,
-                focusString;
+            let step;
             // Prevent the loading of the saved app before the store is initialized
             if (!this.isAttached) {
                 this.addEventListener('attached', this.stepChanged.bind(this));
@@ -280,16 +282,6 @@
                 if (step.save_to_storage) {
                     this.fire('save-to-storage');
                 }
-                if (step.focus) {
-                    focusString = JSON.stringify(step.focus);
-                    if (focusString !== this.previousFocus) {
-                        this.focus.hide();
-                        this.deepFocus(step.focus);
-                        this.previousFocus = JSON.stringify(step.focus);
-                    }
-                } else {
-                    this.focus.hide();
-                }
                 this.modal.close();
                 if (step.modal) {
                     step.modal.text = this._processMarkdown(step.modal.text);
@@ -298,17 +290,35 @@
                 this.set('currentStep', this.currentStep + 1);
                 this.computeTooltips(step);
                 this.computeArrow(step);
+                this.computeHighlight(step);
             }, 10);
+        },
+        computeHighlight (step) {
+            if (step.highlight) {
+                let highlightString = JSON.stringify(step.highlight);
+                if (highlightString !== this.previousHighlight) {
+                    this.$.highlight.hide();
+                    this.debounce('highlight', () => {
+                        this.deepFocus(step.highlight);
+                        this.$.highlight.show();
+                    }, 200);
+                    this.previousHighlight = JSON.stringify(step.highlight);
+                }
+            } else {
+                this.$.highlight.hide();
+            }
         },
         getDeepElement (selector) {
             let pieces,
                 element = this.editor,
                 partId,
                 piece,
-                found;
+                found,
+                block;
             if (typeof selector == 'object') {
                 if (selector.block) {
-                    return this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.block]).svgPath_;
+                    block = this.getTargetBlock(selector.block);
+                    return block.getSvgRoot();
                 } else if (selector.category) {
                     let cat = selector.category;
                     if (cat.part) {
@@ -343,10 +353,13 @@
             return element;
         },
         deepFocus (selector) {
-            let targets;
-            targets = Array.isArray(selector) ? selector : [selector];
-            targets = targets.map(this.getDeepElement.bind(this));
-            this.focus.show(targets);
+            let target = this.getDeepElement(selector);
+            target = target.getBoundingClientRect();
+            this.set('highlight.x', target.left);
+            this.set('highlight.y', target.top);
+            this.set('highlight.width', target.width);
+            this.set('highlight.height', target.height);
+            this.$.highlight.show();
         },
         isNextHidden () {
             let currentStep;

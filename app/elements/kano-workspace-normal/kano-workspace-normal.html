@@ -1,3 +1,4 @@
+<link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <dom-module id="kano-workspace-normal">
     <style>
         :host {
@@ -57,6 +58,7 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-normal',
+            behaviors: [Kano.Behaviors.WorkspaceBehavior],
             properties: {
                 width: Number,
                 height: Number,
@@ -70,6 +72,9 @@
             setBackgroundColor (color) {
                 this.style.background = color;
             },
+            getBackgroundColor () {
+                return this.style.background;
+            },
             start () {
                 this.reset();
             },
@@ -82,7 +87,7 @@
                 });
             },
             renderOnCanvas (ctx, util, scaleFactor) {
-                var image = new Image();
+                let image = new Image();
                 image.src = this.$.canvas.toDataURL();
                 ctx.drawImage(image, 0, 0);
                 return Promise.resolve();
