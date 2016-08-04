@@ -4,6 +4,7 @@ import control from './control';
 import variables from './variables';
 import events from './events';
 import fun from './fun';
+import misc from './misc';
 
 let modules = {
         control,
@@ -16,7 +17,8 @@ let modules = {
         return acc;
     }, {}),
     experiments = {
-        fun: [fun]
+        fun: [fun],
+        misc: [misc]
     },
     available = Object.keys(modules)
         .filter(key => modules[key].experiments)
@@ -43,6 +45,7 @@ let registered = false,
         variables.register(Blockly);
         events.register(Blockly);
         fun.register(Blockly);
+        misc.register(Blockly);
         registered = true;
     },
     init = (c) => {
