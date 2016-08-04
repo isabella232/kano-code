@@ -24,8 +24,6 @@ export default lightboard = {
         // Debounce the call to hit a max of 30 calls per sec
         return lightboard.requestLightboardFrame(1000 / 30)
             .then(_ => {
-                console.timeEnd('send to server');
-                console.time('send to server');
                 let shape,
                     shapesBitmap = new Array(128);
                 // Generate a bitmap combining background color, shapes and lights
