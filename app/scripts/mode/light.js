@@ -150,6 +150,108 @@ export default light = {
     },{
         block: () => {
             return {
+                id: 'light_show_text',
+                message0: 'Lights: show text %1 color %2 background %3',
+                args0: [{
+                    type: "input_value",
+                    name: "TEXT",
+                    check: 'String'
+                },{
+                    type: "input_value",
+                    name: "COLOR",
+                    check: "Colour",
+                    align: "RIGHT"
+                },{
+                    type: "input_value",
+                    name: "BACKGROUND_COLOR",
+                    check: "Colour",
+                    align: "RIGHT"
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null,
+                shadow: {
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                }
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
+                    backgroundColor = Blockly.JavaScript.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
+                    code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '',
+                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
+                    backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
+                    code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
+                return code;
+            };
+        }
+    },{
+        block: () => {
+            return {
+                id: 'light_scroll_text',
+                message0: 'Lights: scroll text %1 color %2 background %3 speed %4',
+                args0: [{
+                    type: "input_value",
+                    name: "TEXT",
+                    check: 'String'
+                },{
+                    type: "input_value",
+                    name: "COLOR",
+                    check: "Colour",
+                    align: "RIGHT"
+                },{
+                    type: "input_value",
+                    name: "BACKGROUND_COLOR",
+                    check: "Colour",
+                    align: "RIGHT"
+                },{
+                    type: "input_value",
+                    name: "SPEED",
+                    check: "Number",
+                    align: "RIGHT"
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null,
+                shadow: {
+                    'SPEED': '<shadow type="math_number"><field name="NUM">50</field></shadow>',
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                }
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
+                    backgroundColor = Blockly.JavaScript.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
+                    speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || '50',
+                    code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '',
+                    color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
+                    backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
+                    speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || '50',
+                    code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
+                return code;
+            };
+        }
+    },{
+        block: () => {
+            return {
                 id: 'button_down',
                 message0: 'when button %1 is pressed',
                 inputsInline: true,

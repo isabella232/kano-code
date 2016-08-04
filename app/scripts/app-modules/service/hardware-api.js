@@ -79,16 +79,24 @@ export default HardwareAPI = {
             return HardwareAPI.getPath('lightboard', action);
         },
         allOn (color) {
-            HardwareAPI.socket.emit('lightboard:allon', { colour: color });
+            HardwareAPI.socket.emit('lightboard:allon', { color });
         },
         allOff () {
             HardwareAPI.socket.emit('lightboard:alloff');
         },
         singleOn (index, color) {
-            HardwareAPI.socket.emit('lightboard:one-on', { colour: color, led_id: index });
+            HardwareAPI.socket.emit('lightboard:one-on', { color, led_id: index });
         },
         on (bitmap) {
             HardwareAPI.socket.emit('lightboard:on', { pixels: bitmap });
+        },
+        text (data) {
+            // Change key names to UK spelling for the Kano 2 server
+            HardwareAPI.socket.emit('lightboard:text', data);
+        },
+        scroll (data) {
+            // Change key names to UK spelling for the Kano 2 server
+            HardwareAPI.socket.emit('lightboard:scroll-text', data);
         }
     },
     camera: {
