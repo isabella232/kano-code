@@ -20,6 +20,7 @@ import LightRectangle from './lightboard/light-rectangle';
 import LightCircle from './lightboard/light-circle';
 import LightFrame from './lightboard/light-frame';
 import LightAnimation from './lightboard/light-animation';
+import LightAnimationDisplay from './lightboard/light-animation-display';
 import PictureList from './picture-list';
 import Canvas from './canvas/canvas';
 import Clock from './clock';
@@ -38,7 +39,7 @@ module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
            Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock],
     experiments: {
-        'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation],
+        'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation, LightAnimationDisplay],
         'camera': [PictureList, Kaleidoscope, Slider],
         'canvas': [Canvas]
     },
