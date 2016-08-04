@@ -10,45 +10,60 @@
     .content {
         min-width: 465px;
         @apply(--layout-vertical);
-        @apply(--layout-center);
+        @apply(--layout-start);
     }
-    .pixel {
-        width: 22px;
-        height: 22px;
-        margin: 3px;
-    }
-    .canvas {
-        @apply(--layout-horizontal);
-        @apply(--layout-wrap);
-        padding: 10px;
-        background-color: #444;
-        border-radius: 4px;
-        box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.05);
-        border: solid 1px #ececec;
-        box-sizing: border-box;
-    }
-    .pen {
-        width: 26px;
-        height: 26px;
-        margin-right: 5px;
+    .preview kano-bitmap-renderer {
+        border-radius: 5px;
     }
     .frame-list {
         @apply(--layout-flex);
         @apply(--layout-horizontal);
         @apply(--layout-center);
+        padding-left: 4px;
         overflow-x: auto;
     }
     .frames {
         @apply(--layout-horizontal);
         margin: 16px 0px 16px;
-        max-width: 100%;
+        width: calc(100% - 15px);
+        border-radius: 3px;
+        background-color: #e6e6e6;
+        border: solid 1px #7e7e7e;
+        padding-left: 5px;
     }
     .frames kano-bitmap-renderer {
+        cursor: pointer;
         border: 1px solid transparent;
+        margin: 11px 2px;
+        border-radius: 3px;
         padding: 2px;
+        --kano-bitmap-renderer-canvas: {
+            border-radius: 3px;
+        };
     }
     .frames kano-bitmap-renderer.selected {
-        border-color: blue;
+        border-color: var(--color-orange);
+    }
+    .frame-rate-label>span {
+        font-weight: bold;
+    }
+    .controls {
+        @apply(--layout-vertical);
+    }
+    .add-frame {
+        background: transparent;
+        border: 0px;
+        line-height: 34px;
+        font-family: Bariol;
+        font-weight: bold;
+        font-size: 32px;
+        padding: 0px 20px;
+        /* Recenter the font in the button */
+        margin-bottom: 12px;
+    }
+    .add-frame:focus {
+        outline: none;
+        color: var(--color-orange);
     }
     </style>
     <template>
@@ -57,17 +72,17 @@
             <div class="preview">
                 <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="24" bitmap="[[preview]]"></kano-bitmap-renderer>
                 <div class="controls">
-                    <label for="speed">Speed</label>
+                    <label for="speed" class="frame-rate-label">Frame rate: <span>[[speed]] fps</span></label>
                     <input id="speed" type="range" name="name" min="1" max="30" value="{{speed::input}}">
                 </div>
             </div>
             <div class="frames">
                 <div class="frame-list">
                     <template is="dom-repeat" items="[[bitmaps]]" as="bm">
-                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="6" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
+                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="8" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
                     </template>
                 </div>
-                <button type="button" name="button" on-tap="_addFrame">+</button>
+                <button type="button" name="button" on-tap="_addFrame" class="add-frame">+</button>
             </div>
             <kano-pixel-canvas bitmap="{{bitmap}}" width="[[width]]" height="[[height]]"></kano-pixel-canvas>
         </div>
@@ -96,7 +111,8 @@
                 },
                 speed: {
                     type: Number,
-                    value: 15
+                    value: 15,
+                    notify: true
                 }
             },
             observers: [
