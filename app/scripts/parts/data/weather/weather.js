@@ -49,5 +49,36 @@ export default weather = {
         label: 'Emoji',
         key: 'emoji',
         description: 'The emoji matching the weather'
+    }],
+    blocks: [{
+        block: (ui) => {
+            return {
+                id: 'weather_is_status',
+                message0: `${ui.name} is %1`,
+                args0: [{
+                    type: 'field_dropdown',
+                    name: 'STATUS',
+                    options: [
+                        ['sunny', 'sunny'],
+                        ['rainy', 'rainy'],
+                        ['cloudy', 'cloudy'],
+                        ['snowy', 'snowy']
+                    ]
+                }],
+                output: 'Boolean'
+            };
+        },
+        javascript: (ui) => {
+            return function (block) {
+                let status = block.getFieldValue('STATUS');
+                return [`data.weather.is('${status}', devices.get('${ui.id}').getData())`];
+            };
+        },
+        pseudo: (ui) => {
+            return function (block) {
+                let status = block.getFieldValue('STATUS');
+                return [`data.weather.is('${status}', devices.get('${ui.id}').getData())`];
+            };
+        }
     }]
 };
