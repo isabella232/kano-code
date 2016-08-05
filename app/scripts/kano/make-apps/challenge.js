@@ -222,6 +222,15 @@
         },
         'animation_set_speed': {
             'SPEED': 15
+        },
+        'animation_go_to_frame': {
+            'FRAME': 0
+        },
+        'animation_display_set_animation': {
+            'ANIMATION': 'smiley'
+        },
+        'animation_display_go_to_frame': {
+            'FRAME': 0
         }
     };
 

@@ -84,6 +84,38 @@ export default lightAnimation = {
     },{
         block: (part) => {
             return {
+                id: 'animation_go_to_frame',
+                message0: `${part.name} go to frame nº %1`,
+                args0: [{
+                    type: 'input_value',
+                    name: 'FRAME',
+                    check: 'Number'
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null,
+                shadow: {
+                    'FRAME': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                }
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let frame = Blockly.JavaScript.valueToCode(block, 'FRAME') || 0,
+                    code = `devices.get('${part.id}').goToFrame(${frame});\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let frame = Blockly.Pseudo.valueToCode(block, 'FRAME') || 0,
+                    code = `devices.get('${part.id}').goToFrame(${frame});\n`;
+                return code;
+            };
+        }
+    },{
+        block: (part) => {
+            return {
                 id: 'animation_set_speed',
                 message0: `${part.name} set speed to %1`,
                 args0: [{
