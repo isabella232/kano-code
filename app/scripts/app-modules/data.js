@@ -100,7 +100,8 @@ export default data = {
                                                units: config.units}))
                     .then(r => r.json())
                     .then((data) => {
-                        let icon = data.weather[0] ? data.weather[0].icon : '01d';
+                        let weather = data.weather[0],
+                            icon = weather ? weather.icon : '01d';
                         // Force daily emojis
                         icon = icon.replace('n', 'd');
                         return {
@@ -108,9 +109,29 @@ export default data = {
                             wind_speed: data.wind.speed,
                             wind_angle: data.wind.deg,
                             clouds: data.clouds.all,
-                            emoji: emojiMap[icon] || '\u2600\uFE0F'
+                            emoji: emojiMap[icon] || '\u2600\uFE0F',
+                            isSunny: (weather.id === 800),
+                            isRainy: (weather.id >= 500 && weather.id < 600),
+                            isSnowy: (weather.id >= 600 && weather.id < 700),
+                            isCloudy: (weather.id >= 801 && weather.id < 900)
                         };
                     });
+            },
+            is (status, data) {
+                switch (status) {
+                    case 'sunny': {
+                        return data.isSunny;
+                    }
+                    case 'rainy': {
+                        return data.isRainy;
+                    }
+                    case 'snowy': {
+                        return data.isSnowy;
+                    }
+                    case 'cloudy': {
+                        return data.isCloudy;
+                    }
+                }
             }
         },
         space: {

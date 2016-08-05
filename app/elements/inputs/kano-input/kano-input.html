@@ -29,7 +29,7 @@
         behaviors: [Kano.Behaviors.Input, Kano.Behaviors.AppEditorBehavior],
         observers: [
             '_typeChanged(type)',
-            '_valueChanged(value)',
+            '_valueChanged(value)'
         ],
         _typeChanged () {
             let input = document.createElement(this._getTagName()),
@@ -41,7 +41,10 @@
             input.options = this.options;
 
             input.addEventListener('value-changed', (e) => {
-                this.notifyPath('value', e.detail.value);
+                let target = e.path ? e.path[0] : e.target;
+                if (target === this.input) {
+                    this.notifyPath('value', target.value);
+                }
             });
 
             input.addEventListener('click', (e) => {
