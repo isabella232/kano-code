@@ -71,7 +71,8 @@ export default class UI extends Part {
         // Each UI part has its specific component to render on the screen
         this.tagName = opts.component || `kano-ui-${this.type}`;
         this.configPanel = opts.configPanel || 'ui';
-        this.excludeDefaultBlocks = opts.excludeDefaultBlocks || false;
+        this.excludeDefaultBlocks = typeof opts.excludeDefaultBlocks === 'undefined' ? false : opts.excludeDefaultBlocks;
+        this.showDefaultConfiguration = typeof opts.showDefaultConfiguration === 'undefined' ? true : opts.showDefaultConfiguration;
 
         if (this.excludeDefaultBlocks) {
             return;
@@ -461,6 +462,7 @@ export default class UI extends Part {
     toJSON () {
         let plain = super.toJSON.call(this);
         plain.excludeDefaultBlocks = this.excludeDefaultBlocks;
+        plain.showDefaultConfiguration = this.showDefaultConfiguration;
         plain.customizable = {
             properties: this.customizable.properties,
             style: this.customizable.style.map(style => style.key)

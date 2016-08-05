@@ -22,25 +22,30 @@
     :host .value {
         font-weight: bold;
     }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
-        <div class="input-line" hidden$="[[element.positionDisabled]]">
-            <span class="label">Position: <span class="value">{{roundPosition.x}}, {{roundPosition.y}}</span></span>
-        </div>
-        <div class="input-line" hidden$="[[element.rotationDisabled]]">
-            <span class="label">Rotation: <span class="value">{{element.rotation}}°</span></span>
-            <input type="range"
-                    min="0"
-                    max="360"
-                    value="{{element.rotation::input}}">
-        </div>
-        <div class="input-line" hidden$="[[element.scaleDisabled]]">
-            <span class="label">Scale: <span class="value">{{element.scale}}%</span></span>
-            <input type="range"
-                    min="1"
-                    max="1000"
-                    step="1"
-                    value="{{element.scale::input}}">
+        <div hidden$="[[!element.showDefaultConfiguration]]">
+            <div class="input-line" hidden$="[[element.positionDisabled]]">
+                <span class="label">Position: <span class="value">{{roundPosition.x}}, {{roundPosition.y}}</span></span>
+            </div>
+            <div class="input-line" hidden$="[[element.rotationDisabled]]">
+                <span class="label">Rotation: <span class="value">{{element.rotation}}°</span></span>
+                <input type="range"
+                min="0"
+                max="360"
+                value="{{element.rotation::input}}">
+            </div>
+            <div class="input-line" hidden$="[[element.scaleDisabled]]">
+                <span class="label">Scale: <span class="value">{{element.scale}}%</span></span>
+                <input type="range"
+                min="1"
+                max="1000"
+                step="1"
+                value="{{element.scale::input}}">
+            </div>
         </div>
         <kano-ui-customizer id="properties"
             customizable="{{element.customizable.properties}}"

@@ -7,28 +7,20 @@
     .container {
         position: relative;
         border: 1px solid blue;
+        padding: 2px;
     }
     .pixel {
         width: 22px;
         height: 22px;
         margin: 3px;
     }
-    .canvas {
-        @apply(--layout-horizontal);
-        @apply(--layout-wrap);
-        padding: 2px;
-    }
     .container[running] {
         display: none;
     }
     </style>
     <template>
-        <div class="container" style$="[[_computeContainerStyle(model.userProperties.*)]]" running$="[[isRunning]]">
-            <div class="canvas" style$="[[_computeCanvasStyle(model.userProperties.width)]]">
-                <template is="dom-repeat" items="[[model.userProperties.bitmap]]" as="pixel" id="repeat">
-                    <div class="pixel" style$="[[_computePixelStyle(pixel)]]"></div>
-                </template>
-            </div>
+        <div class="container" running$="[[isRunning]]">
+            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" pixel-size="22" spacing="3" bitmap="[[model.userProperties.bitmap]]"></kano-bitmap-renderer>
         </div>
     </template>
     <script type="text/javascript">
@@ -40,25 +32,15 @@
             observers: [
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
-            _computeContainerStyle () {
-                let width = this.model.userProperties.width * this.PIXEL_SIZE + 4,
-                    height = this.model.userProperties.height * this.PIXEL_SIZE + 4;
-                return `width: ${width}px; height: ${height}px;`;
-            },
-            _computeCanvasStyle (width) {
-                return `max-width: ${width * this.PIXEL_SIZE + 4}px;`;
-            },
-            _computePixelStyle (pixel) {
-                return `background-color: ${pixel};`;
-            },
             _sizeChanged () {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height,
                     prevColor;
                 for (let i = 0; i < height * width; i++) {
+                    height = this.model.userProperties.height,
                     // If prevSize is not set, we load the previous bitmap
-                    prevColor = this.prevSize || !this.model.userProperties.bitmap ? '#000000' : this.model.userProperties.bitmap[i];
+                    prevColor = (this.prevSize || !this.model.userProperties.bitmap) ? '#000000' : this.model.userProperties.bitmap[i];
                     newBitmap.push(prevColor);
                 }
 
