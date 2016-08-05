@@ -1,46 +1,78 @@
 /* globals Blockly */
-let lightAnimation;
+import animations from './animations.json';
 
-export default lightAnimation = {
+let lightAnimationDisplay;
+
+export default lightAnimationDisplay = {
     partType: 'ui',
-    type: 'light-animation',
-    label: 'Light animation',
+    type: 'light-animation-display',
+    label: 'Light animation display',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',
-    component: 'kano-part-light-animation',
-    configPanel: 'light-animation',
+    component: 'kano-part-light-animation-display',
+    showDefaultConfiguration: false,
     customizable: {
         properties: [{
-            key: 'width',
-            type: 'range',
-            label: 'Width'
+            key: 'animation',
+            type: 'light-animation',
+            label: 'Animation',
+            options: Object.keys(animations).map(key => {
+                return {
+                    label: key,
+                    value: key
+                };
+            })
         },{
-            key: 'height',
-            type: 'range',
-            label: 'Height'
+            key: 'animations',
+            type: 'animations',
+            label: 'Animations'
         },{
             key: 'speed',
             type: 'range',
             label: 'Speed',
             min: 1,
             max: 30
-        },{
-            key: 'bitmaps',
-            type: 'bitmap-animation',
-            label: 'Bitmaps'
         }],
         style: []
     },
     userProperties: {
-        width: 5,
-        height: 5,
-        speed: 15,
-        bitmaps: [['#000000']]
+        animation: 'smiley',
+        animations,
+        speed: 15
     },
     blocks: [{
         block: (part) => {
             return {
-                id: 'animation_play',
+                id: 'animation_display_set_animation',
+                message0: `${part.name} set animation to %1`,
+                args0: [{
+                    type: 'field_dropdown',
+                    name: 'ANIMATION',
+                    options: Object.keys(animations).map(key => [key, key])
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let animation = block.getFieldValue('ANIMATION'),
+                    code = `devices.get('${part.id}').setAnimation('${animation}');\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let animation = block.getFieldValue('ANIMATION'),
+                    code = `devices.get('${part.id}').setAnimation('${animation}');\n`;
+                return code;
+            };
+        }
+    },{
+        block: (part) => {
+            return {
+                id: 'animation_display_play',
                 message0: `${part.name} play`,
                 inputsInline: false,
                 previousStatement: null,
@@ -62,7 +94,7 @@ export default lightAnimation = {
     },{
         block: (part) => {
             return {
-                id: 'animation_stop',
+                id: 'animation_display_stop',
                 message0: `${part.name} stop`,
                 inputsInline: false,
                 previousStatement: null,
@@ -84,7 +116,7 @@ export default lightAnimation = {
     },{
         block: (part) => {
             return {
-                id: 'animation_go_to_frame',
+                id: 'animation_display_go_to_frame',
                 message0: `${part.name} go to frame nº %1`,
                 args0: [{
                     type: 'input_value',
@@ -116,7 +148,7 @@ export default lightAnimation = {
     },{
         block: (part) => {
             return {
-                id: 'animation_set_speed',
+                id: 'animation_display_set_speed',
                 message0: `${part.name} set speed to %1`,
                 args0: [{
                     type: 'input_value',

@@ -72,8 +72,7 @@ export default lightboard = {
     requestLightboardFrame(wait) {
         return new Promise((resolve, reject) => {
             let currentTime = new Date();
-            this.lastCall = this.lastCall || new Date();
-            if (currentTime - this.lastCall >= wait) {
+            if (!this.lastCall || (currentTime - this.lastCall >= wait)) {
                 this.lastCall = currentTime;
                 resolve();
             } else {
