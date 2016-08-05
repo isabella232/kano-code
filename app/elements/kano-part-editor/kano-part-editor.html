@@ -1,6 +1,7 @@
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../kano-light-frame-editor/kano-light-frame-editor.html">
+<link rel="import" href="../kano-light-animation-editor/kano-light-animation-editor.html">
 <dom-module id="kano-part-editor">
     <style>
     :host {
@@ -13,8 +14,11 @@
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
-    :host kano-ui-editor,
-    :host kano-data-editor {
+    kano-light-animation-editor {
+        overflow-x: hidden;
+    }
+    iron-lazy-pages>*:not(template) {
+        border-top: 1px solid lightgrey;
         overflow-y: auto;
         height: 100%;
         @apply(--layout-flex);
@@ -35,6 +39,9 @@
             </template>
             <template is="iron-lazy-page" name="light-frame">
                 <kano-light-frame-editor id="frame-editor" selected="{{selected}}"></kano-light-frame-editor>
+            </template>
+            <template is="iron-lazy-page" name="light-animation">
+                <kano-light-animation-editor id="animation-editor" selected="{{selected}}"></kano-light-animation-editor>
             </template>
             <template is="iron-lazy-page" name="empty">
                 <div></div>

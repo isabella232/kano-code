@@ -219,6 +219,9 @@
         },
         'set_radius': {
             'RADIUS': 0
+        },
+        'animation_set_speed': {
+            'SPEED': 15
         }
     };
 

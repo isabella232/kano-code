@@ -1,0 +1,46 @@
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../kano-pixel-animation-editor/kano-pixel-animation-editor.html">
+
+<dom-module id="kano-light-animation-editor">
+    <style>
+    :host {
+        display: block;
+        @apply(--layout-vertical);
+        position: relative;
+    }
+    .content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+    }
+    .content>* {
+        margin-top: 32px;
+    }
+    kano-input-range {
+        width: 100%;
+    }
+    </style>
+    <template>
+        <div class="content">
+            <kano-input-range value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+            <kano-input-range value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+            <kano-pixel-animation-editor width="{{selected.userProperties.width}}"
+                                         height="{{selected.userProperties.height}}"
+                                         bitmaps="{{selected.userProperties.bitmaps}}"
+                                         speed="{{selected.userProperties.speed}}"></kano-pixel-animation-editor>
+        </div>
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-light-animation-editor',
+        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        properties: {
+            selected: {
+                type: Object,
+                notify: true
+            }
+        }
+    });
+</script>

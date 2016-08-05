@@ -69,12 +69,14 @@
                 Kano.AppModules.getModule('lightboard').text(text, color, backgroundColor);
             },
             turnOn (light, color) {
-                let bitmap = Kano.AppModules.getModule('lightboard').turnOn(light, color);
-                this.render(bitmap);
+                Kano.AppModules.getModule('lightboard').turnOn(light, color).then(bitmap => {
+                    this.render(bitmap);
+                });
             },
             turnOff (light) {
-                let bitmap = Kano.AppModules.getModule('lightboard').turnOff(light);
-                this.render(bitmap);
+                Kano.AppModules.getModule('lightboard').turnOff(light).then(bitmap => {
+                    this.render(bitmap);
+                });
             },
             update (data) {
                 this.render(data);
@@ -109,9 +111,11 @@
                 this.userListeners = [];
             },
             _updateShape (e) {
-                let shape = e.detail,
-                    bitmap = Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape);
-                this.render(bitmap);
+                let shape = e.detail;
+                Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape)
+                    .then((bitmap) => {
+                        this.render(bitmap);
+                    });
             }
         });
     </script>

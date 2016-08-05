@@ -1,0 +1,108 @@
+<link rel="import" href="../kano-light-shape-behavior.html">
+<dom-module id="kano-part-light-animation">
+    <style>
+    :host {
+        display: block;
+    }
+    .container {
+        position: relative;
+        border: 1px solid blue;
+        padding: 2px;
+    }
+    </style>
+    <template>
+        <div class="container">
+            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" bitmap="[[bitmap]]" pixel-size="22" spacing="3"></kano-bitmap-renderer>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-light-animation',
+            behaviors: [Kano.Behaviors.LightShapeBehavior],
+            observers: [
+                '_sizeChanged(model.userProperties.width, model.userProperties.height)'
+            ],
+            ready () {
+                this.frameIndex = 0;
+            },
+            _sizeChanged () {
+                let newBitmaps = this.model.userProperties.bitmaps || [],
+                    width = this.model.userProperties.width,
+                    height = this.model.userProperties.height;
+
+                if (this.prevSize) {
+                    newBitmaps = this.model.userProperties.bitmaps.map(this._updateBitmapSize.bind(this));
+                }
+
+                this.prevSize = {
+                    width: width,
+                    height: height
+                };
+
+                this.set('model.userProperties.bitmaps', newBitmaps);
+            },
+            _updateBitmapSize (bitmap) {
+                let newBitmap = [],
+                    width = this.model.userProperties.width,
+                    height = this.model.userProperties.height;
+                for (let i = 0; i < height * width; i++) {
+                    newBitmap.push('#000000');
+                }
+
+                bitmap.forEach((color, i) => {
+                    let y = Math.floor(i / this.prevSize.width),
+                        x = i % this.prevSize.width,
+                        newPos = x + y * width;
+                    if (newPos < newBitmap.length) {
+                        newBitmap[newPos] = color;
+                    }
+                });
+
+                return newBitmap;
+            },
+            _updateFrame () {
+                let bitmaps = this.model.userProperties.bitmaps;
+                this.frame = bitmaps[this.frameIndex];
+                this.frameIndex++;
+                if (this.frameIndex > bitmaps.length - 1) {
+                    this.frameIndex = 0;
+                }
+                this.timeoutId = setTimeout(this._updateFrame.bind(this), 1000 / this.model.userProperties.speed);
+                this._updateLightboard();
+            },
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
+                    if (this.isRunning) {
+                        let shape = {
+                            id: this.model.id,
+                            x: this.getX(),
+                            y: this.getY(),
+                            width: this.model.userProperties.width,
+                            height: this.model.userProperties.height,
+                            bitmap: this.frame,
+                            type: 'frame'
+                        };
+                        this.fire('update-shape', shape);
+                    }
+                });
+            },
+            play () {
+                this.pause();
+                this._updateFrame();
+            },
+            pause () {
+                clearTimeout(this.timeoutId);
+            },
+            setSpeed (s) {
+                let speed = Math.min(30, Math.max(1, s));
+                this.set('model.userProperties.speed', speed);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.call(this);
+                this.pause();
+            }
+        });
+    </script>
+</dom-module>
