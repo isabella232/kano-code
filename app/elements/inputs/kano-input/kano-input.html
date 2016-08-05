@@ -42,7 +42,10 @@
             input.options = this.options;
 
             input.addEventListener('value-changed', (e) => {
-                this.notifyPath('value', e.detail.value);
+                let target = e.path ? e.path[0] : e.target;
+                if (target === this.input) {
+                    this.notifyPath('value', target.value);
+                }
             });
 
             input.addEventListener('click', (e) => {

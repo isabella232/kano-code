@@ -96,12 +96,12 @@
             <div class="config">
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
                     <div class="line">
-                        <kano-input id="[[param.key]]" type="[[param.type]]" label="[[param.label]]" options="[[param.options]]" value="[[param.value]]" on-change="paramChanged"></kano-input>
+                        <kano-input id="[[param.key]]" type="[[param.type]]" label="[[param.label]]" options="[[param.options]]" value="[[_computeInputValue(param.key, param.value, selected.config)]]" on-change="paramChanged"></kano-input>
                         <span class="param-description">[[param.description]]</span>
                     </div>
                 </template>
                 <div class="line" id="refresh-toggle">
-                    <paper-toggle-button checked="{{selected.refreshEnabled}}" noink>Refresh</paper-toggle-button>
+                    <paper-toggle-button checked="{{selected.refreshEnabled}}">Refresh</paper-toggle-button>
                 </div>
                 <div class="line" id="refresh-frequency">
                     <paper-dropdown-menu label="Refresh every" disabled="[[!selected.refreshEnabled]]">
@@ -195,7 +195,8 @@
         },
         paramChanged (e) {
             let key = e.model.get('param.key'),
-                value = e.model.get('param.value');
+                target = e.path ? e.path[0] : e.target,
+                value = target.value;
             this.set(`selected.config.${key}`, value);
         },
         computeDataSample () {
@@ -206,6 +207,9 @@
         },
         isLastItem(array, index) {
             return (array.length - 1) === index;
+        },
+        _computeInputValue (key, value, config) {
+            return config[key] || value;
         }
     });
 </script>
