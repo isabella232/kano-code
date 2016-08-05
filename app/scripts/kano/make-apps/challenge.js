@@ -86,7 +86,8 @@
         'math_sign': 'operators',
         'math_random': 'operators',
         'unary': 'operators',
-        'part_event': 'events'
+        'part_event': 'events',
+        'create_color': 'misc'
     };
 
     Challenge.fieldDefaults = {
@@ -231,6 +232,9 @@
         },
         'animation_display_go_to_frame': {
             'FRAME': 0
+        },
+        'create_color': {
+            'TYPE': 'rgb'
         }
     };
 
