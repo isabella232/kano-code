@@ -17,11 +17,26 @@ function checkAncestor(block, type) {
 }
 
 export default pictureList = {
-    partType: 'hardware',
+    partType: 'ui',
     type: 'picture-list',
     label: 'Picture List',
     image: '/assets/part/box.svg',
     component: 'kano-ui-picture-list',
+    excludeDefaultBlocks: true,
+    showDefaultConfiguration: false,
+    customizable: {
+        properties: [{
+            key: 'speed',
+            type: 'range',
+            label: 'Speed',
+            min: 1,
+            max: 30
+        }],
+        style: []
+    },
+    userProperties: {
+        speed: 15
+    },
     colour: '#E73544',
     blocks: [{
         block: (ui) => {
@@ -187,6 +202,59 @@ export default pictureList = {
         pseudo: (part) => {
             return function (block) {
                 let code = `devices.get('${part.id}').pause();\n`;
+                return code;
+            };
+        }
+    },{
+        block: (part) => {
+            return {
+                id: 'picture_list_set_speed',
+                message0: `${part.name} set speed to %1`,
+                args0: [{
+                    type: 'input_value',
+                    name: 'SPEED',
+                    check: 'Number'
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null,
+                shadow: {
+                    'SPEED': '<shadow type="math_number"><field name="NUM">15</field></shadow>'
+                }
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || 15,
+                    code = `devices.get('${part.id}').setSpeed(${speed});\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || 15,
+                    code = `devices.get('${part.id}').setSpeed(${speed});\n`;
+                return code;
+            };
+        }
+    },{
+        block: (part) => {
+            return {
+                id: 'picture_download_gif',
+                message0: `${part.name} download GIF`,
+                previousStatement: null,
+                nextStatement: null
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let code = `devices.get('${part.id}').downloadGif();\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let code = `devices.get('${part.id}').downloadGif();\n`;
                 return code;
             };
         }

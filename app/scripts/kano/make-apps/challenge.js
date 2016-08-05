@@ -235,6 +235,9 @@
         },
         'create_color': {
             'TYPE': 'rgb'
+        },
+        'picture_list_set_speed': {
+            'SPEED': 15
         }
     };
 
