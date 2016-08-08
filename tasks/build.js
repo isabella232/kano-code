@@ -179,7 +179,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('build', () => {
-        return $.runSequence(['views', 'js', 'style', 'assets', 'bundles', 'story-bundle'], 'sw');
+        return $.runSequence(['views', 'js', 'style', 'assets', 'bundles', 'story-bundle', 'workers'], 'sw');
     });
     gulp.task('default', ['build']);
 };
