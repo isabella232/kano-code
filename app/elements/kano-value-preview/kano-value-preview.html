@@ -9,6 +9,13 @@
         width: 24px;
         height: 18px;
     }
+    :host(.simple-value) {
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 6px;
+        padding: 3px 12px;
+        color: black;
+    }
     </style>
     <template>
         <content></content>
@@ -26,6 +33,8 @@
                     container.className = 'color-value';
                     Polymer.dom(this.root).appendChild(container);
                     this.innerHTML = '';
+                } else {
+                    this.toggleClass('simple-value', true);
                 }
             }
         });
