@@ -305,6 +305,10 @@ let register = (Blockly) => {
     Blockly.Pseudo.math_round = Blockly.Pseudo.math_single;
     Blockly.Pseudo.math_number_property = Blockly.JavaScript.math_number_property;
     Blockly.Pseudo.math_modulo = Blockly.JavaScript.math_modulo;
+
+    category.blocks.forEach((category) => {
+        Kano.BlocklyUtil.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
+    });
 };
 
 let category = {

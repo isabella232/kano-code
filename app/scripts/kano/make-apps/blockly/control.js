@@ -215,6 +215,10 @@ let register = (Blockly) => {
             code = argument0 + ' ' + operator + ' ' + argument1;
         return [code, order];
     };
+
+    category.blocks.forEach((category) => {
+        Kano.BlocklyUtil.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
+    });
 };
 
 let category = {

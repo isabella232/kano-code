@@ -30,7 +30,7 @@
     /* globals Polymer, Kano, page */
     Polymer({
         is: 'kano-view-story',
-        behaviors: [Kano.Behaviors.SharingBehavior],
+        behaviors: [Kano.Behaviors.SharingBehavior, Kano.Behaviors.EditorViewBehavior],
         properties: {
             selected: {
                 type: Number,
@@ -42,13 +42,10 @@
                 observer: 'selectedChanged'
             }
         },
-        listeners: {
-            'blockly-ready': '_registerBlockly'
-        },
         ready () {
             Kano.AppModules.init(Kano.MakeApps.config);
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
         },
         attached () {
@@ -69,9 +66,6 @@
                     return Kano.MakeApps.progress.loadProgress(story.progress.group);
                 })
                 .then((progress) => this.updateExtensions(progress));
-        },
-        _registerBlockly () {
-            Kano.MakeApps.blockly.register(window.Blockly);
         },
         updateExtensions (progress) {
             let story = this.story,
