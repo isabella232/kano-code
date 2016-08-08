@@ -2,7 +2,6 @@ import es6Assign from 'es6-object-assign';
 
 es6Assign.polyfill();
 
-import blockly from './blockly';
 import Stories from './service/stories';
 import Components from './service/components';
 import Mode from './mode';
@@ -19,13 +18,9 @@ window.Kano = window.Kano || {};
 
     DragAndDrop.init({ workspaceFullSize: config.WORKSPACE_FULL_SIZE });
 
-    MakeApps.blockly = blockly;
-
     MakeApps.stories = Stories;
     MakeApps.components = Components;
     MakeApps.dragAndDrop = DragAndDrop;
-
-    MakeApps.defaultCategories = blockly.categories;
 
     MakeApps.sdk = KanoWorldSdk(config);
     // Add attach route until supported by the SDK

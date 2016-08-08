@@ -66,7 +66,7 @@ let registered = false,
     };
 
 
-export default {
+module.exports = {
     register,
     categories,
     init
