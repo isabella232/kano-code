@@ -135,6 +135,7 @@ gulp.task('polyfill', () => {
 });
 
 require('./tasks/service-worker')(gulp, $);
+require('./tasks/workers')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
 require('./tasks/blockly')(gulp, $);
 require('./tasks/parts-module')(gulp, $);
