@@ -1,6 +1,7 @@
 const COLOUR = '#1198ff';
 
-let register = (Blockly) => {
+let category,
+    register = (Blockly) => {
     Blockly.Blocks.random_colour = {
         init: function () {
             let json = {
@@ -22,8 +23,12 @@ let register = (Blockly) => {
         let code = `randomColour()`;
         return [code];
     };
+
+    category.blocks.forEach((category) => {
+        Kano.BlocklyUtil.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
+    });
 };
-let category = {
+category = {
     name: 'Variables',
     id: 'variables',
     colour: COLOUR,

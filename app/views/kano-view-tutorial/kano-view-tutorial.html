@@ -91,20 +91,17 @@
     /* globals Polymer, Kano, page */
     Polymer({
         is: 'kano-view-tutorial',
-        behaviors: [Kano.Behaviors.SharingBehavior, Kano.Behaviors.ModalAnimatorBehavior],
+        behaviors: [Kano.Behaviors.SharingBehavior, Kano.Behaviors.ModalAnimatorBehavior, Kano.Behaviors.EditorViewBehavior],
         properties: {
             app: {
                 type: Object
             }
         },
-        listeners: {
-            'blockly-ready': '_registerBlockly'
-        },
         ready () {
             this.modal = this.$['share-modal'];
             Kano.AppModules.init(Kano.MakeApps.config);
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.MakeApps.blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             this.configureModal(this.$['end-modal'], 'scale-down');
             this.configureModal(this.$['end-modal'], 'fade-out');
@@ -149,9 +146,6 @@
             window.dumpChallenge = () => {
                 return JSON.stringify(this.challenge, null, '\t');
             };
-        },
-        _registerBlockly () {
-            Kano.MakeApps.blockly.register(window.Blockly);
         },
         _startTutorial () {
             this.set('scene.started', true);

@@ -136,6 +136,7 @@ gulp.task('polyfill', () => {
 
 require('./tasks/service-worker')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
+require('./tasks/blockly')(gulp, $);
 require('./tasks/parts-module')(gulp, $);
 require('./tasks/app')(gulp, $);
 require('./tasks/kano-canvas-api')(gulp, $);

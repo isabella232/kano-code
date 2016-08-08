@@ -124,26 +124,29 @@ Polymer({
             return;
         }
         this.debounce('updateColors', () => {
-            let range = 33.33,
-                colorMapHS = {
-                    system: [206, 100],
-                    ui: [89, 52],
-                    hardware: [289, 32],
-                    data: [1, 61]
-                },
-                grouped = this.addedParts.reduce((acc, part) => {
-                    acc[part.partType] = acc[part.partType] || [];
-                    acc[part.partType].push(part);
-                    return acc;
-                }, {});
-
-            grouped.ui = grouped.ui || [];
-
-            Object.keys(grouped).forEach((partType) => {
-                let parts = grouped[partType];
-                this.setColorRange(colorMapHS[partType], range, parts);
-            });
+            this._updateColors();
         }, 10);
+    },
+    _updateColors () {
+        let range = 33.33,
+            colorMapHS = {
+                system: [206, 100],
+                ui: [89, 52],
+                hardware: [289, 32],
+                data: [1, 61]
+            },
+            grouped = this.addedParts.reduce((acc, part) => {
+                acc[part.partType] = acc[part.partType] || [];
+                acc[part.partType].push(part);
+                return acc;
+            }, {});
+
+        grouped.ui = grouped.ui || [];
+
+        Object.keys(grouped).forEach((partType) => {
+            let parts = grouped[partType];
+            this.setColorRange(colorMapHS[partType], range, parts);
+        });
     },
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
@@ -241,9 +244,12 @@ Polymer({
         });
         savedApp.code = this._formatCode(savedApp.code);
         this.set('addedParts', addedParts);
+        // Force a color update and a register block to make sure the loaded code will be
+        // rendered with the right colors
+        this._updateColors();
+        this.$['root-view'].computeBlocks();
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
-        this.updateColors();
     },
     _formatCode (code) {
         let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
