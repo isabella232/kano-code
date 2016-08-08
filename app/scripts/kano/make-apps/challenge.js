@@ -407,7 +407,7 @@
                         "block": blockChallengeId
                     },
                     "position": "top",
-                    "text": `Change ‘app starts’ to ‘${pieces.join('.')}’`
+                    "text": `Change ‘app starts’ to <kano-value-preview>‘${pieces.join('.')}’</kano-value-preview>`
                 }],
                 "validation": {
                     "blockly": {
