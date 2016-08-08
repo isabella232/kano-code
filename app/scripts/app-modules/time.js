@@ -7,8 +7,9 @@ export default time = {
     intervals: [],
     frames: [],
     methods: {
-        later (delay, callback) {
-            let id = setTimeout(callback, Math.max(1, delay) * 1000);
+        later (delay, unit, callback) {
+            delay = unit === 'milliseconds' ? delay : delay * 1000;
+            let id = setTimeout(callback, Math.max(1, delay));
             time.timeouts.push(id);
         },
         every (interval, unit, callback) {
