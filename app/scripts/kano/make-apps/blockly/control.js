@@ -39,6 +39,7 @@
             return code;
         };
 
+
         Blockly.Blocks.every_x_seconds = {
             init: function () {
                 let json = {
@@ -90,6 +91,56 @@
                 interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
                 unit = block.getFieldValue('UNIT') || 'seconds',
                 code = `every ${interval} ${unit}, do {\n${statement}}\n`;
+            return code;
+        };
+
+        Blockly.Blocks.in_x_time = {
+            init: function () {
+                let json = {
+                    id: 'in_x_time',
+                    colour: COLOUR,
+                    message0: 'In %1 %2',
+                    args0: [{
+                        type: "input_value",
+                        name: "DELAY"
+                    },{
+                        type: "field_dropdown",
+                        name: "UNIT",
+                        options: [
+                            [
+                                'seconds',
+                                'seconds'
+                            ],
+                            [
+                                'milliseconds',
+                                'milliseconds'
+                            ]
+                        ]
+                    }],
+                    message1: 'do %1',
+                    args1: [{
+                        type: "input_statement",
+                        name: "DO"
+                    }],
+                    previousStatement: null,
+                    nextStatement: null
+                };
+                this.jsonInit(json);
+            }
+        };
+
+        Blockly.JavaScript.in_x_time = (block) => {
+            let statement = Blockly.JavaScript.statementToCode(block, 'DO'),
+                delay = Blockly.JavaScript.valueToCode(block, 'DELAY') || 1,
+                unit = block.getFieldValue('UNIT') || 'seconds',
+                code = `time.later(${delay}, '${unit}', function () {\n${statement}});\n`;
+            return code;
+        };
+        Blockly.Pseudo.in_x_time = (block) => {
+            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                delay = Blockly.Pseudo.valueToCode(block, 'DELAY') || 1,
+                unit = block.getFieldValue('UNIT') || 'seconds',
+                code = `time.later(${delay}, '${unit}', function () {\n${statement}});\n`;
             return code;
         };
 
@@ -151,6 +202,10 @@
             {
                 id: 'every_x_seconds',
                 defaults: ['INTERVAL']
+            },
+            {
+                id: 'in_x_times',
+                defaults: ['DELAY']
             }
         ]
     });
