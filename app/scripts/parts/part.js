@@ -41,6 +41,7 @@ export default class Part {
         this.image = opts.image;
         this.colour = opts.colour;
         this.blocks = Array.isArray(opts.blocks) ? opts.blocks.slice(0) : [];
+        this.legacyBlocks = Array.isArray(opts.legacyBlocks) ? opts.legacyBlocks.slice(0) : [];
         this.events = Array.isArray(opts.events) ? opts.events.slice(0) : [];
         this.listeners = Array.isArray(opts.listeners) ? opts.listeners.slice(0) : [];
         this.codes = {};

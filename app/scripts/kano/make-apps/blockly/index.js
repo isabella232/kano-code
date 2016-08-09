@@ -1,73 +1,61 @@
-import pseudo from './pseudo';
-import operators from './operators';
-import control from './control';
-import variables from './variables';
-import events from './events';
-import fun from './fun';
-import misc from './misc';
+(function (Kano) {
+    Kano.MakeApps = Kano.MakeApps || {};
+    Kano.MakeApps.Blockly = Kano.MakeApps.Blockly || {};
 
-let modules = {
-        control,
-        operators,
-        variables,
-        events
-    },
-    categories = Object.keys(modules).reduce((acc, key) => {
-        acc[key] = modules[key].category;
-        return acc;
-    }, {}),
-    experiments = {
-        fun: [fun],
-        misc: [misc]
-    },
-    available = Object.keys(modules)
-        .filter(key => modules[key].experiments)
+    Kano.MakeApps.Blockly.modules = {};
+    Kano.MakeApps.Blockly.categories = {};
+
+    Kano.MakeApps.Blockly.experiments = {};
+    Kano.MakeApps.Blockly.available = Object.keys(Kano.MakeApps.Blockly.modules)
+        .filter(key => Kano.MakeApps.Blockly.modules[key].experiments)
         .reduce((acc, key) => {
-            return acc.concat(Object.keys(modules[key].experiments));
+            return acc.concat(Object.keys(Kano.MakeApps.Blockly.modules[key].experiments));
         }, []);
 
-/**
- * Except for the natural declaration of language, each module will return a
- * definition of the category and blocks. We put these definitions on
- * an array and return all the categories;
- * @param  {[type]} Blockly [description]
- * @return {[type]}         [description]
- */
-let registered = false,
-    register = (Blockly) => {
-        if (registered) {
+    /**
+     * Except for the natural declaration of language, each module will return a
+     * definition of the category and blocks. We put these definitions on
+     * an array and return all the categories;
+     * @param  {[type]} Blockly [description]
+     * @return {[type]}         [description]
+     */
+    Kano.MakeApps.Blockly.registered = false;
+    Kano.MakeApps.Blockly.register = function (Blockly) {
+        if (this.registered) {
             return;
         }
-        // Register the modules
-        pseudo.register(Blockly);
-        control.register(Blockly);
-        operators.register(Blockly);
-        variables.register(Blockly);
-        events.register(Blockly);
-        fun.register(Blockly);
-        misc.register(Blockly);
-        registered = true;
-    },
-    init = (c) => {
+        Object.keys(this.modules).forEach(key => this.modules[key].register(Blockly));
+        this.registered = true;
+    };
+    Kano.MakeApps.Blockly.init = function (c) {
         let flags = c.getFlags();
         flags.experiments.forEach(exp => {
-            if (experiments[exp]) {
-                experiments[exp].forEach(m => {
-                    categories[exp] = m.category;
+            if (this.experiments[exp]) {
+                this.experiments[exp].forEach(m => {
+                    this.categories[exp] = m.category;
                 });
             }
-            Object.keys(modules).forEach(key => {
-                if (modules[key].experiments && modules[key].experiments[exp]) {
-                    categories[key].blocks = categories[key].blocks.concat(modules[key].experiments[exp]);
+            Object.keys(this.modules).forEach(key => {
+                if (this.modules[key].experiments && this.modules[key].experiments[exp]) {
+                    this.categories[key].blocks = this.categories[key].blocks.concat(this.modules[key].experiments[exp]);
                 }
             });
         });
-        c.addExperiments('blocks', available.concat(Object.keys(experiments)));
+        c.addExperiments('blocks', this.available.concat(Object.keys(this.experiments)));
     };
 
-
-module.exports = {
-    register,
-    categories,
-    init
-};
+    Kano.MakeApps.Blockly.addModule = function (name, module, experiment) {
+        experiment = typeof experiment === 'undefined' ? false : experiment;
+        this.modules[name] = module;
+        if (experiment) {
+            this.experiments[name] = this.experiments[name] || [];
+            this.experiments[name].push(module);
+        }
+        if (module.category) {
+            this.categories[name] = module.category;
+        }
+        if (module.experiments) {
+            this.available = this.available.concat(Object.keys(module.experiments));
+        }
+    };
+})(window.Kano = window.Kano || {});

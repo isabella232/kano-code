@@ -32,7 +32,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/elements'));
     });
 
-    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'blockly', 'kano-canvas-api', 'scripts'], () => {
+    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api', 'scripts'], () => {
         return getImports('./app/elements/elements.html').then((common) => {
             return new Promise((resolve, reject) => {
                 gulp.src(['.tmp/app/elements/*-bundle.html', '!.tmp/app/elements/story-bundle.html'])
@@ -52,8 +52,8 @@ module.exports = (gulp, $) => {
 
     // Processes scripts that don't need any browserification
     gulp.task('scripts', () => {
-        gulp.src('app/scripts/kano/**/*.js', { base: 'app' })
-            .pipe($.babel({ presets: ['es2015'] }))
+        gulp.src('app/scripts/kano/**/*', { base: 'app' })
+            .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
             .pipe(gulp.dest('.tmp/app'));
     });
 

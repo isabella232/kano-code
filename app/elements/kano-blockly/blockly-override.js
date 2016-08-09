@@ -10,6 +10,11 @@ Blockly.Blocks.procedures.HUE = '#ffff00';
 
 Blockly.Scrollbar.scrollbarThickness = 5;
 
+// Reload the custom messages as Blockly overrides them
+if (window.CustomBlocklyMsg) {
+    Object.assign(Blockly.Msg, window.CustomBlocklyMsg);
+}
+
 function lightenColor (hex, lum) {
 
 	// validate hex string
@@ -210,6 +215,80 @@ Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
 };
 
 /**
+ * Initializes the flyout.
+ * @param {!Blockly.Workspace} targetWorkspace The workspace in which to create
+ *     new blocks.
+ */
+Blockly.Flyout.prototype.init = function(targetWorkspace) {
+    var svg = targetWorkspace.getParentSvg(),
+        container = svg.parentNode,
+        triangle = document.createElement('div');
+
+    triangle.className = 'blocklyTriangle';
+    triangle.setAttribute('id', 'blocklyTriangle');
+
+    container.appendChild(triangle);
+
+    this.triangle = triangle;
+
+    this.targetWorkspace_ = targetWorkspace;
+    this.workspace_.targetWorkspace = targetWorkspace;
+    // Add scrollbar.
+    this.scrollbar_ = new Blockly.Scrollbar(this.workspace_, this.horizontalLayout_, false);
+
+    this.hide();
+
+    Array.prototype.push.apply(this.eventWrappers_, Blockly.bindEvent_(this.svgGroup_, 'wheel', this, this.wheel_));
+    if (!this.autoClose) {
+        this.filterWrapper_ = this.filterForCapacity_.bind(this);
+        this.targetWorkspace_.addChangeListener(this.filterWrapper_);
+    }
+    // Dragging the flyout up and down.
+    Array.prototype.push.apply(this.eventWrappers_, Blockly.bindEvent_(this.svgGroup_, 'mousedown', this, this.onMouseDown_));
+};
+
+/**
+ * Hide and empty the flyout.
+ */
+Blockly.Flyout.prototype.hide = function() {
+  if (!this.isVisible()) {
+    return;
+  }
+  if (this.animation) {
+      this.animation.cancel();
+  }
+  var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
+  var origin = this.trianglePos_;
+  this.svgGroup_.style.transformOrigin = `left ${origin}px`;
+  this.animation = this.svgGroup_.animate([{
+      transform: `${translate} scale(1)`,
+      opacity: 1
+  },{
+      transform: `${translate} scale(0.5)`,
+      opacity: 0
+  }], {
+      duration: 200,
+      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+  });
+  this.animation.finished.then(() => {
+      this.svgGroup_.style.display = 'none';
+  }).catch(() => {
+      return;
+  });
+  // Delete all the event listeners.
+  for (var x = 0, listen; listen = this.listeners_[x]; x++) {
+    Blockly.unbindEvent_(listen);
+  }
+  this.listeners_.length = 0;
+  if (this.reflowWrapper_) {
+    this.workspace_.removeChangeListener(this.reflowWrapper_);
+    this.reflowWrapper_ = null;
+  }
+  // Do NOT delete the blocks here.  Wait until Flyout.show.
+  // https://neil.fraser.name/news/2014/08/09/
+};
+
+/**
  * Show and populate the flyout.
  * @param {!Array|string} xmlList List of blocks to show.
  *     Variables and procedures have a custom set of blocks.
@@ -273,6 +352,22 @@ Blockly.Flyout.prototype.show = function(xmlList) {
 
   // Correctly position the flyout's scrollbar when it opens.
   this.position();
+  var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
+  var origin = this.trianglePos_;
+  this.svgGroup_.style.transformOrigin = `left ${origin}px`;
+  if (this.animation) {
+      this.animation.cancel();
+  }
+  this.animation = this.svgGroup_.animate([{
+      transform: `${translate} scale(0.5)`,
+      opacity: 0
+  }, {
+      transform: `${translate} scale(1)`,
+      opacity: 1
+  }], {
+      duration: 200,
+      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+  });
 
   this.reflowWrapper_ = this.reflow.bind(this);
   this.workspace_.addChangeListener(this.reflowWrapper_);
@@ -282,6 +377,8 @@ Blockly.Flyout.prototype.show = function(xmlList) {
  * Move the toolbox to the edge of the workspace.
  */
 Blockly.Flyout.prototype.position = function () {
+    var toolbox, selectedItem, rowElement, containerRect, rect, metrics, m,
+        height, middle, toolboxRect, offsetLeft, top;
     if (!this.isVisible()) {
         return;
     }
@@ -296,15 +393,22 @@ Blockly.Flyout.prototype.position = function () {
         this.svgGroup_.appendChild(defs);
         this.svgGroup_.style.clipPath = 'url(' + location.href + '#flyoutClipPath)';
     }
-    var metrics = this.targetWorkspace_.getMetrics();
-    var m = this.workspace_.getMetrics();
-    var height = m.contentHeight + 20;
-    var triangleRect, middle, toolboxRect, offsetLeft;
+
+    metrics = this.targetWorkspace_.getMetrics();
+    m = this.workspace_.getMetrics();
+    height = m.contentHeight + 20;
+
     if (this.targetWorkspace_.toolbox_) {
-        let workspaceRect = this.targetWorkspace_.svgGroup_.getBoundingClientRect();
-        triangleRect = this.targetWorkspace_.toolbox_.triangle.getBoundingClientRect();
-        toolboxRect = this.targetWorkspace_.toolbox_.HtmlDiv.getBoundingClientRect();
-        middle = triangleRect.top - workspaceRect.top + 12;
+        toolbox = this.targetWorkspace_.toolbox_;
+        selectedItem = toolbox.selectedItem_;
+
+        rowElement = selectedItem.getRowElement();
+        containerRect = toolbox.HtmlDiv.getBoundingClientRect();
+        rect = rowElement.getBoundingClientRect();
+        middle = rect.top - containerRect.top + (rect.height / 2) + 20;
+        this.trianglePos_ = middle - this.top_;
+
+        toolboxRect = toolbox.HtmlDiv.getBoundingClientRect();
         offsetLeft = toolboxRect.width + 30;
     } else {
         middle = 0;
@@ -319,6 +423,15 @@ Blockly.Flyout.prototype.position = function () {
         edgeWidth *= -1;
     }
     height = Math.min(metrics.viewHeight - 40, Math.max(0, height));
+
+    top = middle - height / 2;
+
+    if (top + height > (metrics.viewHeight - 20)) {
+        top = (metrics.viewHeight - 20) - height;
+    }
+
+    this.top_ = Math.max(top, 20);
+
     var path = ['M ' + (this.RTL ? this.width_ : 0) + ',0'];
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, this.CORNER_RADIUS, -this.CORNER_RADIUS);
     path.push('h', edgeWidth);
@@ -327,11 +440,19 @@ Blockly.Flyout.prototype.position = function () {
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, this.CORNER_RADIUS);
     path.push('h', -edgeWidth);
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, -this.CORNER_RADIUS);
+    if (this.targetWorkspace_.toolbox_) {
+        path.push('v', -(height - this.trianglePos_ - 12));
+        path.push('l', -10, -12);
+        path.push('l', 10, -12);
+    }
     path.push('z');
     this.svgBackground_.setAttribute('d', path.join(' '));
 
-    this.svgGroup_.setAttribute('transform',
-        `translate(${offsetLeft}, ${Math.max(middle - height / 2, 20)})`);
+    this.svgGroup_.style.webkitTransform =
+    this.svgGroup_.style.transform =
+        `translate(${offsetLeft}px, ${this.top_}px)`;
+
+    this.svgGroup_.setAttribute('transform', `translate(${offsetLeft}, ${this.top_})`);
 
     this.clipPath.path.setAttributeNS(null, 'd', path.join(' '));
 
@@ -350,19 +471,12 @@ Blockly.Flyout.prototype.position = function () {
 Blockly.Toolbox.prototype.init = function() {
   var workspace = this.workspace_,
     svg = workspace.getParentSvg(),
-    container = svg.parentNode,
-    triangle = document.createElement('div');
-
-  triangle.className = 'blocklyTriangle';
-  triangle.setAttribute('id', 'blocklyTriangle');
+    container = svg.parentNode;
 
   // Create an HTML container for the Toolbox menu.
   this.HtmlDiv = goog.dom.createDom('div', 'blocklyToolboxDiv');
   this.HtmlDiv.setAttribute('dir', workspace.RTL ? 'RTL' : 'LTR');
   container.appendChild(this.HtmlDiv);
-  container.appendChild(triangle);
-
-  this.triangle = triangle;
 
   // Clicking on toolbar closes popups.
   Blockly.bindEvent_(this.HtmlDiv, 'mousedown', this,
@@ -402,6 +516,9 @@ Blockly.Toolbox.prototype.init = function() {
   this.populate_(workspace.options.languageTree);
   tree.render(this.HtmlDiv);
   this.addColour_();
+  this.HtmlDiv.addEventListener('scroll', (e) => {
+      this.flyout_.position();
+  });
   this.position();
 };
 
@@ -425,7 +542,8 @@ Blockly.Toolbox.prototype.position = function() {
     }
     treeDiv.style.top = '20px';
     treeDiv.style.left = '20px';
-    treeDiv.style.width = '120px';
+    treeDiv.style.width = '110px';
+    treeDiv.style.maxHeight = 'calc(100% - 40px)';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
         // For some reason the LTR toolbox now reports as 1px too wide.
@@ -502,7 +620,6 @@ Blockly.Events.CLOSE_FLYOUT = 'close-flyout';
  */
 Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
     var toolbox = this.toolbox_,
-        triangle = toolbox.triangle,
         hexColour,
         containerRect,
         rect,
@@ -514,14 +631,13 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
 
     }
     if (node) {
+        toolbox.selectedItem_ = node;
         rowElement = node.getRowElement();
         hexColour = node.hexColour || '#57e';
         containerRect = toolbox.HtmlDiv.getBoundingClientRect();
         rect = rowElement.getBoundingClientRect();
         rowElement.style.background = hexColour;
         rowElement.className += ' selected';
-        triangle.style.display = 'block';
-        triangle.style.top = `${rect.top - containerRect.top - 6 + (rect.height / 2) + 20}px`;
 
         // Add colours to child nodes which may have been collapsed and thus
         // not rendered.
@@ -546,7 +662,6 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
         toolbox.workspace_.fireChangeListener(e);
         // Hide the flyout.
         toolbox.flyout_.hide();
-        triangle.style.display = 'none';
     }
     if (node) {
         toolbox.lastCategory_ = node;

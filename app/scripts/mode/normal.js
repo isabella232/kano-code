@@ -5,32 +5,35 @@ import shapes from '../parts/canvas/blocks/shapes';
 import space from '../parts/canvas/blocks/space';
 
 let normal,
-    blocks = [{
-        block: (ui) => {
-            return {
-                id: 'clear',
-                message0: `${ui.name}: clear`,
-                previousStatement: null,
-                nextStatement: null
-            };
-        },
-        javascript: (ui) => {
-            return function (block) {
-                return `devices.get('${ui.id}').reset();`;
-            };
-        },
-        pseudo: (ui) => {
-            return function (block) {
-                return `devices.get('${ui.id}').reset();`;
-            };
-        }
-    }];
+    blocks = [];
 
 blocks = blocks.concat(general);
-blocks = blocks.concat(paths);
+
+blocks.push({
+    block: (ui) => {
+        return {
+            id: 'clear all',
+            message0: `${ui.name}: clear`,
+            previousStatement: null,
+            nextStatement: null
+        };
+    },
+    javascript: (ui) => {
+        return function (block) {
+            return `devices.get('${ui.id}').reset();`;
+        };
+    },
+    pseudo: (ui) => {
+        return function (block) {
+            return `devices.get('${ui.id}').reset();`;
+        };
+    }
+});
+
 blocks = blocks.concat(setters);
-blocks = blocks.concat(shapes);
 blocks = blocks.concat(space);
+blocks = blocks.concat(paths);
+blocks = blocks.concat(shapes);
 
 export default normal = {
     id: 'dropzone',

@@ -1,13 +1,5 @@
 let math;
 
-function inclusiveRandom() {
-    if (Math.random() === 0) {
-        return 1;
-    } else {
-        return Math.random();
-    }
-}
-
 export default math = {
     methods: {
         sign: (x) => {
@@ -19,7 +11,7 @@ export default math = {
         },
 
         /* This generator is inclusive the ranges [min, max] */
-        random: (min, max, isFloat) => {
+        random: (min, max) => {
             let swap = +min;
             min = +min;
             max = +max;
@@ -27,10 +19,6 @@ export default math = {
             if (min > max) {
                 min = max;
                 max = swap;
-            }
-
-            if (isFloat) {
-                return inclusiveRandom() * (max - min) + min;
             }
 
             return Math.floor(Math.random() * (max - min + 1)) + min;

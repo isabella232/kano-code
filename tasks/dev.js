@@ -99,7 +99,7 @@ module.exports = (gulp, $) => {
     };
 
     watchMap.scripts = {
-        src: 'app/scripts/kano/**/*.js',
+        src: 'app/scripts/kano/**/*',
         process: scripts
     };
 
@@ -135,7 +135,7 @@ module.exports = (gulp, $) => {
 
     gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], assets(watchMap.assets.src));
 
-    gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch', 'blockly-watch'], () => {
+    gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch'], () => {
         Object.keys(watchMap).forEach(key => {
             gulp.watch(watchMap[key].src)
                 .on('change', (e) => {
@@ -147,6 +147,6 @@ module.exports = (gulp, $) => {
 
     gulp.task('dev', ['watch', 'serve']);
     gulp.task('build-dev', () => {
-        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev', 'scripts-dev', 'blockly-dev', 'workers'], 'sw-dev');
+        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules-dev', 'parts-module-dev', 'scripts-dev', 'workers'], 'sw-dev');
     });
 };
