@@ -115,6 +115,10 @@
             'INTERVAL': 1,
             'UNIT': 'seconds'
         },
+        'in_x_time': {
+            'DELAY': 1,
+            'UNIT': 'seconds'
+        },
         'repeat_x_times': {
             'N': 10
         },
