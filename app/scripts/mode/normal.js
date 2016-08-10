@@ -36,7 +36,7 @@ blocks = blocks.concat(paths);
 blocks = blocks.concat(shapes);
 
 export default normal = {
-    id: 'dropzone',
+    id: 'normal',
     name: 'Draw',
     colour: '#82C23D',
     blocks,

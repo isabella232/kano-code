@@ -35,6 +35,9 @@
         ],
         'connect-blocks': [
             "Connect it to this block"
+        ],
+        'drop-codespace': [
+            "Drop the block anywhere on your code space"
         ]
     };
 
@@ -48,7 +51,7 @@
         return values[r];
     };
 
-    Challenge.categoryMap = Kano.MakeApps.Blockly.Defauls.categoryMap;
+    Challenge.categoryMap = Kano.MakeApps.Blockly.Defaults.categoryMap;
 
     Challenge.fieldDefaults = Kano.MakeApps.Blockly.Defaults.values;
 
@@ -425,6 +428,23 @@
                             "blockly": {
                                 "connect": {
                                     "parent": parentSelector,
+                                    "target": blockChallengeId
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    steps.push({
+                        "tooltips": [
+                            {
+                                "location": "right-panel",
+                                "position": "left",
+                                "text": Challenge.randomizedAction('drop-codespace')
+                            }
+                        ],
+                        "validation": {
+                            "blockly": {
+                                "drop": {
                                     "target": blockChallengeId
                                 }
                             }
