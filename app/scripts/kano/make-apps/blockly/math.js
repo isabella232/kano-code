@@ -1,8 +1,7 @@
-/* globals Blockly */
 (function (Kano) {
     Kano.MakeApps = Kano.MakeApps || {};
 
-    const COLOUR = '#0087ee';
+    const COLOUR = '#f6b231';
 
     let register = (Blockly) => {
 

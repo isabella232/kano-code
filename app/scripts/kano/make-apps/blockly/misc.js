@@ -93,6 +93,6 @@
     Kano.MakeApps.Blockly.addModule('misc', {
         register,
         category
-    });
+    }, true);
 
 })(window.Kano = window.Kano || {});

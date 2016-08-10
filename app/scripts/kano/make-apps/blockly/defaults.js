@@ -90,7 +90,7 @@
             'INTERVAL': 1,
             'UNIT': 'seconds'
         },
-        'in_x_times': {
+        'in_x_time': {
             'DELAY': 1
         },
         'repeat_x_times': {

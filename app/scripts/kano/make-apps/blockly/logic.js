@@ -1,11 +1,10 @@
-/* globals Blockly */
 (function (Kano) {
     Kano.MakeApps = Kano.MakeApps || {};
 
     /**
      * Registers the logic blocks, and creates its category
      */
-    const COLOUR = '#0074cc';
+    const COLOUR = '#9f231b';
 
     let register = (Blockly) => {
 

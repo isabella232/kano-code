@@ -405,7 +405,7 @@ Blockly.Flyout.prototype.position = function () {
         rowElement = selectedItem.getRowElement();
         containerRect = toolbox.HtmlDiv.getBoundingClientRect();
         rect = rowElement.getBoundingClientRect();
-        middle = rect.top - containerRect.top + (rect.height / 2) + 20;
+        middle = rect.top - containerRect.top + (rect.height / 2);
         this.trianglePos_ = middle - this.top_;
 
         toolboxRect = toolbox.HtmlDiv.getBoundingClientRect();
@@ -540,10 +540,13 @@ Blockly.Toolbox.prototype.position = function() {
     } else {
         treeDiv.style.left = svgPosition.x + 'px';
     }
-    treeDiv.style.top = '20px';
+    treeDiv.style.top = '0px';
     treeDiv.style.left = '20px';
+    treeDiv.style.paddingTop = '20px';
+    treeDiv.style.paddingBottom = '20px';
+    treeDiv.style.boxSizing = 'border-box';
     treeDiv.style.width = '110px';
-    treeDiv.style.maxHeight = 'calc(100% - 40px)';
+    treeDiv.style.maxHeight = '100%';
     this.width = treeDiv.offsetWidth;
     if (!this.workspace_.RTL) {
         // For some reason the LTR toolbox now reports as 1px too wide.
@@ -693,7 +696,7 @@ Blockly.Toolbox.prototype.populate_ = function(newTree) {
       }
       switch (childIn.tagName.toUpperCase()) {
         case 'CATEGORY':
-          var childOut = rootOut.createNode(childIn.getAttribute('name')),
+          var childOut = rootOut.createNode(childIn.getAttribute('name').toLowerCase()),
             catId = childIn.getAttribute('id');
           childOut.blocks = [];
           childOut.categoryId = catId;
