@@ -13,7 +13,7 @@ export default Camera = {
         },
         component: 'kano-workspace-camera'
     },
-    colour: '#9c39fe',
+    colour: '#82C23D',
     excludeParts: ['light-rectangle', 'light-circle'],
     events: [{
         label: 'takes picture',
