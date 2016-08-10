@@ -416,7 +416,23 @@ To define the arrow, use the `arrow` key and set the values as follow:
 }
 ```
 
-The location of the source and target are defined the same way the highlight and tooltips are. Read the next chapter to learn more.
+The location of the source and target are defined the same way the highlight and tooltips are. Read the `Location` chapter to learn more.
+
+### Phantom blocks
+
+You can define a `phantom block` that will appear at a target position to indicate where to drop a block. You can only use this in a step with a blockly connect validation.
+
+```json
+"phantom_block": {
+    "location": {
+        "block": "block_0"
+    },
+    "target": "DO"
+}
+```
+
+The Location field is the same as the highlight/tootlip/arrow one. You must specify a target, which correspond to an input name of a block
+
 
 ### Location
 
