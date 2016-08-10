@@ -244,12 +244,14 @@
             }
             target = this.getDeepElement(step.arrow.target);
             target = target.getBoundingClientRect();
-            this.set('arrow', {
-                source,
-                target,
-                size: step.arrow.size || 70,
-                angle: step.arrow.angle || 0
-            });
+            this.async(() => {
+                this.set('arrow', {
+                    source,
+                    target,
+                    size: step.arrow.size || 70,
+                    angle: step.arrow.angle || 0
+                });
+            }, 300);
         },
         stepChanged () {
             let step;

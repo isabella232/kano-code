@@ -35,6 +35,9 @@
         ],
         'connect-blocks': [
             "Connect it to this block"
+        ],
+        'drop-codespace': [
+            "Drop the block anywhere on your code space"
         ]
     };
 
@@ -48,228 +51,30 @@
         return values[r];
     };
 
-    Challenge.categoryMap = {
-        'text': 'variables',
-        'lists_create_empty': 'variables',
-        'lists_create_with': 'variables',
-        'lists_repeat': 'variables',
-        'lists_length': 'variables',
-        'lists_isEmpty': 'variables',
-        'lists_indexOf': 'variables',
-        'lists_getIndex': 'variables',
-        'lists_setIndex': 'variables',
-        'random_colour': 'variables',
-        'colour_picker': 'variables',
-        'math_number': 'variables',
-        'variables_set': 'variables',
-        'variables_get': 'variables',
-        'colour_rgb': 'variables',
-        'controls_if': 'control',
-        'logic_compare': 'control',
-        'loop_forever': 'control',
-        'repeat_x_times': 'control',
-        'logic_operation': 'control',
-        'logic_negate': 'control',
-        'logic_boolean': 'control',
-        'every_x_seconds': 'control',
-        'math_arithmetic': 'operators',
-        'text_join': 'operators',
-        'math_single': 'operators',
-        'math_trig': 'operators',
-        'math_constant': 'operators',
-        'math_number_property': 'operators',
-        'math_round': 'operators',
-        'math_modulo': 'operators',
-        'math_constrain': 'operators',
-        'math_max': 'operators',
-        'math_min': 'operators',
-        'math_sign': 'operators',
-        'math_random': 'operators',
-        'unary': 'operators',
-        'part_event': 'events',
-        'create_color': 'misc'
-    };
+    Challenge.categoryMap = Kano.MakeApps.Blockly.Defaults.categoryMap;
 
-    Challenge.fieldDefaults = {
-        'colour_picker': {
-            'COLOUR': '#ff0000'
-        },
-        'math_number': {
-            'NUM': 0
-        },
-        'math_random': {
-            'TYPE': 'integer',
-            'MIN': 0,
-            'MAX': 10
-        },
-        'variables_set': {
-            'VAR': 'item'
-        },
-        'variables_get': {
-            'VAR': 'item'
-        },
-        'part_event': {
-            'EVENT': 'global.start'
-        },
-        'every_x_seconds': {
-            'INTERVAL': 1,
-            'UNIT': 'seconds'
-        },
-        'in_x_time': {
-            'DELAY': 1,
-            'UNIT': 'seconds'
-        },
-        'repeat_x_times': {
-            'N': 10
-        },
-        'unary': {
-            'LEFT_HAND': 'item',
-            'OPERATOR': '+=',
-            'RIGHT_HAND': 1
-        },
-        'math_arithmetic': {
-            'OP': 'ADD'
-        },
-        'logic_compare': {
-            'OP': 'EQ'
-        },
-        'logic_boolean': {
-            'BOOL': 'TRUE'
-        },
-        'get_time': {
-            'FIELD': 'year'
-        },
-        'text': {
-            'TEXT': ''
-        },
-        'lists_getIndex': {
-            'MODE': 'GET'
-        },
-        'lists_setIndex': {
-            'MODE': 'SET'
-        },
-        'stroke': {
-            'SIZE': 1
-        },
-        'line_to': {
-            'X': 5,
-            'Y': 5
-        },
-        'line': {
-            'X': 5,
-            'Y': 5
-        },
-        'move_to': {
-            'X': 5,
-            'Y': 5
-        },
-        'move': {
-            'X': 5,
-            'Y': 5
-        },
-        'circle': {
-            'RADIUS': 5
-        },
-        'ellipse': {
-            'RADIUSX': 5,
-            'RADIUSY': 5
-        },
-        'square': {
-            'SIZE': 5
-        },
-        'rectangle': {
-            'WIDTH': 5,
-            'HEIGHT': 5
-        },
-        'arc': {
-            'RADIUS': 5,
-            'START': 0,
-            'END': 1,
-            'CLOSE': 'TRUE'
-        },
-        'polygon': {
-            'CLOSE': 'TRUE'
-        },
-        'threshold': {
-            'OVER': 'true',
-            'VALUE': 70
-        },
-        'light_x_y': {
-            'X': 0,
-            'Y': 0
-        },
-        'ui_show_hide': {
-            'VISIBILITY': 'show'
-        },
-        'light_show_text': {
-            'COLOR': '#000000',
-            'BACKGROUND_COLOR': '#ffffff'
-        },
-        'light_scroll_text': {
-            'COLOR': '#000000',
-            'BACKGROUND_COLOR': '#ffffff',
-            'SPEED': 50
-        },
-        'set_x': {
-            'X': 0
-        },
-        'set_y': {
-            'Y': 0
-        },
-        'set_width': {
-            'WIDTH': 0
-        },
-        'set_height': {
-            'HEIGHT': 0
-        },
-        'set_radius': {
-            'RADIUS': 0
-        },
-        'animation_set_speed': {
-            'SPEED': 15
-        },
-        'animation_go_to_frame': {
-            'FRAME': 0
-        },
-        'animation_display_set_animation': {
-            'ANIMATION': 'smiley'
-        },
-        'animation_display_go_to_frame': {
-            'FRAME': 0
-        },
-        'create_color': {
-            'TYPE': 'rgb'
-        },
-        'picture_list_set_speed': {
-            'SPEED': 15
-        }
-    };
+    Challenge.fieldDefaults = Kano.MakeApps.Blockly.Defaults.values;
 
-    Challenge.labels = {
-        field: {
-            'GT': '>',
-            'GTE': '>=',
-            'LT': '<',
-            'LTE': '<=',
-            'EQ': '=',
-            'DIVIDE': '/',
-            'MULTIPLY': 'x',
-            'ADD': '+',
-            'SUBSTRACT': '-',
-            'TRUE': 'true',
-            'FALSE': 'false',
-            'year': 'Year',
-            'month': 'Month',
-            'day': 'Day',
-            'hour': 'Hour',
-            'minute': 'Minute',
-            'seconds': 'Seconds'
-        },
-        category: {
-            'variables': 'Variables',
-            'operators': 'Operators',
-            'control': 'Control'
-        }
+    Challenge.labels = Kano.MakeApps.Blockly.Defaults.labels;
+
+    Challenge.labels.field = {
+        'GT': '>',
+        'GTE': '>=',
+        'LT': '<',
+        'LTE': '<=',
+        'EQ': '=',
+        'DIVIDE': '/',
+        'MULTIPLY': 'x',
+        'ADD': '+',
+        'SUBSTRACT': '-',
+        'TRUE': 'true',
+        'FALSE': 'false',
+        'year': 'Year',
+        'month': 'Month',
+        'day': 'Day',
+        'hour': 'Hour',
+        'minute': 'Minute',
+        'seconds': 'Seconds'
     };
 
     Challenge.parseBlockType = function (type) {
@@ -641,8 +446,25 @@
                             },
                             "target": parentSelector.inputName
                         };
+                        steps.push(step);
                     }
-                    steps.push(step);
+                } else {
+                    steps.push({
+                        "tooltips": [
+                            {
+                                "location": "right-panel",
+                                "position": "left",
+                                "text": Challenge.randomizedAction('drop-codespace')
+                            }
+                        ],
+                        "validation": {
+                            "blockly": {
+                                "drop": {
+                                    "target": blockChallengeId
+                                }
+                            }
+                        }
+                    });
                 }
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];

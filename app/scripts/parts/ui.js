@@ -109,6 +109,57 @@ export default class UI extends Part {
         this.blocks.push({
             block: (ui) => {
                 return {
+                    id: 'ui_rotate',
+                    message0: `${ui.name}: turn %1 %2 degrees`,
+                    args0: [{
+                        type: 'field_dropdown',
+                        name: 'DIR',
+                        options: [
+                            ['\u21BB', 'cw'],
+                            ['\u21BA', 'ccw'],
+                            ['to', 'absolute']
+                        ]
+                    },{
+                        type: 'input_value',
+                        name: 'DEG'
+                    }],
+                    inputsInline: true,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let dir = block.getFieldValue('DIR'),
+                        deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
+                        method = 'rotate',
+                        code;
+                    if (dir === 'ccw') {
+                        deg *= -1;
+                    }
+                    if (dir === 'absolute') {
+                        method = 'absolute_rotate';
+                    }
+                    code = `devices.get('${ui.id}').${method}(${deg});\n`;
+                    return code;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let dir = block.getFieldValue('DIR'),
+                        deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
+                        code;
+                    if (dir === 'ccw') {
+                        deg *= -1;
+                    }
+                    code = `devices.get('${ui.id}').rotate(${deg});\n`;
+                    return code;
+                };
+            }
+        });
+        this.legacyBlocks.push({
+            block: (ui) => {
+                return {
                     id: 'ui_rotate_clockwise',
                     message0: `${ui.name}: turn \u21BB %1 degrees`,
                     args0: [{
@@ -137,7 +188,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_rotate_counter_clockwise',
@@ -168,7 +219,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_absolute_rotate',
@@ -232,7 +283,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_scale_rel',
@@ -298,7 +349,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_set_x',
@@ -327,7 +378,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_set_y',
@@ -398,7 +449,7 @@ export default class UI extends Part {
                 };
             }
         });
-        this.blocks.push({
+        this.legacyBlocks.push({
             block: (ui) => {
                 return {
                     id: 'ui_toggle_visibility',
@@ -455,6 +506,44 @@ export default class UI extends Part {
             pseudo: (ui) => {
                 return function () {
                     return [`${ui.id}.y`];
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_size',
+                    message0: `${ui.name}: size`,
+                    output: 'Number'
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getSize()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.size`];
+                };
+            }
+        });
+        this.blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'ui_rotation',
+                    message0: `${ui.name}: rotation`,
+                    output: 'Number'
+                };
+            },
+            javascript: (ui) => {
+                return function () {
+                    return [`devices.get('${ui.id}').getRotation()`];
+                };
+            },
+            pseudo: (ui) => {
+                return function () {
+                    return [`${ui.id}.rotation`];
                 };
             }
         });
