@@ -29,7 +29,6 @@
     };
     Kano.MakeApps.Blockly.init = function (c) {
         let flags = c.getFlags();
-        console.log(flags.experiments, this.experiments);
         flags.experiments.forEach(exp => {
             if (this.experiments[exp]) {
                 this.experiments[exp].forEach(m => {
