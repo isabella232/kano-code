@@ -302,16 +302,22 @@
                 if (!child) {
                     child = node.firstChild;
                 }
+                parentSelector = {
+                    id: parentSelector
+                };
                 if (child.tagName === 'shadow') {
-                    parentSelector = {
-                        id: parentSelector,
-                        shadow: node.getAttribute('name')
-                    };
+                    parentSelector.shadow = node.getAttribute('name');
+                } else {
+                    parentSelector.inputName = node.getAttribute('name');
                 }
                 steps = steps.concat(this.nodeToSteps(child, parentSelector, parentType));
                 break;
             }
             case 'statement': {
+                parentSelector = {
+                    id: parentSelector,
+                    inputName: node.getAttribute('name')
+                };
                 steps = steps.concat(this.nodeToSteps(node.firstChild, parentSelector, parentType));
                 break;
             }
@@ -416,7 +422,7 @@
                     });
                 }
                 if (parentSelector) {
-                    steps.push({
+                    let step = {
                         "tooltips": [{
                             "location": {
                                 "block": parentSelector
@@ -432,7 +438,16 @@
                                 }
                             }
                         }
-                    });
+                    };
+                    if (parentSelector.inputName) {
+                        step.phantom_block = {
+                            "location": {
+                                "block": parentSelector.id
+                            },
+                            "target": parentSelector.inputName
+                        };
+                        steps.push(step);
+                    }
                 } else {
                     steps.push({
                         "tooltips": [

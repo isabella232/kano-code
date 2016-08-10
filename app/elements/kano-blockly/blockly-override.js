@@ -1281,3 +1281,85 @@ Blockly.FieldVariable.dropdownChange = function(text) {
     }
     return undefined;
 };
+
+Blockly.setPhantomBlock = function (connection, targetBlock) {
+    let sourceBlock = connection.getSourceBlock(),
+        targetConnection = targetBlock.outputConnection ? targetBlock.outputConnection : targetBlock.previousConnection,
+        phantomSvgGroup = document.createElementNS(Blockly.SVG_NS, 'g'),
+        phantomSvgPath = document.createElementNS(Blockly.SVG_NS, 'path'),
+        phantomSvgText = document.createElementNS(Blockly.SVG_NS, 'text'),
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x),
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y),
+        xy = sourceBlock.getRelativeToSurfaceXY(),
+        position = {
+            x: dx - xy.x,
+            y: dy - xy.y
+        },
+        breathingAnimation;
+
+    phantomSvgPath.setAttribute('d', targetBlock.svgPath_.getAttribute('d'));
+    phantomSvgPath.setAttribute('fill', targetBlock.getColour());
+    phantomSvgPath.setAttribute('fill-opacity', 0.25);
+    phantomSvgPath.setAttribute('stroke', targetBlock.getColour());
+    phantomSvgPath.setAttribute('stroke-width', 1);
+    phantomSvgPath.setAttribute('stroke-dasharray', 6);
+
+    phantomSvgGroup.appendChild(phantomSvgPath);
+    phantomSvgGroup.appendChild(phantomSvgText);
+    phantomSvgGroup.setAttribute('transform', `translate(${position.x}, ${position.y})`);
+
+    Blockly.removePhantomBlock();
+
+    sourceBlock.svgGroup_.appendChild(phantomSvgGroup);
+
+    phantomSvgGroup.animate([{
+        opacity: 0
+    }, {
+        opacity: 1
+    }], {
+        duration: 400,
+        easing: 'ease-out'
+    });
+
+    breathingAnimation = phantomSvgGroup.animate([{
+        opacity: 0.7
+    }, {
+        opacity: 1
+    }, {
+        opacity: 0.7
+    }], {
+        delay: 400,
+        duration: 1200,
+        easing: 'ease-in-out',
+        iterations: Infinity
+    });
+
+    Blockly.phantomBlock_ = {
+        svgRoot: phantomSvgGroup,
+        position,
+        animation: breathingAnimation
+    };
+};
+
+Blockly.removePhantomBlock = function (connection, targetBlock) {
+    if (Blockly.phantomBlock_) {
+        let translate = `translate(${Blockly.phantomBlock_.position.x}px, ${Blockly.phantomBlock_.position.y}px)`,
+            root = Blockly.phantomBlock_.svgRoot;
+        // Stop the breathing animation
+        Blockly.phantomBlock_.animation.cancel();
+        root.style.transformOrigin = 'center center';
+        root.animate([{
+            transform: `${translate} scale(1)`,
+            opacity: 1
+        }, {
+            transform: `${translate} scale(4)`,
+            opacity: 0
+        }], {
+            duration: 300,
+            easing: 'ease-in'
+        }).finished.then(() => {
+            root.parentNode.removeChild(root);
+        });
+        Blockly.phantomBlock_ = null;
+    }
+};

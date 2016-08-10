@@ -293,7 +293,34 @@
                 this.computeTooltips(step);
                 this.computeArrow(step);
                 this.computeHighlight(step);
+                this.computePhantomBlock(step);
             }, 10);
+        },
+        computePhantomBlock (step) {
+            let phantom_block = step.phantom_block,
+                connection,
+                target,
+                host;
+            if (!phantom_block ||
+                !phantom_block.location ||
+                !phantom_block.target ||
+                !Blockly.selected) {
+                Blockly.removePhantomBlock();
+                return;
+            }
+            host = this.getTargetBlock(phantom_block.location.block);
+            for (let i = 0; i < host.inputList.length; i++) {
+                if (host.inputList[i].name === phantom_block.target) {
+                    connection = host.inputList[i].connection;
+                }
+            }
+            target = Blockly.selected;
+            if (!connection) {
+                return;
+            }
+            this.async(() => {
+                Blockly.setPhantomBlock(connection, target);
+            });
         },
         computeHighlight (step) {
             if (step.highlight) {
