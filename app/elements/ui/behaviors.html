@@ -69,15 +69,17 @@ window.Kano.Behaviors.UIBehavior = {
         this.isRunning = true;
     },
     stop () {
-        let savedState = this.savedState || {};
-        savedState.position = savedState.position || { x: 0, y: 0 };
-        this.set('model.position.x', savedState.position.x);
-        this.set('model.position.y', savedState.position.y);
-        this.set('model.rotation', savedState.rotation);
-        this.set('model.scale', savedState.scale);
-        this.set('model.visible', savedState.visible);
-        this.set('model.userProperties', savedState.userProperties);
-        this.set('model.userStyle', savedState.userStyle);
+        if (this.savedState) {
+            let savedState = this.savedState || {};
+            savedState.position = savedState.position || { x: 0, y: 0 };
+            this.set('model.position.x', savedState.position.x);
+            this.set('model.position.y', savedState.position.y);
+            this.set('model.rotation', savedState.rotation);
+            this.set('model.scale', savedState.scale);
+            this.set('model.visible', savedState.visible);
+            this.set('model.userProperties', savedState.userProperties);
+            this.set('model.userStyle', savedState.userStyle);
+        }
         this.isRunning = false;
     },
     moveAlong (distance) {

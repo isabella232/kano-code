@@ -98,6 +98,10 @@ Polymer({
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
+        this.debounce('liveCode', () => {
+            this.toggleRunning(false);
+            this.toggleRunning(true);
+        }, 300);
     },
     _proxyChange (e) {
         // Bug on chrome 49 on the kit, the event from kano-blockly stops here
@@ -507,25 +511,15 @@ Polymer({
     /**
      * Toggle the running state of the current app
      */
-    toggleRunning () {
-        let visibleWhenRunning = Polymer.dom(this.root).querySelectorAll('.visible-when-running'),
-            toggleElevate = () => {
-                visibleWhenRunning.forEach((el) => {
-                    this.toggleClass('elevate', this.running, el);
-                });
-            };
-        this.running = !this.running;
+    toggleRunning (state) {
+        this.running = typeof state === 'undefined' ? !this.running : state;
         this.notifyChange('running', {
             value: this.running
         });
-        this.$.overlay.focus();
-        this.$.partsPanel.closeDrawer();
         // Removes the elevate class only after the animation
         if (!this.running) {
-            setTimeout(toggleElevate, 500);
             this._enableDrag();
         } else {
-            toggleElevate();
             // Disable drag when starts
             this._disableDrag();
         }
