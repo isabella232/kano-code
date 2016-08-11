@@ -23,7 +23,7 @@
 						"flyout_block": "variables_set"
 					},
 					"position": "left",
-					"text": "Drag the <kano-blockly-block type=\"variables_set\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"variables_set\"></kano-blockly-block> block onto your code space. <br>We will use this variable to keep track of which<br> light we are currently turning on."
 				}
 			],
 			"arrow": {
@@ -52,6 +52,12 @@
 					"text": "Connect it to this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "default_part_event"
+			    },
+			    "target": "DO"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -110,9 +116,15 @@
 						"block": "block_0"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it to this block.<br> We want the variable to be 0 because we are going to<br> start with the first light, and then it will grow bigger..."
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_0"
+			    },
+			    "target": "VALUE"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -142,15 +154,15 @@
 			"tooltips": [
 				{
 					"location": {
-						"flyout_block": "repeat_x_times"
+						"flyout_block": "every_x_seconds"
 					},
 					"position": "left",
-					"text": "Drag the <kano-blockly-block type=\"repeat_x_times\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"every_x_seconds\"></kano-blockly-block> block onto your code space.<br>This is the loop we will use to draw all the colors!"
 				}
 			],
 			"arrow": {
 				"target": {
-					"flyout_block": "repeat_x_times"
+					"flyout_block": "every_x_seconds"
 				},
 				"angle": 315,
 				"size": 80
@@ -158,7 +170,7 @@
 			"validation": {
 				"blockly": {
 					"create": {
-						"type": "repeat_x_times",
+						"type": "every_x_seconds",
 						"id": "block_2"
 					}
 				}
@@ -171,9 +183,15 @@
 						"block": "block_0"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it under this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_0"
+			    },
+			    "target": "next"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -187,23 +205,17 @@
 			"tooltips": [
 				{
 					"location": {
-						"block": {
-							"id": "block_2",
-							"shadow": "N"
-						}
+						"block": "block_2"
 					},
 					"position": "top",
-					"text": "Change to <kano-value-preview>128</kano-value-preview>"
+					"text": "Change to <kano-value-preview>frames</kano-value-preview>"
 				}
 			],
 			"validation": {
 				"blockly": {
 					"value": {
-						"target": {
-							"id": "block_2",
-							"shadow": "N"
-						},
-						"value": "128"
+						"target": "block_2",
+						"value": "frames"
 					}
 				}
 			}
@@ -231,7 +243,7 @@
 						"flyout_block": "lightboard#turn_on"
 					},
 					"position": "left",
-					"text": "Drag the <kano-blockly-block type=\"lightboard#turn_on\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"lightboard#turn_on\"></kano-blockly-block> block onto your code space...<br>...so we can turn on some lights!"
 				}
 			],
 			"arrow": {
@@ -257,9 +269,16 @@
 						"block": "block_2"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it inside the loop"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_2"
+			    },
+			    "target": "DO"
+			},
+
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -292,7 +311,7 @@
 						"flyout_block": "lightboard#light_x_y"
 					},
 					"position": "left",
-					"text": "Drag the <kano-blockly-block type=\"lightboard#light_x_y\"></kano-blockly-block> block onto your code space"
+					"text": "Next we need to tell it which light to turn on...<br>Drag the <kano-blockly-block type=\"lightboard#light_x_y\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
@@ -321,6 +340,12 @@
 					"text": "Connect it to this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_3"
+			    },
+			    "target": "TARGET"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -356,13 +381,6 @@
 					"text": "Drag the <kano-blockly-block type=\"variables_get\"></kano-blockly-block> block onto your code space"
 				}
 			],
-			"arrow": {
-				"target": {
-					"flyout_block": "variables_get"
-				},
-				"angle": 315,
-				"size": 80
-			},
 			"validation": {
 				"blockly": {
 					"create": {
@@ -379,9 +397,15 @@
 						"block": "block_4"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it inside this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_4"
+			    },
+			    "target": "X"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -440,9 +464,15 @@
 						"block": "block_3"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it to this block. This will control the hue of the color we use."
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_3"
+			    },
+			    "target": "COLOR"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -523,6 +553,12 @@
 					"text": "Connect it to this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_6"
+			    },
+			    "target": "1"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -577,13 +613,6 @@
 					"text": "Drag the <kano-blockly-block type=\"variables_get\"></kano-blockly-block> block onto your code space"
 				}
 			],
-			"arrow": {
-				"target": {
-					"flyout_block": "variables_get"
-				},
-				"angle": 315,
-				"size": 80
-			},
 			"validation": {
 				"blockly": {
 					"create": {
@@ -600,9 +629,15 @@
 						"block": "block_7"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it inside this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_7"
+			    },
+			    "target": "A"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -664,6 +699,12 @@
 					"text": "Connect it to this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_7"
+			    },
+			    "target": "B"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -741,9 +782,15 @@
 						"block": "block_6"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it to this block. This will control how colorful the color we generate is."
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_6"
+			    },
+			    "target": "2"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -760,7 +807,7 @@
 						"block": "block_10"
 					},
 					"position": "top",
-					"text": "Change to <kano-value-preview>100</kano-value-preview>"
+					"text": "Change to <kano-value-preview>100</kano-value-preview> to make the color really saturated!"
 				}
 			],
 			"validation": {
@@ -824,6 +871,12 @@
 					"text": "Connect it to this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_6"
+			    },
+			    "target": "3"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -875,7 +928,7 @@
 						"flyout_block": "unary"
 					},
 					"position": "left",
-					"text": "Drag the <kano-blockly-block type=\"unary\"></kano-blockly-block> block onto your code space"
+					"text": "We are at the end of the loop!<br>We need to tell the computer to move on to the next light.<br>To do that we make the item variable bigger!<br>Drag the <kano-blockly-block type=\"unary\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
@@ -901,9 +954,15 @@
 						"block": "block_3"
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Connect it under this block"
 				}
 			],
+			"phantom_block": {
+			    "location": {
+			        "block": "block_3"
+			    },
+			    "target": "DO"
+			},
 			"validation": {
 				"blockly": {
 					"connect": {
@@ -932,7 +991,7 @@
 				{
 					"location": "left-panel",
 					"position": "right",
-					"text": "You can now test the app",
+					"text": "You made an amazing rainbow with code! Look at it grow!<br>Try changing the code to make it your own.",
 					"next_button": true
 				}
 			]
