@@ -303,15 +303,18 @@
                 host;
             if (!phantom_block ||
                 !phantom_block.location ||
-                !phantom_block.target ||
                 !Blockly.selected) {
                 Blockly.removePhantomBlock();
                 return;
             }
             host = this.getTargetBlock(phantom_block.location.block);
-            for (let i = 0; i < host.inputList.length; i++) {
-                if (host.inputList[i].name === phantom_block.target) {
-                    connection = host.inputList[i].connection;
+            if (!phantom_block.target) {
+                connection = host.nextConnection;
+            } else {
+                for (let i = 0; i < host.inputList.length; i++) {
+                    if (host.inputList[i].name === phantom_block.target) {
+                        connection = host.inputList[i].connection;
+                    }
                 }
             }
             target = Blockly.selected;

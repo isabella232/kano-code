@@ -439,15 +439,15 @@
                             }
                         }
                     };
+                    step.phantom_block = {
+                        "location": {
+                            "block": parentSelector.id
+                        }
+                    };
                     if (parentSelector.inputName) {
-                        step.phantom_block = {
-                            "location": {
-                                "block": parentSelector.id
-                            },
-                            "target": parentSelector.inputName
-                        };
-                        steps.push(step);
+                        step.phantom_block.target =  parentSelector.inputName;
                     }
+                    steps.push(step);
                 } else {
                     steps.push({
                         "tooltips": [
