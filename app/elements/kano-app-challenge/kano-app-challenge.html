@@ -96,11 +96,12 @@
         <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
-        <template is="dom-repeat" items="{{tooltips}}" as="tooltip">
+        <template is="dom-repeat" items="{{tooltips}}" as="tooltip" on-dom-change="_tooltipDomChanged">
             <kano-tooltip target="[[tooltip.target]]"
                           position="[[tooltip.position]]"
                           z-index="[[tooltip.zIndex]]"
-                          track-target="[[tooltip.tracking]]">
+                          track-target="[[tooltip.tracking]]"
+                          bounce$="[[tooltip.bounce]]">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
                         <marked-element markdown="[[tooltip.text]]">
@@ -212,13 +213,42 @@
             this.debounce('computeTooltips', () => {
                 let tooltips = step.tooltips || [];
                 tooltips = tooltips.map((tooltip) => {
-                    let target = this.getDeepElement(tooltip.location);
-                    tooltip.target = target;
-                    tooltip.text = this._processMarkdown(tooltip.text);
-                    return tooltip;
+                    let copy = Object.assign({}, tooltip);
+                    copy.target = this.getDeepElement(tooltip.location);
+                    copy.text = this._processMarkdown(tooltip.text);
+                    return copy;
                 });
                 this.set('tooltips', tooltips);
             }, 200);
+        },
+        _tooltipDomChanged (e) {
+            let tooltips = Polymer.dom(this.root).querySelectorAll('kano-tooltip[bounce]'),
+                offset,
+                transform,
+                tooltip;
+            for (let i = 0; i < tooltips.length; i++) {
+                tooltip = tooltips[i];
+                offset = 70;
+                if (tooltip.position === 'top' || tooltip.position === 'bottom') {
+                    transform = 'translateY';
+                } else {
+                    transform = 'translateX';
+                }
+                if (tooltip.position === 'top' || tooltip.position === 'left') {
+                    offset *= -1;
+                }
+                tooltips[i].animate([{
+                    transform: `${transform}(${offset}px)`
+                },{
+                    transform: `${transform}(0px)`
+                },{
+                    transform: `${transform}(${offset}px)`
+                }], {
+                    duration: 40 * 25,
+                    easing: 'ease-in-out',
+                    iterations: Infinity
+                });
+            }
         },
         _processMarkdown (text) {
             let reg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
