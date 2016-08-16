@@ -393,13 +393,16 @@ You can display tooltips on the screen that points to a UI element using the `to
     "location": "<target ui element (See a bit further)>",
     "position": "<[top|right|bottom|left]>",
     "text": "<markdown content>",
-    "next_button": "<[true|false]>"
+    "next_button": "<[true|false]>",
+    "bounce": "<[true|false]>"
 }
 ```
 
 The `text` attribute will be processed as markdown. Thus, you can add bits of HTML in your tooltips and modals. You can display a block in theses texts by using the `<kano-blockly-block type="math_number"></kano-blockly-block>` HTML element. By changing the type, you change the displayed block. For blocks added by a mode, just prefix the name of the block with `modeId#` where modeId is the id of the current mode e.g. `normal#set_background_color`. For the blocks added with parts, you can use the same syntax but with the id of the previously added part e.g. `button_1#set_label`.
 
 If the `next_button` key is set, a `Next` button will be added at the end of the tooltip and will go to the next step when clicked on. When using this key, no need to specify a validation
+
+The bounce property will make the tooltip bounce on the target
 
 #### Arrow
 
