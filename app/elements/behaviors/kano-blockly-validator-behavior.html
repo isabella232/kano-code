@@ -4,7 +4,7 @@
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
-    window.Kano.Behaviors.BlocklyValidatorBehavior = {
+    window.Kano.Behaviors.BlocklyValidatorBehaviorImpl = {
         properties: {
             blockIds: {
                 type: Object,
@@ -14,6 +14,15 @@
                     };
                 }
             }
+        },
+        ready () {
+            this._addValidator('blockly', '_checkBlocklyEvent');
+            this._addValidator('create', '_matchCreate');
+            this._addValidator('connect', '_matchConnect');
+            this._addValidator('value', '_matchBlocklyValue');
+            this._addValidator('delete', '_matchDelete');
+            this._addValidator('open-flyout', '_matchCategory');
+            this._addValidator('drop', '_matchDrop');
         },
         attached () {
             this.eventsMap = {
@@ -25,25 +34,17 @@
                 'close-flyout': 'close-flyout',
                 'drop': 'drop-block'
             };
-            this.blocklyValidators = {
-                'create': this.matchCreate.bind(this),
-                'connect': this.matchConnect.bind(this),
-                'value': this.matchBlocklyValue.bind(this),
-                'delete': this.matchDelete.bind(this),
-                'open-flyout': this.matchCategory.bind(this),
-                'drop': this.matchDrop.bind(this)
-            };
         },
-        matchCategory (validation, event) {
+        _matchCategory (validation, event) {
             if (validation.part) {
                 validation = this.stepIds[validation.part];
             }
             return event.categoryId === validation;
         },
-        matchBlockType (type, event) {
+        _matchBlockType (type, event) {
             return event.xml.getAttribute('type') === type;
         },
-        matchBlocklyEvent (type, event) {
+        _matchBlocklyEvent (type, event) {
             return event.type === this.eventsMap[type];
         },
         getBlockType (validation) {
@@ -64,7 +65,7 @@
             }
             return type;
         },
-        matchDelete (validation, event) {
+        _matchDelete (validation, event) {
             let target = validation.target || validation,
                 blockId = this.getTargetBlock(target).id;
             if (blockId !== event.blockId) {
@@ -73,10 +74,10 @@
             delete this.blockIds[target];
             return true;
         },
-        matchCreate (validation, event) {
+        _matchCreate (validation, event) {
             let type = this.getBlockType(validation);
             // Check the type of the added block
-            if (this.matchBlockType(type, event)) {
+            if (this._matchBlockType(type, event)) {
                 // The new block created is added to the step, using its
                 // step id for further reference
                 if (validation.id) {
@@ -85,7 +86,7 @@
                 return true;
             }
         },
-        matchConnect (validation, event) {
+        _matchConnect (validation, event) {
             // Extract the validation object, target and parent step ids and
             // the block moved
             let targetId = this.getTargetBlock(validation.target).id,
@@ -97,13 +98,13 @@
                 return true;
             }
         },
-        matchDrop (validation, event) {
+        _matchDrop (validation, event) {
             let targetId = this.getTargetBlock(validation.target).id,
                 block = event;
             // Check that the element that changed is the one we target
             return block.blockId === targetId;
         },
-        matchBlocklyValue (validation, event) {
+        _matchBlocklyValue (validation, event) {
             let targetId = this.getTargetBlock(validation.target).id,
                 block = event,
                 failed = false;
@@ -142,23 +143,22 @@
             }
             return block;
         },
-        handleBlocklyChange (step, e) {
+        _checkBlocklyEvent (validation, detail) {
+            let blocklyStep = validation.blockly;
             // Store current step object
-            Object.keys(step).forEach((type) => {
-                let validation;
-                if (!this.matchBlocklyEvent(type, e)) {
-                    return;
-                }
-                validation = step[type];
-                if (validation === true) {
-                    return this.nextStep();
-                }
-                if (typeof this.blocklyValidators[type] === 'function' &&
-                        this.blocklyValidators[type](validation, e)) {
-                    this.nextStep();
+            Object.keys(blocklyStep).forEach((type) => {
+                if (type !== detail.type) {
+                    if (this._isOppositeAction(type, detail.type)) {
+                        // Check the opposite validation, take action
+
+                    }
+                } else {
+                    console.log('blockly');
                 }
             });
         }
     };
+
+    window.Kano.Behaviors.BlocklyValidatorBehavior = [window.Kano.Behaviors.ValidatorBehavior, window.Kano.Behaviors.BlocklyValidatorBehaviorImpl]
 
 </script>

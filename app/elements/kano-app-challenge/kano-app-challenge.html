@@ -131,7 +131,7 @@
 
     Polymer({
         is: 'kano-app-challenge',
-        behaviors: [Kano.Behaviors.ValidatorBehavior, Kano.Behaviors.BlocklyValidatorBehavior],
+        behaviors: [Kano.Behaviors.BlocklyValidatorBehavior],
         properties: {
             tooltips: {
                 type: Array
@@ -197,6 +197,7 @@
                 "open-part-settings": this.matchPartTarget.bind(this),
                 "settings-interaction": this.matchSettingsInteraction.bind(this)
             };
+            this.oppositeActions = {};
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.modal = this.$.modal;
@@ -526,21 +527,15 @@
                 return;
             }
             Object.keys(step.validation).forEach((type) => {
-                let validation;
                 if (type !== detail.type) {
-                    return;
-                }
-                validation = step.validation[type];
-                if (validation === true) {
-                    return this.nextStep();
-                }
-                this.changeCounts[this.step] = this.changeCounts[this.step] + 1 || 1;
-                if (type === 'blockly') {
-                    return this.handleBlocklyChange(validation, detail.event);
-                }
-                if (typeof this.validators[type] === 'function' &&
-                        this.validators[type](validation, detail)) {
-                    this.nextStep();
+                    if (this._isOppositeAction(type, detail.type)) {
+                        // Check the opposite validation, take action
+
+                    }
+                } else {
+                    if (this._checkEvent(step.validation[type], type, detail)) {
+                        this.nextStep();
+                    }
                 }
             });
         }

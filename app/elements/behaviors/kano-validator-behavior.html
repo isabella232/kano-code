@@ -30,6 +30,50 @@
                 }
             }
         },
+        ready () {
+            this._validators = {};
+            this._oppositeActions = {};
+        },
+        _addValidator (type, method) {
+            this._validators[type] = method;
+        },
+        _checkEvent (e) {
+            // Store current step object
+            let step = this.steps[this.step],
+                detail = e.detail;
+
+            if (!step || !step.validation || this.done) {
+                return;
+            }
+            Object.keys(step.validation).forEach((type) => {
+                if (type !== detail.type) {
+                    if (this._isOppositeAction(type, detail.type)) {
+                        // Check the opposite validation, take action
+
+                    }
+                } else {
+                    if (this._validateEvent(step.validation[type], type, detail)) {
+                        this.nextStep();
+                    }
+                }
+            });
+        },
+        _validateEvent (validation, type, detail) {
+            if (validation === true) {
+                return true;
+            }
+            this.changeCounts[this.step] = this.changeCounts[this.step] + 1 || 1;
+            if (this._validators[type] &&
+                this[this._validators[type]].call(this, validation, detail)) {
+                return true;
+            }
+        },
+        /**
+         * Lookup the actions tables and check if the current event goes against the action required
+         */
+        _isOppositeAction (action, type) {
+            return this._oppositeActions[action] && this._oppositeActions[action].indexOf(type) !== -1;
+        },
         /**
          * Get the instruction to display
          */
