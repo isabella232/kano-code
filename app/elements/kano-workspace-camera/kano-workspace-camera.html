@@ -25,6 +25,9 @@
         Polymer({
             is: 'kano-workspace-camera',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior],
+            ready () {
+                this.userListeners = [];
+            },
             setBackgroundColor (color) {
                 this.$.screen.style.background = color;
             },
@@ -35,6 +38,51 @@
             },
             getCamera () {
                 return this.$['camera-part'];
+            },
+            flash (color, length) {
+                Kano.AppModules.getModule('camera').flash(color, length);
+            },
+            onShutterDown (cb) {
+                this.onKeyDown('shutter-button', cb);
+            },
+            onShutterTurns (key, callback) {
+                let cb = this._shutterCheck(key, callback);
+                this.userListeners.push({
+                    name: 'timer-changed',
+                    cb
+                });
+                Kano.AppModules.getModule('camera').on('timer-changed', cb);
+            },
+            _shutterCheck (key, callback) {
+                return (data) => {
+                    if (data.direction === key) {
+                        callback();
+                    }
+                };
+            },
+            onKeyDown (key, callback) {
+                let cb = this._keyDownCheck(key, callback);
+                this.userListeners.push({
+                    name: 'button-down',
+                    cb
+                });
+                Kano.AppModules.getModule('camera').on('button-down', cb);
+            },
+            _keyDownCheck (key, callback) {
+                return (data) => {
+                    if (data['button-id'] === key) {
+                        callback();
+                    }
+                };
+            },
+            stop () {
+                this.reset();
+            },
+            reset () {
+                this.userListeners.forEach((listener) => {
+                    Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
+                });
+                this.userListeners = [];
             }
         });
     </script>
