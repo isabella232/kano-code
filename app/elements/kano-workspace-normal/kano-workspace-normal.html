@@ -48,10 +48,7 @@
     </style>
     <template>
         <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-        <div class="hole hole-top-left"></div>
-        <div class="hole hole-top-right"></div>
-        <div class="hole hole-bottom-right"></div>
-        <div class="hole hole-bottom-left"></div>
+        <p>{{ mousePositionX }}, {{ mousePositionY }}</p>
         <content></content>
     </template>
     <script>
@@ -62,7 +59,16 @@
             properties: {
                 width: Number,
                 height: Number,
-                autoStart: Boolean
+                autoStart: Boolean,
+                mousePositionX: Number,
+                mousePositionY: Number
+            },
+            ready () {
+                this.ctx = this.$.canvas;
+
+                this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
+                this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
+                this.ctx.addEventListener('mousemove', this._onMouseMove.bind(this));
             },
             attached () {
                 if (this.autoStart) {
@@ -91,6 +97,22 @@
                 image.src = this.$.canvas.toDataURL();
                 ctx.drawImage(image, 0, 0);
                 return Promise.resolve();
+            },
+            _onMouseOver (e) {
+                this._isMouseOver = true;
+            },
+            _onMouseOut (e) {
+                this._isMouseOver = false;
+                this.mousePositionX = 0;
+                this.mousePositionY = 0;
+            },
+            _onMouseMove (e) {
+                if (this._isMouseOver) {
+                    this.rectangle = this.ctx.getBoundingClientRect();
+
+                    this.mousePositionX = parseInt(e.x - this.rectangle.left);
+                    this.mousePositionY = parseInt(e.y - this.rectangle.top);
+                }
             }
         });
     </script>
