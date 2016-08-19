@@ -6,7 +6,7 @@ export default proximitySensor = {
     partType: 'hardware',
     type: 'proximity-sensor',
     label: 'Proximity Sensor',
-    image: '/assets/part/box.svg',
+    image: '/assets/part/proximity.svg',
     colour: '#FFB347',
     component: 'kano-part-proximity-sensor',
     customizable: {

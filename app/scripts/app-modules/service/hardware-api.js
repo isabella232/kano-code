@@ -19,7 +19,9 @@ export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
     connectToSocket () {
-        this.socket = io.connect(this.endpoint);
+        if (!this.socket) {
+            this.socket = io.connect(this.endpoint);
+        }
     },
     config (c) {
         if (c.HOST) {
