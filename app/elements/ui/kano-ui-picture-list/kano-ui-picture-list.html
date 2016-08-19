@@ -1,5 +1,4 @@
 <link rel="import" href="../behaviors.html">
-<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <script src="../../../bower_components/gif.js/dist/gif.js"></script>
 <link rel="import" href="../../kano-style/part.html">
 <dom-module id="kano-ui-picture-list">
@@ -11,7 +10,7 @@
     .container {
         position: relative;
         width: 320px;
-        height: 180px;
+        height: 244px;
     }
     :host(.playing) .container .picture {
         transform: none;
@@ -36,7 +35,7 @@
         border: 2px solid white;
         background-color: lightgrey;
         min-width: 320px;
-        min-height: 180px;
+        min-height: 244px;
         transition: all ease-out 150ms;
     }
     .picture:nth-child(1) {
@@ -85,9 +84,7 @@
         padding-left: 9px;
         padding-right: 6px;
     }
-    iron-image {
-        width: 306px;
-        height: 166px;
+    canvas {
         margin: 7px;
     }
     img {
@@ -100,8 +97,7 @@
             <div class="picture"></div>
             <div class="picture"></div>
             <div class="picture">
-                <iron-image class="top" src="[[topPicture]]" sizing="cover" preload fade placeholder="/assets/part/picture-list-placeholder.svg"></iron-image>
-                <iron-image class="frame" src="[[frame]]" sizing="cover" preload fade placeholder="/assets/part/picture-list-placeholder.svg"></iron-image>
+                <canvas id="canvas" width$="[[FRAME_WIDTH]]" height$="[[FRAME_HEIGHT]]"></canvas>
                 <div class="counter">
                     <img src="/assets/part/camera.png" alt="Camera icon"/>
                     <span>[[pictures.length]]</span>
@@ -120,17 +116,32 @@
         properties: {
             topPicture: {
                 type: String,
-                computed: '_computeTopPicture(pictures.*)'
+                computed: '_computeTopPicture(pictures.*)',
+                observer: '_paintFrame'
+            },
+            frame: {
+                type: String,
+                observer: '_paintFrame'
             }
         },
         ready () {
             this.pictures = [];
             this.frameId = 0;
+            this.FRAME_WIDTH = 306;
+            this.FRAME_HEIGHT = 230;
+        },
+        attached () {
+            this.ctx = this.$.canvas.getContext('2d');
+            this.reset();
+        },
+        reset () {
+            this._paintFrame('/assets/part/picture-list-placeholder.svg');
         },
         stop () {
             Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
             this.pictures = [];
             this.pause();
+            this.reset();
         },
         _computeTopPicture () {
             return this.pictures[this.pictures.length - 1];
@@ -150,6 +161,18 @@
         pause () {
             this.toggleClass('playing', false);
             clearInterval(this.timeoutId);
+        },
+        _paintFrame (src) {
+            let img = new Image(),
+                finalHeight,
+                heightDiff;
+            img.onload = () => {
+                finalHeight = this.FRAME_WIDTH * (img.naturalHeight / img.naturalWidth);
+                heightDiff = this.FRAME_HEIGHT - finalHeight;
+                this.ctx.clearRect(0, 0, this.FRAME_WIDTH, this.FRAME_HEIGHT);
+                this.ctx.drawImage(img, 0, heightDiff / 2, 306, finalHeight);
+            };
+            img.src = src;
         },
         renderOnCanvas (ctx) {
             Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments);

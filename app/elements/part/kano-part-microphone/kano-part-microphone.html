@@ -150,7 +150,9 @@
                 this._setVolume(Math.min(120, stats.volume) / 1.2);
                 this._setLow(Math.min(120, stats.low) / 1.2);
 
-                this._executeThresholds();
+                if (this.isRunning) {
+                    this._executeThresholds();
+                }
 
                 this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));
             },
@@ -204,6 +206,7 @@
                 this.thresholds.push(threshold);
             },
             reset () {
+                console.log('microphone reset');
                 this.thresholds = [];
             }
         });

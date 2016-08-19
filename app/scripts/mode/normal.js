@@ -48,5 +48,5 @@ export default normal = {
         },
         component: 'kano-workspace-normal'
     },
-    excludeParts: ['light-rectangle', 'light-circle', 'picture-list']
+    excludeParts: ['light-rectangle', 'light-circle', 'picture-list', 'kaleidoscope', 'light-animation', 'light-animation-display']
 };
