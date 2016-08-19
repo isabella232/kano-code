@@ -26,6 +26,7 @@ import Canvas from './canvas/canvas';
 import Clock from './clock';
 import Kaleidoscope from './kaleidoscope';
 import Slider from './slider';
+import ProximitySensor from './powerups/proximity-sensor';
 
 let Parts,
     partTypes;
@@ -37,7 +38,8 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock],
+           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
+           ProximitySensor],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation, LightAnimationDisplay],
         'camera': [PictureList, Kaleidoscope, Slider],

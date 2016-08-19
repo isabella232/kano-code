@@ -1,0 +1,51 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-proximity-sensor">
+    <style>
+    :host {
+        display: none;
+    }
+    </style>
+    <template>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-proximity-sensor',
+            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+            properties: {
+                lastProximityValue: {
+                    type: Number,
+                    value: 0
+                }
+            },
+            attached () {
+                Kano.AppModules.getModule('proximitySensor').connect({
+                    name: 'Make Apps'
+                });
+            },
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+
+                this.proximityEventListener = (e) => {
+                    this.lastProximityValue = e.proximity;
+                    this.fire('proximity-update');
+                };
+
+                Kano.AppModules.getModule('proximitySensor').on('proximity-sensor:0:proximity-data', this.proximityEventListener);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+
+                Kano.AppModules.getModule('proximitySensor').removeListener('proximity-sensor:0:proximity-data', this.proximityEventListener);
+            },
+            getValue () {
+                return this.lastProximityValue;
+            }
+        });
+    </script>
+</dom-module>
