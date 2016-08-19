@@ -130,5 +130,13 @@ export default HardwareAPI = {
             // Just return path to the endpoint
             return HardwareAPI.camera.getPath('lastPictureData');
         }
+    },
+    ledring: {
+        flash (color, length) {
+            HardwareAPI.socket.emit('ledring:flash', { color, length });
+        },
+        flashSeries (moves) {
+            HardwareAPI.socket.emit('ledring:flashseries', { moves });
+        }
     }
 };
