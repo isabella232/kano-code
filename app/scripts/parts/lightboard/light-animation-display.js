@@ -6,7 +6,7 @@ let lightAnimationDisplay;
 export default lightAnimationDisplay = {
     partType: 'ui',
     type: 'light-animation-display',
-    label: 'Light animation display',
+    label: 'Player',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',
     component: 'kano-part-light-animation-display',

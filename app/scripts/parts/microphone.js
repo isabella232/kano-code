@@ -3,7 +3,7 @@ let microphone;
 export default microphone = {
     partType: 'hardware',
     type: 'microphone',
-    label: 'Microphone',
+    label: 'Mic',
     component: 'kano-part-microphone',
     image: '/assets/part/microphone.svg',
     colour: '#FFB347',
