@@ -6,8 +6,9 @@ export default light = {
     id: 'lightboard',
     name: 'Lightboard',
     colour: '#82C23D',
-    excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',
-                   'scrolling-text', 'picture-list'],
+    parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
+                'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
+                'rss', 'sports', 'weather', 'share'],
     workspace: {
         viewport: {
             width: 466,
