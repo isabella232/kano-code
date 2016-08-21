@@ -3,7 +3,7 @@ let lightFrame;
 export default lightFrame = {
     partType: 'ui',
     type: 'lightframe',
-    label: 'Light frame',
+    label: 'Frame',
     image: '/assets/part/lights.svg',
     colour: '#FFB347',
     component: 'kano-part-light-frame',
