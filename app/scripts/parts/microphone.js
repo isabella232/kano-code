@@ -11,19 +11,26 @@ export default microphone = {
         block: () => {
             return {
                 id: 'get_volume',
-                message0: 'Microphone: volume',
+                message0: 'Microphone: %1',
+                args0: [{
+                    type: 'field_dropdown',
+                    name: 'TYPE',
+                    options: [['volume', 'volume'], ['pitch', 'pitch']]
+                }],
                 output: 'Number'
             };
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').volume`;
+                let type = block.getFieldValue('TYPE'),
+                    code = `devices.get('${part.id}').${type}`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').volume`;
+                let type = block.getFieldValue('TYPE'),
+                    code = `devices.get('${part.id}').${type}`;
                 return [code];
             };
         }
