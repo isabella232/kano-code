@@ -10,10 +10,10 @@
     }
     .container {
         position: relative;
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
     }
-    .canvas-container, .ripple {
+    .ripple {
         position: absolute;
         top: 0;
         left: 0;
@@ -30,21 +30,38 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: rgb(229, 57, 53);
-        transition: background-color linear 150ms;
     }
-    iron-image {
+    .image {
+        background-color: rgb(229, 57, 53);
+        background-image: url('/assets/part/microphone.svg');
+        background-size: cover;
+        background-blend-mode: soft-light;
         width: 40px;
         height: 40px;
         border-radius: 50%;
         @apply(--shadow-elevation-2dp);
+    }
+    .data {
+        color: white;
+        position: absolute;
+        top: 0px;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        font-size: 24px;
     }
     </style>
     <template>
         <div class="container">
             <div class="ripple" style$="[[_computeRippleStyle(volume)]]"></div>
             <div class="ripple" style$="[[_computeRippleStyle(low)]]"></div>
-            <iron-image src="[[model.image]]" sizing="cover"></iron-image>
+            <div class="image"></div>
+            <div class="data">
+                <span>[[volumeData]]</span>
+            </div>
         </div>
     </template>
     <script type="text/javascript">
@@ -142,7 +159,7 @@
                 }
                 this.disabled = true;
             },
-            _updateVisualisation () {
+            _updateVisualisation (timestamp) {
                 let stats;
                 // Populates the sound data array
                 this.analyser.getByteFrequencyData(this.soundData);
@@ -152,6 +169,11 @@
 
                 if (this.isRunning) {
                     this._executeThresholds();
+                }
+
+                if (!this.prevTimestamp || timestamp - this.prevTimestamp > 150) {
+                    this.prevTimestamp = timestamp;
+                    this.set('volumeData', Math.round(this.volume));
                 }
 
                 this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));

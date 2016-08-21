@@ -6,8 +6,9 @@ export default light = {
     id: 'lightboard',
     name: 'Lightboard',
     colour: '#82C23D',
-    excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',
-                   'scrolling-text', 'picture-list'],
+    parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
+                'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
+                'rss', 'sports', 'weather', 'share'],
     workspace: {
         viewport: {
             width: 466,
@@ -106,8 +107,7 @@ export default light = {
         block: () => {
             return {
                 id: 'light_x_y',
-                message0: 'light at %1 %2',
-                inputsInline: true,
+                message0: 'light at x %1 y %2',
                 output: 'Light',
                 args0: [{
                     type: "input_value",
@@ -117,7 +117,8 @@ export default light = {
                 {
                     type: "input_value",
                     name: "Y",
-                    check: "Number"
+                    check: "Number",
+                    align: "RIGHT"
                 }],
                 shadow: {
                     'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
