@@ -3,11 +3,45 @@
 let speaker;
 
 const samples = {
-    kano: {
-        'level-up': 'Level up'
+    instruments: {
+        'joke_drum': 'Joke Drum',
+        'bass_hit_c': 'Bass Hit',
+        'bass_voxy_hit_c': 'Bass Voxy Hit',
+        'bd_ada': 'Drum Beat',
+        'drum_bass_hard': 'Drum Bass Hard',
+        'drum_cymbal_hard': 'Drum Cymbal Hard',
+        'drum_roll': 'Drum Roll',
+        'ambi_piano': 'Ambi Piano'
     },
     loops: {
-        'amen': 'Amen'
+        'loop_safari': 'Safari',
+        'loop_compus': 'Compus',
+        'loop_mika': 'Mika',
+        'loop_amen_full': 'Amen',
+        'apache': 'Apache',
+        'bass_loop': 'Bass'
+    },
+    sounds: {
+        'short_fart': 'Fart',
+        'vinyl_backspin': 'Vinyl',
+        'perc_snap': 'Snap',
+        'misc_crow': 'Crow',
+        'elec_twip': 'Twip',
+        'elec_ping': 'Ping',
+        'misc_burp': 'Burp',
+        'perc_bell': 'Bell',
+        'perc_swash': 'Swash',
+    },
+    kano: {
+        'ungrab': 'Ungrab',
+        'make': 'Make',
+        'grab': 'Grab',
+        'error2': 'Error',
+        'error_v2': 'Error 2',
+        'error': 'Error 3',
+        'challenge_complete': 'Challenge Complete',
+        'boot_up_v2': 'Boot Up',
+        'boot_up': 'Boot Up 2',
     }
 };
 const COLOUR = '#FFB347';
