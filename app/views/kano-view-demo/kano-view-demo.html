@@ -33,7 +33,7 @@
         <div class="make">
             <paper-card image="/assets/make-apps-logo.svg">
                 <div class="card-actions">
-                    <a href="/make" tabindex="-1">
+                    <a href$="/make?mode=[[mode]]" tabindex="-1">
                         <paper-button>Make</paper-button>
                     </a>
                 </div>
@@ -58,40 +58,46 @@
         is: 'kano-view-demo',
         behaviors: [Kano.Behaviors.ViewBehavior],
         ready () {
-            this.apps = [{
-                id: 'game_bouncy',
-                label: 'Bouncy'
-            }, {
-                id: 'game_racing',
-                label: 'Racing'
-            }, {
-                id: 'gmeter',
-                label: 'G-Meter'
-            }, {
-                id: 'heartbeat',
-                label: 'Heartbeat'
-            }, {
-                id: 'mouth',
-                label: 'Talking Robot'
-            }, {
-                id: 'rainbow',
-                label: 'Rainbow'
-            }, {
-                id: 'soundwave',
-                label: 'Sound Wave'
-            }, {
-                id: 'sports_score',
-                label: 'Sport Score'
-            }, {
-                id: 'weather_anims',
-                label: 'Weather Animations'
-            }, {
-                id: 'weather_with_temp',
-                label: 'Weather with Temperature'
-            }, {
-                id: 'weather_with_umbrella warning',
-                label: 'Weather with warning'
-            }];
+            let groupedApps = {
+                'lightboard': [{
+                    id: 'game_bouncy',
+                    label: 'Bouncy'
+                }, {
+                    id: 'game_racing',
+                    label: 'Racing'
+                }, {
+                    id: 'gmeter',
+                    label: 'G-Meter'
+                }, {
+                    id: 'heartbeat',
+                    label: 'Heartbeat'
+                }, {
+                    id: 'mouth',
+                    label: 'Talking Robot'
+                }, {
+                    id: 'rainbow',
+                    label: 'Rainbow'
+                }, {
+                    id: 'soundwave',
+                    label: 'Sound Wave'
+                }, {
+                    id: 'sports_score',
+                    label: 'Sport Score'
+                }, {
+                    id: 'weather_anims',
+                    label: 'Weather Animations'
+                }, {
+                    id: 'weather_with_temp',
+                    label: 'Weather with Temperature'
+                }, {
+                    id: 'weather_with_umbrella warning',
+                    label: 'Weather with warning'
+                }],
+                'camera': [],
+                'normal': []
+            };
+            this.mode = this._getMode(this.context);
+            this.apps = groupedApps[this.mode];
         },
         _loadApp (e) {
             let app = e.model.get('app');
@@ -101,6 +107,10 @@
                     localStorage.setItem(`savedApp-${appJson.mode}`, JSON.stringify(appJson));
                     page.redirect(`/make?mode=${appJson.mode}`);
                 });
-        }
+        },
+        _getMode (context) {
+            let modeFromQs = window.RouterUtil.parseQsParam(this.context.querystring, 'mode');
+            return modeFromQs ? modeFromQs : 'normal';
+        },
     });
 </script>
