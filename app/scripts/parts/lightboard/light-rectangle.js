@@ -6,7 +6,7 @@ export default lightRectangle = {
     partType: 'ui',
     type: 'light-rectangle',
     label: 'Rectangle',
-    image: '/assets/part/lights.svg',
+    image: '/assets/part/pixels-rectangle.svg',
     colour: '#FFB347',
     component: 'kano-part-light-rectangle',
     excludeDefaultBlocks: true,

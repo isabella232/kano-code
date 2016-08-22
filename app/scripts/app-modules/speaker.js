@@ -69,6 +69,5 @@ export default speaker = {
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         speaker.tts = TextToSpeech(opts);
         speaker.ctx = new AudioContext();
-        console.log(speaker);
     }
 };

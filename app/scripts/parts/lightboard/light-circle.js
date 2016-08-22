@@ -6,7 +6,7 @@ export default lightCircle = {
     partType: 'ui',
     type: 'light-circle',
     label: 'Circle',
-    image: '/assets/part/lights.svg',
+    image: '/assets/part/pixels-circle.svg',
     colour: '#FFB347',
     component: 'kano-part-light-circle',
     excludeDefaultBlocks: true,
