@@ -3,7 +3,7 @@ let share;
 export default share = {
     partType: 'data',
     type: 'share',
-    label: 'Kano Shares',
+    label: 'Shares',
     image: '/assets/part/kano-world.svg',
     colour: '#1f1f1f',
     description: 'When something is shared on **Kano World**, everything is saved on our servers. You can ask theses servers about the shares here',

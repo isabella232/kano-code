@@ -8,10 +8,10 @@
     }
     .container {
         position: relative;
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
     }
-    .canvas-container, .ripple {
+    .ripple {
         position: absolute;
         top: 0;
         left: 0;
@@ -28,21 +28,38 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: rgb(229, 57, 53);
-        transition: background-color linear 150ms;
     }
-    iron-image {
+    .image {
+        background-color: rgb(229, 57, 53);
+        background-image: url('/assets/part/microphone.svg');
+        background-size: cover;
+        background-blend-mode: soft-light;
         width: 40px;
         height: 40px;
         border-radius: 50%;
         @apply(--shadow-elevation-2dp);
+    }
+    .data {
+        color: white;
+        position: absolute;
+        top: 0px;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        font-size: 24px;
     }
     </style>
     <template>
         <div class="container">
             <div class="ripple" style$="[[_computeRippleStyle(volume)]]"></div>
             <div class="ripple" style$="[[_computeRippleStyle(low)]]"></div>
-            <iron-image src="[[model.image]]" sizing="cover"></iron-image>
+            <div class="image" style$="[[_computePitchColor(pitch)]]"></div>
+            <div class="data">
+                <span>[[volumeData]]</span>
+            </div>
         </div>
     </template>
     <script type="text/javascript">
@@ -70,6 +87,12 @@
                     notify: true
                 },
                 low: {
+                    type: Number,
+                    value: 0,
+                    readOnly: true,
+                    notify: true
+                },
+                pitch: {
                     type: Number,
                     value: 0,
                     readOnly: true,
@@ -123,8 +146,9 @@
                 this.analyser = this.audioContext.createAnalyser();
                 this.source = this.audioContext.createMediaStreamSource(stream);
                 this.analyser.smoothingTimeConstant = 0.5;
-                this.analyser.fftSize = 64;
+                this.analyser.fftSize = 1024;
                 this.soundData = new Uint8Array(this.analyser.frequencyBinCount);
+                this.pitchData = new Float32Array(this.analyser.frequencyBinCount);
 
                 this.source.connect(this.analyser);
                 this._updateVisualisation();
@@ -140,15 +164,28 @@
                 }
                 this.disabled = true;
             },
-            _updateVisualisation () {
+            _updateVisualisation (timestamp) {
                 let stats;
                 // Populates the sound data array
                 this.analyser.getByteFrequencyData(this.soundData);
                 stats = this._getSoundStats(this.soundData);
+                this.analyser.getFloatTimeDomainData(this.pitchData);
+                stats.frequency = this._correlatePitch(this.pitchData, this.audioContext.sampleRate);
+                if (stats.frequency !== -1 && stats.frequency < 2000) {
+                    if (!this.prevPitchTimestamp || timestamp - this.prevPitchTimestamp > 100) {
+                        this.prevPitchTimestamp = timestamp;
+                        this._setPitch(Math.min(100, Math.max(0, (Math.log(stats.frequency) - 5.4) * (100 / 3))));
+                    }
+                }
                 this._setVolume(Math.min(120, stats.volume) / 1.2);
                 this._setLow(Math.min(120, stats.low) / 1.2);
 
                 this._executeThresholds();
+
+                if (!this.prevTimestamp || timestamp - this.prevTimestamp > 150) {
+                    this.prevTimestamp = timestamp;
+                    this.set('volumeData', Math.round(this.volume));
+                }
 
                 this.requestId = requestAnimationFrame(this._updateVisualisation.bind(this));
             },
@@ -170,6 +207,9 @@
                         }
                     }
                 });
+            },
+            _computePitchColor (pitch) {
+                return `background-color: hsl(${260 + pitch}, 100%, 50%);`;
             },
             _computeRippleStyle (volume) {
                 return `box-shadow: 0px 0px 0px ${(volume * 0.5)}px rgba(229, 57, 53, 0.4);`;
@@ -203,6 +243,61 @@
             },
             reset () {
                 this.thresholds = [];
+            },
+            _correlatePitch (buf, sampleRate) {
+                let MIN_SAMPLES = 0,  // will be initialized when AudioContext is created.
+                    GOOD_ENOUGH_CORRELATION = 0.9, // this is the "bar" for how close a correlation needs to be
+                    SIZE = buf.length,
+                    MAX_SAMPLES = Math.floor(SIZE / 2),
+                    best_offset = -1,
+                    best_correlation = 0,
+                    rms = 0,
+                    foundGoodCorrelation = false,
+                    correlations = new Array(MAX_SAMPLES);
+
+                for (let i = 0; i < SIZE; i++) {
+                    let val = buf[i];
+                    rms += val * val;
+                }
+                rms = Math.sqrt(rms / SIZE);
+                if (rms < 0.01) { // not enough signal
+                    return -1;
+                }
+
+                let lastCorrelation = 1;
+                for (let offset = MIN_SAMPLES; offset < MAX_SAMPLES; offset++) {
+                    let correlation = 0;
+
+                    for (let i = 0; i < MAX_SAMPLES; i++) {
+                        correlation += Math.abs((buf[i]) - (buf[i + offset]));
+                    }
+                    correlation = 1 - (correlation / MAX_SAMPLES);
+                    correlations[offset] = correlation; // store it, for the tweaking we need to do below.
+                    if ((correlation > GOOD_ENOUGH_CORRELATION) && (correlation > lastCorrelation)) {
+                        foundGoodCorrelation = true;
+                        if (correlation > best_correlation) {
+                            best_correlation = correlation;
+                            best_offset = offset;
+                        }
+                    } else if (foundGoodCorrelation) {
+                        // short-circuit - we found a good correlation, then a bad one, so we'd just be seeing copies from here.
+                        // Now we need to tweak the offset - by interpolating between the values to the left and right of the
+                        // best offset, and shifting it a bit.  This is complex, and HACKY in this code (happy to take PRs!) -
+                        // we need to do a curve fit on correlations[] around best_offset in order to better determine precise
+                        // (anti-aliased) offset.
+
+                        // we know best_offset >=1,
+                        // since foundGoodCorrelation cannot go to true until the second pass (offset=1), and
+                        // we can't drop into this clause until the following pass (else if).
+                        let shift = (correlations[best_offset + 1] - correlations[best_offset - 1]) / correlations[best_offset];
+                        return sampleRate / (best_offset + (8 * shift));
+                    }
+                    lastCorrelation = correlation;
+                }
+                if (best_correlation > 0.01) {
+                    return sampleRate / best_offset;
+                }
+                return -1;
             }
         });
     </script>
