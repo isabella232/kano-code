@@ -1,0 +1,78 @@
+<link rel="import" href="../../elements/demo-bundle.html">
+<dom-module id="kano-view-demo">
+    <style>
+        :host {
+            display: block;
+            background-color: #fafafa;
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-around-justified);
+        }
+        paper-card {
+            --paper-card-header-color: white;
+            margin: 12px;
+        }
+    </style>
+    <template>
+        <template is="dom-repeat" items="[[apps]]" as="app">
+            <paper-card heading="[[app.label]]" image="/assets/demo-apps/[[app.id]].png">
+                <div class="card-actions">
+                    <paper-button on-tap="_loadApp">Open</paper-button>
+                </div>
+            </paper-card>
+        </template>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-demo',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        ready () {
+            this.apps = [{
+                id: 'game_bouncy',
+                label: 'Bouncy'
+            }, {
+                id: 'game_racing',
+                label: 'Racing'
+            }, {
+                id: 'gmeter',
+                label: 'G-Meter'
+            }, {
+                id: 'heartbeat',
+                label: 'Heartbeat'
+            }, {
+                id: 'mouth',
+                label: 'Talking Robot'
+            }, {
+                id: 'rainbow',
+                label: 'Rainbow'
+            }, {
+                id: 'soundwave',
+                label: 'Sound Wave'
+            }, {
+                id: 'sports_score',
+                label: 'Sport Score'
+            }, {
+                id: 'weather_anims',
+                label: 'Weather Animations'
+            }, {
+                id: 'weather_with_temp',
+                label: 'Weather with Temperature'
+            }, {
+                id: 'weather_with_umbrella warning',
+                label: 'Weather with warning'
+            }];
+        },
+        _loadApp (e) {
+            let app = e.model.get('app');
+            fetch(`/assets/demo-apps/${app.id}.json`)
+                .then(r => r.json())
+                .then(appJson => {
+                    localStorage.setItem(`savedApp-${appJson.mode}`, JSON.stringify(appJson));
+                    page.redirect(`/make?mode=${appJson.mode}`);
+                });
+        }
+    });
+</script>
