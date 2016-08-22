@@ -31,8 +31,8 @@
                             current-step="{{currentStep}}"
                             started="[[scene.started]]">
           <kano-app-editor id="editor"
-                            parts="[[computeParts(scene.*)]]"
-                            default-categories="[[computeCategories(scene.*)]]"
+                            parts="[[computeParts(scene.*, remix)]]"
+                            default-categories="[[computeCategories(scene.*, remix)]]"
                             class="editor"
                             running="{{running}}"
                             title="[[storyName]]"
@@ -129,14 +129,20 @@
             this.$.editor.share();
         },
         computeParts () {
-            return Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+            return (this.remix) ? Kano.MakeApps.Parts.list : Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
         },
-        computeCategories () {
+        computeCategories (e) {
             let cats = {};
-            this.scene.modules.forEach(id => {
-                cats[id] = Kano.MakeApps.Blockly.categories[id];
-            });
-            cats.events = Kano.MakeApps.Blockly.categories.events;
+            if (this.remix) {
+                cats = Kano.MakeApps.Blockly.categories;
+            } else {
+                this.scene.modules.forEach(id => {
+                    cats[id] = Kano.MakeApps.Blockly.categories[id];
+                });
+                cats.events = Kano.MakeApps.Blockly.categories.events;
+            }
+
+
             return cats;
         },
         runningChanged () {
