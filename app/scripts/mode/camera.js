@@ -17,7 +17,8 @@ export default Camera = {
     parts: ['clock', 'microphone', 'speaker', 'kaleidoscope',
                 'button', 'box', 'image', 'map', 'picture-list',
                 'scrolling-text', 'slider', 'text-input', 'text',
-                'rss', 'sports', 'weather', 'share', 'canvas'],
+                'rss', 'sports', 'weather', 'share', 'canvas',
+                'proximity-sensor'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
