@@ -19,7 +19,9 @@ export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
     connectToSocket () {
-        this.socket = io.connect(this.endpoint);
+        if (!this.socket) {
+            this.socket = io.connect(this.endpoint);
+        }
     },
     config (c) {
         if (c.HOST) {
@@ -137,6 +139,29 @@ export default HardwareAPI = {
         },
         flashSeries (moves) {
             HardwareAPI.socket.emit('ledring:flashseries', { moves });
+        }
+    },
+    proximitySensor: {
+        getPath (action) {
+            return HardwareAPI.getPath('powerup/proximity-sensor/0', action);
+        },
+        getProximity () {
+            return fetch(HardwareAPI.proximitySensor.getPath('proximity'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.error("Failed to reach the proximity sensor");
+                        return null;
+                    }
+
+                    return res.json();
+                })
+                .then((data) => {
+                    console.error(data);
+                    return data.proximity;
+                })
+                .catch((err) => {
+                    console.error('Proximity sensor request failed: ', err);
+                });
         }
     }
 };

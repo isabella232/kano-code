@@ -4,7 +4,7 @@ export default lightFrame = {
     partType: 'ui',
     type: 'lightframe',
     label: 'Frame',
-    image: '/assets/part/lights.svg',
+    image: '/assets/part/pixels-draw.svg',
     colour: '#FFB347',
     component: 'kano-part-light-frame',
     blocks: [],

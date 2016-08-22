@@ -1,0 +1,50 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-motion-sensor">
+    <style>
+    :host {
+        display: block;
+    }
+    </style>
+    <template>
+        <kano-ui-item model="[[model]]"
+            size="50"
+            id$="part-[[model.id]]"
+            colour="[[model.colour]]"
+            instance></kano-ui-item>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-motion-sensor',
+            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+            attached () {
+                Kano.AppModules.getModule('motionSensor').connect({
+                    name: 'Make Apps'
+                });
+            },
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+
+                this.motionEventListener = (e) => {
+                    if (e.movement) {
+                        this.fire('movement-start');
+                    } else {
+                        this.fire('movement-end');
+                    }
+                };
+
+                Kano.AppModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+
+                Kano.AppModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
+            }
+        });
+    </script>
+</dom-module>

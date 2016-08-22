@@ -20,7 +20,7 @@ export default pictureList = {
     partType: 'ui',
     type: 'picture-list',
     label: 'Picture List',
-    image: '/assets/part/box.svg',
+    image: '/assets/part/piclist.svg',
     component: 'kano-ui-picture-list',
     excludeDefaultBlocks: true,
     showDefaultConfiguration: false,

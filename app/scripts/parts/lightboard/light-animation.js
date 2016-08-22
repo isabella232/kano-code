@@ -5,7 +5,7 @@ export default lightAnimation = {
     partType: 'ui',
     type: 'light-animation',
     label: 'Animation',
-    image: '/assets/part/lights.svg',
+    image: '/assets/part/pixels-animation.svg',
     colour: '#FFB347',
     component: 'kano-part-light-animation',
     configPanel: 'light-animation',
