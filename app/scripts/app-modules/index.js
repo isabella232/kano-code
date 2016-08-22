@@ -12,6 +12,8 @@ import camera from './camera';
 import cat from './cat';
 import HardwareAPI from './service/hardware-api';
 import date from './date';
+import proximitySensor from './proximity-sensor';
+import motionSensor from './motion-sensor';
 
 let AppModules;
 
@@ -26,7 +28,9 @@ module.exports = AppModules = {
         math,
         colour,
         mouse,
-        date
+        date,
+        proximitySensor,
+        motionSensor
     },
     experiments: {
         fun: {
