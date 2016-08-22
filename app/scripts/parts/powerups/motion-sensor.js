@@ -6,7 +6,7 @@ export default motionSensor = {
     partType: 'hardware',
     type: 'motion-sensor',
     label: 'Tripwire',
-    image: '/assets/part/proximity.svg',
+    image: '/assets/part/motion.svg',
     colour: '#FFB347',
     component: 'kano-part-motion-sensor',
     customizable: {
