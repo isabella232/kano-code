@@ -221,18 +221,6 @@
         margin: 0;
         font-size: 18px;
     }
-    :host .overlay {
-        background-color: rgba(0, 0, 0, 0.5);
-
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        transition: all ease-in-out 0.5s;
-        opacity: 1;
-    }
     :host .elevate {
         z-index: 101;
     }
@@ -243,20 +231,24 @@
     kano-part-editor {
         max-width: 95%;
     }
+    paper-dialog .buttons button {
+        @apply(--kano-button);
+        margin-left: 5px;
+    }
+    paper-dialog .buttons .confirm {
+        background-color: var(--color-red, red);
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <div id="overlay" class$="overlay animatable {{applyHiddenClass(running)}}" tabindex="0"
-                 on-keypress="trapEvent" on-keyup="trapEvent" on-keydown="trapEvent" on-tap="toggleRunning"></div>
             <div class="ui-edition" id="left-panel">
                 <kano-workspace id="workspace"
                                 class="visible-when-running"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
                                 selected="{{selected}}"
-                                on-settings-tapped="onPartSettings"
+                                on-open-settings="onPartSettings"
                                 on-close-settings="closeSettings"
-                                on-delete-tapped="deletePart"
                                 on-change="_proxyChange"
                                 running="{{running}}"
                                 code="[[code]]"
@@ -317,6 +309,7 @@
                             <kano-part-editor
                                 selected="{{selected}}"
                                 class="tooltip-content"
+                                on-delete-part="deletePartClicked"
                                 id="part-editor"></kano-part-editor>
                             <kano-background-editor
                                 class="tooltip-content"
@@ -329,6 +322,26 @@
                 </paper-drawer-panel>
             </div>
         </section>
+        <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You are about to delete '[[selected.name]]'</div>
+                <div>Are you sure you want to do this?</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+                <button dialog-confirm class="confirm">Confirm</button>
+            </div>
+        </paper-dialog>
+        <paper-dialog id="external-use-warning" with-backdrop>
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You can't delete '[[selected.name]]' because it is used in the code</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+            </div>
+        </paper-dialog>
     </template>
 </dom-module>
 

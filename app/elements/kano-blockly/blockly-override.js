@@ -440,7 +440,7 @@ Blockly.Flyout.prototype.position = function () {
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, this.CORNER_RADIUS);
     path.push('h', -edgeWidth);
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, -this.CORNER_RADIUS);
-    if (this.targetWorkspace_.toolbox_) {
+    if (this.targetWorkspace_.toolbox_ && this.trianglePos_) {
         path.push('v', -(height - this.trianglePos_ - 12));
         path.push('l', -10, -12);
         path.push('l', 10, -12);

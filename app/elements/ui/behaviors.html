@@ -27,6 +27,9 @@ window.Kano.Behaviors.UIBehavior = {
             value: false
         }
     },
+    hostAttributes: {
+        tabindex: 0
+    },
     observers: [
         'applyTransform(model.*)'
     ],
@@ -66,18 +69,22 @@ window.Kano.Behaviors.UIBehavior = {
             userProperties: Object.assign({}, this.model.userProperties),
             userStyle: Object.assign({}, this.model.userStyle)
         };
+        this.setAttribute('tabindex', -1);
         this.isRunning = true;
     },
     stop () {
-        let savedState = this.savedState || {};
-        savedState.position = savedState.position || { x: 0, y: 0 };
-        this.set('model.position.x', savedState.position.x);
-        this.set('model.position.y', savedState.position.y);
-        this.set('model.rotation', savedState.rotation);
-        this.set('model.scale', savedState.scale);
-        this.set('model.visible', savedState.visible);
-        this.set('model.userProperties', savedState.userProperties);
-        this.set('model.userStyle', savedState.userStyle);
+        if (this.savedState) {
+            let savedState = this.savedState || {};
+            savedState.position = savedState.position || { x: 0, y: 0 };
+            this.set('model.position.x', savedState.position.x);
+            this.set('model.position.y', savedState.position.y);
+            this.set('model.rotation', savedState.rotation);
+            this.set('model.scale', savedState.scale);
+            this.set('model.visible', savedState.visible);
+            this.set('model.userProperties', savedState.userProperties);
+            this.set('model.userStyle', savedState.userStyle);
+        }
+        this.setAttribute('tabindex', 0);
         this.isRunning = false;
     },
     moveAlong (distance) {

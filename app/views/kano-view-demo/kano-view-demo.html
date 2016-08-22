@@ -1,0 +1,106 @@
+<link rel="import" href="../../elements/demo-bundle.html">
+<dom-module id="kano-view-demo">
+    <style>
+        :host {
+            display: block;
+            background-color: #fafafa;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+        }
+        paper-card {
+            --paper-card-header-color: white;
+            margin: 12px;
+            font-family: Bariol;
+        }
+        paper-button {
+            font-family: Bariol;
+            color: black;
+            text-decoration: none;
+        }
+        .apps {
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-around-justified);
+        }
+        .apps paper-card {
+            width: 30%;
+        }
+        .make paper-card {
+            --paper-card-header-color: black;
+        }
+    </style>
+    <template>
+        <div class="make">
+            <paper-card image="/assets/make-apps-logo.svg">
+                <div class="card-actions">
+                    <a href="/make" tabindex="-1">
+                        <paper-button>Make</paper-button>
+                    </a>
+                </div>
+            </paper-card>
+        </div>
+        <div class="apps">
+            <template is="dom-repeat" items="[[apps]]" as="app">
+                <paper-card heading="[[app.label]]" image="/assets/demo-apps/[[app.id]].png">
+                    <div class="card-content"></div>
+                    <div class="card-actions">
+                        <paper-button on-tap="_loadApp">Open</paper-button>
+                    </div>
+                </paper-card>
+            </template>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-view-demo',
+        behaviors: [Kano.Behaviors.ViewBehavior],
+        ready () {
+            this.apps = [{
+                id: 'game_bouncy',
+                label: 'Bouncy'
+            }, {
+                id: 'game_racing',
+                label: 'Racing'
+            }, {
+                id: 'gmeter',
+                label: 'G-Meter'
+            }, {
+                id: 'heartbeat',
+                label: 'Heartbeat'
+            }, {
+                id: 'mouth',
+                label: 'Talking Robot'
+            }, {
+                id: 'rainbow',
+                label: 'Rainbow'
+            }, {
+                id: 'soundwave',
+                label: 'Sound Wave'
+            }, {
+                id: 'sports_score',
+                label: 'Sport Score'
+            }, {
+                id: 'weather_anims',
+                label: 'Weather Animations'
+            }, {
+                id: 'weather_with_temp',
+                label: 'Weather with Temperature'
+            }, {
+                id: 'weather_with_umbrella warning',
+                label: 'Weather with warning'
+            }];
+        },
+        _loadApp (e) {
+            let app = e.model.get('app');
+            fetch(`/assets/demo-apps/${app.id}.json`)
+                .then(r => r.json())
+                .then(appJson => {
+                    localStorage.setItem(`savedApp-${appJson.mode}`, JSON.stringify(appJson));
+                    page.redirect(`/make?mode=${appJson.mode}`);
+                });
+        }
+    });
+</script>
