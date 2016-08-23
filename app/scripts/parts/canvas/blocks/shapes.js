@@ -4,7 +4,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'circle',
-            message0: `${ui.name}: circle %1`,
+            message0: `${ui.name}: circle radius %1`,
             args0: [{
                 type: "input_value",
                 name: "RADIUS",
@@ -33,7 +33,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'ellipse',
-            message0: `${ui.name}: ellipse %1 %2`,
+            message0: `${ui.name}: ellipse width %1 height %2`,
             args0: [{
                 type: "input_value",
                 name: "RADIUSX",
@@ -41,7 +41,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "RADIUSY",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             previousStatement: null,
             nextStatement: null,
@@ -69,7 +70,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'square',
-            message0: `${ui.name}: square %1`,
+            message0: `${ui.name}: square size %1`,
             args0: [{
                 type: "input_value",
                 name: "SIZE",
@@ -98,7 +99,8 @@ export default [{
     block: (ui) => {
         return {
             id: 'rectangle',
-            message0: `${ui.name}: rectangle %1 %2`,
+            message0: `${ui.name}: rectangle width %1 height %2`,
+
             args0: [{
                 type: "input_value",
                 name: "WIDTH",
@@ -106,7 +108,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "HEIGHT",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             previousStatement: null,
             nextStatement: null,

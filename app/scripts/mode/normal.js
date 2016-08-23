@@ -13,7 +13,7 @@ blocks.push({
     block: (ui) => {
         return {
             id: 'clear all',
-            message0: `${ui.name}: clear`,
+            message0: `${ui.name}: clear drawing`,
             previousStatement: null,
             nextStatement: null
         };
