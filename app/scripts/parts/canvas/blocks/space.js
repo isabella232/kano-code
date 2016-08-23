@@ -4,7 +4,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'move_to',
-            message0: `${ui.name}: move to %1 %2`,
+            message0: `${ui.name}: move to x %1 y %2`,
             args0: [{
                 type: "input_value",
                 name: "X",
@@ -12,7 +12,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "Y",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             inlineInputs: true,
             previousStatement: null,
@@ -41,7 +42,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'move',
-            message0: `${ui.name}: move %1 %2`,
+            message0: `${ui.name}: move by x %1 y %2`,
             args0: [{
                 type: "input_value",
                 name: "X",
@@ -49,7 +50,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "Y",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             inlineInputs: true,
             previousStatement: null,
