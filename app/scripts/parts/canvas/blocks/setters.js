@@ -4,7 +4,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'color',
-            message0: `${ui.name}: color %1`,
+            message0: `${ui.name}: fill color %1`,
             args0: [{
                 type: "input_value",
                 name: "COLOR",
@@ -30,7 +30,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'stroke',
-            message0: `${ui.name}: stroke %1 %2`,
+            message0: `${ui.name}: stroke color %1 thickness %2`,
             args0: [{
                 type: "input_value",
                 name: "COLOR",
@@ -38,7 +38,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "SIZE",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             previousStatement: null,
             nextStatement: null,
