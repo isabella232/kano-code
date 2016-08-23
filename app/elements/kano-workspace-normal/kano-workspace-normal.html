@@ -45,10 +45,21 @@
         canvas {
             border-radius: 5px;
         }
+
+        :host .actions .coordinates {
+            background-color: #222D33;
+            border-radius: 6px;
+            margin-top: 8px;
+            color: white;
+            display: inline-block;
+            padding: 8px 12px;
+        }
     </style>
     <template>
         <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-        <p>{{ mousePositionX }}, {{ mousePositionY }}</p>
+        <div class="actions">
+            <div class="coordinates">X: {{ mousePositionX }}, Y: {{ mousePositionY }}</div>
+        </div>
         <content></content>
     </template>
     <script>
@@ -69,6 +80,9 @@
                 this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
                 this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
                 this.ctx.addEventListener('mousemove', this._onMouseMove.bind(this));
+
+                this.mousePositionX = 250;
+                this.mousePositionY = 250;
             },
             attached () {
                 if (this.autoStart) {
@@ -103,8 +117,8 @@
             },
             _onMouseOut (e) {
                 this._isMouseOver = false;
-                this.mousePositionX = 0;
-                this.mousePositionY = 0;
+                this.mousePositionX = 250;
+                this.mousePositionY = 250;
             },
             _onMouseMove (e) {
                 if (this._isMouseOver) {
