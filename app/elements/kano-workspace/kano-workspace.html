@@ -47,7 +47,14 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <button type="button" name="button" class="tinker-button" on-tap="_tinkerPart" style$="[[_computeTinkerButtonStyle(mode.workspace.viewport.height)]]">Tinker</button>
+            <button type="button"
+                    name="button"
+                    class="tinker-button"
+                    on-tap="toggleTinkering"
+                    style$="[[_computeTinkerButtonStyle(mode.workspace.viewport.height)]]">
+                        <span>[[_computeTinkerButtonLabel(tinkering)]]</span>
+                        <span hidden$="[[!tinkering]]">&times;</span>
+                    </button>
             <!-- The variable workspace component will be inserted here -->
             <div id="workspace-placeholder">
 
@@ -72,6 +79,11 @@
                 type: Boolean,
                 value: false,
                 observer: 'runningChanged',
+                notify: true
+            },
+            tinkering: {
+                type: Boolean,
+                value: false,
                 notify: true
             },
             selected: {
@@ -113,12 +125,22 @@
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
         },
-        _tinkerPart () {
-            this.set('running', false);
-            this.fire('open-settings');
+        toggleTinkering () {
+            this.set('tinkering', !this.tinkering);
+            if (this.tinkering) {
+                this.prevRunningState = this.running;
+                this.set('running', false);
+                this.fire('open-settings');
+            } else {
+                this.set('running', this.prevRunningState);
+                this.fire('close-settings');
+            }
         },
         _computeTinkerButtonStyle (height) {
             return `top: ${height}px`;
+        },
+        _computeTinkerButtonLabel (tinkering) {
+            return tinkering ? 'Done' : 'Tinker';
         },
         _getPartById (id) {
             if (id === this.dropzone.getAttribute('id')) {
@@ -193,7 +215,7 @@
             }
         },
         onPartTapped (e) {
-            if (this.running) {
+            if (!this.tinkering) {
                 return;
             }
             this.clearSelection();

@@ -168,15 +168,14 @@
     }
 
     .make-button kano-animated-svg {
-        @apply(--layout-flex);
-        width: 32px;
-        height: 32px;
+        width: 17px;
+        height: 21px;
         -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
         filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
         --kano-animated-path: {
             fill: white;
             stroke: white;
-            stroke-width: 7px;
+            stroke-width: 2px;
             stroke-linecap: round;
             stroke-linejoin: round;
             transition: all ease-in-out 200ms;
@@ -238,10 +237,36 @@
     paper-dialog .buttons .confirm {
         background-color: var(--color-red, red);
     }
+    .pause-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .pause-overlay iron-image {
+        width: 40%;
+        height: 40%;
+        z-index: 1;
+        cursor: pointer;
+    }
+    .tinkering {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="left-panel">
+                <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, tinkering)]]">
+                    <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+                </div>
                 <kano-workspace id="workspace"
                                 class="visible-when-running"
                                 on-ui-ready="workspaceUiReady"
@@ -251,6 +276,7 @@
                                 on-close-settings="closeSettings"
                                 on-change="_proxyChange"
                                 running="{{running}}"
+                                tinkering="{{tinkering}}"
                                 code="[[code]]"
                                 mode="[[mode]]"
                                 background="[[background.userStyle.background]]"></kano-workspace>
@@ -268,10 +294,10 @@
                 </button>
                 <h1 id="app-title">{{title}}</h1>
                 <button type="button"
-                    class$="make-button visible-when-running {{getMakeButtonClass(running)}}"
-                    on-tap="toggleRunning"
+                    class$="make-button visible-when-running [[getMakeButtonClass(running, tinkering)]]"
+                    on-tap="_runButtonClicked"
                     id="make-button">
-                    <kano-animated-svg width="32" height="32" paths="[[makeButtonIconPaths]]" selected="{{getMakeButtonClass(running)}}">
+                    <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}">
                     </kano-animated-svg>
                 </button>
             </div>
@@ -317,7 +343,6 @@
                                 background="{{background}}"
                                 name="background"></kano-background-editor>
                         </iron-pages>
-                        <button type="button" class="close-drawer" id="close-drawer" on-tap="closeDrawer"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
                     </div>
                 </paper-drawer-panel>
             </div>

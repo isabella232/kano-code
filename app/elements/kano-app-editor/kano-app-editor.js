@@ -49,6 +49,10 @@ Polymer({
             notify: true,
             observer: '_runningChanged'
         },
+        tinkering: {
+            type: Boolean,
+            value: false
+        },
         background: {
             type: Object,
             notify: true,
@@ -62,7 +66,8 @@ Polymer({
             value: false
         },
         partsPanelState: {
-            type: String
+            type: String,
+            observer: '_partsPanelStateChanged'
         },
         selectedParts: {
             type: Array
@@ -94,6 +99,14 @@ Polymer({
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)'
     ],
+    _partsPanelStateChanged (state) {
+        if (this.tinkering && state === 'main') {
+            this.$.workspace.toggleTinkering();
+        }
+    },
+    _isPauseOverlayHidden (running, tinkering) {
+        return running || tinkering;
+    },
     _codeChanged () {
         this.code = this._formatCode(this.code);
         // Do not restart if the code didn't change
@@ -449,8 +462,8 @@ Polymer({
     },
     ready () {
         this.makeButtonIconPaths = {
-            stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
-            running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+            stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
+            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
         };
         this.reset = this.reset.bind(this);
     },
@@ -541,6 +554,9 @@ Polymer({
             y: point.y / rect.height * fullSize.height
         };
     },
+    _runButtonClicked () {
+        this.toggleRunning();
+    },
     /**
      * Toggle the running state of the current app
      */
@@ -590,8 +606,17 @@ Polymer({
         e.stopPropagation();
     },
 
-    getMakeButtonClass () {
-        return this.running ? 'running' : 'stopped';
+    getMakeButtonClass (running, tinkering) {
+        let classes = [];
+        if (running) {
+            classes.push('running');
+        } else {
+            classes.push('stopped');
+        }
+        if (tinkering) {
+            classes.push('tinkering');
+        }
+        return classes.join(' ');
     },
 
     applyElevateClass () {
@@ -601,7 +626,9 @@ Polymer({
     applyHiddenClass () {
         return this.running ? '' : 'hidden';
     },
-
+    _getRunningStatus (running) {
+        return running ? 'running' : 'stopped';
+    },
     getMakeButtonLabel () {
         if (this.running) {
             return 'Stop';
@@ -669,6 +696,8 @@ Polymer({
         } else {
             // Disable drag when starts
             this._disableDrag();
+            this.set('tinkering', false);
+            this.closeDrawer();
         }
     },
     getBlocklyWorkspace () {
