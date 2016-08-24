@@ -158,7 +158,7 @@
             'doneChanged(done)'
         ],
         listeners: {
-            'change': 'editorChanged'
+            'change': '_checkEvent'
         },
         doneChanged (done) {
             // Reset everything when the challenge is done
@@ -513,31 +513,6 @@
         },
         isStepEvent (step, type, event) {
             return step[type] && event.type === type;
-        },
-        /**
-         * Try to match the blockly event to the current step
-         * @param  {Event} e  A blockyl change event
-         */
-        editorChanged (e) {
-            // Store current step object
-            let step = this.steps[this.step],
-                detail = e.detail;
-
-            if (!step || !step.validation || this.done) {
-                return;
-            }
-            Object.keys(step.validation).forEach((type) => {
-                if (type !== detail.type) {
-                    if (this._isOppositeAction(type, detail.type)) {
-                        // Check the opposite validation, take action
-
-                    }
-                } else {
-                    if (this._checkEvent(step.validation[type], type, detail)) {
-                        this.nextStep();
-                    }
-                }
-            });
         }
     });
 </script>

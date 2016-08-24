@@ -420,51 +420,51 @@
                             }
                         }
                     });
-                }
-                if (parentSelector) {
-                    let step = {
-                        "tooltips": [{
-                            "location": {
-                                "block": parentSelector
-                            },
-                            "position": "left",
-                            "text": Challenge.randomizedAction('connect-blocks')
-                        }],
-                        "validation": {
-                            "blockly": {
-                                "connect": {
-                                    "parent": parentSelector,
-                                    "target": blockChallengeId
-                                }
-                            }
-                        }
-                    };
-                    step.phantom_block = {
-                        "location": {
-                            "block": parentSelector.id
-                        }
-                    };
-                    if (parentSelector.inputName) {
-                        step.phantom_block.target =  parentSelector.inputName;
-                    }
-                    steps.push(step);
-                } else {
-                    steps.push({
-                        "tooltips": [
-                            {
-                                "location": "right-panel",
+                    if (parentSelector) {
+                        let step = {
+                            "tooltips": [{
+                                "location": {
+                                    "block": parentSelector
+                                },
                                 "position": "left",
-                                "text": Challenge.randomizedAction('drop-codespace')
-                            }
-                        ],
-                        "validation": {
-                            "blockly": {
-                                "drop": {
-                                    "target": blockChallengeId
+                                "text": Challenge.randomizedAction('connect-blocks')
+                            }],
+                            "validation": {
+                                "blockly": {
+                                    "connect": {
+                                        "parent": parentSelector,
+                                        "target": blockChallengeId
+                                    }
                                 }
                             }
+                        };
+                        step.phantom_block = {
+                            "location": {
+                                "block": parentSelector.id
+                            }
+                        };
+                        if (parentSelector.inputName) {
+                            step.phantom_block.target =  parentSelector.inputName;
                         }
-                    });
+                        steps.push(step);
+                    } else {
+                        steps.push({
+                            "tooltips": [
+                                {
+                                    "location": "right-panel",
+                                    "position": "left",
+                                    "text": Challenge.randomizedAction('drop-codespace')
+                                }
+                            ],
+                            "validation": {
+                                "blockly": {
+                                    "drop": {
+                                        "target": blockChallengeId
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];
