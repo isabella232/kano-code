@@ -6,31 +6,28 @@
             display: block;
             width: 100%;
             height: 100%;
-            border: 1px solid #ECECEC;
-            background: #444;
-            box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.05);
-            border-radius: 4px;
             box-sizing: border-box;
+            position: relative;
         }
 
         #led-matrix {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 43px;
+            left: 18px;
             background-color: transparent;
 
             --kano-led-matrix-led: {
-                width: 22px;
-                height: 22px;
+                width: 21px;
+                height: 21px;
                 margin: 3px;
-
                 box-shadow: none;
                 border: none;
                 border-radius: 0px;
-            }
+            };
 
             --kano-led-matrix-row: {
                 background-color: transparent;
-            }
+            };
         }
 
         :host ::content > * {
@@ -40,6 +37,7 @@
         }
     </style>
     <template>
+        <iron-image src="/assets/mode/lightboard/body.svg" sizing="contain" width="[[width]]" height="[[height]]"></iron-image>
         <kano-led-matrix id="led-matrix"></kano-led-matrix>
         <content></content>
     </template>
@@ -61,7 +59,14 @@
                 });
             },
             render (bitmap) {
-                this.$['led-matrix'].render(bitmap);
+                let rgb,
+                    hsl,
+                    b = bitmap.map((hex) => {
+                    rgb = this.hexToRgb(hex);
+                    hsl = this.rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    return `hsl(${hsl[0] * 360}, ${hsl[1] * 100}%, ${hsl[2] * 100}%)`;
+                });
+                this.$['led-matrix'].render(b);
             },
             scroll (text, color, backgroundColor, speed) {
                 Kano.AppModules.getModule('lightboard').scroll(text, color, backgroundColor, speed);
@@ -117,6 +122,40 @@
                     .then((bitmap) => {
                         this.render(bitmap);
                     }).catch(() => {});
+            },
+            rgbToHsl (r, g, b){
+                r /= 255, g /= 255, b /= 255;
+                var max = Math.max(r, g, b), min = Math.min(r, g, b);
+                var h, s, l = (max + min) / 2;
+
+                if(max == min){
+                    h = s = 0; // achromatic
+                }else{
+                    var d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch(max){
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+
+                return [h, s, l];
+            },
+            hexToRgb (hex) {
+                // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+                var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+                hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                    return r + r + g + g + b + b;
+                });
+
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
             }
         });
     </script>
