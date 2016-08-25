@@ -468,7 +468,7 @@ Polymer({
         this.reset = this.reset.bind(this);
     },
     attached () {
-        this.title = this.title ? "My " + this.title.toLowerCase() : "Make Apps";
+        this.title = this.title ? "My " + this.title.toLowerCase() : "Kano Code";
 
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
