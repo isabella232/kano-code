@@ -50,6 +50,6 @@ export default normal = {
     },
     parts: ['clock', 'microphone', 'speaker', 'button', 'box',
                 'image', 'map', 'scrolling-text', 'slider',
-                'text-input', 'text', 'rss', 'sports', 'weather',
+                'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
                 'share', 'canvas']
 };

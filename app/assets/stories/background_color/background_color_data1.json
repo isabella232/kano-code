@@ -1,0 +1,168 @@
+{
+    "parts": ["button"],
+    "modules": ["color"],
+    "steps": [
+      {
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "This app needs a button we<br />can press. Click here."
+        }],
+        "validation": {
+            "open-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-button",
+            "position": "right",
+            "text": "Drag the button to<br />your app"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-button",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "button",
+                "id": "button_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "Close the parts drawer"
+        }],
+        "validation": {
+            "close-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "top",
+            "text": "Change ‘app starts’ to ‘Button is clicked’"
+        }],
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "default_part_event",
+                    "value": {
+                        "event_from": "button_1",
+                        "event": "clicked"
+                    }
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "normal"
+            },
+            "position": "left",
+            "text": "Open the background tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "normal"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": "normal#set_background_color"
+            },
+            "position": "left",
+            "text": "Drag the ‘Draw:<br />background’ block onto<br />your code space"
+        }],
+        "arrow": {
+            "source": {
+                "flyout_block": "normal#set_background_color"
+            },
+            "target": {
+                "block": "default_part_event"
+            },
+            "size": 120
+        },
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "background",
+                    "type": "normal#set_background_color",
+                    "id": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "position": "left",
+            "text": "Connect the blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "color"
+            },
+            "position": "left",
+            "text": "Open the color tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "color"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": "random_colour"
+            },
+            "position": "right",
+            "text": "Grab the random<br />color block"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "color",
+                    "type": "random_colour",
+                    "id": "random_colour_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "set_background_color_1"
+            },
+            "position": "left",
+            "text": "Plug it into the<br />background color"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "target": "random_colour_1",
+                    "parent": "set_background_color_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "left-panel",
+            "position": "right",
+            "text": "<strong>Click the button!</strong><br />(Click, click, click)",
+            "next_button": true
+        }]
+    }]
+}
