@@ -1,0 +1,369 @@
+{
+    "parts": ["text", "scrolling-text", "button", "image", "weather", "iss", "map", "speaker"],
+    "modules": ["control"],
+    "steps": [
+     {
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "This app needs a map<br />and the Space Station data"
+        }],
+        "validation": {
+            "open-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-map",
+            "position": "right",
+            "text": "Drag the map to<br />your app"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-map",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "map",
+                "id": "map_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "sidebar.parts.part-iss",
+            "position": "right",
+            "text": "Drag the space<br />station data in too"
+        }],
+        "arrow": {
+            "source": "sidebar.parts.part-iss",
+            "target": "left-panel",
+            "size": 120
+        },
+        "validation": {
+            "add-part": {
+                "type": "iss",
+                "id": "iss_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "add-part-button",
+            "position": "top",
+            "text": "Close the parts drawer"
+        }],
+        "validation": {
+            "close-parts": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "path": "workspace",
+                "part": "map_1"
+            },
+            "position": "right",
+            "text": "Click on the map"
+        }],
+        "validation": {
+            "open-settings-tooltip": {
+                "target": "map_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "workspace.tooltip",
+            "position": "bottom",
+            "text": "Click 'settings'"
+        }],
+        "validation": {
+            "open-part-settings": {
+                "target": "map_1"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "part-editor.ui-editor.look.style",
+            "position": "right",
+            "text": "Change the map size",
+            "next_button": true
+        }],
+        "validation": {
+            "selected-part-change": {
+                "property": "userStyle.*",
+                "count": 3
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "close-drawer",
+            "position": "bottom",
+            "text": "Close the settings when you’re done"
+        }],
+        "validation": {
+            "close-part-settings": true
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "control"
+            },
+            "position": "left",
+            "text": "Open the control tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "control"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": "every_x_seconds"
+            },
+            "position": "right",
+            "text": "Grab one of these blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "type": "every_x_seconds",
+                    "id": "every_x_seconds_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "default_part_event"
+            },
+            "text": "Connect it to the start event",
+            "position": "bottom"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "default_part_event",
+                    "target": "every_x_seconds_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "iss"
+            },
+            "position": "left",
+            "text": "Open the International<br />space station tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "iss"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "iss_1",
+                    "type": "refresh"
+                }
+            },
+            "position": "bottom",
+            "text": "Grab a refresh data command"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "iss_1",
+                    "type": "refresh",
+                    "id": "iss_refresh_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "every_x_seconds_1"
+            },
+            "text": "Plug it in here",
+            "position": "right"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "every_x_seconds_1",
+                    "target": "iss_refresh_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "map"
+            },
+            "position": "left",
+            "text": "Open the map tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "map"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "map_1",
+                    "type": "show_marker"
+                }
+            },
+            "position": "left",
+            "text": "Drag the map marker<br />block into your code space"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "map_1",
+                    "type": "show_marker",
+                    "id": "show_marker_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "iss_refresh_1"
+            },
+            "position": "left",
+            "text": "Connect it to the refresh block"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "iss_refresh_1",
+                    "target": "show_marker_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "iss"
+            },
+            "position": "left",
+            "text": "Open the space station tray"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "iss"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "iss_1",
+                    "type": "get_value"
+                }
+            },
+            "position": "right",
+            "text": "Drag out the ‘space<br />station’s latitude’ block"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "iss_1",
+                    "type": "get_value",
+                    "id": "iss_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "show_marker_1"
+            },
+            "position": "bottom",
+            "text": "Plug it in"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "show_marker_1",
+                    "target": "iss_data_1"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "category": "iss"
+            },
+            "position": "left",
+            "text": "Let’s grab another of those blocks"
+        }],
+        "validation": {
+            "blockly": {
+                "open-flyout": "iss"
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "flyout_block": {
+                    "part": "iss_1",
+                    "type": "get_value"
+                }
+            },
+            "position": "right",
+            "text": "Drag out another of these"
+        }],
+        "validation": {
+            "blockly": {
+                "create": {
+                    "target": "iss_1",
+                    "type": "get_value",
+                    "id": "iss_data_2"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "show_marker_1"
+            },
+            "position": "bottom",
+            "text": "Plug it in here"
+        }],
+        "validation": {
+            "blockly": {
+                "connect": {
+                    "parent": "show_marker_1",
+                    "target": "iss_data_2"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": {
+                "block": "iss_data_2"
+            },
+            "position": "bottom",
+            "text": "Change ‘latitude’<br />to ‘longitude’"
+        }],
+        "validation": {
+            "blockly": {
+                "value": {
+                    "target": "iss_data_2",
+                    "value": "longitude"
+                }
+            }
+        }
+    },{
+        "tooltips": [{
+            "location": "left-panel",
+            "position": "right",
+            "text": "<strong>You did it!</strong><br />The space station is 400km above the marker.",
+            "next_button": true
+        }]
+    }]
+}
