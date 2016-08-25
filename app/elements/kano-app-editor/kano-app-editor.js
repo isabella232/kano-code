@@ -46,7 +46,12 @@ Polymer({
         running: {
             type: Boolean,
             value: false,
-            notify: true
+            notify: true,
+            observer: '_runningChanged'
+        },
+        tinkering: {
+            type: Boolean,
+            value: false
         },
         background: {
             type: Object,
@@ -61,7 +66,8 @@ Polymer({
             value: false
         },
         partsPanelState: {
-            type: String
+            type: String,
+            observer: '_partsPanelStateChanged'
         },
         selectedParts: {
             type: Array
@@ -93,17 +99,61 @@ Polymer({
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)'
     ],
-    listeners: {
-        'previous': 'clearEditorStyle'
+    _partsPanelStateChanged (state) {
+        if (this.tinkering && state === 'main') {
+            this.$.workspace.toggleTinkering();
+        }
+    },
+    _isPauseOverlayHidden (running, tinkering) {
+        return running || tinkering;
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
+        // Do not restart if the code didn't change
+        if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
+            return;
+        }
+        this.toggleRunning(false);
+        this.toggleRunning(true);
+        this.prevCode = this.code.snapshot.javascript;
     },
     _proxyChange (e) {
         // Bug on chrome 49 on the kit, the event from kano-blockly stops here
         e.preventDefault();
         e.stopPropagation();
         this.fire('change', e.detail);
+    },
+    deletePartClicked () {
+        if (this.checkBlockDependency(this.selected)) {
+            return this.$['external-use-warning'].open();
+        } else {
+            this.$['confirm-delete'].open();
+        }
+    },
+    modalClosed (e) {
+        if (e.detail.confirmed) {
+            this._deletePart(this.selected);
+        }
+    },
+    checkBlockDependency (part) {
+        let xmlString, xml, parser, blocks, block, blockId, pieces;
+        // Get the blockly xml and parse it
+        xmlString = this.code.snapshot.blocks;
+        parser = new DOMParser();
+        xml = parser.parseFromString(xmlString, 'text/xml');
+        // Get all the 'block' elements
+        blocks = xml.getElementsByTagName('block');
+        // Check for every one of them...
+        for (let k = 0, len = blocks.length; k < len; k++) {
+            block = blocks[k];
+            blockId = block.getAttribute('type');
+            pieces = blockId.split('#');
+            // ...if the type of the block is the part we're trying to delete
+            if (pieces[0] === part.id) {
+                return true;
+            }
+        }
+        return false;
     },
     toggleMenu () {
         this.fire('toggle-menu');
@@ -271,8 +321,8 @@ Polymer({
     },
     selectedChanged (newValue) {
         // The selection is cleared
-        if (!newValue && this.drawerPage === 'part-editor' && this.partsPanelState === 'drawer') {
-            this.$.partsPanel.closeDrawer();
+        if (!newValue) {
+            this.drawerPage = 'background-editor';
         }
     },
     panelStateChanged () {
@@ -324,8 +374,8 @@ Polymer({
             this.$.partsPanel.closeDrawer();
         }
     },
-    deletePart (e) {
-        let index = this.addedParts.indexOf(e.detail);
+    _deletePart (part) {
+        let index = this.addedParts.indexOf(part);
         this.splice('addedParts', index, 1);
         this.$.partsPanel.closeDrawer();
         this.$.workspace.clearSelection();
@@ -412,8 +462,8 @@ Polymer({
     },
     ready () {
         this.makeButtonIconPaths = {
-            stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
-            running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+            stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
+            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
         };
         this.reset = this.reset.bind(this);
     },
@@ -504,31 +554,14 @@ Polymer({
             y: point.y / rect.height * fullSize.height
         };
     },
+    _runButtonClicked () {
+        this.toggleRunning();
+    },
     /**
      * Toggle the running state of the current app
      */
-    toggleRunning () {
-        let visibleWhenRunning = Polymer.dom(this.root).querySelectorAll('.visible-when-running'),
-            toggleElevate = () => {
-                visibleWhenRunning.forEach((el) => {
-                    this.toggleClass('elevate', this.running, el);
-                });
-            };
-        this.running = !this.running;
-        this.notifyChange('running', {
-            value: this.running
-        });
-        this.$.overlay.focus();
-        this.$.partsPanel.closeDrawer();
-        // Removes the elevate class only after the animation
-        if (!this.running) {
-            setTimeout(toggleElevate, 500);
-            this._enableDrag();
-        } else {
-            toggleElevate();
-            // Disable drag when starts
-            this._disableDrag();
-        }
+    toggleRunning (state) {
+        this.running = typeof state === 'undefined' ? !this.running : state;
     },
     _cleanDraggables () {
         if (!this.draggables) {
@@ -573,8 +606,17 @@ Polymer({
         e.stopPropagation();
     },
 
-    getMakeButtonClass () {
-        return this.running ? 'running' : 'stopped';
+    getMakeButtonClass (running, tinkering) {
+        let classes = [];
+        if (running) {
+            classes.push('running');
+        } else {
+            classes.push('stopped');
+        }
+        if (tinkering) {
+            classes.push('tinkering');
+        }
+        return classes.join(' ');
     },
 
     applyElevateClass () {
@@ -584,7 +626,9 @@ Polymer({
     applyHiddenClass () {
         return this.running ? '' : 'hidden';
     },
-
+    _getRunningStatus (running) {
+        return running ? 'running' : 'stopped';
+    },
     getMakeButtonLabel () {
         if (this.running) {
             return 'Stop';
@@ -642,22 +686,26 @@ Polymer({
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
     },
-
-    /**
-     * Restore the editor style
-     */
-    clearEditorStyle () {
-        this.$['left-panel'].style.maxWidth = '62%';
+    _runningChanged () {
+        this.notifyChange('running', {
+            value: this.running
+        });
+        // Removes the elevate class only after the animation
+        if (!this.running) {
+            this._enableDrag();
+        } else {
+            // Disable drag when starts
+            this._disableDrag();
+            this.set('tinkering', false);
+            this.closeDrawer();
+        }
     },
-
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
     },
-
     partsMenuLabel () {
         return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'close' : 'add part';
     },
-
     applyOpenClass () {
         return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'open' : '';
     },

@@ -1,6 +1,5 @@
 <link rel="import" href="../ui/behaviors.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
-<link rel="import" href="../kano-tooltip/kano-tooltip.html">
 
 <dom-module id="kano-workspace">
     <style>
@@ -23,43 +22,22 @@
         margin: auto;
         position: relative;
     }
-    kano-tooltip {
-        --kano-tooltip-background-color: #88c840;
-        color: white;
-        --kano-tooltip: {
-            box-shadow: 0px 0px 0px 0px;
-            padding: 10px;
-        };
-        --kano-tooltip-caret: {
-            box-shadow: 0px 0px 0px 0px;
-        };
-    }
-    :host .tooltip-content {
-        @apply(--layout-horizontal);
-    }
-    :host .tooltip-content button {
-        background-color: transparent;
-        border: 0px;
-        color: white;
-        cursor: pointer;
-    }
-    :host .tooltip-content .delete-section {
-        @apply(--layout-horizontal);
-    }
-    :host .tooltip-content .separator {
-        border-left: 1px solid white;
-        width: 0px;
-    }
-    :host paper-dialog .buttons button {
-        @apply(--kano-button);
-        margin-left: 5px;
-    }
-    :host paper-dialog .buttons .confirm {
-        background-color: var(--color-red, red);
-    }
     :host .made-with-kano {
         text-align: center;
         color: #B3B3B3;
+        pointer-events: none;
+    }
+    .tinker-button {
+        @apply(--kano-button);
+        background-color: var(--color-green, green);
+        padding-top: 27px;
+        margin-top: -8px;
+        position: absolute;
+        right: 0px;
+        z-index: -1;
+    }
+    #workspace-placeholder {
+        height: 100%;
     }
     </style>
     <template>
@@ -69,41 +47,21 @@
                     class="content"
                     id="content"
                     on-tap="onTap">
+            <button type="button"
+                    name="button"
+                    class="tinker-button"
+                    on-tap="toggleTinkering"
+                    style$="[[_computeTinkerButtonStyle(mode.workspace.viewport.height)]]">
+                        <span>[[_computeTinkerButtonLabel(tinkering)]]</span>
+                        <span hidden$="[[!tinkering]]">&times;</span>
+                    </button>
             <!-- The variable workspace component will be inserted here -->
+            <div id="workspace-placeholder">
+
+            </div>
             <h3 class="made-with-kano">made with Kano</h3>
         </kano-ui-viewport>
-        <kano-tooltip target="[[tooltipTarget]]" position="bottom" id="tooltip">
-            <div class="tooltip-content">
-                <div class="settings" hidden$="[[!canEdit(tappedElement)]]">
-                    <button type="button" on-tap="openSettings">Settings</button>
-                </div>
-                <div class="separator" hidden$="[[isSeparatorHidden(tappedElement)]]"></div>
-                <div class="delete" on-tap="deletePart" hidden$="[[!canDelete(tappedElement)]]">
-                    <button type="button">Delete</button>
-                </div>
-            </div>
-        </kano-tooltip>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
-        <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
-            <h2>Delete Part</h2>
-            <div class="modal-content">
-                <div>You are about to delete '[[aboutToDelete]]'</div>
-                <div>Are you sure you want to do this?</div>
-            </div>
-            <div class="buttons">
-                <button dialog-dismiss class="cancel">Cancel</button>
-                <button dialog-confirm class="confirm">Confirm</button>
-            </div>
-        </paper-dialog>
-        <paper-dialog id="external-use-warning" with-backdrop>
-            <h2>Delete Part</h2>
-            <div class="modal-content">
-                <div>You can't delete '[[aboutToDelete]]' because it is used in the code</div>
-            </div>
-            <div class="buttons">
-                <button dialog-dismiss class="cancel">Cancel</button>
-            </div>
-        </paper-dialog>
     </template>
 </dom-module>
 
@@ -120,7 +78,13 @@
             running: {
                 type: Boolean,
                 value: false,
-                observer: 'runningChanged'
+                observer: 'runningChanged',
+                notify: true
+            },
+            tinkering: {
+                type: Boolean,
+                value: false,
+                notify: true
             },
             selected: {
                 type: Object,
@@ -161,6 +125,23 @@
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
         },
+        toggleTinkering () {
+            this.set('tinkering', !this.tinkering);
+            if (this.tinkering) {
+                this.prevRunningState = this.running;
+                this.set('running', false);
+                this.fire('open-settings');
+            } else {
+                this.set('running', this.prevRunningState);
+                this.fire('close-settings');
+            }
+        },
+        _computeTinkerButtonStyle (height) {
+            return `top: ${height}px`;
+        },
+        _computeTinkerButtonLabel (tinkering) {
+            return tinkering ? 'Done' : 'Tinker';
+        },
         _getPartById (id) {
             if (id === this.dropzone.getAttribute('id')) {
                 return this.dropzone;
@@ -174,8 +155,7 @@
         },
         _modeChanged (mode) {
             let oldDropzone = this.dropzone,
-                viewport = this.$.content,
-                vpLabel = this.$$('.made-with-kano'),
+                placeholder = this.$$('#workspace-placeholder'),
                 newDropzone;
 
             if (mode && mode.workspace.component) {
@@ -194,9 +174,9 @@
 
             /* Remove old dropzone and add new one */
             if (oldDropzone) {
-                Polymer.dom(viewport).removeChild(oldDropzone);
+                placeholder.removeChild(oldDropzone);
             }
-            Polymer.dom(viewport).insertBefore(newDropzone, vpLabel);
+            placeholder.appendChild(newDropzone);
 
             /* Update dropzone reference */
             this.dropzone = newDropzone;
@@ -205,40 +185,25 @@
                 this.insertPart(`#${index}`);
             });
         },
-        canDelete (el) {
-            return el && !!el.model;
-        },
-        canEdit (el) {
-            // No config panel is set for the hardware parts yet, disable the edit menu when the configPanel is set to `hardware`
-            return (el && el.id === "dropzone") || (el && el.model && el.model.configPanel !== 'disabled');
-        },
-        isSeparatorHidden (el) {
-            return !this.canDelete(el) || !this.canEdit(el);
-        },
         onTap (e) {
+            let target;
             if (this.running) {
                 return;
             }
-
-            if (e.target.id === 'content') {
+            target = e.target;
+            if (target === this.dropzone) {
+                this.clearSelection();
+            } else if (target === this.$.content) {
                 this.clearSelection();
                 this.fire('close-settings');
-            } else if (e.target.id === 'dropzone') {
-                this.tappedElement = e.target;
-                this.tooltipTarget = e.target.getBoundingClientRect();
-                this.notifyChange('open-settings-tooltip', { part: this.tappedElement.model });
-                this.$.selector.clearSelection();
-                if (e.target === this.tappedElement) {
-                    this.fire('close-settings');
-                }
             }
         },
         clearSelection () {
+            if (this.dropzone) {
+                let selectedPartElement = this.dropzone.querySelector('.selected');
+                this.toggleClass('selected', false, selectedPartElement);
+            }
             this.$.selector.clearSelection();
-            this.tappedElement = null;
-            this.$.tooltip.close();
-            this.set('tooltipTarget', null);
-            this.notifyChange('close-settings-tooltip');
         },
         partFromElement () {
             let model = this.tappedElement.model;
@@ -250,71 +215,16 @@
             }
         },
         onPartTapped (e) {
-            this.$.selector.clearSelection();
-            this.tappedElement = e.detail;
-            this.tooltipTarget = this.tappedElement.getBoundingClientRect();
-            this.notifyChange('open-settings-tooltip', { part: this.tappedElement.model });
-            if (this.tappedElement !== e.detail) {
-                this.fire('close-settings');
-            }
-        },
-        openSettings () {
-            this.$.tooltip.close();
-            this.tooltipTarget = null;
-            if (!this.canDelete(this.tappedElement)) {
-                this.fire('settings-tapped');
+            if (!this.tinkering) {
                 return;
             }
-            let part = this.partFromElement(),
-                selector = this.$.selector;
-            selector.select(part);
-            this.fire('settings-tapped');
-        },
-        deletePart () {
-            let part = this.partFromElement();
-            this.aboutToDelete = part.name;
-            if (this.checkBlockDependency(part)) {
-                return this.$['external-use-warning'].open();
-            } else {
-                this.$['confirm-delete'].open();
-            }
-        },
-        modalClosed (e) {
-            let part = this.partFromElement();
-            if (e.detail.confirmed) {
-                this.fire('delete-tapped', part);
-            }
-        },
-        checkBlockDependency (part) {
-            let xmlString, xml, parser, blocks, block, blockId, pieces;
-            // Get the blockly xml and parse it
-            xmlString = this.code.snapshot.blocks;
-            parser = new DOMParser();
-            xml = parser.parseFromString(xmlString, 'text/xml');
-            // Get all the 'block' elements
-            blocks = xml.getElementsByTagName('block');
-            // Check for every one of them...
-            for (let k = 0, len = blocks.length; k < len; k++) {
-                block = blocks[k];
-                blockId = block.getAttribute('type');
-                pieces = blockId.split('#');
-                // ...if the type of the block is the part we're trying to delete
-                if (pieces[0] === part.id) {
-                    return true;
-                }
-            }
-            return false;
+            this.clearSelection();
+            this.$.selector.select(e.detail.model);
+            this.toggleClass('selected', true, e.detail);
+            this.fire('open-settings');
         },
         partsChanged (e) {
             let path;
-            if (this.tooltipTarget) {
-                 requestAnimationFrame(() => {
-                     // In case it changed before the animation frame
-                     if (this.tooltipTarget) {
-                         this.tooltipTarget = this.tappedElement.getBoundingClientRect();
-                     }
-                 });
-             }
             if (!e) {
                 return;
             }

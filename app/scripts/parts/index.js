@@ -59,6 +59,16 @@ module.exports = Parts = {
                 Parts.list = Parts.list.concat(Parts.experiments[exp]);
             }
         });
+        Parts.list.forEach(part => {
+            if (part.experiments) {
+                c.addExperiments('blocks', Object.keys(part.experiments));
+                flags.experiments.forEach(exp => {
+                    if (part.experiments[exp]) {
+                        part.blocks = part.blocks.concat(part.experiments[exp]);
+                    }
+                });
+            }
+        });
         c.addExperiments('parts', Object.keys(Parts.experiments));
     }
 };

@@ -13,8 +13,11 @@
             if (f) {
                 let r = new FileReader();
                 r.onload = function (e) {
+                    // Read the mode
+                    let app = JSON.parse(e.target.result);
                     localStorage.setItem('previousApp', localStorage.getItem('savedApp'));
-                    localStorage.setItem('savedApp', e.target.result);
+                    // Save the app in the right localstorage slot
+                    localStorage.setItem(`savedApp-${app.mode}`, e.target.result);
                 };
                 r.readAsText(f);
                 document.body.removeChild(i);

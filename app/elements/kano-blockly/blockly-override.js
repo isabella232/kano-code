@@ -15,6 +15,8 @@ if (window.CustomBlocklyMsg) {
     Object.assign(Blockly.Msg, window.CustomBlocklyMsg);
 }
 
+Blockly.isAnimationsDisabled = Kano.MakeApps.config.PERF_SAFE;
+
 function lightenColor (hex, lum) {
 
 	// validate hex string
@@ -260,21 +262,25 @@ Blockly.Flyout.prototype.hide = function() {
   var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
   var origin = this.trianglePos_;
   this.svgGroup_.style.transformOrigin = `left ${origin}px`;
-  this.animation = this.svgGroup_.animate([{
-      transform: `${translate} scale(1)`,
-      opacity: 1
-  },{
-      transform: `${translate} scale(0.5)`,
-      opacity: 0
-  }], {
-      duration: 200,
-      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-  });
-  this.animation.finished.then(() => {
+  if (Blockly.isAnimationsDisabled) {
       this.svgGroup_.style.display = 'none';
-  }).catch(() => {
-      return;
-  });
+  } else {
+      this.animation = this.svgGroup_.animate([{
+          transform: `${translate} scale(1)`,
+          opacity: 1
+      },{
+          transform: `${translate} scale(0.5)`,
+          opacity: 0
+      }], {
+          duration: 200,
+          easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+      });
+      this.animation.finished.then(() => {
+          this.svgGroup_.style.display = 'none';
+      }).catch(() => {
+          return;
+      });
+  }
   // Delete all the event listeners.
   for (var x = 0, listen; listen = this.listeners_[x]; x++) {
     Blockly.unbindEvent_(listen);
@@ -358,16 +364,18 @@ Blockly.Flyout.prototype.show = function(xmlList) {
   if (this.animation) {
       this.animation.cancel();
   }
-  this.animation = this.svgGroup_.animate([{
-      transform: `${translate} scale(0.5)`,
-      opacity: 0
-  }, {
-      transform: `${translate} scale(1)`,
-      opacity: 1
-  }], {
-      duration: 200,
-      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-  });
+  if (!Blockly.isAnimationsDisabled) {
+      this.animation = this.svgGroup_.animate([{
+          transform: `${translate} scale(0.5)`,
+          opacity: 0
+      }, {
+          transform: `${translate} scale(1)`,
+          opacity: 1
+      }], {
+          duration: 200,
+          easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+      });
+  }
 
   this.reflowWrapper_ = this.reflow.bind(this);
   this.workspace_.addChangeListener(this.reflowWrapper_);
@@ -440,7 +448,7 @@ Blockly.Flyout.prototype.position = function () {
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, this.CORNER_RADIUS);
     path.push('h', -edgeWidth);
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, -this.CORNER_RADIUS);
-    if (this.targetWorkspace_.toolbox_) {
+    if (this.targetWorkspace_.toolbox_ && this.trianglePos_) {
         path.push('v', -(height - this.trianglePos_ - 12));
         path.push('l', -10, -12);
         path.push('l', 10, -12);

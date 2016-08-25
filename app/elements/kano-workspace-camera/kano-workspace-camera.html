@@ -26,7 +26,8 @@
             is: 'kano-workspace-camera',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior],
             ready () {
-                this.userListeners = [];
+                // Will contain the listeners attached to the socket
+                this.socketListeners = [];
             },
             setBackgroundColor (color) {
                 this.$.screen.style.background = color;
@@ -47,7 +48,7 @@
             },
             onShutterTurns (key, callback) {
                 let cb = this._shutterCheck(key, callback);
-                this.userListeners.push({
+                this.socketListeners.push({
                     name: 'timer-changed',
                     cb
                 });
@@ -62,7 +63,7 @@
             },
             onKeyDown (key, callback) {
                 let cb = this._keyDownCheck(key, callback);
-                this.userListeners.push({
+                this.socketListeners.push({
                     name: 'button-down',
                     cb
                 });
@@ -76,13 +77,15 @@
                 };
             },
             stop () {
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
                 this.reset();
             },
             reset () {
-                this.userListeners.forEach((listener) => {
+                // Remove all the listeners and reset the listeners array
+                this.socketListeners.forEach((listener) => {
                     Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
                 });
-                this.userListeners = [];
+                this.socketListeners = [];
             }
         });
     </script>

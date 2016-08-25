@@ -179,18 +179,6 @@
         }
         this.data.steps.push({
             "tooltips": [{
-                "location": "make-button",
-                "position": "bottom",
-                "text": "The app is finished, hit the play button."
-            }],
-            "validation": {
-                "running": {
-                    "value": true
-                }
-            }
-        });
-        this.data.steps.push({
-            "tooltips": [{
                 "location": "left-panel",
                 "position": "right",
                 "text": "You can now test the app",
@@ -420,51 +408,51 @@
                             }
                         }
                     });
-                }
-                if (parentSelector) {
-                    let step = {
-                        "tooltips": [{
-                            "location": {
-                                "block": parentSelector
-                            },
-                            "position": "left",
-                            "text": Challenge.randomizedAction('connect-blocks')
-                        }],
-                        "validation": {
-                            "blockly": {
-                                "connect": {
-                                    "parent": parentSelector,
-                                    "target": blockChallengeId
-                                }
-                            }
-                        }
-                    };
-                    step.phantom_block = {
-                        "location": {
-                            "block": parentSelector.id
-                        }
-                    };
-                    if (parentSelector.inputName) {
-                        step.phantom_block.target =  parentSelector.inputName;
-                    }
-                    steps.push(step);
-                } else {
-                    steps.push({
-                        "tooltips": [
-                            {
-                                "location": "right-panel",
+                    if (parentSelector) {
+                        let step = {
+                            "tooltips": [{
+                                "location": {
+                                    "block": parentSelector
+                                },
                                 "position": "left",
-                                "text": Challenge.randomizedAction('drop-codespace')
-                            }
-                        ],
-                        "validation": {
-                            "blockly": {
-                                "drop": {
-                                    "target": blockChallengeId
+                                "text": Challenge.randomizedAction('connect-blocks')
+                            }],
+                            "validation": {
+                                "blockly": {
+                                    "connect": {
+                                        "parent": parentSelector,
+                                        "target": blockChallengeId
+                                    }
                                 }
                             }
+                        };
+                        step.phantom_block = {
+                            "location": {
+                                "block": parentSelector.id
+                            }
+                        };
+                        if (parentSelector.inputName) {
+                            step.phantom_block.target =  parentSelector.inputName;
                         }
-                    });
+                        steps.push(step);
+                    } else {
+                        steps.push({
+                            "tooltips": [
+                                {
+                                    "location": "right-panel",
+                                    "position": "left",
+                                    "text": Challenge.randomizedAction('drop-codespace')
+                                }
+                            ],
+                            "validation": {
+                                "blockly": {
+                                    "drop": {
+                                        "target": blockChallengeId
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];

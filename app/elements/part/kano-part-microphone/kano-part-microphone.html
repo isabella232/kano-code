@@ -1,7 +1,9 @@
 <link rel="import" href="../../ui/behaviors.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../kano-style/part.html">
 <dom-module id="kano-part-microphone">
+    <style is="custom-style" include="part-style"></style>
     <style>
     :host {
         display: block;
@@ -180,7 +182,9 @@
                 this._setVolume(Math.min(120, stats.volume) / 1.2);
                 this._setLow(Math.min(120, stats.low) / 1.2);
 
-                this._executeThresholds();
+                if (this.isRunning) {
+                    this._executeThresholds();
+                }
 
                 if (!this.prevTimestamp || timestamp - this.prevTimestamp > 150) {
                     this.prevTimestamp = timestamp;
@@ -242,6 +246,7 @@
                 this.thresholds.push(threshold);
             },
             reset () {
+                console.log('microphone reset');
                 this.thresholds = [];
             },
             _correlatePitch (buf, sampleRate) {

@@ -46,12 +46,15 @@ const samples = {
 };
 const COLOUR = '#FFB347';
 
-export default speaker = {
+speaker = {
     partType: 'hardware',
     type: 'speaker',
     label: 'Speaker',
     image: '/assets/part/speaker.svg',
     colour: COLOUR,
+    experiments: {
+        'sound': []
+    },
     blocks: [{
         block: () => {
             return {
@@ -115,7 +118,23 @@ export default speaker = {
                 return code;
             };
         }
-    },{
+    }]
+};
+
+
+// Check Web Audio support
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+try {
+    speaker.ctx = new window.AudioContext();
+    speaker.webAudioSupported = true;
+} catch (e) {
+    speaker.webAudioSupported = false;
+}
+
+// Add speaker blocks if supported
+if (speaker.webAudioSupported) {
+    speaker.experiments.sound = [{
         block: () => {
             return {
                 id: 'speaker_play',
@@ -239,7 +258,7 @@ export default speaker = {
                 id,
                 colour: COLOUR,
                 doNotRegister: true
-            }
+            };
         },
         javascript: () => {
             return (block) => {
@@ -253,5 +272,8 @@ export default speaker = {
                 return [`'${sample}'`];
             };
         }
-    }]
-};
+    }];
+}
+
+
+export default speaker;

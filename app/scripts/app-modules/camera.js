@@ -16,6 +16,9 @@ export default camera = {
         on () {
             HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
         },
+        onPictureTaken (cb) {
+            this.on('camera:takepicture', cb);
+        },
         removeListener () {
             HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
         },

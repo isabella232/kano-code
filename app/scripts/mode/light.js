@@ -202,8 +202,7 @@ export default light = {
                 message0: 'Lights: scroll text %1 color %2 background %3 speed %4',
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 },{
                     type: "input_value",
                     name: "COLOR",
