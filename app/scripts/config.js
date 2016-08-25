@@ -16,9 +16,9 @@ var COMMON = {
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
         "HARDWARE_API_URL": "//localhost:3000",
         "DEFAULT_META_DATA": [
-            ["og:title", "Make Apps"],
+            ["og:title", "Kano Code"],
             ["og:description", "Make real apps, real fast"],
-            ["og:site-name", "Make Apps"],
+            ["og:site-name", "Kano Code"],
             ["og:url", "https://apps.kano.me/"],
             ["og:image", ""],
             ["twitter:card", "summary_large_image"],
