@@ -9,7 +9,7 @@ var COMMON = {
         },
         "WORKSPACE_LED_BOARD_SIZE": {
             "width": 466,
-            "height": 240
+            "height": 322
         },
         "VOICE_API_URL": "//api.voicerss.org",
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",

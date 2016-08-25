@@ -12,7 +12,7 @@ export default light = {
     workspace: {
         viewport: {
             width: 466,
-            height: 240
+            height: 322
         },
         component: 'kano-workspace-lightboard'
     },
