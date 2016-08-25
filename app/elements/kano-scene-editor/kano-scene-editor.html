@@ -129,7 +129,13 @@
             this.$.editor.share();
         },
         computeParts () {
-            return (this.remix) ? Kano.MakeApps.Parts.list : Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+            if (this.remix) {
+                return Kano.MakeApps.Parts.list.filter((part) => {
+                    return this.mode.parts.indexOf(part.type) !== -1;
+                });
+            } else {
+                return Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+            }
         },
         computeCategories (e) {
             let cats = {};

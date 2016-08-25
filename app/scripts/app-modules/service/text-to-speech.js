@@ -14,6 +14,7 @@ class TextToSpeech {
         this.config = config;
         this.backend = this.remote;
         this.backendStop = () => {};
+        this.rpiStop = () => {};
 
         this.cache = {};
     }

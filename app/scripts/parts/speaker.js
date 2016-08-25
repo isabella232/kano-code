@@ -52,6 +52,9 @@ speaker = {
     label: 'Speaker',
     image: '/assets/part/speaker.svg',
     colour: COLOUR,
+    experiments: {
+        'sound': []
+    },
     blocks: [{
         block: () => {
             return {
@@ -131,7 +134,7 @@ try {
 
 // Add speaker blocks if supported
 if (speaker.webAudioSupported) {
-    speaker.blocks.concat([{
+    speaker.experiments.sound = [{
         block: () => {
             return {
                 id: 'speaker_play',
@@ -269,7 +272,7 @@ if (speaker.webAudioSupported) {
                 return [`'${sample}'`];
             };
         }
-    }]);
+    }];
 }
 
 
