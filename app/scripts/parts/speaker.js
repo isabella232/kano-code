@@ -46,7 +46,7 @@ const samples = {
 };
 const COLOUR = '#FFB347';
 
-export default speaker = {
+speaker = {
     partType: 'hardware',
     type: 'speaker',
     label: 'Speaker',
@@ -115,7 +115,23 @@ export default speaker = {
                 return code;
             };
         }
-    },{
+    }]
+};
+
+
+// Check Web Audio support
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+try {
+    speaker.ctx = new window.AudioContext();
+    speaker.webAudioSupported = true;
+} catch (e) {
+    speaker.webAudioSupported = false;
+}
+
+// Add speaker blocks if supported
+if (speaker.webAudioSupported) {
+    speaker.blocks.concat([{
         block: () => {
             return {
                 id: 'speaker_play',
@@ -239,7 +255,7 @@ export default speaker = {
                 id,
                 colour: COLOUR,
                 doNotRegister: true
-            }
+            };
         },
         javascript: () => {
             return (block) => {
@@ -253,5 +269,8 @@ export default speaker = {
                 return [`'${sample}'`];
             };
         }
-    }]
-};
+    }]);
+}
+
+
+export default speaker;

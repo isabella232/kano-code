@@ -50,7 +50,8 @@ var COMMON = {
         "web": {
         },
         "rpi": {
-            "API_URL": "http://localhost:8000"
+            "API_URL": "http://localhost:8000",
+            "PERF_SAFE": true
         },
         "osonline": {
             "TOKEN_ENDPOINT": "http://localhost:8000/gettoken",

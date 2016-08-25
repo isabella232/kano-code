@@ -71,6 +71,11 @@ export default speaker = {
     config (opts) {
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         speaker.tts = TextToSpeech(opts);
-        speaker.ctx = new AudioContext();
+        try {
+            speaker.ctx = new AudioContext();
+            speaker.webAudioSupported = true;
+        } catch (e) {
+            speaker.webAudioSupported = false;
+        }
     }
 };
