@@ -22,9 +22,12 @@ export default speaker = {
             return fetch(`/assets/audio/samples/${name}.wav`)
                 .then(res => res.arrayBuffer())
                 .then(data => {
-                    let buffer = speaker.ctx.decodeAudioData(data);
-                    speaker.samples[name] = buffer;
-                    return buffer;
+                    return new Promise((resolve, reject) => {
+                        speaker.ctx.decodeAudioData(data, (buffer) => {
+                            speaker.samples[name] = buffer;
+                            return resolve(buffer);
+                        });
+                    });
                 });
         }
     },
