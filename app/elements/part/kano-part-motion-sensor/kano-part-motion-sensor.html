@@ -7,20 +7,67 @@
     :host {
         display: block;
     }
+
+    kano-ui-item {
+        animation-iteration-count: infinite;
+        border-radius: 100%;
+    }
+    @keyframes rolling {
+        0% {
+            transform: translate(3px, 0px) rotate(15deg);
+        }
+        50% {
+            transform: translate(-3px, 0px) rotate(-15deg);
+        }
+        100% {
+            transform: translate(3px, 0px) rotate(15deg);
+        }
+    }
+    @keyframes seismic {
+        0% {
+            transform: translate(6px, -2px) rotate(5deg);
+        }
+        50% {
+            transform: translate(-6px, 0px) rotate(-5deg);
+        }
+        100% {
+            transform: translate(6px, 0px) rotate(5deg);
+        }
+    }
+    :host .animation-rolling {
+        animation-name: rolling;
+        animation-duration: 1.2s;
+        transition: box-shadow 1s;
+        box-shadow: none;
+    }
+    :host .animation-seismic {
+        animation-name: seismic;
+        animation-duration: 0.11s;
+        transition: box-shadow 0s;
+        box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.1);
+    }
     </style>
     <template>
-        <kano-ui-item model="[[model]]"
+        <kano-ui-item class$="{{computeAnimationClass(movement)}}" model="[[model]]"
             size="50"
             id$="part-[[model.id]]"
             colour="[[model.colour]]"
-            instance></kano-ui-item>
+            instance no-label></kano-ui-item>
     </template>
     <script type="text/javascript">
         /* globals Polymer, Kano */
 
         Polymer({
             is: 'kano-part-motion-sensor',
-            behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+            behaviors: [Kano.Behaviors.UIBehavior,
+                        Kano.Behaviors.EmitterBehavior,
+                        Kano.Behaviors.AnimatableBehavior],
+            properties: {
+                movement: {
+                    type: Boolean,
+                    value: false
+                }
+            },
             attached () {
                 Kano.AppModules.getModule('motionSensor').connect({
                     name: 'Make Apps'
@@ -35,6 +82,7 @@
                     } else {
                         this.fire('movement-end');
                     }
+                    this.movement = e.movement;
                 };
 
                 Kano.AppModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
@@ -44,6 +92,10 @@
                 Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
 
                 Kano.AppModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
+                this.movement = false;
+            },
+            computeAnimationClass (movement) {
+                return movement ? 'animation-seismic' : 'animation-rolling';
             }
         });
     </script>
