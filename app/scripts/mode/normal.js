@@ -12,7 +12,7 @@ blocks = blocks.concat(general);
 blocks.push({
     block: (ui) => {
         return {
-            id: 'clear all',
+            id: 'clear',
             message0: `${ui.name}: clear drawing`,
             previousStatement: null,
             nextStatement: null
