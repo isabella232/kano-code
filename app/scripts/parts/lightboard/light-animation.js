@@ -8,6 +8,7 @@ export default lightAnimation = {
     image: '/assets/part/pixels-animation.svg',
     colour: '#FFB347',
     component: 'kano-part-light-animation',
+    restrict: 'workspace',
     configPanel: 'light-animation',
     customizable: {
         properties: [{
