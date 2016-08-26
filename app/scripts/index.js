@@ -7,6 +7,7 @@ var webComponentsSupported = ('registerElement' in document &&
     'content' in document.createElement('template')),
     msg = 'Loading',
     loaded = false,
+    loadTimeoutId,
     started,
     timeout,
     wcPoly;
@@ -72,6 +73,7 @@ function lazyLoadElements() {
  * Optionally load the webcomponents polyfill and then load the elements bundle
  */
 function deferLoading() {
+    clearTimeout(loadTimeoutId);
     // Animate the loader to keep the user chill
     animateLoader();
     if (!webComponentsSupported) {
@@ -146,6 +148,9 @@ if (window.addEventListener) {
 } else {
     window.onload = deferLoading;
 }
+
+// I am ashamed of this hack, but sometimes safari just doesn't fire the load event :(
+loadTimeoutId = setTimeout(deferLoading, 1000);
 
 window.Polymer = {
     dom: 'shadow',
