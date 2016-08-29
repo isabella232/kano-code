@@ -99,28 +99,31 @@
                     centerY = this.$.canvas.height / 2 - radius;
                 this.offsetX -= this.model.userProperties.speed;
                 this.offsetY -= this.model.userProperties.speed;
-                this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
-                for (let i = 0; i < this.model.userProperties.slices; i++) {
-                    this.ctx.save();
-                    this.ctx.translate(radius, radius);
-                    this.ctx.translate(centerX, centerY);
-                    this.ctx.rotate(i * step);
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(-0.5, -0.5);
-                    this.ctx.arc(0, 0, radius, step * -0.51, step * 0.51);
-                    this.ctx.lineTo(0.5, 0.5);
-                    this.ctx.closePath();
+                // Image could be in a broken state
+                try {
+                    this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
+                    for (let i = 0; i < this.model.userProperties.slices; i++) {
+                        this.ctx.save();
+                        this.ctx.translate(radius, radius);
+                        this.ctx.translate(centerX, centerY);
+                        this.ctx.rotate(i * step);
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(-0.5, -0.5);
+                        this.ctx.arc(0, 0, radius, step * -0.51, step * 0.51);
+                        this.ctx.lineTo(0.5, 0.5);
+                        this.ctx.closePath();
 
-                    this.ctx.rotate(Math.PI / 2);
-                    this.ctx.scale(scale, scale);
-                    this.ctx.scale([-1,1][i % 2], 1);
-                    this.ctx.translate(this.offsetX - cx, this.offsetY);
-                    this.ctx.rotate(this.model.userProperties.offsetRotation / 180 * Math.PI);
-                    this.ctx.scale(this.offsetScale, this.offsetScale);
+                        this.ctx.rotate(Math.PI / 2);
+                        this.ctx.scale(scale, scale);
+                        this.ctx.scale([-1,1][i % 2], 1);
+                        this.ctx.translate(this.offsetX - cx, this.offsetY);
+                        this.ctx.rotate(this.model.userProperties.offsetRotation / 180 * Math.PI);
+                        this.ctx.scale(this.offsetScale, this.offsetScale);
 
-                    this.ctx.fill();
-                    this.ctx.restore();
-                }
+                        this.ctx.fill();
+                        this.ctx.restore();
+                    }
+                } catch (e) {}
             }
             cancelAnimationFrame(this.frameId);
             this.frameId = requestAnimationFrame(this._updateRender.bind(this));

@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
+<script src="../../scripts/kano/make-apps/behaviors/mode-lightboard-behavior.js"></script>
 <dom-module id="kano-workspace-lightboard">
     <style>
         :host {
@@ -48,7 +49,7 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-lightboard',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.Behaviors.LightboardBehavior],
             listeners: {
                 'update-mode': 'update',
                 'update-shape': '_updateShape'
@@ -71,7 +72,7 @@
                 Kano.AppModules.getModule('lightboard').text(text, color, backgroundColor);
             },
             turnOn (light, color) {
-                Kano.AppModules.getModule('lightboard').turnOn(light, color).then(bitmap => {
+                Kano.MakeApps.Behaviors.LightboardBehavior.turnOn.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped

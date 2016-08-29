@@ -36,4 +36,30 @@
         document.body.removeChild(a);
     };
 
+    Utils.sendToKit = (p, app) => {
+        // Create a body object containing the app for the program
+        let program = {
+            parts: app.parts,
+            code: app.code.snapshot.javascript,
+            mode: app.mode,
+            partsAPI: {}
+        },
+            headers = new Headers();
+        // Fetch the mode part code as text to give to the kit
+        fetch(`/scripts/kano/make-apps/behaviors/mode-${app.mode}-behavior.js`)
+            .then(r => r.text())
+            .then(r => {
+                program.partsAPI[app.mode] = r;
+            })
+            .then(_ => {
+                headers.set('Content-Type', 'application/json');
+                // Send the program to the kit
+                return fetch(`http://localhost:3000/program/${p}`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ program })
+                });
+            });
+    };
+
 })(window.Kano = window.Kano || {});
