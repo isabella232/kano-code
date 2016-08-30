@@ -15,6 +15,9 @@
         },
         stop () {
             this.userListeners = [];
+            this.userListeners.forEach((listener) => {
+                this.appModules.getModule('lightboard').removeListener(listener.name, listener.cb);
+            });
         },
         turnOn (light, color) {
             return this.appModules.getModule('lightboard').turnOn(light, color);

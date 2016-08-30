@@ -58,7 +58,7 @@
                 this.userListeners = [];
             },
             attached () {
-                Kano.AppModules.getModule('lightboard').connect({
+                this.appModules.getModule('lightboard').connect({
                     name: 'Make Apps'
                 });
             },
@@ -66,10 +66,10 @@
                 this.$['led-matrix'].render(bitmap);
             },
             scroll (text, color, backgroundColor, speed) {
-                Kano.AppModules.getModule('lightboard').scroll(text, color, backgroundColor, speed);
+                Kano.MakeApps.Behaviors.LightboardBehavior.scroll.apply(this, arguments);
             },
             text (text, color, backgroundColor) {
-                Kano.AppModules.getModule('lightboard').text(text, color, backgroundColor);
+                Kano.MakeApps.Behaviors.LightboardBehavior.text.apply(this, arguments);
             },
             turnOn (light, color) {
                 Kano.MakeApps.Behaviors.LightboardBehavior.turnOn.apply(this, arguments).then(bitmap => {
@@ -79,7 +79,7 @@
                 });
             },
             turnOff (light) {
-                Kano.AppModules.getModule('lightboard').turnOff(light).then(bitmap => {
+                Kano.MakeApps.Behaviors.LightboardBehavior.turnOff.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped
@@ -88,22 +88,8 @@
             update (data) {
                 this.render(data);
             },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.userListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('lightboard').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
-            },
             stop () {
+                Kano.MakeApps.Behaviors.LightboardBehavior.stop.apply(this);
                 this.reset();
             },
             reset () {
@@ -112,14 +98,10 @@
                     empty.push('#000000');
                 }
                 this.$['led-matrix'].render(empty);
-                this.userListeners.forEach((listener) => {
-                    Kano.AppModules.getModule('lightboard').removeListener(listener.name, listener.cb);
-                });
-                this.userListeners = [];
             },
             _updateShape (e) {
                 let shape = e.detail;
-                Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape)
+                this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape)
                     .then((bitmap) => {
                         this.render(bitmap);
                     }).catch(e => {

@@ -36,6 +36,21 @@
         document.body.removeChild(a);
     };
 
+    /**
+     * Fetch a part API file from the part type and prefix
+     */
+    function fetchPartAPI(prefix, partType) {
+        return fetch(`/scripts/kano/make-apps/behaviors/${prefix}-${partType}-behavior.js`)
+            .then(r => {
+                if (!r.ok) {
+                    return Promise.reject();
+                }
+                return r.text();
+            }).catch(e => {
+                
+            });
+    }
+
     Utils.sendToKit = (p, app) => {
         // Create a body object containing the app for the program
         let program = {
@@ -44,22 +59,40 @@
             mode: app.mode,
             partsAPI: {}
         },
-            headers = new Headers();
-        // Fetch the mode part code as text to give to the kit
-        fetch(`/scripts/kano/make-apps/behaviors/mode-${app.mode}-behavior.js`)
-            .then(r => r.text())
-            .then(r => {
-                program.partsAPI[app.mode] = r;
-            })
-            .then(_ => {
-                headers.set('Content-Type', 'application/json');
-                // Send the program to the kit
-                return fetch(`http://localhost:3000/program/${p}`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({ program })
+            headers = new Headers(),
+            promises;
+        // Create a unique array of the types used in this app
+        promises = app.parts.map(part => part.type).filter((value, index, self) => self.indexOf(value) === index);
+        // Generate promises that will fetch the parts API file
+        promises = promises.map(partType => {
+            return fetchPartAPI('part', partType)
+                .then(r => {
+                    program.partsAPI[partType] = r;
                 });
+        });
+        promises = promises.concat(app.parts.map(part => part.partType).filter((value, index, self) => self.indexOf(value) === index).map(type => {
+            return fetchPartAPI('part', type)
+                .then(r => {
+                    program.partsAPI[type] = r;
+                });
+        }));
+        // Fetch the mode part code as text to give to the kit
+        promises.push(fetchPartAPI('mode', app.mode).then(r => {
+            program.partsAPI[app.mode] = r;
+        }));
+        // Fetch the part base behavior
+        promises.push(fetchPartAPI('part', 'base').then(r => {
+            program.partsAPI['base'] = r;
+        }));
+        Promise.all(promises).then(_ => {
+            headers.set('Content-Type', 'application/json');
+            // Send the program to the kit
+            return fetch(`http://localhost:3000/program/${p}`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ program })
             });
+        });
     };
 
 })(window.Kano = window.Kano || {});
