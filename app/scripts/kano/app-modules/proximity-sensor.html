@@ -1,0 +1,30 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class ProximitySensorModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+            }
+
+            connect (info) {
+                this.api.connect();
+            }
+
+            on () {
+                this.api.on.apply(this.api, arguments);
+            }
+
+            removeListener () {
+                this.api.removeListener.apply(this.api, arguments);
+            }
+
+            config (opts) {
+                this.api = opts.hardwareAPI;
+            }
+        }
+
+        Kano.AppModules.modules['proximitySensor'] = new ProximitySensorModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

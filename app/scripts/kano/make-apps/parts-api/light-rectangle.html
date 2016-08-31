@@ -1,0 +1,51 @@
+<link rel="import" href="./light-shape.html">
+<script>
+    (function (Kano) {
+        let LightRectangle, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        LightRectangle = {
+            setWidth (w) {
+                this.set('model.userProperties.width', w);
+                this._updateLightboard();
+            },
+            getWidth () {
+                return this.get('model.userProperties.width');
+            },
+            setHeight (h) {
+                this.set('model.userProperties.height', h);
+                this._updateLightboard();
+            },
+            getHeight () {
+                return this.get('model.userProperties.height');
+            },
+            setColor (c) {
+                this.set('model.userProperties.color', c);
+                this._updateLightboard();
+            },
+            getColor () {
+                return this.get('model.userProperties.color');
+            },
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
+                    if (this.isRunning) {
+                        let shape = {
+                            id: this.model.id,
+                            x: this.getX(),
+                            y: this.getY(),
+                            width: parseInt(this.model.userProperties.width),
+                            height: parseInt(this.model.userProperties.height),
+                            color: this.model.userProperties.color,
+                            type: 'rectangle'
+                        };
+                        this.fire('update-shape', shape);
+                    }
+                });
+            }
+        };
+
+        PartsAPI['light-rectangle'] = Object.assign({}, PartsAPI['light-shape'], LightRectangle);
+    })(window.Kano = window.Kano || {});
+</script>

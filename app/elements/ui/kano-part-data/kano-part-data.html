@@ -1,7 +1,7 @@
 <link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../kano-data-visualizer/kano-data-visualizer.html">
 <link rel="import" href="../../kano-style/part.html">
-<script src="../../../scripts/kano/make-apps/behaviors/part-data-behavior.js"></script>
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/data.html">
 <dom-module id="kano-part-data">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -46,7 +46,7 @@
 
     Polymer({
         is: 'kano-part-data',
-        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior, Kano.MakeApps.Behaviors.DataBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.data],
         properties: {
             loading: {
                 type: Boolean
@@ -56,17 +56,17 @@
                 computed: 'computeProgress(loading)'
             }
         },
+        ready () {
+            this.appModules = Kano.AppModules;
+        },
         computeProgress (loading) {
             return loading ? 1 : 0;
         },
         start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-            Kano.MakeApps.Behaviors.DataBehavior.start.apply(this, arguments);
+            Kano.MakeApps.PartsAPI.data.start.apply(this, arguments);
         },
         stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-            Kano.MakeApps.Behaviors.DataBehavior.stop.apply(this, arguments);
+            Kano.MakeApps.PartsAPI.data.stop.apply(this, arguments);
         }
     });
 </script>

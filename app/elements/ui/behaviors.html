@@ -27,9 +27,6 @@ window.Kano.Behaviors.UIBehavior = {
             value: false
         }
     },
-    hostAttributes: {
-        tabindex: 0
-    },
     observers: [
         'applyTransform(model.*)'
     ],
@@ -56,91 +53,6 @@ window.Kano.Behaviors.UIBehavior = {
             acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
             return acc;
         }, '');
-    },
-    start () {
-        this.savedState = {
-            position: {
-                x: this.model.position.x,
-                y: this.model.position.y
-            },
-            rotation: this.model.rotation,
-            scale: this.model.scale,
-            visible: this.model.visible,
-            userProperties: Object.assign({}, this.model.userProperties),
-            userStyle: Object.assign({}, this.model.userStyle)
-        };
-        this.setAttribute('tabindex', -1);
-        this.isRunning = true;
-    },
-    stop () {
-        if (this.savedState) {
-            let savedState = this.savedState || {};
-            savedState.position = savedState.position || { x: 0, y: 0 };
-            this.set('model.position.x', savedState.position.x);
-            this.set('model.position.y', savedState.position.y);
-            this.set('model.rotation', savedState.rotation);
-            this.set('model.scale', savedState.scale);
-            this.set('model.visible', savedState.visible);
-            this.set('model.userProperties', savedState.userProperties);
-            this.set('model.userStyle', savedState.userStyle);
-        }
-        this.setAttribute('tabindex', 0);
-        this.isRunning = false;
-    },
-    moveAlong (distance) {
-        let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
-            alongY = Math.round(parseInt(distance) * Math.sin(direction)),
-            alongX = Math.round(parseInt(distance) * Math.cos(direction));
-        this.move(alongX, alongY);
-    },
-    move (x, y) {
-        let position = this.model.position;
-        // Set separate values otherwise, the reference is compared and
-        // change triggers are not fired
-        this.set('model.position.x', position.x + x);
-        this.set('model.position.y', position.y + y);
-    },
-    setXY (x, y) {
-        this.setX(x);
-        this.setY(y);
-    },
-    setX (x) {
-        this.set('model.position.x', x);
-    },
-    setY (y) {
-        this.set('model.position.y', y);
-    },
-    getX () {
-        return this.get('model.position.x');
-    },
-    getY () {
-        return this.get('model.position.y');
-    },
-    getSize () {
-        return this.get('model.scale');
-    },
-    getRotation () {
-        return this.get('model.rotation');
-    },
-    rotate (deg) {
-        let rotation = this.model.rotation;
-        this.set('model.rotation', parseInt(rotation) + parseInt(deg));
-    },
-    absolute_rotate (deg) {
-        this.set('model.rotation', parseInt(deg));
-    },
-    scale (factor) {
-        this.set('model.scale', factor);
-    },
-    resize (factor) {
-        let curFactor = this.get('model.scale') || 100;
-        this.set('model.scale', curFactor * factor / 100);
-    },
-    show (visibility) {
-        this.set('model.visible', visibility);
-    },
-    toggleVisibility () {
-        this.set('model.visible', !this.model.visible);
     },
     applyTransform () {
         if (!this.model) {

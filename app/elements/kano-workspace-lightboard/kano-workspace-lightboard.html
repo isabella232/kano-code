@@ -1,6 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
-<script src="../../scripts/kano/make-apps/behaviors/mode-lightboard-behavior.js"></script>
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/lightboard.html">
 <dom-module id="kano-workspace-lightboard">
     <style>
         :host {
@@ -49,13 +49,12 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-lightboard',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.Behaviors.LightboardBehavior],
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.PartsAPI.lightboard],
             listeners: {
-                'update-mode': 'update',
                 'update-shape': '_updateShape'
             },
             ready () {
-                this.userListeners = [];
+                this.appModules = Kano.AppModules;
             },
             attached () {
                 this.appModules.getModule('lightboard').connect({
@@ -65,31 +64,22 @@
             render (bitmap) {
                 this.$['led-matrix'].render(bitmap);
             },
-            scroll (text, color, backgroundColor, speed) {
-                Kano.MakeApps.Behaviors.LightboardBehavior.scroll.apply(this, arguments);
-            },
-            text (text, color, backgroundColor) {
-                Kano.MakeApps.Behaviors.LightboardBehavior.text.apply(this, arguments);
-            },
             turnOn (light, color) {
-                Kano.MakeApps.Behaviors.LightboardBehavior.turnOn.apply(this, arguments).then(bitmap => {
+                Kano.MakeApps.PartsAPI.lightboard.turnOn.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped
                 });
             },
             turnOff (light) {
-                Kano.MakeApps.Behaviors.LightboardBehavior.turnOff.apply(this, arguments).then(bitmap => {
+                Kano.MakeApps.PartsAPI.lightboard.turnOff.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped
                 });
             },
-            update (data) {
-                this.render(data);
-            },
             stop () {
-                Kano.MakeApps.Behaviors.LightboardBehavior.stop.apply(this);
+                Kano.MakeApps.PartsAPI.lightboard.stop.apply(this);
                 this.reset();
             },
             reset () {
@@ -100,9 +90,7 @@
                 this.$['led-matrix'].render(empty);
             },
             _updateShape (e) {
-                let shape = e.detail;
-                this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape)
-                    .then((bitmap) => {
+                Kano.MakeApps.PartsAPI.lightboard._updateShape.apply(this, arguments).then((bitmap) => {
                         this.render(bitmap);
                     }).catch(e => {
                         // Frame dropped

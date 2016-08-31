@@ -1,0 +1,51 @@
+<link rel="import" href="./light-shape.html">
+<script>
+    (function (Kano) {
+        let LightCircle, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        LightCircle = {
+            _updateLightboard () {
+                this.debounce('_updateLightboard', () => {
+                    if (this.isRunning) {
+                        let radius = parseInt(this.model.userProperties.radius),
+                            shape = {
+                            id: this.model.id,
+                            x: this.getX(),
+                            y: this.getY(),
+                            radius,
+                            color: this.model.userProperties.color,
+                            type: 'circle'
+                        };
+                        console.log(shape);
+                        this.fire('update-shape', shape);
+                    }
+                });
+            },
+            getX () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / this.PIXEL_SIZE);
+            },
+            getY () {
+                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / this.PIXEL_SIZE);
+            },
+            setRadius (r) {
+                this.set('model.userProperties.radius', r);
+                this._updateLightboard();
+            },
+            getRadius () {
+                return parseInt(this.get('model.userProperties.radius'));
+            },
+            setColor (c) {
+                this.set('model.userProperties.color', c);
+                this._updateLightboard();
+            },
+            getColor () {
+                return this.get('model.userProperties.color');
+            }
+        };
+
+        PartsAPI['light-circle'] = Object.assign({}, PartsAPI['light-shape'], LightCircle);
+    })(window.Kano = window.Kano || {});
+</script>

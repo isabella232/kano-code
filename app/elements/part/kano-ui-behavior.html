@@ -1,0 +1,124 @@
+<script type="text/javascript">
+
+(function (Kano) {
+
+    Kano.Behaviors = Kano.Behaviors || {};
+
+    /**
+     * Behavior common to all UI components
+     * Adds the style object that can be used to give the user
+     * customization features
+     * @type {Object}
+     */
+    Kano.Behaviors.UIBehavior = {
+        properties: {
+            model: {
+                type: Object,
+                notify: true
+            },
+            isRunning: {
+                type: Boolean,
+                value: false
+            },
+            autoStart: {
+                type: Boolean,
+                value: false
+            }
+        },
+        observers: [
+            'applyTransform(model.*)'
+        ],
+        listeners: {
+            'tap': 'onTap'
+        },
+        onTap () {
+            if (!this.isRunning) {
+                this.fire('part-tapped', this);
+            }
+        },
+        ready () {
+            this.userListeners = {};
+        },
+        attached () {
+            this.fire('ui-ready', this);
+            if (this.autoStart) {
+                this.start();
+            }
+        },
+        getPartialStyle (attrs) {
+            if (!this.model) {
+                return '';
+            }
+            attrs = attrs || Object.keys(this.model.userStyle);
+            return attrs.reduce((acc, key) => {
+                acc += this.model.userStyle && this.model.userStyle[key] ? `${key}:${this.model.userStyle[key]};` : '';
+                return acc;
+            }, '');
+        },
+        applyTransform () {
+            if (!this.model) {
+                return;
+            }
+            let position = this.model.position || { x: 0, y: 0 },
+                rotation = this.model.rotation || 0,
+                scale = this.model.scale / 100 || 1,
+                transform,
+                visibility;
+            transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
+            visibility = this.model.visible ? 'visible' : 'hidden';
+            this.style.webkitTransform = this.style.transform = transform;
+            this.style.visibility = visibility;
+        },
+        renderOnCanvas (ctx) {
+            if (this.model.partType !== 'ui') {
+                return Promise.resolve();
+            }
+            let position = this.model.position || { x: 0, y: 0 },
+                rotation = this.model.rotation || 0,
+                scale = this.model.scale / 100 || 1,
+                rect = this.getBoundingClientRect();
+
+            ctx.save();
+            ctx.translate(position.x + rect.width / 2, position.y + rect.height / 2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.scale(scale, scale);
+            ctx.translate(-(rect.width / 2), -(rect.height / 2));
+            return Promise.resolve();
+        },
+        renderFallback (ctx) {
+            let width = this.offsetWidth,
+                height = this.offsetHeight;
+            ctx.fillStyle = this.model.colour;
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'white';
+            ctx.font = '24px Bariol';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.model.name, width / 2, height / 2);
+            ctx.restore();
+            return Promise.resolve();
+        },
+        getConnectable (property) {
+            let connectable = {
+                node: this,
+                property
+            },
+                customizable;
+            if (property.indexOf('model.userProperties') === 0) {
+                for (let i = 0; i < this.model.customizable.properties.length; i++) {
+                    customizable = this.model.customizable.properties[i];
+                    if (customizable.key === property.replace('model.userProperties.', '')) {
+                        connectable.bounds = {
+                            min: customizable.min,
+                            max: customizable.max
+                        };
+                        break;
+                    }
+                }
+            }
+            return connectable;
+        }
+    };
+})(window.Kano = window.Kano || {});
+
+</script>

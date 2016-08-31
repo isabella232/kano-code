@@ -1,0 +1,30 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class MotionSensorModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+            }
+
+            connect (info) {
+                this.api.connect();
+            }
+
+            on () {
+                this.api.on.apply(this.api, arguments);
+            }
+
+            removeListener () {
+                this.api.removeListener.apply(this.api, arguments);
+            }
+
+            config (opts) {
+                this.api = opts.hardwareAPI;
+            }
+        }
+
+        Kano.AppModules.modules['motionSensor'] = new MotionSensorModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

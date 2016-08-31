@@ -1,6 +1,6 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../kano-light-shape-behavior.html">
 <link rel="import" href="../../kano-style/part.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/light-rectangle.html">
 <dom-module id="kano-part-light-rectangle">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -35,7 +35,7 @@
 
         Polymer({
             is: 'kano-part-light-rectangle',
-            behaviors: [Kano.Behaviors.LightShapeBehavior, Kano.Behaviors.EmitterBehavior],
+            behaviors: [Kano.MakeApps.PartsAPI['light-rectangle'], Kano.Behaviors.LightShapeBehavior],
             _computeContainerStyle () {
                 let width = this.model.userProperties.width * this.PIXEL_SIZE + 4,
                     height = this.model.userProperties.height * this.PIXEL_SIZE + 4,
@@ -52,47 +52,6 @@
                     container.appendChild(div);
                 }
                 return `width: ${width}px; height: ${height}px;`;
-            },
-            stop () {
-                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-            },
-            setWidth (w) {
-                this.set('model.userProperties.width', w);
-                this._updateLightboard();
-            },
-            getWidth () {
-                return this.get('model.userProperties.width');
-            },
-            setHeight (h) {
-                this.set('model.userProperties.height', h);
-                this._updateLightboard();
-            },
-            getHeight () {
-                return this.get('model.userProperties.height');
-            },
-            setColor (c) {
-                this.set('model.userProperties.color', c);
-                this._updateLightboard();
-            },
-            getColor () {
-                return this.get('model.userProperties.color');
-            },
-            _updateLightboard () {
-                this.debounce('_updateLightboard', () => {
-                    if (this.isRunning) {
-                        let shape = {
-                            id: this.model.id,
-                            x: this.getX(),
-                            y: this.getY(),
-                            width: parseInt(this.model.userProperties.width),
-                            height: parseInt(this.model.userProperties.height),
-                            color: this.model.userProperties.color,
-                            type: 'rectangle'
-                        };
-                        this.fire('update-shape', shape);
-                    }
-                });
             }
         });
     </script>

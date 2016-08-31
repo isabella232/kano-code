@@ -1,0 +1,59 @@
+<script>
+    (function (Kano) {
+
+        const AppModules = {
+            config (config) {
+                Object.keys(AppModules.modules).forEach(name => {
+                    AppModules.modules[name].config(config);
+                });
+            },
+            /**
+             * Support legacy API
+             */
+            init () {
+                this.config.apply(this, arguments);
+            },
+            getModule (name) {
+                return AppModules.modules[name].methods;
+            },
+            createAppCode (prefix, code) {
+                let moduleNames = Object.keys(AppModules.modules),
+                    moduleImports = moduleNames.map(name => `${prefix}.getModule('${name}')`);
+                // This adds a module called devices that returns the part module. Used for older apps support
+                moduleNames.push('devices');
+                moduleImports.push(`${prefix}.getModule('parts')`);
+                return `(function (${moduleNames.join(', ')}) {${code}\nglobal.emit('start')})(${moduleImports.join(', ')})`;
+            },
+            loadParts (parts) {
+                // Give a reference to the app modules to every part
+                Object.keys(parts).forEach(id => {
+                    parts[id].appModules = this;
+                });
+                AppModules.modules.parts.loadParts(parts);
+            },
+            _runModuleLifecycleStep (name) {
+                Object.keys(AppModules.modules).forEach(key => {
+                    AppModules.modules[key].executeLifecycleStep(name);
+                });
+            },
+            start () {
+                this._runModuleLifecycleStep('start');
+            },
+            stop () {
+                this._runModuleLifecycleStep('stop');
+            }
+        };
+
+        AppModules.enablePreviousVersionsSupport = () => {
+            Kano.MakeApps = Kano.MakeApps || {};
+            Kano.MakeApps.Modules = AppModules.modules;
+            KanoModules = AppModules.modules;
+            KanoModules.init = { methods: {} };
+        };
+
+        AppModules.modules = {};
+
+        Kano.AppModules = AppModules;
+
+    })(window.Kano = window.Kano || {});
+</script>

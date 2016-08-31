@@ -135,7 +135,7 @@ module.exports = (gulp, $) => {
 
     gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], assets(watchMap.assets.src));
 
-    gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch'], () => {
+    gulp.task('watch', ['app-modules-watch', 'parts-module-watch', 'app-watch', 'parts-api-watch'], () => {
         Object.keys(watchMap).forEach(key => {
             gulp.watch(watchMap[key].src)
                 .on('change', (e) => {
