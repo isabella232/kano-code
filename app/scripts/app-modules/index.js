@@ -15,6 +15,7 @@ import date from './date';
 import proximitySensor from './proximity-sensor';
 import motionSensor from './motion-sensor';
 import gestureSensor from './gesture-sensor';
+import gyroAccelerometer from './gyro-accelerometer';
 
 let AppModules;
 
@@ -32,7 +33,8 @@ module.exports = AppModules = {
         date,
         proximitySensor,
         motionSensor,
-        gestureSensor
+        gestureSensor,
+        gyroAccelerometer
     },
     experiments: {
         fun: {
