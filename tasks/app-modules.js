@@ -1,27 +1,28 @@
-'use strict';
 module.exports = (gulp, $) => {
-    let bundler = $.browserify('app/scripts/app-modules/index.js', { standalone: 'Kano.AppModules' })
-            .transform($.babelify.configure({ presets: ['es2015'] }));
 
-    function bundle(target, refresh) {
-        return (src) => {
-            let stream = bundler
-                .bundle()
-                .on('error', $.utils.notifyError)
-                .pipe($.source('index.js'))
-                .pipe(gulp.dest(target));
-            if (refresh) {
-                stream = stream.pipe($.browserSync.stream());
-            }
-            return stream;
-        };
+    function process() {
+        return gulp.src('app/scripts/kano/app-modules/index.html', { base: 'app' })
+            .pipe($.utils.vulcanize({
+                inlineScripts: true,
+                stripComments: true
+            }))
+            .pipe($.crisper({ scriptInHead: false }))
     }
 
-    gulp.task('app-modules-dev', bundle('www/scripts/app-modules', true));
-    gulp.task('app-modules', bundle('.tmp/app/scripts/app-modules'));
+
+    /**
+     * No need to babelify here, this code will be sent to a node environment
+     */
+    gulp.task('app-modules', () => {
+        process()
+            .pipe($.if('*.js', gulp.dest('www')));
+    });
 
     gulp.task('app-modules-watch', () => {
-        bundler = bundler.plugin($.watchify).on('update', bundle('www/scripts/app-modules', true));
-        bundle('www/scripts/app-modules', true)();
+        gulp.watch('app/scripts/kano/app-modules/**/*')
+            .on('change', (e) => {
+                $.utils.notifyUpdate(`File ${e.path} was ${e.type}...`);
+                process().pipe($.if('*.js', gulp.dest('www')));
+            });
     });
 };

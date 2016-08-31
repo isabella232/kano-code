@@ -59,17 +59,28 @@
             mode: app.mode
         },
             headers = new Headers(),
-            promises;
-        // Get the parts API code bundle that contains the wholw parts definition
-        fetch('/scripts/kano/make-apps/parts-api/parts-api.js')
-            .then(r => {
-                if (!r.ok) {
-                    return Promise.reject();
-                }
-                return r.text();
-            })
-            .then(partsAPICode => {
-                program.partsAPI = partsAPICode;
+            getPartsAPICode = fetch('/scripts/kano/make-apps/parts-api/parts-api.js')
+                .then(r => {
+                    if (!r.ok) {
+                        return Promise.reject();
+                    }
+                    return r.text();
+                }),
+
+            getAppModulesCode = fetch('/scripts/kano/app-modules/index.js')
+                .then(r => {
+                    if (!r.ok) {
+                        return Promise.reject();
+                    }
+                    return r.text();
+                }),
+
+            promises = [getPartsAPICode, getAppModulesCode];
+
+        // Get the parts API code bundle that contains the whole parts definition
+        Promise.all(promises).then(codes => {
+                program.partsAPI = codes[0];
+                program.appModules = codes[1];
                 headers.set('Content-Type', 'application/json');
                 // Send the program to the kit
                 return fetch(`http://localhost:3000/program/${p}`, {

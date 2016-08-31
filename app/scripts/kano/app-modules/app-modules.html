@@ -22,7 +22,89 @@
                 // This adds a module called devices that returns the part module. Used for older apps support
                 moduleNames.push('devices');
                 moduleImports.push(`${prefix}.getModule('parts')`);
-                return `(function (${moduleNames.join(', ')}) {${code}\nglobal.emit('start')})(${moduleImports.join(', ')})`;
+                return `(function (${moduleNames.join(', ')}) {\n${code}\n})(${moduleImports.join(', ')});\n`;
+            },
+            generateStandaloneComponent (componentName, parts, background, mode, codes) {
+                console.log(componentName, parts, background, mode, userCode);
+                let template = [],
+                    // TODO find a better way to avoid having this script tag swallowed by crisper
+                    scriptTagName = 'script',
+                    tagName,
+                    components,
+                    code = this.createAppCode('Kano.AppModules', userCode),
+                    component,
+                    partsString;
+
+                parts = parts || [];
+
+                components = parts.reduce((acc, part) => {
+                    tagName = part.tagName || `kano-ui-${part.type}`;
+                    acc[part.id] = part.toJSON();
+                    template.push(`<${tagName} id="${part.id}" model="{{parts.${part.id}}}"></${tagName}>`);
+                    return acc;
+                }, {});
+                partsString = JSON.stringify(components);
+
+                template = template.join('\n');
+
+                component = `
+                    <dom-module id="kano-${componentName}">
+                        <style>
+                            :host {
+                                position: relative;
+                            }
+                            kano-ui-viewport {
+                                position: absolute;
+                                top: 0px;
+                                left: 0px;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            kano-ui-viewport * {
+                                position: absolute;
+                            }
+                            .workspace {
+                                width: 100%;
+                                height: 100%;
+                            }
+                        </style>
+                        <template>
+                            <kano-ui-viewport mode="scaled"
+                                        view-width="${mode.workspace.viewport.width}"
+                                        view-height="${mode.workspace.viewport.height}"
+                                        no-overflow>
+                                <${mode.workspace.component} id="${mode.id}" class="workspace" width="${mode.workspace.viewport.width}" height="${mode.workspace.viewport.height}"
+                                    ${template}
+                                </${mode.workspace.component}>
+                            </kano-ui-viewport>
+                        </template>
+                        <${scriptTagName}>
+                            Polymer({
+                                is: 'kano-${componentName}',
+                                properties: {
+                                    parts: {
+                                        type: Object,
+                                        value: ${partsString}
+                                    }
+                                },
+                                attached: function () {
+                                    Kano.AppModules.loadParts(this.$);
+                                    var ws = this.$['${mode.id}'];
+
+                                    if (ws.setBackgroundColor) {
+                                        ws.setBackgroundColor('${background}');
+                                    }
+
+                                    ${code}
+
+                                    Kano.AppModules.start();
+                                }
+                            });
+                        </${scriptTagName}>
+                    </dom-module>
+                `;
+
+                return component;
             },
             loadParts (parts) {
                 // Give a reference to the app modules to every part

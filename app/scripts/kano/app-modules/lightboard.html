@@ -20,6 +20,7 @@
                 this.addMethod('scroll', '_scroll');
                 this.addMethod('on', '_on');
                 this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
+                this.addMethod('connect', '_connect');
             }
 
             config (opts) {
@@ -196,7 +197,7 @@
              * This method will only be called by Kano Code in a remote context to connect to the socket.io server
              * But anyways, the abstract version of the Hardware API implements stub methods to fail silently
              */
-            connect (info) {
+            _connect (info) {
                 this.api.connect();
                 this.api.on('connect', () => {
                     this.api.emit('lightboard:init', info);
@@ -204,7 +205,7 @@
             }
         }
 
-        Kano.AppModules.modules['lightobard'] = new LightboardModule();
+        Kano.AppModules.modules['lightboard'] = new LightboardModule();
 
     })(window.Kano = window.Kano || {});
 </script>

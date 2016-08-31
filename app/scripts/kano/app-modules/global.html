@@ -8,6 +8,7 @@
                 this.addMethod('when', '_when');
                 this.addMethod('emit', '_emit');
                 this.addLifecycleStep('stop', '_reset');
+                this.addLifecycleStep('start', '_start');
                 this._reset();
             }
 
@@ -32,6 +33,10 @@
 
             _reset () {
                 this._listeners = {};
+            }
+
+            _start () {
+                this._emit('start');
             }
         }
 
