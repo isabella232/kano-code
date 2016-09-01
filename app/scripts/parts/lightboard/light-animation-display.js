@@ -11,6 +11,7 @@ export default lightAnimationDisplay = {
     colour: '#FFB347',
     component: 'kano-part-light-animation-display',
     showDefaultConfiguration: false,
+    restrict: 'workspace',
     customizable: {
         properties: [{
             key: 'animation',

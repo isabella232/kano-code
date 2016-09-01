@@ -7,6 +7,7 @@ export default lightFrame = {
     image: '/assets/part/pixels-draw.svg',
     colour: '#FFB347',
     component: 'kano-part-light-frame',
+    restrict: 'workspace',
     blocks: [],
     configPanel: 'light-frame',
     customizable: {
