@@ -20,6 +20,12 @@
                 lastPictureUrl: {
                     type: String,
                     value: ''
+                },
+                model: {
+                    type: Object,
+                    value: () => {
+                        return {};
+                    }
                 }
             },
             start () {
@@ -29,13 +35,27 @@
                 Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
                 Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
             },
+            setWebcam (webcam) {
+                this.webcam = webcam;
+            },
+            disableWebcam () {
+                this.webcam = null;
+            },
             takePicture () {
-                Kano.AppModules.getModule('camera').takePicture()
-                    .then((pictureUrl) => {
-                        let filename = pictureUrl.split('/').pop();
-                        this.lastPictureUrl = Kano.AppModules.getModule('camera').getPicture(filename);
-                        this.fire('picture-taken', this.lastPictureUrl);
-                    });
+                let takePromise;
+                if (this.webcam) {
+                    takePromise = this.webcam.takePicture();
+                } else {
+                    takePromise = Kano.AppModules.getModule('camera').takePicture()
+                        .then((pictureUrl) => {
+                            let filename = pictureUrl.split('/').pop();
+                            return Kano.AppModules.getModule('camera').getPicture(filename);
+                        });
+                }
+                takePromise.then((pictureUrl) => {
+                    this.lastPictureUrl = pictureUrl;
+                    this.fire('picture-taken', pictureUrl);
+                });
             },
             lastPicture () {
                 return this.lastPictureUrl;
