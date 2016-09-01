@@ -10,6 +10,7 @@ export default lightCircle = {
     colour: '#FFB347',
     component: 'kano-part-light-circle',
     excludeDefaultBlocks: true,
+    restrict: 'workspace',
     customizable: {
         properties: [{
             key: 'radius',

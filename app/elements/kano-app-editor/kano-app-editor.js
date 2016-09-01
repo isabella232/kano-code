@@ -577,7 +577,8 @@ Polymer({
         });
     },
     _enableDrag (el) {
-        let draggables;
+        let draggables,
+            restrictEl;
         this._cleanDraggables();
         if (el) {
             draggables = [el];
@@ -585,6 +586,7 @@ Polymer({
             draggables = this.draggables;
         }
         draggables.forEach((draggable) => {
+            restrictEl = draggable.model.restrict === 'workspace' ? this.$.workspace.getViewport().getRestrictElement() : this.$['left-panel'];
             interact(draggable).draggable({
                 onmove: this.getDragMoveListener(true),
                 onend: (e) => {
@@ -595,7 +597,7 @@ Polymer({
                     });
                 },
                 restrict: {
-                    restriction: this.$['left-panel'],
+                    restriction: restrictEl,
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 }
             });

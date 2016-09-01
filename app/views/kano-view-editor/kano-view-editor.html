@@ -84,13 +84,14 @@
         _registerBlockly () {
             let appToLoad,
                 slug = this.context.params.slug,
-                modeId = this.mode.id;
+                modeId;
             Kano.Behaviors.EditorViewBehavior._registerBlockly.apply(this, arguments);
 
             if (this.loaded) {
                 return;
             }
             this.loaded = true;
+            modeId = this.mode.id;
 
             // Only include the parts defined in the mode
             if (this.mode.parts) {

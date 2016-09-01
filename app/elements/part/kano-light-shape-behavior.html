@@ -9,12 +9,17 @@
      * Update the coordinates methods to match leds instead of screen pixels
      */
     Kano.Behaviors.LightShapeBehaviorImpl = {
+        PIXEL_SIZE: 27,
+        OFFSET_X: 15,
+        OFFSET_Y: 5,
+        BOARD_WIDTH: 16,
+        BOARD_HEIGHT: 8,
         applyTransform () {
             if (!this.model) {
                 return;
             }
-            let x = Math.min(Math.max(15, 15 + this.PIXEL_SIZE * this.getX()), 15 + (16 - parseInt(this.model.userProperties.width)) * this.PIXEL_SIZE),
-                y = Math.min(Math.max(5, 5 + this.PIXEL_SIZE * this.getY()), 5 + (8 - parseInt(this.model.userProperties.height)) * this.PIXEL_SIZE);
+            let x = Math.min(Math.max(this.OFFET_X, this.OFFET_X + this.PIXEL_SIZE * this.getX()), this.OFFET_X + (this.BOARD_WIDTH - parseInt(this.model.userProperties.width)) * this.PIXEL_SIZE),
+                y = Math.min(Math.max(this.OFFSET_Y, this.OFFSET_Y + this.PIXEL_SIZE * this.getY()), this.OFFSET_Y + (this.BOARD_HEIGHT - parseInt(this.model.userProperties.height)) * this.PIXEL_SIZE);
 
             this.transform(`translate(${x}px, ${y}px)`);
         }
