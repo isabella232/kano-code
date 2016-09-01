@@ -18,7 +18,7 @@ export default Camera = {
                 'button', 'box', 'image', 'map', 'picture-list',
                 'scrolling-text', 'slider', 'text-input', 'text',
                 'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
-                'proximity-sensor'],
+                'proximity-sensor', 'gyro-accelerometer'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'

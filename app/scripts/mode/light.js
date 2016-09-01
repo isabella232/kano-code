@@ -8,7 +8,8 @@ export default light = {
     colour: '#82C23D',
     parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
                 'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
-                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor'],
+                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
+                'gesture-sensor', 'gyro-accelerometer'],
     workspace: {
         viewport: {
             width: 466,

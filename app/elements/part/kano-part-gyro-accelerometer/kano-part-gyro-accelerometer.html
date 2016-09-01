@@ -1,0 +1,71 @@
+<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="kano-part-gyro-accelerometer">
+    <style>
+    :host {
+        display: block;
+    }
+    </style>
+    <template>
+        <kano-ui-item model="[[model]]"
+            size="50"
+            id$="part-[[model.id]]"
+            colour="[[model.colour]]"
+            instance></kano-ui-item>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-gyro-accelerometer',
+            behaviors: [Kano.Behaviors.UIBehavior,
+                        Kano.Behaviors.EmitterBehavior,
+                        Kano.Behaviors.AnimatableBehavior],
+            properties: {
+                lastGyroVector: {
+                    type: Object,
+                    value: {x: 0.0, y: 0.0, z: 0.0}
+                },
+                lastAccelVector: {
+                    type: Object,
+                    value: {x: 0.0, y: 0.0, z: 0.0}
+                }
+            },
+            attached () {
+                Kano.AppModules.getModule('gyroAccelerometer').connect({
+                    name: 'Make Apps'
+                });
+            },
+            start () {
+                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+
+                this.gyroEventListener = (e) => {
+                    this.lastGyroVector = e;
+                    this.fire('gyro-accel-update');
+                };
+
+                this.accelEventListener = (e) => {
+                    this.lastAccelVector = e;
+                };
+
+                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
+                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+            },
+            stop () {
+                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+
+                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
+                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+            },
+            getGyroData (axis) {
+                return this.lastGyroVector[axis];
+            },
+            getAccelerometerData (axis) {
+                return this.lastAccelVector[axis];
+            }
+        });
+    </script>
+</dom-module>
