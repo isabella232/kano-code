@@ -40,7 +40,7 @@
                 // Change key names to UK spelling for the Kano 2 server
                 this.socketEmit('lightboard:text', data);
             };
-            this.light.text = (data) => {
+            this.light.scroll = (data) => {
                 // Change key names to UK spelling for the Kano 2 server
                 this.socketEmit('lightboard:scroll-text', data);
             };
