@@ -12,6 +12,7 @@
                 this.addMethod('takePicture', '_takePicture');
                 this.addMethod('lastPicture', '_lastPicture');
                 this.addMethod('getPicture', '_getPicture');
+                this.addMethod('connect', '_connect');
             }
 
             _flash (color, length) {
@@ -38,11 +39,7 @@
                 return this.api.camera.getPicture(filename);
             }
 
-            /**
-             * This method will only be called by Kano Code in a remote context to connect to the socket.io server
-             * But anyways, the abstract version of the Hardware API implements stub methods to fail silently
-             */
-            connect (info) {
+            _connect (info) {
                 this.api.connect();
                 this.api.on('connect', () => {
                     this.api.emit('camera:init', info);

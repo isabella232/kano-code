@@ -35,16 +35,16 @@ export default map = {
         },
         javascript: (ui) => {
             return function (block) {
-                let latitude = Blockly.JavaScript.valueToCode(block, 'LATITUDE'),
-                    longitude = Blockly.JavaScript.valueToCode(block, 'LONGITUDE'),
+                let latitude = Blockly.JavaScript.valueToCode(block, 'LATITUDE') || 51,
+                    longitude = Blockly.JavaScript.valueToCode(block, 'LONGITUDE') || 0,
                     code = `devices.get('${ui.id}').showMarker(${latitude}, ${longitude});\n`;
                 return code;
             };
         },
         pseudo: (ui) => {
             return function (block) {
-                let latitude = Blockly.Pseudo.valueToCode(block, 'LATITUDE'),
-                    longitude = Blockly.Pseudo.valueToCode(block, 'LONGITUDE'),
+                let latitude = Blockly.Pseudo.valueToCode(block, 'LATITUDE') || 51,
+                    longitude = Blockly.Pseudo.valueToCode(block, 'LONGITUDE') || 0,
                     code = `${ui.id}.moveMarkerTo(${latitude}, ${longitude});\n`;
                 return code;
             };

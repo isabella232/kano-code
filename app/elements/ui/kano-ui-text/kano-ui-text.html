@@ -1,4 +1,5 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../../part/kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../kano-style/typography.html">
 <link rel="import" href="../../kano-style/part.html">
 <dom-module id='kano-ui-text'>
@@ -7,11 +8,20 @@
         :host {
             display: inline-block;
         }
+        span {
+            min-width: 30px;
+            min-height: 30px;
+            outline: 1px dashed lightgrey;
+        }
+        span[running] {
+            outline: 0px;
+        }
+
     </style>
     <template>
         <span id='label'
             on-tap="textClicked"
-            style$='[[computeLabelStyle(model.userStyle.*)]]'>
+            style$='[[computeLabelStyle(model.userStyle.*)]]' running$="[[isRunning]]">
             {{model.userProperties.text}}
         </span>
     </template>
@@ -22,14 +32,7 @@
 
     Polymer({
         is: 'kano-ui-text',
-        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
-        start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-        },
-        stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-        },
+        behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
         computeLabelStyle () {
             return this.getPartialStyle(['font-size', 'color', 'font-family']);
         },
