@@ -71,14 +71,14 @@ export default gyroAccelerometer = {
         javascript: (part) => {
             return (block) => {
                 let axis = block.getFieldValue('AXIS') || 'x',
-                    code = `devices.get('${part.id}').getAccelerometerData(${axis})`;
+                    code = `devices.get('${part.id}').getAccelerometerData('${axis}')`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let axis = block.getFieldValue('AXIS') || 'x',
-                    code = `devices.get('${part.id}').getAccelerometerData(${axis})`;
+                    code = `devices.get('${part.id}').getAccelerometerData('${axis}')`;
                 return [code];
             };
         }

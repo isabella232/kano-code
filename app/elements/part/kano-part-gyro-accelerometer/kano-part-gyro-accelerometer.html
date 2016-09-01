@@ -23,6 +23,16 @@
             behaviors: [Kano.MakeApps.PartsAPI['gyro-accelerometer'],
                         Kano.Behaviors.UIBehavior,
                         Kano.Behaviors.AnimatableBehavior],
+            properties: {
+                lastGyroVector: {
+                    type: Object,
+                    value: {x: 0.0, y: 0.0, z: 0.0}
+                },
+                lastAccelVector: {
+                    type: Object,
+                    value: {x: 0.0, y: 0.0, z: 0.0}
+                }
+            },
             attached () {
                 Kano.AppModules.getModule('gyroAccelerometer').connect({
                     name: 'Make Apps'
