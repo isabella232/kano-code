@@ -28,6 +28,8 @@ import Kaleidoscope from './kaleidoscope';
 import Slider from './slider';
 import ProximitySensor from './powerups/proximity-sensor';
 import MotionSensor from './powerups/motion-sensor';
+import GestureSensor from './powerups/gesture-sensor';
+import GyroAccelerometer from './powerups/gyro-accelerometer';
 
 let Parts,
     partTypes;
@@ -40,7 +42,7 @@ partTypes = {
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
            Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
-           ProximitySensor, MotionSensor],
+           ProximitySensor, MotionSensor, GestureSensor, GyroAccelerometer],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation, LightAnimationDisplay],
         'camera': [PictureList, Kaleidoscope, Slider],

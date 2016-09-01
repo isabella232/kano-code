@@ -1,30 +1,10 @@
-<link rel="import" href="./app-module.html">
+<link rel="import" href="./dongle.html">
 <script>
     (function (Kano) {
 
-        class MotionSensorModule extends Kano.AppModules.AppModule {
+        class MotionSensorModule extends Kano.AppModules.DongleModule {
             constructor () {
                 super();
-
-                this.addMethod('connect', '_connect');
-                this.addMethod('on', '_on');
-                this.addMethod('removeListener', '_removeListener');
-            }
-
-            _connect (info) {
-                this.api.connect();
-            }
-
-            _on () {
-                this.api.on.apply(this.api, arguments);
-            }
-
-            _removeListener () {
-                this.api.removeListener.apply(this.api, arguments);
-            }
-
-            config (opts) {
-                this.api = opts.hardwareAPI;
             }
         }
 

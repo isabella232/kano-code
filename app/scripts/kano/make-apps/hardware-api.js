@@ -90,6 +90,44 @@
                         console.error('Proximity sensor request failed: ', err);
                     });
             };
+            this.gyroAccelerometer = {};
+            this.gyroAccelerometer.getPath =  (action) => {
+                return HardwareAPI.getPath('powerup/gyro-accelerometer/0', action);
+            };
+            this.gyroAccelerometer.getGyroData =  () => {
+                return fetch(HardwareAPI.gyroAccelerometer.getPath('gyro'))
+                    .then((res) => {
+                        if (!res.ok) {
+                            console.error("Failed to reach the sensor");
+                            return null;
+                        }
+
+                        return res.json();
+                    })
+                    .then((data) => {
+                        return data.vector;
+                    })
+                    .catch((err) => {
+                        console.error('Gyro sensor request failed: ', err);
+                    });
+            };
+            this.gyroAccelerometer.getAccelerometerData =  () => {
+                return fetch(HardwareAPI.gyroAccelerometer.getPath('accelerometer'))
+                    .then((res) => {
+                        if (!res.ok) {
+                            console.error("Failed to reach the sensor");
+                            return null;
+                        }
+
+                        return res.json();
+                    })
+                    .then((data) => {
+                        return data.vector;
+                    })
+                    .catch((err) => {
+                        console.error('Accelerometer sensor request failed: ', err);
+                    });
+            };
         }
 
         connect () {

@@ -12,8 +12,8 @@
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
-                this.userListeners = [];
-                this.userListeners.forEach((listener) => {
+                this.socketListeners = [];
+                this.socketListeners.forEach((listener) => {
                     this.appModules.getModule('lightboard').removeListener(listener.name, listener.cb);
                 });
             },
@@ -31,7 +31,8 @@
             },
             onKeyDown (key, callback) {
                 let cb = this._keyDownCheck(key, callback);
-                this.userListeners.push({
+                this.socketListeners = this.socketListeners || [];
+                this.socketListeners.push({
                     name: 'button-down',
                     cb
                 });

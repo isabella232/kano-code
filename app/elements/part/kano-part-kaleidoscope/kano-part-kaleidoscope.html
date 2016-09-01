@@ -1,4 +1,5 @@
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../kano-style/part.html">
 
 <dom-module id="kano-part-kaleidoscope">
@@ -24,7 +25,7 @@
 
     Polymer({
         is: 'kano-part-kaleidoscope',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
         ready () {
             this.ctx = this.$.canvas.getContext('2d');
             this.prevSize = {};
@@ -59,7 +60,7 @@
             this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
         },
         start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
             this.resetSession();
             this._updateRender();
         },

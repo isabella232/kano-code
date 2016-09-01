@@ -8,7 +8,8 @@ export default light = {
     colour: '#82C23D',
     parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
                 'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
-                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor', 'motion-sensor'],
+                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
+                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer'],
     workspace: {
         viewport: {
             width: 466,
@@ -38,7 +39,7 @@ export default light = {
         },
         javascript: (part) => {
             return (block) => {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
+                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || `{"type":"all"}`,
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
@@ -172,8 +173,8 @@ export default light = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
@@ -224,8 +225,8 @@ export default light = {
                 nextStatement: null,
                 shadow: {
                     'SPEED': '<shadow type="math_number"><field name="NUM">50</field></shadow>',
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
