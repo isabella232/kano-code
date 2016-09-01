@@ -18,7 +18,7 @@ export default Camera = {
                 'button', 'box', 'image', 'map', 'picture-list',
                 'scrolling-text', 'slider', 'text-input', 'text',
                 'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
-                'proximity-sensor'],
+                'proximity-sensor', 'motion-sensor'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
@@ -36,13 +36,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         }
@@ -58,13 +58,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').lastPicture()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').lastPicture()`;
                 return [code];
             };
         }

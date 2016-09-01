@@ -5,17 +5,21 @@
         class ProximitySensorModule extends Kano.AppModules.AppModule {
             constructor () {
                 super();
+
+                this.addMethod('connect', '_connect');
+                this.addMethod('on', '_on');
+                this.addMethod('removeListener', '_removeListener');
             }
 
-            connect (info) {
+            _connect (info) {
                 this.api.connect();
             }
 
-            on () {
+            _on () {
                 this.api.on.apply(this.api, arguments);
             }
 
-            removeListener () {
+            _removeListener () {
                 this.api.removeListener.apply(this.api, arguments);
             }
 

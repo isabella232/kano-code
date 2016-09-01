@@ -8,7 +8,6 @@
 
         Base = PartsAPI.Base = {
             start () {
-                this.userListeners = {};
                 if (this.model) {
                     this.savedState = {
                         position: {
@@ -25,6 +24,7 @@
                 this.isRunning = true;
             },
             when (name, callback) {
+                this.userListeners = this.userListeners || {};
                 if (!this.userListeners[name]) {
                     this.userListeners[name] = [];
                 }

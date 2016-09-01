@@ -1,6 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
-<link rel="import" href="../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../part/kano-part-camera/kano-part-camera.html">
+<link rel="import" href="../part/kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/camera.html">
 <dom-module id="kano-workspace-camera">
     <style>
         :host {
@@ -24,11 +24,7 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior],
-            ready () {
-                // Will contain the listeners attached to the socket
-                this.socketListeners = [];
-            },
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera],
             setBackgroundColor (color) {
                 this.$.screen.style.background = color;
             },
@@ -37,55 +33,9 @@
                     name: 'Kano Code'
                 });
             },
+            // Support legacy code
             getCamera () {
-                return this.$['camera-part'];
-            },
-            flash (color, length) {
-                Kano.AppModules.getModule('camera').flash(color, length);
-            },
-            onShutterDown (cb) {
-                this.onKeyDown('shutter-button', cb);
-            },
-            onShutterTurns (key, callback) {
-                let cb = this._shutterCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'timer-changed',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('timer-changed', cb);
-            },
-            _shutterCheck (key, callback) {
-                return (data) => {
-                    if (data.direction === key) {
-                        callback();
-                    }
-                };
-            },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
-            },
-            stop () {
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-                this.reset();
-            },
-            reset () {
-                // Remove all the listeners and reset the listeners array
-                this.socketListeners.forEach((listener) => {
-                    Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
-                });
-                this.socketListeners = [];
+                return this;
             }
         });
     </script>

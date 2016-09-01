@@ -56,7 +56,7 @@
                     this.socketEmit('camera:takepicture');
                 });
             };
-            this.camera.getPicture = () => {
+            this.camera.getPicture = (filename) => {
                 return `${this.endpoint}/takenpics/${filename}`;
             };
             this.camera.lastPicture = () => {
@@ -100,6 +100,10 @@
 
         on () {
             this.socket.on.apply(this.socket, arguments);
+        }
+
+        removeListener () {
+            this.socket.removeListener.apply(this.socket, arguments);
         }
 
         emit () {
