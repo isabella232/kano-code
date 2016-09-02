@@ -158,7 +158,17 @@
             'doneChanged(done)'
         ],
         listeners: {
-            'change': '_checkEvent'
+            'change': '_editorChanged'
+        },
+        _editorChanged (e) {
+            // Store current step object
+            let step = this.steps[this.step],
+                detail = e.detail;
+
+            if (!step || !step.validation || this.done) {
+                return;
+            }
+            this._checkEvent(step.validation, detail);
         },
         doneChanged (done) {
             // Reset everything when the challenge is done
@@ -401,6 +411,9 @@
                     partId = this.stepIds[selector.part];
                     selector = `${selector.path}.part-${partId},${partId}`;
                 }
+            }
+            if (selector === 'blockly-bin') {
+                return this.editor.getBlocklyWorkspace();
             }
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {

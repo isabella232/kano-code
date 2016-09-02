@@ -16,6 +16,11 @@
             }
         },
         ready () {
+            this.eventsMap = {
+                move: 'connect',
+                change: 'value',
+                'drop-block': 'drop'
+            };
             this._addValidator('blockly', '_checkBlocklyEvent');
             this._addValidator('create', '_matchCreate');
             this._addValidator('connect', '_matchConnect');
@@ -23,17 +28,58 @@
             this._addValidator('delete', '_matchDelete');
             this._addValidator('open-flyout', '_matchCategory');
             this._addValidator('drop', '_matchDrop');
+
+            this._addOppositeAction('create', 'close-flyout', '_flyoutClosed');
+            this._addOppositeAction('connect', 'create', '_createNotExpected');
+
+            this._addMatchFallback('connect', '_wrongConnection');
+            this._addMatchFallback('create', '_wrongCreate');
         },
-        attached () {
-            this.eventsMap = {
-                create: 'create',
-                connect: 'move',
-                value: 'change',
-                delete: 'delete',
-                'open-flyout': 'open-flyout',
-                'close-flyout': 'close-flyout',
-                'drop': 'drop-block'
+        _createNotExpected (validation, detail) {
+            return this._wrongCreateRedirect();
+        },
+        _wrongConnection (validation, detail) {
+            // Only take action if the block was plugged
+            if (detail.newParentId) {
+                return this._wrongConnectionRedirect(validation, detail);
+            }
+        },
+        _wrongCreate (validation, detail) {
+            return this._wrongCreateRedirect();
+        },
+        _wrongCreateRedirect () {
+            let step = {};
+            step.validation = {
+                blockly: {
+                    delete: {
+                        target: {
+                            rawId: detail.blockId
+                        }
+                    }
+                }
             };
+            step.tooltips = [{
+                position: 'left',
+                text: 'Oh no! this is not the right block.<br>That\'s ok, put it in the bin',
+                location: ''
+            }];
+            this._injectStep(step, -1);
+        },
+        _wrongConnectionRedirect (validation, detail) {
+            // Clone the current step
+            let step = Object.assign({}, this.steps[this.step]);
+            // Update the tooltip
+            step.tooltips = [{
+                position: 'left',
+                location: {
+                    block: Object.assign({}, step.validation.blockly.connect.parent)
+                },
+                text: 'Whoops, not quite right. Put it there instead'
+            }];
+            this._injectStep(step, 1);
+        },
+        _flyoutClosed (validation, detail) {
+            return this._prevStep();
         },
         _matchCategory (validation, event) {
             if (validation.part) {
@@ -43,9 +89,6 @@
         },
         _matchBlockType (type, event) {
             return event.xml.getAttribute('type') === type;
-        },
-        _matchBlocklyEvent (type, event) {
-            return event.type === this.eventsMap[type];
         },
         getBlockType (validation) {
             let target = this.stepIds[validation.target],
@@ -67,7 +110,14 @@
         },
         _matchDelete (validation, event) {
             let target = validation.target || validation,
-                blockId = this.getTargetBlock(target).id;
+                blockId;
+            if (typeof target === 'string') {
+                blockId = this.blockIds[target];
+            } else if (target.id) {
+                blockId = this.blockIds[target.id];
+            } else if (target.rawId) {
+                blockId = target.rawId;
+            }
             if (blockId !== event.blockId) {
                 return;
             }
@@ -137,25 +187,19 @@
                 block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector]);
             } else if (selector.id) {
                 block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.id]);
+            } else if (selector.rawId) {
+                block = this.editor.getBlocklyWorkspace().getBlockById(selector.rawId);
             }
             if (selector.shadow) {
                 block = block.getInput(selector.shadow).connection.targetBlock();
             }
             return block;
         },
-        _checkBlocklyEvent (validation, detail) {
-            let blocklyStep = validation.blockly;
-            // Store current step object
-            Object.keys(blocklyStep).forEach((type) => {
-                if (type !== detail.type) {
-                    if (this._isOppositeAction(type, detail.type)) {
-                        // Check the opposite validation, take action
-
-                    }
-                } else {
-                    console.log('blockly');
-                }
-            });
+        _checkBlocklyEvent (validation, e) {
+            let blocklyStep = validation,
+                detail = e.event;
+            detail.type = this.eventsMap[detail.type] || detail.type;
+            this._checkEvent(validation, detail);
         }
     };
 
