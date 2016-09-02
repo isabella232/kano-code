@@ -136,7 +136,7 @@ class ComponentStore {
                     kano-ui-viewport * {
                         position: absolute;
                     }
-                    #screen {
+                    .sw {
                         width: 100%;
                         height: 100%;
                     }
@@ -146,7 +146,7 @@ class ComponentStore {
                                 view-width="${mode.workspace.viewport.width}"
                                 view-height="${mode.workspace.viewport.height}"
                                 no-overflow>
-                        <${mode.workspace.component} id="screen" width="${mode.workspace.viewport.width}" height="${mode.workspace.viewport.height}" auto-start>
+                        <${mode.workspace.component} id="${mode.id}" class="ws" width="${mode.workspace.viewport.width}" height="${mode.workspace.viewport.height}" auto-start>
                             ${template}
                         </${mode.workspace.component}>
                     </kano-ui-viewport>
@@ -164,16 +164,13 @@ class ComponentStore {
                     attached: function () {
                         var devices = {
                                 get: function (id) {
-                                    if (id === 'dropzone') {
-                                        return this.$.screen;
-                                    }
                                     return this.$$('#' + id);
                                 }.bind(this)
                             },
-                            screen = this.$.screen;
+                            ws = this.$['${mode.id}'];
 
-                        if (screen.setBackgroundColor) {
-                            screen.setBackgroundColor('${background}');
+                        if (ws.setBackgroundColor) {
+                            ws.setBackgroundColor('${background}');
                         }
 
                         ${wrappedCode}

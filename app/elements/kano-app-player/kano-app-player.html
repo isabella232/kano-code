@@ -76,6 +76,13 @@
                     c = this.create('kano-user-component');
                 }
                 c.className = 'user-app kano-app-player';
+                // Support apps exported with error
+                c.$$ = function (id) {
+                    if (['#light', '#camera', '#normal', '#dropzone'].indexOf(id) !== -1 && this.$.screen) {
+                        return this.$.screen;
+                    }
+                    return Polymer.dom(this.root).querySelector(id);
+                };
                 root.appendChild(c);
                 root.removeChild(this.$.container);
             },

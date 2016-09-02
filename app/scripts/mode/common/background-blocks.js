@@ -18,7 +18,7 @@ export default [{
     javascript: (part) => {
         return (block) => {
             let colour = Blockly.JavaScript.valueToCode(block, 'COLOUR');
-            return `devices.get('dropzone').style.backgroundColor = ${colour};\n`;
+            return `devices.get('${part.id}').style.backgroundColor = ${colour};\n`;
         };
     },
     pseudo: (part) => {
