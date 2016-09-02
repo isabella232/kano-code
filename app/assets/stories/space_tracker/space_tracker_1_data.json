@@ -1,380 +1,606 @@
 {
-    "parts": ["text", "scrolling-text", "button", "image", "weather", "iss", "map", "speaker"],
-    "modules": ["control"],
-    "steps": [
-     {
-        "tooltips": [{
-            "location": "add-part-button",
-            "position": "top",
-            "text": "This app needs a map<br />and the Space Station data"
-        }],
-        "validation": {
-            "open-parts": true
-        }
-    },{
-        "tooltips": [{
-            "location": "sidebar.parts.part-map",
-            "position": "right",
-            "text": "Drag the map to<br />your app"
-        }],
-        "arrow": {
-            "source": "sidebar.parts.part-map",
-            "target": "left-panel",
-            "size": 120
+	"steps": [
+		{
+			"tooltips": [
+				{
+					"location": "add-part-button",
+					"position": "top",
+					"text": "This app needs a map<br />and the Space Station data parts"
+				}
+			],
+			"validation": {
+				"open-parts": true
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "sidebar.parts.part-map",
+					"position": "right",
+					"text": "Drag the Map to your app"
+				}
+			],
+			"highlight": "sidebar.parts.part-map",
+			"arrow": {
+				"source": "sidebar.parts.part-map",
+				"target": "left-panel",
+				"size": 120
+			},
+			"validation": {
+				"add-part": {
+					"type": "map",
+					"id": "part_0"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "sidebar.parts.part-iss",
+					"position": "right",
+					"text": "Drag the ISS (International Space Station)<br />data in too"
+				}
+			],
+			"highlight": "sidebar.parts.part-iss",
+			"arrow": {
+				"source": "sidebar.parts.part-iss",
+				"target": "left-panel",
+				"size": 120
+			},
+			"validation": {
+				"add-part": {
+					"type": "iss",
+					"id": "part_1"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "add-part-button",
+					"position": "top",
+					"text": "That's all the parts!<br />Close the drawer to start coding."
+				}
+			],
+			"validation": {
+				"close-parts": true
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "control"
+					},
+					"position": "left",
+					"text": "Open the Control tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "control"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": "every_x_seconds"
+					},
+					"position": "left",
+					"text": "Grab one of these blocks<br /><kano-blockly-block type=\"every_x_seconds\"></kano-blockly-block>"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": "every_x_seconds"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "every_x_seconds",
+						"id": "block_0"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "default_part_event",
+							"inputName": "DO"
+						}
+					},
+					"position": "left",
+					"text": "Connect it to the start event"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "default_part_event",
+							"inputName": "DO"
+						},
+						"target": "block_0"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "default_part_event"
+				},
+				"target": "DO"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": {
+							"part": "part_1"
+						}
+					},
+					"position": "left",
+					"text": "Open the ISS tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_1"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_1",
+							"type": "refresh"
+						}
+					},
+					"position": "left",
+					"text": "Grab a <kano-blockly-block type=\"part_1#refresh\"></kano-blockly-block> code block"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": {
+						"part": "part_1",
+						"type": "refresh"
+					}
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"target": "part_1",
+						"type": "refresh",
+						"id": "block_1"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_0",
+							"inputName": "DO"
+						}
+					},
+					"position": "left",
+					"text": "Connect it to this block"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_0",
+							"inputName": "DO"
+						},
+						"target": "block_1"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_0"
+				},
+				"target": "DO"
+			}
+		},
+        {
+            "tooltips": [{
+                "location": {
+                    "path": "workspace",
+                    "part": "part_1"
+                },
+                "position": "right",
+                "next_button": true,
+                "text": "You've made the data refresh every second."
+            }]
         },
-        "validation": {
-            "add-part": {
-                "type": "map",
-                "id": "map_1"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "sidebar.parts.part-iss",
-            "position": "right",
-            "text": "Drag the space<br />station data in too"
-        }],
-        "arrow": {
-            "source": "sidebar.parts.part-iss",
-            "target": "left-panel",
-            "size": 120
-        },
-        "validation": {
-            "add-part": {
-                "type": "iss",
-                "id": "iss_1"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "add-part-button",
-            "position": "top",
-            "text": "Close the parts drawer"
-        }],
-        "validation": {
-            "close-parts": true
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "path": "workspace",
-                "part": "map_1"
-            },
-            "position": "right",
-            "text": "Click on the map"
-        }],
-        "validation": {
-            "open-settings-tooltip": {
-                "target": "map_1"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "workspace.tooltip",
-            "position": "bottom",
-            "text": "Click 'settings'"
-        }],
-        "validation": {
-            "open-part-settings": {
-                "target": "map_1"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "part-editor.ui-editor.look.style",
-            "position": "right",
-            "text": "Change the map size",
-            "next_button": true
-        }],
-        "validation": {
-            "selected-part-change": {
-                "property": "userStyle.*",
-                "count": 3
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "close-drawer",
-            "position": "bottom",
-            "text": "Close the settings when you’re done"
-        }],
-        "validation": {
-            "close-part-settings": true
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "category": "control"
-            },
-            "position": "left",
-            "text": "Open the control tray"
-        }],
-        "validation": {
-            "blockly": {
-                "open-flyout": "control"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "flyout_block": "every_x_seconds"
-            },
-            "position": "right",
-            "text": "Grab one of these blocks"
-        }],
-        "validation": {
-            "blockly": {
-                "create": {
-                    "type": "every_x_seconds",
-                    "id": "every_x_seconds_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "default_part_event"
-            },
-            "text": "Connect it to the start event",
-            "position": "bottom"
-        }],
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "parent": "default_part_event",
-                    "target": "every_x_seconds_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "category": "iss"
-            },
-            "position": "left",
-            "text": "Open the International<br />space station tray"
-        }],
-        "validation": {
-            "blockly": {
-                "open-flyout": "iss"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "flyout_block": {
-                    "part": "iss_1",
-                    "type": "refresh"
-                }
-            },
-            "position": "bottom",
-            "text": "Grab a refresh data command"
-        }],
-        "validation": {
-            "blockly": {
-                "create": {
-                    "target": "iss_1",
-                    "type": "refresh",
-                    "id": "iss_refresh_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "every_x_seconds_1"
-            },
-            "text": "Plug it in here",
-            "position": "right"
-        }],
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "parent": "every_x_seconds_1",
-                    "target": "iss_refresh_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "category": "map"
-            },
-            "position": "left",
-            "text": "Open the map tray"
-        }],
-        "validation": {
-            "blockly": {
-                "open-flyout": "map"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "flyout_block": {
-                    "part": "map_1",
-                    "type": "show_marker"
-                }
-            },
-            "position": "left",
-            "text": "Drag the map marker<br />block into your code space"
-        }],
-        "validation": {
-            "blockly": {
-                "create": {
-                    "target": "map_1",
-                    "type": "show_marker",
-                    "id": "show_marker_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "iss_refresh_1"
-            },
-            "position": "left",
-            "text": "Connect it to the refresh block"
-        }],
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "parent": "iss_refresh_1",
-                    "target": "show_marker_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "category": "iss"
-            },
-            "position": "left",
-            "text": "Open the space station tray"
-        }],
-        "validation": {
-            "blockly": {
-                "open-flyout": "iss"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "flyout_block": {
-                    "part": "iss_1",
-                    "type": "get_value"
-                }
-            },
-            "position": "right",
-            "text": "Drag out the ‘space<br />station’s latitude’ block"
-        }],
-        "validation": {
-            "blockly": {
-                "create": {
-                    "target": "iss_1",
-                    "type": "get_value",
-                    "id": "iss_data_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "show_marker_1"
-            },
-            "position": "bottom",
-            "text": "Plug it in"
-        }],
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "parent": "show_marker_1",
-                    "target": "iss_data_1"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "category": "iss"
-            },
-            "position": "left",
-            "text": "Let’s grab another of those blocks"
-        }],
-        "validation": {
-            "blockly": {
-                "open-flyout": "iss"
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "flyout_block": {
-                    "part": "iss_1",
-                    "type": "get_value"
-                }
-            },
-            "position": "right",
-            "text": "Drag out another of these"
-        }],
-        "validation": {
-            "blockly": {
-                "create": {
-                    "target": "iss_1",
-                    "type": "get_value",
-                    "id": "iss_data_2"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "show_marker_1"
-            },
-            "position": "bottom",
-            "text": "Plug it in here"
-        }],
-        "validation": {
-            "blockly": {
-                "connect": {
-                    "parent": "show_marker_1",
-                    "target": "iss_data_2"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": {
-                "block": "iss_data_2"
-            },
-            "position": "bottom",
-            "text": "Change ‘latitude’<br />to ‘longitude’"
-        }],
-        "validation": {
-            "blockly": {
-                "value": {
-                    "target": "iss_data_2",
-                    "value": "longitude"
-                }
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "make-button",
-            "position": "bottom",
-            "text": "Click play"
-        }],
-        "validation": {
-            "running": {
-                "value": true
-            }
-        }
-    },{
-        "tooltips": [{
-            "location": "left-panel",
-            "position": "right",
-            "text": "<strong>You did it!</strong><br />The space station is 400km above the marker.",
-            "next_button": true
-        }]
-    }]
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "events"
+					},
+					"position": "left",
+					"text": "Open the Events tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "events"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": "part_event"
+					},
+					"position": "left",
+					"text": "Drag an event block onto your code space<br /><kano-blockly-block type=\"part_event\"></kano-blockly-block>"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": "part_event"
+				},
+				"angle": 45,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "part_event",
+						"id": "block_2"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "right-panel",
+					"position": "left",
+					"text": "Drop the block anywhere on your code space"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"drop": {
+						"target": "block_2"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": "block_2"
+					},
+					"position": "top",
+					"text": "Change <kano-value-preview>app starts</kano-value-preview> to <kano-value-preview>ISS updated</kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": "block_2",
+						"value": "iss.update"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": {
+							"part": "part_0"
+						}
+					},
+					"position": "left",
+					"text": "Open the Map tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_0"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_0",
+							"type": "show_marker"
+						}
+					},
+					"position": "left",
+					"text": "Drag one of these blocks onto your code space<br /> <kano-blockly-block type=\"part_0#show_marker\"></kano-blockly-block>"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": {
+						"part": "part_0",
+						"type": "show_marker"
+					}
+				},
+				"angle": 45,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"target": "part_0",
+						"type": "show_marker",
+						"id": "block_3"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_2",
+							"inputName": "DO"
+						}
+					},
+					"position": "left",
+					"text": "Connect it to the refresh event"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_2",
+							"inputName": "DO"
+						},
+						"target": "block_3"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_2"
+				},
+				"target": "DO"
+			}
+		},
+        {
+			"tooltips": [
+				{
+					"location": {
+						"category": {
+							"part": "part_1"
+						}
+					},
+					"position": "left",
+					"text": "Open the ISS tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_1"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_1",
+							"type": "get_value"
+						}
+					},
+					"position": "left",
+					"text": "Drag out the <kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block> block"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": {
+						"part": "part_1",
+						"type": "get_value"
+					}
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"target": "part_1",
+						"type": "get_value",
+						"id": "block_4"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_3",
+							"inputName": "LATITUDE"
+						}
+					},
+					"position": "left",
+					"text": "Plug it in"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_3",
+							"inputName": "LATITUDE"
+						},
+						"target": "block_4"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_3"
+				},
+				"target": "LATITUDE"
+			}
+		},
+        {
+			"tooltips": [
+				{
+					"location": {
+						"category": {
+							"part": "part_1"
+						}
+					},
+					"position": "left",
+					"text": "Open the ISS tray again"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_1"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_1",
+							"type": "get_value"
+						}
+					},
+					"position": "left",
+					"text": "Let’s grab another of those blocks: <br /><kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block>"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": {
+						"part": "part_1",
+						"type": "get_value"
+					}
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"target": "part_1",
+						"type": "get_value",
+						"id": "block_5"
+					}
+				}
+			}
+		},
+        {
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_3",
+							"inputName": "LONGITUDE"
+						}
+					},
+					"position": "left",
+					"text": "Plug it in here"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_3",
+							"inputName": "LONGITUDE"
+						},
+						"target": "block_5"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_3"
+				},
+				"target": "LONGITUDE"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": "block_5"
+					},
+					"position": "top",
+					"text": "Change <kano-value-preview>latitude</kano-value-preview> to <kano-value-preview>longitude</kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": "block_5",
+						"value": "longitude"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "left-panel",
+					"position": "right",
+					"text": "<strong>You did it!</strong> The space station is 400km<br />above the marker. You can make the map bigger<br />by clicking 'tinker', then clicking on the map.",
+					"next_button": true
+				}
+			]
+		}
+	],
+	"parts": [
+		"map",
+		"iss"
+	],
+	"modules": [
+		"control",
+		"events"
+	],
+	"variables": [],
+	"mode": "normal"
 }

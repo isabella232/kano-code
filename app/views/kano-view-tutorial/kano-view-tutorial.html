@@ -107,6 +107,7 @@
             this.configureModal(this.$['end-modal'], 'fade-out');
             this.configureModal(this.$['start-modal'], 'scale-down');
             this.configureModal(this.$['start-modal'], 'fade-out');
+            this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
         },
         attached () {
             let editor = window.RouterUtil.parseQsParam(this.context.querystring, 'editor');
@@ -115,6 +116,7 @@
             this.selectedStartPage = 'loading';
             this.shareLoaded = false;
             if (editor) {
+                let modeId = this.mode.id;
                 this._share = {
                     user: this.user || { username: 'Current user' },
                     title: 'From Local Storage',
@@ -122,7 +124,7 @@
                 };
                 this.selectedStartPage = 'loaded';
                 this.$['start-modal'].refit();
-                this.challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem('savedApp')));
+                this.challenge = Kano.MakeApps.Challenge.createFromApp(JSON.parse(localStorage.getItem(`savedApp-${modeId}`)));
                 this.scene = Object.assign({}, this.challenge.data);
                 this.shareLoaded = true;
             } else {
@@ -146,6 +148,10 @@
             window.dumpChallenge = () => {
                 return JSON.stringify(this.challenge, null, '\t');
             };
+        },
+        _getMode (context) {
+            let modeFromQs = window.RouterUtil.parseQsParam(this.context.querystring, 'mode');
+            return modeFromQs ? modeFromQs : 'normal';
         },
         _startTutorial () {
             this.set('scene.started', true);

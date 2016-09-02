@@ -5,11 +5,12 @@ let lightRectangle;
 export default lightRectangle = {
     partType: 'ui',
     type: 'light-rectangle',
-    label: 'Light rectangle',
-    image: '/assets/part/lights.svg',
+    label: 'Rectangle',
+    image: '/assets/part/pixels-rectangle.svg',
     colour: '#FFB347',
     component: 'kano-part-light-rectangle',
     excludeDefaultBlocks: true,
+    restrict: 'workspace',
     customizable: {
         properties: [{
             key: 'width',

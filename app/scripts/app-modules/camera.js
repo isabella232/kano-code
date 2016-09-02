@@ -10,8 +10,14 @@ export default camera = {
                 HardwareAPI.socket.emit('camera:init', info);
             });
         },
+        flash (color, length) {
+            return HardwareAPI.ledring.flash(color, length);
+        },
         on () {
             HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+        },
+        onPictureTaken (cb) {
+            this.on('camera:takepicture', cb);
         },
         removeListener () {
             HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);

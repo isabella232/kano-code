@@ -3,7 +3,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'set_background_color',
-            message0: `${ui.name}: background %1`,
+            message0: `${ui.name}: background color %1`,
             args0: [{
                 type: "input_value",
                 name: "COLOR",

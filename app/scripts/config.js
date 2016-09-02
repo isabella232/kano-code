@@ -9,16 +9,16 @@ var COMMON = {
         },
         "WORKSPACE_LED_BOARD_SIZE": {
             "width": 466,
-            "height": 240
+            "height": 322
         },
         "VOICE_API_URL": "//api.voicerss.org",
         "VOICE_API_KEY": "65b85d9c94094d62bddfd37acd5786b4",
         "WEATHER_API_KEY": "79f483fba81614f1e7d1fea5a28b9750",
         "HARDWARE_API_URL": "//localhost:3000",
         "DEFAULT_META_DATA": [
-            ["og:title", "Make Apps"],
+            ["og:title", "Kano Code"],
             ["og:description", "Make real apps, real fast"],
-            ["og:site-name", "Make Apps"],
+            ["og:site-name", "Kano Code"],
             ["og:url", "https://apps.kano.me/"],
             ["og:image", ""],
             ["twitter:card", "summary_large_image"],
@@ -50,7 +50,8 @@ var COMMON = {
         "web": {
         },
         "rpi": {
-            "API_URL": "http://localhost:8000"
+            "API_URL": "http://localhost:8000",
+            "PERF_SAFE": true
         },
         "osonline": {
             "TOKEN_ENDPOINT": "http://localhost:8000/gettoken",

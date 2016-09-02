@@ -140,13 +140,28 @@
             let block = definition.block(part);
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
-            Blockly.Blocks[block.id] = {
-                init: function () {
-                    this.jsonInit(block);
-                }
-            };
+            if (!block.doNotRegister) {
+                Blockly.Blocks[block.id] = {
+                    init: function () {
+                        this.jsonInit(block);
+                    }
+                };
+            }
             Blockly.JavaScript[block.id] = definition.javascript(part);
             Blockly.Pseudo[block.id] = definition.pseudo(part);
+            // Hack to register blocks from the normal mode under the dropzone id to support older shares
+            if (part.id === 'normal') {
+                block.id = block.id.replace('normal', 'dropzone');
+                if (!block.doNotRegister) {
+                    Blockly.Blocks[block.id] = {
+                        init: function () {
+                            this.jsonInit(block);
+                        }
+                    };
+                }
+                Blockly.JavaScript[block.id] = definition.javascript(part);
+                Blockly.Pseudo[block.id] = definition.pseudo(part);
+            }
         },
         computeToolbox () {
             let categories,

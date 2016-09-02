@@ -1,6 +1,7 @@
+const THROTTLE_DELAY = 1000;
+
 let data,
     emojiMap = {};
-
 
 emojiMap['01d'] = '\u2600\uFE0F';
 emojiMap['02d'] = '\uD83C\uDF24';
@@ -13,6 +14,7 @@ emojiMap['13d'] = '\uD83C\uDF28';
 emojiMap['50d'] = '\uD83C\uDF2B';
 
 export default data = {
+    cache: {},
     get (id, fetchImpl) {
         let event = new Event('request');
         event.detail = {
@@ -30,10 +32,7 @@ export default data = {
                 return r;
             });
     },
-    /**
-     * A wrapper around the fetch API for our data proxy.
-     */
-    fetchData (srcId, queryParams) {
+    buildUrl (srcId, queryParams) {
         let baseUrl = data.DATA_API_URL + '/data-src/' + srcId + '/',
             queryString = '';
 
@@ -51,22 +50,54 @@ export default data = {
             }, '');
         }
 
-        return fetch(baseUrl + queryString)
-            .then((r) => {
-                return r.json().then((data) => {
-                    let s,
-                        init = {"status" : r.status, "statusText" : r.statusText};
+        return baseUrl + queryString;
+    },
+    /**
+     * A wrapper around the fetch API for our data proxy.
+     */
+    fetchData (url) {
+        let currentDate = Date.now();
 
-                    if (data.success) {
-                        s = JSON.stringify(data.value);
-                    } else {
-                        console.error('Failed to retrieve data');
-                        s = '{}';
-                    }
+        // The responses are caches with a timestamp of the request, the cached response is returned
+        // if the THROTTLE_DELAY time hasn't passed between the previous call and this one
+        if (!data.cache[url] || currentDate - data.cache[url].timestamp > THROTTLE_DELAY) {
+            let promise = fetch(url)
+                .then((r) => {
+                    return r.json().then((d) => {
+                        let s,
+                            init = {"status" : r.status, "statusText" : r.statusText},
+                            response;
 
-                    return new Response(s, init);
+                        if (d.success) {
+                            s = JSON.stringify(d.value);
+                        } else {
+                            console.error('Failed to retrieve data');
+                            s = '{}';
+                        }
+
+                        response = new Response(s, init);
+
+                        data.cache[url].response = response.clone();
+
+                        return response;
+                    });
                 });
-            });
+            data.cache[url] = {
+                timestamp: currentDate,
+                finished: promise
+            };
+            return promise;
+        } else {
+            if (data.cache[url].response) {
+                // Returns a cloned version of the response
+                return Promise.resolve(data.cache[url].response.clone());
+            } else {
+                // Wait for the request to finish before returning the response
+                return data.cache[url].finished.then(() => {
+                    return data.cache[url].response.clone()
+                });
+            }
+        }
     },
     methods: {
         generateRequest (id, methodPath, config) {
@@ -79,7 +110,7 @@ export default data = {
         },
         kano: {
             getShares (id) {
-                return data.get(id, fetch(data.API_URL + "/share"))
+                return data.get(id, data.fetchData(data.API_URL + "/share"))
                     .then(r => r.json())
                     .then(data => {
                         return data.entries.map(share => {
@@ -95,9 +126,12 @@ export default data = {
         },
         weather: {
             getWeather (id, config) {
-                return data.get(id, data.fetchData('weather-city',
-                                              {q: config.location,
-                                               units: config.units}))
+                let body = {
+                    q: config.location,
+                    units: config.units
+                },
+                    url = data.buildUrl('weather-city', body);
+                return data.get(id, data.fetchData(url))
                     .then(r => r.json())
                     .then((data) => {
                         let weather = data.weather[0],
@@ -136,7 +170,7 @@ export default data = {
         },
         space: {
             getISSStatus (id) {
-                return data.get(id, data.fetchData('iss'))
+                return data.get(id, data.fetchData(data.buildUrl('iss')))
                     .then(r => r.json());
             }
         },
@@ -156,8 +190,9 @@ export default data = {
         },
         rss: {
             getFeed (id, config) {
-                return data.get(id, data.fetchData('rss',
-                                              { src: config.src }))
+                let body = { src: config.src },
+                    url = data.buildUrl('rss', body);
+                return data.get(id, data.fetchData(url))
                     .then(r => r.json())
                     .then((data) => {
                         return data.slice(0, 10);
@@ -166,8 +201,9 @@ export default data = {
         },
         sports: {
             getResults (id, config) {
-                return data.get(id, data.fetchData('rss-sports',
-                                              { src: config.src }))
+                let body = { src: config.src },
+                    url = data.buildUrl('rss-sports', body);
+                return data.get(id, data.fetchData(url))
                     .then(r => r.json())
                     .then((data) => {
                         return data.slice(0, 10);

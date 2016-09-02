@@ -12,8 +12,8 @@ blocks = blocks.concat(general);
 blocks.push({
     block: (ui) => {
         return {
-            id: 'clear all',
-            message0: `${ui.name}: clear`,
+            id: 'clear',
+            message0: `${ui.name}: clear drawing`,
             previousStatement: null,
             nextStatement: null
         };
@@ -48,5 +48,8 @@ export default normal = {
         },
         component: 'kano-workspace-normal'
     },
-    excludeParts: ['light-rectangle', 'light-circle', 'picture-list']
+    parts: ['clock', 'microphone', 'speaker', 'button', 'box',
+                'image', 'map', 'scrolling-text', 'slider',
+                'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
+                'share', 'canvas']
 };

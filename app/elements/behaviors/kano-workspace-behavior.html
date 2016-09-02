@@ -6,6 +6,16 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
     window.Kano.Behaviors.WorkspaceBehaviorImpl = {
+        properties: {
+            width: Number,
+            height: Number,
+            autoStart: Boolean
+        },
+        attached () {
+            if (this.autoStart) {
+                this.start();
+            }
+        },
         start () {},
         stop () {},
         renderOnCanvas () {
@@ -14,6 +24,9 @@
         setBackgroundColor () {},
         getBackgroundColor () {
             return '#ffffff';
+        },
+        getRestrictElement () {
+            return this;
         }
     };
 

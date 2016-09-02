@@ -87,18 +87,20 @@
         },
         _registerBlockly () {
             let appToLoad,
-                slug = this.context.params.slug;
+                slug = this.context.params.slug,
+                modeId;
             Kano.Behaviors.EditorViewBehavior._registerBlockly.apply(this, arguments);
 
             if (this.loaded) {
                 return;
             }
             this.loaded = true;
+            modeId = this.mode.id;
 
-            // Remove the parts exculded in the mode
-            if (this.mode.excludeParts) {
+            // Only include the parts defined in the mode
+            if (this.mode.parts) {
                 this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
-                    return this.mode.excludeParts.indexOf(part.type) === -1;
+                    return this.mode.parts.indexOf(part.type) !== -1;
                 }));
             }
 
@@ -124,7 +126,7 @@
                     }
                 });
             } else {
-                appToLoad = JSON.parse(localStorage.getItem('savedApp'));
+                appToLoad = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
                 this.editor.load(appToLoad, Kano.MakeApps.Parts.list);
             }
         },
@@ -153,12 +155,13 @@
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
         },
         save () {
+            let modeId = this.mode.id;
             // Save after 3secs without changes
             if (!this.remixMode) {
                 this.debounce('save', () => {
                     let editor = this.$.editor,
                         savedApp = editor.save();
-                    localStorage.setItem('savedApp', JSON.stringify(savedApp));
+                    localStorage.setItem(`savedApp-${modeId}`, JSON.stringify(savedApp));
                 }, 3000);
             }
         },

@@ -179,18 +179,6 @@
         }
         this.data.steps.push({
             "tooltips": [{
-                "location": "make-button",
-                "position": "bottom",
-                "text": "The app is finished, hit the play button."
-            }],
-            "validation": {
-                "running": {
-                    "value": true
-                }
-            }
-        });
-        this.data.steps.push({
-            "tooltips": [{
                 "location": "left-panel",
                 "position": "right",
                 "text": "You can now test the app",

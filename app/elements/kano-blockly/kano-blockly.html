@@ -160,6 +160,9 @@
                 notify: true
             }
         },
+        ready () {
+            this.codeRelatedEvents = [Blockly.Events.CREATE, Blockly.Events.MOVE];
+        },
         /**
          * Inject blockly to the workspace div
          */
@@ -309,7 +312,9 @@
                 this.lastCreated = null;
             }
             this.fire('change', e);
-            this.set('code', this.getCode('JavaScript'));
+            if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
+                this.set('code', this.getCode('JavaScript'));
+            }
         },
         /**
          * Generate a XML string representation of the blocks
@@ -338,10 +343,10 @@
                 pseudo = this.getCode('Pseudo'),
                 blocks = this.getBlocks(),
                 snapshot = {
-                javascript,
-                pseudo,
-                blocks
-            };
+                    javascript,
+                    pseudo,
+                    blocks
+                };
             this.set('snapshot', snapshot);
             return Promise.resolve(snapshot);
         },

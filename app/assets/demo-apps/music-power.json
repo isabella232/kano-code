@@ -1,0 +1,146 @@
+{
+    "parts": [
+        {
+            "id": "proximitysensor",
+            "name": "Proximity Sensor",
+            "type": "proximity-sensor",
+            "userStyle": {},
+            "userProperties": {},
+            "position": {
+                "x": 227.02796118951628,
+                "y": 129.10110887096783
+            },
+            "partType": "hardware",
+            "configPanel": "disabled"
+        },
+        {
+            "id": "speaker",
+            "name": "Speaker",
+            "type": "speaker",
+            "userStyle": {},
+            "userProperties": {},
+            "position": {
+                "x": 312.0860383064517,
+                "y": 124.14624495967752
+            },
+            "partType": "hardware",
+            "configPanel": "disabled"
+        },
+        {
+            "id": "button",
+            "name": "Button",
+            "type": "button",
+            "userStyle": {
+                "background-color": "#70C222"
+            },
+            "userProperties": {
+                "label": "Crow"
+            },
+            "position": {
+                "x": 29.660231854838695,
+                "y": 68.54193548387093
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": false,
+            "showDefaultConfiguration": true,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Label"
+                    }
+                ],
+                "style": [
+                    "background-color"
+                ]
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        },
+        {
+            "id": "button1",
+            "name": "Button 1",
+            "type": "button",
+            "userStyle": {
+                "background-color": "#70C222"
+            },
+            "userProperties": {
+                "label": "Loop"
+            },
+            "position": {
+                "x": 30.486022555443547,
+                "y": 133.78064516129032
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": false,
+            "showDefaultConfiguration": true,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Label"
+                    }
+                ],
+                "style": [
+                    "background-color"
+                ]
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        },
+        {
+            "id": "button2",
+            "name": "Button 2",
+            "type": "button",
+            "userStyle": {
+                "background-color": "#70C222"
+            },
+            "userProperties": {
+                "label": "Stop"
+            },
+            "position": {
+                "x": 30.48602570564517,
+                "y": 197.367741935484
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": false,
+            "showDefaultConfiguration": true,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Label"
+                    }
+                ],
+                "style": [
+                    "background-color"
+                ]
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        }
+    ],
+    "code": {
+        "snapshot": {
+            "javascript": "devices.get('proximitysensor').when('proximity-update', function () {\n  if (devices.get('proximitysensor').getValue() > 220) {\n    speaker.play('drum_cymbal_hard');\n  } else if (devices.get('proximitysensor').getValue() > 200) {\n    speaker.play('bass_hit_c');\n  }\n});\n\ndevices.get('button1').when('clicked', function () {\n  speaker.loop('apache');\n});\n\ndevices.get('button').when('clicked', function () {\n  speaker.play('misc_crow');\n});\n\ndevices.get('button2').when('clicked', function () {\n  speaker.stop();\n  speaker.play('vinyl_backspin');\n});\n",
+            "pseudo": "devices.get('proximitysensor').when('proximity-update', function () {\n  if (devices.get('proximitysensor').getValue() > 220) {\n    speaker.play('drum_cymbal_hard');\n  } else if (devices.get('proximitysensor').getValue() > 200) {\n    speaker.play('bass_hit_c');\n  }\n});\n\ndevices.get('button1').when('clicked', function () {\n  speaker.loop('apache');\n});\n\ndevices.get('button').when('clicked', function () {\n  speaker.play('misc_crow');\n});\n\ndevices.get('button2').when('clicked', function () {\n  speaker.stop();\n  speaker.play('vinyl_backspin');\n});\n",
+            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"pn2rt5[sd/DL,_OyRELf\" x=\"121\" y=\"67\"><field name=\"EVENT\">proximitysensor.proximity-update</field><statement name=\"DO\"><block type=\"controls_if\" id=\"7VulCl4O//p_mg%-!La+\"><mutation elseif=\"1\"></mutation><value name=\"IF0\"><block type=\"logic_compare\" id=\"aA?jN:HL=]RC7qvy{K]*\"><field name=\"OP\">GT</field><value name=\"A\"><block type=\"proximitysensor#proximity_sensor_value\" id=\"o(g`{RhyjsmTay@%~=Nh\"></block></value><value name=\"B\"><block type=\"math_number\" id=\"T:|EFoJHP#YcJH*Vl:H{\"><field name=\"NUM\">220</field></block></value></block></value><statement name=\"DO0\"><block type=\"speaker#speaker_play\" id=\"83h:+7ZjhdI02_!VU@/=\"><value name=\"SAMPLE\"><block type=\"speaker#speaker_sample\" id=\")OlVl4!Vp%L/e^(16#U_\"><mutation set=\"instruments\"></mutation><field name=\"SET\">instruments</field><field name=\"SAMPLE\">drum_cymbal_hard</field></block></value></block></statement><value name=\"IF1\"><block type=\"logic_compare\" id=\"Tk%j.X`5NG-o{eVQx%ws\"><field name=\"OP\">GT</field><value name=\"A\"><block type=\"proximitysensor#proximity_sensor_value\" id=\"kq(_NCBT9Iped@63G;F6\"></block></value><value name=\"B\"><block type=\"math_number\" id=\"{E6=(qF@rCYj7k.@H#I8\"><field name=\"NUM\">200</field></block></value></block></value><statement name=\"DO1\"><block type=\"speaker#speaker_play\" id=\"Z+8g]ER{BIm]}?fV[5B@\"><value name=\"SAMPLE\"><block type=\"speaker#speaker_sample\" id=\"Qa:s![=zK2lOrg*=Ss%_\"><mutation set=\"instruments\"></mutation><field name=\"SET\">instruments</field><field name=\"SAMPLE\">bass_hit_c</field></block></value></block></statement></block></statement></block><block type=\"part_event\" id=\"wRRZx(VtHJ^;j-!tR0#`\" x=\"131\" y=\"330\"><field name=\"EVENT\">button1.clicked</field><statement name=\"DO\"><block type=\"speaker#speaker_loop\" id=\"}A[nJ}Vpff`4,U7n5C#?\"><value name=\"SAMPLE\"><block type=\"speaker#speaker_sample\" id=\"k68CU|/I8c}mSvC|aj|l\"><mutation set=\"loops\"></mutation><field name=\"SET\">loops</field><field name=\"SAMPLE\">apache</field></block></value></block></statement></block><block type=\"part_event\" id=\"jl844V+4^MFmzK5*LWik\" x=\"457\" y=\"339\"><field name=\"EVENT\">button.clicked</field><statement name=\"DO\"><block type=\"speaker#speaker_play\" id=\"2xx2YLtWrRiY|TvWyw0x\"><value name=\"SAMPLE\"><block type=\"speaker#speaker_sample\" id=\"~aEm47jjY#MpJihoj@x4\"><mutation set=\"sounds\"></mutation><field name=\"SET\">sounds</field><field name=\"SAMPLE\">misc_crow</field></block></value></block></statement></block><block type=\"part_event\" id=\"(]l6M@%jBK1B:re3fYS?\" x=\"132\" y=\"408\"><field name=\"EVENT\">button2.clicked</field><statement name=\"DO\"><block type=\"speaker#speaker_stop\" id=\"GJb0#}Xp!B%WN`GzeTAO\"><next><block type=\"speaker#speaker_play\" id=\"XW=Y4xd2m)#^!8YH#(04\"><value name=\"SAMPLE\"><block type=\"speaker#speaker_sample\" id=\"|Z)ycYQ1,~fXH%;sr;YW\"><mutation set=\"sounds\"></mutation><field name=\"SET\">sounds</field><field name=\"SAMPLE\">vinyl_backspin</field></block></value></block></next></block></statement></block></xml>"
+        }
+    },
+    "background": {
+        "name": "My app",
+        "userStyle": {
+            "background": "#F5F5F5"
+        }
+    },
+    "mode": "camera"
+}

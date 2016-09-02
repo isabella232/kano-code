@@ -19,7 +19,9 @@ export default HardwareAPI = {
     callStack: [],
     timeoutId: null,
     connectToSocket () {
-        this.socket = io.connect(this.endpoint);
+        if (!this.socket) {
+            this.socket = io.connect(this.endpoint);
+        }
     },
     config (c) {
         if (c.HOST) {
@@ -74,29 +76,34 @@ export default HardwareAPI = {
         HardwareAPI.timeoutId = null;
         HardwareAPI.callStack = [];
     },
+    socketEmit (name, data) {
+        if (HardwareAPI.socket.connected) {
+            HardwareAPI.socket.emit(name, data);
+        }
+    },
     light: {
         getPath (action) {
             return HardwareAPI.getPath('lightboard', action);
         },
         allOn (color) {
-            HardwareAPI.socket.emit('lightboard:allon', { color });
+            HardwareAPI.socketEmit('lightboard:allon', { color });
         },
         allOff () {
-            HardwareAPI.socket.emit('lightboard:alloff');
+            HardwareAPI.socketEmit('lightboard:alloff');
         },
         singleOn (index, color) {
-            HardwareAPI.socket.emit('lightboard:one-on', { color, led_id: index });
+            HardwareAPI.socketEmit('lightboard:one-on', { color, led_id: index });
         },
         on (bitmap) {
-            HardwareAPI.socket.emit('lightboard:on', { pixels: bitmap });
+            HardwareAPI.socketEmit('lightboard:on', { pixels: bitmap });
         },
         text (data) {
             // Change key names to UK spelling for the Kano 2 server
-            HardwareAPI.socket.emit('lightboard:text', data);
+            HardwareAPI.socketEmit('lightboard:text', data);
         },
         scroll (data) {
             // Change key names to UK spelling for the Kano 2 server
-            HardwareAPI.socket.emit('lightboard:scroll-text', data);
+            HardwareAPI.socketEmit('lightboard:scroll-text', data);
         }
     },
     camera: {
@@ -108,7 +115,7 @@ export default HardwareAPI = {
                 HardwareAPI.socket.once('camera:takepicture', (data) => {
                     return resolve(data.filename);
                 });
-                HardwareAPI.socket.emit('camera:takepicture');
+                HardwareAPI.socketEmit('camera:takepicture');
             });
         },
         getPicture (filename) {
@@ -129,6 +136,75 @@ export default HardwareAPI = {
                 });*/
             // Just return path to the endpoint
             return HardwareAPI.camera.getPath('lastPictureData');
+        }
+    },
+    ledring: {
+        flash (color, length) {
+            HardwareAPI.socketEmit('ledring:flash', { color, length });
+        },
+        flashSeries (moves) {
+            HardwareAPI.socketEmit('ledring:flashseries', { moves });
+        }
+    },
+    proximitySensor: {
+        getPath (action) {
+            return HardwareAPI.getPath('powerup/proximity-sensor/0', action);
+        },
+        getProximity () {
+            return fetch(HardwareAPI.proximitySensor.getPath('proximity'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.error("Failed to reach the proximity sensor");
+                        return null;
+                    }
+
+                    return res.json();
+                })
+                .then((data) => {
+                    return data.proximity;
+                })
+                .catch((err) => {
+                    console.error('Proximity sensor request failed: ', err);
+                });
+        }
+    },
+    gyroAccelerometer: {
+        getPath (action) {
+            return HardwareAPI.getPath('powerup/gyro-accelerometer/0', action);
+        },
+        getGyroData () {
+            return fetch(HardwareAPI.gyroAccelerometer.getPath('gyro'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.error("Failed to reach the sensor");
+                        return null;
+                    }
+
+                    return res.json();
+                })
+                .then((data) => {
+                    return data.vector;
+                })
+                .catch((err) => {
+                    console.error('Gyro sensor request failed: ', err);
+                });
+        },
+        getAccelerometerData () {
+            return fetch(HardwareAPI.gyroAccelerometer.getPath('accelerometer'))
+                .then((res) => {
+                    if (!res.ok) {
+                        console.error("Failed to reach the sensor");
+                        return null;
+                    }
+
+                    return res.json();
+                })
+                .then((data) => {
+                    return data.vector;
+                })
+                .catch((err) => {
+                    console.error('Accelerometer sensor request failed: ', err);
+                });
         }
     }
 };

@@ -6,12 +6,14 @@ export default light = {
     id: 'lightboard',
     name: 'Lightboard',
     colour: '#82C23D',
-    excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',
-                   'scrolling-text', 'picture-list'],
+    parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
+                'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
+                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
+                'gesture-sensor', 'gyro-accelerometer'],
     workspace: {
         viewport: {
             width: 466,
-            height: 240
+            height: 322
         },
         component: 'kano-workspace-lightboard'
     },
@@ -38,7 +40,7 @@ export default light = {
         javascript: (part) => {
             return (block) => {
                 let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
@@ -106,8 +108,7 @@ export default light = {
         block: () => {
             return {
                 id: 'light_x_y',
-                message0: 'light at %1 %2',
-                inputsInline: true,
+                message0: 'light at x %1 y %2',
                 output: 'Light',
                 args0: [{
                     type: "input_value",
@@ -117,7 +118,8 @@ export default light = {
                 {
                     type: "input_value",
                     name: "Y",
-                    check: "Number"
+                    check: "Number",
+                    align: "RIGHT"
                 }],
                 shadow: {
                     'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
@@ -201,8 +203,7 @@ export default light = {
                 message0: 'Lights: scroll text %1 color %2 background %3 speed %4',
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 },{
                     type: "input_value",
                     name: "COLOR",

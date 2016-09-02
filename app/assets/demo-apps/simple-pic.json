@@ -1,0 +1,97 @@
+{
+    "parts": [
+        {
+            "id": "picturelist",
+            "name": "Picture List",
+            "type": "picture-list",
+            "userStyle": {},
+            "userProperties": {
+                "speed": 15
+            },
+            "position": {
+                "x": 87.44302025479581,
+                "y": 68.27791074056377
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": true,
+            "showDefaultConfiguration": false,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "speed",
+                        "type": "range",
+                        "label": "Speed",
+                        "min": 1,
+                        "max": 30
+                    }
+                ],
+                "style": []
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        },
+        {
+            "id": "button",
+            "name": "Button",
+            "type": "button",
+            "userStyle": {
+                "background-color": "#70C222"
+            },
+            "userProperties": {
+                "label": "Take picture"
+            },
+            "position": {
+                "x": 176.40191312782355,
+                "y": 292.65033506179753
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": false,
+            "showDefaultConfiguration": true,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Label"
+                    }
+                ],
+                "style": [
+                    "background-color"
+                ]
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        },
+        {
+            "id": "mic",
+            "name": "Mic",
+            "type": "microphone",
+            "userStyle": {},
+            "userProperties": {},
+            "position": {
+                "x": 203.0888181708494,
+                "y": 475.277615226834
+            },
+            "partType": "hardware",
+            "configPanel": "disabled"
+        }
+    ],
+    "code": {
+        "snapshot": {
+            "javascript": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').flash('#ff9966', 1000);\n\n  });\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('picturelist').push('pictures', devices.get('camera').getCamera().lastPicture());\n});\n",
+            "pseudo": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').flash('#ff9966', 1000);\n\n  });\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('picturelist').push('pictures', devices.get('camera').getCamera().lastPicture());\n});\n",
+            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"]O6GXp9jCa3l}r.0sUPK\" x=\"165\" y=\"101\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"camera#shutter_down\" id=\"HlgH:K`}souzrr(QeB!s\"><statement name=\"DO\"><block type=\"camera#ledring_flash\" id=\"5AP=BImg_@CWx|ffOo^l\"><value name=\"COLOR\"><shadow type=\"colour_picker\" id=\"m{=^R]0=}:d=fI/hVW;-\"><field name=\"COLOUR\">#ff9966</field></shadow></value><value name=\"LENGTH\"><shadow type=\"math_number\" id=\"y]3e__`Z7,)D22@q(3V2\"><field name=\"NUM\">1000</field></shadow></value></block></statement></block></statement></block><block type=\"part_event\" id=\"Zoj(7Y;*`:rwMbYrG(~#\" x=\"171\" y=\"263\"><field name=\"EVENT\">camera.picture-taken</field><statement name=\"DO\"><block type=\"picturelist#add_picture\" id=\"ix{G;+R5rI!wBm#_v^zb\"><value name=\"PICTURE\"><block type=\"camera#last_picture\" id=\"=QHw@wu#iztR.WZs7PPO\"></block></value></block></statement></block></xml>"
+        }
+    },
+    "background": {
+        "name": "My app",
+        "userStyle": {
+            "background": "#F5F5F5"
+        }
+    },
+    "mode": "camera"
+}
