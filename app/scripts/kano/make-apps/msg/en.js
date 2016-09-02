@@ -20,6 +20,13 @@
     Kano.MakeApps.Msg['drop-codespace-1'] = "Drop the block anywhere on your code space";
 
 
+    Kano.MakeApps.Msg['wrong-block-added-1'] = "Oh no! this is not the right block.";
+
+    Kano.MakeApps.Msg['put-block-in-bin-1'] = "That's ok, put it in the bin";
+
+    Kano.MakeApps.Msg['wrong-category-opened-1'] = "Nope, open this one instead";
+
+
     Kano.MakeApps.Msg.Groups = Kano.MakeApps.Msg.Groups || {};
 
     Kano.MakeApps.Msg.Groups['add-parts'] = ['add-parts-1', 'add-parts-2'];
@@ -28,5 +35,8 @@
     Kano.MakeApps.Msg.Groups['close-parts-drawer'] = ['close-parts-drawer-1', 'close-parts-drawer-2'];
     Kano.MakeApps.Msg.Groups['connect-blocks'] = ['connect-blocks-1'];
     Kano.MakeApps.Msg.Groups['drop-codespace'] = ['drop-codespace-1'];
+    Kano.MakeApps.Msg.Groups['wrong-block-added'] = ['wrong-block-added-1'];
+    Kano.MakeApps.Msg.Groups['put-block-in-bin'] = ['put-block-in-bin-1'];
+    Kano.MakeApps.Msg.Groups['wrong-category-opened'] = ['wrong-category-opened-1'];
 
 })(window.Kano = window.Kano || {});

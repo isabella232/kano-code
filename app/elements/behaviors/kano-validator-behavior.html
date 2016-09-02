@@ -14,11 +14,6 @@
                 type: Array,
                 value: () => []
             },
-            instruction: {
-                type: String,
-                computed: 'computeInstruction(step, steps.*, done)',
-                readOnly: true
-            },
             done: {
                 type: Boolean,
                 value: false
@@ -110,15 +105,6 @@
             }
         },
         /**
-         * Get the instruction to display
-         */
-        computeInstruction () {
-            if (!this.steps[this.step]) {
-                return;
-            }
-            return this.done ? 'Done' : this.steps[this.step].instruction;
-        },
-        /**
          * Move to the next step or set the challenge as done
          */
         nextStep () {
@@ -143,6 +129,15 @@
             this.splice('steps', index, 0, step);
             // jump to the new step
             this._goToStep(index);
+        },
+        _updateTooltip (text, index) {
+            index = index || 0;
+            this.set(`steps.${this.step}.tooltips.${index}.text`, text);
+            this.stepChanged();
+        },
+        _updateStep (step) {
+            this.set(`steps.${this.step}`, step);
+            this.stepChanged();
         }
     };
 

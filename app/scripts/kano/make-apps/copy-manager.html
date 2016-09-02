@@ -6,26 +6,17 @@
         Kano.MakeApps = Kano.MakeApps || {};
 
         CopyManager = {
-            _copies: {},
-            addCopy (id, copy) {
-                this._copies[id] = this._copies[id] || [];
-                if (Array.isArray(copy)) {
-                    this.copies[id] = this._copies[id].concat(copy);
-                } else {
-                    this.copies[id].push(copy);
-                }
-            },
-            load (copies) {
-                Object.assign(this._copies, copies);
-            },
             get (id) {
-                let values = this._copies[id],
-                    r;
-                if (!values) {
-                    throw new Error("Action '" + action + "' has no translation associated");
+                if (Kano.MakeApps.Msg.Groups[id]) {
+                    let values = Kano.MakeApps.Msg.Groups[id],
+                        r;
+                    if (!values) {
+                        throw new Error("Action '" + id + "' has no translation associated");
+                    }
+                    r = Math.floor(Math.random() * values.length);
+                    id = values[r];
                 }
-                r = Math.floor(Math.random() * values.length);
-                return values[r];
+                return Kano.MakeApps.Msg[id];
             }
         }
 

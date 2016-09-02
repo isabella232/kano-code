@@ -34,9 +34,22 @@
 
             this._addMatchFallback('connect', '_wrongConnection');
             this._addMatchFallback('create', '_wrongCreate');
+            this._addMatchFallback('open-flyout', '_wrongCategory');
+        },
+        _wrongCategory (validation, detail) {
+            let step = this.steps[this.step];
+            step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-category-opened');
+            step.arrow = {
+				target: {
+					category: validation
+				},
+				angle: 45,
+				size: 80
+			};
+            this._updateStep(step);
         },
         _createNotExpected (validation, detail) {
-            return this._wrongCreateRedirect();
+            return this._wrongCreateRedirect(detail.blockId);
         },
         _wrongConnection (validation, detail) {
             // Only take action if the block was plugged
@@ -45,23 +58,23 @@
             }
         },
         _wrongCreate (validation, detail) {
-            return this._wrongCreateRedirect();
+            return this._wrongCreateRedirect(detail.blockId);
         },
-        _wrongCreateRedirect () {
+        _wrongCreateRedirect (wrongBlockId) {
             let step = {};
             step.validation = {
                 blockly: {
                     delete: {
                         target: {
-                            rawId: detail.blockId
+                            rawId: wrongBlockId
                         }
                     }
                 }
             };
             step.tooltips = [{
                 position: 'left',
-                text: 'Oh no! this is not the right block.<br>That\'s ok, put it in the bin',
-                location: ''
+                text: Kano.MakeApps.CopyManager.get('wrong-block-added') + '<br>' + Kano.MakeApps.CopyManager.get('put-block-in-bin'),
+                location: 'blockly-bin'
             }];
             this._injectStep(step, -1);
         },
