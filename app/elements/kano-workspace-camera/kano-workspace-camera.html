@@ -1,6 +1,7 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../part/kano-part-camera/kano-part-camera.html">
+<link rel="import" href="../kano-gif-creator/kano-gif-creator.html">
 <dom-module id="kano-workspace-camera">
     <style>
         :host {
@@ -13,21 +14,34 @@
             top: 0px;
             left: 0px
         }
+        kano-gif-creator, .content {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <template>
-        <kano-workspace-normal id="screen">
-            <kano-part-camera id="camera-part"></kano-part-camera>
+        <kano-gif-creator id="screen" width="[[width]]" height="[[height]]" pictures="[[pictures]]" framerate="[[framerate]]"></kano-gif-creator>
+        <kano-part-camera id="camera-part"></kano-part-camera>
+        <div class="content">
             <content></content>
-        </kano-workspace-normal>
+        </div>
     </template>
     <script>
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior],
+            listeners: {
+                'picture-taken': '_onPictureTaken'
+            },
             ready () {
                 // Will contain the listeners attached to the socket
                 this.socketListeners = [];
+                this.pictures = [];
+                this.framerate = 15;
             },
             setBackgroundColor (color) {
                 this.$.screen.style.background = color;
@@ -36,6 +50,9 @@
                 Kano.AppModules.getModule('camera').connect({
                     name: 'Kano Code'
                 });
+            },
+            _onPictureTaken (e) {
+                this.push('pictures', e.detail);
             },
             getCamera () {
                 return this.$['camera-part'];
