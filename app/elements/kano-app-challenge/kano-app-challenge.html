@@ -143,7 +143,7 @@
             arrow: {
                 type: Object
             },
-            currentStep: {
+            step: {
                 type: Number,
                 notify: true,
                 value: 0
@@ -215,8 +215,6 @@
         },
         attached () {
             this.isAttached = true;
-            this.step_number = 0;
-            this.progress = 0;
             this.fire('attached');
         },
         computeTooltips (step) {
@@ -282,10 +280,14 @@
             this.async(() => {
                 if (step.arrow.source) {
                     source = this.getDeepElement(step.arrow.source);
-                    source = source.getBoundingClientRect();
+                    if ('getBoundingClientRect' in source) {
+                        source = source.getBoundingClientRect();
+                    }
                 }
                 target = this.getDeepElement(step.arrow.target);
-                target = target.getBoundingClientRect();
+                if ('getBoundingClientRect' in target) {
+                    target = target.getBoundingClientRect();
+                }
                 this.set('arrow', {
                     source,
                     target,
@@ -330,7 +332,6 @@
                     step.modal.text = this._processMarkdown(step.modal.text);
                     this.modal.open();
                 }
-                this.set('currentStep', this.currentStep + 1);
                 this.computeTooltips(step);
                 this.computeArrow(step);
                 this.computeHighlight(step);
@@ -355,6 +356,7 @@
                 for (let i = 0; i < host.inputList.length; i++) {
                     if (host.inputList[i].name === phantom_block.target) {
                         connection = host.inputList[i].connection;
+                        break;
                     }
                 }
             }
@@ -391,6 +393,9 @@
             if (typeof selector == 'object') {
                 if (selector.block) {
                     block = this.getTargetBlock(selector.block);
+                    if (selector.block.inputName) {
+                        return this.getTargetBlockInput(selector.block);
+                    }
                     return block.getSvgRoot();
                 } else if (selector.category) {
                     let cat = selector.category;

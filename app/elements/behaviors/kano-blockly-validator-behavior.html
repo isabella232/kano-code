@@ -74,22 +74,26 @@
             step.tooltips = [{
                 position: 'left',
                 text: Kano.MakeApps.CopyManager.get('wrong-block-added') + '<br>' + Kano.MakeApps.CopyManager.get('put-block-in-bin'),
-                location: 'blockly-bin'
+                location: 'right-panel'
             }];
+            step.arrow = {
+                target: 'blockly-bin',
+                angle: 210,
+                size: 80
+            };
             this._injectStep(step, -1);
         },
         _wrongConnectionRedirect (validation, detail) {
-            // Clone the current step
-            let step = Object.assign({}, this.steps[this.step]);
-            // Update the tooltip
-            step.tooltips = [{
-                position: 'left',
-                location: {
-                    block: Object.assign({}, step.validation.blockly.connect.parent)
-                },
-                text: 'Whoops, not quite right. Put it there instead'
-            }];
-            this._injectStep(step, 1);
+            let step = this.steps[this.step];
+            // update the tooltip's copy
+            step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-block-connection');
+            // Add a boucing arrow
+            step.arrow = {
+                target: { block: validation.parent },
+                angle: 210,
+                size: 80
+            };
+            this._updateStep(step);
         },
         _flyoutClosed (validation, detail) {
             return this._prevStep();
@@ -207,6 +211,39 @@
                 block = block.getInput(selector.shadow).connection.targetBlock();
             }
             return block;
+        },
+        getTargetBlockInput (selector) {
+            let block = this.getTargetBlock(selector),
+                connection,
+                blockRect,
+                blockPos,
+                inputRelPos,
+                pos;
+
+            if (selector.inputName) {
+                connection = block.getInput(selector.inputName).connection;
+            } else {
+                connection = block.nextConnection;
+            }
+            blockRect = block.svgGroup_.getBoundingClientRect();
+            blockPos = block.getRelativeToSurfaceXY();
+            inputRelPos = {
+                x: connection.x_ - blockPos.x,
+                y: connection.y_ - blockPos.y
+            };
+            pos = {};
+
+            pos.left = blockRect.left + inputRelPos.x;
+            pos.top = blockRect.top + inputRelPos.y;
+
+            pos.right = blockRect.right + blockRect.width - inputRelPos.x;
+            pos.bottom = blockRect.bottom + blockRect.height - inputRelPos.y;
+
+            pos.width = 1;
+            pos.height = 1;
+
+            return pos;
+
         },
         _checkBlocklyEvent (validation, e) {
             let blocklyStep = validation,

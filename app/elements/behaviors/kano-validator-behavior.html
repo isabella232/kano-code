@@ -108,11 +108,17 @@
          * Move to the next step or set the challenge as done
          */
         nextStep () {
-            if (this.step < this.steps.length - 1) {
-                this.step++;
+            // The current step was injected, we remove it form the array
+            if (this.steps[this.step].injected) {
+                this.splice('steps', this.step, 1);
+                this.stepChanged();
             } else {
-                this.set('done', true);
-                this.fire('scene-done');
+                if (this.step < this.steps.length - 1) {
+                    this.step++;
+                } else {
+                    this.set('done', true);
+                    this.fire('scene-done');
+                }
             }
         },
         _prevStep () {
@@ -125,6 +131,7 @@
         },
         _injectStep (step, offset) {
             let index = this.step + (offset || 1);
+            step.injected = true;
             // Insert the new step just after that
             this.splice('steps', index, 0, step);
             // jump to the new step

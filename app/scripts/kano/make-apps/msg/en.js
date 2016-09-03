@@ -25,6 +25,7 @@
     Kano.MakeApps.Msg['put-block-in-bin-1'] = "That's ok, put it in the bin";
 
     Kano.MakeApps.Msg['wrong-category-opened-1'] = "Nope, open this one instead";
+    Kano.MakeApps.Msg['wrong-block-connection-1'] = "Whoops, not quite right. Put it there instead";
 
 
     Kano.MakeApps.Msg.Groups = Kano.MakeApps.Msg.Groups || {};
@@ -38,5 +39,6 @@
     Kano.MakeApps.Msg.Groups['wrong-block-added'] = ['wrong-block-added-1'];
     Kano.MakeApps.Msg.Groups['put-block-in-bin'] = ['put-block-in-bin-1'];
     Kano.MakeApps.Msg.Groups['wrong-category-opened'] = ['wrong-category-opened-1'];
+    Kano.MakeApps.Msg.Groups['wrong-block-connection'] = ['wrong-block-connection-1'];
 
 })(window.Kano = window.Kano || {});
