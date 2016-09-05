@@ -29,7 +29,7 @@
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            current-step="{{currentStep}}"
+                            step="{{currentStep}}"
                             started="[[scene.started]]">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*, remix)]]"
@@ -113,7 +113,7 @@
             }
         },
         computeProgress (currentStep, scene) {
-            return currentStep / scene.steps.length;
+            return (currentStep + 1) / scene.steps.length;
         },
         ready () {
             this.remix = false;

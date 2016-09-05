@@ -74,7 +74,20 @@
             return options;
         },
         saveCode (e) {
-            this.notifyChange('blockly', { event: e.detail });
+            // Check if a create event follows a close-flyout event. If so, do not notify
+            // of the close-flyout event
+            if (e.detail.type === 'close-flyout') {
+                // Defer the notification
+                this.closeFlyoutTimeoutId = setTimeout(() => {
+                    this.notifyChange('blockly', { event: e.detail });
+                });
+            } else {
+                // A create event will cancel its previous close-flyout event
+                if (e.detail.type === 'create') {
+                    clearTimeout(this.closeFlyoutTimeoutId);
+                }
+                this.notifyChange('blockly', { event: e.detail });
+            }
             this.debounce('saveCode', () => {
                 let codeEditor = this.$['code-editor'];
 

@@ -1296,14 +1296,19 @@ Blockly.setPhantomBlock = function (connection, targetBlock) {
         phantomSvgGroup = document.createElementNS(Blockly.SVG_NS, 'g'),
         phantomSvgPath = document.createElementNS(Blockly.SVG_NS, 'path'),
         phantomSvgText = document.createElementNS(Blockly.SVG_NS, 'text'),
-        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x),
-        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y),
         xy = sourceBlock.getRelativeToSurfaceXY(),
-        position = {
-            x: dx - xy.x,
-            y: dy - xy.y
-        },
-        breathingAnimation;
+        position = {},
+        breathingAnimation, dx, dy;
+
+    if (Blockly.dragMode_ !== 0) {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x);
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y);
+    } else {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.getBoundingRectangle().topLeft.x) + 8;
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.getBoundingRectangle().topLeft.y);
+    }
+    position.x = dx - xy.x;
+    position.y = dy - xy.y;
 
     phantomSvgPath.setAttribute('d', targetBlock.svgPath_.getAttribute('d'));
     phantomSvgPath.setAttribute('fill', targetBlock.getColour());
