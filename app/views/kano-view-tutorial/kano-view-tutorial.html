@@ -98,11 +98,16 @@
             }
         },
         ready () {
-            this.modal = this.$['share-modal'];
-            Kano.AppModules.init(Kano.MakeApps.config);
+            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
+
+            hardwareAPI.config(Kano.MakeApps.config);
+
+            Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
+
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+
             this.configureModal(this.$['end-modal'], 'scale-down');
             this.configureModal(this.$['end-modal'], 'fade-out');
             this.configureModal(this.$['start-modal'], 'scale-down');

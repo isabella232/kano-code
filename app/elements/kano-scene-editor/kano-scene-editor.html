@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../behaviors/kano-scene-component-behavior.html">
+<link rel="import" href="../behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../kano-power-up-modal/kano-power-up-modal.html">
 <link rel="import" href="../kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../kano-app-editor/kano-app-editor.html">
@@ -59,12 +60,8 @@
 
     Polymer({
         is: 'kano-scene-editor',
-        behaviors: [Kano.Behaviors.SceneComponentBehavior],
+        behaviors: [Kano.Behaviors.EditorViewBehavior, Kano.Behaviors.SceneComponentBehavior],
         properties: {
-            running: {
-                type: Boolean,
-                observer: 'runningChanged'
-            },
             storyName: {
                 type: String
             },
@@ -150,14 +147,6 @@
 
 
             return cats;
-        },
-        runningChanged () {
-            let editor = this.$.editor;
-            if (this.running) {
-                Kano.MakeApps.components.run(editor.addedParts, editor.code, Kano.AppModules.modules, editor.getWorkspace().devices);
-            } else {
-                Kano.MakeApps.components.stop(editor.addedParts, Kano.AppModules.modules, editor.getWorkspace().devices);
-            }
         },
         saveApp (e) {
             let id = e.detail.id,

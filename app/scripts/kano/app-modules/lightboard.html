@@ -1,0 +1,216 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class LightboardModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+                this.backgroundColor = '#000000';
+                this.lights = new Array(128);
+                this.shapes = {};
+                this.debounceId = null;
+                this.bitmap = new Array(128);
+
+                this.addLifecycleStep('stop', '_stop');
+
+                this.addMethod('turnOn', '_turnOn');
+                this.addMethod('turnOff', '_turnOff');
+                this.addMethod('setBackgroundColor', '_setBackgroundColor');
+                this.addMethod('text', '_text');
+                this.addMethod('scroll', '_scroll');
+                this.addMethod('on', '_on');
+                this.addMethod('removeListener', '_removeListener');
+                this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
+                this.addMethod('connect', '_connect');
+            }
+
+            config (opts) {
+                this.api = opts.hardwareAPI;
+            }
+
+            _stop () {
+                this.lights = new Array(128);
+                this.shapes = {};
+            }
+
+            static getIndex (x, y) {
+                return LightboardModule.coordToIndex(x, y, 16);
+            }
+
+            static coordToIndex (x, y, width) {
+                return width * parseInt(y) + parseInt(x);
+            }
+
+            static indexToCoord (index, width) {
+                return {
+                    x: index % width,
+                    y: Math.floor(index / width)
+                };
+            }
+
+            drawLights () {
+                return this.api.light.on(this.bitmap.slice(0));
+            }
+
+            requestLightboardFrame(wait) {
+                return new Promise((resolve, reject) => {
+                    let currentTime = new Date();
+                    if (!this.lastCall || (currentTime - this.lastCall >= wait)) {
+                        this.lastCall = currentTime;
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                });
+            }
+            /**
+             * Call the drawLight methods on the next event loop. Allows to do a set of actions but call the api only once
+             */
+            syncApi () {
+                this.drawLights();
+            }
+
+            updateAndSync () {
+                return this.updateBitmap().then(bitmap => {
+                    this.syncApi();
+                    return bitmap;
+                });
+            }
+
+            updateBitmap () {
+                // Debounce the call to hit a max of 20 calls per sec
+                return this.requestLightboardFrame(1000 / 20)
+                    .then(_ => {
+                        let shape,
+                            shapesBitmap = new Array(128);
+                        // Generate a bitmap combining background color, shapes and lights
+                        Object.keys(this.shapes).forEach((key) => {
+                            shape = this.shapes[key];
+                            if (shape.type === 'rectangle') {
+                                for (let x = shape.x; x < shape.x + shape.width; x++) {
+                                    for (let y = shape.y; y < shape.y + shape.height; y++) {
+                                        shapesBitmap[LightboardModule.getIndex(x, y)] = shape.color;
+                                    }
+                                }
+                            } else if (shape.type === 'circle') {
+                                let distance,
+                                    index;
+                                for (let x = -shape.radius; x <= shape.radius; x++) {
+                                    for (let y = -shape.radius; y <= shape.radius; y++) {
+                                        distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+                                        if (shape.radius >= distance &&
+                                            shape.x + x <= 15 &&
+                                            shape.x + x >= 0 &&
+                                            shape.y + y >= 0 &&
+                                            shape.y + y <= 7) {
+                                            index = LightboardModule.getIndex(shape.x + x, shape.y + y);
+                                            shapesBitmap[index] = shape.color;
+                                        }
+                                    }
+                                }
+                            } else if (shape.type === 'frame') {
+                                shape.bitmap.forEach((color, index) => {
+                                    let coord = LightboardModule.indexToCoord(index, shape.width);
+                                    coord.x += shape.x;
+                                    coord.y += shape.y;
+                                    shapesBitmap[LightboardModule.getIndex(coord.x, coord.y)] = color;
+                                });
+                            }
+                        });
+                        for (let i = 0; i < 128; i++) {
+                            this.bitmap[i] = this.lights[i] || shapesBitmap[i] || this.backgroundColor;
+                        }
+                        return this.bitmap;
+                    });
+            }
+
+            /**
+             * Add or update the shape with the corresponding id
+             * @param  {String} id    Id of the shape to add/update
+             * @param  {Object} shape Data defining the shape
+             * @return {Promise}      Will resolve with the updated frame once
+             * this once is sent to the real hardware
+             */
+            _updateOrCreateShape (id, shape) {
+                this.shapes[id] = shape;
+                return this.updateAndSync();
+            }
+
+            _turnOn (light, color) {
+                if (light.type === 'all') {
+                    // Set all the saved lights to the color
+                    for (let i = 0; i < 128; i++) {
+                        this.lights[i] = color;
+                    }
+                    return this.updateAndSync();
+                } else if (light.type === 'single') {
+                    let index = LightboardModule.getIndex(light.x, light.y);
+                    // Set the saved light to the color
+                    this.lights[index] = color;
+                    return this.updateAndSync();
+                }
+            }
+
+            _turnOff (light) {
+                if (light.type === 'all') {
+                    // Resets the saved lights
+                    this.lights = new Array(128);
+                    return this.updateAndSync();
+                } else if (light.type === 'single') {
+                    let index = LightboardModule.getIndex(light.x, light.y);
+                    // Reset the saved light
+                    this.lights[index] = null;
+                    // Turn the lightboard light to the background color
+                    return this.updateAndSync();
+                }
+            }
+
+            _setBackgroundColor (color) {
+                // Save the backgroundColor
+                this.backgroundColor = color;
+                return this.updateAndSync();
+            }
+
+            _text (text, color, backgroundColor) {
+                this.api.light.text({
+                    text,
+                    color,
+                    backgroundColor
+                });
+            }
+
+            _scroll (text, color, backgroundColor, speed) {
+                // Transform speed 0 - 100 to 232 - 32
+                let framePeriod = 232 - speed * 2;
+                this.api.light.scroll({
+                    text,
+                    color,
+                    backgroundColor,
+                    framePeriod
+                });
+            }
+
+            _on () {
+                this.api.on.apply(this.api, arguments);
+            }
+
+            _removeListener () {
+                this.api.removeListener.apply(this.api, arguments);
+            }
+
+            /**
+             * This method will only be called by Kano Code in a remote context to connect to the socket.io server
+             * But anyways, the abstract version of the Hardware API implements stub methods to fail silently
+             */
+            _connect (info) {
+                this.api.connect();
+                this.api.on('connect', () => {
+                    this.api.emit('lightboard:init', info);
+                });
+            }
+        }
+
+        Kano.AppModules.modules['lightboard'] = new LightboardModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

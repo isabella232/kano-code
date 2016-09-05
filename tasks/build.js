@@ -32,7 +32,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www/elements'));
     });
 
-    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api', 'scripts'], () => {
+    gulp.task('bundles', ['copy', 'babel', 'parts-module', 'app-modules', 'kano-canvas-api', 'scripts', 'parts-api'], () => {
         return getImports('./app/elements/elements.html').then((common) => {
             return new Promise((resolve, reject) => {
                 gulp.src(['.tmp/app/elements/*-bundle.html', '!.tmp/app/elements/story-bundle.html'])

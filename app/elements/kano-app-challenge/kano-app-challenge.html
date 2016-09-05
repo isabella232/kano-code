@@ -191,23 +191,20 @@
          * Find the blockly element and listens to the change event
          */
         ready () {
-            this.validators = {
-                "background": this.matchProperty.bind(this),
-                "add-part": this.matchAddPart.bind(this),
-                "select-part": this.matchPartTarget.bind(this),
-                "selected-part-change": this.matchPartChange.bind(this),
-                "trigger": this.matchTrigger.bind(this),
-                "running": this.matchValue.bind(this),
-                "select-new-part": this.matchPartType.bind(this),
-                "open-part-config": this.matchPartTarget.bind(this),
-                "enable-refresh": this.matchPartTarget.bind(this),
-                "disable-refresh": this.matchPartTarget.bind(this),
-                "manual-refresh": this.matchPartTarget.bind(this),
-                "open-settings-tooltip": this.matchPartTarget.bind(this),
-                "open-part-settings": this.matchPartTarget.bind(this),
-                "settings-interaction": this.matchSettingsInteraction.bind(this)
-            };
-            this.oppositeActions = {};
+            this._addValidator('add-part', 'matchAddPart');
+            this._addValidator('background', 'matchProperty');
+            this._addValidator('select-part', 'matchPartTarget');
+            this._addValidator('selected-part-change', 'matchPartChange');
+            this._addValidator('trigger', 'matchTrigger');
+            this._addValidator('running', 'matchValue');
+            this._addValidator('select-new-part', 'matchPartType');
+            this._addValidator('open-part-config', 'matchPartTarget');
+            this._addValidator('enable-refresh', 'matchPartTarget');
+            this._addValidator('disable-refresh', 'matchPartTarget');
+            this._addValidator('manual-refresh', 'matchPartTarget');
+            this._addValidator('open-settings-tooltip', 'matchPartTarget');
+            this._addValidator('open-part-settings', 'matchPartTarget');
+            this._addValidator('settings-interaction', 'matchSettingsInteraction');
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.modal = this.$.modal;
