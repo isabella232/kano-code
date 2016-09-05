@@ -1,4 +1,5 @@
 import backgroundBlocks from './common/background-blocks';
+import filters from './common/filters';
 
 let Camera;
 
@@ -172,5 +173,5 @@ export default Camera = {
                 return `devices.get('${part.id}').onShutterDown(function (){\n${statement}\n});\n`;
             };
         }
-    }].concat(backgroundBlocks)
+    }].concat(filters).concat(backgroundBlocks)
 };

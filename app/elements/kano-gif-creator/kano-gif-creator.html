@@ -40,6 +40,9 @@
                 this.frameId = 0;
                 this.ctx = this.$.canvas.getContext('2d');
             },
+            getCanvas () {
+                return this.$.canvas;
+            },
             _picturesChanged () {
                 this._paintFrame(this.pictures[this.pictures.length - 1]);
             },
@@ -58,17 +61,30 @@
             pause () {
                 clearInterval(this.timeoutId);
             },
+            setTransformer (cb) {
+                this._transformer = cb;
+            },
             _paintFrame (src) {
                 let img = new Image(),
                     width = this.$.canvas.width,
                     height = this.$.canvas.height,
                     finalHeight,
                     heightDiff;
+                img.crossOrigin = "Anonymous";
                 img.onload = () => {
+                    let tmpCanvas = document.createElement('canvas'),
+                        tmpCtx;
+                    tmpCanvas.setAttribute('width', width);
+                    tmpCanvas.setAttribute('height', height);
+                    tmpCtx = tmpCanvas.getContext('2d');
                     finalHeight = width * (img.naturalHeight / img.naturalWidth);
                     heightDiff = height - finalHeight;
-                    this.ctx.clearRect(0, 0, width, height);
-                    this.ctx.drawImage(img, 0, heightDiff / 2, width, finalHeight);
+                    tmpCtx.drawImage(img, 0, heightDiff / 2, width, finalHeight);
+                    if (this._transformer) {
+                        this._transformer(tmpCanvas).then(data => {
+                            this.ctx.putImageData(data, 0, 0);
+                        });
+                    }
                 };
                 img.src = src;
             },

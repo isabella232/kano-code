@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../behaviors/kano-image-filters-behavior.html">
 <link rel="import" href="../part/kano-part-camera/kano-part-camera.html">
 <link rel="import" href="../kano-gif-creator/kano-gif-creator.html">
 <dom-module id="kano-workspace-camera">
@@ -33,7 +34,7 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior],
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior, Kano.Behaviors.ImageFiltersBehavior],
             listeners: {
                 'picture-taken': '_onPictureTaken'
             },
@@ -42,9 +43,15 @@
                 this.socketListeners = [];
                 this.pictures = [];
                 this.framerate = 15;
+                this.$.screen.setTransformer(this.applyFilters.bind(this));
             },
             setBackgroundColor (color) {
                 this.$.screen.style.background = color;
+            },
+            addFilter () {
+                let args = Array.prototype.slice.call(arguments),
+                    name = args.shift();
+                Kano.Behaviors.ImageFiltersBehavior.addFilter.call(this, name, args);
             },
             attached () {
                 Kano.AppModules.getModule('camera').connect({
@@ -103,6 +110,7 @@
                     Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
                 });
                 this.socketListeners = [];
+                Kano.Behaviors.ImageFiltersBehavior.reset.apply(this, arguments);
             }
         });
     </script>

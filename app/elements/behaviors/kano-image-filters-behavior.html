@@ -1,0 +1,38 @@
+<script src="../../bower_components/canvasfilters/filters.js"></script>
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+    
+    window.Kano.Behaviors.ImageFiltersBehavior = {
+        ready () {
+            this._worker = new Worker('/scripts/workers/filters.js');
+            this._taskId = 0;
+            this._filters = [];
+            this._listeners = {};
+        },
+        addFilter (name, args) {
+            this._filters.push({ name, args });
+        },
+        applyFilters (canvas) {
+            return new Promise((resolve, reject) => {
+                let p = Filters.getPixels(canvas),
+                    id = this._taskId++;
+                this._listeners[id] = (res) => {
+                    this._worker.removeEventListener('message', this._listeners[id]);
+                    resolve(Filters.toImageData(res.data));
+                };
+                this._filters.forEach(filter => {
+                    filter.args.unshift(p);
+                });
+                this._worker.postMessage({ name: 'runPipeline', args: [this._filters] });
+                this._worker.addEventListener('message', this._listeners[id]);
+            });
+        },
+        reset () {
+            this._filters = [];
+            this._taskId = 0;
+        }
+    };
+</script>

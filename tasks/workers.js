@@ -2,7 +2,8 @@
 module.exports = (gulp, $) => {
 
     const WORKERS_SRC = [
-        './app/bower_components/gif.js/dist/gif.worker.js'
+        './app/bower_components/gif.js/dist/gif.worker.js',
+        './app/bower_components/canvasfilters/filters.js'
     ];
 
     gulp.task('workers', () => {
