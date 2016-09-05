@@ -1,6 +1,7 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../part/kano-ui-behavior.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/camera.html">
+<script src="../../scripts/kano/webcam.js"></script>
 <dom-module id="kano-workspace-camera">
     <style>
         :host {
@@ -29,13 +30,57 @@
                 this.$.screen.style.background = color;
             },
             attached () {
+                this.connected = false;
+                // Wait for the socket to try to connect
+                setTimeout(() => {
+                    // Still not connected, start the webcam
+                    if (!this.connected) {
+                        this._startWebcam();
+                    }
+                }, 300);
                 Kano.AppModules.getModule('camera').connect({
                     name: 'Kano Code'
                 });
+                Kano.AppModules.getModule('camera').on('connect', () => {
+                    this.connected = true;
+                    // Stop the webcam if started before
+                    this._stopWebcam();
+                });
+                Kano.AppModules.getModule('camera').on('disconnect', () => {
+                    this.connected = false;
+                    this._startWebcam();
+                });
+            },
+            _startWebcam () {
+                this.webcam = new Kano.Webcam();
+                this.webcam.ready.then(_ => {
+                    if (this.connected) {
+                        this._stopWebcam();
+                        return;
+                    }
+                    this.getCamera().setWebcam(this.webcam);
+                }).catch(e => {
+                    if (e.name === 'PermissionDeniedError') {
+                        this.fire('kano-error', {
+                            text: `Kano Code needs permission to use your webcam. You can allow access from your browser settings.`,
+                            duration: 0,
+                            closeWithButton: true,
+                            buttonText: 'OK'
+                        });
+                    }
+                });
+                this.webcam.start();
+            },
+            _stopWebcam () {
+                this.webcam.stop();
+                this.getCamera().disableWebcam();
             },
             // Support legacy code
             getCamera () {
                 return this;
+            },
+            detached () {
+                this._stopWebcam();
             }
         });
     </script>
