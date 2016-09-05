@@ -19,6 +19,9 @@
             return new Promise((resolve, reject) => {
                 let p = Filters.getPixels(canvas),
                     id = this._taskId++;
+                if (!this._filters.length) {
+                    return resolve(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+                }
                 this._listeners[id] = (res) => {
                     this._worker.removeEventListener('message', this._listeners[id]);
                     resolve(Filters.toImageData(res.data));

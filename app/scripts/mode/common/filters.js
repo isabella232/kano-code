@@ -1,12 +1,52 @@
 export default [{
     block: () => {
         return {
-                id: 'filter_threshold',
-                message0: 'frame: black and white threshold %1',
-                args0: [{
-                    type: "input_value",
-                    name: "THRESHOLD",
-                    check: "Number"
+            id: 'filter_invert',
+            message0: 'frame: invert',
+            previousStatement: null,
+            nextStatement: null
+        };
+    },
+    javascript: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').addFilter('invert');\n`;
+        };
+    },
+    pseudo: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').addFilter('invert');\n`;
+        };
+    }
+},{
+    block: () => {
+        return {
+                id: 'filter_grayscale',
+                message0: 'frame: grayscale',
+                previousStatement: null,
+                nextStatement: null
+            };
+    },
+    javascript: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').addFilter('grayscale');\n`;
+        };
+    },
+    pseudo: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').addFilter('grayscale');\n`;
+        };
+    }
+},{
+    block: () => {
+        return {
+                id: 'filter_blur',
+                message0: 'frame: blur',
+                message1: 'size %1',
+                args1: [{
+                    type: 'input_value',
+                    name: 'SIZE',
+                    check: 'Number',
+                    align: 'RIGHT'
                 }],
                 previousStatement: null,
                 nextStatement: null
@@ -14,14 +54,14 @@ export default [{
     },
     javascript: (part) => {
         return (block) => {
-            let threshold = Blockly.JavaScript.valueToCode(block, 'THRESHOLD') || 50;
-            return `devices.get('${part.id}').addFilter('invert', ${threshold});\n`;
+            let size = Blockly.JavaScript.valueToCode(block, 'SIZE') || 50;
+            return `devices.get('${part.id}').addFilter('gaussianBlur', ${size});\n`;
         };
     },
     pseudo: (part) => {
         return (block) => {
-            let threshold = Blockly.Pseudo.valueToCode(block, 'THRESHOLD') || 50;
-            return `devices.get('${part.id}').addFilter('threshold', ${threshold});\n`;
+            let size = Blockly.Pseudo.valueToCode(block, 'SIZE') || 50;
+            return `devices.get('${part.id}').addFilter('gaussianBlur', ${size});\n`;
         };
     }
 }];
