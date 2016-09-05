@@ -586,6 +586,9 @@ Polymer({
             draggables = this.draggables;
         }
         draggables.forEach((draggable) => {
+            if (!draggable.model) {
+                return;
+            }
             restrictEl = draggable.model.restrict === 'workspace' ? this.$.workspace.getViewport().getRestrictElement() : this.$['left-panel'];
             interact(draggable).draggable({
                 onmove: this.getDragMoveListener(true),

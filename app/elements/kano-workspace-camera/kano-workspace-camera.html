@@ -58,7 +58,6 @@
                         this._stopWebcam();
                         return;
                     }
-                    this.getCamera().setWebcam(this.webcam);
                 }).catch(e => {
                     if (e.name === 'PermissionDeniedError') {
                         this.fire('kano-error', {
@@ -73,7 +72,17 @@
             },
             _stopWebcam () {
                 this.webcam.stop();
-                this.getCamera().disableWebcam();
+                this.webcam = null;
+            },
+            takePicture () {
+                if (this.webcam) {
+                    this.webcam.takePicture().then(url => {
+                        this.lastPictureUrl = url
+                        this.fire('picture-taken', this.lastPictureUrl);
+                    });
+                } else {
+                    Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
+                }
             },
             // Support legacy code
             getCamera () {
