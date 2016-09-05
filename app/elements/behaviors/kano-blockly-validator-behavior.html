@@ -4,7 +4,7 @@
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
-    window.Kano.Behaviors.BlocklyValidatorBehavior = {
+    window.Kano.Behaviors.BlocklyValidatorBehaviorImpl = {
         properties: {
             blockIds: {
                 type: Object,
@@ -15,36 +15,97 @@
                 }
             }
         },
-        attached () {
+        ready () {
             this.eventsMap = {
-                create: 'create',
-                connect: 'move',
-                value: 'change',
-                delete: 'delete',
-                'open-flyout': 'open-flyout',
-                'close-flyout': 'close-flyout',
-                'drop': 'drop-block'
+                move: 'connect',
+                change: 'value',
+                'drop-block': 'drop'
             };
-            this.blocklyValidators = {
-                'create': this.matchCreate.bind(this),
-                'connect': this.matchConnect.bind(this),
-                'value': this.matchBlocklyValue.bind(this),
-                'delete': this.matchDelete.bind(this),
-                'open-flyout': this.matchCategory.bind(this),
-                'drop': this.matchDrop.bind(this)
-            };
+            this._addValidator('blockly', '_checkBlocklyEvent');
+            this._addValidator('create', '_matchCreate');
+            this._addValidator('connect', '_matchConnect');
+            this._addValidator('value', '_matchBlocklyValue');
+            this._addValidator('delete', '_matchDelete');
+            this._addValidator('open-flyout', '_matchCategory');
+            this._addValidator('drop', '_matchDrop');
+
+            this._addOppositeAction('create', 'close-flyout', '_flyoutClosed');
+            this._addOppositeAction('connect', 'create', '_createNotExpected');
+
+            this._addMatchFallback('connect', '_wrongConnection');
+            this._addMatchFallback('create', '_wrongCreate');
+            this._addMatchFallback('open-flyout', '_wrongCategory');
         },
-        matchCategory (validation, event) {
+        _wrongCategory (validation, detail) {
+            let step = this.steps[this.step];
+            step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-category-opened');
+            step.arrow = {
+				target: {
+					category: validation
+				},
+				angle: 45,
+				size: 80
+			};
+            this._updateStep(step);
+        },
+        _createNotExpected (validation, detail) {
+            return this._wrongCreateRedirect(detail.blockId);
+        },
+        _wrongConnection (validation, detail) {
+            // Only take action if the block was plugged
+            if (detail.newParentId) {
+                return this._wrongConnectionRedirect(validation, detail);
+            }
+        },
+        _wrongCreate (validation, detail) {
+            return this._wrongCreateRedirect(detail.blockId);
+        },
+        _wrongCreateRedirect (wrongBlockId) {
+            let step = {};
+            step.validation = {
+                blockly: {
+                    delete: {
+                        target: {
+                            rawId: wrongBlockId
+                        }
+                    }
+                }
+            };
+            step.tooltips = [{
+                position: 'left',
+                text: Kano.MakeApps.CopyManager.get('wrong-block-added') + '<br>' + Kano.MakeApps.CopyManager.get('put-block-in-bin'),
+                location: 'right-panel'
+            }];
+            step.arrow = {
+                target: 'blockly-bin',
+                angle: 210,
+                size: 80
+            };
+            this._injectStep(step, -1);
+        },
+        _wrongConnectionRedirect (validation, detail) {
+            let step = this.steps[this.step];
+            // update the tooltip's copy
+            step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-block-connection');
+            // Add a boucing arrow
+            step.arrow = {
+                target: { block: validation.parent },
+                angle: 210,
+                size: 80
+            };
+            this._updateStep(step);
+        },
+        _flyoutClosed (validation, detail) {
+            return this._prevStep();
+        },
+        _matchCategory (validation, event) {
             if (validation.part) {
                 validation = this.stepIds[validation.part];
             }
             return event.categoryId === validation;
         },
-        matchBlockType (type, event) {
+        _matchBlockType (type, event) {
             return event.xml.getAttribute('type') === type;
-        },
-        matchBlocklyEvent (type, event) {
-            return event.type === this.eventsMap[type];
         },
         getBlockType (validation) {
             let target = this.stepIds[validation.target],
@@ -64,19 +125,26 @@
             }
             return type;
         },
-        matchDelete (validation, event) {
+        _matchDelete (validation, event) {
             let target = validation.target || validation,
-                blockId = this.getTargetBlock(target).id;
+                blockId;
+            if (typeof target === 'string') {
+                blockId = this.blockIds[target];
+            } else if (target.id) {
+                blockId = this.blockIds[target.id];
+            } else if (target.rawId) {
+                blockId = target.rawId;
+            }
             if (blockId !== event.blockId) {
                 return;
             }
             delete this.blockIds[target];
             return true;
         },
-        matchCreate (validation, event) {
+        _matchCreate (validation, event) {
             let type = this.getBlockType(validation);
             // Check the type of the added block
-            if (this.matchBlockType(type, event)) {
+            if (this._matchBlockType(type, event)) {
                 // The new block created is added to the step, using its
                 // step id for further reference
                 if (validation.id) {
@@ -85,7 +153,7 @@
                 return true;
             }
         },
-        matchConnect (validation, event) {
+        _matchConnect (validation, event) {
             // Extract the validation object, target and parent step ids and
             // the block moved
             let targetId = this.getTargetBlock(validation.target).id,
@@ -97,13 +165,13 @@
                 return true;
             }
         },
-        matchDrop (validation, event) {
+        _matchDrop (validation, event) {
             let targetId = this.getTargetBlock(validation.target).id,
                 block = event;
             // Check that the element that changed is the one we target
             return block.blockId === targetId;
         },
-        matchBlocklyValue (validation, event) {
+        _matchBlocklyValue (validation, event) {
             let targetId = this.getTargetBlock(validation.target).id,
                 block = event,
                 failed = false;
@@ -136,29 +204,55 @@
                 block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector]);
             } else if (selector.id) {
                 block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.id]);
+            } else if (selector.rawId) {
+                block = this.editor.getBlocklyWorkspace().getBlockById(selector.rawId);
             }
             if (selector.shadow) {
                 block = block.getInput(selector.shadow).connection.targetBlock();
             }
             return block;
         },
-        handleBlocklyChange (step, e) {
-            // Store current step object
-            Object.keys(step).forEach((type) => {
-                let validation;
-                if (!this.matchBlocklyEvent(type, e)) {
-                    return;
-                }
-                validation = step[type];
-                if (validation === true) {
-                    return this.nextStep();
-                }
-                if (typeof this.blocklyValidators[type] === 'function' &&
-                        this.blocklyValidators[type](validation, e)) {
-                    this.nextStep();
-                }
-            });
+        getTargetBlockInput (selector) {
+            let block = this.getTargetBlock(selector),
+                connection,
+                blockRect,
+                blockPos,
+                inputRelPos,
+                pos;
+
+            if (selector.inputName) {
+                connection = block.getInput(selector.inputName).connection;
+            } else {
+                connection = block.nextConnection;
+            }
+            blockRect = block.svgGroup_.getBoundingClientRect();
+            blockPos = block.getRelativeToSurfaceXY();
+            inputRelPos = {
+                x: connection.x_ - blockPos.x,
+                y: connection.y_ - blockPos.y
+            };
+            pos = {};
+
+            pos.left = blockRect.left + inputRelPos.x;
+            pos.top = blockRect.top + inputRelPos.y;
+
+            pos.right = blockRect.right + blockRect.width - inputRelPos.x;
+            pos.bottom = blockRect.bottom + blockRect.height - inputRelPos.y;
+
+            pos.width = 1;
+            pos.height = 1;
+
+            return pos;
+
+        },
+        _checkBlocklyEvent (validation, e) {
+            let blocklyStep = validation,
+                detail = e.event;
+            detail.type = this.eventsMap[detail.type] || detail.type;
+            this._checkEvent(validation, detail);
         }
     };
+
+    window.Kano.Behaviors.BlocklyValidatorBehavior = [window.Kano.Behaviors.ValidatorBehavior, window.Kano.Behaviors.BlocklyValidatorBehaviorImpl]
 
 </script>
