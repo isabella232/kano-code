@@ -49,7 +49,10 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'SIZE': '<shadow type="math_number"><field name="NUM">50</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
@@ -82,7 +85,11 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ff0000</field></shadow>',
+                    'VALUE': '<shadow type="math_number"><field name="NUM">50</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
@@ -113,7 +120,10 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'THRESHOLD': '<shadow type="math_number"><field name="NUM">50</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
@@ -143,7 +153,10 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'SIZE': '<shadow type="math_number"><field name="NUM">20</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
@@ -172,20 +185,23 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'CONTRAST': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
         return (block) => {
-            let contrast = Blockly.JavaScript.valueToCode(block, 'CONTRAST') || 50;
-            contrast = Math.max(-150, Math.min(150, (contrast * 3) - 150));
+            let contrast = Blockly.JavaScript.valueToCode(block, 'CONTRAST') || 0;
+            contrast = Math.max(-300, Math.min(300, (contrast * 3)));
             return `devices.get('${part.id}').addFilter('contrast', ${contrast});\n`;
         };
     },
     pseudo: (part) => {
         return (block) => {
-            let contrast = Blockly.Pseudo.valueToCode(block, 'CONTRAST') || 50;
-            contrast = Math.max(-100, Math.min(100, (contrast * 2) - 100));
+            let contrast = Blockly.Pseudo.valueToCode(block, 'CONTRAST') || 0;
+            contrast = Math.max(-300, Math.min(300, (contrast * 3)));
             return `devices.get('${part.id}').addFilter('contrast', ${contrast});\n`;
         };
     }
@@ -212,7 +228,12 @@ export default [{
                     align: 'RIGHT'
                 }],
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'ROTATION_OFFSET': '<shadow type="math_number"><field name="NUM">50</field></shadow>',
+                    'SLICES': '<shadow type="math_number"><field name="NUM">12</field></shadow>',
+                    'ZOOM': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
+                }
             };
     },
     javascript: (part) => {
