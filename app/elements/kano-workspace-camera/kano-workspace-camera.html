@@ -1,6 +1,4 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
-<link rel="import" href="../behaviors/kano-image-filters-behavior.html">
-<link rel="import" href="../kano-gif-creator/kano-gif-creator.html">
 <link rel="import" href="../part/kano-ui-behavior.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts-api/camera.html">
 <script src="../../scripts/kano/webcam.js"></script>
@@ -25,7 +23,7 @@
         }
     </style>
     <template>
-        <kano-gif-creator id="screen" width="[[width]]" height="[[height]]" pictures="[[pictures]]" framerate="[[framerate]]"></kano-gif-creator>
+        <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
         <div class="content">
             <content></content>
         </div>
@@ -34,23 +32,15 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera, Kano.Behaviors.ImageFiltersBehavior],
-            listeners: {
-                'picture-taken': '_onPictureTaken'
-            },
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera],
             ready () {
                 // Will contain the listeners attached to the socket
                 this.pictures = [];
                 this.framerate = 15;
-                this.$.screen.setTransformer(this.applyFilters.bind(this));
+                this.canvas = this.$.canvas;
             },
             setBackgroundColor (color) {
-                this.$.screen.style.background = color;
-            },
-            addFilter () {
-                let args = Array.prototype.slice.call(arguments),
-                    name = args.shift();
-                Kano.Behaviors.ImageFiltersBehavior.addFilter.call(this, name, args);
+                this.$.canvas.style.background = color;
             },
             attached () {
                 this.connected = false;
@@ -97,14 +87,10 @@
                 this.webcam.stop();
                 this.webcam = null;
             },
-            _onPictureTaken (e) {
-                this.push('pictures', e.detail);
-            },
             takePicture () {
                 if (this.webcam) {
                     this.webcam.takePicture().then(url => {
-                        this.lastPictureUrl = url;
-                        this.fire('picture-taken', this.lastPictureUrl);
+                        this._onPictureTaken(url);
                     });
                 } else {
                     Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
@@ -113,9 +99,6 @@
             stop () {
                 Kano.MakeApps.PartsAPI.camera.stop.apply(this, arguments);
                 this.reset();
-            },
-            reset () {
-                Kano.Behaviors.ImageFiltersBehavior.reset.apply(this, arguments);
             },
             // Support legacy code
             getCamera () {

@@ -189,4 +189,46 @@ export default [{
             return `devices.get('${part.id}').addFilter('contrast', ${contrast});\n`;
         };
     }
+},{
+    block: () => {
+        return {
+                id: 'filter_kaleidoscope',
+                message0: 'frame: kaleidoscope',
+                message1: 'rotation offset %1 # slices %2 zoom %3',
+                args1: [{
+                    type: 'input_value',
+                    name: 'ROTATION_OFFSET',
+                    check: 'Number',
+                    align: 'RIGHT'
+                },{
+                    type: 'input_value',
+                    name: 'SLICES',
+                    check: 'Number',
+                    align: 'RIGHT'
+                },{
+                    type: 'input_value',
+                    name: 'ZOOM',
+                    check: 'Number',
+                    align: 'RIGHT'
+                }],
+                previousStatement: null,
+                nextStatement: null
+            };
+    },
+    javascript: (part) => {
+        return (block) => {
+            let offset = Blockly.JavaScript.valueToCode(block, 'ROTATION_OFFSET') || 50,
+                slices = Blockly.JavaScript.valueToCode(block, 'SLICES') || 12,
+                zoom = Blockly.JavaScript.valueToCode(block, 'ZOOM') || 1
+            return `devices.get('${part.id}').enableKaleidoscope(${offset}, ${slices}, ${zoom});\n`;
+        };
+    },
+    pseudo: (part) => {
+        return (block) => {
+            let offset = Blockly.JavaScript.valueToCode(block, 'OFFSET_ROTATION') || 50,
+                slices = Blockly.JavaScript.valueToCode(block, 'SLICES') || 12,
+                zoom = Blockly.JavaScript.valueToCode(block, 'ZOOM') || 1
+            return `devices.get('${part.id}').enableKaleidoscope(${offset}, ${slices}, ${zoom});\n`;
+        };
+    }
 }];
