@@ -70,17 +70,9 @@
             properties: {
                 width: Number,
                 height: Number,
-                autoStart: Boolean,
-                mousePositionX: Number,
-                mousePositionY: Number
+                autoStart: Boolean
             },
             ready () {
-                this.ctx = this.$.canvas;
-
-                this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
-                this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
-                this.ctx.addEventListener('mousemove', this._onMouseMove.bind(this));
-
                 this.mousePositionX = 250;
                 this.mousePositionY = 250;
             },
@@ -88,6 +80,12 @@
                 if (this.autoStart) {
                     this.start();
                 }
+
+                this.ctx = this.$.canvas;
+
+                this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
+                this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
+                this.ctx.addEventListener('mousemove', this._onMouseMove.bind(this));
             },
             setBackgroundColor (color) {
                 this.style.background = color;
