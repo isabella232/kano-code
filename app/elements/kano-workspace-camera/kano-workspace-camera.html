@@ -1,8 +1,8 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
-<link rel="import" href="../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../behaviors/kano-image-filters-behavior.html">
-<link rel="import" href="../part/kano-part-camera/kano-part-camera.html">
 <link rel="import" href="../kano-gif-creator/kano-gif-creator.html">
+<link rel="import" href="../part/kano-ui-behavior.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/camera.html">
 <script src="../../scripts/kano/webcam.js"></script>
 <dom-module id="kano-workspace-camera">
     <style>
@@ -26,7 +26,6 @@
     </style>
     <template>
         <kano-gif-creator id="screen" width="[[width]]" height="[[height]]" pictures="[[pictures]]" framerate="[[framerate]]"></kano-gif-creator>
-        <kano-part-camera id="camera-part"></kano-part-camera>
         <div class="content">
             <content></content>
         </div>
@@ -35,13 +34,12 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.EmitterBehavior, Kano.Behaviors.ImageFiltersBehavior],
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera, Kano.Behaviors.ImageFiltersBehavior],
             listeners: {
                 'picture-taken': '_onPictureTaken'
             },
             ready () {
                 // Will contain the listeners attached to the socket
-                this.socketListeners = [];
                 this.pictures = [];
                 this.framerate = 15;
                 this.$.screen.setTransformer(this.applyFilters.bind(this));
@@ -83,7 +81,6 @@
                         this._stopWebcam();
                         return;
                     }
-                    this.getCamera().setWebcam(this.webcam);
                 }).catch(e => {
                     if (e.name === 'PermissionDeniedError') {
                         this.fire('kano-error', {
@@ -98,61 +95,31 @@
             },
             _stopWebcam () {
                 this.webcam.stop();
-                this.getCamera().disableWebcam();
+                this.webcam = null;
             },
             _onPictureTaken (e) {
                 this.push('pictures', e.detail);
             },
-            getCamera () {
-                return this.$['camera-part'];
-            },
-            flash (color, length) {
-                Kano.AppModules.getModule('camera').flash(color, length);
-            },
-            onShutterDown (cb) {
-                this.onKeyDown('shutter-button', cb);
-            },
-            onShutterTurns (key, callback) {
-                let cb = this._shutterCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'timer-changed',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('timer-changed', cb);
-            },
-            _shutterCheck (key, callback) {
-                return (data) => {
-                    if (data.direction === key) {
-                        callback();
-                    }
-                };
-            },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
+            takePicture () {
+                if (this.webcam) {
+                    this.webcam.takePicture().then(url => {
+                        this.lastPictureUrl = url;
+                        this.fire('picture-taken', this.lastPictureUrl);
+                    });
+                } else {
+                    Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
+                }
             },
             stop () {
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+                Kano.MakeApps.PartsAPI.camera.stop.apply(this, arguments);
                 this.reset();
             },
             reset () {
-                // Remove all the listeners and reset the listeners array
-                this.socketListeners.forEach((listener) => {
-                    Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
-                });
-                this.socketListeners = [];
                 Kano.Behaviors.ImageFiltersBehavior.reset.apply(this, arguments);
+            },
+            // Support legacy code
+            getCamera () {
+                return this;
             },
             detached () {
                 this._stopWebcam();

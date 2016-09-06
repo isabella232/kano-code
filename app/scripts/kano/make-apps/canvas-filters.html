@@ -1,0 +1,20 @@
+<script src="../../../bower_components/canvasfilters/filters.js"></script>
+<script>
+    Filters.colorize = function(pixels, rgb, value) {
+        var rgbTarget = rgb || { r: 255, g: 0, b: 0 };
+        var v = value || 0.5;
+        var output = Filters.createImageData(pixels.width, pixels.height);
+        var dst = output.data;
+        var d = pixels.data;
+        for (var i=0; i<d.length; i+=4) {
+            var r = d[i];
+            var g = d[i+1];
+            var b = d[i+2];
+            dst[i] = Math.min(255, r + (rgbTarget.r * v));
+            dst[i+1] = Math.min(255, g + (rgbTarget.g * v));
+            dst[i+2] = Math.min(255, b + (rgbTarget.b * v));
+            dst[i+3] = d[i+3];
+        }
+        return output;
+    };
+</script>

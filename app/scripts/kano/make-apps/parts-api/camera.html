@@ -1,0 +1,78 @@
+<link rel="import" href="./base.html">
+<script>
+    (function (Kano) {
+        let Camera, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        Camera = {
+            takePicture () {
+                Kano.AppModules.getModule('camera').takePicture()
+                    .then((pictureUrl) => {
+                        let filename = pictureUrl.split('/').pop();
+                        this.lastPictureUrl = Kano.AppModules.getModule('camera').getPicture(filename);
+                        this.fire('picture-taken', this.lastPictureUrl);
+                    });
+            },
+            lastPicture () {
+                return this.lastPictureUrl;
+            },
+            flash (color, length) {
+                Kano.AppModules.getModule('camera').flash(color, length);
+            },
+            onShutterDown (cb) {
+                this.onKeyDown('shutter-button', cb);
+            },
+            onShutterTurns (key, callback) {
+                let cb = this._shutterCheck(key, callback);
+                this.socketListeners.push({
+                    name: 'timer-changed',
+                    cb
+                });
+                Kano.AppModules.getModule('camera').on('timer-changed', cb);
+            },
+            _shutterCheck (key, callback) {
+                return (data) => {
+                    if (data.direction === key) {
+                        callback();
+                    }
+                };
+            },
+            onKeyDown (key, callback) {
+                let cb = this._keyDownCheck(key, callback);
+                this.socketListeners.push({
+                    name: 'button-down',
+                    cb
+                });
+                Kano.AppModules.getModule('camera').on('button-down', cb);
+            },
+            _keyDownCheck (key, callback) {
+                return (data) => {
+                    if (data['button-id'] === key) {
+                        callback();
+                    }
+                };
+            },
+            start () {
+                PartsAPI.Base.start.apply(this, arguments);
+                this.socketListeners = [];
+            },
+            stop () {
+                PartsAPI.Base.stop.apply(this, arguments);
+                this.reset();
+            },
+            reset () {
+                if (this.socketListeners) {
+                    // Remove all the listeners and reset the listeners array
+                    this.socketListeners.forEach((listener) => {
+                        Kano.AppModules.getModule('camera').removeListener(listener.name, listener.cb);
+                    });
+                }
+                this.socketListeners = [];
+            }
+        };
+
+        PartsAPI['camera'] = Object.assign({}, PartsAPI.Base, Camera);
+    })(window.Kano = window.Kano || {});
+</script>

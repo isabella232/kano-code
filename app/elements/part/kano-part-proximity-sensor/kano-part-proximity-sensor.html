@@ -1,5 +1,5 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/proximity-sensor.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <dom-module id="kano-part-proximity-sensor">
@@ -58,8 +58,8 @@
 
         Polymer({
             is: 'kano-part-proximity-sensor',
-            behaviors: [Kano.Behaviors.UIBehavior,
-                        Kano.Behaviors.EmitterBehavior,
+            behaviors: [Kano.MakeApps.PartsAPI['proximity-sensor'],
+                        Kano.Behaviors.UIBehavior,
                         Kano.Behaviors.AnimatableBehavior],
             properties: {
                 lastProximityValue: {
@@ -71,29 +71,6 @@
                 Kano.AppModules.getModule('proximitySensor').connect({
                     name: 'Make Apps'
                 });
-            },
-            start () {
-                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-
-                this.proximityEventListener = (e) => {
-                    this.lastProximityValue = this.dataToPercentage(e.proximity);
-                    this.fire('proximity-update');
-                };
-
-                Kano.AppModules.getModule('proximitySensor').on('proximity-sensor:0:proximity-data', this.proximityEventListener);
-            },
-            stop () {
-                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-
-                Kano.AppModules.getModule('proximitySensor').removeListener('proximity-sensor:0:proximity-data', this.proximityEventListener);
-                this.lastProximityValue = 0;
-            },
-            getValue () {
-                return this.lastProximityValue;
-            },
-            dataToPercentage (value) {
-                return Math.round((value / 255) * 100);
             },
             computeIrisStyle (proximity) {
                 let adjusted = 50 + (proximity / 100) * 50;

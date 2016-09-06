@@ -1,4 +1,3 @@
-<link rel="import" href="../ui/behaviors.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 
 <dom-module id="kano-workspace">
@@ -309,6 +308,18 @@
             }
             this.dropzone.removeChild(element);
             delete this.elements[key];
+        },
+        getPartsDict () {
+            let dict = Object.keys(this.elements).reduce((acc, key) => {
+                // Get the model linked to the element
+                let model = this.get(`parts.${key}`);
+                acc[model.id] = this.elements[key];
+                return acc;
+            }, {});
+            dict[this.mode.id] = this.dropzone;
+            // Support legacy apps
+            dict['dropzone'] = this.dropzone;
+            return dict;
         },
         runningChanged () {
             if (this.running) {

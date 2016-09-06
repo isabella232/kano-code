@@ -52,6 +52,7 @@ speaker = {
     label: 'Speaker',
     image: '/assets/part/speaker.svg',
     colour: COLOUR,
+    component: 'kano-part-speaker',
     experiments: {
         'sound': []
     },
@@ -100,21 +101,21 @@ speaker = {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '""',
                     rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
                     lang = block.getFieldValue('LANGUAGE'),
-                    code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
+                    code = `parts.get('${part.id}').say(${text}, ${rate}, "${lang}");\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
                 let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || `''`,
                     rate = Blockly.Pseudo.valueToCode(block, 'RATE') || 1,
                     lang = block.getFieldValue('LANGUAGE'),
-                    code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
+                    code = `parts.get('${part.id}').say(${text}, ${rate}, "${lang}");\n`;
                 return code;
             };
         }
@@ -148,17 +149,17 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.play(${sample});\n`;
+                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').play(${sample});\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.play(${sample});\n`;
+                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').play(${sample});\n`;
                 return code;
             };
         }
@@ -176,17 +177,17 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.loop(${sample});\n`;
+                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').loop(${sample});\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.loop(${sample});\n`;
+                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').loop(${sample});\n`;
                 return code;
             };
         }
@@ -199,15 +200,15 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let code = `speaker.stop();\n`;
+                let code = `parts.get('${part.id}').stop();\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let code = `speaker.stop();\n`;
+                let code = `parts.get('${part.id}').stop();\n`;
                 return code;
             };
         }

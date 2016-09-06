@@ -1,3 +1,4 @@
+<link rel="import" type="" href="../../scripts/kano/make-apps/copy-manager.html">
 <script type="text/javascript">
 
     window.Kano = window.Kano || {};
@@ -156,13 +157,32 @@
         _matchConnect (validation, event) {
             // Extract the validation object, target and parent step ids and
             // the block moved
-            let targetId = this.getTargetBlock(validation.target).id,
-                parentId = this.getTargetBlock(validation.parent).id;
+            let target = this.getTargetBlock(validation.target),
+                parent = this.getTargetBlock(validation.parent);
 
             // Check that the element moved is the one targeted and that its
             // new parent is the right one
-            if (event.blockId === targetId && event.newParentId === parentId) {
-                return true;
+            if (event.blockId === target.id && event.newParentId === parent.id) {
+                let connection;
+
+                if (!validation.parent.inputName) {
+                    connection = parent.nextConnection
+                } else {
+                    let input = parent.getInput(validation.parent.inputName)
+
+                    if (input) {
+                        connection = input.connection;
+                    } else {
+                        return false;
+                    }
+                }
+
+                if (!connection) {
+                    return false;
+                }
+
+                connection = connection.targetConnection;
+                return (connection.sourceBlock_.id === target.id);
             }
         },
         _matchDrop (validation, event) {
@@ -225,7 +245,7 @@
             } else {
                 connection = block.nextConnection;
             }
-            blockRect = block.svgGroup_.getBoundingClientRect();
+            blockRect = block.svgPath_.getBoundingClientRect();
             blockPos = block.getRelativeToSurfaceXY();
             inputRelPos = {
                 x: connection.x_ - blockPos.x,
@@ -247,9 +267,16 @@
         },
         _checkBlocklyEvent (validation, e) {
             let blocklyStep = validation,
-                detail = e.event;
+                detail = e.event,
+                block = this._blocklyWorkspace.getBlockById(detail.blockId);
             detail.type = this.eventsMap[detail.type] || detail.type;
+            if (detail.type === 'connect' && !detail.newParentId || (block && block.isShadow())) {
+                return;
+            }
             this._checkEvent(validation, detail);
+        },
+        setWorkspace (ws) {
+            this._blocklyWorkspace = ws;
         }
     };
 

@@ -46,13 +46,12 @@ var SharingBehavior = {
             if (res.status == 200) {
                 let share = res.body.item;
                 // Generate the html file with the slug as component name
-                savedApp = Kano.MakeApps.components.generateStandaloneComponent(
+                savedApp = Kano.AppModules.generateStandaloneComponent(
                     share.slug,
                     this.shareInfo.parts,
                     this.shareInfo.background,
                     this.shareInfo.mode,
-                    this.shareInfo.code,
-                    Kano.AppModules.modules
+                    this.shareInfo.code
                 );
                 // Create the attachment
                 attachment = new Blob([savedApp], { type: 'text/html' });

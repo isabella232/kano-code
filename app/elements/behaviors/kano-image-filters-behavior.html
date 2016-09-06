@@ -1,4 +1,4 @@
-<script src="../../bower_components/canvasfilters/filters.js"></script>
+<link rel="import" type="" href="../../scripts/kano/make-apps/canvas-filters.html">
 <script type="text/javascript">
 
     window.Kano = window.Kano || {};
@@ -7,7 +7,7 @@
     
     window.Kano.Behaviors.ImageFiltersBehavior = {
         ready () {
-            this._worker = new Worker('/scripts/workers/filters.js');
+            this._worker = new Worker('/scripts/workers/canvas-filters.js');
             this._taskId = 0;
             this._filters = [];
             this._listeners = {};
@@ -18,6 +18,7 @@
         applyFilters (canvas) {
             return new Promise((resolve, reject) => {
                 let p = Filters.getPixels(canvas),
+                    filters,
                     id = this._taskId++;
                 if (!this._filters.length) {
                     return resolve(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
@@ -26,10 +27,17 @@
                     this._worker.removeEventListener('message', this._listeners[id]);
                     resolve(Filters.toImageData(res.data));
                 };
-                this._filters.forEach(filter => {
-                    filter.args.unshift(p);
+                filters = this._filters.map((filter, index) => {
+                    let f = {
+                        name: filter.name,
+                        args: filter.args.slice(0)
+                    };
+                    if (index === 0) {
+                        f.args.unshift(p);
+                    }
+                    return f;
                 });
-                this._worker.postMessage({ name: 'runPipeline', args: [this._filters] });
+                this._worker.postMessage({ name: 'runPipeline', args: [filters] });
                 this._worker.addEventListener('message', this._listeners[id]);
             });
         },

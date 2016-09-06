@@ -1,7 +1,9 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
+<link rel="import" href="../../part/kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../kano-style/typography.html">
 <link rel="import" href="../../kano-style/input.html">
 <link rel="import" href="../../kano-style/part.html">
+
 <dom-module id="kano-ui-text-input">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -27,62 +29,54 @@
     <template>
         <input id="input" type="text" value="{{model.userProperties.value::keyup}}" on-keyup="onKeyUp" placeholder$="[[model.userProperties.placeholder]]" disabled$="[[!isRunning]]">
     </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-ui-text-input',
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            onKeyUp () {
+                this.fire('input-keyup', this.value);
+            },
+            getValue () {
+                return this.get('model.userProperties.value');
+            },
+            setValue (value) {
+                this.set('model.userProperties.value', value);
+            },
+            setPlaceholder (placeholder) {
+                this.set('model.userProperties.placeholder', placeholder);
+            },
+            getPlaceholder () {
+                return this.get('model.userProperties.placeholder');
+            },
+            renderOnCanvas (ctx, util) {
+                return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                    let placeholder = this.model.userProperties.placeholder,
+                        text = this.model.userProperties.value,
+                        input = this.$.input,
+                        width = input.offsetWidth,
+                        height = input.offsetHeight;
+
+                    ctx.beginPath();
+                    ctx.fillStyle = "#263238";
+                    util.roundRect(ctx, 0, 0, width, height, 4, false, true);
+                    ctx.fillStyle = "#FFFFFF";
+                    util.roundRect(ctx, 0, 0, width, height, 4, true);
+                    ctx.textAlign = 'start';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = `${util.getStyle(input, 'font-size')} ${util.getStyle(input, 'font-family')}`;
+                    if (text) {
+                        ctx.fillStyle = "black";
+                        ctx.fillText(text, 12, height / 2);
+                    } else if (placeholder) {
+                        ctx.fillStyle = "#dddddd";
+                        ctx.fillText(placeholder, 12, height / 2);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                });
+            }
+        });
+    </script>
 </dom-module>
-
-<script type="text/javascript">
-    /* globals Polymer, Kano */
-
-    Polymer({
-        is: 'kano-ui-text-input',
-        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
-        start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-        },
-        stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-        },
-        onKeyUp () {
-            this.fire('input-keyup', this.value);
-        },
-        getValue () {
-            return this.get('model.userProperties.value');
-        },
-        setValue (value) {
-            this.set('model.userProperties.value', value);
-        },
-        setPlaceholder (placeholder) {
-            this.set('model.userProperties.placeholder', placeholder);
-        },
-        getPlaceholder () {
-            return this.get('model.userProperties.placeholder');
-        },
-        renderOnCanvas (ctx, util) {
-            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
-                let placeholder = this.model.userProperties.placeholder,
-                    text = this.model.userProperties.value,
-                    input = this.$.input,
-                    width = input.offsetWidth,
-                    height = input.offsetHeight;
-
-                ctx.beginPath();
-                ctx.fillStyle = "#263238";
-                util.roundRect(ctx, 0, 0, width, height, 4, false, true);
-                ctx.fillStyle = "#FFFFFF";
-                util.roundRect(ctx, 0, 0, width, height, 4, true);
-                ctx.textAlign = 'start';
-                ctx.textBaseline = 'middle';
-                ctx.font = `${util.getStyle(input, 'font-size')} ${util.getStyle(input, 'font-family')}`;
-                if (text) {
-                    ctx.fillStyle = "black";
-                    ctx.fillText(text, 12, height / 2);
-                } else if (placeholder) {
-                    ctx.fillStyle = "#dddddd";
-                    ctx.fillText(placeholder, 12, height / 2);
-                }
-                ctx.stroke();
-                ctx.restore();
-            });
-        }
-    });
-</script>

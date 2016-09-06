@@ -1,0 +1,62 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class CameraModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+
+                this.addMethod('flash', '_flash');
+                this.addMethod('on', '_on');
+                this.addMethod('removeListener', '_removeListener');
+                this.addMethod('onPictureTaken', '_onPictureTaken');
+                this.addMethod('takePicture', '_takePicture');
+                this.addMethod('lastPicture', '_lastPicture');
+                this.addMethod('getPicture', '_getPicture');
+                this.addMethod('connect', '_connect');
+            }
+
+            _flash (color, length) {
+                this.api.ledring.flash(color, length);
+            }
+
+            _on () {
+                this.api.on.apply(this.api, arguments);
+            }
+
+            _removeListener () {
+                this.api.removeListener.apply(this.api, arguments);
+            }
+
+            _onPictureTaken (cb) {
+                this._on.call(this, 'camera:takepicture', cb);
+            }
+
+            _takePicture () {
+                return this.api.camera.takePicture();
+            }
+
+            _lastPicture () {
+                return this.api.camera.lastPicture();
+            }
+
+            _getPicture (filename) {
+                return this.api.camera.getPicture(filename);
+            }
+
+            _connect (info) {
+                this.api.connect();
+                this.api.on('connect', () => {
+                    this.api.emit('camera:init', info);
+                });
+            }
+
+            config (opts) {
+                this.api = opts.hardwareAPI;
+            }
+        }
+
+        Kano.AppModules.modules['camera'] = new CameraModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

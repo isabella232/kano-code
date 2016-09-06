@@ -1,5 +1,5 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/motion-sensor.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <dom-module id="kano-part-motion-sensor">
@@ -59,8 +59,8 @@
 
         Polymer({
             is: 'kano-part-motion-sensor',
-            behaviors: [Kano.Behaviors.UIBehavior,
-                        Kano.Behaviors.EmitterBehavior,
+            behaviors: [Kano.MakeApps.PartsAPI['motion-sensor'],
+                        Kano.Behaviors.UIBehavior,
                         Kano.Behaviors.AnimatableBehavior],
             properties: {
                 movement: {
@@ -72,27 +72,6 @@
                 Kano.AppModules.getModule('motionSensor').connect({
                     name: 'Make Apps'
                 });
-            },
-            start () {
-                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-
-                this.motionEventListener = (e) => {
-                    if (e.movement) {
-                        this.fire('movement-start');
-                    } else {
-                        this.fire('movement-end');
-                    }
-                    this.movement = e.movement;
-                };
-
-                Kano.AppModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
-            },
-            stop () {
-                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-
-                Kano.AppModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
-                this.movement = false;
             },
             computeAnimationClass (movement) {
                 return movement ? 'animation-seismic' : 'animation-rolling';
