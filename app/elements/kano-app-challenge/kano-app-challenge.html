@@ -221,15 +221,13 @@
         attached () {
             this.isAttached = true;
             this.fire('attached');
-            this.addEventListener('mousewheel', () => {
-                this.debounce('updateTooltips', () => {
-                     this.updateTooltips();
-                }, 100);
-            }, true);
-            window.addEventListener('resize', this.updateTooltips.bind(this));
+            this.updateTooltips = this.updateTooltips.bind(this);
+            this.addEventListener('mousewheel', this.updateTooltips, true);
+            window.addEventListener('resize', this.updateTooltips);
         },
         detached () {
-            this.removeEventListener('mousewheel');
+            this.removeEventListener('mousewheel', this.updateTooltips);
+            window.removeEventListener('resize', this.updateTooltips);
         },
         computeTooltips (step) {
             this.set('tooltips', []);
@@ -458,19 +456,21 @@
             this.$.highlight.show();
         },
         updateTooltips () {
-            if (this.tooltips) {
-                for (let i = 0; i < this.tooltips.length; i++) {
-                    if (this.$$(`#tooltip-${i}`).tracking) {
-                        this.$$(`#tooltip-${i}`).updatePosition();
+            this.debounce('computeTooltips', () => {
+                if (this.tooltips) {
+                    for (let i = 0; i < this.tooltips.length; i++) {
+                        if (this.$$(`#tooltip-${i}`).tracking) {
+                            this.$$(`#tooltip-${i}`).updatePosition();
+                        }
                     }
                 }
-            }
-            let step = this.steps[this.step];
-            if (!this.steps) {
-                return;
-            }          
-            this.computeArrow(step);
-            this.$$('kano-arrow').updatePosition();
+                let step = this.steps[this.step];
+                if (!this.steps) {
+                    return;
+                }
+                this.computeArrow(step);
+                this.$$('kano-arrow').updatePosition();
+            }, 100);
         },
         isNextHidden () {
             let currentStep;
