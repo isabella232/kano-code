@@ -5,7 +5,7 @@
 # Copyright (C) 2016 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
-# This scripts starts the server and opens the browser with Make Apps.
+# This scripts starts the server and opens the browser with Kano Code.
 #
 
 import os
@@ -104,7 +104,7 @@ SERVER_PROC.start()
 
 
 if not is_internet():
-    msg = 'kano-dialog title="Oh No" description="You need to be connected to the Internet to launch Make Apps. Click on the OK button to set up your WiFi" button="OK,color:green,return_value:0" button="QUIT,color:red,return_value:1" no-taskbar'
+    msg = 'kano-dialog title="Oh No" description="You need to be connected to the Internet to launch Kano Code. Click on the OK button to set up your WiFi" button="OK,color:green,return_value:0" button="QUIT,color:red,return_value:1" no-taskbar'
     ret, dummy1, dummy2 = run_cmd(msg)
     if "1" == ret.strip():
         sys.exit(0)
@@ -112,7 +112,7 @@ if not is_internet():
     run_cmd('sudo kano-settings wifi')
 
     if not is_internet():
-        msg2 = 'kano-dialog title="Oh No" description="It looks like something went wrong. Your Kano kit is still not connected to the Internet. Unfortunately Make Apps can\'t be launched offline" button="QUIT,color:red,return_value:1" no-taskbar'
+        msg2 = 'kano-dialog title="Oh No" description="It looks like something went wrong. Your Kano kit is still not connected to the Internet. Unfortunately Kano Code can\'t be launched offline" button="QUIT,color:red,return_value:1" no-taskbar'
         run_cmd(msg2)
         sys.exit(0)
 
@@ -124,7 +124,7 @@ if len(sys.argv) > 1:
 
 # URL = "http://localhost:{}".format(make_apps.server.DEFAULT_PORT)
 URL = os.getenv('URL') or "https://make-apps-kit.kano.me"
-cmdline=['kano-web-view', '--title', 'Make Apps', '--decorate' , '--favicon', '/usr/share/icons/Kano/88x88/apps/make-apps.png']
+cmdline=['kano-web-view', '--title', 'Kano Code', '--decorate' , '--favicon', '/usr/share/icons/Kano/88x88/apps/make-apps.png']
 
 # If we are launched from within the Dashboard, tell kano-web-view
 # to remove the Minimize/Maximize buttons, because we do not have a taskbar.
