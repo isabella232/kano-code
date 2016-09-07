@@ -52,7 +52,8 @@ module.exports = (gulp, $) => {
 
     // Processes scripts that don't need any browserification
     gulp.task('scripts', () => {
-        gulp.src('app/scripts/kano/**/*', { base: 'app' })
+        return gulp.src('app/scripts/kano/**/*', { base: 'app' })
+            .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
             .pipe($.if('*.js', $.babel({ presets: ['es2015'] })))
             .pipe(gulp.dest('.tmp/app'));
     });
@@ -167,7 +168,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('compress', () => {
-        return gulp.src(['www/**/*.{js,html}'])
+        return gulp.src(['www/**/*.{js,html}', '!www/scripts/kano/make-apps/parts-api/parts-api.js'])
             .pipe($.if('*.html', $.htmlmin({
                 collapseWhitespace: true,
                 minifyCSS: true,

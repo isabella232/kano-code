@@ -1,4 +1,5 @@
-<link rel="import" href="./base.html">
+<link rel="import" href="./kaleidoscope.html">
+<link rel="import" href="./filters.html">
 <script>
     (function (Kano) {
         let Camera, PartsAPI;
@@ -7,13 +8,23 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         Camera = {
+            addFilter () {
+                let args = Array.prototype.slice.call(arguments),
+                    name = args.shift();
+                PartsAPI.filters.addFilter.call(this, name, args);
+                this._paintFrame();
+            },
             takePicture () {
                 Kano.AppModules.getModule('camera').takePicture()
                     .then((pictureUrl) => {
                         let filename = pictureUrl.split('/').pop();
-                        this.lastPictureUrl = Kano.AppModules.getModule('camera').getPicture(filename);
-                        this.fire('picture-taken', this.lastPictureUrl);
+                        this._onPictureTaken(Kano.AppModules.getModule('camera').getPicture(filename));
                     });
+            },
+            _onPictureTaken (src) {
+                this.lastPictureUrl = src;
+                this.fire('picture-taken', src);
+                this._paintFrame();
             },
             lastPicture () {
                 return this.lastPictureUrl;
@@ -54,12 +65,72 @@
                     }
                 };
             },
+            _paintFrame (src) {
+                if (!this.lastPictureUrl) {
+                    return;
+                }
+                this.debounce('paintFrame', () => {
+                    let img = new Image(),
+                        width = this.canvas.width,
+                        height = this.canvas.height,
+                        finalHeight,
+                        heightDiff;
+                    img.crossOrigin = "Anonymous";
+                    img.onload = () => {
+                        let tmpCanvas = document.createElement('canvas'),
+                            tmpCtx;
+                        tmpCanvas.width = width;
+                        tmpCanvas.height =  height;
+                        tmpCtx = tmpCanvas.getContext('2d');
+                        finalHeight = width * (img.naturalHeight / img.naturalWidth);
+                        heightDiff = height - finalHeight;
+                        tmpCtx.drawImage(img, 0, heightDiff / 2, width, finalHeight);
+                        this.applyFilters(tmpCanvas)
+                            .then(data => {
+                                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                                tmpCtx.putImageData(data, 0, 0);
+                                return this.applyKaleidoscope(tmpCanvas);
+                            });
+                    };
+                    img.src = this.lastPictureUrl;
+                }, 32);
+            },
+            applyKaleidoscope (canvas) {
+                if (this.kaleidoscope) {
+                    this.transform(this.ctx,
+                                    canvas,
+                                    this.canvas.width,
+                                    this.canvas.height,
+                                    this.canvas.width, 
+                                    this.canvas.height,
+                                    this.kaleidoscope.slices,
+                                    this.kaleidoscope.zoom,
+                                    0,
+                                    1,
+                                    this.kaleidoscope.offset,
+                                    this.kaleidoscope.offset);
+                } else {
+                    this.ctx.putImageData(canvas.getContext('2d').getImageData(0, 0, this.canvas.width, this.canvas.height), 0, 0);
+                }
+            },
+            enableKaleidoscope (offset, slices, zoom) {
+                this.kaleidoscope = {
+                    offset,
+                    slices,
+                    zoom
+                };
+                this._paintFrame();
+            },
             start () {
-                PartsAPI.Base.start.apply(this, arguments);
+                PartsAPI.kaleidoscope.start.apply(this, arguments);
+                PartsAPI.filters.start.apply(this, arguments);
                 this.socketListeners = [];
+                this.kaleidoscope = null;
+                this.ctx = this.canvas.getContext('2d');
             },
             stop () {
-                PartsAPI.Base.stop.apply(this, arguments);
+                PartsAPI.kaleidoscope.stop.apply(this, arguments);
+                PartsAPI.filters.stop.apply(this, arguments);
                 this.reset();
             },
             reset () {
@@ -73,6 +144,6 @@
             }
         };
 
-        PartsAPI['camera'] = Object.assign({}, PartsAPI.Base, Camera);
+        PartsAPI['camera'] = Object.assign({}, PartsAPI.kaleidoscope, PartsAPI.filters, Camera);
     })(window.Kano = window.Kano || {});
 </script>

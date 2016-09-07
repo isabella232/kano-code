@@ -1,7 +1,7 @@
 <link rel="import" href="../../part/kano-ui-behavior.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
-<script src="../../../bower_components/gif.js/dist/gif.js"></script>
 <link rel="import" href="../../kano-style/part.html">
+<link rel="import" href="../../kano-gif-creator/kano-gif-creator.html">
 <dom-module id="kano-ui-picture-list">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -85,7 +85,7 @@
         padding-left: 9px;
         padding-right: 6px;
     }
-    canvas {
+    kano-gif-creator {
         margin: 7px;
     }
     img {
@@ -98,7 +98,7 @@
             <div class="picture"></div>
             <div class="picture"></div>
             <div class="picture">
-                <canvas id="canvas" width$="[[FRAME_WIDTH]]" height$="[[FRAME_HEIGHT]]"></canvas>
+                <kano-gif-creator id="gif-creator" width="[[FRAME_WIDTH]]" height="[[FRAME_HEIGHT]]" pictures="[[pictures]]" framerate="[[model.userProperties.speed]]"></kano-gif-creator>
                 <div class="counter">
                     <img src="/assets/part/camera.png" alt="Camera icon"/>
                     <span>[[pictures.length]]</span>
@@ -117,12 +117,7 @@
         properties: {
             topPicture: {
                 type: String,
-                computed: '_computeTopPicture(pictures.*)',
-                observer: '_paintFrame'
-            },
-            frame: {
-                type: String,
-                observer: '_paintFrame'
+                computed: '_computeTopPicture(pictures.*)'
             }
         },
         ready () {
@@ -132,11 +127,10 @@
             this.FRAME_HEIGHT = 230;
         },
         attached () {
-            this.ctx = this.$.canvas.getContext('2d');
             this.reset();
         },
         reset () {
-            this._paintFrame('/assets/part/picture-list-placeholder.svg');
+            this.$['gif-creator']._paintFrame('/assets/part/picture-list-placeholder.svg');
         },
         stop () {
             Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
@@ -147,95 +141,19 @@
         _computeTopPicture () {
             return this.pictures[this.pictures.length - 1];
         },
-        _updateFrame () {
-            this.frameId++;
-            if (this.frameId >= this.pictures.length) {
-                this.frameId = 0;
-            }
-            this.frame = this.pictures[this.frameId];
-            this.timeoutId = setTimeout(this._updateFrame.bind(this), 1000 / this.model.userProperties.speed);
-        },
         play () {
             this.toggleClass('playing', true);
-            this._updateFrame();
+            this.$['gif-creator'].play();
         },
         pause () {
             this.toggleClass('playing', false);
-            clearInterval(this.timeoutId);
-        },
-        _paintFrame (src) {
-            let img = new Image(),
-                finalHeight,
-                heightDiff;
-            img.onload = () => {
-                finalHeight = this.FRAME_WIDTH * (img.naturalHeight / img.naturalWidth);
-                heightDiff = this.FRAME_HEIGHT - finalHeight;
-                this.ctx.clearRect(0, 0, this.FRAME_WIDTH, this.FRAME_HEIGHT);
-                this.ctx.drawImage(img, 0, heightDiff / 2, 306, finalHeight);
-            };
-            img.src = src;
-        },
-        renderOnCanvas (ctx) {
-            Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments);
-            let width = this.$.box.offsetWidth,
-                height = this.$.box.offsetHeight,
-                padding = this.model.userProperties.strokeSize;
-
-            ctx.fillStyle = this.model.userProperties.strokeColor;
-            ctx.fillRect(0, 0, width, height);
-
-            ctx.fillStyle = this.model.userStyle['background-color'];
-            ctx.fillRect(padding, padding, width - padding * 2, height - padding * 2);
-
-            ctx.stroke();
-            ctx.restore();
+            this.$['gif-creator'].pause();
         },
         setSpeed (speed) {
             this.set('model.userProperties.speed', Math.max(0, Math.min(15, speed)));
         },
-        _createGif () {
-            let gif = new GIF({
-                workers: 2,
-                quality: 10,
-                workerScript: '/scripts/workers/gif.worker.js'
-            }),
-                promises;
-            promises = this.pictures.map((url) => {
-                return new Promise((resolve, reject) => {
-                    let img = new Image();
-                    img.crossOrigin = 'Anonymous';
-                    img.onload = () => {
-                        resolve(img);
-                    };
-                    img.onerror = (e) => {
-                        reject(e);
-                    };
-                    img.src = url;
-                });
-            });
-            return Promise.all(promises).then(images => {
-                return new Promise((resolve, reject) => {
-                    images.forEach((image) => {
-                        gif.addFrame(image, { delay: 1000 / this.model.userProperties.speed });
-                    });
-                    gif.on('finished', (blob) => {
-                        resolve(blob);
-                    });
-                    gif.render();
-                });
-            });
-        },
         downloadGif () {
-            this._createGif().then(blob => {
-                let a = document.createElement('a'),
-                    url;
-                a.style.display = 'none';
-                url = URL.createObjectURL(blob);
-                a.href = url;
-                a.download = 'my-gif.gif';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
+            this.$['gif-creator'].downloadGif();
         }
     });
 </script>

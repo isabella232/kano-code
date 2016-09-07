@@ -1,6 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../part/kano-ui-behavior.html">
-<link rel="import" href="../../../scripts/kano/make-apps/parts-api/camera.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/camera.html">
 <script src="../../scripts/kano/webcam.js"></script>
 <dom-module id="kano-workspace-camera">
     <style>
@@ -14,20 +14,33 @@
             top: 0px;
             left: 0px
         }
+        #canvas, .content {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <template>
-        <kano-workspace-normal id="screen">
-            <kano-part-camera id="camera-part"></kano-part-camera>
+        <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
+        <div class="content">
             <content></content>
-        </kano-workspace-normal>
+        </div>
     </template>
     <script>
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-camera',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera],
+            ready () {
+                // Will contain the listeners attached to the socket
+                this.pictures = [];
+                this.framerate = 15;
+                this.canvas = this.$.canvas;
+            },
             setBackgroundColor (color) {
-                this.$.screen.style.background = color;
+                this.$.canvas.style.background = color;
             },
             attached () {
                 this.connected = false;
@@ -77,12 +90,15 @@
             takePicture () {
                 if (this.webcam) {
                     this.webcam.takePicture().then(url => {
-                        this.lastPictureUrl = url
-                        this.fire('picture-taken', this.lastPictureUrl);
+                        this._onPictureTaken(url);
                     });
                 } else {
                     Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
                 }
+            },
+            stop () {
+                Kano.MakeApps.PartsAPI.camera.stop.apply(this, arguments);
+                this.reset();
             },
             // Support legacy code
             getCamera () {

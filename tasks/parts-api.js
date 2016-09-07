@@ -1,12 +1,17 @@
+"use strict";
 module.exports = (gulp, $) => {
 
-    function process() {
-        return gulp.src('app/scripts/kano/make-apps/parts-api/parts-api.html', { base: 'app' })
+    function processModule() {
+        let stream = gulp.src('app/scripts/kano/make-apps/parts-api/parts-api.html', { base: 'app' })
             .pipe($.utils.vulcanize({
                 inlineScripts: true,
                 stripComments: true
             }))
-            .pipe($.crisper({ scriptInHead: false }))
+            .pipe($.crisper({ scriptInHead: false }));
+            if (!process.env.ES6) {
+                stream = stream.pipe($.if('*.js', $.babel({ presets: ['es2015'] })));
+            }
+            return stream;
     }
 
 
@@ -14,7 +19,7 @@ module.exports = (gulp, $) => {
      * No need to babelify here, this code will be sent to a node environment
      */
     gulp.task('parts-api', () => {
-        process()
+        processModule()
             .pipe($.if('*.js', gulp.dest('www')));
     });
 
@@ -22,7 +27,7 @@ module.exports = (gulp, $) => {
         gulp.watch('app/scripts/kano/make-apps/parts-api/**/*')
             .on('change', (e) => {
                 $.utils.notifyUpdate(`File ${e.path} was ${e.type}...`);
-                process().pipe($.if('*.js', gulp.dest('www')));
+                processModule().pipe($.if('*.js', gulp.dest('www')));
             });
     });
 };
