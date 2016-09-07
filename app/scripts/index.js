@@ -8,6 +8,7 @@ var webComponentsSupported = ('registerElement' in document &&
     msg = 'Loading',
     loaded = false,
     loadEventFired = false,
+    kanoAppInserted = false,
     loadTimeoutId,
     started,
     timeout,
@@ -47,10 +48,14 @@ function startBreathing() {
 }
 
 function onElementsLoaded() {
+    if (kanoAppInserted) {
+        return;
+    }
     var app = document.createElement('kano-app'),
         loader = document.getElementById('loader');
     document.body.insertBefore(app, loader);
     document.addEventListener('kano-routing-load-finish', onFirstPageLoaded);
+    kanoAppInserted = true;
 }
 
 /**
