@@ -3,7 +3,7 @@ module.exports = (gulp, $) => {
 
     const WORKERS_SRC = [
         './app/bower_components/gif.js/dist/gif.worker.js',
-        './app/scripts/kano/make-apps/canvas-filters.html'
+        './app/scripts/kano/make-apps/parts-api/canvas-filters.html'
     ];
 
     function generateWorkers(src) {
