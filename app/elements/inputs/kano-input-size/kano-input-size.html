@@ -16,7 +16,7 @@
     }
     </style>
     <template>
-        <label>{{label}}: <span class="value">{{value}}</span></label>
+        <label>{{label}}: <span class="value">{{display}}</span></label>
         <div class="inputs">
             <input type="range"
                     min="{{min}}"
@@ -37,6 +37,9 @@
                 type: String,
                 observer: 'valueChanged'
             },
+            display: {
+                type: String
+            },
             unit: {
                 type: String
             },
@@ -48,7 +51,8 @@
             'computeValue(number)'
         ],
         computeValue () {
-            this.set('value', `${this.number} pixels`);
+            this.set('value', `${this.number}px`);
+            this.set('display', this.value.replace(/px/,' pixels'))
         },
         valueChanged () {
             let number;
