@@ -90,9 +90,12 @@
 
         Blockly.JavaScript.create_color = (block) => {
             let type = block.getFieldValue('TYPE'),
-                one = Blockly.JavaScript.valueToCode(block, '1') || 0,
-                two = Blockly.JavaScript.valueToCode(block, '2') || 0,
-                three = Blockly.JavaScript.valueToCode(block, '3') || 0;
+                one = Blockly.Pseudo.valueToCode(block, '1') || 0,
+                two = Blockly.Pseudo.valueToCode(block, '2'),
+                three = Blockly.Pseudo.valueToCode(block, '3'),
+                defaults = type === 'hsv' ? 100 : 0;
+            two = two || defaults;
+            three = three || defaults;
             let code = `colour.create('${type}', ${one}, ${two}, ${three})`;
             return [code];
         };
