@@ -180,6 +180,12 @@
             let extensionId = e.detail.id;
             this.fire('extend-story', extensionId);
             e.stopPropagation();
+        },
+        _runningChanged () {
+            if (!this.scene.started) {
+                return;
+            }
+            Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
         }
     });
 </script>
