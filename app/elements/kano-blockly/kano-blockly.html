@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="./import.html">
+<link rel="import" href="../kano-blockly-omnibox/kano-blockly-omnibox.html">
 
 <dom-module id="kano-blockly">
     <style>
@@ -126,9 +127,15 @@
         .buttons {
             padding: 8px 24px 16px 24px
         }
+        kano-blockly-omnibox {
+            position: absolute;
+            top: 300px;
+            left: 200px;
+        }
     </style>
     <template>
         <div id="workspace"></div>
+        <kano-blockly-omnibox id="omnibox" on-block-created="_closeOmnibox"></kano-blockly-omnibox>
         <paper-dialog id="var-modal" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h2>[[modalText]]</h2>
           <div class="container">
@@ -180,6 +187,7 @@
                     scaleSpeed: 1.2
                 }
             });
+            this.$.omnibox.targetWorkspace = this.workspace;
             // Oddly, panning doesn't work if the background has a fill property
             Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
             Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
@@ -198,9 +206,22 @@
                     }
                 }
             });
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'f' && e.metaKey) {
+                    this._openOmnibox();
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
         },
         detached () {
             this.workspace.dispose();
+        },
+        _closeOmnibox () {
+            this.$.omnibox.style.display = 'none';
+        },
+        _openOmnibox () {
+            this.$.omnibox.style.display = 'block';
         },
         _blocklyVarModal (promptText, defaultText) {
             return new Promise((resolve, reject) => {

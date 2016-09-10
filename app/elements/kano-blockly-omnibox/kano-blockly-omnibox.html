@@ -1,0 +1,68 @@
+<link rel="import" type="" href="../kano-blockly-flyout/kano-blockly-flyout.html">
+<dom-module id="kano-blockly-omnibox">
+    <template>
+        <style>
+            :host {
+                display: block;
+                border-radius: 4px;
+                overflow: hidden;
+                @apply(--shadow-elevation-16dp);
+            }
+            input {
+                width: 100%;
+                background-color: #0f181e;
+                color: white;
+                font-family: monospace;
+                border: 0px;
+                padding: 6px 9px;
+                font-size: 16px;
+                z-index: 0;
+                box-sizing: border-box;
+                border-bottom: 1px solid #37454d;
+            }
+            input:focus {
+                outline: none;
+                /* Need design for focused input */
+            }
+            .flyout {
+                max-height: 300px;
+                overflow-y: scroll;
+            }
+            kano-blockly-flyout {
+                background-color: #213542;
+            }
+            .extra {
+                background-color: #0f181e;
+                min-height: 30px;
+            }
+        </style>
+        <input type="text" value="{{query::input}}">
+        <div class="flyout">
+            <kano-blockly-flyout toolbox="[[resultToolbox]]" target-workspace="[[targetWorkspace]]"></kano-blockly-flyout>
+        </div>
+        <div class="extra"></div>
+    </template>
+    <script>
+        Polymer({
+            is: 'kano-blockly-omnibox',
+            properties: {
+                query: {
+                    type: String,
+                    observer: '_queryChanged'
+                },
+                targetWorkspace: {
+                    type: Object
+                }
+            },
+            _queryChanged (query) {
+                this.debounce('updateResult', () => {
+                    let result = Object.keys(Blockly.Blocks).filter(id => id.indexOf(query) !== -1);
+                    this.set('resultToolbox', result.map(type => {
+                        return {type};
+                    }));
+                }, 300);
+                
+            }
+        });
+    </script>
+</dom-module>
