@@ -132,6 +132,7 @@
             let events = [];
             this.parts
                 .forEach((part) => {
+                    part.blockIds = [];
                     part.blocks.forEach((definition) => {
                         this._registerBlock(part, definition);
                     });
@@ -144,15 +145,26 @@
                     });
                 });
             if (this.mode.blocks) {
+                this.mode.blockIds = [];
                 this.mode.blocks.forEach((definition) => {
                     this._registerBlock(this.mode, definition);
                 });
             }
         },
         _registerBlock (part, definition) {
-            let block = definition.block(part);
+            let block = definition.block(part),
+                lookups,
+                lookupString;
+
+            block.lookup = block.lookup || [];
+            lookups = Array.isArray(block.lookup) ? block.lookup : [block.lookup];
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
+            lookups.forEach(lookup => {
+                lookupString = `${part.id}.${lookup}`;
+                part.blockIds.push(block.id);
+                Kano.MakeApps.Blockly.setLookupString(block.id, lookupString);
+            });
             if (!block.doNotRegister) {
                 Blockly.Blocks[block.id] = {
                     init: function () {

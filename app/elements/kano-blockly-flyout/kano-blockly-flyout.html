@@ -42,23 +42,34 @@
             },
             ready () {
                 this._listeners = [];
+                this._separators = [];
             },
             _createWorskspace () {
                 this.ws = new Blockly.WorkspaceSvg({});
                 this.ws.isFlyout = true;
                 this.wsDom = this.ws.createDom();
-                this.transform('translate(0px, -10px)', this.wsDom);
                 this.$.svg.appendChild(this.wsDom);
             },
             _toolboxChanged (toolbox) {
                 if (!this.ws) {
                     this._createWorskspace();
                 }
+                this._separators.forEach(sep => {
+                    if (sep.parentNode) {
+                        sep.parentNode.removeChild(sep);
+                    }
+                });
+                this._separators = [];
                 let xmlString,
+                    content,
                     xml;
 
                 xmlString = toolbox.map(block => {
-                    return `<block type="${block.type}"></block>`;
+                    content = '';
+                    if (block.shadow) {
+                        content = Object.keys(block.shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
+                    }
+                    return `<block type="${block.type}">${content}</block>`;
                 }).join('');
 
                 xmlString = `<xml>${xmlString}</xml>`
@@ -73,11 +84,11 @@
                 });
             },
             _updateSvgSize () {
-                let blocks = this.ws.getAllBlocks(),
+                let blocks = this.ws.getTopBlocks(),
                     cursorX = 20 + Blockly.BlockSvg.TAB_WIDTH,
-                    cursorY = 20,
+                    cursorY = 0,
                     rect;
-                blocks.forEach((block) => {
+                blocks.forEach((block, index) => {
                     let allBlocks = block.getDescendants();
                     allBlocks.forEach(child => {
                         child.isInFlyout = true;
@@ -86,8 +97,11 @@
                     block.render();
                     var sep = Blockly.createSvgElement('rect', { height: 1, width: this.width, fill: '#37454d' }, null);
                     sep.setAttribute('transform', `translate(0, ${cursorY})`);
+                    this._separators.push(sep);
                     this.ws.getCanvas().insertBefore(sep, root);
+
                     cursorY += 12;
+                    
                     let hw = block.getHeightWidth();
                     block.moveBy(cursorX, cursorY);
                     cursorY += hw.height + 12;
@@ -100,7 +114,7 @@
                 });
                 rect = this.wsDom.getBoundingClientRect();
                 this.$.svg.style.width = 300;
-                this.$.svg.style.height = rect.height;
+                this.$.svg.style.height = rect.height + 20;
             },
             _addBlockListeners (root, block, rect) {
                 this._listeners.push(Blockly.bindEvent_(root, 'mousedown', null, this._blockMouseDown(block)));
@@ -190,7 +204,16 @@
                 }
                 // Figure out where the original block is on the screen, relative to the upper
                 // left corner of the main workspace.
-                var xyOld = Blockly.getSvgXY_(svgRootOld, targetWorkspace);
+                var xyOld = Blockly.getSvgXY_(svgRootOld, this.ws);
+
+                var wsRect = this.ws.getParentSvg().getBoundingClientRect(),
+                    targetWsRect = targetWorkspace.getParentSvg().getBoundingClientRect();
+
+                var x = wsRect.left - targetWsRect.left;
+                var y = wsRect.top - targetWsRect.top;
+
+                xyOld.x += x;
+                xyOld.y += y;
 
                 // Create the new block by cloning the block in the flyout (via XML).
                 var xml = Blockly.Xml.blockToDom(originBlock);
@@ -207,11 +230,6 @@
                 // Scale the scroll (getSvgXY_ did not do this).
                 xyNew.x += targetWorkspace.scrollX / targetWorkspace.scale - targetWorkspace.scrollX;
                 xyNew.y += targetWorkspace.scrollY / targetWorkspace.scale - targetWorkspace.scrollY;
-                // If the flyout is collapsible and the workspace can't be scrolled.
-                if (targetWorkspace.toolbox_ && !targetWorkspace.scrollbar) {
-                    xyNew.x += targetWorkspace.toolbox_.getWidth() / targetWorkspace.scale;
-                    xyNew.y += targetWorkspace.toolbox_.getHeight() / targetWorkspace.scale;
-                }
 
                 // Move the new block to where the old block is.
                 block.moveBy(xyOld.x - xyNew.x, xyOld.y - xyNew.y);

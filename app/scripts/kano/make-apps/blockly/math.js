@@ -378,6 +378,28 @@
         ]
     });
 
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'add(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'substract(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'multiply(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'divide(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '+');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '-');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '/');
+    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'x');
+    Kano.MakeApps.Blockly.setLookupString('unary', 'addTo(variable, value)');
+    Kano.MakeApps.Blockly.setLookupString('unary', 'substractTo(variable, value)');
+    Kano.MakeApps.Blockly.setLookupString('math_random', 'randomNumberBetween(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_single', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_trig', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_constant', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_number_property', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_round', 'round(a)');
+    Kano.MakeApps.Blockly.setLookupString('math_modulo', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_constrain', 'math');
+    Kano.MakeApps.Blockly.setLookupString('math_min_max', 'min(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_min_max', 'max(a, b)');
+    Kano.MakeApps.Blockly.setLookupString('math_sign', 'math');
+
     Kano.MakeApps.Blockly.addModule('math', {
         register,
         category
