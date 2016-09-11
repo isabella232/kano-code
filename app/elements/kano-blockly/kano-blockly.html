@@ -11,15 +11,31 @@
             display: block;
             position: relative;
         }
-        :host #workspace {
+        #workspace {
             position: absolute;
             top: 0px;
             bottom: 0px;
             left: 0px;
             right: 0px;
+            @apply(--layout-horizontal);
+            background-color: rgb(33, 53, 66);
         }
         svg {
-            @apply(--kano-crossed-background);
+            @apply(--layout-flex);
+        }
+        .gutter {
+            width: 20px;
+            color: rgb(85, 100, 109);
+            @apply(--layout-vertical);
+            padding-top: 22px;
+            padding-left: 22px;
+        }
+
+        .gutter div {
+            height: 22px;
+            font-weight: 400;
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
         }
 
         .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]), ::content .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]) {
@@ -138,9 +154,21 @@
             @apply(--layout-center-justified);
             display: none;
         }
+        g.blocklyDragging {
+            opacity: 0.45;
+        }
     </style>
     <template>
-        <div id="workspace"></div>
+        <div id="workspace">
+            <div class="gutter">
+                <template is="dom-repeat" items="[[lines]]" as="line">
+                    <div style$="[[_computeLineHeight(line)]]">
+                        <span>[[index]]</span>
+                    </div>
+                </template>
+            </div>
+            <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
             <kano-blockly-omnibox id="omnibox" on-close="_closeOmnibox"></kano-blockly-omnibox>
         </div>
@@ -183,10 +211,10 @@
          */
         attached () {
             this.visible = false;
-            this.workspace = Blockly.inject(this.$.workspace, {
-                toolbox: this.toolboxXml,
+            var options = new Blockly.Options({
                 media: '/assets/vendor/google-blockly/media/',
                 scrollbars: true,
+                hasScrollbars: true,
                 zoom: {
                     controls: true,
                     startScale: 1.0,
@@ -195,13 +223,20 @@
                     scaleSpeed: 1.2
                 }
             });
-            this.$.omnibox.targetWorkspace = this.workspace;
-            // Oddly, panning doesn't work if the background has a fill property
-            Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
+            // Load CSS.
+            Blockly.Css.inject(options.hasCss, options.pathToMedia);
+            this.workspace = this._createWorkspace(this.$.svg, options);
+            this._initWorkspace(this.workspace);
+            this.workspace.markFocused();
+            Blockly.bindEvent_(this.$.svg, 'focus', this.workspace, this.workspace.markFocused);
+            Blockly.svgResize(this.workspace);
             Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
             this.workspace.componentRoot_ = Polymer.dom(this.root);
             this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
+
+            this.$.omnibox.targetWorkspace = this.workspace;
+
             this.async(() => {
                 this.fire('blockly-ready');
                 this.resize();
@@ -224,6 +259,124 @@
         },
         detached () {
             this.workspace.dispose();
+        },
+        _computeLineHeight (line) {
+            return `height: ${line}px;`;
+        },
+        _updateGutter () {
+            let topBlocks = this.workspace.getTopBlocks(),
+                lines;
+            this.set('lines', topBlocks.reduce((acc, block) => {
+                lines = this._extractLines(block);
+                // Extend the last line to include the space between top blocks
+                lines[lines.length - 1] += 5;
+                return acc.concat(lines);
+            }, []));
+        },
+        _extractLines (block) {
+            var hv = block.getHeightWidth(),
+                lines = [hv.height],
+                nextStatement,
+                doStatement,
+                connections = [],
+                nextSize;
+            if (block.nextConnection && block.nextConnection.targetConnection) {
+                nextStatement = block.nextConnection.targetConnection;
+            }
+            block.inputList.forEach(input => {
+                if (input.type === Blockly.NEXT_STATEMENT && input.connection.targetConnection) {
+                    doStatement = input.connection.targetConnection;
+                }
+            });
+            if (doStatement) {
+                nextSize = this._extractLines(doStatement.getSourceBlock());
+                nextSize.forEach(size => {
+                    lines[0] -= size;
+                });
+                lines = lines.concat(nextSize);
+            }
+            // insert the line here if there is a nextStatement
+            if (doStatement && nextStatement) {
+                lines[0] -= 10;
+                lines.push(10);
+            }
+            if (nextStatement) {
+                nextSize = this._extractLines(nextStatement.getSourceBlock());
+                nextSize.forEach(size => {
+                    lines[0] -= size;
+                });
+                lines = lines.concat(nextSize);
+            } else {
+                lines[0] -= 3;
+            }
+            // Add the line at the end if there is a doStatement but no nextStatement
+            if (doStatement && !nextStatement) {
+                lines[0] -= 10;
+                lines.push(10);
+            }
+
+            return lines;
+        },
+        _createWorkspace (svg, options) {
+            options.parentWorkspace = null;
+            var mainWorkspace = new Blockly.WorkspaceSvg(options);
+            mainWorkspace.scale = options.zoomOptions.startScale;
+            svg.appendChild(mainWorkspace.createDom());
+            // A null translation will also apply the correct initial scale.
+            mainWorkspace.translate(0, 0);
+            mainWorkspace.markFocused();
+            // The SVG is now fully assembled.
+            Blockly.svgResize(mainWorkspace);
+            Blockly.WidgetDiv.createDom();
+            Blockly.Tooltip.createDom();
+            return mainWorkspace;
+        },
+        _initWorkspace (mainWorkspace) {
+            var options = mainWorkspace.options;
+            var svg = mainWorkspace.getParentSvg();
+
+            // Supress the browser's context menu.
+            Blockly.bindEvent_(svg, 'contextmenu', null,
+                function(e) {
+                    if (!Blockly.isTargetInput_(e)) {
+                    e.preventDefault();
+                    }
+                });
+
+            var workspaceResizeHandler = Blockly.bindEvent_(window, 'resize', null, function() {
+                    Blockly.hideChaff(true);
+                    Blockly.svgResize(mainWorkspace);
+                });
+            mainWorkspace.setResizeHandlerWrapper(workspaceResizeHandler);
+
+            Blockly.inject.bindDocumentEvents_();
+
+            if (options.languageTree) {
+                if (mainWorkspace.toolbox_) {
+                    mainWorkspace.toolbox_.init(mainWorkspace);
+                } else if (mainWorkspace.flyout_) {
+                    // Build a fixed flyout with the root blocks.
+                    mainWorkspace.flyout_.init(mainWorkspace);
+                    mainWorkspace.flyout_.show(options.languageTree.childNodes);
+                    mainWorkspace.flyout_.scrollToStart();
+                    // Translate the workspace sideways to avoid the fixed flyout.
+                    mainWorkspace.scrollX = mainWorkspace.flyout_.width_;
+                    if (options.toolboxPosition == Blockly.TOOLBOX_AT_RIGHT) {
+                        mainWorkspace.scrollX *= -1;
+                    }
+                    mainWorkspace.translate(mainWorkspace.scrollX, 0);
+                }
+            }
+
+            if (options.hasScrollbars) {
+                mainWorkspace.scrollbar = new Blockly.ScrollbarPair(mainWorkspace);
+                mainWorkspace.scrollbar.resize();
+            }
+
+            // Load the sounds.
+            if (options.hasSounds) {
+                Blockly.inject.loadSounds_(options.pathToMedia, mainWorkspace);
+            }
         },
         _closeOmnibox () {
             if (!this._omniboxOpened) {
@@ -376,6 +529,7 @@
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
                 this.set('code', this.getCode('JavaScript'));
             }
+            this._updateGutter();
         },
         /**
          * Generate a XML string representation of the blocks

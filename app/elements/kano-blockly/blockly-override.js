@@ -238,6 +238,63 @@ Blockly.getSvgXY_ = function(element, workspace) {
   return new goog.math.Coordinate(x, y);
 };
 
+/**
+ * Snap this block to the nearest grid point.
+ */
+Blockly.BlockSvg.prototype.snapToGrid = function() {
+  if (!this.workspace) {
+    return;  // Deleted block.
+  }
+  if (this.getParent()) {
+    return;  // Only snap top-level blocks.
+  }
+  if (this.isInFlyout) {
+    return;  // Don't move blocks around in a flyout.
+  }
+
+  var spacing = 22;
+  var half = spacing / 2;
+  var xy = this.getRelativeToSurfaceXY();
+  var dx = -xy.x + 22;
+  var dy = Math.round((xy.y - half) / spacing) * spacing + half - xy.y;
+  dx = Math.round(dx);
+  dy = Math.round(dy);
+  if (dx != 0 || dy != 0) {
+    this.moveBy(dx, dy);
+  }
+  this.workspace.rearangeTopBlocks();
+};
+
+Blockly.Workspace.prototype.rearangeTopBlocks = function () {
+    var topBlocks = this.getTopBlocks(),
+        cursorY = 22,
+        xy,
+        wh;
+    topBlocks = topBlocks.sort((a, b) => {
+        return a.getRelativeToSurfaceXY().y > b.getRelativeToSurfaceXY().y;
+    }).forEach(block => {
+        xy = block.getRelativeToSurfaceXY();
+        wh = block.getHeightWidth();
+        block.moveBy(-xy.x + 22, -xy.y + cursorY);
+        cursorY += (wh.height + 5);
+    });
+};
+
+/**
+ * Move the zoom controls to the bottom-right corner.
+ */
+Blockly.ZoomControls.prototype.position = function() {
+  var metrics = this.workspace_.getMetrics();
+  if (!metrics) {
+    // There are no metrics available (workspace is probably not visible).
+    return;
+  }
+  this.left_ = metrics.viewWidth + metrics.absoluteLeft - this.WIDTH_ - this.MARGIN_SIDE_ - Blockly.Scrollbar.scrollbarThickness;
+
+  this.top_ = 0;
+  this.svgGroup_.setAttribute('transform', 'translate(' + this.left_ + ',' + this.top_ + ')');
+};
+
 Blockly.Flyout.blocks = {};
 Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
     return Blockly.Flyout.blocks[type];
