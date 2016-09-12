@@ -65,7 +65,7 @@
             this.style.visibility = visibility;
         },
         renderOnCanvas (ctx) {
-            if (this.model.partType !== 'ui') {
+            if (!this.model || this.model.partType !== 'ui') {
                 return Promise.resolve();
             }
             let position = this.model.position || { x: 0, y: 0 },
