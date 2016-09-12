@@ -25,13 +25,12 @@
                 return `(function (${moduleNames.join(', ')}) {\n${code}\n})(${moduleImports.join(', ')});\n`;
             },
             generateStandaloneComponent (componentName, parts, background, mode, codes) {
-                console.log(componentName, parts, background, mode, userCode);
                 let template = [],
                     // TODO find a better way to avoid having this script tag swallowed by crisper
                     scriptTagName = 'script',
                     tagName,
                     components,
-                    code = this.createAppCode('Kano.AppModules', userCode),
+                    code = this.createAppCode('Kano.AppModules', codes.snapshot.javascript),
                     component,
                     partsString;
 
@@ -103,6 +102,8 @@
                         </${scriptTagName}>
                     </dom-module>
                 `;
+
+                console.log(component);
 
                 return component;
             },
