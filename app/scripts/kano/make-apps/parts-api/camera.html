@@ -32,38 +32,11 @@
             flash (color, length) {
                 Kano.AppModules.getModule('camera').flash(color, length);
             },
-            onShutterDown (cb) {
-                this.onKeyDown('shutter-button', cb);
+            _propagateTimerChange (data) {
+                this.fire("camera-timer-" + data.direction);
             },
-            onShutterTurns (key, callback) {
-                let cb = this._shutterCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'timer-changed',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('timer-changed', cb);
-            },
-            _shutterCheck (key, callback) {
-                return (data) => {
-                    if (data.direction === key) {
-                        callback();
-                    }
-                };
-            },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
+            _propagateButtonPress (data) {
+                this.fire("camera-" + data['button-id']);
             },
             _paintFrame (src, targetCanvas) {
                 src = src || this.lastPictureUrl;
@@ -107,7 +80,7 @@
                                     canvas,
                                     targetCanvas.width,
                                     targetCanvas.height,
-                                    targetCanvas.width, 
+                                    targetCanvas.width,
                                     targetCanvas.height,
                                     this.kaleidoscope.slices,
                                     this.kaleidoscope.zoom,
@@ -133,11 +106,17 @@
                 this.socketListeners = [];
                 this.kaleidoscope = null;
                 this.ctx = this.canvas.getContext('2d');
+
+                Kano.AppModules.getModule('camera').on('button-down', this._propagateButtonPress);
+                Kano.AppModules.getModule('camera').on('timer-changed', this._propagateTimerChange);
             },
             stop () {
                 PartsAPI.kaleidoscope.stop.apply(this, arguments);
                 PartsAPI.filters.stop.apply(this, arguments);
                 this.reset();
+
+                Kano.AppModules.getModule('camera').removeListener('button-down', this._propagateButtonPress);
+                Kano.AppModules.getModule('camera').removeListener('timer-changed', this._propagateTimerChange);
             },
             reset () {
                 if (this.socketListeners) {

@@ -24,6 +24,15 @@ export default Camera = {
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
+    }, {
+        label: 'shutter pushed',
+        id: 'camera-shutter-button'
+    }, {
+        label: 'timer turns left',
+        id: 'camera-timer-cw'
+    }, {
+        label: 'timer turns right',
+        id: 'camera-timer-ccw'
     }],
     blocks: [{
         block: () => {

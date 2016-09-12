@@ -10,12 +10,16 @@
             listeners: {
                 'update-shape': '_updateShape'
             },
+            start () {
+                PartsAPI.Base.start.apply(this, arguments);
+
+                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent);
+            },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
-                this.socketListeners = [];
-                this.socketListeners.forEach((listener) => {
-                    this.appModules.getModule('lightboard').removeListener(listener.name, listener.cb);
-                });
+                if (this.appModules) {
+                    this.appModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEvent);
+                }
             },
             turnOn (light, color) {
                 return this.appModules.getModule('lightboard').turnOn(light, color);
@@ -29,21 +33,8 @@
             scroll (text, color, backgroundColor, speed) {
                 return this.appModules.getModule('lightboard').scroll(text, color, backgroundColor, speed);
             },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.socketListeners = this.socketListeners || [];
-                this.socketListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                this.appModules.getModule('lightboard').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
+            _propagateButtonEvent (data) {
+                this.fire("lightboard-" + data['button-id']);
             },
             _updateShape (e) {
                 let shape = e.detail;
@@ -51,6 +42,6 @@
             }
         };
 
-        PartsAPI['lightboard'] = Object.assign({}, PartsAPI.Base, Lightboard);
+        PartsAPI.lightboard = Object.assign({}, PartsAPI.Base, Lightboard);
     })(window.Kano = window.Kano || {});
 </script>
