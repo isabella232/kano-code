@@ -7,6 +7,8 @@
     :host {
         display: block;
         position: relative;
+        width: 85%;
+        text-align: center;
         border-radius: 6px;
         @apply(--layout-vertical);
     }
@@ -18,23 +20,44 @@
         overflow-x: hidden;
     }
     iron-lazy-pages>*:not(template) {
-        border-top: 1px solid lightgrey;
         overflow-y: auto;
         height: 100%;
         @apply(--layout-flex);
     }
-    .title {
-        margin-bottom: 7px;
-        font-size: 20px;
+    :host .title-bar {
+        width: 90%;
+        text-align: left;
+        padding-bottom: 5px;
     }
-    .delete-button {
-        @apply(--kano-button);
-        background-color: var(--color-red, red);
-        margin-bottom: 24px;
+    :host #element-name-editor {
+        @apply(--kano-light-input);
+        width: 40%;
+        border-bottom: 2px dashed var(--color-black, black);
+    }
+    :host .icon {
+        cursor: pointer;
+    }
+    :host .delete-button {
+        float: right;
+        color: #de0f30;
+    }
+    :host #edit-icon {
+        width: 20px;
+        height: 20px;
     }
     </style>
     <template>
-        <div class="title">[[selected.name]] settings</div>
+          <div class="title-bar">
+              <input id="element-name-editor" type="text" value="{{selected.name::keyup}}"
+                  onkeydown="if (event.keyCode == 13) {this.blur(); return false;}">
+              <label class="icon" for="element-name-editor">
+                  <iron-icon id="edit-icon" src="/assets/icons/tinker-edit-icon.png"></iron-icon>
+              </label>
+              <label class="icon delete-button" on-tap="_deletePart">delete
+                  <iron-icon  src="/assets/icons/tinker-bin-icon.png"></iron-icon>
+              </label>
+          </div>
+
         <iron-lazy-pages selected="[[configPanel]]" attr-for-selected="name" restamp>
             <template is="iron-lazy-page" name="ui">
                 <kano-ui-editor id="ui-editor" selected="{{selected}}"></kano-ui-editor>
@@ -52,7 +75,6 @@
                 <div></div>
             </template>
         </iron-lazy-pages>
-        <button type="button" name="button" on-tap="_deletePart" class="delete-button">Delete</button>
     </template>
 </dom-module>
 <script type="text/javascript">

@@ -17,13 +17,15 @@ const STYLE_CONF = {
         key: 'width',
         type: 'size',
         label: 'Width',
-        boundTo: 'width'
+        boundTo: 'width',
+        symbol: 'pixels'
     },
     'height': {
         key: 'height',
         type: 'size',
         label: 'Height',
-        boundTo: 'height'
+        boundTo: 'height',
+        symbol: 'pixels'
     },
     'background': {
         key: 'background',
@@ -33,7 +35,8 @@ const STYLE_CONF = {
     'font-size': {
         key: 'font-size',
         type: 'font-size',
-        label: 'Text size'
+        label: 'Text size',
+        symbol: 'em'
     },
     'font-weight': {
         key: 'font-weight',
