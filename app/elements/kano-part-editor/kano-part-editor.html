@@ -49,7 +49,7 @@
     <template>
           <div class="title-bar">
               <input id="element-name-editor" type="text" value="{{selected.name::keyup}}"
-                  onkeydown="if (event.keyCode == 13) {this.blur(); return false;}">
+                  on-keydown="enterQuitsInput">
               <label class="icon" for="element-name-editor">
                   <iron-icon id="edit-icon" src="/assets/icons/tinker-edit-icon.png"></iron-icon>
               </label>
@@ -96,6 +96,12 @@
         },
         _deletePart () {
             this.fire('delete-part', this.selected);
+        },
+        enterQuitsInput () {
+            if (event.keyCode == 13) {
+                this.blur();
+                return false;
+            }
         }
     });
 </script>

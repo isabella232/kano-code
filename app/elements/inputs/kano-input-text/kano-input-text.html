@@ -17,7 +17,7 @@
         <label>{{label}}</label>
         <div class="inputs">
           <input type="text" value="{{value::keyup}}"
-              onkeydown="if (event.keyCode == 13) {this.blur(); return false;}">
+              on-keydown="enterQuitsInput">
         </div>
     </template>
 </dom-module>
@@ -32,6 +32,12 @@
         ],
         valueChanged () {
             this.fire('change');
+        },
+        enterQuitsInput () {
+            if (event.keyCode == 13) {
+                this.blur();
+                return false;
+            }
         }
     });
 </script>
