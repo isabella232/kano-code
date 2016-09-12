@@ -1,79 +1,17 @@
 {
     "parts": [
         {
-            "id": "prism",
-            "name": "Prism",
-            "type": "kaleidoscope",
-            "userStyle": {
-                "width": "358px",
-                "height": "276px"
-            },
-            "userProperties": {
-                "speed": "1",
-                "offsetRotation": "0",
-                "zoom": "1",
-                "slices": "12"
-            },
-            "position": {
-                "x": 3.2344254032257314,
-                "y": 48.72258064516129
-            },
-            "partType": "ui",
-            "configPanel": "ui",
-            "excludeDefaultBlocks": false,
-            "showDefaultConfiguration": true,
-            "customizable": {
-                "properties": [
-                    {
-                        "key": "offsetRotation",
-                        "type": "range",
-                        "label": "Offset Rotation",
-                        "min": 0,
-                        "max": 360
-                    },
-                    {
-                        "key": "slices",
-                        "type": "range",
-                        "label": "Slices",
-                        "min": 1,
-                        "max": 30
-                    },
-                    {
-                        "key": "zoom",
-                        "type": "range",
-                        "label": "Zoom",
-                        "min": 1,
-                        "max": 10
-                    },
-                    {
-                        "key": "speed",
-                        "type": "range",
-                        "label": "Speed",
-                        "min": 0,
-                        "max": 20
-                    }
-                ],
-                "style": [
-                    "width",
-                    "height"
-                ]
-            },
-            "rotation": 0,
-            "scale": "95",
-            "visible": true
-        },
-        {
             "id": "slider",
             "name": "Slider",
             "type": "slider",
             "userStyle": {},
             "userProperties": {
-                "min": 0,
-                "max": 100
+                "min": "1",
+                "max": "30"
             },
             "position": {
-                "x": 366.5892641129034,
-                "y": 65.78926411290321
+                "x": 376.49894153225836,
+                "y": -49.82363911290325
             },
             "partType": "ui",
             "configPanel": "ui",
@@ -104,12 +42,12 @@
             "type": "slider",
             "userStyle": {},
             "userProperties": {
-                "min": 0,
-                "max": 100
+                "min": "1",
+                "max": "89"
             },
             "position": {
-                "x": 369.06668346774205,
-                "y": 94.69248991935484
+                "x": 374.572059811828,
+                "y": -27.526864919354846
             },
             "partType": "ui",
             "configPanel": "ui",
@@ -133,13 +71,60 @@
             "rotation": 0,
             "scale": 100,
             "visible": true
+        },
+        {
+            "id": "button",
+            "name": "Button",
+            "type": "button",
+            "userStyle": {
+                "background-color": "#70C222"
+            },
+            "userProperties": {
+                "label": "SNAP"
+            },
+            "position": {
+                "x": 283.93978494623684,
+                "y": -57.39354838709687
+            },
+            "partType": "ui",
+            "configPanel": "ui",
+            "excludeDefaultBlocks": false,
+            "showDefaultConfiguration": true,
+            "customizable": {
+                "properties": [
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Label"
+                    }
+                ],
+                "style": [
+                    "background-color"
+                ]
+            },
+            "rotation": 0,
+            "scale": 100,
+            "visible": true
+        },
+        {
+            "id": "mic",
+            "name": "Mic",
+            "type": "microphone",
+            "userStyle": {},
+            "userProperties": {},
+            "position": {
+                "x": 419.3720430107527,
+                "y": 292.7483870967742
+            },
+            "partType": "hardware",
+            "configPanel": "disabled"
         }
     ],
     "code": {
         "snapshot": {
-            "javascript": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').getCamera().takePicture();\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  devices.get('slider').connectTo(devices.get('prism').getConnectable('model.userProperties.slices'));\n  devices.get('slider1').connectTo(devices.get('prism').getConnectable('model.userProperties.offsetRotation'));\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('prism').setSource(devices.get('camera').getCamera().lastPicture());\n});\n",
-            "pseudo": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').getCamera().takePicture();\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  devices.get('slider').connectTo(devices.get('prism').getConnectable('model.userProperties.slices'));\n  devices.get('slider1').connectTo(devices.get('prism').getConnectable('model.userProperties.offsetRotation'));\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('prism').setSource(devices.get('camera').getCamera().lastPicture());\n});\n",
-            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"pn2rt5[sd/DL,_OyRELf\" x=\"193\" y=\"88\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"camera#shutter_down\" id=\"Y0Y7I@/xf0TXo/.JhV:z\"><statement name=\"DO\"><block type=\"camera#take_picture\" id=\"h:ox4wCoiTe)D#SoLrqr\"><next><block type=\"camera#ledring_flash\" id=\"1I{[n;bYrS?Qtf!bT^i2\"><value name=\"COLOR\"><shadow type=\"colour_picker\" id=\"kp?oI;;a#5C+z/U/PP*l\"><field name=\"COLOUR\">#ffffff</field></shadow></value><value name=\"LENGTH\"><shadow type=\"math_number\" id=\"QlzdI+*]1EwhZg~d/.on\"><field name=\"NUM\">200</field></shadow></value></block></next></block></statement><next><block type=\"slider#connect\" id=\"#7xL-Bv1s]EK=ngMUx|.\"><value name=\"TARGET\"><block type=\"prism#get_property\" id=\"-|O=8_/=!Bg9RGgjDtou\"><field name=\"PROPERTY\">model.userProperties.slices</field></block></value><next><block type=\"slider1#connect\" id=\");9ttb|I^fhiwX^Rgy+B\"><value name=\"TARGET\"><block type=\"prism#get_property\" id=\"@WmH~q:6s9.rK)U[.%Rw\"><field name=\"PROPERTY\">model.userProperties.offsetRotation</field></block></value></block></next></block></next></block></statement></block><block type=\"part_event\" id=\"Zoj(7Y;*`:rwMbYrG(~#\" x=\"194\" y=\"320\"><field name=\"EVENT\">camera.picture-taken</field><statement name=\"DO\"><block type=\"prism#set_image\" id=\"nDjfqRk;-z1mnv7|X(Xl\"><value name=\"SOURCE\"><block type=\"camera#last_picture\" id=\"6mKQpzyygAnqp/6aH8o}\"></block></value></block></statement></block></xml>"
+            "javascript": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  time.every(100, 'milliseconds', function () {\n    devices.get('camera').enableKaleidoscope(devices.get('slider1').getValue(), devices.get('slider').getValue(), devices.get('mic').volume / 30);\n  });\n});\n\ndevices.get('button').when('clicked', function () {\n  devices.get('camera').takePicture();\n});\n",
+            "pseudo": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  time.every(100, 'milliseconds', function () {\n    devices.get('camera').enableKaleidoscope(devices.get('slider1').getValue(), devices.get('slider').getValue(), devices.get('mic').volume / 30);\n  });\n});\n\ndevices.get('button').when('clicked', function () {\n  devices.get('camera').takePicture();\n});\n",
+            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"pn2rt5[sd/DL,_OyRELf\" x=\"70\" y=\"95\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"camera#shutter_down\" id=\"Y0Y7I@/xf0TXo/.JhV:z\"><statement name=\"DO\"><block type=\"camera#ledring_flash\" id=\"1I{[n;bYrS?Qtf!bT^i2\"><value name=\"COLOR\"><shadow type=\"colour_picker\" id=\"kp?oI;;a#5C+z/U/PP*l\"><field name=\"COLOUR\">#ffffff</field></shadow></value><value name=\"LENGTH\"><shadow type=\"math_number\" id=\"QlzdI+*]1EwhZg~d/.on\"><field name=\"NUM\">200</field></shadow></value></block></statement><next><block type=\"every_x_seconds\" id=\"cKsqEY6QC5`,G82_:ND*\"><field name=\"UNIT\">milliseconds</field><value name=\"INTERVAL\"><shadow type=\"math_number\" id=\"0BDNROzqNB(]jiR=L/O7\"><field name=\"NUM\">100</field></shadow></value><statement name=\"DO\"><block type=\"camera#filter_kaleidoscope\" id=\";g=V#^ExTeBzkNoeNHTb\"><value name=\"ROTATION_OFFSET\"><shadow type=\"math_number\" id=\"b9A2wuUUIvvZXy/xo[yL\"><field name=\"NUM\">50</field></shadow><block type=\"slider1#get_value\" id=\"AonAUev0?tsj/8aT6G1O\"></block></value><value name=\"SLICES\"><shadow type=\"math_number\" id=\"YV:dZWvyGp!]fDhZ`W3V\"><field name=\"NUM\">12</field></shadow><block type=\"slider#get_value\" id=\"+P7Mob)u]=|RP`HU%l9.\"></block></value><value name=\"ZOOM\"><shadow type=\"math_number\" id=\"Y4uO@~gP6#u?1.7BK-xa\"><field name=\"NUM\">1</field></shadow><block type=\"math_arithmetic\" id=\"jH?i!iDr@`,?S,pLVeuI\"><field name=\"OP\">DIVIDE</field><value name=\"A\"><block type=\"mic#get_volume\" id=\"j@n}Y^Ra,3^2;A7*CY()\"><field name=\"TYPE\">volume</field></block></value><value name=\"B\"><block type=\"math_number\" id=\"Y~j8^_LG-_HF2)Fp%(d5\"><field name=\"NUM\">30</field></block></value></block></value></block></statement></block></next></block></statement></block><block type=\"part_event\" id=\"3%d0f8IUUyg^UV%[qBQR\" x=\"68\" y=\"397\"><field name=\"EVENT\">button.clicked</field><statement name=\"DO\"><block type=\"camera#take_picture\" id=\"h:ox4wCoiTe)D#SoLrqr\"></block></statement></block></xml>"
         }
     },
     "background": {
