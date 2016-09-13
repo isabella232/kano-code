@@ -15,11 +15,13 @@
                 this._paintFrame();
             },
             takePicture () {
-                Kano.AppModules.getModule('camera').takePicture()
-                    .then((pictureUrl) => {
-                        let filename = pictureUrl.split('/').pop();
-                        this._onPictureTaken(Kano.AppModules.getModule('camera').getPicture(filename));
-                    });
+                this.debounce('takePicture', () => {
+                    Kano.AppModules.getModule('camera').takePicture()
+                        .then((pictureUrl) => {
+                            let filename = pictureUrl.split('/').pop();
+                            this._onPictureTaken(Kano.AppModules.getModule('camera').getPicture(filename));
+                        });
+                }, 300);
             },
             _onPictureTaken (src) {
                 this.lastPictureUrl = src;
