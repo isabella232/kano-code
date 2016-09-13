@@ -49,7 +49,7 @@ Polymer({
             notify: true,
             observer: '_runningChanged'
         },
-        tinkering: {
+        editableLayout: {
             type: Boolean,
             value: false
         },
@@ -100,12 +100,12 @@ Polymer({
         '_codeChanged(code.*)'
     ],
     _partsPanelStateChanged (state) {
-        if (this.tinkering && state === 'main') {
-            this.$.workspace.toggleTinkering();
+        if (this.editableLayout && state === 'main') {
+            this.$.workspace.toggleEditableLayout();
         }
     },
-    _isPauseOverlayHidden (running, tinkering) {
-        return running || tinkering;
+    _isPauseOverlayHidden (running, editableLayout) {
+        return running || editableLayout;
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
@@ -611,15 +611,15 @@ Polymer({
         e.stopPropagation();
     },
 
-    getMakeButtonClass (running, tinkering) {
+    getMakeButtonClass (running, editableLayout) {
         let classes = [];
         if (running) {
             classes.push('running');
         } else {
             classes.push('stopped');
         }
-        if (tinkering) {
-            classes.push('tinkering');
+        if (editableLayout) {
+            classes.push('editable-layout');
         }
         return classes.join(' ');
     },
@@ -701,7 +701,7 @@ Polymer({
         } else {
             // Disable drag when starts
             this._disableDrag();
-            this.set('tinkering', false);
+            this.set('editableLayout', false);
             this.closeDrawer();
         }
     },
