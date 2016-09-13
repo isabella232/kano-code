@@ -13,7 +13,7 @@
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
 
-                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent);
+                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);

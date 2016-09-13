@@ -107,8 +107,8 @@
                 this.kaleidoscope = null;
                 this.ctx = this.canvas.getContext('2d');
 
-                Kano.AppModules.getModule('camera').on('button-down', this._propagateButtonPress);
-                Kano.AppModules.getModule('camera').on('timer-changed', this._propagateTimerChange);
+                Kano.AppModules.getModule('camera').on('button-down', this._propagateButtonPress.bind(this));
+                Kano.AppModules.getModule('camera').on('timer-changed', this._propagateTimerChange.bind(this));
             },
             stop () {
                 PartsAPI.kaleidoscope.stop.apply(this, arguments);
