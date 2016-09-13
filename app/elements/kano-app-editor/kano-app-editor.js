@@ -241,7 +241,7 @@ Polymer({
      */
     save (snapshot=false) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push(part.toJSON());
+            acc.push(part);
             return acc;
         }, []),
             savedApp = {};

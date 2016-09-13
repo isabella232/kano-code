@@ -145,8 +145,23 @@
                 return;
             }
             component = this._parseSceneComponent(overlayConfig.component);
-            this.set('overlayName', component.name);
+
+            if (overlayConfig.data.appPreview) {
+                let slug = `${Date.now().toString()}`;
+
+                overlayConfig.data.example_story_url = Kano.AppModules.generateStandaloneComponent(
+                    slug,
+                    this.store.current.app.parts,
+                    this.store.current.app.background,
+                    Kano.MakeApps.Mode.modes[this.store.current.app.mode],
+                    this.store.current.app.code
+                );
+                overlayConfig.data.example_story_slug = slug;
+                overlayConfig.data.example_story_url = 'data:text/html;base64,' + window.btoa(overlayConfig.data.example_story_url);
+            }
+
             this.set('overlayScene', overlayConfig.data);
+            this.set('overlayName', component.name);
             this.overlayHidden = false;
         }
     });

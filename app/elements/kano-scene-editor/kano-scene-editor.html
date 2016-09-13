@@ -127,6 +127,11 @@
         ready () {
             this.remix = false;
             this.code = {};
+
+            this.editor = this.$.editor;
+            this.editor.addEventListener('change', (e) => {
+                this.saveApp(e);
+            });
         },
         attached () {
             this.mode = Kano.MakeApps.Mode.modes[(this.scene.mode || 'normal')];
@@ -158,7 +163,7 @@
             return cats;
         },
         saveApp (e) {
-            let id = e.detail.id,
+            let id = e.detail.id || 'current',
                 blockIds = e.detail.blockIds,
                 stepIds = e.detail.stepIds,
                 app = this.$.editor.save(true);

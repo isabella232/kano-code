@@ -88,9 +88,13 @@
                 this.addMethod('weather', '_weather');
 
                 this._space = {};
-                this._space.getISSStatus = (id) => {
-                    return this.get(id, this.fetchData(data.buildUrl('iss')))
-                        .then(r => r.json());
+                this._space.getISSStatus = (id, config) => {
+                    let url = this.buildUrl('iss');
+                    return this.get(id, this.fetchData(url))
+                        .then(r => r.json())
+                        .then((data) => {
+                            return data;
+                        });;
                 };
 
                 this.addMethod('space', '_space');
