@@ -15,7 +15,7 @@
     }
     </style>
     <template>
-        <div class="gyro-accel-vis" style$="[[getVisStyle(lastAccelVector)]]">
+        <div class="gyro-accel-vis" style$="background-color: [[model.colour]]; {{getVisStyle(lastAccelVector)}}">
         </div>
     </template>
     <script type="text/javascript">
@@ -42,15 +42,19 @@
                 });
             },
             getVisStyle (accel) {
-                return `background-color: ${this.model.colour}; background-image: linear-gradient(${this.getAngle(accel)}deg, white 50%, transparent 50%)`;
+                return `background-image: linear-gradient(${this.getAngle(accel)}deg, white 50%, transparent 50%)`;
             },
             getAngle (vec) {
-                let ref = {x: 0, y: 1},
+                let ref = {x: 1, y: 0},
                     dot = (ref.x * vec.x + ref.y * vec.y),
                     det = (ref.x * vec.y + ref.y * vec.x),
                     angleRad = Math.atan2(det, dot);
 
-                return angleRad * 180 / Math.PI;
+                if (isNaN(angleRad)) {
+                    return 0;
+                } else {
+                    return angleRad * 180 / Math.PI;
+                }
             }
         });
     </script>
