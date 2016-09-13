@@ -14,13 +14,13 @@ export default scrollingText = {
             type: 'text',
             label: 'Text'
         }],
-        style: ['width', 'height', 'font-family', 'color']
+        style: ['font-family', 'color', 'width', 'height']
     },
     userStyle: {
+        'font-family': 'Bariol',
         width: '200px',
         height: '50px',
-        color: '#000000',
-        'font-family': 'Bariol'
+        color: '#000000'
     },
     userProperties: {
         text: 'My scrolling text'

@@ -15,15 +15,29 @@ Example:
 -->
 <dom-module id="kano-input-font-family">
     <style>
+    :host label {
+        @apply(--kano-tinker-label);
+    }
+    :host .inputs {
+        @apply(--kano-tinker-container);
+        text-align: left;
+    }
+    :host paper-dropdown-menu {
+        position: relative;
+        left: 17px;
+    }
     </style>
     <template>
-        <paper-dropdown-menu label="[[label]]" noink no-animations>
-            <paper-menu class="dropdown-content" selected="{{value}}" attr-for-selected="value">
-                <template is="dom-repeat" items="[[fontFamilies]]" as="option">
-                    <paper-item value="[[option.value]]">[[option.label]]</paper-item>
-                </template>
-            </paper-menu>
-        </paper-dropdown-menu>
+        <label>[[label]]</label>
+        <div class="inputs">
+            <paper-dropdown-menu noink no-animations>
+                <paper-menu class="dropdown-content" selected="{{value}}" attr-for-selected="value">
+                    <template is="dom-repeat" items="[[fontFamilies]]" as="option">
+                        <paper-item value="[[option.value]]">[[option.label]]</paper-item>
+                    </template>
+                </paper-menu>
+            </paper-dropdown-menu>
+       </div>
     </template>
 </dom-module>
 <script type="text/javascript">

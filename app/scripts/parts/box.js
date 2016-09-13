@@ -11,8 +11,9 @@ export default box = {
     customizable: {
         properties: [{
             key: 'strokeSize',
-            type: 'range',
-            label: 'Stroke Size'
+            type: 'size',
+            label: 'Stroke Size',
+            symbol: 'pixels'
         },{
             key: 'strokeColor',
             type: 'color',

@@ -92,6 +92,9 @@
         },
         _blocklyReady (scene) {
             this._loadVariables();
+            this.async(() => {
+                this._loadDefaultApp();
+            });
         },
         _sceneChanged () {
             this._loadVariables();
@@ -102,6 +105,12 @@
                 this.scene.variables.forEach((v) => {
                     Blockly.Variables.addVariable(v, workspace);
                 });
+            }
+        },
+        _loadDefaultApp () {
+            let editor = this.$.editor;
+            if (this.scene && this.scene.defaultApp) {
+                editor.load(JSON.parse(this.scene.defaultApp), Kano.MakeApps.Parts.list);
             }
         },
         endedChanged () {

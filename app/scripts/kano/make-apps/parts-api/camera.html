@@ -32,47 +32,23 @@
             flash (color, length) {
                 Kano.AppModules.getModule('camera').flash(color, length);
             },
-            onShutterDown (cb) {
-                this.onKeyDown('shutter-button', cb);
+            _propagateTimerChange (data) {
+                this.fire("camera-timer-" + data.direction);
             },
-            onShutterTurns (key, callback) {
-                let cb = this._shutterCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'timer-changed',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('timer-changed', cb);
+            _propagateButtonPress (data) {
+                this.fire("camera-" + data['button-id']);
             },
-            _shutterCheck (key, callback) {
-                return (data) => {
-                    if (data.direction === key) {
-                        callback();
-                    }
-                };
-            },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.socketListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('camera').on('button-down', cb);
-            },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
-            },
-            _paintFrame (src) {
-                if (!this.lastPictureUrl) {
+            _paintFrame (src, targetCanvas) {
+                src = src || this.lastPictureUrl;
+                targetCanvas = targetCanvas || this.canvas;
+                let targetCtx = targetCanvas.getContext('2d');
+                if (!src) {
                     return;
                 }
                 this.debounce('paintFrame', () => {
                     let img = new Image(),
-                        width = this.canvas.width,
-                        height = this.canvas.height,
+                        width = targetCanvas.width,
+                        height = targetCanvas.height,
                         finalHeight,
                         heightDiff;
                     img.crossOrigin = "Anonymous";
@@ -87,22 +63,25 @@
                         tmpCtx.drawImage(img, 0, heightDiff / 2, width, finalHeight);
                         this.applyFilters(tmpCanvas)
                             .then(data => {
-                                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                                targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
                                 tmpCtx.putImageData(data, 0, 0);
-                                return this.applyKaleidoscope(tmpCanvas);
+                                this.applyKaleidoscope(tmpCanvas, targetCanvas);
+                                this.fire('rendering-done');
                             });
                     };
-                    img.src = this.lastPictureUrl;
+                    img.src = src;
                 }, 32);
             },
-            applyKaleidoscope (canvas) {
+            applyKaleidoscope (canvas, targetCanvas) {
+                targetCanvas = targetCanvas || this.canvas;
+                let targetCtx = targetCanvas.getContext('2d');
                 if (this.kaleidoscope) {
-                    this.transform(this.ctx,
+                    this.transform(targetCtx,
                                     canvas,
-                                    this.canvas.width,
-                                    this.canvas.height,
-                                    this.canvas.width, 
-                                    this.canvas.height,
+                                    targetCanvas.width,
+                                    targetCanvas.height,
+                                    targetCanvas.width,
+                                    targetCanvas.height,
                                     this.kaleidoscope.slices,
                                     this.kaleidoscope.zoom,
                                     0,
@@ -110,7 +89,7 @@
                                     this.kaleidoscope.offset,
                                     this.kaleidoscope.offset);
                 } else {
-                    this.ctx.putImageData(canvas.getContext('2d').getImageData(0, 0, this.canvas.width, this.canvas.height), 0, 0);
+                    targetCtx.putImageData(canvas.getContext('2d').getImageData(0, 0, targetCanvas.width, targetCanvas.height), 0, 0);
                 }
             },
             enableKaleidoscope (offset, slices, zoom) {
@@ -127,11 +106,17 @@
                 this.socketListeners = [];
                 this.kaleidoscope = null;
                 this.ctx = this.canvas.getContext('2d');
+
+                Kano.AppModules.getModule('camera').on('button-down', this._propagateButtonPress);
+                Kano.AppModules.getModule('camera').on('timer-changed', this._propagateTimerChange);
             },
             stop () {
                 PartsAPI.kaleidoscope.stop.apply(this, arguments);
                 PartsAPI.filters.stop.apply(this, arguments);
                 this.reset();
+
+                Kano.AppModules.getModule('camera').removeListener('button-down', this._propagateButtonPress);
+                Kano.AppModules.getModule('camera').removeListener('timer-changed', this._propagateTimerChange);
             },
             reset () {
                 if (this.socketListeners) {
