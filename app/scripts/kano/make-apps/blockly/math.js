@@ -189,7 +189,7 @@
         Blockly.Pseudo.math_random = (block) => {
             let min = Blockly.Pseudo.valueToCode(block, 'MIN') || 0,
                 max = Blockly.Pseudo.valueToCode(block, 'MAX') || 100,
-                code = `random(${min}, ${max})`;
+                code = `math.random(${min}, ${max})`;
             return [code];
         };
 
