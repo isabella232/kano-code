@@ -97,9 +97,11 @@
             },
             takePicture () {
                 if (this.webcam) {
-                    this.webcam.takePicture().then(url => {
-                        this._onPictureTaken(url);
-                    });
+                    this.debounce('takePicture', () => {
+                        this.webcam.takePicture().then(url => {
+                            this._onPictureTaken(url);
+                        });
+                    }, 300);
                 } else {
                     Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
                 }
