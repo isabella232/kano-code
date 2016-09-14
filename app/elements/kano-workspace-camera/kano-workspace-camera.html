@@ -41,6 +41,10 @@
         Polymer({
             is: 'kano-workspace-camera',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera],
+            listeners: {
+                'play-picture-list': '_playPictureList',
+                'pause-picture-list': '_pausePictureList'
+            },
             ready () {
                 // Will contain the listeners attached to the socket
                 this.pictures = [];
@@ -71,6 +75,25 @@
                     this.connected = false;
                     this._startWebcam();
                 });
+            },
+            _playPictureList (e) {
+                let detail = e.detail;
+                this.frameId = 0;
+                this.pictures = detail.pictures;
+                this.speed = detail.speed;
+                this._updateFrame();
+            },
+            _updateFrame () {
+                this._paintFrame(this.pictures[this.frameId]);
+                this.frameId++;
+                if (this.frameId > this.pictures.length - 1) {
+                    this.frameId = 0;
+                }
+                this.playingId = setTimeout(this._updateFrame.bind(this), 1000 / this.speed);
+            },
+            _pausePictureList (e) {
+                clearTimeout(this.playingId);
+                this.playingId = null;
             },
             _startWebcam () {
                 this.webcam = new Kano.Webcam();
