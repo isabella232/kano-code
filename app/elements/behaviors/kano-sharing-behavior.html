@@ -22,12 +22,11 @@ var SharingBehavior = {
     observers: [
         '_userChanged(user)'
     ],
-
     shareApp () {
         // Generates the standalone component
         let savedApp,
         attachment,
-        cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+        cover = this.shareInfo.coverBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
 
         cover.filename = 'cover.png';
@@ -68,12 +67,12 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            this.set('shareInfo.page', 2);
+            this.set('shareInfo.page', 3);
             this.set('shareInfo.id', share.id);
             this.modal.refit();
         }).catch((e) => {
             console.error(e);
-            this.set('shareInfo.page', 3);
+            this.set('shareInfo.page', 4);
             this.modal.refit();
         });
     },
@@ -130,7 +129,11 @@ var SharingBehavior = {
                 }
             }
         };
-        this.modal.open();
+        let onAppReady = () => {
+            this.modal.open();
+            this.modal.removeEventListener('app-ready', onAppReady);
+        };
+        this.modal.addEventListener('app-ready', onAppReady);
     },
 
     _userChanged (user) {
@@ -151,7 +154,7 @@ var SharingBehavior = {
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.set('shareInfo.page', 1);
+        this.set('shareInfo.page', 2);
         this.shareApp();
         this.modal.refit();
     },

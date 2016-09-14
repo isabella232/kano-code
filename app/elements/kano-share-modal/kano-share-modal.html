@@ -14,11 +14,11 @@
             @apply(--layout-vertical);
             font-family: Bariol;
         }
-        :host .dialog button {
+        .dialog button, .gif-creator button {
             @apply(--kano-button);
             margin-left: 5px;
         }
-        button.share {
+        button.share, button.gif {
             background-color: var(--color-green, green);
         }
         .success iron-image {
@@ -74,7 +74,7 @@
             .dialog {
                 @apply(--layout-vertical);
             }
-            .app-preview {
+            .app-preview, .screenshot {
                 width: 100%;
             }
         }
@@ -90,12 +90,24 @@
             width: 512px;
             height: 384px;
         }
+        .gif-creator {
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+        }
+        paper-progress {
+            width: 100%;
+        }
     </style>
     <template>
         <iron-pages selected="[[shareInfo.page]]">
-            <div class="dialog">
-                <button type="" on-tap="_generateAppGif">GIF ME THAT</button>
+            <div class="gif-creator">
+                <h2>Make a gif of your app to show the world how it works</h2>
+                <paper-progress value="[[gifProgress]]"></paper-progress>
                 <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
+                <button class="gif" on-tap="_generateAppGif">Make the GIF</button>
+            </div>
+            <div class="dialog">
+                <img class="gifshot" src$="[[gifSrc]]">
                 <div class="form">
                     <div class="form-group">
                         <label>Title</label>
@@ -115,7 +127,7 @@
             </div>
             <div>Publishing ...</div>
             <div class="success">
-                <iron-image src="[[shareInfo.image.src]]" sizing="contain"></iron-image>
+                <iron-image src="[[gifSrc]]" sizing="contain"></iron-image>
                 <div>
                     <div class="title">
                         {{shareInfo.title}}
@@ -191,9 +203,49 @@
                 parts = Object.keys(this.$['app-preview'].component.parts).map(key => {
                     return this.$['app-preview'].component.parts[key];
                 });
-            
-            this.generateCover(workspace, parts, workspace.width, workspace.height).then(image => {
-                console.log(image);
+            let p = Promise.resolve(),
+                wait = (delay) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(resolve, delay);
+                    });
+                },
+                images = [];
+
+            let getFrame = () => {
+                return this.generateCover(workspace, parts, workspace.width, workspace.height)
+                    .then(image => {
+                        images.push(image);
+                        this.gifProgress += 2;
+                        return wait(1000 / 10);
+                    });
+            }
+            this.gifProgress = 0;
+            for (let i = 0; i < 10; i++) {
+                p = p.then(getFrame.bind(this));
+            }
+            p.then(_ => {
+                return new Promise((resolve, reject) => {
+                    let gif = new GIF({
+                        workers: 2,
+                        quality: 10,
+                        workerScript: '/scripts/workers/gif.worker.js'
+                    });
+                    images.forEach((image) => {
+                        gif.addFrame(image, { delay: 1000 / 10 });
+                    });
+                    gif.on('progress', (p) => {
+                        this.gifProgress = 20 + p * 80;
+                    });
+                    gif.on('finished', (blob) => {
+                        resolve(blob);
+                    });
+                    gif.render();
+                })
+            }).then(blob => {
+                let url = URL.createObjectURL(blob);
+                this.gifSrc = url;
+                this.shareInfo.coverBlob = blob;
+                this.set('shareInfo.page', 1);
             });
         }
     });
