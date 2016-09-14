@@ -22,8 +22,8 @@ export default sticker = {
         style: ['width', 'height']
     },
     userStyle: {
-        width: '200px',
-        height: '200px'
+        width: '100px',
+        height: '100px'
     },
     events: [{
         label: 'is clicked',
