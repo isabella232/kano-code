@@ -239,9 +239,9 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save (snapshot=false) {
+    save (snapshot=false, to_json=true) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push(part.toJSON());
+            acc.push((to_json) ? part.toJSON() : part);
             return acc;
         }, []),
             savedApp = {};

@@ -127,6 +127,13 @@
         ready () {
             this.remix = false;
             this.code = {};
+
+            this.debounce('saveApp', () => {
+                this.editor = this.$.editor;
+                this.editor.addEventListener('change', (e) => {
+                    this.saveApp(e);
+                });
+            });
         },
         attached () {
             this.mode = Kano.MakeApps.Mode.modes[(this.scene.mode || 'normal')];
@@ -158,10 +165,10 @@
             return cats;
         },
         saveApp (e) {
-            let id = e.detail.id,
+            let id = e.detail.id || 'current',
                 blockIds = e.detail.blockIds,
                 stepIds = e.detail.stepIds,
-                app = this.$.editor.save(true);
+                app = this.$.editor.save(true, false);
             this.addToStore(id, {
                 app,
                 blockIds,
@@ -189,6 +196,12 @@
             let extensionId = e.detail.id;
             this.fire('extend-story', extensionId);
             e.stopPropagation();
+        },
+        _runningChanged () {
+            if (!this.scene.started) {
+                return;
+            }
+            Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
         }
     });
 </script>
