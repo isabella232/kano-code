@@ -23,12 +23,13 @@ var SharingBehavior = {
         '_userChanged(user)'
     ],
 
-    shareApp () {
+    shareApp (e) {
         // Generates the standalone component
         let savedApp,
-        attachment,
-        cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
-        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+            attachment,
+            cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
+            is_private = e.detail.is_private || false;
 
         cover.filename = 'cover.png';
         workspaceInfo.filename = 'workspace_info.json';
@@ -41,7 +42,8 @@ var SharingBehavior = {
             files: {
                 cover: cover,
                 workspace_info: workspaceInfo
-            }
+            },
+            is_private: is_private
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
@@ -68,7 +70,12 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            this.set('shareInfo.page', 2);
+            if (is_private) {
+                this.set('shareInfo.page', 0);
+            } else {
+                this.set('shareInfo.page', 2);
+            }
+
             this.set('shareInfo.id', share.id);
             this.modal.refit();
         }).catch((e) => {
@@ -132,7 +139,7 @@ var SharingBehavior = {
         }
     },
 
-    confirmShare () {
+    confirmShare (e) {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
@@ -140,7 +147,7 @@ var SharingBehavior = {
             return this.fire('login');
         }
         this.set('shareInfo.page', 1);
-        this.shareApp();
+        this.shareApp(e);
         this.modal.refit();
     },
 
