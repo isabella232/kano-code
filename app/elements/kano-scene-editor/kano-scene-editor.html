@@ -128,9 +128,11 @@
             this.remix = false;
             this.code = {};
 
-            this.editor = this.$.editor;
-            this.editor.addEventListener('change', (e) => {
-                this.saveApp(e);
+            this.debounce('saveApp', () => {
+                this.editor = this.$.editor;
+                this.editor.addEventListener('change', (e) => {
+                    this.saveApp(e);
+                });
             });
         },
         attached () {
@@ -166,7 +168,7 @@
             let id = e.detail.id || 'current',
                 blockIds = e.detail.blockIds,
                 stepIds = e.detail.stepIds,
-                app = this.$.editor.save(true);
+                app = this.$.editor.save(true, false);
             this.addToStore(id, {
                 app,
                 blockIds,
