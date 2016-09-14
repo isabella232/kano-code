@@ -257,15 +257,13 @@ Polymer({
         return savedApp;
     },
     share () {
-        this.generateCover().then(image => {
-            this.fire('share', {
-                cover: image,
-                workspaceInfo: JSON.stringify(this.save()),
-                background: this.background.userStyle.background,
-                mode: this.mode,
-                code: this.code,
-                parts: this.addedParts
-            });
+        this.fire('share', {
+            app: this.save(false, false),
+            workspaceInfo: JSON.stringify(this.save()),
+            background: this.background.userStyle.background,
+            mode: this.mode,
+            code: this.code,
+            parts: this.addedParts
         });
     },
     generateCover () {

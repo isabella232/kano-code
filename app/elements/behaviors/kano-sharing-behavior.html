@@ -81,8 +81,20 @@ var SharingBehavior = {
     * Opens the sharing modal and share the app
     */
     share (e) {
-        let shareInfo = {
-            image: e.detail.cover,
+        let app = e.detail.app,
+            slug = Date.now().toString(),
+            shareInfo, component;
+        component = Kano.AppModules.generateStandaloneComponent(
+            slug,
+            app.parts,
+            app.background,
+            Kano.MakeApps.Mode.modes[app.mode],
+            app.code);
+        shareInfo = {
+            app: {
+                src: 'data:text/html;base64,' + window.btoa(component),
+                slug
+            },
             workspaceInfo: e.detail.workspaceInfo,
             page: 0,
             title: '',

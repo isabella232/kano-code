@@ -1,0 +1,122 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+    
+    window.Kano.Behaviors.CoverGeneratorBehavior = {
+        generateCover (workspace, parts, width, height) {
+            let canvas = document.createElement('canvas'),
+                ctx = canvas.getContext('2d'),
+                rect = workspace.getBoundingClientRect(),
+                scaleFactor = rect.width / width,
+                util = {
+                    getStyle: this.getStyle,
+                    roundRect: this.roundRect
+                },
+                image,
+                promise;
+
+            canvas.id = 'screenshot';
+            canvas.width  = width;
+            canvas.height = height;
+
+            //setting background color
+            ctx.fillStyle = workspace.getBackgroundColor();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            promise = this.renderOnCanvas(workspace, ctx, util, scaleFactor);
+            parts.forEach((part) => {
+                let el = workspace.querySelector(`#${part.id}`);
+                if (typeof el.renderOnCanvas === 'function') {
+                    promise = promise.then(() => {
+                        return el.renderOnCanvas(ctx, util, scaleFactor);
+                    });
+                }
+            });
+            return promise.then(() => {
+                image = new Image();
+                image.src = canvas.toDataURL();
+                return image;
+            });
+        },
+        renderOnCanvas (workspace, ctx, util, scaleFactor) {
+            if (!workspace || !workspace.renderOnCanvas) {
+                return Promise.resolve();
+            }
+            return workspace.renderOnCanvas(ctx, util, scaleFactor);
+        },
+        /**
+         * Helper to get style from element
+         * @param  {Object} element  DOM element you want to inspect
+         * @param  {String} css_rule CSS rule you want to get
+         * @return {String} value of the css_rule for the DOM element
+         */
+        getStyle (element, css_rule) {
+            var strValue = "";
+            if (!element) {
+                return strValue;
+            }
+            if (document.defaultView && document.defaultView.getComputedStyle) {
+                strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
+            } else if (element.currentStyle) {
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1) {
+                    return p1.toUpperCase();
+                });
+                strValue = element.currentStyle[css_rule];
+            }
+            return strValue;
+        },
+        /**
+         * Draws a rounded rectangle using the current state of the canvas.
+         * If you omit the last three params, it will draw a rectangle
+         * outline with a 5 pixel border radius
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {Number} x The top left x coordinate
+         * @param {Number} y The top left y coordinate
+         * @param {Number} width The width of the rectangle
+         * @param {Number} height The height of the rectangle
+         * @param {Number} [radius = 5] The corner radius; It can also be an object
+         *                 to specify different radii for corners
+         * @param {Number} [radius.tl = 0] Top left
+         * @param {Number} [radius.tr = 0] Top right
+         * @param {Number} [radius.br = 0] Bottom right
+         * @param {Number} [radius.bl = 0] Bottom left
+         * @param {Boolean} [fill = false] Whether to fill the rectangle.
+         * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+         */
+        roundRect (ctx, x, y, width, height, radius, fill, stroke) {
+            if (typeof stroke == 'undefined') {
+                stroke = true;
+            }
+            if (typeof radius === 'undefined') {
+                radius = 5;
+            }
+            if (typeof radius === 'number') {
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            } else {
+                let defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+                for (let side in defaultRadius) {
+                    radius[side] = radius[side] || defaultRadius[side];
+                }
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            if (fill) {
+                ctx.fill();
+            }
+            if (stroke) {
+                ctx.stroke();
+            }
+
+        }
+    };
+</script>
