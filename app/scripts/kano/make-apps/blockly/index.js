@@ -2,6 +2,7 @@
     Kano.MakeApps = Kano.MakeApps || {};
     Kano.MakeApps.Blockly = Kano.MakeApps.Blockly || {};
 
+    Kano.MakeApps.Blockly.lookupStrings = {};
     Kano.MakeApps.Blockly.modules = {};
     Kano.MakeApps.Blockly.categories = {};
 
@@ -57,4 +58,38 @@
             this.available = this.available.concat(Object.keys(module.experiments));
         }
     };
+
+    Kano.MakeApps.Blockly.setLookupString = function (blockType, lookupString) {
+        this.lookupStrings[lookupString] = this.lookupStrings[lookupString] || [];
+        if (this.lookupStrings[lookupString].indexOf(blockType) === -1) {
+            this.lookupStrings[lookupString].push(blockType);
+        }
+    };
+
+    Kano.MakeApps.Blockly.removeLookupString = function (blockType) {
+        delete this.lookupStrings[lookupString];
+    };
+
+    Kano.MakeApps.Blockly.lookupBlock = function (query) {
+        let keys = Object.keys(this.lookupStrings),
+            blocks,
+            match;
+        if (query.length) {
+            keys = keys.filter(lookupString => lookupString.indexOf(query) !== -1);
+        }
+        blocks = keys.reduce((acc, key, index) => {
+            if (index === 0) {
+                match = key;
+            }
+            return acc.concat(this.lookupStrings[key]);
+        }, [])
+        .map(key => {
+            return {
+                type: key,
+                shadow: this.Defaults.shadowMap[key]
+            };
+        });
+        return { blocks, match };
+    }
+
 })(window.Kano = window.Kano || {});

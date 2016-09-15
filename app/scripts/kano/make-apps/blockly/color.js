@@ -127,6 +127,10 @@
         ]
     });
 
+    Kano.MakeApps.Blockly.setLookupString('colour_picker', 'colorPicker()');
+    Kano.MakeApps.Blockly.setLookupString('create_color', 'createColor(type, 1, 2, 3)');
+    Kano.MakeApps.Blockly.setLookupString('random_colour', 'randomColor()');
+
     Kano.MakeApps.Blockly.addModule('color', {
         register,
         category

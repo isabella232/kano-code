@@ -211,6 +211,33 @@ Blockly.Variables.addVariable = function(variable, root) {
     }
 };
 
+Blockly.getSvgXY_ = function(element, workspace) {
+  var x = 0;
+  var y = 0;
+  var scale = 1;
+  if (goog.dom.contains(workspace.getCanvas(), element) ||
+      goog.dom.contains(workspace.getBubbleCanvas(), element)) {
+    // Before the SVG canvas, scale the coordinates.
+    scale = workspace.scale;
+  }
+  do {
+    if (!element.getAttribute) {
+        break;
+    } 
+    // Loop through this block and every parent.
+    var xy = Blockly.getRelativeXY_(element);
+    if (element == workspace.getCanvas() ||
+        element == workspace.getBubbleCanvas()) {
+      // After the SVG canvas, don't scale the coordinates.
+      scale = 1;
+    }
+    x += xy.x * scale;
+    y += xy.y * scale;
+    element = element.parentNode;
+  } while (element && element != workspace.getParentSvg());
+  return new goog.math.Coordinate(x, y);
+};
+
 Blockly.Flyout.blocks = {};
 Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
     return Blockly.Flyout.blocks[type];
