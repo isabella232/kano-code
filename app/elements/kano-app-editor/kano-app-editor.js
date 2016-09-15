@@ -374,6 +374,9 @@ Polymer({
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
+        part.blockIds.forEach(id => {
+            Kano.MakeApps.Blockly.removeLookupString(id);
+        });
         this.splice('addedParts', index, 1);
         this.$.partsPanel.closeDrawer();
         this.$.workspace.clearSelection();

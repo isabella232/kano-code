@@ -66,6 +66,8 @@
         blocks: ['part_event']
     });
 
+    Kano.MakeApps.Blockly.setLookupString('part_event', 'when(event, action)');
+
     Kano.MakeApps.Blockly.addModule('events', {
         register,
         category

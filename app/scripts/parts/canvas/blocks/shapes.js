@@ -6,6 +6,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'circle',
+            lookup: 'circle(radius)',
             message0: `${ui.name}: circle radius %1`,
             args0: [{
                 type: "input_value",
@@ -35,6 +36,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'ellipse',
+            lookup: 'ellipse(rx, ry)',
             message0: `${ui.name}: ellipse width %1 height %2`,
             args0: [{
                 type: "input_value",
@@ -72,6 +74,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'square',
+            lookup: 'square(size)',
             message0: `${ui.name}: square size %1`,
             args0: [{
                 type: "input_value",
@@ -101,8 +104,8 @@ export default [{
     block: (ui) => {
         return {
             id: 'rectangle',
+            lookup: 'rectangle(width, height)',
             message0: `${ui.name}: rectangle width %1 height %2`,
-
             args0: [{
                 type: "input_value",
                 name: "WIDTH",
@@ -139,6 +142,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'arc',
+            lookup: 'arc(radius, start, end, close)',
             message0: `${ui.name}: arc %1 %2 %3 %4`,
             args0: [{
                 type: "input_value",
@@ -291,6 +295,7 @@ export default [{
         };
         return {
             id,
+            lookup: 'polygon(x1, y1, x2, y2, ...)',
             doNotRegister: true,
             colour: COLOUR
         };

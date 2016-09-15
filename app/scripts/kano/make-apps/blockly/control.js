@@ -210,6 +210,10 @@
         ]
     });
 
+    Kano.MakeApps.Blockly.setLookupString('repeat_x_times', 'loop(times, action)');
+    Kano.MakeApps.Blockly.setLookupString('loop_forever', 'loopForever(action)');
+    Kano.MakeApps.Blockly.setLookupString('in_x_time', 'doLater(action)');
+
     Kano.MakeApps.Blockly.addModule('control', {
         register,
         category
