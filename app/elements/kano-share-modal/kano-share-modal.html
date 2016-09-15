@@ -18,7 +18,7 @@
             @apply(--kano-button);
             margin-left: 5px;
         }
-        button.share, button.gif {
+        button.share {
             background-color: var(--color-green, green);
         }
         .success iron-image {
@@ -97,17 +97,58 @@
         paper-progress {
             width: 100%;
         }
+        .gif-creation {
+            position: relative;
+        }
+        button.gif {
+            border: 2px solid grey;
+            text-transform: uppercase;
+            border-radius: 200px;
+            padding: 10px 22px 10px 22px;
+            font-weight: 600;
+            text-shadow: none;
+        }
+        button.cancel-gif {
+            border: 0px;
+            text-transform: uppercase;
+            border-radius: 200px;
+            padding: 10px 22px 10px 22px;
+            font-size: 14px;
+            text-shadow: none;
+            font-weight: 600;
+        }
+        .start-gif-overlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.35);
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
+        }
+        *[hidden] {
+            display: none !important;
+        }
     </style>
     <template>
-        <iron-pages selected="[[shareInfo.page]]">
-            <div class="gif-creator">
+        <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
+            <div class="gif-creator" name="gif-creation">
                 <h2>Make a gif of your app to show the world how it works</h2>
                 <paper-progress value="[[gifProgress]]"></paper-progress>
-                <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
-                <button class="gif" on-tap="_generateAppGif">Make the GIF</button>
+                <div class="gif-creation">
+                    <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
+                    <div class="start-gif-overlay" hidden$="[[recording]]">
+                        <button class="gif" on-tap="_generateAppGif">Start recording your GIF</button>
+                    </div>
+                </div>
             </div>
-            <div class="dialog">
-                <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+            <div class="dialog" name="sharing-form">
+                <div class="cover-preview">
+                    <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                    <button class="cancel-gif" on-tap="_changeGif">&larr; Make another GIF</button>
+                </div>
                 <div class="form">
                     <div class="form-group">
                         <label>Title</label>
@@ -125,8 +166,8 @@
                     </div>
                 </div>
             </div>
-            <div>Publishing ...</div>
-            <div class="success">
+            <div name="publishing">Publishing ...</div>
+            <div class="success" name="success">
                 <iron-image src="[[gifSrc]]" sizing="contain"></iron-image>
                 <div>
                     <div class="title">
@@ -146,7 +187,7 @@
                     </div>
                 </div>
             </div>
-            <div class="fail">
+            <div class="fail" name="failure">
                 <div class="title">
                     Publishing failed
                 </div>
@@ -174,6 +215,9 @@
                 notify: true
             }
         },
+        attached () {
+            this.recording = false;
+        },
         confirm () {
             this.fire('confirm');
         },
@@ -198,6 +242,9 @@
         redditLink () {
             return 'http://www.reddit.com/submit?url=' + encodeURIComponent(this.playUrl()) + '&title=' + encodeURIComponent(this.shareInfo.title);
         },
+        _changeGif () {
+            this.fire('change-gif');
+        },
         _generateAppGif () {
             let workspace = this.$['app-preview'].getWorkspace(),
                 parts = Object.keys(this.$['app-preview'].component.parts).map(key => {
@@ -213,6 +260,8 @@
 
             this.coverWidth = workspace.width;
             this.coverHeight = workspace.height;
+
+            this.recording = true;
 
             let getFrame = () => {
                 return this.generateCover(workspace, parts, workspace.width, workspace.height, 0.6)
@@ -249,6 +298,9 @@
                 this.gifSrc = url;
                 this.shareInfo.coverBlob = blob;
                 this.fire('cover-generated');
+                // Reset UI for potential future gif-creation
+                this.recording = false;
+                this.gifProgress = 0;
             });
         }
     });

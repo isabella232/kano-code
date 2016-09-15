@@ -20,14 +20,21 @@ var SharingBehavior = {
         }
     },
     listeners: {
-        'cover-generated': '_goToForm'
+        'cover-generated': '_goToForm',
+        'change-gif': '_goToGifCreator'
     },
     observers: [
         '_userChanged(user)'
     ],
-    _goToForm () {
-        this.set('shareInfo.page', 1);
+    _goToPage (page) {
+        this.set('shareInfo.page', page);
         this.modal.refit();
+    },
+    _goToGifCreator () {
+        this._goToPage('gif-creation');
+    },
+    _goToForm () {
+        this._goToPage('sharing-form');
     },
     shareApp () {
         // Generates the standalone component
@@ -74,13 +81,11 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            this.set('shareInfo.page', 3);
             this.set('shareInfo.id', share.id);
-            this.modal.refit();
+            this._goToPage('success');
         }).catch((e) => {
             console.error(e);
-            this.set('shareInfo.page', 4);
-            this.modal.refit();
+            this._goToPage('failure');
         });
     },
     /**
@@ -102,7 +107,7 @@ var SharingBehavior = {
                 slug
             },
             workspaceInfo: e.detail.workspaceInfo,
-            page: 0,
+            page: 'gif-creation',
             title: '',
             description: '',
             id: null,
@@ -161,9 +166,8 @@ var SharingBehavior = {
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.set('shareInfo.page', 2);
         this.shareApp();
-        this.modal.refit();
+        this._goToPage('publishing');
     },
 
     dismissShare () {
