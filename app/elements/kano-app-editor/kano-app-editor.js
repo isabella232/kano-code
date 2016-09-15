@@ -239,9 +239,9 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save (snapshot=false) {
+    save (snapshot=false, to_json=true) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push(part.toJSON());
+            acc.push((to_json) ? part.toJSON() : part);
             return acc;
         }, []),
             savedApp = {};
@@ -376,6 +376,9 @@ Polymer({
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
+        part.blockIds.forEach(id => {
+            Kano.MakeApps.Blockly.removeLookupString(id);
+        });
         this.splice('addedParts', index, 1);
         this.$.partsPanel.closeDrawer();
         this.$.workspace.clearSelection();

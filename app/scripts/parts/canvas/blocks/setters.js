@@ -4,6 +4,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'color',
+            lookup: 'fillColor(color)',
             message0: `${ui.name}: fill color %1`,
             args0: [{
                 type: "input_value",
@@ -30,6 +31,7 @@ export default [{
     block: (ui) => {
         return {
             id: 'stroke',
+            lookup: 'stroke(color, thickness)',
             message0: `${ui.name}: stroke color %1 thickness %2`,
             args0: [{
                 type: "input_value",
