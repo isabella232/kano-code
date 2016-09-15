@@ -5,7 +5,7 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
     
     window.Kano.Behaviors.CoverGeneratorBehavior = {
-        generateCover (workspace, parts, width, height) {
+        generateCover (workspace, parts, width, height, scale=1) {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
                 rect = workspace.getBoundingClientRect(),
@@ -34,8 +34,18 @@
                 }
             });
             return promise.then(() => {
+                let exportCanvas = canvas;
+                if (scale !== 1) {
+                    let tmpCanvas = document.createElement('canvas'),
+                        tmpCtx;
+                    tmpCanvas.width = width * scale;
+                    tmpCanvas.height = height * scale;
+                    tmpCtx = tmpCanvas.getContext('2d');
+                    tmpCtx.drawImage(canvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
+                    exportCanvas = tmpCanvas;
+                }
                 image = new Image();
-                image.src = canvas.toDataURL();
+                image.src = exportCanvas.toDataURL();
                 return image;
             });
         },

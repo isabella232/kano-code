@@ -107,7 +107,7 @@
                 <button class="gif" on-tap="_generateAppGif">Make the GIF</button>
             </div>
             <div class="dialog">
-                <img class="gifshot" src$="[[gifSrc]]">
+                <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
                 <div class="form">
                     <div class="form-group">
                         <label>Title</label>
@@ -211,8 +211,11 @@
                 },
                 images = [];
 
+            this.coverWidth = workspace.width;
+            this.coverHeight = workspace.height;
+
             let getFrame = () => {
-                return this.generateCover(workspace, parts, workspace.width, workspace.height)
+                return this.generateCover(workspace, parts, workspace.width, workspace.height, 0.6)
                     .then(image => {
                         images.push(image);
                         this.gifProgress += 2;
@@ -220,14 +223,14 @@
                     });
             }
             this.gifProgress = 0;
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 8; i++) {
                 p = p.then(getFrame.bind(this));
             }
             p.then(_ => {
                 return new Promise((resolve, reject) => {
                     let gif = new GIF({
                         workers: 2,
-                        quality: 10,
+                        quality: 100,
                         workerScript: '/scripts/workers/gif.worker.js'
                     });
                     images.forEach((image) => {
@@ -245,7 +248,7 @@
                 let url = URL.createObjectURL(blob);
                 this.gifSrc = url;
                 this.shareInfo.coverBlob = blob;
-                this.set('shareInfo.page', 1);
+                this.fire('cover-generated');
             });
         }
     });

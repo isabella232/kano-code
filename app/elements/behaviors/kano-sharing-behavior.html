@@ -19,9 +19,16 @@ var SharingBehavior = {
             notify: true
         }
     },
+    listeners: {
+        'cover-generated': '_goToForm'
+    },
     observers: [
         '_userChanged(user)'
     ],
+    _goToForm () {
+        this.set('shareInfo.page', 1);
+        this.modal.refit();
+    },
     shareApp () {
         // Generates the standalone component
         let savedApp,
