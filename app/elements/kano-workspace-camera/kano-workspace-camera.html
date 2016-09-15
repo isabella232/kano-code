@@ -89,7 +89,7 @@
                 if (this.frameId > this.pictures.length - 1) {
                     this.frameId = 0;
                 }
-                this.playingId = setTimeout(this._updateFrame.bind(this), 1000 / this.speed);
+                this.playingId = setTimeout(this._updateFrame.bind(this), 1000 / Math.max(1, this.speed));
             },
             _pausePictureList (e) {
                 clearTimeout(this.playingId);
