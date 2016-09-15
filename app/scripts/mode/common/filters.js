@@ -96,15 +96,14 @@ export default [{
         return (block) => {
             let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || "'#ff0000'",
                 value = Blockly.JavaScript.valueToCode(block, 'VALUE') || 50;
-            value = Math.max(0, Math.min(1, value / 100));
-            return `devices.get('${part.id}').addFilter('colorize', devices.get('${part.id}').hexToRgb(${color}), ${value});\n`;
+            return `devices.get('${part.id}').addFilter('colorize', devices.get('${part.id}').hexToRgb(${color}), Math.max(0, Math.min(1, ${value} / 100)));\n`;
         };
     },
     pseudo: (part) => {
         return (block) => {
             let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || "'#ff0000'",
                 value = Blockly.Pseudo.valueToCode(block, 'VALUE') || 0.5;
-            return `devices.get('${part.id}').addFilter('colorize', ${color}, ${value});\n`;
+            return `devices.get('${part.id}').addFilter('colorize', devices.get('${part.id}').hexToRgb(${color}), Math.max(0, Math.min(1, ${value} / 100)));\n`;
         };
     }
 },{
@@ -129,8 +128,7 @@ export default [{
     javascript: (part) => {
         return (block) => {
             let threshold = Blockly.JavaScript.valueToCode(block, 'THRESHOLD') || 50;
-            threshold = Math.max(0, Math.min(255, threshold * 2.55));
-            return `devices.get('${part.id}').addFilter('threshold', ${threshold});\n`;
+            return `devices.get('${part.id}').addFilter('threshold', Math.max(0, Math.min(255, ${threshold} * 2.55)));\n`;
         };
     },
     pseudo: (part) => {
@@ -162,8 +160,7 @@ export default [{
     javascript: (part) => {
         return (block) => {
             let size = Blockly.JavaScript.valueToCode(block, 'SIZE') || 20;
-            size = Math.max(1, Math.min(100, size));
-            return `devices.get('${part.id}').addFilter('pixelate', ${size});\n`;
+            return `devices.get('${part.id}').addFilter('pixelate', Math.max(1, Math.min(100, ${size})));\n`;
         };
     },
     pseudo: (part) => {
@@ -194,15 +191,13 @@ export default [{
     javascript: (part) => {
         return (block) => {
             let contrast = Blockly.JavaScript.valueToCode(block, 'CONTRAST') || 0;
-            contrast = Math.max(-300, Math.min(300, (contrast * 3)));
-            return `devices.get('${part.id}').addFilter('contrast', ${contrast});\n`;
+            return `devices.get('${part.id}').addFilter('contrast', Math.max(-300, Math.min(300, (${contrast} * 3))));\n`;
         };
     },
     pseudo: (part) => {
         return (block) => {
             let contrast = Blockly.Pseudo.valueToCode(block, 'CONTRAST') || 0;
-            contrast = Math.max(-300, Math.min(300, (contrast * 3)));
-            return `devices.get('${part.id}').addFilter('contrast', ${contrast});\n`;
+            return `devices.get('${part.id}').addFilter('contrast', Math.max(-300, Math.min(300, (${contrast} * 3))));\n`;
         };
     }
 },{
