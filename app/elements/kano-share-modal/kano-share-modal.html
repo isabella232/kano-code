@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../kano-style/input.html">
+<link rel="import" href="../kano-app-player/kano-app-player.html">
 
 <dom-module id="kano-share-modal">
     <style is="custom-style" include="input-text"></style>
@@ -28,8 +29,8 @@
             height: 52px;
         }
         :host .button-container button {
-            position: absolute;
-            right: 0;
+            /*position: absolute;*/
+            /*right: 0;*/
         }
         :host button.share {
             text-transform: none;
@@ -48,17 +49,6 @@
             vertical-align: middle;
             margin-right: 10px;
             text-shadow: 0px 1.5px rgba(0, 0, 0, 0.25);
-        }
-        :host .generate-url button {
-            padding: 12px;
-            background-color: var(--color-blue, blue);
-            text-transform: none;
-            border-radius: 24px;
-            padding: 12px;
-        }
-        :host .generate-url input {
-            border-top-left-radius: 24px;
-            border-bottom-left-radius: 24px;
         }
         .success iron-image {
             flex: 1 1 300px;
@@ -140,6 +130,46 @@
             font-weight: 500;
             transform: translate(0px, -3px);
         }
+
+        :host .app-player-container {
+            right: 0;
+            position: relative;
+            height: 384px;
+            width: 512px;
+            background-color: white;
+        }
+        :host kano-app-player {
+            position: absolute;
+            top: 0; bottom: 0; right: 0;
+            margin: auto;
+            height: 100%;
+            width: 100%;
+            animation: fade-in ease-in-out 800ms;
+            animation-fill-mode: forwards;
+            animation-delay: 400ms;
+        }
+        :host .generate-url button {
+            padding: 12px;
+            background-color: var(--color-blue, blue);
+            text-transform: none;
+            border-radius: 24px;
+        }
+        :host .generate-url .composed-button,
+        :host .normal-button {
+            position: absolute;
+            right: 0;
+        }
+        :host .generate-url .composed-button button {
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+            margin: 0;
+        }
+        :host .generate-url .composed-button input {
+            border-top-left-radius: 24px;
+            border-bottom-left-radius: 24px;
+            width: 200px;
+            border-right: 0;
+        }
     </style>
     <template>
         <iron-pages selected="[[shareInfo.page]]">
@@ -159,23 +189,27 @@
                     </div>
                     <div class="buttons">
                         <div class="button-container">
-                            <button type="button" name="button" class="share" on-tap="confirm"><img class="button-img" src="../../assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
+                            <button type="button" name="button" class="share normal-button" on-tap="confirm"><img class="button-img" src="../../assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
                         </div>
 
                         <div class="button-container generate-url">
                             <template is="dom-if" if="{{shareInfo.id}}">
-                                <button on-tap="copyToClipboard">Copy</button>
-                                <input type="text" id="shareurl"value="{{playUrl(shareInfo.id)}}">
+                                <div class="composed-button">
+                                    <input type="text" id="shareurl" value="{{playUrl(shareInfo.id)}}"><!--
+                                    --><button on-tap="copyToClipboard">Copy</button>
+                                </div>
                             </template>
 
                             <template is="dom-if" if="{{!shareInfo.id}}">
-                                <button on-tap="generateUrl" class="generate-url">Get share link</button>
+                                <button on-tap="generateUrl" class="normal-button">Get share link</button>
                             </template>
                         </div>
 
                     </div>
                 </div>
-                <img class="screenshot" src$="[[shareInfo.image.src]]">
+                <div class="app-player-container">
+                    <kano-app-player id="kano_app_player" src="[[appData]]" slug="[[appSlug]]"></kano-app-player>
+                </div>
             </div>
             <div>Publishing ...</div>
             <div class="success">
@@ -222,7 +256,16 @@
                 value: function () {
                     return {};
                 },
-                notify: true
+                notify: true,
+                observer: '_shareInfoChanged'
+            },
+            appData: {
+                type: String,
+                value: ""
+            },
+            appSlug: {
+                type: String,
+                value: ""
             }
         },
         confirm () {
@@ -255,6 +298,20 @@
         copyToClipboard () {
             this.$$("#shareurl").select();
             document.execCommand('copy');
+        },
+        _shareInfoChanged (e) {
+            if (e.page == 0) {
+                this.debounce('createStandaloneApp', () => {
+                    let slug = Date.now().toString(),
+                        appStandaloneComponent = Kano.AppModules.generateStandaloneComponent(
+                            slug, e.parts, e.background, e.mode, e.code
+                        ),
+                        appBase64 = 'data:text/html;base64,' + window.btoa(appStandaloneComponent);
+
+                    this.set('appSlug', slug);
+                    this.set('appData', appBase64);
+                });
+            }
         }
     });
 </script>
