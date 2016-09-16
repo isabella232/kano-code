@@ -84,12 +84,19 @@
                     }
                     return Polymer.dom(this.root).querySelector(id);
                 };
-                root.children.forEach(function (element) {
-                    if (element.localName != 'style') {
-                        root.removeChild(element);
-                    }
-                });
                 root.appendChild(c);
+                if (this.$.container) {
+                    root.removeChild(this.$.container);
+                    this.$.container = null;
+                }
+                if (this.component) {
+                    root.removeChild(this.component);
+                }
+                this.component = c;
+                this.fire('app-ready');
+                this.async(() => {
+                    this.component.$$('kano-ui-viewport').resizeView();
+                });
             },
             _onAppFileError (e) {
                 this.failed = true;

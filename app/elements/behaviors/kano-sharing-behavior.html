@@ -23,19 +23,18 @@ var SharingBehavior = {
         '_userChanged(user)'
     ],
 
-    shareApp (e) {
+    _shareApp (e) {
         // Generates the standalone component
         let savedApp,
             attachment,
             cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
-            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
-            is_private = e.detail.is_private || false;
+            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
 
         cover.filename = 'cover.png';
         workspaceInfo.filename = 'workspace_info.json';
 
         //Share by calling the API
-        Kano.MakeApps.sdk.api.share.post({
+        return Kano.MakeApps.sdk.api.share.post({
             app: 'make-apps',
             title: this.shareInfo.title,
             description: this.shareInfo.description,
@@ -43,7 +42,7 @@ var SharingBehavior = {
                 cover: cover,
                 workspace_info: workspaceInfo
             },
-            is_private: is_private
+            is_private: e.detail.is_private || false
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
@@ -70,13 +69,15 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            if (is_private) {
-                this.set('shareInfo.page', 0);
-            } else {
-                this.set('shareInfo.page', 2);
-            }
-
             this.set('shareInfo.id', share.id);
+            return share;
+        });
+    },
+
+    shareApp (e) {
+        this.set('shareInfo.page', 1);
+        this._shareApp(e).then((share) => {
+            this.set('shareInfo.page', 2);
             this.modal.refit();
         }).catch((e) => {
             console.error(e);
@@ -84,6 +85,14 @@ var SharingBehavior = {
             this.modal.refit();
         });
     },
+
+    privateShareApp (e) {
+        this._shareApp(e).catch((e) => {
+            this.set('shareInfo.page', 3);
+            this.modal.refit();
+        });
+    },
+
     /**
     * Opens the sharing modal and share the app
     */
@@ -125,7 +134,11 @@ var SharingBehavior = {
                 }
             }
         };
-        this.modal.open();
+        let onAppReady = () => {
+            this.modal.open();
+            this.modal.removeEventListener('app-ready', onAppReady);
+        };
+        this.modal.addEventListener('app-ready', onAppReady)
     },
 
     _userChanged (user) {
@@ -146,8 +159,13 @@ var SharingBehavior = {
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.set('shareInfo.page', 1);
-        this.shareApp(e);
+
+        if (e.detail.is_private && e.detail.is_private === true) {
+            this.privateShareApp(e);
+        } else {
+            this.shareApp(e);
+        }
+
         this.modal.refit();
     },
 
