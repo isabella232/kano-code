@@ -163,6 +163,8 @@
             border-bottom-left-radius: 0;
             border-top-left-radius: 0;
             margin: 0;
+            height: 40px;
+            vertical-align: top;
         }
         :host .generate-url .composed-button input {
             border-top-left-radius: 24px;
@@ -178,6 +180,7 @@
                 <div class="form">
                     <div class="form-group">
                         <input type="text"
+                            id="title_input"
                             value="{{shareInfo.title::change}}"
                             placeholder="Title">
                     </div>
@@ -196,12 +199,12 @@
                             <template is="dom-if" if="{{shareInfo.id}}">
                                 <div class="composed-button">
                                     <input type="text" id="shareurl" value="{{playUrl(shareInfo.id)}}"><!--
-                                    --><button on-tap="copyToClipboard">Copy</button>
+                                    --><button on-tap="copyToClipboard"><img src="../../assets/get-share-link.svg"/> <span>copy</span></button>
                                 </div>
                             </template>
 
                             <template is="dom-if" if="{{!shareInfo.id}}">
-                                <button on-tap="generateUrl" class="normal-button">Get share link</button>
+                                <button on-tap="generateUrl" class="normal-button"><img src="../../assets/get-share-link.svg"/> <span>Get share link</span></button>
                             </template>
                         </div>
 
@@ -268,8 +271,18 @@
                 value: ""
             }
         },
+        _checkTitleInput () {
+            if (!this.shareInfo.title || this.shareInfo.title.length < 1) {
+                this.$.title_input.placeholder = "Please add a title";
+                this.$.title_input.select();
+            } else {
+                return true;
+            }
+        },
         confirm () {
-            this.fire('confirm');
+            if (this._checkTitleInput()) {
+                this.fire('confirm');
+            }
         },
         dismiss () {
             this.fire('dismiss');
@@ -293,7 +306,9 @@
             return 'http://www.reddit.com/submit?url=' + encodeURIComponent(this.playUrl()) + '&title=' + encodeURIComponent(this.shareInfo.title);
         },
         generateUrl () {
-            this.fire('confirm', { 'is_private': true });
+            if (this._checkTitleInput()) {
+                this.fire('confirm', { 'is_private': true });
+            }
         },
         copyToClipboard () {
             this.$$("#shareurl").select();
