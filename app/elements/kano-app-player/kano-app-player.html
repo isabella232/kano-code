@@ -84,8 +84,12 @@
                     }
                     return Polymer.dom(this.root).querySelector(id);
                 };
+                root.children.forEach(function (element) {
+                    if (element.localName != 'style') {
+                        root.removeChild(element);
+                    }
+                });
                 root.appendChild(c);
-                root.removeChild(this.$.container);
             },
             _onAppFileError (e) {
                 this.failed = true;
