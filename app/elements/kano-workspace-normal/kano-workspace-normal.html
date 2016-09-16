@@ -18,6 +18,9 @@
             border-radius: 5px;
         }
 
+        :host .actions {
+            position: absolute;
+        }
         :host .actions .coordinates {
             background-color: #222D33;
             border-radius: 6px;
@@ -53,11 +56,12 @@
                     this.start();
                 }
 
-                this.ctx = this.canvasElement = this.$.canvas;
+                this.ctx = this.$.canvas;
+                this.canvasElement = Polymer.dom(this).parentNode;
 
-                this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
+                this.canvasElement.addEventListener('mouseover', this._onMouseOver.bind(this));
                 this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
-                this.ctx.addEventListener('mousemove', this._onMouseMove.bind(this));
+                this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
             },
             setBackgroundColor (color) {
                 this.style.background = color;
@@ -91,7 +95,6 @@
                 this.mousePositionY = 250;
             },
             _onMouseMove (e) {
-                console.log("Mouse move");
                 if (this._isMouseOver) {
                     this.rectangle = this.canvasElement.getBoundingClientRect();
 
