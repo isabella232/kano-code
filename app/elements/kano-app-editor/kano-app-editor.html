@@ -36,8 +36,6 @@
         min-width: 38%;
         max-width: 62%;
         background-color: var(--color-dark, black);
-        background-image: -webkit-linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
-        background-image: linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
     }
     :host #left-panel kano-workspace {
         @apply(--layout-flex);
@@ -169,14 +167,14 @@
 
     .make-button kano-animated-svg {
         @apply(--layout-flex);
-        width: 32px;
-        height: 32px;
+        width: 17px;
+        height: 21px;
         -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
         filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
         --kano-animated-path: {
             fill: white;
             stroke: white;
-            stroke-width: 7px;
+            stroke-width: 2px;
             stroke-linecap: round;
             stroke-linejoin: round;
             transition: all ease-in-out 200ms;
@@ -221,18 +219,6 @@
         margin: 0;
         font-size: 18px;
     }
-    :host .overlay {
-        background-color: rgba(0, 0, 0, 0.5);
-
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        transition: all ease-in-out 0.5s;
-        opacity: 1;
-    }
     :host .elevate {
         z-index: 101;
     }
@@ -243,22 +229,53 @@
     kano-part-editor {
         max-width: 95%;
     }
+    paper-dialog .buttons button {
+        @apply(--kano-button);
+        margin-left: 5px;
+    }
+    paper-dialog .buttons .confirm {
+        background-color: var(--color-red, red);
+    }
+    .pause-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .pause-overlay iron-image {
+        width: 40%;
+        height: 40%;
+        z-index: 1;
+        cursor: pointer;
+    }
+    .editable-layout {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <div id="overlay" class$="overlay animatable {{applyHiddenClass(running)}}" tabindex="0"
-                 on-keypress="trapEvent" on-keyup="trapEvent" on-keydown="trapEvent" on-tap="toggleRunning"></div>
             <div class="ui-edition" id="left-panel">
+                <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
+                    <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+                </div>
                 <kano-workspace id="workspace"
                                 class="visible-when-running"
                                 on-ui-ready="workspaceUiReady"
                                 parts="{{addedParts}}"
                                 selected="{{selected}}"
-                                on-settings-tapped="onPartSettings"
+                                on-open-settings="onPartSettings"
                                 on-close-settings="closeSettings"
-                                on-delete-tapped="deletePart"
                                 on-change="_proxyChange"
                                 running="{{running}}"
+                                editable-layout="{{editableLayout}}"
                                 code="[[code]]"
                                 mode="[[mode]]"
                                 background="[[background.userStyle.background]]"></kano-workspace>
@@ -276,10 +293,10 @@
                 </button>
                 <h1 id="app-title">{{title}}</h1>
                 <button type="button"
-                    class$="make-button visible-when-running {{getMakeButtonClass(running)}}"
-                    on-tap="toggleRunning"
+                    class$="make-button visible-when-running [[getMakeButtonClass(running, editableLayout)]]"
+                    on-tap="_runButtonClicked"
                     id="make-button">
-                    <kano-animated-svg width="32" height="32" paths="[[makeButtonIconPaths]]" selected="{{getMakeButtonClass(running)}}">
+                    <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}">
                     </kano-animated-svg>
                 </button>
             </div>
@@ -317,6 +334,7 @@
                             <kano-part-editor
                                 selected="{{selected}}"
                                 class="tooltip-content"
+                                on-delete-part="deletePartClicked"
                                 id="part-editor"></kano-part-editor>
                             <kano-background-editor
                                 class="tooltip-content"
@@ -324,11 +342,30 @@
                                 background="{{background}}"
                                 name="background"></kano-background-editor>
                         </iron-pages>
-                        <button type="button" class="close-drawer" id="close-drawer" on-tap="closeDrawer"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
                     </div>
                 </paper-drawer-panel>
             </div>
         </section>
+        <paper-dialog id="confirm-delete" with-backdrop on-iron-overlay-closed="modalClosed">
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You are about to delete '[[selected.name]]'</div>
+                <div>Are you sure you want to do this?</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+                <button dialog-confirm class="confirm">Confirm</button>
+            </div>
+        </paper-dialog>
+        <paper-dialog id="external-use-warning" with-backdrop>
+            <h2>Delete Part</h2>
+            <div class="modal-content">
+                <div>You can't delete '[[selected.name]]' because it is used in the code</div>
+            </div>
+            <div class="buttons">
+                <button dialog-dismiss class="cancel">Cancel</button>
+            </div>
+        </paper-dialog>
     </template>
 </dom-module>
 

@@ -2,20 +2,23 @@
 
 <dom-module id="kano-input-text">
     <style>
-    :host {
-        display: block;
-    }
     :host label {
-        display: block;
+        @apply(--kano-settings-label);
+    }
+    :host .inputs {
+        @apply(--kano-settings-container);
     }
     :host input {
         @apply(--kano-light-input);
-        font-size: var(--kano-input-text-size);
+        width: 87%;
     }
     </style>
     <template>
         <label>{{label}}</label>
-        <input type="text" value="{{value::keyup}}">
+        <div class="inputs">
+          <input type="text" value="{{value::keyup}}"
+              on-keydown="enterQuitsInput">
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -29,6 +32,12 @@
         ],
         valueChanged () {
             this.fire('change');
+        },
+        enterQuitsInput () {
+            if (event.keyCode == 13) {
+                this.blur();
+                return false;
+            }
         }
     });
 </script>

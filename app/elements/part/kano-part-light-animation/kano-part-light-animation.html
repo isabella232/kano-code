@@ -1,5 +1,8 @@
 <link rel="import" href="../kano-light-shape-behavior.html">
+<link rel="import" href="../../kano-style/part.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/light-animation.html">
 <dom-module id="kano-part-light-animation">
+    <style is="custom-style" include="part-style"></style>
     <style>
     :host {
         display: block;
@@ -15,7 +18,7 @@
     </style>
     <template>
         <div class="container" running$="[[isRunning]]">
-            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" bitmap="[[bitmap]]" pixel-size="22" spacing="3"></kano-bitmap-renderer>
+            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" bitmap="[[bitmap]]" pixel-size="21" spacing="3"></kano-bitmap-renderer>
         </div>
     </template>
     <script type="text/javascript">
@@ -23,7 +26,7 @@
 
         Polymer({
             is: 'kano-part-light-animation',
-            behaviors: [Kano.Behaviors.LightShapeBehavior],
+            behaviors: [Kano.MakeApps.PartsAPI['light-animation'], Kano.Behaviors.LightShapeBehavior],
             observers: [
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)'
             ],
@@ -64,56 +67,6 @@
                 });
 
                 return newBitmap;
-            },
-            _updateFrame () {
-                let bitmaps = this.model.userProperties.bitmaps;
-                this.frame = bitmaps[this.frameIndex];
-                this.frameIndex++;
-                if (this.frameIndex > bitmaps.length - 1) {
-                    this.frameIndex = 0;
-                }
-                this.timeoutId = setTimeout(this._updateFrame.bind(this), 1000 / this.model.userProperties.speed);
-                this._updateLightboard();
-            },
-            _updateLightboard () {
-                if (!this.frame) {
-                    return;
-                }
-                this.debounce('_updateLightboard', () => {
-                    if (this.isRunning) {
-                        let shape = {
-                            id: this.model.id,
-                            x: this.getX(),
-                            y: this.getY(),
-                            width: this.model.userProperties.width,
-                            height: this.model.userProperties.height,
-                            bitmap: this.frame,
-                            type: 'frame'
-                        };
-                        this.fire('update-shape', shape);
-                    }
-                });
-            },
-            play () {
-                this.pause();
-                this._updateFrame();
-            },
-            pause () {
-                clearTimeout(this.timeoutId);
-            },
-            setSpeed (s) {
-                let speed = Math.min(30, Math.max(1, s));
-                this.set('model.userProperties.speed', speed);
-            },
-            stop () {
-                Kano.Behaviors.UIBehavior.stop.call(this);
-                this.pause();
-            },
-            goToFrame (frame) {
-                let bitmaps = this.model.userProperties.bitmaps;
-                this.frameIndex = Math.min(bitmaps.length - 1, Math.max(0, frame));
-                this.frame = bitmaps[this.frameIndex];
-                this._updateLightboard();
             }
         });
     </script>

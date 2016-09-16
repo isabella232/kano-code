@@ -4,24 +4,36 @@
 <dom-module id="kano-input-range">
     <style is="custom-style" include="input-range"></style>
     <style>
-    :host {
-        display: block;
-        @apply(--layout-vertical);
-    }
-    :host label .value {
-        font-weight: bold;
+    :host label {
+        @apply(--kano-settings-label);
+        bottom: 11px;
     }
     :host .inputs {
-        @apply(--layout-horizontal);
+        @apply(--kano-settings-container);
+    }
+    kano-slider {
+        width: 95%;
+        --paper-slider-height: 3px;
+        --paper-progress-active-color: #435055;
+        --paper-slider-knob-color: #435055;
+        --paper-slider-pin-color: #435055;
+        --paper-slider-knob-start-color: #435055;
     }
     </style>
     <template>
-        <label>{{label}}: <span class="value">{{value}}</span></label>
+        <label>{{label}}</label>
         <div class="inputs">
-            <input type="range"
-                    min="{{min}}"
-                    max="{{max}}"
-                    value="{{value::input}}">
+              <kano-slider
+                      min="{{min}}"
+                      max="{{max}}"
+                      value="[[value]]"
+                      immediate-value="{{value}}"
+                      symbol="{{symbol}}"
+                      step="{{step}}"
+                      on-change="expandKnob"
+                      on-click="expandKnob"
+                      pin>
+              <kano-slider>
         </div>
     </template>
 </dom-module>
@@ -30,6 +42,12 @@
 
     Polymer({
         is: 'kano-input-range',
-        behaviors: [Kano.Behaviors.Input]
+        behaviors: [Kano.Behaviors.Input],
+        attached() {
+            this.expandKnob();
+        },
+        expandKnob () {
+            this.$$('kano-slider')._expandKnob();
+        }
     });
 </script>

@@ -1,7 +1,10 @@
+<link rel="import" href="../../part/kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../../bower_components/google-map/google-map.html">
-<link rel="import" href="../behaviors.html">
+<link rel="import" href="../../kano-style/part.html">
 
 <dom-module id="kano-ui-map">
+    <style is="custom-style" include="part-style"></style>
     <style>
     :host {
         display: inline-block;
@@ -27,88 +30,86 @@
         </google-map>
         </template>
     </template>
-</dom-module>
+    <script type="text/javascript">
+        /* globals Polymer, Kano, google */
 
-<script type="text/javascript">
-
-    /* globals Polymer, Kano, google */
-
-    Polymer({
-        is: 'kano-ui-map',
-        behaviors: [Kano.Behaviors.UIBehavior],
-        properties: {
-            coordinates: {
-                type: Array,
-                value: () => {
-                    return [];
+        Polymer({
+            is: 'kano-ui-map',
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            properties: {
+                coordinates: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
                 }
-            }
-        },
-        ready () {
-            this.apiKey = Kano.MakeApps.config.GOOGLE_API_KEY;
-            this.mapOptions = {
-                draggable: false,
-                scrollWheel: false
-            };
-        },
-        showMarker (latitude, longitude) {
-            let pos = { latitude, longitude },
-                path;
-            if (!this.poly) {
-                this.poly = new google.maps.Polyline({
-                    path: [],
-                    geodesic: true,
-                    strokeColor: '#FF0000',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 2
+            },
+            ready () {
+                this.apiKey = Kano.MakeApps.config.GOOGLE_API_KEY;
+                this.mapOptions = {
+                    draggable: false,
+                    scrollWheel: false
+                };
+            },
+            showMarker (latitude, longitude) {
+                let pos = { latitude, longitude },
+                    path;
+                if (!this.poly) {
+                    this.poly = new google.maps.Polyline({
+                        path: [],
+                        geodesic: true,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 2
+                    });
+                    this.poly.setMap(this.map);
+                }
+
+                path = this.poly.getPath();
+                path.push(new google.maps.LatLng(pos.latitude, pos.longitude));
+
+                this.push('coordinates', pos);
+                this.set('position', pos);
+            },
+            computeMapStyle () {
+                return this.getPartialStyle(['width', 'height']);
+            },
+            renderOnCanvas (ctx) {
+                return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
+                    let img,
+                        map = this.$$('#map'),
+                        width = map.offsetWidth,
+                        height = map.offsetHeight,
+                        x = 0,
+                        y = 0;
+
+                    img = new Image();
+                    img.src = '/assets/part/map-icon.svg';
+
+                    return new Promise((resolve) => {
+                        img.onload = () => {
+                            let aspectW = img.width / width,
+                                aspectH = img.height / height;
+                            if (aspectW > aspectH) {
+                                y = height / 2;
+                                height = img.height / aspectW;
+                                y -= height / 2;
+                            } else {
+                                x = width / 2;
+                                width = img.width / aspectH;
+                                x -= width / 2;
+                            }
+                            ctx.drawImage(img, x, y, width, height);
+                            ctx.stroke();
+                            ctx.restore();
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            resolve(Kano.Behaviors.UIBehavior.renderFallback.apply(this, arguments));
+                        };
+                    });
                 });
-                this.poly.setMap(this.map);
             }
-
-            path = this.poly.getPath();
-            path.push(new google.maps.LatLng(pos.latitude, pos.longitude));
-
-            this.push('coordinates', pos);
-            this.set('position', pos);
-        },
-        computeMapStyle () {
-            return this.getPartialStyle(['width', 'height']);
-        },
-        renderOnCanvas (ctx) {
-            return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
-                let img,
-                    map = this.$$('#map'),
-                    width = map.offsetWidth,
-                    height = map.offsetHeight,
-                    x = 0,
-                    y = 0;
-
-                img = new Image();
-                img.src = '/assets/part/map-icon.svg';
-
-                return new Promise((resolve) => {
-                    img.onload = () => {
-                        let aspectW = img.width / width,
-                            aspectH = img.height / height;
-                        if (aspectW > aspectH) {
-                            y = height / 2;
-                            height = img.height / aspectW;
-                            y -= height / 2;
-                        } else {
-                            x = width / 2;
-                            width = img.width / aspectH;
-                            x -= width / 2;
-                        }
-                        ctx.drawImage(img, x, y, width, height);
-                        ctx.stroke();
-                        ctx.restore();
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        resolve(Kano.Behaviors.UIBehavior.renderFallback.apply(this, arguments));
-                    };
-                });
-            });
-        }
-    });
-</script>
+        });
+    </script>
+</dom-module>

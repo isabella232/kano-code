@@ -1,6 +1,9 @@
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/kaleidoscope.html">
+<link rel="import" href="../../kano-style/part.html">
 
 <dom-module id="kano-part-kaleidoscope">
+    <style is="custom-style" include="part-style"></style>
     <style>
     :host {
         display: inline-block;
@@ -22,7 +25,7 @@
 
     Polymer({
         is: 'kano-part-kaleidoscope',
-        behaviors: [Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.MakeApps.PartsAPI.kaleidoscope, Kano.Behaviors.UIBehavior],
         ready () {
             this.ctx = this.$.canvas.getContext('2d');
             this.prevSize = {};
@@ -57,7 +60,7 @@
             this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
         },
         start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+            Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
             this.resetSession();
             this._updateRender();
         },
@@ -89,36 +92,21 @@
         },
         _updateRender () {
             if (this.isRunning && this.image) {
-                let step = 2 * Math.PI / this.model.userProperties.slices,
-                    radius = Math.min(this.$.canvas.width, this.$.canvas.height) / 2,
-                    scale = this.model.userProperties.zoom * (radius / Math.min(this.image.naturalWidth, this.image.naturalHeight)),
-                    cx = this.image.naturalWidth / 2,
-                    centerX = this.$.canvas.width / 2 - radius,
-                    centerY = this.$.canvas.height / 2 - radius;
                 this.offsetX -= this.model.userProperties.speed;
                 this.offsetY -= this.model.userProperties.speed;
-                this.ctx.fillStyle = this.ctx.createPattern(this.image, 'repeat');
-                for (let i = 0; i < this.model.userProperties.slices; i++) {
-                    this.ctx.save();
-                    this.ctx.translate(radius, radius);
-                    this.ctx.translate(centerX, centerY);
-                    this.ctx.rotate(i * step);
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(-0.5, -0.5);
-                    this.ctx.arc(0, 0, radius, step * -0.51, step * 0.51);
-                    this.ctx.lineTo(0.5, 0.5);
-                    this.ctx.closePath();
 
-                    this.ctx.rotate(Math.PI / 2);
-                    this.ctx.scale(scale, scale);
-                    this.ctx.scale([-1,1][i % 2], 1);
-                    this.ctx.translate(this.offsetX - cx, this.offsetY);
-                    this.ctx.rotate(this.model.userProperties.offsetRotation / 180 * Math.PI);
-                    this.ctx.scale(this.offsetScale, this.offsetScale);
-
-                    this.ctx.fill();
-                    this.ctx.restore();
-                }
+                this.transform(this.ctx,
+                                this.image,
+                                this.canvas.$.width,
+                                this.canvas.$.height,
+                                this.image.naturalWidth,
+                                this.image.naturalHeight,
+                                this.model.userProperties.slices,
+                                this.model.userProperties.zoom,
+                                this.model.userProperties.offsetRotation,
+                                this.offsetScale,
+                                this.offsetX,
+                                this.offsetY);
             }
             cancelAnimationFrame(this.frameId);
             this.frameId = requestAnimationFrame(this._updateRender.bind(this));

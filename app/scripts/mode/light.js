@@ -6,15 +6,36 @@ export default light = {
     id: 'lightboard',
     name: 'Lightboard',
     colour: '#82C23D',
-    excludeParts: ['button', 'box', 'text-input', 'text', 'map', 'image',
-                   'scrolling-text', 'picture-list'],
+    parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
+                'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
+                'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
+                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer'],
     workspace: {
         viewport: {
             width: 466,
-            height: 240
+            height: 322
         },
         component: 'kano-workspace-lightboard'
     },
+    events: [{
+        label: 'UP pressed',
+        id: 'lightboard-js-up'
+    }, {
+        label: 'DOWN pressed',
+        id: 'lightboard-js-down'
+    }, {
+        label: 'LEFT pressed',
+        id: 'lightboard-js-left'
+    }, {
+        label: 'RIGHT pressed',
+        id: 'lightboard-js-right'
+    },{
+        label: 'A pressed',
+        id: 'lightboard-btn-A'
+    },{
+        label: 'B pressed',
+        id: 'lightboard-btn-B'
+    }],
     blocks: [{
         block: () => {
             return {
@@ -37,8 +58,8 @@ export default light = {
         },
         javascript: (part) => {
             return (block) => {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
+                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || `{"type":"all"}`,
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
             };
@@ -106,8 +127,7 @@ export default light = {
         block: () => {
             return {
                 id: 'light_x_y',
-                message0: 'light at %1 %2',
-                inputsInline: true,
+                message0: 'light at x %1 y %2',
                 output: 'Light',
                 args0: [{
                     type: "input_value",
@@ -117,7 +137,8 @@ export default light = {
                 {
                     type: "input_value",
                     name: "Y",
-                    check: "Number"
+                    check: "Number",
+                    align: "RIGHT"
                 }],
                 shadow: {
                     'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
@@ -171,8 +192,8 @@ export default light = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
@@ -201,8 +222,7 @@ export default light = {
                 message0: 'Lights: scroll text %1 color %2 background %3 speed %4',
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 },{
                     type: "input_value",
                     name: "COLOR",
@@ -224,8 +244,8 @@ export default light = {
                 nextStatement: null,
                 shadow: {
                     'SPEED': '<shadow type="math_number"><field name="NUM">50</field></shadow>',
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
@@ -247,47 +267,6 @@ export default light = {
                     speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || '50',
                     code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
                 return code;
-            };
-        }
-    },{
-        block: () => {
-            return {
-                id: 'button_down',
-                message0: 'when button %1 is pressed',
-                inputsInline: true,
-                args0: [{
-                    type: "field_dropdown",
-                    name: "KEY",
-                    options: [
-                        ['up', 'js-up'],
-                        ['down', 'js-down'],
-                        ['left', 'js-left'],
-                        ['right', 'js-right'],
-                        ['A', 'btn-A'],
-                        ['B', 'btn-B']
-                    ]
-                }],
-                message1: '%1',
-                args1: [{
-                    type: 'input_statement',
-                    name: 'DO'
-                }],
-                previousStatement: true,
-                nextStatement: true,
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
             };
         }
     }]

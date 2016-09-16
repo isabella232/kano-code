@@ -4,7 +4,8 @@ export default [{
     block: (ui) => {
         return {
             id: 'line_to',
-            message0: `${ui.name}: line to %1 %2`,
+            lookup: 'lineTo(x, y)',
+            message0: `${ui.name}: line to x %1 y %2`,
             args0: [{
                 type: "input_value",
                 name: "X",
@@ -12,7 +13,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "Y",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             inlineInputs: true,
             previousStatement: null,
@@ -41,7 +43,8 @@ export default [{
     block: (ui) => {
         return {
             id: 'line',
-            message0: `${ui.name}: line %1 %2`,
+            lookup: 'line(x, y)',
+            message0: `${ui.name}: line along %1 down %2`,
             args0: [{
                 type: "input_value",
                 name: "X",
@@ -49,7 +52,8 @@ export default [{
             },{
                 type: "input_value",
                 name: "Y",
-                check: 'Number'
+                check: 'Number',
+                align: 'RIGHT'
             }],
             inlineInputs: true,
             previousStatement: null,

@@ -1,0 +1,46 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class PartsModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+                this.addMethod('get', '_get');
+                this.addLifecycleStep('stop', '_stop');
+                this.addLifecycleStep('start', '_start');
+                this._parts = {};
+            }
+
+            loadParts (parts) {
+                this._parts = parts;
+            }
+
+            _get (name) {
+                return this._parts[name];
+            }
+
+            config (config) {
+                super.config(config);
+            }
+
+            _runDevicesMethod (name) {
+                Object.keys(this._parts).forEach(deviceName => {
+                    if (typeof this._parts[deviceName][name] === 'function') {
+                        this._parts[deviceName][name]();
+                    }
+                });
+            }
+
+            _start () {
+                this._runDevicesMethod('start');
+            }
+
+            _stop () {
+                this._runDevicesMethod('stop');
+            }
+        }
+
+        Kano.AppModules.modules['parts'] = new PartsModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

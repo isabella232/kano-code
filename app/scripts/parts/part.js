@@ -39,6 +39,7 @@ export default class Part {
         };
         this.visible = true;
         this.image = opts.image;
+        this.restrict = opts.restrict;
         this.colour = opts.colour;
         this.blocks = Array.isArray(opts.blocks) ? opts.blocks.slice(0) : [];
         this.legacyBlocks = Array.isArray(opts.legacyBlocks) ? opts.legacyBlocks.slice(0) : [];

@@ -1,0 +1,35 @@
+<link rel="import" href="./base.html">
+<script>
+    (function (Kano) {
+        let MotionSensor, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        MotionSensor = {
+            start () {
+                this.movement = false;
+                Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
+
+                this.motionEventListener = (e) => {
+                    if (e.movement) {
+                        this.fire('movement-start');
+                    } else {
+                        this.fire('movement-end');
+                    }
+                    this.movement = e.movement;
+                };
+
+                Kano.AppModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
+            },
+            stop () {
+                Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
+
+                Kano.AppModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
+                this.movement = false;
+            }
+        };
+
+        PartsAPI['motion-sensor'] = Object.assign({}, PartsAPI.Base, MotionSensor);
+    })(window.Kano = window.Kano || {});
+</script>

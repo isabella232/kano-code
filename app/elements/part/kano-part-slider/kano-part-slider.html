@@ -1,6 +1,7 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../kano-style/input.html">
+<link rel="import" href="../../kano-style/part.html">
 
 <dom-module id="kano-part-slider">
     <style is="custom-style" include="input-range"></style>
@@ -22,7 +23,7 @@
 
     Polymer({
         is: 'kano-part-slider',
-        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
         properties: {
             value: {
                 type: Number,
@@ -30,12 +31,8 @@
                 observer: '_valueChanged'
             }
         },
-        start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-        },
         stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
+            Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
             this.target = null;
         },
         connectTo (target) {

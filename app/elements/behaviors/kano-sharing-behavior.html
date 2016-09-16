@@ -23,36 +23,36 @@ var SharingBehavior = {
         '_userChanged(user)'
     ],
 
-    shareApp () {
+    _shareApp (e) {
         // Generates the standalone component
         let savedApp,
-        attachment,
-        cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
-        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+            attachment,
+            cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
 
         cover.filename = 'cover.png';
         workspaceInfo.filename = 'workspace_info.json';
 
         //Share by calling the API
-        Kano.MakeApps.sdk.api.share.post({
+        return Kano.MakeApps.sdk.api.share.post({
             app: 'make-apps',
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: {
                 cover: cover,
                 workspace_info: workspaceInfo
-            }
+            },
+            is_private: e.detail.is_private || false
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
                 // Generate the html file with the slug as component name
-                savedApp = Kano.MakeApps.components.generateStandaloneComponent(
+                savedApp = Kano.AppModules.generateStandaloneComponent(
                     share.slug,
                     this.shareInfo.parts,
                     this.shareInfo.background,
                     this.shareInfo.mode,
-                    this.shareInfo.code,
-                    Kano.AppModules.modules
+                    this.shareInfo.code
                 );
                 // Create the attachment
                 attachment = new Blob([savedApp], { type: 'text/html' });
@@ -69,8 +69,15 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            this.set('shareInfo.page', 2);
             this.set('shareInfo.id', share.id);
+            return share;
+        });
+    },
+
+    shareApp (e) {
+        this.set('shareInfo.page', 1);
+        this._shareApp(e).then((share) => {
+            this.set('shareInfo.page', 2);
             this.modal.refit();
         }).catch((e) => {
             console.error(e);
@@ -78,6 +85,14 @@ var SharingBehavior = {
             this.modal.refit();
         });
     },
+
+    privateShareApp (e) {
+        this._shareApp(e).catch((e) => {
+            this.set('shareInfo.page', 3);
+            this.modal.refit();
+        });
+    },
+
     /**
     * Opens the sharing modal and share the app
     */
@@ -119,7 +134,11 @@ var SharingBehavior = {
                 }
             }
         };
-        this.modal.open();
+        let onAppReady = () => {
+            this.modal.open();
+            this.modal.removeEventListener('app-ready', onAppReady);
+        };
+        this.modal.addEventListener('app-ready', onAppReady)
     },
 
     _userChanged (user) {
@@ -133,15 +152,20 @@ var SharingBehavior = {
         }
     },
 
-    confirmShare () {
+    confirmShare (e) {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.set('shareInfo.page', 1);
-        this.shareApp();
+
+        if (e.detail.is_private && e.detail.is_private === true) {
+            this.privateShareApp(e);
+        } else {
+            this.shareApp(e);
+        }
+
         this.modal.refit();
     },
 

@@ -7,6 +7,9 @@ var webComponentsSupported = ('registerElement' in document &&
     'content' in document.createElement('template')),
     msg = 'Loading',
     loaded = false,
+    loadEventFired = false,
+    kanoAppInserted = false,
+    loadTimeoutId,
     started,
     timeout,
     wcPoly;
@@ -45,10 +48,14 @@ function startBreathing() {
 }
 
 function onElementsLoaded() {
+    if (kanoAppInserted) {
+        return;
+    }
     var app = document.createElement('kano-app'),
         loader = document.getElementById('loader');
     document.body.insertBefore(app, loader);
     document.addEventListener('kano-routing-load-finish', onFirstPageLoaded);
+    kanoAppInserted = true;
 }
 
 /**
@@ -72,6 +79,12 @@ function lazyLoadElements() {
  * Optionally load the webcomponents polyfill and then load the elements bundle
  */
 function deferLoading() {
+    // Race condition cause of safari fix hack
+    if (loadEventFired) {
+        return;
+    }
+    loadEventFired = true;
+    clearTimeout(loadTimeoutId);
     // Animate the loader to keep the user chill
     animateLoader();
     if (!webComponentsSupported) {
@@ -146,6 +159,9 @@ if (window.addEventListener) {
 } else {
     window.onload = deferLoading;
 }
+
+// I am ashamed of this hack, but sometimes safari just doesn't fire the load event :(
+loadTimeoutId = setTimeout(deferLoading, 1000);
 
 window.Polymer = {
     dom: 'shadow',

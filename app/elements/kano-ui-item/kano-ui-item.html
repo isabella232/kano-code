@@ -38,7 +38,7 @@
     }
     :host label {
         margin-top: 5px;
-        font-size: 1em;
+        font-size: 14px;
         text-align: center;
         color: #4A4A4A;
         overflow: hidden;
@@ -60,7 +60,7 @@
                     <div class="overlay"></div>
                 </template>
             </div>
-            <label style$="[[computeLabelStyle(selected)]]">{{computeLabel(model.*)}}</label>
+            <label style$="[[computeLabelStyle(selected, instance, noLabel)]]">{{computeLabel(model.*)}}</label>
         </div>
     </template>
 </dom-module>
@@ -100,6 +100,10 @@
             colour: {
                 type: String,
                 value: null
+            },
+            noLabel: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
@@ -120,6 +124,10 @@
             }, 10);
         },
         computeLabelStyle (selected) {
+            if (this.noLabel) {
+                return 'display: none;';
+            }
+
             if (this.instance) {
                 return;
             }

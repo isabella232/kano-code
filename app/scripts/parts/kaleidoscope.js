@@ -5,9 +5,9 @@ let kaleidoscope;
 export default kaleidoscope = {
     partType: 'ui',
     type: 'kaleidoscope',
-    label: 'Kaleidoscope',
+    label: 'Prism',
     component: 'kano-part-kaleidoscope',
-    image: '/assets/part/box.svg',
+    image: '/assets/part/prism.svg',
     customizable: {
         properties: [{
             key: 'offsetRotation',

@@ -1,0 +1,419 @@
+{
+	"steps": [
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "control"
+					},
+					"position": "left",
+					"text": "First let's get our loop ready..."
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "control"
+				}
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"flyout_block": "every_x_seconds"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "every_x_seconds",
+						"id": "block_0"
+					}
+				}
+			}
+		},
+		{
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "default_part_event",
+							"inputName": "DO"
+						},
+						"target": "block_0"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "default_part_event"
+				},
+				"target": "DO"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "lightboard"
+					},
+					"position": "left",
+					"text": "Now we want to turn on some lights"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "lightboard"
+				}
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"flyout_block": "lightboard#turn_on"
+				},
+				"angle": 0,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "lightboard#turn_on",
+						"id": "block_1"
+					}
+				}
+			}
+		},
+		{
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_0",
+							"inputName": "DO"
+						},
+						"target": "block_1"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_0"
+				},
+				"target": "DO"
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"category": "lightboard"
+				},
+				"angle": 0,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"open-flyout": "lightboard"
+				}
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"flyout_block": "lightboard#light_x_y"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "lightboard#light_x_y",
+						"id": "block_2"
+					}
+				}
+			}
+		},
+		{
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_1",
+							"inputName": "TARGET"
+						},
+						"target": "block_2"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_1"
+				},
+				"target": "TARGET"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "math"
+					},
+					"position": "bottom",
+					"text": "Now we want to turn on a random light.<br>To do that we need a <b>random number</b><br>These live in the Math tray",
+					"next_button": true
+				}
+			]
+		},
+		{
+			"arrow": {
+				"target": {
+					"category": "math"
+				},
+				"angle": 0,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"open-flyout": "math"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": "math_random"
+					},
+					"position": "left",
+					"text": "This block generates a random number between a given range.<br>It's just like tossing a giant dice!"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": "math_random"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "math_random",
+						"id": "block_3"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": "block_2"
+					},
+					"position": "left",
+					"text": "Tell it to randomly turn on a light"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_2",
+							"inputName": "X"
+						},
+						"target": "block_3"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_2"
+				},
+				"target": "X"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_3",
+							"shadow": "MAX"
+						}
+					},
+					"position": "left",
+					"text": "Now we just need to tweak the number<br>We want it to cover all the columns...<br>Change to <kano-value-preview>15</kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": {
+							"id": "block_3",
+							"shadow": "MAX"
+						},
+						"value": "15"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "math"
+					},
+					"position": "left",
+					"text": "Let's get another one to randomize the y value"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "math"
+				}
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"flyout_block": "math_random"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "math_random",
+						"id": "block_4"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": "block_2"
+					},
+					"position": "left",
+					"text": "Connect it to control the y position"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_2",
+							"inputName": "Y"
+						},
+						"target": "block_4"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_2"
+				},
+				"target": "Y"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_4",
+							"shadow": "MAX"
+						}
+					},
+					"position": "left",
+					"text": "Let's tweak it to control all of the rows!<br>Change to <kano-value-preview>7</kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": {
+							"id": "block_4",
+							"shadow": "MAX"
+						},
+						"value": "7"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"category": "color"
+					},
+					"position": "left",
+					"text": "Finally let's get a random color in here"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": "color"
+				}
+			}
+		},
+		{
+			"arrow": {
+				"target": {
+					"flyout_block": "random_colour"
+				},
+				"angle": 315,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"type": "random_colour",
+						"id": "block_5"
+					}
+				}
+			}
+		},
+		{
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_1",
+							"inputName": "COLOR"
+						},
+						"target": "block_5"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": "block_1"
+				},
+				"target": "COLOR"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "left-panel",
+					"position": "right",
+					"text": "Whoa you're a light super hero!<br>Try making it go even faster by changing <kano-value-preview>seconds</kano-value-preview> to <kano-value-preview>frames</kano-value-preview>...",
+					"next_button": true
+				}
+			]
+		}
+	],
+	"parts": [],
+	"modules": [
+		"control",
+		"math",
+		"color"
+	],
+	"variables": [],
+	"mode": "lightboard"
+}

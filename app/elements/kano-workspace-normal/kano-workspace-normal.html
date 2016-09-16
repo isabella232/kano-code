@@ -9,34 +9,6 @@
             box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
             border-radius: 5px;
         }
-
-        :host .hole {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #454545;
-        }
-        :host .hole.hidden {
-            display: none;
-        }
-        :host .hole.hole-top-left {
-            top: 5px;
-            left: 5px;
-        }
-        :host .hole.hole-top-right {
-            top: 5px;
-            right: 5px;
-        }
-        :host .hole.hole-bottom-right {
-            bottom: 5px;
-            right: 5px;
-        }
-        :host .hole.hole-bottom-left {
-            bottom: 5px;
-            left: 5px;
-        }
-
         :host ::content > *:not(.hole) {
             position: absolute;
             top: 0px;
@@ -81,7 +53,7 @@
                     this.start();
                 }
 
-                this.ctx = this.$.canvas;
+                this.ctx = this.canvasElement = this.$.canvas;
 
                 this.ctx.addEventListener('mouseover', this._onMouseOver.bind(this));
                 this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
@@ -119,8 +91,9 @@
                 this.mousePositionY = 250;
             },
             _onMouseMove (e) {
+                console.log("Mouse move");
                 if (this._isMouseOver) {
-                    this.rectangle = this.ctx.getBoundingClientRect();
+                    this.rectangle = this.canvasElement.getBoundingClientRect();
 
                     this.mousePositionX = parseInt(e.x - this.rectangle.left);
                     this.mousePositionY = parseInt(e.y - this.rectangle.top);

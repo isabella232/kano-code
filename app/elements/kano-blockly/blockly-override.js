@@ -15,6 +15,8 @@ if (window.CustomBlocklyMsg) {
     Object.assign(Blockly.Msg, window.CustomBlocklyMsg);
 }
 
+Blockly.isAnimationsDisabled = Kano.MakeApps.config.PERF_SAFE;
+
 function lightenColor (hex, lum) {
 
 	// validate hex string
@@ -209,6 +211,33 @@ Blockly.Variables.addVariable = function(variable, root) {
     }
 };
 
+Blockly.getSvgXY_ = function(element, workspace) {
+  var x = 0;
+  var y = 0;
+  var scale = 1;
+  if (goog.dom.contains(workspace.getCanvas(), element) ||
+      goog.dom.contains(workspace.getBubbleCanvas(), element)) {
+    // Before the SVG canvas, scale the coordinates.
+    scale = workspace.scale;
+  }
+  do {
+    if (!element.getAttribute) {
+        break;
+    } 
+    // Loop through this block and every parent.
+    var xy = Blockly.getRelativeXY_(element);
+    if (element == workspace.getCanvas() ||
+        element == workspace.getBubbleCanvas()) {
+      // After the SVG canvas, don't scale the coordinates.
+      scale = 1;
+    }
+    x += xy.x * scale;
+    y += xy.y * scale;
+    element = element.parentNode;
+  } while (element && element != workspace.getParentSvg());
+  return new goog.math.Coordinate(x, y);
+};
+
 Blockly.Flyout.blocks = {};
 Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
     return Blockly.Flyout.blocks[type];
@@ -260,21 +289,25 @@ Blockly.Flyout.prototype.hide = function() {
   var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
   var origin = this.trianglePos_;
   this.svgGroup_.style.transformOrigin = `left ${origin}px`;
-  this.animation = this.svgGroup_.animate([{
-      transform: `${translate} scale(1)`,
-      opacity: 1
-  },{
-      transform: `${translate} scale(0.5)`,
-      opacity: 0
-  }], {
-      duration: 200,
-      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-  });
-  this.animation.finished.then(() => {
+  if (Blockly.isAnimationsDisabled) {
       this.svgGroup_.style.display = 'none';
-  }).catch(() => {
-      return;
-  });
+  } else {
+      this.animation = this.svgGroup_.animate([{
+          transform: `${translate} scale(1)`,
+          opacity: 1
+      },{
+          transform: `${translate} scale(0.5)`,
+          opacity: 0
+      }], {
+          duration: 200,
+          easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+      });
+      this.animation.finished.then(() => {
+          this.svgGroup_.style.display = 'none';
+      }).catch(() => {
+          return;
+      });
+  }
   // Delete all the event listeners.
   for (var x = 0, listen; listen = this.listeners_[x]; x++) {
     Blockly.unbindEvent_(listen);
@@ -358,16 +391,18 @@ Blockly.Flyout.prototype.show = function(xmlList) {
   if (this.animation) {
       this.animation.cancel();
   }
-  this.animation = this.svgGroup_.animate([{
-      transform: `${translate} scale(0.5)`,
-      opacity: 0
-  }, {
-      transform: `${translate} scale(1)`,
-      opacity: 1
-  }], {
-      duration: 200,
-      easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-  });
+  if (!Blockly.isAnimationsDisabled) {
+      this.animation = this.svgGroup_.animate([{
+          transform: `${translate} scale(0.5)`,
+          opacity: 0
+      }, {
+          transform: `${translate} scale(1)`,
+          opacity: 1
+      }], {
+          duration: 200,
+          easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+      });
+  }
 
   this.reflowWrapper_ = this.reflow.bind(this);
   this.workspace_.addChangeListener(this.reflowWrapper_);
@@ -440,7 +475,7 @@ Blockly.Flyout.prototype.position = function () {
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, this.CORNER_RADIUS);
     path.push('h', -edgeWidth);
     path.push('a', this.CORNER_RADIUS, this.CORNER_RADIUS, 0, 0, 1, -this.CORNER_RADIUS, -this.CORNER_RADIUS);
-    if (this.targetWorkspace_.toolbox_) {
+    if (this.targetWorkspace_.toolbox_ && this.trianglePos_) {
         path.push('v', -(height - this.trianglePos_ - 12));
         path.push('l', -10, -12);
         path.push('l', 10, -12);
@@ -1288,14 +1323,19 @@ Blockly.setPhantomBlock = function (connection, targetBlock) {
         phantomSvgGroup = document.createElementNS(Blockly.SVG_NS, 'g'),
         phantomSvgPath = document.createElementNS(Blockly.SVG_NS, 'path'),
         phantomSvgText = document.createElementNS(Blockly.SVG_NS, 'text'),
-        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x),
-        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y),
         xy = sourceBlock.getRelativeToSurfaceXY(),
-        position = {
-            x: dx - xy.x,
-            y: dy - xy.y
-        },
-        breathingAnimation;
+        position = {},
+        breathingAnimation, dx, dy;
+
+    if (Blockly.dragMode_ !== 0) {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x);
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y);
+    } else {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.getBoundingRectangle().topLeft.x) + 8;
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.getBoundingRectangle().topLeft.y);
+    }
+    position.x = dx - xy.x;
+    position.y = dy - xy.y;
 
     phantomSvgPath.setAttribute('d', targetBlock.svgPath_.getAttribute('d'));
     phantomSvgPath.setAttribute('fill', targetBlock.getColour());

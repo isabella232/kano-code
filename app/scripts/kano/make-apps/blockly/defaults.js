@@ -10,6 +10,7 @@
     Defaults = Kano.MakeApps.Blockly.Defaults = {};
 
     Defaults.categoryMap = {};
+    Defaults.shadowMap = {};
     Defaults.labels = {};
     Defaults.labels.category = {};
 
@@ -41,7 +42,8 @@
     };
 
     Defaults.createCategory = function (opts) {
-        var blocks = opts.blocks.map(block => {
+        var shadow,
+            blocks = opts.blocks.map(block => {
             if (typeof block === 'string') {
                 // Map the block id to its category
                 Defaults.categoryMap[block] = opts.id;
@@ -51,9 +53,11 @@
             }
             // Map the block id to its category
             Defaults.categoryMap[block.id] = opts.id;
+            shadow = Defaults.getShadowForBlock(block.id, block.defaults);
+            Defaults.shadowMap[block.id] = shadow;
             return {
                 id: block.id,
-                shadow: Defaults.getShadowForBlock(block.id, block.defaults)
+                shadow
             };
         });
         this.labels.category[opts.id] = opts.name;
@@ -91,7 +95,8 @@
             'UNIT': 'seconds'
         },
         'in_x_time': {
-            'DELAY': 1
+            'DELAY': 1,
+            'UNIT': 'seconds'
         },
         'repeat_x_times': {
             'N': 10

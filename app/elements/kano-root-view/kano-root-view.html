@@ -74,7 +74,20 @@
             return options;
         },
         saveCode (e) {
-            this.notifyChange('blockly', { event: e.detail });
+            // Check if a create event follows a close-flyout event. If so, do not notify
+            // of the close-flyout event
+            if (e.detail.type === 'close-flyout') {
+                // Defer the notification
+                this.closeFlyoutTimeoutId = setTimeout(() => {
+                    this.notifyChange('blockly', { event: e.detail });
+                });
+            } else {
+                // A create event will cancel its previous close-flyout event
+                if (e.detail.type === 'create') {
+                    clearTimeout(this.closeFlyoutTimeoutId);
+                }
+                this.notifyChange('blockly', { event: e.detail });
+            }
             this.debounce('saveCode', () => {
                 let codeEditor = this.$['code-editor'];
 
@@ -119,6 +132,7 @@
             let events = [];
             this.parts
                 .forEach((part) => {
+                    part.blockIds = [];
                     part.blocks.forEach((definition) => {
                         this._registerBlock(part, definition);
                     });
@@ -131,22 +145,48 @@
                     });
                 });
             if (this.mode.blocks) {
+                this.mode.blockIds = [];
                 this.mode.blocks.forEach((definition) => {
                     this._registerBlock(this.mode, definition);
                 });
             }
         },
         _registerBlock (part, definition) {
-            let block = definition.block(part);
+            let block = definition.block(part),
+                lookups,
+                lookupString;
+
+            block.lookup = block.lookup || [];
+            lookups = Array.isArray(block.lookup) ? block.lookup : [block.lookup];
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
-            Blockly.Blocks[block.id] = {
-                init: function () {
-                    this.jsonInit(block);
-                }
-            };
+            lookups.forEach(lookup => {
+                lookupString = `${part.id}.${lookup}`;
+                part.blockIds.push(block.id);
+                Kano.MakeApps.Blockly.setLookupString(block.id, lookupString);
+            });
+            if (!block.doNotRegister) {
+                Blockly.Blocks[block.id] = {
+                    init: function () {
+                        this.jsonInit(block);
+                    }
+                };
+            }
             Blockly.JavaScript[block.id] = definition.javascript(part);
             Blockly.Pseudo[block.id] = definition.pseudo(part);
+            // Hack to register blocks from the normal mode under the dropzone id to support older shares
+            if (part.id === 'normal') {
+                block.id = block.id.replace('normal', 'dropzone');
+                if (!block.doNotRegister) {
+                    Blockly.Blocks[block.id] = {
+                        init: function () {
+                            this.jsonInit(block);
+                        }
+                    };
+                }
+                Blockly.JavaScript[block.id] = definition.javascript(part);
+                Blockly.Pseudo[block.id] = definition.pseudo(part);
+            }
         },
         computeToolbox () {
             let categories,

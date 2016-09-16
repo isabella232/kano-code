@@ -3,10 +3,11 @@ let lightFrame;
 export default lightFrame = {
     partType: 'ui',
     type: 'lightframe',
-    label: 'Light frame',
-    image: '/assets/part/lights.svg',
+    label: 'Frame',
+    image: '/assets/part/pixels-draw.svg',
     colour: '#FFB347',
     component: 'kano-part-light-frame',
+    restrict: 'workspace',
     blocks: [],
     configPanel: 'light-frame',
     customizable: {

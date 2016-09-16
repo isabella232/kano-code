@@ -1,4 +1,5 @@
 import backgroundBlocks from './common/background-blocks';
+import filters from './common/filters';
 
 let Camera;
 
@@ -14,10 +15,24 @@ export default Camera = {
         component: 'kano-workspace-camera'
     },
     colour: '#82C23D',
-    excludeParts: ['light-rectangle', 'light-circle'],
+    parts: ['clock', 'microphone', 'speaker', 'kaleidoscope',
+                'button', 'box', 'sticker', 'map', 'picture-list',
+                'scrolling-text', 'slider', 'text-input', 'text',
+                'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
+                'proximity-sensor', 'motion-sensor', 'gesture-sensor',
+                'gyro-accelerometer'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
+    }, {
+        label: 'shutter pushed',
+        id: 'camera-shutter-button'
+    }, {
+        label: 'timer turns left',
+        id: 'camera-timer-cw'
+    }, {
+        label: 'timer turns right',
+        id: 'camera-timer-ccw'
     }],
     blocks: [{
         block: () => {
@@ -32,13 +47,13 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().takePicture();\n`;
+                let code = `devices.get('${part.id}').takePicture();\n`;
                 return code;
             };
         }
@@ -54,15 +69,55 @@ export default Camera = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').lastPicture()`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getCamera().lastPicture()`;
+                let code = `devices.get('${part.id}').lastPicture()`;
                 return [code];
             };
         }
-    }].concat(backgroundBlocks)
+    }, {
+        block: () => {
+            return {
+                id: 'ledring_flash',
+                message0: 'Led ring: flash color %1 duration %2',
+                args0: [{
+                    type: "input_value",
+                    name: "COLOR",
+                    check: 'Colour'
+                },{
+                    type: "input_value",
+                    name: "LENGTH",
+                    check: "Number",
+                    align: "RIGHT"
+                }],
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null,
+                shadow: {
+                    'LENGTH': '<shadow type="math_number"><field name="NUM">200</field></shadow>',
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                }
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let length = Blockly.JavaScript.valueToCode(block, 'LENGTH') || 200,
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
+                    code = `devices.get('${part.id}').flash(${color}, ${length});\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let length = Blockly.JavaScript.valueToCode(block, 'LENGTH') || 200,
+                    color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '""',
+                    code = `devices.get('${part.id}').flash(${color}, ${length});\n`;
+                return code;
+            };
+        }
+    }].concat(filters).concat(backgroundBlocks)
 };

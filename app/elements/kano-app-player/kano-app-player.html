@@ -50,13 +50,14 @@
                 Kano.AppModules.start();
             },
             detached () {
-                Kano.AppModules.stop();    
+                Kano.AppModules.stop();
             },
             _srcChanged () {
                 // Check that we are loading and html file. Bsing that on the extension is not the best solution
                 // as any server coulde return html content. This prevents loading of late setups bindings. For
                 // exanple, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
-                if (!this.src || !/.*\.html/.test(this.src)) {
+
+                if (!this.src || !/(.*\.html)|(data:text\/html;base64,.*)/.test(this.src)) {
                     return;
                 }
                 this.debounce('importApp', () => {
@@ -76,8 +77,26 @@
                     c = this.create('kano-user-component');
                 }
                 c.className = 'user-app kano-app-player';
+                // Support apps exported with error
+                c.$$ = function (id) {
+                    if (['#light', '#camera', '#normal', '#dropzone'].indexOf(id) !== -1 && this.$.screen) {
+                        return this.$.screen;
+                    }
+                    return Polymer.dom(this.root).querySelector(id);
+                };
                 root.appendChild(c);
-                root.removeChild(this.$.container);
+                if (this.$.container) {
+                    root.removeChild(this.$.container);
+                    this.$.container = null;
+                }
+                if (this.component) {
+                    root.removeChild(this.component);
+                }
+                this.component = c;
+                this.fire('app-ready');
+                this.async(() => {
+                    this.component.$$('kano-ui-viewport').resizeView();
+                });
             },
             _onAppFileError (e) {
                 this.failed = true;

@@ -62,6 +62,13 @@
         ]
     });
 
+    Kano.MakeApps.Blockly.setLookupString('controls_if', 'if (validation) {...}');
+    Kano.MakeApps.Blockly.setLookupString('logic_compare', 'compare(a, b, check)');
+    Kano.MakeApps.Blockly.setLookupString('logic_negate', 'not(a)');
+    Kano.MakeApps.Blockly.setLookupString('logic_boolean', 'boolean');
+    Kano.MakeApps.Blockly.setLookupString('logic_boolean', 'true');
+    Kano.MakeApps.Blockly.setLookupString('logic_boolean', 'false');
+
     Kano.MakeApps.Blockly.addModule('logic', {
         register,
         category
