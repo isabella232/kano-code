@@ -24,6 +24,13 @@
         ]
     });
 
+    Kano.MakeApps.Blockly.setLookupString('math_number', 'number');
+    Kano.MakeApps.Blockly.setLookupString('text', 'text');
+    Kano.MakeApps.Blockly.setLookupString('text_join', 'textJoin(a, b, ...)');
+    Kano.MakeApps.Blockly.setLookupString('variables_get', 'get');
+    Kano.MakeApps.Blockly.setLookupString('variables_set', 'set');
+    Kano.MakeApps.Blockly.setLookupString('variables_set', '=');
+
     Kano.MakeApps.Blockly.addModule('variables', {
         register,
         category
