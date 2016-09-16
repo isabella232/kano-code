@@ -12,7 +12,7 @@ import RSS from './data/rss';
 import Sports from './data/sports';
 import Weather from './data/weather/weather';
 import Share from './data/kano/share';
-import Image from './image';
+import Sticker from './sticker';
 import ScrollingText from './scrolling-text';
 import Speaker from './speaker';
 import Microphone from './microphone';
@@ -41,7 +41,7 @@ partTypes = {
 };
 module.exports = Parts = {
     list: [Button, Box, TextInput, Text, Map, ISS, Weather, Share,
-           Image, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
+           Sticker, ScrollingText, RSS, Sports, Speaker, Microphone, Clock,
            ProximitySensor, MotionSensor, GestureSensor, GyroAccelerometer],
     experiments: {
         'lightboard': [LightRectangle, LightCircle, LightFrame, LightAnimation, LightAnimationDisplay],

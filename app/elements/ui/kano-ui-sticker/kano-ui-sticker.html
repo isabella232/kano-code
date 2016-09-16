@@ -1,10 +1,10 @@
 <link rel="import" href="../../part/kano-ui-behavior.html">
-<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/sticker.html">
 <link rel="import" href="../../kano-style/background.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../kano-style/part.html">
 
-<dom-module id="kano-ui-image">
+<dom-module id="kano-ui-sticker">
     <style is="custom-style" include="part-style"></style>
     <style>
     :host {
@@ -29,8 +29,8 @@
     /* globals Polymer, Kano */
 
     Polymer({
-        is: 'kano-ui-image',
-        behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+        is: 'kano-ui-sticker',
+        behaviors: [Kano.MakeApps.PartsAPI.sticker, Kano.Behaviors.UIBehavior],
         observers: [
             'loadedChanged(loaded)'
         ],
@@ -38,17 +38,14 @@
             // Check if the src is set or empty and toggle the class accordingly
             this.toggleClass('empty', !loaded, this.$.image);
         },
-        setImage (pic) {
-            this.set('model.userProperties.src', pic);
-        },
-        getSource () {
-            return this.get('model.userProperties.src');
-        },
         computeImageStyle () {
             return this.getPartialStyle(['width', 'height']);
         },
         tapped () {
             this.fire('clicked');
+        },
+        attached () {
+            this.setSticker(this.randomSticker());
         },
         renderOnCanvas (ctx) {
             return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {

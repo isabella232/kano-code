@@ -49,7 +49,7 @@ export default normal = {
         component: 'kano-workspace-normal'
     },
     parts: ['clock', 'microphone', 'speaker', 'button', 'box',
-                'image', 'map', 'scrolling-text', 'slider',
+                'sticker', 'map', 'scrolling-text', 'slider',
                 'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
                 'share', 'canvas', 'gyro-accelerometer']
 };

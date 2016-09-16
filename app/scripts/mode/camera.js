@@ -16,7 +16,7 @@ export default Camera = {
     },
     colour: '#82C23D',
     parts: ['clock', 'microphone', 'speaker', 'kaleidoscope',
-                'button', 'box', 'image', 'map', 'picture-list',
+                'button', 'box', 'sticker', 'map', 'picture-list',
                 'scrolling-text', 'slider', 'text-input', 'text',
                 'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
                 'proximity-sensor', 'motion-sensor', 'gesture-sensor',
