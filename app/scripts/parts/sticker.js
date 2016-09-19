@@ -18,12 +18,16 @@ export default sticker = {
             options: {
                 files: 'stickers'
             }
+        }, {
+            key: 'size',
+            type: 'size',
+            label: 'Size',
+            symbol: 'pixels'
         }],
-        style: ['width', 'height']
+        style: []
     },
-    userStyle: {
-        width: '100px',
-        height: '100px'
+    userProperties: {
+        size: '100px'
     },
     events: [{
         label: 'is clicked',

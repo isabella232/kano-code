@@ -17,6 +17,7 @@ export default light = {
         },
         component: 'kano-workspace-lightboard'
     },
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" id="default_part_event_id" colour="#33a7ff" x="90" y="120"><field name="EVENT">global.start</field></block></xml>`,
     events: [{
         label: 'UP pressed',
         id: 'lightboard-js-up'

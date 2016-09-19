@@ -17,7 +17,7 @@
     <template>
         <iron-image id="image"
                     src="[[model.userProperties.src]]"
-                    style$="[[computeImageStyle(model.userStyle.*)]]"
+                    style$="[[computeImageStyle(model.userProperties.size)]]"
                     sizing="contain"
                     on-tap="tapped"
                     class="empty"
@@ -38,8 +38,8 @@
             // Check if the src is set or empty and toggle the class accordingly
             this.toggleClass('empty', !loaded, this.$.image);
         },
-        computeImageStyle () {
-            return this.getPartialStyle(['width', 'height']);
+        computeImageStyle (size) {
+            return `width: ${size}px; height: ${size}px;`;
         },
         tapped () {
             this.fire('clicked');
