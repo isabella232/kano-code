@@ -1,15 +1,5 @@
 /* globals Polymer, Kano, interact, Part */
 
-const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"90\" y=\"120\"><field name=\"EVENT\">global.start</field></block></xml>";
-
-function getDefaultCode() {
-    return {
-        snapshot: {
-            blocks: DEFAULT_BLOCKS
-        }
-    };
-}
-
 function getDefaultBackground() {
     return {
         name: 'My app',
@@ -36,7 +26,13 @@ Polymer({
         code: {
             type: Object,
             notify: true,
-            value: getDefaultCode()
+            value: () => {
+                return {
+                    snapshot: {
+                        blocks: ''
+                    }
+                };
+            }
         },
         selected: {
             type: Object,
@@ -88,7 +84,8 @@ Polymer({
             type: String
         },
         mode: {
-            type: String
+            type: String,
+            observer: '_modeChanged'
         }
     },
     observers: [
@@ -99,6 +96,9 @@ Polymer({
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)'
     ],
+    _modeChanged () {
+        this.code = this._formatCode(this.code);
+    },
     _partsPanelStateChanged (state) {
         if (this.editableLayout && state === 'main') {
             this.$.workspace.toggleEditableLayout();
@@ -305,14 +305,14 @@ Polymer({
         let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
         code = code || {};
         code.snapshot = code.snapshot || {};
-        if (code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
-            code.snapshot.blocks = DEFAULT_BLOCKS;
+        if (this.mode && code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
+            code.snapshot.blocks = this.mode.defaultBlocks;
         }
         return code;
     },
     reset () {
         this.set('addedParts', []);
-        this.set('code', getDefaultCode());
+        this.set('code', this._formatCode({}));
         this.set('background', getDefaultBackground());
         this.save();
     },

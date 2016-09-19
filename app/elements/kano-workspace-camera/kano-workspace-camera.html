@@ -30,7 +30,7 @@
         }
     </style>
     <template>
-        <button on-tap="takePicture">Take picture</button>
+        <button on-tap="_triggerShutterEvent">Shutter</button>
         <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
         <div class="content">
             <content></content>
@@ -149,6 +149,9 @@
                     this._paintFrame('/assets/mode/camera/default-picture.png', ctx.canvas);
                     this.addEventListener('rendering-done', onRenderingDone);
                 });
+            },
+            _triggerShutterEvent () {
+                this.fire('camera-shutter-button');
             }
         });
     </script>
