@@ -172,7 +172,9 @@
                  * if the block from the challenge is different from the one defined in the mode
                  */
                 case 'block': {
-                    if (node.getAttribute('type') === defaultNode.getAttribute('type') &&
+                    if (!defaultNode) {
+                        steps = steps.concat(this.blockToSteps(node));
+                    } else if (node.getAttribute('type') === defaultNode.getAttribute('type') &&
                         node.getAttribute('id') === defaultNode.getAttribute('id')) {
                         steps = steps.concat(this.matchDefaultBlocks(node.children, defaultNode.children));
                     } else {
