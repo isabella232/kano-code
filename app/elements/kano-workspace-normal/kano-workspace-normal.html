@@ -9,34 +9,6 @@
             box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
             border-radius: 5px;
         }
-
-        :host .hole {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #454545;
-        }
-        :host .hole.hidden {
-            display: none;
-        }
-        :host .hole.hole-top-left {
-            top: 5px;
-            left: 5px;
-        }
-        :host .hole.hole-top-right {
-            top: 5px;
-            right: 5px;
-        }
-        :host .hole.hole-bottom-right {
-            bottom: 5px;
-            right: 5px;
-        }
-        :host .hole.hole-bottom-left {
-            bottom: 5px;
-            left: 5px;
-        }
-
         :host ::content > *:not(.hole) {
             position: absolute;
             top: 0px;
@@ -45,13 +17,24 @@
         canvas {
             border-radius: 5px;
         }
+
+        :host .actions {
+            position: absolute;
+        }
+        :host .actions .coordinates {
+            background-color: #222D33;
+            border-radius: 6px;
+            margin-top: 8px;
+            color: white;
+            display: inline-block;
+            padding: 8px 12px;
+        }
     </style>
     <template>
         <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-        <div class="hole hole-top-left"></div>
-        <div class="hole hole-top-right"></div>
-        <div class="hole hole-bottom-right"></div>
-        <div class="hole hole-bottom-left"></div>
+        <div class="actions">
+            <div class="coordinates">X: {{ mousePositionX }}, Y: {{ mousePositionY }}</div>
+        </div>
         <content></content>
     </template>
     <script>
@@ -59,6 +42,27 @@
         Polymer({
             is: 'kano-workspace-normal',
             behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            properties: {
+                width: Number,
+                height: Number,
+                autoStart: Boolean
+            },
+            ready () {
+                this.mousePositionX = 250;
+                this.mousePositionY = 250;
+            },
+            attached () {
+                if (this.autoStart) {
+                    this.start();
+                }
+
+                this.ctx = this.$.canvas;
+                this.canvasElement = Polymer.dom(this).parentNode;
+
+                this.canvasElement.addEventListener('mouseover', this._onMouseOver.bind(this));
+                this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
+                this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
+            },
             setBackgroundColor (color) {
                 this.style.backgroundColor = color;
             },
@@ -83,6 +87,22 @@
                 image.src = this.$.canvas.toDataURL();
                 ctx.drawImage(image, 0, 0);
                 return Promise.resolve();
+            },
+            _onMouseOver (e) {
+                this._isMouseOver = true;
+            },
+            _onMouseOut (e) {
+                this._isMouseOver = false;
+                this.mousePositionX = 250;
+                this.mousePositionY = 250;
+            },
+            _onMouseMove (e) {
+                if (this._isMouseOver) {
+                    this.rectangle = this.canvasElement.getBoundingClientRect();
+
+                    this.mousePositionX = parseInt(e.x - this.rectangle.left);
+                    this.mousePositionY = parseInt(e.y - this.rectangle.top);
+                }
             }
         });
     </script>

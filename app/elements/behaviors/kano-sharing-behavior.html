@@ -36,7 +36,7 @@ var SharingBehavior = {
     _goToForm () {
         this._goToPage('sharing-form');
     },
-    shareApp () {
+    _shareApp () {
         // Generates the standalone component
         let savedApp,
         attachment,
@@ -47,14 +47,15 @@ var SharingBehavior = {
         workspaceInfo.filename = 'workspace_info.json';
 
         //Share by calling the API
-        Kano.MakeApps.sdk.api.share.post({
+        return Kano.MakeApps.sdk.api.share.post({
             app: 'make-apps',
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: {
                 cover: cover,
                 workspace_info: workspaceInfo
-            }
+            },
+            is_private: this.shareInfo.is_private || false
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
@@ -83,11 +84,13 @@ var SharingBehavior = {
         }).then((share) => {
             this.set('shareInfo.id', share.id);
             this._goToPage('success');
+            return share;
         }).catch((e) => {
             console.error(e);
             this._goToPage('failure');
         });
     },
+
     /**
     * Opens the sharing modal and share the app
     */
@@ -159,14 +162,15 @@ var SharingBehavior = {
         }
     },
 
-    confirmShare () {
+    confirmShare (e) {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.shareApp();
+        this._shareApp();
+
         this._goToPage('publishing');
     },
 
