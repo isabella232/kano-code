@@ -158,7 +158,7 @@
 
         Challenge.prototype.matchDefaultBlocks = function (blocks, defaultBlocks) {
             let steps = [];
-            for (i = 0; i < blocks.length; i++) {
+            for (let i = 0; i < blocks.length; i++) {
                 steps = steps.concat(this.matchDefaultNode(blocks[i], defaultBlocks[i]));
             }
             return steps;
@@ -167,30 +167,67 @@
         Challenge.prototype.matchDefaultNode = function (node, defaultNode) {
             let steps = [];
             switch (node.tagName) {
+                /**
+                 * Compare the blocks. Jump to children if they match, add a delete step to remove the existing the default block
+                 * if the block from the challenge is different from the one defined in the mode
+                 */
                 case 'block': {
                     if (node.getAttribute('type') === defaultNode.getAttribute('type') &&
                         node.getAttribute('id') === defaultNode.getAttribute('id')) {
                         steps = steps.concat(this.matchDefaultBlocks(node.children, defaultNode.children));
+                    } else {
+                        steps.push({
+                            "tooltips": [{
+                                "text": "You can remove this block we won't need it for this app",
+                                "position": "left",
+                                "location": {
+                                    "block": {
+                                        "rawId": defaultNode.getAttribute('id')
+                                    }
+                                }
+                            }],
+                            "arrow": {
+                                "target": 'blockly-bin',
+                                "angle": 210,
+                                "size": 80
+                            },
+                            "validation": {
+                                "blockly": {
+                                    "delete": {
+                                        "target": {
+                                            "rawId": defaultNode.getAttribute('id')
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        steps = steps.concat(this.blockToSteps(node));
                     }
                     break;
                 }
+                /**
+                 * Adds a change step if the value is different
+                 */
                 case 'field': {
                     if (node.firstChild.nodeValue !== defaultNode.firstChild.nodeValue ||
                         node.firstChild.nodeValue !== node.firstChild.nodeValue) {
-                            steps = steps.concat(this.fieldToStep(defaultNode));
-                        }
+                        steps = steps.concat(this.fieldToSteps(node, defaultNode.firstChild.nodeValue));
+                    }
+                    break;
                 }
                 case 'statement': {
                     if (defaultNode) {
                         steps = steps.concat(this.matchDefaultNode(node.firstChild, defaultNode.firstChild));
                     }
+                    break;
                 }
                 case 'next': {
                     if (!defaultNode) {
-                        steps = steps.concat(this.blockToStep(node.firstChild));
+                        steps = steps.concat(this.blockToSteps(node.firstChild));
                     } else {
                         steps = steps.concat(this.matchDefaultNode(node.firstChild, defaultNode.firstChild));
                     }
+                    break;
                 }
             }
             return steps;
@@ -199,14 +236,13 @@
         /**
          * Generate the steps matching a `field` node in a Blockly XML tree 
          */
-        Challenge.prototype.fieldToStep = function (node) {
+        Challenge.prototype.fieldToSteps = function (node, fieldDefault) {
             let parent = node.parentNode,
                 parentTagName = parent.tagName,
                 parentBlockType = Challenge.parseBlockType(parent.getAttribute('type')),
                 steps = [],
                 inputName,
-                fieldName,
-                fieldDefault;
+                fieldName;
 
             if (parentBlockType.block === 'variables_set' && this.data.variables.indexOf(node.firstChild.nodeValue) === -1) {
                 this.data.variables.push(node.firstChild.nodeValue);
@@ -220,7 +256,7 @@
                 } else {
                     fieldName = node.getAttribute('name');
                 }
-                if (fieldName) {
+                if (fieldName && !fieldDefault) {
                     if (!Challenge.fieldDefaults[parentBlockType.block]) {
                         console.log('missing default field: ', parentBlockType.block, fieldName);
                     } else {
@@ -268,7 +304,7 @@
         /**
          * Generate the steps matching a `block` node in a Blockly XML tree 
          */
-        Challenge.prototype.blockToStep = function (node) {
+        Challenge.prototype.blockToSteps = function (node) {
             // Defines the location of the toolbox category. Can be the category itself or from a previously added part
             var blockChallengeId = 'block_' + this.uid('block'),
                 type = node.getAttribute('type'),
@@ -458,7 +494,7 @@
 
             switch (node.tagName) {
                 case 'field': {
-                    steps = steps.concat(this.fieldToStep(node));
+                    steps = steps.concat(this.fieldToSteps(node));
                     break;
                 }
                 case 'next':
@@ -478,7 +514,7 @@
                     break;
                 }
                 case 'block': {
-                    steps = steps.concat(this.blockToStep(node));
+                    steps = steps.concat(this.blockToSteps(node));
                     break;
                 }
             }
