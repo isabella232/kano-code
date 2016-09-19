@@ -27,8 +27,8 @@
                             id: this.model.id,
                             x: this.getX(),
                             y: this.getY(),
-                            width: this.model.userProperties.width,
-                            height: this.model.userProperties.height,
+                            width: parseInt(this.model.userProperties.width),
+                            height: parseInt(this.model.userProperties.height),
                             bitmap: this.frame,
                             type: 'frame'
                         };
@@ -76,6 +76,12 @@
                 this.frameIndex = Math.min(this.animation.bitmaps.length - 1, Math.max(0, frameNo));
                 this.frame = bitmaps[this.frameIndex];
                 this._updateLightboard();
+            },
+            getWidth () {
+                return parseInt(this.get('model.userProperties.width'));
+            },
+            getHeight () {
+                return parseInt(this.get('model.userProperties.height'));
             }
         };
 
