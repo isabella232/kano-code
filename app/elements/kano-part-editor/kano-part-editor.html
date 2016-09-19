@@ -7,10 +7,10 @@
     :host {
         display: block;
         position: relative;
-        width: 85%;
         text-align: center;
         border-radius: 6px;
         @apply(--layout-vertical);
+        @apply(--layout-center);
     }
     :host iron-lazy-pages {
         @apply(--layout-flex);
@@ -28,6 +28,8 @@
         width: 90%;
         text-align: left;
         padding-bottom: 5px;
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
     }
     :host #element-name-editor {
         @apply(--kano-light-input);
@@ -38,7 +40,6 @@
         cursor: pointer;
     }
     :host .delete-button {
-        float: right;
         color: #de0f30;
     }
     :host #edit-icon {
@@ -48,11 +49,14 @@
     </style>
     <template>
           <div class="title-bar">
-              <input id="element-name-editor" type="text" value="{{selected.name::keyup}}"
-                  on-keydown="enterQuitsInput">
-              <label class="icon" for="element-name-editor">
-                  <iron-icon id="edit-icon" src="/assets/icons/layout-edit-icon.png"></iron-icon>
-              </label>
+              <div class="element-name-editor">
+                  <input id="element-name-editor" type="text" value="{{selected.name::keyup}}"
+                    on-keydown="enterQuitsInput">
+                <label class="icon" for="element-name-editor">
+                    <iron-icon id="edit-icon" src="/assets/icons/layout-edit-icon.png"></iron-icon>
+                </label>
+              </div>
+              
               <label class="icon delete-button" on-tap="_deletePart">delete
                   <iron-icon  src="/assets/icons/layout-bin-icon.png"></iron-icon>
               </label>
