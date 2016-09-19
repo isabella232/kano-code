@@ -224,6 +224,10 @@
         },
         'math_min_max': {
             'MINMAX': 'min'
+        },
+        'ledring_flash': {
+            'COLOR': '#ffffff',
+            'LENGTH': 200
         }
     };
 
