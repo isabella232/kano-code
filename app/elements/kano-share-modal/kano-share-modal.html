@@ -313,8 +313,7 @@
                 value: function () {
                     return {};
                 },
-                notify: true,
-                observer: '_shareInfoChanged'
+                notify: true
             },
             appData: {
                 type: String,
@@ -388,7 +387,13 @@
             this.recording = true;
 
             let getFrame = () => {
-                return this.generateCover(workspace, parts, workspace.width, workspace.height, 0.6)
+                return this.generateCover(workspace,
+                                            parts,
+                                            workspace.width,
+                                            workspace.height,
+                                            0.6,
+                                            this.shareInfo.mode.sharing.padding,
+                                            this.shareInfo.mode.sharing.color)
                     .then(image => {
                         images.push(image);
                         this.gifProgress += 2;
@@ -437,20 +442,6 @@
         copyToClipboard () {
             this.$$("#shareurl").select();
             document.execCommand('copy');
-        },
-        _shareInfoChanged (e) {
-            if (e.page == 0) {
-                this.debounce('createStandaloneApp', () => {
-                    let slug = Date.now().toString(),
-                        appStandaloneComponent = Kano.AppModules.generateStandaloneComponent(
-                            slug, e.parts, e.background, e.mode, e.code
-                        ),
-                        appBase64 = 'data:text/html;base64,' + window.btoa(appStandaloneComponent);
-
-                    this.set('appSlug', slug);
-                    this.set('appData', appBase64);
-                });
-            }
         }
     });
 </script>

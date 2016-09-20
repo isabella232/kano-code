@@ -5,7 +5,7 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
     
     window.Kano.Behaviors.CoverGeneratorBehavior = {
-        generateCover (workspace, parts, width, height, scale=1) {
+        generateCover (workspace, parts, width, height, scale=1, padding=0, background='#ffffff') {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
                 rect = workspace.getBoundingClientRect(),
@@ -34,18 +34,17 @@
                 }
             });
             return promise.then(() => {
-                let exportCanvas = canvas;
-                if (scale !== 1) {
-                    let tmpCanvas = document.createElement('canvas'),
-                        tmpCtx;
-                    tmpCanvas.width = width * scale;
-                    tmpCanvas.height = height * scale;
-                    tmpCtx = tmpCanvas.getContext('2d');
-                    tmpCtx.drawImage(canvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
-                    exportCanvas = tmpCanvas;
-                }
+                let tmpCanvas = document.createElement('canvas'),
+                    tmpCtx;
+                tmpCanvas.width = (width * scale) + (padding * 2);
+                tmpCanvas.height = (height * scale) + (padding * 2);
+                console.log(tmpCanvas.width);
+                tmpCtx = tmpCanvas.getContext('2d');
+                tmpCtx.fillStyle = background;
+                tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+                tmpCtx.drawImage(canvas, padding, padding, tmpCanvas.width - (padding * 2), tmpCanvas.height - (padding * 2));
                 image = new Image();
-                image.src = exportCanvas.toDataURL();
+                image.src = tmpCanvas.toDataURL();
                 return image;
             });
         },

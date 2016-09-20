@@ -97,12 +97,13 @@ var SharingBehavior = {
     share (e) {
         let app = e.detail.app,
             slug = Date.now().toString(),
+            mode = Kano.MakeApps.Mode.modes[app.mode],
             shareInfo, component;
         component = Kano.AppModules.generateStandaloneComponent(
             slug,
             app.parts,
             app.background,
-            Kano.MakeApps.Mode.modes[app.mode],
+            mode,
             app.code);
         shareInfo = {
             app: {
@@ -117,7 +118,7 @@ var SharingBehavior = {
             background: e.detail.background,
             parts: e.detail.parts,
             code: e.detail.code,
-            mode: e.detail.mode
+            mode
         };
 
         this.set('shareInfo', shareInfo);
