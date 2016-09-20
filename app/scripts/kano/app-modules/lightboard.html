@@ -1,7 +1,7 @@
 <link rel="import" href="./app-module.html">
+<script src="../pixel-font.js"></script>
 <script>
     (function (Kano) {
-
         class LightboardModule extends Kano.AppModules.AppModule {
             constructor () {
                 super();
@@ -177,11 +177,8 @@
             }
 
             _text (text, color, backgroundColor) {
-                this.api.light.text({
-                    text,
-                    color,
-                    backgroundColor
-                });
+                this.lights = Kano.PixelFont.generateMatrix(text, color, backgroundColor);
+                return this.updateAndSync(); 
             }
 
             _scroll (text, color, backgroundColor, speed) {
