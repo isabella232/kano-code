@@ -192,6 +192,22 @@
                     // Frame dropped
                 });
             },
+            animate (frames, speed, animationStart) {
+                if (frames.length && this.animationOnGoing === animationStart) {
+                    this.render(frames.shift());
+                    setTimeout(() => {
+                        this.animate(frames, speed, animationStart);
+                    }, parseInt(speed));
+                }
+            },
+            scroll (light) {
+                Kano.MakeApps.PartsAPI.lightboard.scroll.apply(this, arguments).then(frames => {
+                    this.animationOnGoing = Date.now();
+                    this.animate(frames, arguments[3], this.animationOnGoing);
+                }).catch(e => {
+                    // Frame dropped
+                });
+            },
             _buttonATapped () {
                 this.fire('lightboard-btn-A');
             },

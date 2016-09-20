@@ -687,7 +687,7 @@
             
             return needed;
         },
-        generateMatrix (textString, fontColor, backgroundColor) {
+        getLetters (textString) {
             var needed = [];
             textString = textString.toUpperCase();
             for (var i = 0; i < textString.length; i++) {
@@ -696,22 +696,73 @@
                     needed.push(letter);
                 }
             }
-
-            let lightsArray = new Array(128).fill(backgroundColor),
+            return needed;
+        },
+        generateFullBitmap (needed, fontColor, backgroundColor) {
+            let lightsArray = [],
                 currX = 0;
-            for (let x = 0; x < needed.length && currX < 16; x++) {
+            for (let x = 0; x < needed.length; x++) {
                 let maxWidth = 0;
                 for (let i = 0; i < needed[x].length; i++) {
+                    if (!lightsArray[i]) {
+                        lightsArray[i] = [];
+                    }
+
                     for (let j = 0; j < needed[x][i].length; j++) {
                         maxWidth = (needed[x][i].length > maxWidth) ? needed[x][i].length : maxWidth;
-                        if ((j + currX) < 16) {
-                            lightsArray[(i * 16) + j + currX] = (needed[x][i][j]) ? fontColor : backgroundColor;
-                        }
+                        lightsArray[i][j + currX] = (needed[x][i][j]) ? fontColor : backgroundColor;
                     }
                 }
                 currX += maxWidth + 1;
             }
+
+            return lightsArray;
+        },
+        generateFrame (fullBitmap, backgroundColor, offset) {
+            let lightsArray = new Array();
+
+            fullBitmap.forEach(function (line) {
+                // Apply the offset
+                if (offset > 0) {
+                    Array.prototype.unshift.apply(line, new Array(offset).fill(backgroundColor));
+                } else {
+                    line = line.splice(offset * (-1), 16)
+                }
+
+                // Fill the gaps
+                if (line.length < 16) {
+                    line = line.concat(new Array(16-line.length).fill(backgroundColor));
+                }
+
+                lightsArray = lightsArray.concat(line.splice(0, 16));
+            });
+            
+            // TODO: Refactor this
+            for (let i = 0; i < lightsArray.length; i++) {
+                if (!lightsArray[i]) {
+                    lightsArray[i] = backgroundColor;
+                }
+            }
+
             return lightsArray;    
+        },
+        generateMatrix (textString, fontColor, backgroundColor, offset=0) {
+            let needed = this.getLetters(textString),
+                fullBitmap = this.generateFullBitmap(needed, fontColor, backgroundColor);
+            return this.generateFrame(fullBitmap, backgroundColor, offset);
+        },
+        generateAnimation (textString, fontColor, backgroundColor) {
+            let needed = this.getLetters(textString),
+                fullBitmap = this.generateFullBitmap(needed, fontColor, backgroundColor),
+                animationFrames = new Array();
+
+            for (let i = 16; i > (fullBitmap[1].length * (-1)) - 16; i--) {
+                // Refactor this, we shouldn't recreate the object
+                fullBitmap = this.generateFullBitmap(needed, fontColor, backgroundColor)
+                animationFrames.push(this.generateFrame(fullBitmap, backgroundColor, i));
+            }
+
+            return animationFrames;
         }
     }
 

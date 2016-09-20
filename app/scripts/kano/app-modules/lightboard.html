@@ -182,14 +182,17 @@
             }
 
             _scroll (text, color, backgroundColor, speed) {
-                // Transform speed 0 - 100 to 232 - 32
-                let framePeriod = 232 - speed * 2;
-                this.api.light.scroll({
-                    text,
-                    color,
-                    backgroundColor,
-                    framePeriod
+                return new Promise(function(resolve, reject) {
+                    resolve(Kano.PixelFont.generateAnimation(text, color, backgroundColor));
                 });
+                // Transform speed 0 - 100 to 232 - 32
+                // let framePeriod = 232 - speed * 2;
+                // this.api.light.scroll({
+                //     text,
+                //     color,
+                //     backgroundColor,
+                //     framePeriod
+                // });
             }
 
             _on () {
