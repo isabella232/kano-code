@@ -1,6 +1,25 @@
 export default [{
     block: () => {
         return {
+            id: 'filter_clear',
+            message0: 'frame: clear filters',
+            previousStatement: null,
+            nextStatement: null
+        };
+    },
+    javascript: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').clearFilters();\n`;
+        };
+    },
+    pseudo: (part) => {
+        return (block) => {
+            return `devices.get('${part.id}').clearFilters();\n`;
+        };
+    }
+},{
+    block: () => {
+        return {
             id: 'filter_invert',
             message0: 'frame: invert',
             previousStatement: null,
