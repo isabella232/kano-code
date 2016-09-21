@@ -141,6 +141,15 @@
                 }
 
                 return { h, s, l };
+            },
+            throttle (id, cb, delay) {
+                this.callTimestamps = this.callTimestamps || {};
+                let lastCall = this.callTimestamps[id],
+                    currentDate = Date.now();
+                if (!lastCall || currentDate - lastCall > delay) {
+                    cb();
+                    this.callTimestamps[id] = currentDate;
+                }
             }
         };
 
