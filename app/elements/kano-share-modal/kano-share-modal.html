@@ -20,18 +20,22 @@
             margin: 0px !important;
             padding: 24px !important;
         }
+        :host .right {
+            float: right;
+        }
         .dialog button {
             @apply(--kano-button);
-            margin-left: 5px;
         }
         .button-container {
             position: relative;
             width: 100%;
             height: 52px;
+            @apply(--layout-horizontal);
+            @apply(--layout-end-justified);
+            @apply(--layout-center);
         }
-        .button-container button {
-            /*position: absolute;*/
-            /*right: 0;*/
+        button {
+            cursor: pointer;
         }
         button.share {
             text-transform: none;
@@ -45,7 +49,24 @@
             border-radius: 24px;
             margin-bottom: 12px;
         }
-        button .button-img {
+        .social-share-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .social-share-container a,
+        .social-share-container iron-image {
+            width: 25px;
+            height: 25px;
+            border-radius: 2px;
+        }
+        .social-share-container a {
+            margin-left: 6px;
+        }
+        .social-share-container {
+            margin-right: 8px;
+        }
+        :host button .button-img {
             width: 25px;
             vertical-align: middle;
             margin-right: 10px;
@@ -62,30 +83,23 @@
             border-radius: 24px;
             margin-bottom: 12px;
         }
-        .success iron-image {
+        .success iron-image.cover {
             flex: 1 1 300px;
             margin-bottom: 20px;
         }
         .success {
             @apply(--layout-vertical);
-        }
-        .success .buttons {
-            @apply(--layout-horizonal);
-            padding: 0px;
-            margin-top: 10px;
-        }
-        .success .buttons iron-image {
-            margin-left: 5px;
-            width: 40px;
-            height: 40px;
-        }
-        .success .buttons .spacer {
-            @apply(--layout-flex);
+            text-align: center;
         }
         .success .title, .fail .title {
             font-size: 2.0em;
             margin-bottom: 10px;
             font-weight: 600;
+        }
+        .fail {
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
         }
         .fail button {
             @apply(--kano-button);
@@ -105,6 +119,7 @@
             @apply(--kano-button);
             background: var(--color-green);
             height: 40px;
+            margin-top: 10px;
             margin-left: 5px;
             padding-top: 12px;
         }
@@ -119,13 +134,12 @@
                 width: 100%;
             }
         }
-        .form {
+        :host .form {
             @apply(--layout-vertical);
             padding-right: 24px;
         }
-        .buttons {
-            /*@apply(--layout-horizontal);*/
-            @apply(--layout-around-justified);
+        :host .form a {
+            text-align: center;
         }
         .app-preview {
             width: 512px;
@@ -183,10 +197,18 @@
             text-transform: none;
             border-radius: 24px;
         }
-        .generate-url .composed-button,
-        .normal-button {
+        :host .loading-overlay {
             position: absolute;
-            right: 0;
+            top: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+            @apply(--layout-center-justified);
+        }
+        paper-spinner-lite {
+            --paper-spinner-color: white;
         }
         .generate-url .composed-button button {
             border-bottom-left-radius: 0;
@@ -200,6 +222,9 @@
             border-bottom-left-radius: 24px;
             width: 200px;
             border-right: 0;
+            margin: 0px;
+            padding-right: 0px;
+            margin-right: -2px;
         }
         .change-gif-container {
             position: absolute;
@@ -219,6 +244,16 @@
         .app-player-container {
             position: relative;
         }
+        .generate-url-container {
+            position: relative;
+        }
+        .social-share-container button.social {
+            background-color: transparent;
+            padding: 0px;
+            border-radius: 0px;
+            margin: 4px;
+            border: 0px;
+        }
         
     </style>
     <template>
@@ -230,7 +265,7 @@
                 <div class="gif-creation">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
                     <div class="start-gif-overlay" hidden$="[[recording]]" on-tap="_generateAppGif">
-                        <button class="gif">Start recording your animated gif</button>
+                        <button class="gif" type="button">Start recording your animated gif</button>
                     </div>
                 </div>
             </div>
@@ -249,25 +284,31 @@
                             value="{{shareInfo.description::change}}"
                             placeholder="Description"></textarea>
                     </div>
-                    <div class="buttons">
-                        <div class="button-container">
-                            <button type="button" name="button" class="share normal-button" on-tap="confirm"><img class="button-img" src="../../assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
-                        </div>
 
-                        <div class="button-container generate-url">
-                            <template is="dom-if" if="{{shareInfo.id}}">
-                                <div class="composed-button">
-                                    <input type="text" id="shareurl" value="{{playUrl(shareInfo.id)}}"><!--
-                                    --><button on-tap="copyToClipboard" type="button"><img src="../../assets/get-share-link.svg"/> <span>copy</span></button>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{!shareInfo.id}}">
-                                <button on-tap="generateUrl" class="normal-button" type="button"><img src="../../assets/get-share-link.svg"/> <span>Get share link</span></button>
-                            </template>
-                        </div>
-
+                    <div class="button-container">
+                        <button type="button" name="button" class="share normal-button" on-tap="_shareOnKW"><img class="button-img" src="../../assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
                     </div>
+
+                    <div class="button-container generate-url">
+                        <div class="social-share-container">
+                            <button type="button" class="social" on-tap="_socialShareFacebook">
+                                <iron-image src="/assets/social-icons/facebook.png" sizing="contain"></iron-image>
+                            </button>
+                            <button type="button" class="social" on-tap="_socialShareTwitter">
+                                <iron-image src="/assets/social-icons/twitter.png" sizing="contain"></iron-image>
+                            </button>
+                        </div>
+                        <div class="composed-button" hidden$="[[!shareInfo.slug]]">
+                            <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
+                            <button on-tap="copyToClipboard" type="button"><img src="../../assets/get-share-link.svg"/> <span>copy</span></button>
+                        </div>
+                        <div class="generate-url-container">
+                            <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button right" type="button"><img src="../../assets/get-share-link.svg"/> <span>Get share link</span></button>
+                            <div class="loading-overlay" hidden$="[[!loading]]">
+                                <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
+                            </div>
+                        </div>
+                  </div>
                 </form>
                 <div class="app-player-container">
                     <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
@@ -277,25 +318,21 @@
                 </div>
             </div>
             <div name="publishing">Publishing ...</div>
-            <div class="success" name="success">
-                <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
-                <div>
-                    <div class="title">
-                        {{shareInfo.title}}
-                    </div>
-                    <div class="instructions">
-                        Your app is live now. Open it up and share it with your friends!
-                    </div>
-                    <div class="buttons">
-                        <a href="{{fbLink(shareInfo.id)}}" target="_blank"><iron-image src="/assets/social-icons/facebook.png" sizing="contain"></iron-image></a>
-                        <a href="{{twitterLink(shareInfo.id)}}" target="_blank"><iron-image src="/assets/social-icons/twitter.png" sizing="contain"></iron-image></a>
-                        <a href="{{tumblrLink(shareInfo.id)}}" target="_blank"><iron-image src="/assets/social-icons/tumblr.png" sizing="contain"></iron-image></a>
-                        <a href="{{redditLink(shareInfo.id)}}" target="_blank"><iron-image src="/assets/social-icons/reddit.png" sizing="contain"></iron-image></a>
-                        <a href="{{gplusLink(shareInfo.id)}}" target="_blank"><iron-image src="/assets/social-icons/gplus.png" sizing="contain"></iron-image></a>
-                        <div class="spacer"></div>
-                        <a href="{{playUrl(shareInfo.id)}}" target="_blank"><button class="open-app">Open app</button></a>
-                    </div>
+            <div name="success" class="success">
+                <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                <div class="title">[[shareInfo.title]]</div>
+                <div class="instructions">
+                    Your app is live! Share it with your friends.
                 </div>
+                <div class="social-share-container">
+                    <button type="button" class="social" on-tap="_socialShareFacebook">
+                        <iron-image src="/assets/social-icons/facebook.png" sizing="contain"></iron-image>
+                    </button>
+                    <button type="button" class="social" on-tap="_socialShareTwitter">
+                        <iron-image src="/assets/social-icons/twitter.png" sizing="contain"></iron-image>
+                    </button>
+                </div>
+                <a href$="[[playUrl(shareInfo.slug)]]" target="_blank"><button class="open-app" type="button">Open app</button></a>
             </div>
             <div class="fail" name="failure">
                 <div class="title">
@@ -304,7 +341,7 @@
                 <div class="instructions">
                     Please try again later.
                 </div>
-                <button on-tap="dismiss">This is unfortunate</button>
+                <button on-tap="dismiss" type="button">This is unfortunate</button>
             </div>
         </iron-pages>
 
@@ -334,7 +371,35 @@
             appSlug: {
                 type: String,
                 value: ""
+            },
+            loading: {
+                type: Boolean,
+                value: false,
+                observer: 'loadingChanged'
+            },
+            worldUrl: {
+                type: String,
+                value: 'https://world.kano.me'
+            },
+            isAuthenticated: {
+                type: Boolean,
+                value: false
             }
+        },
+        observers: [
+            '_shareSlugChanged(shareInfo.slug)'
+        ],
+        _shareSlugChanged (newValue, oldValue) {
+            if (newValue && !oldValue) {
+                this.loading = false;
+                if (this.socialTarget && this.socialTarget !== 'link') {
+                    this._externalShare();
+                }
+            }
+        },
+        _externalShare () {
+            let socialConfig = this.socialConfigs[this.socialTarget];
+            this.popup.location.href = socialConfig.generateUrl(this.playUrl(), this.shareInfo.title);
         },
         _checkTitleInput () {
             if (!this.shareInfo.title || this.shareInfo.title.length < 1) {
@@ -342,6 +407,22 @@
                 this.$.title_input.select();
             } else {
                 return true;
+            }
+        },
+        socialConfigs: {
+            'facebook': {
+                width: 550,
+                height: 269,
+                generateUrl (url, title) {
+                    return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&t=${encodeURIComponent(url)}`;
+                }
+            },
+            'twitter': {
+                width: 550,
+                height: 285,
+                generateUrl (url, title) {
+                    return `https://twitter.com/intent/tweet?source=${encodeURIComponent(url)}&text=${encodeURIComponent(title + ' ' + url)}`;
+                }
             }
         },
         attached () {
@@ -356,23 +437,11 @@
         dismiss () {
             this.fire('dismiss');
         },
+        loadingChanged () {
+            this.toggleClass('loading', this.loading);
+        },
         playUrl () {
-            return `${location.protocol}//${location.host}/app/${this.shareInfo.id}`;
-        },
-        fbLink () {
-            return 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(this.playUrl()) + '&t=' + encodeURIComponent(this.playUrl());
-        },
-        twitterLink () {
-            return 'https://twitter.com/intent/tweet?source=' + encodeURIComponent(this.playUrl()) + '&text=' + encodeURIComponent(this.shareInfo.title + ' ' + this.playUrl());
-        },
-        gplusLink () {
-            return 'https://plus.google.com/share?url=' + encodeURIComponent(this.playUrl());
-        },
-        tumblrLink () {
-            return 'http://www.tumblr.com/share?v=3&u=' + encodeURIComponent(this.playUrl()) + '&t=' + encodeURIComponent(this.shareInfo.title);
-        },
-        redditLink () {
-            return 'http://www.reddit.com/submit?url=' + encodeURIComponent(this.playUrl()) + '&title=' + encodeURIComponent(this.shareInfo.title);
+            return `${this.worldUrl}/shared/${this.shareInfo.slug}`;
         },
         _changeGif () {
             this.fire('change-gif');
@@ -449,15 +518,53 @@
                 this.gifRenderProgress = 0;
             });
         },
-        generateUrl () {
+        _generateUrl () {
+            if (this.isAuthenticated) {
+                this.loading = true;
+            }
+            this.shareInfo.is_private = true;
+            this.fire('confirm');
+        },
+        _shareOnKW () {
             if (this._checkTitleInput()) {
-                this.shareInfo.is_private = true;
+                this.shareInfo.is_private = false;
                 this.fire('confirm');
             }
         },
         copyToClipboard () {
             this.$$("#shareurl").select();
             document.execCommand('copy');
+        },
+        _socialShareTwitter () {
+            this._socialShare('twitter');
+        },
+        _socialShareFacebook () {
+            this._socialShare('facebook');
+        },
+        _socialShareLink () {
+            this._socialShare('link');
+        },
+        _socialShare (socialTarget) {
+            if (!this._checkTitleInput()) {
+                return;
+            }
+            this.socialTarget = socialTarget;
+            if (this.shareInfo.slug) {
+                this._preparePopup(false);
+                this._externalShare();
+            } else {
+                if (socialTarget !== 'link' && this.isAuthenticated) {
+                    this._preparePopup(true);
+                }
+                this._generateUrl();
+            }
+        },
+        _preparePopup (loading) {
+            let socialConfig = this.socialConfigs[this.socialTarget],
+                winTop = (screen.height / 2) - (socialConfig.height / 2),
+                winLeft = (screen.width / 2) - (socialConfig.width / 2),
+                url = loading ? `${location.protocol}//${location.host}/loading-share.html` : '';
+            this.popup = window.open(url, 'sharer', `top=${winTop},left=${winLeft},toolbar=0,status=0,width=${socialConfig.width},height=${socialConfig.height}`);
         }
     });
 </script>

@@ -98,7 +98,8 @@ module.exports = (gulp, $) => {
                 'app/assets/vendor/google-blockly/msg/js/en.js',
                 'app/scripts/util/dom.js',
                 'app/scripts/util/client.js',
-                'app/scripts/util/router.js'
+                'app/scripts/util/router.js',
+                'app/loading-share.html'
             ], { base: 'app'})
             .pipe(gulp.dest('.tmp/app'));
     });

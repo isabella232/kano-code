@@ -46,6 +46,8 @@ var SharingBehavior = {
         cover.filename = 'cover.png';
         workspaceInfo.filename = 'workspace_info.json';
 
+        this.set('shareInfo.loading', true);
+
         //Share by calling the API
         return Kano.MakeApps.sdk.api.share.post({
             app: 'make-apps',
@@ -83,6 +85,7 @@ var SharingBehavior = {
             }
         }).then((share) => {
             this.set('shareInfo.id', share.id);
+            this.set('shareInfo.slug', share.slug);
             if (!this.shareInfo.is_private) {
                 this._goToPage('success');
             }
@@ -161,12 +164,12 @@ var SharingBehavior = {
             return;
         }
         // The user logged in and the sharing was waiting authentication, trigger the share
-        if (this.waitingAuth) {
+        if (this.waitingAuth && !this.shareInfo.is_private) {
             this.confirmShare();
         }
     },
 
-    confirmShare (e) {
+    confirmShare () {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
