@@ -14,6 +14,10 @@
                 PartsAPI.filters.addFilter.call(this, name, args);
                 this._paintFrame();
             },
+            clearFilters () {
+                PartsAPI.filters.clearFilters.apply(this, arguments);
+                this._paintFrame();
+            },
             takePicture () {
                 this.debounce('takePicture', () => {
                     Kano.AppModules.getModule('camera').takePicture()
@@ -73,15 +77,6 @@
                     };
                     img.src = src;
                 }, 32);
-            },
-            throttle (id, cb, delay) {
-                this.callTimestamps = this.callTimestamps || {};
-                let lastCall = this.callTimestamps[id],
-                    currentDate = Date.now();
-                if (!lastCall || currentDate - lastCall > delay) {
-                    cb();
-                    this.callTimestamps[id] = currentDate;
-                }
             },
             applyKaleidoscope (canvas, targetCanvas) {
                 targetCanvas = targetCanvas || this.canvas;
