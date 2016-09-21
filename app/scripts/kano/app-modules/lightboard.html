@@ -133,16 +133,6 @@
                 return this.bitmap;
             }
 
-            throttle (id, cb, delay) {
-                this.callTimestamps = this.callTimestamps || {};
-                let lastCall = this.callTimestamps[id],
-                    currentDate = Date.now();
-                if (!lastCall || currentDate - lastCall > delay) {
-                    cb();
-                    this.callTimestamps[id] = currentDate;
-                }
-            }
-
             /**
              * Add or update the shape with the corresponding id
              * @param  {String} id    Id of the shape to add/update
@@ -179,6 +169,9 @@
                     this.lights = new Array(128);
                     this.updateAndSync(false, cb);
                 } else if (light.type === 'single') {
+                    if (light.x > 15 || light.x < 0 || light.y > 7 || light.y < 0) {
+                        return;
+                    }
                     let index = LightboardModule.getIndex(light.x, light.y);
                     // Reset the saved light
                     this.lights[index] = null;

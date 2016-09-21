@@ -19,7 +19,7 @@
                 this._paintFrame();
             },
             takePicture () {
-                this.debounce('takePicture', () => {
+                this.throttle('takePicture', () => {
                     Kano.AppModules.getModule('camera').takePicture()
                         .then((pictureUrl) => {
                             let filename = pictureUrl.split('/').pop();
