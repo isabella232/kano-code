@@ -74,15 +74,6 @@
                     img.src = src;
                 }, 32);
             },
-            throttle (id, cb, delay) {
-                this.callTimestamps = this.callTimestamps || {};
-                let lastCall = this.callTimestamps[id],
-                    currentDate = Date.now();
-                if (!lastCall || currentDate - lastCall > delay) {
-                    cb();
-                    this.callTimestamps[id] = currentDate;
-                }
-            },
             applyKaleidoscope (canvas, targetCanvas) {
                 targetCanvas = targetCanvas || this.canvas;
                 let targetCtx = targetCanvas.getContext('2d');

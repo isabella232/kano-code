@@ -17,7 +17,7 @@
                 this.timeoutId = setTimeout(this._updateFrame.bind(this), 1000 / this.model.userProperties.speed);
                 this._updateLightboard();
             },
-            _updateLightboard () {
+            _updateLightboard (force) {
                 if (!this.frame) {
                     return;
                 }
@@ -30,7 +30,8 @@
                             width: parseInt(this.model.userProperties.width),
                             height: parseInt(this.model.userProperties.height),
                             bitmap: this.frame,
-                            type: 'frame'
+                            type: 'frame',
+                            force
                         };
                         this.fire('update-shape', shape);
                     }

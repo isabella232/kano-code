@@ -12,7 +12,6 @@
             },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
-
                 this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
             },
             stop () {
@@ -38,8 +37,10 @@
                 this.fire("lightboard-" + data['button-id']);
             },
             _updateShape (e) {
-                let shape = e.detail;
-                return this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape);
+                this.debounce('updateShape', () => {
+                    let shape = e.detail;
+                    this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape, this.render.bind(this));
+                });
             }
         };
 
