@@ -72,9 +72,18 @@
                 this.drawLights();
             }
 
-            updateAndSync () {
-                this.updateBitmap();
-                this.syncApi();
+            updateAndSync (force, cb) {
+                if (force) {
+                    this.updateBitmap();
+                    this.syncApi();
+                    cb(this.bitmap);
+                } else {
+                    this.throttle('updateAndSync', () => {
+                        this.updateBitmap();
+                        this.syncApi();
+                        cb(this.bitmap);
+                    }, 1000 / 20);
+                }
             }
 
             _getBitmap () {
@@ -143,55 +152,50 @@
              */
             _updateOrCreateShape (id, shape, cb) {
                 this.shapes[id] = shape;
-                if (shape.force) {
-                    this.updateAndSync();
-                    cb(this.bitmap);
-                } else {
-                    this.throttle('updateAndSync', () => {
-                        this.updateAndSync();
-                        cb(this.bitmap);
-                    }, 1000 / 20);
-                }
+                this.updateAndSync(shape.force, cb);
             }
 
-            _turnOn (light, color) {
+            _turnOn (light, color, cb) {
                 if (light.type === 'all') {
                     // Set all the saved lights to the color
                     for (let i = 0; i < 128; i++) {
                         this.lights[i] = color;
                     }
-                    this.updateAndSync();
+                    this.updateAndSync(false, cb);
                 } else if (light.type === 'single') {
+                    if (light.x > 15 || light.x < 0 || light.y > 7 || light.y < 0) {
+                        return;
+                    }
                     let index = LightboardModule.getIndex(light.x, light.y);
                     // Set the saved light to the color
                     this.lights[index] = color;
-                    this.updateAndSync();
+                    this.updateAndSync(false, cb);
                 }
             }
 
-            _turnOff (light) {
+            _turnOff (light, cb) {
                 if (light.type === 'all') {
                     // Resets the saved lights
                     this.lights = new Array(128);
-                    this.updateAndSync();
+                    this.updateAndSync(false, cb);
                 } else if (light.type === 'single') {
                     let index = LightboardModule.getIndex(light.x, light.y);
                     // Reset the saved light
                     this.lights[index] = null;
                     // Turn the lightboard light to the background color
-                    this.updateAndSync();
+                    this.updateAndSync(false, cb);
                 }
             }
 
-            _setBackgroundColor (color) {
+            _setBackgroundColor (color, cb) {
                 // Save the backgroundColor
                 this.backgroundColor = color;
-                this.updateAndSync();
+                this.updateAndSync(false, cb);
             }
 
-            _text (text, color, backgroundColor) {
+            _text (text, color, backgroundColor, cb) {
                 this.lights = Kano.PixelFont.generateMatrix(text, color, backgroundColor);
-                this.updateAndSync(); 
+                this.updateAndSync(false, cb); 
             }
 
             _animateText (animationFrames, animationTime, speed, callback) {
