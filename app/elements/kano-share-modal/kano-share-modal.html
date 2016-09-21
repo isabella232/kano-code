@@ -137,6 +137,8 @@
         }
         paper-progress {
             width: 100%;
+            --paper-progress-active-color: var(--color-orange);
+            --paper-progress-secondary-color: rgba(255, 132, 42, 0.5);
         }
         .gif-creation {
             position: relative;
@@ -151,6 +153,7 @@
             @apply(--layout-vertical);
             @apply(--layout-center);
             @apply(--layout-center-justified);
+            cursor: pointer;
         }
         *[hidden] {
             display: none !important;
@@ -223,11 +226,11 @@
             <div class="gif-creator" name="gif-creation">
                 <h2 hidden$="[[!firstRender]]">We're generating an animated gif of your app, wait just a bit...</h2>
                 <h2 hidden$="[[firstRender]]">Make an animated gif of your app to show the world how it works</h2>
-                <paper-progress value="[[gifProgress]]"></paper-progress>
+                <paper-progress value="[[gifRenderProgress]]" secondary-progress="[[gifProgress]]"></paper-progress>
                 <div class="gif-creation">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
-                    <div class="start-gif-overlay" hidden$="[[recording]]">
-                        <button class="gif" on-tap="_generateAppGif">Start recording your animated gif</button>
+                    <div class="start-gif-overlay" hidden$="[[recording]]" on-tap="_generateAppGif">
+                        <button class="gif">Start recording your animated gif</button>
                     </div>
                 </div>
             </div>
@@ -381,14 +384,16 @@
             let workspace = this.$['app-preview'].getWorkspace(),
                 parts = Object.keys(this.$['app-preview'].component.parts).map(key => {
                     return this.$['app-preview'].component.parts[key];
-                });
-            let p = Promise.resolve(),
+                }),
+                p = Promise.resolve(),
                 wait = (delay) => {
                     return new Promise((resolve, reject) => {
                         setTimeout(resolve, delay);
                     });
                 },
-                images = [];
+                images = [],
+                FPS = 4,
+                FRAME_NUMBER = 12;
 
             this.coverWidth = workspace.width;
             this.coverHeight = workspace.height;
@@ -400,17 +405,18 @@
                                             parts,
                                             workspace.width,
                                             workspace.height,
-                                            0.6,
+                                            0.5,
                                             this.shareInfo.mode.sharing.padding,
                                             this.shareInfo.mode.sharing.color)
                     .then(image => {
                         images.push(image);
-                        this.gifProgress += 2;
-                        return wait(1000 / 10);
+                        this.gifProgress += (100 / FRAME_NUMBER);
+                        return wait(1000 / FPS);
                     });
             }
             this.gifProgress = 0;
-            for (let i = 0; i < 8; i++) {
+            this.gifRenderProgress = 0;
+            for (let i = 0; i < FRAME_NUMBER; i++) {
                 p = p.then(getFrame.bind(this));
             }
             p.then(_ => {
@@ -421,10 +427,10 @@
                         workerScript: '/scripts/workers/gif.worker.js'
                     });
                     images.forEach((image) => {
-                        gif.addFrame(image, { delay: 1000 / 10 });
+                        gif.addFrame(image, { delay: 1000 / FPS });
                     });
                     gif.on('progress', (p) => {
-                        this.gifProgress = 20 + p * 80;
+                        this.gifRenderProgress = p * 100;
                     });
                     gif.on('finished', (blob) => {
                         resolve(blob);
@@ -440,6 +446,7 @@
                 this.recording = false;
                 this.firstRender = false;
                 this.gifProgress = 0;
+                this.gifRenderProgress = 0;
             });
         },
         generateUrl () {

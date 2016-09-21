@@ -83,7 +83,9 @@ var SharingBehavior = {
             }
         }).then((share) => {
             this.set('shareInfo.id', share.id);
-            this._goToPage('success');
+            if (!this.shareInfo.is_private) {
+                this._goToPage('success');
+            }
             return share;
         }).catch((e) => {
             console.error(e);
@@ -146,10 +148,11 @@ var SharingBehavior = {
             }
         };
         let onAppReady = () => {
-            this.modal.open();
+            this.modal.refit();
             this.modal.removeEventListener('app-ready', onAppReady);
         };
         this.modal.addEventListener('app-ready', onAppReady);
+        this.modal.open();
     },
 
     _userChanged (user) {
@@ -172,7 +175,10 @@ var SharingBehavior = {
         }
         this._shareApp();
 
-        this._goToPage('publishing');
+        if (!this.shareInfo.is_private) {
+            this._goToPage('publishing');
+        }
+
     },
 
     dismissShare () {
