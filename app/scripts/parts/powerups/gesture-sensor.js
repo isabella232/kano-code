@@ -6,7 +6,7 @@ export default gestureSensor = {
     partType: 'hardware',
     type: 'gesture-sensor',
     label: 'Gesture Sensor',
-    image: '/assets/part/box.svg',
+    image: '/assets/part/gesture.svg',
     colour: '#FFB347',
     component: 'kano-part-gesture-sensor',
     customizable: {
