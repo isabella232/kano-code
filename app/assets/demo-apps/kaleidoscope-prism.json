@@ -1,79 +1,17 @@
 {
     "parts": [
         {
-            "id": "prism",
-            "name": "Prism",
-            "type": "kaleidoscope",
-            "userStyle": {
-                "width": "358px",
-                "height": "276px"
-            },
-            "userProperties": {
-                "speed": "1",
-                "offsetRotation": "0",
-                "zoom": "1",
-                "slices": "12"
-            },
-            "position": {
-                "x": 3.2344254032257314,
-                "y": 48.72258064516129
-            },
-            "partType": "ui",
-            "configPanel": "ui",
-            "excludeDefaultBlocks": false,
-            "showDefaultConfiguration": true,
-            "customizable": {
-                "properties": [
-                    {
-                        "key": "offsetRotation",
-                        "type": "range",
-                        "label": "Offset Rotation",
-                        "min": 0,
-                        "max": 360
-                    },
-                    {
-                        "key": "slices",
-                        "type": "range",
-                        "label": "Slices",
-                        "min": 1,
-                        "max": 30
-                    },
-                    {
-                        "key": "zoom",
-                        "type": "range",
-                        "label": "Zoom",
-                        "min": 1,
-                        "max": 10
-                    },
-                    {
-                        "key": "speed",
-                        "type": "range",
-                        "label": "Speed",
-                        "min": 0,
-                        "max": 20
-                    }
-                ],
-                "style": [
-                    "width",
-                    "height"
-                ]
-            },
-            "rotation": 0,
-            "scale": "95",
-            "visible": true
-        },
-        {
-            "id": "slider",
-            "name": "Slider",
+            "id": "slider2",
+            "name": "Slider 2",
             "type": "slider",
             "userStyle": {},
             "userProperties": {
-                "min": 0,
+                "min": 1,
                 "max": 100
             },
             "position": {
-                "x": 366.5892641129034,
-                "y": 65.78926411290321
+                "x": 34,
+                "y": -94.83010752688172
             },
             "partType": "ui",
             "configPanel": "ui",
@@ -99,17 +37,17 @@
             "visible": true
         },
         {
-            "id": "slider1",
-            "name": "Slider 1",
+            "id": "slider3",
+            "name": "Slider 3",
             "type": "slider",
             "userStyle": {},
             "userProperties": {
-                "min": 0,
+                "min": 1,
                 "max": 100
             },
             "position": {
-                "x": 369.06668346774205,
-                "y": 94.69248991935484
+                "x": 35.09677419354838,
+                "y": -61.797849462365605
             },
             "partType": "ui",
             "configPanel": "ui",
@@ -137,9 +75,9 @@
     ],
     "code": {
         "snapshot": {
-            "javascript": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').getCamera().takePicture();\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  devices.get('slider').connectTo(devices.get('prism').getConnectable('model.userProperties.slices'));\n  devices.get('slider1').connectTo(devices.get('prism').getConnectable('model.userProperties.offsetRotation'));\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('prism').setSource(devices.get('camera').getCamera().lastPicture());\n});\n",
-            "pseudo": "global.when('start', function () {\n  devices.get('camera').onShutterDown(function (){\n    devices.get('camera').getCamera().takePicture();\n    devices.get('camera').flash('#ffffff', 200);\n\n  });\n  devices.get('slider').connectTo(devices.get('prism').getConnectable('model.userProperties.slices'));\n  devices.get('slider1').connectTo(devices.get('prism').getConnectable('model.userProperties.offsetRotation'));\n});\n\ndevices.get('camera').when('picture-taken', function () {\n  devices.get('prism').setSource(devices.get('camera').getCamera().lastPicture());\n});\n",
-            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"pn2rt5[sd/DL,_OyRELf\" x=\"193\" y=\"88\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"camera#shutter_down\" id=\"Y0Y7I@/xf0TXo/.JhV:z\"><statement name=\"DO\"><block type=\"camera#take_picture\" id=\"h:ox4wCoiTe)D#SoLrqr\"><next><block type=\"camera#ledring_flash\" id=\"1I{[n;bYrS?Qtf!bT^i2\"><value name=\"COLOR\"><shadow type=\"colour_picker\" id=\"kp?oI;;a#5C+z/U/PP*l\"><field name=\"COLOUR\">#ffffff</field></shadow></value><value name=\"LENGTH\"><shadow type=\"math_number\" id=\"QlzdI+*]1EwhZg~d/.on\"><field name=\"NUM\">200</field></shadow></value></block></next></block></statement><next><block type=\"slider#connect\" id=\"#7xL-Bv1s]EK=ngMUx|.\"><value name=\"TARGET\"><block type=\"prism#get_property\" id=\"-|O=8_/=!Bg9RGgjDtou\"><field name=\"PROPERTY\">model.userProperties.slices</field></block></value><next><block type=\"slider1#connect\" id=\");9ttb|I^fhiwX^Rgy+B\"><value name=\"TARGET\"><block type=\"prism#get_property\" id=\"@WmH~q:6s9.rK)U[.%Rw\"><field name=\"PROPERTY\">model.userProperties.offsetRotation</field></block></value></block></next></block></next></block></statement></block><block type=\"part_event\" id=\"Zoj(7Y;*`:rwMbYrG(~#\" x=\"194\" y=\"320\"><field name=\"EVENT\">camera.picture-taken</field><statement name=\"DO\"><block type=\"prism#set_image\" id=\"nDjfqRk;-z1mnv7|X(Xl\"><value name=\"SOURCE\"><block type=\"camera#last_picture\" id=\"6mKQpzyygAnqp/6aH8o}\"></block></value></block></statement></block></xml>"
+            "javascript": "devices.get('camera').when('camera-shutter-button', function () {\n  devices.get('camera').takePicture();\n});\n\nglobal.when('start', function () {\n  time.every(10, 'frames', function () {\n    devices.get('camera').enableKaleidoscope(devices.get('slider3').getValue(), devices.get('slider3').getValue(), 1);\n  });\n});\n",
+            "pseudo": "devices.get('camera').when('camera-shutter-button', function () {\n  devices.get('camera').takePicture();\n});\n\nglobal.when('start', function () {\n  time.every(10, 'frames', function () {\n    devices.get('camera').enableKaleidoscope(devices.get('slider3').getValue(), devices.get('slider3').getValue(), 1);\n  });\n});\n",
+            "blocks": "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" x=\"133\" y=\"143\"><field name=\"EVENT\">camera.camera-shutter-button</field><statement name=\"DO\"><block type=\"camera#take_picture\" id=\"F=O@TuHxmcinKlg1FMlP\"></block></statement></block><block type=\"part_event\" id=\"vyib8qNfUP?5(tG40MqX\" x=\"128\" y=\"226\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"every_x_seconds\" id=\"4sh!|O)xecn*+_a?SW#u\"><field name=\"UNIT\">frames</field><value name=\"INTERVAL\"><shadow type=\"math_number\" id=\"GlJyXEgpi?2V!6jc%eAG\"><field name=\"NUM\">10</field></shadow></value><statement name=\"DO\"><block type=\"camera#filter_kaleidoscope\" id=\"xUR4y%mlH^roAjz?d#`y\"><value name=\"ROTATION_OFFSET\"><shadow type=\"math_number\" id=\",zf1e@[+V+w%[udS,xOC\"><field name=\"NUM\">50</field></shadow><block type=\"slider3#get_value\" id=\"UPy]z4hx5mP-12-/wu8*\"></block></value><value name=\"SLICES\"><shadow type=\"math_number\" id=\"Yp#M,JD5Uwsh8ME0=QPs\"><field name=\"NUM\">12</field></shadow><block type=\"slider3#get_value\" id=\"q+TJ*Dm[](Kt~[jN4W@V\"></block></value><value name=\"ZOOM\"><shadow type=\"math_number\" id=\"6*ZB6~u%ez7Zbn87v;0d\"><field name=\"NUM\">1</field></shadow></value></block></statement></block></statement></block></xml>"
         }
     },
     "background": {

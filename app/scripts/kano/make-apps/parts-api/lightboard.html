@@ -1,0 +1,47 @@
+<link rel="import" href="./base.html">
+<script>
+    (function (Kano) {
+        let Lightboard, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        Lightboard = {
+            listeners: {
+                'update-shape': '_updateShape'
+            },
+            start () {
+                PartsAPI.Base.start.apply(this, arguments);
+
+                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+            },
+            stop () {
+                PartsAPI.Base.stop.apply(this, arguments);
+                if (this.appModules) {
+                    this.appModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEvent);
+                }
+            },
+            turnOn (light, color) {
+                return this.appModules.getModule('lightboard').turnOn(light, color);
+            },
+            turnOff (light) {
+                return this.appModules.getModule('lightboard').turnOff(light);
+            },
+            text (text, color, backgroundColor) {
+                return this.appModules.getModule('lightboard').text(text, color, backgroundColor);
+            },
+            scroll (text, color, backgroundColor, speed) {
+                return this.appModules.getModule('lightboard').scroll(text, color, backgroundColor, speed);
+            },
+            _propagateButtonEvent (data) {
+                this.fire("lightboard-" + data['button-id']);
+            },
+            _updateShape (e) {
+                let shape = e.detail;
+                return this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape);
+            }
+        };
+
+        PartsAPI.lightboard = Object.assign({}, PartsAPI.Base, Lightboard);
+    })(window.Kano = window.Kano || {});
+</script>

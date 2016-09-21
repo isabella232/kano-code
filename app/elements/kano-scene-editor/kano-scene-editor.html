@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../behaviors/kano-scene-component-behavior.html">
+<link rel="import" href="../behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../kano-power-up-modal/kano-power-up-modal.html">
 <link rel="import" href="../kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../kano-app-editor/kano-app-editor.html">
@@ -28,7 +29,7 @@
                             on-save="saveApp"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            current-step="{{currentStep}}"
+                            step="{{currentStep}}"
                             started="[[scene.started]]">
           <kano-app-editor id="editor"
                             parts="[[computeParts(scene.*, remix)]]"
@@ -59,12 +60,8 @@
 
     Polymer({
         is: 'kano-scene-editor',
-        behaviors: [Kano.Behaviors.SceneComponentBehavior],
+        behaviors: [Kano.Behaviors.EditorViewBehavior, Kano.Behaviors.SceneComponentBehavior],
         properties: {
-            running: {
-                type: Boolean,
-                observer: 'runningChanged'
-            },
             storyName: {
                 type: String
             },
@@ -95,6 +92,9 @@
         },
         _blocklyReady (scene) {
             this._loadVariables();
+            this.async(() => {
+                this._loadDefaultApp();
+            });
         },
         _sceneChanged () {
             this._loadVariables();
@@ -107,6 +107,12 @@
                 });
             }
         },
+        _loadDefaultApp () {
+            let editor = this.$.editor;
+            if (this.scene && this.scene.defaultApp) {
+                editor.load(JSON.parse(this.scene.defaultApp), Kano.MakeApps.Parts.list);
+            }
+        },
         endedChanged () {
             if (this.scene.ended) {
                 this.$.editor.generateCover().then((image) => {
@@ -116,11 +122,18 @@
             }
         },
         computeProgress (currentStep, scene) {
-            return currentStep / scene.steps.length;
+            return (currentStep + 1) / scene.steps.length;
         },
         ready () {
             this.remix = false;
             this.code = {};
+
+            this.debounce('saveApp', () => {
+                this.editor = this.$.editor;
+                this.editor.addEventListener('change', (e) => {
+                    this.saveApp(e);
+                });
+            }, 300);
         },
         attached () {
             this.mode = Kano.MakeApps.Mode.modes[(this.scene.mode || 'normal')];
@@ -151,19 +164,11 @@
 
             return cats;
         },
-        runningChanged () {
-            let editor = this.$.editor;
-            if (this.running) {
-                Kano.MakeApps.components.run(editor.addedParts, editor.code, Kano.AppModules.modules, editor.getWorkspace().devices);
-            } else {
-                Kano.MakeApps.components.stop(editor.addedParts, Kano.AppModules.modules, editor.getWorkspace().devices);
-            }
-        },
         saveApp (e) {
-            let id = e.detail.id,
+            let id = e.detail.id || 'current',
                 blockIds = e.detail.blockIds,
                 stepIds = e.detail.stepIds,
-                app = this.$.editor.save(true);
+                app = this.$.editor.save(true, false);
             this.addToStore(id, {
                 app,
                 blockIds,
@@ -191,6 +196,12 @@
             let extensionId = e.detail.id;
             this.fire('extend-story', extensionId);
             e.stopPropagation();
+        },
+        _runningChanged () {
+            if (!this.scene.started) {
+                return;
+            }
+            Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
         }
     });
 </script>

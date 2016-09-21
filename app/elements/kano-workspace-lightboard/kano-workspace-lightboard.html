@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../bower_components/kano-hw-components/kano-led-matrix.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/lightboard.html">
 <dom-module id="kano-workspace-lightboard">
     <style>
         :host {
@@ -38,23 +39,129 @@
         iron-image, #led-matrix {
             margin-top: -35px;
         }
+        .btn {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 0px;
+            cursor: pointer;
+            background-color: transparent;
+        }
+        .btn:focus {
+            outline: none;
+            @apply(--shadow-elevation-2dp);
+        }
+        .btn.a {
+            top: 227px;
+            right: 65px;
+        }
+        .btn.b {
+            top: 227px;
+            right: 19px;
+        }
+        .joystick {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            top: 228px;
+            left: 21px;
+            background-color: #4c4f55;
+            transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            overflow: hidden;
+            transform: rotate(45deg);
+        }
+        .joystick:hover {
+            transform: rotate(45deg) scale(2);
+        }
+        .joystick:not(:hover) .js-dir {
+            opacity: 0 !important;
+        }
+        .joystick:hover .js-dir {
+            opacity: 1;
+        }
+        .js-dir {
+            padding: 0px;
+            width: 50%;
+            height: 50%;
+            box-sizing: border-box;
+            transition: opacity cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
+            background-color: #3c3d3f;
+            border: 0px;
+            cursor: pointer;
+        }
+        .joystick button.js-dir:focus, .joystick button.js-dir:hover {
+            outline: none;
+            background-color: #45474c;
+        }
+        .js-dir.up, .js-dir.left {
+            margin-right: 1px;
+            width: calc(50% - 1px);
+        }
+        .js-dir.up, .js-dir.right {
+            margin-bottom: 1px;
+            height: calc(50% - 1px);
+        }
+        .js-dir .arrow-icon {
+            width: 3px;
+            height: 3px;
+            margin: 0 auto;
+            border-color: rgba(255, 255, 255, 0.7);
+            border-style: solid;
+            border-width: 0px;
+        }
+        .js-dir.up .arrow-icon {
+            border-top-width: 1px;
+            border-left-width: 1px;
+        }
+        .js-dir.right .arrow-icon {
+            border-top-width: 1px;
+            border-right-width: 1px;
+        }
+        .js-dir.down .arrow-icon {
+            border-bottom-width: 1px;
+            border-right-width: 1px;
+        }
+        .js-dir.left .arrow-icon {
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+        }
+        .joystick button.js-dir:focus .arrow-icon, .joystick button.js-dir:hover .arrow-icon {
+            border-color: white;
+        }
     </style>
     <template>
         <iron-image src="/assets/mode/lightboard/body.svg" sizing="contain" width="[[width]]" height="[[height]]"></iron-image>
+        <button class="btn a" on-tap="_buttonATapped"></button>
+        <button class="btn b" on-tap="_buttonBTapped"></button>
         <kano-led-matrix id="led-matrix"></kano-led-matrix>
+        <div class="joystick">
+            <button class="js-dir up" on-tap="_joystickUpTapped">
+                <div class="arrow-icon"></div>
+            </button>
+            <button class="js-dir right" on-tap="_joystickRightTapped">
+                <div class="arrow-icon"></div>
+            </button>
+            <button class="js-dir left" on-tap="_joystickLeftTapped">
+                <div class="arrow-icon"></div>
+            </button>
+            <button class="js-dir down" on-tap="_joystickDownTapped">
+                <div class="arrow-icon"></div>
+            </button>
+        </div>
         <content></content>
     </template>
     <script>
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-lightboard',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.PartsAPI.lightboard],
             listeners: {
-                'update-mode': 'update',
                 'update-shape': '_updateShape'
-            },
-            ready () {
-                this.userListeners = [];
             },
             attached () {
                 Kano.AppModules.getModule('lightboard').connect({
@@ -64,45 +171,40 @@
             render (bitmap) {
                 this.$['led-matrix'].render(bitmap);
             },
-            scroll (text, color, backgroundColor, speed) {
-                Kano.AppModules.getModule('lightboard').scroll(text, color, backgroundColor, speed);
-            },
-            text (text, color, backgroundColor) {
-                Kano.AppModules.getModule('lightboard').text(text, color, backgroundColor);
-            },
             turnOn (light, color) {
-                Kano.AppModules.getModule('lightboard').turnOn(light, color).then(bitmap => {
+                Kano.MakeApps.PartsAPI.lightboard.turnOn.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped
                 });
             },
             turnOff (light) {
-                Kano.AppModules.getModule('lightboard').turnOff(light).then(bitmap => {
+                Kano.MakeApps.PartsAPI.lightboard.turnOff.apply(this, arguments).then(bitmap => {
                     this.render(bitmap);
                 }).catch(e => {
                     // Frame dropped
                 });
             },
-            update (data) {
-                this.render(data);
+            _buttonATapped () {
+                this.fire('lightboard-btn-A');
             },
-            onKeyDown (key, callback) {
-                let cb = this._keyDownCheck(key, callback);
-                this.userListeners.push({
-                    name: 'button-down',
-                    cb
-                });
-                Kano.AppModules.getModule('lightboard').on('button-down', cb);
+            _buttonBTapped () {
+                this.fire('lightboard-btn-B');
             },
-            _keyDownCheck (key, callback) {
-                return (data) => {
-                    if (data['button-id'] === key) {
-                        callback();
-                    }
-                };
+            _joystickUpTapped () {
+                this.fire('lightboard-js-up');
+            },
+            _joystickRightTapped () {
+                this.fire('lightboard-js-right');
+            },
+            _joystickLeftTapped () {
+                this.fire('lightboard-js-left');
+            },
+            _joystickDownTapped () {
+                this.fire('lightboard-js-down');
             },
             stop () {
+                Kano.MakeApps.PartsAPI.lightboard.stop.apply(this);
                 this.reset();
             },
             reset () {
@@ -111,19 +213,58 @@
                     empty.push('#000000');
                 }
                 this.$['led-matrix'].render(empty);
-                this.userListeners.forEach((listener) => {
-                    Kano.AppModules.getModule('lightboard').removeListener(listener.name, listener.cb);
-                });
-                this.userListeners = [];
             },
             _updateShape (e) {
-                let shape = e.detail;
-                Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape)
-                    .then((bitmap) => {
+                Kano.MakeApps.PartsAPI.lightboard._updateShape.apply(this, arguments).then((bitmap) => {
                         this.render(bitmap);
                     }).catch(e => {
                         // Frame dropped
                     });
+            },
+            getRestrictElement () {
+                return this.$['led-matrix'];
+            },
+            renderOnCanvas (ctx, util, scaleFactor) {
+                let bitmap = this.appModules.getModule('lightboard').getBitmap(),
+                    pxSize = 21,
+                    paintLeds, hsl, x, y;
+
+                return Promise.all([
+                    this.loadImage('/assets/mode/lightboard/body.svg'),
+                    this.loadImage('/assets/mode/lightboard/led.svg')
+                ]).then(images => {
+                    let body = images[0],
+                        led = images[1],
+                        pixel;
+                    ctx.drawImage(body, 0, 0);
+                    ctx.save();
+                    for (let i = 0, len = bitmap.length; i < len; i++) {
+                        pixel = bitmap[i];
+                        x = 21 + ((i % 16) * (pxSize + 6));
+                        y = 46 + (Math.floor(i / 16) * (pxSize + 6));
+                        hsl = this.hexToRgb(pixel);
+                        hsl = this.rgbToHsl(hsl.r, hsl.g, hsl.b);
+                        ctx.globalAlpha = 1;
+                        ctx.shadowBlur = 0;
+                        ctx.drawImage(led, x, y, pxSize, pxSize);
+                        ctx.shadowBlur = hsl.l * 20;
+                        ctx.fillStyle = pixel;
+                        ctx.shadowColor = pixel;
+                        ctx.globalAlpha = hsl.l;
+                        ctx.fillRect(x, y, pxSize, pxSize);
+                    }
+                    ctx.restore();
+                });
+            },
+            loadImage (src) {
+                return new Promise((resolve, reject) => {
+                    let img = new Image();
+                    img.onload = () => {
+                        resolve(img);
+                    };
+                    img.onerror = reject;
+                    img.src = src;
+                });
             }
         });
     </script>

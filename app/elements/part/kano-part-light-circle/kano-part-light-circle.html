@@ -1,6 +1,6 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../kano-light-shape-behavior.html">
 <link rel="import" href="../../kano-style/part.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/light-circle.html">
 <dom-module id="kano-part-light-circle">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -35,28 +35,7 @@
 
         Polymer({
             is: 'kano-part-light-circle',
-            behaviors: [Kano.Behaviors.LightShapeBehavior, Kano.Behaviors.EmitterBehavior],
-            start () {
-                Kano.Behaviors.LightShapeBehaviorImpl.start.apply(this, arguments);
-            },
-            stop () {
-                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-                Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-            },
-            setRadius (r) {
-                this.set('model.userProperties.radius', r);
-                this._updateLightboard();
-            },
-            getRadius () {
-                return parseInt(this.get('model.userProperties.radius'));
-            },
-            setColor (c) {
-                this.set('model.userProperties.color', c);
-                this._updateLightboard();
-            },
-            getColor () {
-                return this.get('model.userProperties.color');
-            },
+            behaviors: [Kano.MakeApps.PartsAPI['light-rectangle'], Kano.Behaviors.LightShapeBehavior],
             _computeContainerStyle () {
                 let radius = this.model.userProperties.radius,
                     size = ((radius * 2) + 1) * this.PIXEL_SIZE + 4,
@@ -87,35 +66,13 @@
                 });
                 return `width: ${size}px; height: ${size}px;`;
             },
-            _updateLightboard () {
-                this.debounce('_updateLightboard', () => {
-                    if (this.isRunning) {
-                        let radius = parseInt(this.model.userProperties.radius),
-                            shape = {
-                            id: this.model.id,
-                            x: this.getX(),
-                            y: this.getY(),
-                            radius,
-                            color: this.model.userProperties.color,
-                            type: 'circle'
-                        };
-                        this.fire('update-shape', shape);
-                    }
-                });
-            },
-            getX () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / this.PIXEL_SIZE);
-            },
-            getY () {
-                return Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / this.PIXEL_SIZE);
-            },
             applyTransform () {
                 if (!this.model) {
                     return;
                 }
                 let radius = parseInt(this.model.userProperties.radius),
-                    x = 7 + this.PIXEL_SIZE * (this.getX() - radius),
-                    y = 6 + this.PIXEL_SIZE * (this.getY() - radius);
+                    x = this.OFFSET_X + this.PIXEL_SIZE * (this.getX() - radius),
+                    y = this.OFFSET_Y + this.PIXEL_SIZE * (this.getY() - radius);
 
                 this.transform(`translate(${x}px, ${y}px)`);
             }

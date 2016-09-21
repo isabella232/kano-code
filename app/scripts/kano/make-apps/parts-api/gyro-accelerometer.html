@@ -1,0 +1,40 @@
+<link rel="import" href="./base.html">
+<script>
+    (function (Kano) {
+        let GyroAccelerometer, PartsAPI;
+
+        Kano.MakeApps = Kano.MakeApps || {};
+        PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
+
+        GyroAccelerometer = {
+            start () {
+                PartsAPI.Base.start.apply(this, arguments);
+                this.gyroEventListener = (e) => {
+                    this.lastGyroVector = e;
+                    this.fire('gyro-accel-update');
+                };
+
+                this.accelEventListener = (e) => {
+                    this.lastAccelVector = e;
+                };
+
+                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
+                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+            },
+            stop () {
+                PartsAPI.Base.stop.apply(this, arguments);
+
+                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
+                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+            },
+            getGyroData (axis) {
+                return this.lastGyroVector[axis];
+            },
+            getAccelerometerData (axis) {
+                return this.lastAccelVector[axis];
+            }
+        };
+
+        PartsAPI['gyro-accelerometer'] = Object.assign({}, PartsAPI.Base, GyroAccelerometer);
+    })(window.Kano = window.Kano || {});
+</script>

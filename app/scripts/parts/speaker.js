@@ -2,48 +2,6 @@
 
 let speaker;
 
-const samples = {
-    instruments: {
-        'joke_drum': 'Joke Drum',
-        'bass_hit_c': 'Bass Hit',
-        'bass_voxy_hit_c': 'Bass Voxy Hit',
-        'bd_ada': 'Drum Beat',
-        'drum_bass_hard': 'Drum Bass Hard',
-        'drum_cymbal_hard': 'Drum Cymbal Hard',
-        'drum_roll': 'Drum Roll',
-        'ambi_piano': 'Ambi Piano'
-    },
-    loops: {
-        'loop_safari': 'Safari',
-        'loop_compus': 'Compus',
-        'loop_mika': 'Mika',
-        'loop_amen_full': 'Amen',
-        'apache': 'Apache',
-        'bass_loop': 'Bass'
-    },
-    sounds: {
-        'short_fart': 'Fart',
-        'vinyl_backspin': 'Vinyl',
-        'perc_snap': 'Snap',
-        'misc_crow': 'Crow',
-        'elec_twip': 'Twip',
-        'elec_ping': 'Ping',
-        'misc_burp': 'Burp',
-        'perc_bell': 'Bell',
-        'perc_swash': 'Swash',
-    },
-    kano: {
-        'ungrab': 'Ungrab',
-        'make': 'Make',
-        'grab': 'Grab',
-        'error2': 'Error',
-        'error_v2': 'Error 2',
-        'error': 'Error 3',
-        'challenge_complete': 'Challenge Complete',
-        'boot_up_v2': 'Boot Up',
-        'boot_up': 'Boot Up 2',
-    }
-};
 const COLOUR = '#FFB347';
 
 speaker = {
@@ -52,6 +10,7 @@ speaker = {
     label: 'Speaker',
     image: '/assets/part/speaker.svg',
     colour: COLOUR,
+    component: 'kano-part-speaker',
     experiments: {
         'sound': []
     },
@@ -100,21 +59,21 @@ speaker = {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '""',
                     rate = Blockly.JavaScript.valueToCode(block, 'RATE') || 1,
                     lang = block.getFieldValue('LANGUAGE'),
-                    code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
+                    code = `parts.get('${part.id}').say(${text}, ${rate}, "${lang}");\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
                 let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || `''`,
                     rate = Blockly.Pseudo.valueToCode(block, 'RATE') || 1,
                     lang = block.getFieldValue('LANGUAGE'),
-                    code = `speaker.say(${text}, ${rate}, "${lang}");\n`;
+                    code = `parts.get('${part.id}').say(${text}, ${rate}, "${lang}");\n`;
                 return code;
             };
         }
@@ -148,17 +107,17 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.play(${sample});\n`;
+                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').play(${sample});\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.play(${sample});\n`;
+                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').play(${sample});\n`;
                 return code;
             };
         }
@@ -176,17 +135,17 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.loop(${sample});\n`;
+                let sample = Blockly.JavaScript.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').loop(${sample});\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || {},
-                    code = `speaker.loop(${sample});\n`;
+                let sample = Blockly.Pseudo.valueToCode(block, 'SAMPLE') || 'null',
+                    code = `parts.get('${part.id}').loop(${sample});\n`;
                 return code;
             };
         }
@@ -199,21 +158,22 @@ if (speaker.webAudioSupported) {
                 nextStatement: null
             };
         },
-        javascript: () => {
+        javascript: (part) => {
             return (block) => {
-                let code = `speaker.stop();\n`;
+                let code = `parts.get('${part.id}').stop();\n`;
                 return code;
             };
         },
-        pseudo: () => {
+        pseudo: (part) => {
             return (block) => {
-                let code = `speaker.stop();\n`;
+                let code = `parts.get('${part.id}').stop();\n`;
                 return code;
             };
         }
     },{
         block: (part) => {
-            let sampleSet = Object.keys(samples),
+            let samples = Kano.MakeApps.Files.samples,
+                sampleSet = Object.keys(samples),
                 id = 'speaker_sample';
             Blockly.Blocks[`${part.id}#${id}`] = {
                 init: function () {
@@ -238,7 +198,8 @@ if (speaker.webAudioSupported) {
                     this.createInputs_(option);
                 },
                 createInputs_: function (option) {
-                    let options = Object.keys(samples[option]).map(key => [samples[option][key], key]),
+                    let samples = Kano.MakeApps.Files.samples,
+                        options = Object.keys(samples[option]).map(key => [samples[option][key], key]),
                         dropdown = new Blockly.FieldDropdown(options);
                     this.appendDummyInput('SAMPLE')
                         .appendField(dropdown, 'SAMPLE');

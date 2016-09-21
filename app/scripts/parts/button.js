@@ -30,6 +30,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'get_label',
+                lookup: 'getLabel()',
                 output: "String",
                 message0: `${ui.name}: label`
             };
@@ -48,6 +49,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_label',
+                lookup: 'setLabel(label)',
                 message0: `${ui.name}: set label to %1`,
                 args0: [{
                     type: "input_value",
@@ -73,6 +75,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_background_colour',
+                lookup: 'setBackgroundColor(color)',
                 message0: `${ui.name}: set background colour to %1`,
                 args0: [{
                     type: "input_value",
@@ -99,6 +102,7 @@ export default button = {
         block: (ui) => {
             return {
                 id: 'set_text_colour',
+                lookup: 'setColor(color)',
                 message0: `${ui.name}: set text colour to %1`,
                 args0: [{
                     type: "input_value",

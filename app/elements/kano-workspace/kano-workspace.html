@@ -1,4 +1,3 @@
-<link rel="import" href="../ui/behaviors.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 
 <dom-module id="kano-workspace">
@@ -27,7 +26,7 @@
         color: #B3B3B3;
         pointer-events: none;
     }
-    .tinker-button {
+    .edit-layout-button {
         @apply(--kano-button);
         background-color: var(--color-green, green);
         padding-top: 27px;
@@ -49,11 +48,11 @@
                     on-tap="onTap">
             <button type="button"
                     name="button"
-                    class="tinker-button"
-                    on-tap="toggleTinkering"
-                    style$="[[_computeTinkerButtonStyle(mode.workspace.viewport.height)]]">
-                        <span>[[_computeTinkerButtonLabel(tinkering)]]</span>
-                        <span hidden$="[[!tinkering]]">&times;</span>
+                    class="edit-layout-button"
+                    on-tap="toggleEditableLayout"
+                    style$="[[_computeEditingButtonStyle(mode.workspace.viewport.height)]]">
+                        <span>[[_computeEditingButtonLabel(editableLayout)]]</span>
+                        <span hidden$="[[!editableLayout]]">&times;</span>
                     </button>
             <!-- The variable workspace component will be inserted here -->
             <div id="workspace-placeholder">
@@ -81,7 +80,7 @@
                 observer: 'runningChanged',
                 notify: true
             },
-            tinkering: {
+            editableLayout: {
                 type: Boolean,
                 value: false,
                 notify: true
@@ -125,9 +124,9 @@
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
         },
-        toggleTinkering () {
-            this.set('tinkering', !this.tinkering);
-            if (this.tinkering) {
+        toggleEditableLayout () {
+            this.set('editableLayout', !this.editableLayout);
+            if (this.editableLayout) {
                 this.prevRunningState = this.running;
                 this.set('running', false);
                 this.fire('open-settings');
@@ -136,11 +135,11 @@
                 this.fire('close-settings');
             }
         },
-        _computeTinkerButtonStyle (height) {
+        _computeEditingButtonStyle (height) {
             return `top: ${height}px`;
         },
-        _computeTinkerButtonLabel (tinkering) {
-            return tinkering ? 'Done' : 'Tinker';
+        _computeEditingButtonLabel (editableLayout) {
+            return editableLayout ? 'Done' : 'Edit Layout';
         },
         _getPartById (id) {
             if (id === this.dropzone.getAttribute('id') || id === 'dropzone') {
@@ -215,7 +214,7 @@
             }
         },
         onPartTapped (e) {
-            if (!this.tinkering) {
+            if (!this.editableLayout) {
                 return;
             }
             this.clearSelection();
@@ -310,17 +309,23 @@
             this.dropzone.removeChild(element);
             delete this.elements[key];
         },
+        getPartsDict () {
+            let dict = Object.keys(this.elements).reduce((acc, key) => {
+                // Get the model linked to the element
+                let model = this.get(`parts.${key}`);
+                acc[model.id] = this.elements[key];
+                return acc;
+            }, {});
+            dict[this.mode.id] = this.dropzone;
+            // Support legacy apps
+            dict['dropzone'] = this.dropzone;
+            return dict;
+        },
         runningChanged () {
             if (this.running) {
                 this.classList.add('running');
                 this.clearSelection();
-                if (this.dropzone && this.dropzone.start) {
-                    this.dropzone.start();
-                }
             } else {
-                if (this.dropzone && this.dropzone.stop) {
-                    this.dropzone.stop();
-                }
                 this.classList.remove('running');
             }
         },

@@ -1,0 +1,35 @@
+<script>
+    (function (Kano) {
+
+        class AppModule {
+            constructor () {
+                this.lifecycle = {};
+                this.methods = {};
+            }
+            config () {}
+            addMethod (name, cbName) {
+                if (typeof this[cbName] === 'function') {
+                    this.methods[name] = this[cbName].bind(this);
+                } else {
+                    this.methods[name] = this[cbName];
+                }
+            }
+            addLifecycleStep (name, cbName) {
+                this.lifecycle[name] = this[cbName].bind(this);
+            }
+            executeLifecycleStep (name) {
+                if (name === 'start') {
+                    this.isRunning = true;
+                } else if (name === 'stop') {
+                    this.isRunning = false;
+                }
+                if (typeof this.lifecycle[name] === 'function') {
+                    this.lifecycle[name].call(this);
+                }
+            }
+        }
+
+        Kano.AppModules.AppModule = AppModule;
+
+    })(window.Kano = window.Kano || {});
+</script>

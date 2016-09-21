@@ -1,4 +1,4 @@
-<link rel="import" href="../ui/behaviors.html">
+<link rel="import" href="./kano-ui-behavior.html">
 <script type="text/javascript">
 
 (function (Kano) {
@@ -10,42 +10,19 @@
      */
     Kano.Behaviors.LightShapeBehaviorImpl = {
         PIXEL_SIZE: 27,
-        start () {
-            Kano.Behaviors.UIBehavior.start.call(this);
-            this._updateLightboard();
-        },
-        move (x, y) {
-            x *= this.PIXEL_SIZE;
-            y *= this.PIXEL_SIZE;
-            Kano.Behaviors.UIBehavior.move.call(this, x, y);
-            this._updateLightboard();
-        },
-        setX (x) {
-            x *= this.PIXEL_SIZE;
-            Kano.Behaviors.UIBehavior.setX.call(this, x);
-            this._updateLightboard();
-        },
-        setY (y) {
-            y *= this.PIXEL_SIZE;
-            Kano.Behaviors.UIBehavior.setY.call(this, y);
-            this._updateLightboard();
-        },
-        getX () {
-            return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getX.call(this) / this.PIXEL_SIZE));
-        },
-        getY () {
-            return Math.max(0, Math.floor(Kano.Behaviors.UIBehavior.getY.call(this) / this.PIXEL_SIZE));
-        },
+        OFFSET_X: 15,
+        OFFSET_Y: 5,
+        BOARD_WIDTH: 16,
+        BOARD_HEIGHT: 8,
         applyTransform () {
             if (!this.model) {
                 return;
             }
-            let x = Math.min(Math.max(15, 15 + this.PIXEL_SIZE * this.getX()), 15 + (16 - parseInt(this.model.userProperties.width)) * this.PIXEL_SIZE),
-                y = Math.min(Math.max(5, 5 + this.PIXEL_SIZE * this.getY()), 5 + (8 - parseInt(this.model.userProperties.height)) * this.PIXEL_SIZE);
+            let x = Math.min(Math.max(this.OFFSET_X, this.OFFSET_X + this.PIXEL_SIZE * this.getX()), this.OFFSET_X + (this.BOARD_WIDTH - parseInt(this.model.userProperties.width)) * this.PIXEL_SIZE),
+                y = Math.min(Math.max(this.OFFSET_Y, this.OFFSET_Y + this.PIXEL_SIZE * this.getY()), this.OFFSET_Y + (this.BOARD_HEIGHT - parseInt(this.model.userProperties.height)) * this.PIXEL_SIZE);
 
             this.transform(`translate(${x}px, ${y}px)`);
-        },
-        _updateLightboard () {}
+        }
     };
 
     Kano.Behaviors.LightShapeBehavior = [Kano.Behaviors.UIBehavior, Kano.Behaviors.LightShapeBehaviorImpl];

@@ -71,14 +71,14 @@ export default pictureList = {
         },
         javascript: (ui) => {
             return function (block) {
-                let picture = Blockly.JavaScript.valueToCode(block, 'PICTURE') || '';
-                return `devices.get('${ui.id}').push('pictures', ${picture});\n`;
+                let picture = Blockly.JavaScript.valueToCode(block, 'PICTURE') || "''";
+                return `devices.get('${ui.id}').addPicture(${picture});\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
-                let picture = Blockly.Pseudo.valueToCode(block, 'PICTURE') || '';
-                return `devices.get('${ui.id}').push('pictures', ${picture});\n`;
+                let picture = Blockly.Pseudo.valueToCode(block, 'PICTURE') || "''";
+                return `devices.get('${ui.id}').addPicture(${picture});\n`;
             };
         }
     },{

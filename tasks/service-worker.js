@@ -6,12 +6,13 @@ var swPrecache = require('sw-precache'),
 module.exports = (gulp, $) => {
     const MANIFEST_NAME = 'make-apps.manifest',
           APP_ROUTES = ['/make'],
-          STATIC_FILE_GLOB = 'www/**/*';
+          // Do not cache .wav files, they will be cached dynamically
+          STATIC_FILE_GLOB = ['www/**/*.!(wav)'];
     function writeServiceWorker(handleFetch, callback) {
         let config = {
             cacheId: packageJson.name,
             logger: $.utils.notifyUpdate,
-            staticFileGlobs: [STATIC_FILE_GLOB],
+            staticFileGlobs: STATIC_FILE_GLOB,
             stripPrefix: 'www',
             navigateFallback: '/index.html',
             handleFetch,
@@ -19,6 +20,9 @@ module.exports = (gulp, $) => {
             maximumFileSizeToCacheInBytes: 3145728,
             runtimeCaching: [{
                 urlPattern: /^https:\/\/fonts\.googleapis\.com\/css/,
+                handler: 'cacheFirst'
+            },{
+                urlPattern: /\.wav/,
                 handler: 'cacheFirst'
             }]
         };

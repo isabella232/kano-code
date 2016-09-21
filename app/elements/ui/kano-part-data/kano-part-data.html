@@ -1,6 +1,6 @@
-<link rel="import" href="../../behaviors/kano-emitter-behavior.html">
 <link rel="import" href="../../kano-data-visualizer/kano-data-visualizer.html">
 <link rel="import" href="../../kano-style/part.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/data.html">
 <dom-module id="kano-part-data">
     <style is="custom-style" include="part-style"></style>
     <style>
@@ -45,7 +45,7 @@
 
     Polymer({
         is: 'kano-part-data',
-        behaviors: [Kano.Behaviors.UIBehavior, Kano.Behaviors.EmitterBehavior],
+        behaviors: [Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.data],
         properties: {
             loading: {
                 type: Boolean
@@ -55,45 +55,17 @@
                 computed: 'computeProgress(loading)'
             }
         },
+        ready () {
+            this.appModules = Kano.AppModules;
+        },
         computeProgress (loading) {
             return loading ? 1 : 0;
         },
         start () {
-            Kano.Behaviors.UIBehavior.start.apply(this, arguments);
-            let model = this.model;
-            if (model.refreshEnabled) {
-                this.refreshInterval = setInterval(this.refresh.bind(this), Math.max(1, model.refreshFreq) * 1000);
-            }
-            // Call a refresh at the begining
-            this.refresh();
+            Kano.MakeApps.PartsAPI.data.start.apply(this, arguments);
         },
         stop () {
-            Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
-            Kano.Behaviors.EmitterBehavior.stop.apply(this, arguments);
-            clearInterval(this.refreshInterval);
-            Object.keys(this.listeners).forEach((name) => {
-                this.listeners[name].forEach((callback) => {
-                    this.removeEventListener(name, callback);
-                });
-            });
-            this.listeners = {};
-        },
-        refresh () {
-            return Kano.AppModules.getModule('data').generateRequest(this.model.id, this.model.method, this.model.config)
-                    .then((data) => {
-                        this.set('model.data', data);
-                        this.fire('update');
-                    });
-        },
-        setConfig (name, value) {
-            this.set(`model.config.${name}`, value);
-            this.refresh();
-        },
-        getValue (path) {
-            return this.get(`model.data.${path}`) || this.get(`model.config.${path}`);
-        },
-        getData () {
-            return this.get('model.data');
+            Kano.MakeApps.PartsAPI.data.stop.apply(this, arguments);
         }
     });
 </script>

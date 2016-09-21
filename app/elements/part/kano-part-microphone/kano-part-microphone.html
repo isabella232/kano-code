@@ -1,4 +1,5 @@
-<link rel="import" href="../../ui/behaviors.html">
+<link rel="import" href="../kano-ui-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../kano-style/part.html">
@@ -80,7 +81,7 @@
 
         Polymer({
             is: 'kano-part-microphone',
-            behaviors: [Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
             properties: {
                 volume: {
                     type: Number,
@@ -134,11 +135,11 @@
                 }
             },
             start () {
-                Kano.Behaviors.UIBehavior.start.apply(this, arguments);
+                Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
                 this.reset();
             },
             stop () {
-                Kano.Behaviors.UIBehavior.stop.apply(this, arguments);
+                Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
                 this.reset();
             },
             _onStreamReady (stream) {
@@ -158,7 +159,7 @@
             _onStreamError (e) {
                 if (e.name === 'PermissionDeniedError') {
                     this.fire('kano-error', {
-                        text: `Make Apps needs permission to use your microphone. You can allow access from your browser settings.`,
+                        text: `Kano Code needs permission to use your microphone. You can allow access from your browser settings.`,
                         duration: 0,
                         closeWithButton: true,
                         buttonText: 'OK'
@@ -246,7 +247,6 @@
                 this.thresholds.push(threshold);
             },
             reset () {
-                console.log('microphone reset');
                 this.thresholds = [];
             },
             _correlatePitch (buf, sampleRate) {

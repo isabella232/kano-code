@@ -3,66 +3,20 @@
 
 <dom-module id="kano-input-size">
     <style is="custom-style" include="input-range"></style>
-    <style>
-    :host {
-        display: block;
-        @apply(--layout-vertical);
-    }
-    :host label .value {
-        font-weight: bold;
-    }
-    :host .inputs {
-        @apply(--layout-horizontal);
-    }
-    </style>
     <template>
-        <label>{{label}}: <span class="value">{{value}}</span></label>
-        <div class="inputs">
-            <input type="range"
-                    min="{{min}}"
-                    max="{{max}}"
-                    value="{{number::input}}"
-                    on-change="numberChanged">
-        </div>
+            <kano-input-range
+                 value="{{value}}"
+                 min="1"
+                 max="200"
+                 label="{{label}}"
+                 symbol="[[symbol]]">
+            </kano-input-range>
     </template>
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer, Kano */
-
     Polymer({
         is: 'kano-input-size',
-        behaviors: [Kano.Behaviors.Input],
-        properties: {
-            value: {
-                type: String,
-                observer: 'valueChanged'
-            },
-            unit: {
-                type: String
-            },
-            number: {
-                type: Number
-            }
-        },
-        observers: [
-            'computeValue(number)'
-        ],
-        computeValue () {
-            this.set('value', `${this.number}px`);
-        },
-        valueChanged () {
-            let number;
-
-            if (!this.value) {
-                return;
-            }
-
-            number = parseInt(this.value, 10);
-            this.set('number', number);
-            this.fire('change');
-        },
-        numberChanged (e) {
-            e.stopPropagation();
-        }
+        behaviors: [Kano.Behaviors.Input]
     });
 </script>

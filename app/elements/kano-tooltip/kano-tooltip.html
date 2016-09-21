@@ -180,15 +180,13 @@
             }
         },
         observers: [
-            'updatePosition(target.*, position, zIndex)',
-            'setupTargetTracking(target, trackTarget)'
+            'updatePosition(target.*, position, zIndex)'
         ],
         attached () {
             let observer = new MutationObserver(() => {
                 this.updatePosition();
             });
             observer.observe(this, { childList: true, subtree: true, characterData: true });
-            window.addEventListener('resize', this.updatePosition.bind(this));
         },
         detached () {
             window.removeEventListener('resize', this.updatePosition.bind(this));

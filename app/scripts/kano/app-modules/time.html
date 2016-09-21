@@ -1,0 +1,71 @@
+<link rel="import" href="./app-module.html">
+<script>
+    (function (Kano) {
+
+        class TimeModule extends Kano.AppModules.AppModule {
+            constructor () {
+                super();
+                this.timeouts = [];
+                this.intervals = [];
+                this.frames = [];
+
+                this.addMethod('every', '_every');
+                this.addMethod('later', '_later');
+
+                this.addLifecycleStep('stop', '_stop');
+            }
+
+            _every (interval, unit, callback) {
+                if (unit === 'frames') {
+                    let id,
+                        counter = 0,
+                        oldIdIndex,
+                        func;
+                    // Round and min to 1
+                    interval = Math.max(1, Math.round(interval));
+                    func = () => {
+                        // Stop right here is the code is not running
+                        if (!this.isRunning) {
+                            return;
+                        }
+                        // Only execute the callback on the right frames
+                        if (counter % interval === 0) {
+                            callback();
+                        }
+                        counter++;
+                        // Update the id, so that we can cancel the frame at any time
+                        id = requestAnimationFrame(func);
+                        oldIdIndex = this.frames.indexOf(id);
+                        if (this.frames[oldIdIndex]) {
+                            this.frames[oldIdIndex] = id;
+                        } else {
+                            this.frames.push(id);
+                        }
+                    };
+                    func();
+                } else {
+                    // Round and min to 1
+                    interval = unit === 'milliseconds' ? interval : interval * 1000;
+                    interval = Math.max(1, Math.round(interval));
+                    let id = setInterval(callback, interval);
+                    this.intervals.push(id);
+                }
+            }
+
+            _later (delay, unit, callback) {
+                delay = unit === 'milliseconds' ? delay : delay * 1000;
+                let id = setTimeout(callback, Math.max(1, delay));
+                this.timeouts.push(id);
+            }
+
+            _stop () {
+                this.timeouts.forEach((id) => clearTimeout(id));
+                this.intervals.forEach((id) => clearInterval(id));
+                this.frames.forEach((id) => cancelAnimationFrame(id));
+            }
+        }
+
+        Kano.AppModules.modules['time'] = new TimeModule();
+
+    })(window.Kano = window.Kano || {});
+</script>

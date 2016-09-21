@@ -39,6 +39,7 @@ export default normal = {
     id: 'normal',
     name: 'Draw',
     colour: '#82C23D',
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="90" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>`,
     blocks,
     allowBackground: true,
     workspace: {
@@ -49,7 +50,7 @@ export default normal = {
         component: 'kano-workspace-normal'
     },
     parts: ['clock', 'microphone', 'speaker', 'button', 'box',
-                'image', 'map', 'scrolling-text', 'slider',
+                'sticker', 'map', 'scrolling-text', 'slider',
                 'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
-                'share', 'canvas']
+                'share', 'canvas', 'gyro-accelerometer']
 };

@@ -9,7 +9,7 @@ export default light = {
     parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
                 'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
                 'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
-                'gesture-sensor'],
+                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer'],
     workspace: {
         viewport: {
             width: 466,
@@ -17,6 +17,26 @@ export default light = {
         },
         component: 'kano-workspace-lightboard'
     },
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" id="default_part_event_id" colour="#33a7ff" x="90" y="120"><field name="EVENT">global.start</field></block></xml>`,
+    events: [{
+        label: 'UP pressed',
+        id: 'lightboard-js-up'
+    }, {
+        label: 'DOWN pressed',
+        id: 'lightboard-js-down'
+    }, {
+        label: 'LEFT pressed',
+        id: 'lightboard-js-left'
+    }, {
+        label: 'RIGHT pressed',
+        id: 'lightboard-js-right'
+    },{
+        label: 'A pressed',
+        id: 'lightboard-btn-A'
+    },{
+        label: 'B pressed',
+        id: 'lightboard-btn-B'
+    }],
     blocks: [{
         block: () => {
             return {
@@ -39,7 +59,7 @@ export default light = {
         },
         javascript: (part) => {
             return (block) => {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
+                let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || `{"type":"all"}`,
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                 return code;
@@ -173,8 +193,8 @@ export default light = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
@@ -225,8 +245,8 @@ export default light = {
                 nextStatement: null,
                 shadow: {
                     'SPEED': '<shadow type="math_number"><field name="NUM">50</field></shadow>',
-                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>',
-                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>',
+                    'BACKGROUND_COLOR': '<shadow type="colour_picker"><field name="COLOUR">#000000</field></shadow>'
                 }
             };
         },
@@ -248,47 +268,6 @@ export default light = {
                     speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || '50',
                     code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
                 return code;
-            };
-        }
-    },{
-        block: () => {
-            return {
-                id: 'button_down',
-                message0: 'when button %1 is pressed',
-                inputsInline: true,
-                args0: [{
-                    type: "field_dropdown",
-                    name: "KEY",
-                    options: [
-                        ['up', 'js-up'],
-                        ['down', 'js-down'],
-                        ['left', 'js-left'],
-                        ['right', 'js-right'],
-                        ['A', 'btn-A'],
-                        ['B', 'btn-B']
-                    ]
-                }],
-                message1: '%1',
-                args1: [{
-                    type: 'input_statement',
-                    name: 'DO'
-                }],
-                previousStatement: true,
-                nextStatement: true,
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
             };
         }
     }]

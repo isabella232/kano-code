@@ -1,15 +1,5 @@
 /* globals Polymer, Kano, interact, Part */
 
-const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"90\" y=\"120\"><field name=\"EVENT\">global.start</field></block></xml>";
-
-function getDefaultCode() {
-    return {
-        snapshot: {
-            blocks: DEFAULT_BLOCKS
-        }
-    };
-}
-
 function getDefaultBackground() {
     return {
         name: 'My app',
@@ -36,7 +26,13 @@ Polymer({
         code: {
             type: Object,
             notify: true,
-            value: getDefaultCode()
+            value: () => {
+                return {
+                    snapshot: {
+                        blocks: ''
+                    }
+                };
+            }
         },
         selected: {
             type: Object,
@@ -49,7 +45,7 @@ Polymer({
             notify: true,
             observer: '_runningChanged'
         },
-        tinkering: {
+        editableLayout: {
             type: Boolean,
             value: false
         },
@@ -88,7 +84,8 @@ Polymer({
             type: String
         },
         mode: {
-            type: String
+            type: String,
+            observer: '_modeChanged'
         }
     },
     observers: [
@@ -99,13 +96,16 @@ Polymer({
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)'
     ],
+    _modeChanged () {
+        this.code = this._formatCode(this.code);
+    },
     _partsPanelStateChanged (state) {
-        if (this.tinkering && state === 'main') {
-            this.$.workspace.toggleTinkering();
+        if (this.editableLayout && state === 'main') {
+            this.$.workspace.toggleEditableLayout();
         }
     },
-    _isPauseOverlayHidden (running, tinkering) {
-        return running || tinkering;
+    _isPauseOverlayHidden (running, editableLayout) {
+        return running || editableLayout;
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
@@ -239,9 +239,9 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save (snapshot=false) {
+    save (snapshot=false, to_json=true) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push(part.toJSON());
+            acc.push((to_json) ? part.toJSON() : part);
             return acc;
         }, []),
             savedApp = {};
@@ -305,14 +305,14 @@ Polymer({
         let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
         code = code || {};
         code.snapshot = code.snapshot || {};
-        if (code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
-            code.snapshot.blocks = DEFAULT_BLOCKS;
+        if (this.mode && code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
+            code.snapshot.blocks = this.mode.defaultBlocks;
         }
         return code;
     },
     reset () {
         this.set('addedParts', []);
-        this.set('code', getDefaultCode());
+        this.set('code', this._formatCode({}));
         this.set('background', getDefaultBackground());
         this.save();
     },
@@ -376,6 +376,9 @@ Polymer({
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
+        part.blockIds.forEach(id => {
+            Kano.MakeApps.Blockly.removeLookupString(id);
+        });
         this.splice('addedParts', index, 1);
         this.$.partsPanel.closeDrawer();
         this.$.workspace.clearSelection();
@@ -577,7 +580,8 @@ Polymer({
         });
     },
     _enableDrag (el) {
-        let draggables;
+        let draggables,
+            restrictEl;
         this._cleanDraggables();
         if (el) {
             draggables = [el];
@@ -585,6 +589,10 @@ Polymer({
             draggables = this.draggables;
         }
         draggables.forEach((draggable) => {
+            if (!draggable.model) {
+                return;
+            }
+            restrictEl = draggable.model.restrict === 'workspace' ? this.$.workspace.getViewport().getRestrictElement() : this.$['left-panel'];
             interact(draggable).draggable({
                 onmove: this.getDragMoveListener(true),
                 onend: (e) => {
@@ -595,7 +603,7 @@ Polymer({
                     });
                 },
                 restrict: {
-                    restriction: this.$['left-panel'],
+                    restriction: restrictEl,
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 }
             });
@@ -606,15 +614,15 @@ Polymer({
         e.stopPropagation();
     },
 
-    getMakeButtonClass (running, tinkering) {
+    getMakeButtonClass (running, editableLayout) {
         let classes = [];
         if (running) {
             classes.push('running');
         } else {
             classes.push('stopped');
         }
-        if (tinkering) {
-            classes.push('tinkering');
+        if (editableLayout) {
+            classes.push('editable-layout');
         }
         return classes.join(' ');
     },
@@ -696,7 +704,7 @@ Polymer({
         } else {
             // Disable drag when starts
             this._disableDrag();
-            this.set('tinkering', false);
+            this.set('editableLayout', false);
             this.closeDrawer();
         }
     },

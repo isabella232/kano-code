@@ -211,6 +211,33 @@ Blockly.Variables.addVariable = function(variable, root) {
     }
 };
 
+Blockly.getSvgXY_ = function(element, workspace) {
+  var x = 0;
+  var y = 0;
+  var scale = 1;
+  if (goog.dom.contains(workspace.getCanvas(), element) ||
+      goog.dom.contains(workspace.getBubbleCanvas(), element)) {
+    // Before the SVG canvas, scale the coordinates.
+    scale = workspace.scale;
+  }
+  do {
+    if (!element.getAttribute) {
+        break;
+    } 
+    // Loop through this block and every parent.
+    var xy = Blockly.getRelativeXY_(element);
+    if (element == workspace.getCanvas() ||
+        element == workspace.getBubbleCanvas()) {
+      // After the SVG canvas, don't scale the coordinates.
+      scale = 1;
+    }
+    x += xy.x * scale;
+    y += xy.y * scale;
+    element = element.parentNode;
+  } while (element && element != workspace.getParentSvg());
+  return new goog.math.Coordinate(x, y);
+};
+
 Blockly.Flyout.blocks = {};
 Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
     return Blockly.Flyout.blocks[type];
@@ -1296,14 +1323,19 @@ Blockly.setPhantomBlock = function (connection, targetBlock) {
         phantomSvgGroup = document.createElementNS(Blockly.SVG_NS, 'g'),
         phantomSvgPath = document.createElementNS(Blockly.SVG_NS, 'path'),
         phantomSvgText = document.createElementNS(Blockly.SVG_NS, 'text'),
-        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x),
-        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y),
         xy = sourceBlock.getRelativeToSurfaceXY(),
-        position = {
-            x: dx - xy.x,
-            y: dy - xy.y
-        },
-        breathingAnimation;
+        position = {},
+        breathingAnimation, dx, dy;
+
+    if (Blockly.dragMode_ !== 0) {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x);
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y);
+    } else {
+        dx = connection.x_ - (targetConnection.x_ - targetBlock.getBoundingRectangle().topLeft.x) + 8;
+        dy = connection.y_ - (targetConnection.y_ - targetBlock.getBoundingRectangle().topLeft.y);
+    }
+    position.x = dx - xy.x;
+    position.y = dy - xy.y;
 
     phantomSvgPath.setAttribute('d', targetBlock.svgPath_.getAttribute('d'));
     phantomSvgPath.setAttribute('fill', targetBlock.getColour());

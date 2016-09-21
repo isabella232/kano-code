@@ -97,10 +97,11 @@
             <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip" on-dom-change="_tooltipDomChanged">
-            <kano-tooltip target="[[tooltip.target]]"
+            <kano-tooltip id$="tooltip-[[index]]"
+                          target="[[tooltip.target]]"
                           position="[[tooltip.position]]"
                           z-index="[[tooltip.zIndex]]"
-                          track-target="[[tooltip.tracking]]"
+                          tracking="[[tooltip.tracking]]"
                           bounce$="[[tooltip.bounce]]">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
@@ -131,7 +132,7 @@
 
     Polymer({
         is: 'kano-app-challenge',
-        behaviors: [Kano.Behaviors.ValidatorBehavior, Kano.Behaviors.BlocklyValidatorBehavior],
+        behaviors: [Kano.Behaviors.BlocklyValidatorBehavior],
         properties: {
             tooltips: {
                 type: Array
@@ -143,7 +144,7 @@
             arrow: {
                 type: Object
             },
-            currentStep: {
+            step: {
                 type: Number,
                 notify: true,
                 value: 0
@@ -158,7 +159,20 @@
             'doneChanged(done)'
         ],
         listeners: {
-            'change': 'editorChanged'
+            'change': '_editorChanged'
+        },
+        _editorChanged (e) {
+            // Store current step object
+            let step = this.steps[this.step],
+                detail = e.detail;
+
+            if (!step || !step.validation || this.done) {
+                return;
+            }
+            if (this.tooltips && detail.type === 'blockly' && detail.event.type === 'move') {
+                this.updateTooltips();
+            }
+            this._checkEvent(step.validation, detail);
         },
         doneChanged (done) {
             // Reset everything when the challenge is done
@@ -181,32 +195,39 @@
          * Find the blockly element and listens to the change event
          */
         ready () {
-            this.validators = {
-                "background": this.matchProperty.bind(this),
-                "add-part": this.matchAddPart.bind(this),
-                "select-part": this.matchPartTarget.bind(this),
-                "selected-part-change": this.matchPartChange.bind(this),
-                "trigger": this.matchTrigger.bind(this),
-                "running": this.matchValue.bind(this),
-                "select-new-part": this.matchPartType.bind(this),
-                "open-part-config": this.matchPartTarget.bind(this),
-                "enable-refresh": this.matchPartTarget.bind(this),
-                "disable-refresh": this.matchPartTarget.bind(this),
-                "manual-refresh": this.matchPartTarget.bind(this),
-                "open-settings-tooltip": this.matchPartTarget.bind(this),
-                "open-part-settings": this.matchPartTarget.bind(this),
-                "settings-interaction": this.matchSettingsInteraction.bind(this)
-            };
+            this._addValidator('add-part', 'matchAddPart');
+            this._addValidator('background', 'matchProperty');
+            this._addValidator('select-part', 'matchPartTarget');
+            this._addValidator('selected-part-change', 'matchPartChange');
+            this._addValidator('trigger', 'matchTrigger');
+            this._addValidator('running', 'matchValue');
+            this._addValidator('select-new-part', 'matchPartType');
+            this._addValidator('open-part-config', 'matchPartTarget');
+            this._addValidator('enable-refresh', 'matchPartTarget');
+            this._addValidator('disable-refresh', 'matchPartTarget');
+            this._addValidator('manual-refresh', 'matchPartTarget');
+            this._addValidator('open-settings-tooltip', 'matchPartTarget');
+            this._addValidator('open-part-settings', 'matchPartTarget');
+            this._addValidator('settings-interaction', 'matchSettingsInteraction');
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.modal = this.$.modal;
             this.highlight = {};
+            this.editor.addEventListener('blockly-ready', (e) => {
+                let target = e.path ? e.path[0] : e.target;
+                this.setWorkspace(target.getWorkspace());
+            });
         },
         attached () {
             this.isAttached = true;
-            this.step_number = 0;
-            this.progress = 0;
             this.fire('attached');
+            this.updateTooltips = this.updateTooltips.bind(this);
+            this.addEventListener('mousewheel', this.updateTooltips, true);
+            window.addEventListener('resize', this.updateTooltips);
+        },
+        detached () {
+            this.removeEventListener('mousewheel', this.updateTooltips);
+            window.removeEventListener('resize', this.updateTooltips);
         },
         computeTooltips (step) {
             this.set('tooltips', []);
@@ -216,6 +237,7 @@
                     let copy = Object.assign({}, tooltip);
                     copy.target = this.getDeepElement(tooltip.location);
                     copy.text = this._processMarkdown(tooltip.text);
+                    copy.tracking = tooltip.tracking !== false ? true : false;
                     return copy;
                 });
                 this.set('tooltips', tooltips);
@@ -271,10 +293,14 @@
             this.async(() => {
                 if (step.arrow.source) {
                     source = this.getDeepElement(step.arrow.source);
-                    source = source.getBoundingClientRect();
+                    if ('getBoundingClientRect' in source) {
+                        source = source.getBoundingClientRect();
+                    }
                 }
                 target = this.getDeepElement(step.arrow.target);
-                target = target.getBoundingClientRect();
+                if ('getBoundingClientRect' in target) {
+                    target = target.getBoundingClientRect();
+                }
                 this.set('arrow', {
                     source,
                     target,
@@ -319,7 +345,6 @@
                     step.modal.text = this._processMarkdown(step.modal.text);
                     this.modal.open();
                 }
-                this.set('currentStep', this.currentStep + 1);
                 this.computeTooltips(step);
                 this.computeArrow(step);
                 this.computeHighlight(step);
@@ -344,6 +369,7 @@
                 for (let i = 0; i < host.inputList.length; i++) {
                     if (host.inputList[i].name === phantom_block.target) {
                         connection = host.inputList[i].connection;
+                        break;
                     }
                 }
             }
@@ -380,7 +406,10 @@
             if (typeof selector == 'object') {
                 if (selector.block) {
                     block = this.getTargetBlock(selector.block);
-                    return block.getSvgRoot();
+                    if (selector.block.inputName) {
+                        return this.getTargetBlockInput(selector.block);
+                    }
+                    return block.svgPath_;
                 } else if (selector.category) {
                     let cat = selector.category;
                     if (cat.part) {
@@ -400,6 +429,9 @@
                     partId = this.stepIds[selector.part];
                     selector = `${selector.path}.part-${partId},${partId}`;
                 }
+            }
+            if (selector === 'blockly-bin') {
+                return this.editor.getBlocklyWorkspace().svgGroup_.querySelector('.blocklyTrash');
             }
             pieces = selector.split('.');
             for (let i = 0, len = pieces.length; i < len; i++) {
@@ -422,6 +454,23 @@
             this.set('highlight.width', target.width);
             this.set('highlight.height', target.height);
             this.$.highlight.show();
+        },
+        updateTooltips () {
+            this.debounce('updateTooltips', () => {
+                if (this.tooltips) {
+                    for (let i = 0; i < this.tooltips.length; i++) {
+                        if (this.$$(`#tooltip-${i}`).tracking) {
+                            this.$$(`#tooltip-${i}`).updatePosition();
+                        }
+                    }
+                }
+                let step = this.steps[this.step];
+                if (!this.steps) {
+                    return;
+                }
+                this.computeArrow(step);
+                this.$$('kano-arrow').updatePosition();
+            }, 100);
         },
         isNextHidden () {
             let currentStep;
@@ -512,37 +561,6 @@
         },
         isStepEvent (step, type, event) {
             return step[type] && event.type === type;
-        },
-        /**
-         * Try to match the blockly event to the current step
-         * @param  {Event} e  A blockyl change event
-         */
-        editorChanged (e) {
-            // Store current step object
-            let step = this.steps[this.step],
-                detail = e.detail;
-
-            if (!step || !step.validation || this.done) {
-                return;
-            }
-            Object.keys(step.validation).forEach((type) => {
-                let validation;
-                if (type !== detail.type) {
-                    return;
-                }
-                validation = step.validation[type];
-                if (validation === true) {
-                    return this.nextStep();
-                }
-                this.changeCounts[this.step] = this.changeCounts[this.step] + 1 || 1;
-                if (type === 'blockly') {
-                    return this.handleBlocklyChange(validation, detail.event);
-                }
-                if (typeof this.validators[type] === 'function' &&
-                        this.validators[type](validation, detail)) {
-                    this.nextStep();
-                }
-            });
         }
     });
 </script>

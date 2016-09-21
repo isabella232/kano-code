@@ -10,6 +10,7 @@ export default lightRectangle = {
     colour: '#FFB347',
     component: 'kano-part-light-rectangle',
     excludeDefaultBlocks: true,
+    restrict: 'workspace',
     customizable: {
         properties: [{
             key: 'width',

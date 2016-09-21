@@ -1,0 +1,104 @@
+<link rel="import" type="" href="../kano-blockly-flyout/kano-blockly-flyout.html">
+<dom-module id="kano-blockly-omnibox">
+    <template>
+        <style>
+            :host {
+                display: block;
+                border-radius: 4px;
+                overflow: hidden;
+                @apply(--shadow-elevation-16dp);
+                z-index: 0;
+            }
+            input, .hint {
+                width: 100%;
+                color: white;
+                font-family: monospace;
+                border: 0px;
+                padding: 6px 9px;
+                font-size: 16px;
+                box-sizing: border-box;
+                background-color: transparent;
+            }
+            input:focus {
+                outline: none;
+                /* Need design for focused input */
+            }
+            .flyout {
+                max-height: 300px;
+                overflow-y: scroll;
+            }
+            kano-blockly-flyout {
+                background-color: #213542;
+            }
+            .extra {
+                background-color: #0f181e;
+                min-height: 30px;
+                border-top: 1px solid #37454d;
+            }
+            .input-wrapper {
+                position: relative;
+                background-color: #0f181e;
+            }
+            .input-wrapper .hint {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                color: rgba(255, 255, 255, 0.45);
+                pointer-events: none;
+            }
+        </style>
+        <div class="input-wrapper">
+            <div class="hint">[[hint]]</div>
+            <input id="input" type="text" value="{{query::input}}">
+        </div>
+        <div class="flyout">
+            <kano-blockly-flyout toolbox="[[resultToolbox]]" target-workspace="[[targetWorkspace]]" on-block-created="_blockCreated"></kano-blockly-flyout>
+        </div>
+        <div class="extra"></div>
+    </template>
+    <script>
+        Polymer({
+            is: 'kano-blockly-omnibox',
+            properties: {
+                query: {
+                    type: String,
+                    observer: '_queryChanged'
+                },
+                targetWorkspace: {
+                    type: Object
+                }
+            },
+            ready () {
+                this._onKeyDown = this._onKeyDown.bind(this);
+            },
+            attached () {
+                window.addEventListener('keydown', this._onKeyDown);
+            },
+            detached () {
+                window.removeEventListener('keydown', this._onKeyDown);
+            },
+            _onKeyDown (e) {
+                if (e.keyCode === 27) {
+                    this.fire('close');
+                }
+            },
+            _blockCreated () {
+                this.fire('close');
+            },
+            _queryChanged (query) {
+                this.set('hint', '');
+                this.debounce('updateResult', () => {
+                    let result = Kano.MakeApps.Blockly.lookupBlock(query);
+                    this.set('hint', result.match);
+                    this.set('resultToolbox', result.blocks);
+                }, 300);
+                
+            },
+            focus () {
+                this.$.input.focus();
+            }
+        });
+    </script>
+</dom-module>

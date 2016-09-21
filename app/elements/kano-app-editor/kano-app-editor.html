@@ -36,8 +36,6 @@
         min-width: 38%;
         max-width: 62%;
         background-color: var(--color-dark, black);
-        background-image: -webkit-linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
-        background-image: linear-gradient(170deg,rgba(255,255,255,0) 20%,rgba(255,255,255,0.1) 20%),linear-gradient(170deg,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0) 40%);
     }
     :host #left-panel kano-workspace {
         @apply(--layout-flex);
@@ -254,7 +252,7 @@
         z-index: 1;
         cursor: pointer;
     }
-    .tinkering {
+    .editable-layout {
         opacity: 0.5;
         pointer-events: none;
     }
@@ -265,7 +263,7 @@
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="left-panel">
-                <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, tinkering)]]">
+                <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
                     <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
                 </div>
                 <kano-workspace id="workspace"
@@ -277,7 +275,7 @@
                                 on-close-settings="closeSettings"
                                 on-change="_proxyChange"
                                 running="{{running}}"
-                                tinkering="{{tinkering}}"
+                                editable-layout="{{editableLayout}}"
                                 code="[[code]]"
                                 mode="[[mode]]"
                                 background="[[background.userStyle.background]]"></kano-workspace>
@@ -295,7 +293,7 @@
                 </button>
                 <h1 id="app-title">{{title}}</h1>
                 <button type="button"
-                    class$="make-button visible-when-running [[getMakeButtonClass(running, tinkering)]]"
+                    class$="make-button visible-when-running [[getMakeButtonClass(running, editableLayout)]]"
                     on-tap="_runButtonClicked"
                     id="make-button">
                     <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}">

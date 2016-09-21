@@ -17,7 +17,7 @@
         text-align: center;
     }
     :host #share-modal {
-        overflow: scroll;
+        overflow: visible;
     }
     paper-dialog {
         border-radius: 5px;
@@ -65,10 +65,6 @@
                     return {};
                 }
             },
-            running: {
-                type: Boolean,
-                observer: 'runningChanged'
-            },
             usedBlocks: {
                 type: Object
             },
@@ -88,13 +84,14 @@
         _registerBlockly () {
             let appToLoad,
                 slug = this.context.params.slug,
-                modeId = this.mode.id;
+                modeId;
             Kano.Behaviors.EditorViewBehavior._registerBlockly.apply(this, arguments);
 
             if (this.loaded) {
                 return;
             }
             this.loaded = true;
+            modeId = this.mode.id;
 
             // Only include the parts defined in the mode
             if (this.mode.parts) {
@@ -134,6 +131,7 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
+            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
@@ -143,10 +141,12 @@
             Kano.MakeApps.config.HOST = window.RouterUtil.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = window.RouterUtil.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
 
+            hardwareAPI.config(Kano.MakeApps.config);
+
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Kano.MakeApps.config);
+            Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
         },
@@ -175,13 +175,6 @@
         },
         detached () {
             window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
-        },
-        runningChanged () {
-            if (this.running) {
-                Kano.MakeApps.components.run(this.addedParts, this.code, Kano.AppModules.modules, this.$.editor.getWorkspace().devices);
-            } else {
-                Kano.MakeApps.components.stop(this.addedParts, Kano.AppModules.modules, this.$.editor.getWorkspace().devices);
-            }
         }
     });
 </script>

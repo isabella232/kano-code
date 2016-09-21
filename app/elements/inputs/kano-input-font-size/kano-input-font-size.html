@@ -11,20 +11,16 @@
     :host label .value {
         font-weight: bold;
     }
-    :host .inputs {
-        @apply(--layout-horizontal);
-    }
     </style>
     <template>
-        <label>{{label}}: <span class="value">{{value}}</span></label>
-        <div class="inputs">
-            <input type="range"
-                    min="0.8"
-                    max="4"
-                    step="0.1"
-                    value="{{number::input}}"
-                    on-change="numberChanged">
-        </div>
+          <kano-input-range
+              value="{{value}}"
+              min="0.8"
+              max="4"
+              step="0.1"
+              label="{{label}}"
+              symbol="[[symbol]]">
+          </kano-input-range>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -35,28 +31,5 @@
     Polymer({
         is: 'kano-input-font-size',
         behaviors: [Kano.Behaviors.Input],
-        observers: [
-            'computeValue(number)'
-        ],
-        computeValue () {
-            this.set('value', `${this.number}em`);
-        },
-        valueChanged () {
-            let m;
-
-            if (!this.value) {
-                return;
-            }
-
-            m = this.value.match(FONT_REGEXP);
-            if (m && m[1]) {
-                this.set('number', parseFloat(m[1]));
-            }
-
-            this.fire('change');
-        },
-        numberChanged (e) {
-            e.stopPropagation();
-        }
     });
 </script>
