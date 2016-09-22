@@ -137,19 +137,22 @@ export default lightCircle = {
                 }],
                 inputsInline: false,
                 previousStatement: null,
-                nextStatement: null
+                nextStatement: null,
+                shadow: {
+                    'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#ffffff</field></shadow>'
+                }
             };
         },
         javascript: (part) => {
             return (block) => {
-                let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || 1,
+                let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || 1,
+                let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };

@@ -157,8 +157,8 @@ export default light = {
         javascript: () => {
                 // code index converted back to 0,0
             return (block) => {
-                let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
+                let x = Blockly.JavaScript.valueToCode(block, 'X') - 1 || 0,
+                    y = Blockly.JavaScript.valueToCode(block, 'Y') - 1 || 0;
                 if (block.parentBlock_) {
                     return [`{
                         type: 'single',
@@ -171,8 +171,8 @@ export default light = {
         },
         pseudo: () => {
             return (block) => {
-                let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
+                let x = Blockly.Pseudo.valueToCode(block, 'X') - 1 || 0,
+                    y = Blockly.Pseudo.valueToCode(block, 'Y') - 1 || 0;
                 if (block.parentBlock_) {
                     return [`{
                         type: 'single',
