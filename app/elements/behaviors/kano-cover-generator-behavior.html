@@ -53,6 +53,58 @@
             }
             return workspace.renderOnCanvas(ctx, util, scaleFactor);
         },
+        _generateGifCover (workspace, parts, scale, padding, color, fps, length) {
+            let p = Promise.resolve(),
+                wait = (delay) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(resolve, delay);
+                    });
+                },
+                images = [];
+
+            let getFrame = () => {
+                return this.generateCover(workspace,
+                                            parts,
+                                            workspace.width,
+                                            workspace.height,
+                                            scale,
+                                            padding,
+                                            color)
+                    .then(image => {
+                        images.push(image);
+                        this.gifProgress += (100 / length);
+                        return wait(1000 / fps);
+                    });
+            }
+            this.gifProgress = 0;
+            this.gifRenderProgress = 0;
+            for (let i = 0; i < length; i++) {
+                p = p.then(getFrame.bind(this));
+            }
+            return p.then(_ => {
+                return new Promise((resolve, reject) => {
+                    let gif = new GIF({
+                        workers: 2,
+                        quality: 100,
+                        workerScript: '/scripts/workers/gif.worker.js'
+                    });
+                    images.forEach((image) => {
+                        gif.addFrame(image, { delay: 1000 / fps });
+                    });
+                    gif.on('progress', (p) => {
+                        this.gifRenderProgress = p * 100;
+                    });
+                    gif.on('finished', (blob) => {
+                        resolve(blob);
+                    });
+                    gif.render();
+                })
+            }).then(blob => {
+                this.gifProgress = 0;
+                this.gifRenderProgress = 0;
+                return blob;
+            });
+        },
         /**
          * Helper to get style from element
          * @param  {Object} element  DOM element you want to inspect
