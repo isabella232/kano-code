@@ -93,13 +93,6 @@
             this.loaded = true;
             modeId = this.mode.id;
 
-            // Only include the parts defined in the mode
-            if (this.mode.parts) {
-                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
-                    return this.mode.parts.indexOf(part.type) !== -1;
-                }));
-            }
-
             this.set('defaultCategories', Kano.MakeApps.Blockly.categories);
 
             if (slug) {
@@ -112,6 +105,8 @@
                         .then(response => {
                             return response.json();
                         }).then(json => {
+                            this.set('mode', Kano.MakeApps.Mode.modes[json.mode]);
+                            this._filterParts();
                             this.editor.load(json, Kano.MakeApps.Parts.list);
                         }).catch(err => {
                             console.error('loading failed', err);
@@ -123,7 +118,16 @@
                 });
             } else {
                 appToLoad = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
+                this._filterParts();
                 this.editor.load(appToLoad, Kano.MakeApps.Parts.list);
+            }
+        },
+        _filterParts () {
+            // Only include the parts defined in the mode
+            if (this.mode.parts) {
+                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
+                    return this.mode.parts.indexOf(part.type) !== -1;
+                }));
             }
         },
         _getMode (context) {
