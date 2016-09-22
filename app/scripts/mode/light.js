@@ -110,18 +110,24 @@ export default light = {
                 output: 'Light'
             };
         },
-        javascript: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
+        javascript: (part) => {
+            return (block) => {
+                if (block.parentBlock_) {
+                    return [JSON.stringify({
+                        type: 'all'
+                    })];
+                }
+                return;
             };
         },
-        pseudo: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
+        pseudo: (part) => {
+            return (block) => {
+                if (block.parentBlock_) {
+                    return [JSON.stringify({
+                        type: 'all'
+                    })];
+                }
+                return;
             };
         }
     },{
@@ -141,32 +147,40 @@ export default light = {
                     check: "Number",
                     align: "RIGHT"
                 }],
+                // displayed index starting at 1,1
                 shadow: {
-                    'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'X': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
+                    'Y': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
         javascript: () => {
+                // code index converted back to 0,0
             return (block) => {
-                let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
-                return [`{
-                    type: 'single',
-                    x: ${x},
-                    y: ${y}
-                }`];
+                let x = Blockly.JavaScript.valueToCode(block, 'X') - 1 || 0,
+                    y = Blockly.JavaScript.valueToCode(block, 'Y') - 1 || 0;
+                if (block.parentBlock_) {
+                    return [`{
+                        type: 'single',
+                        x: ${x},
+                        y: ${y}
+                    }`];
+                }
+                return;
             };
         },
         pseudo: () => {
             return (block) => {
-                let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
-                return [`{
-                    type: 'single',
-                    x: ${x},
-                    y: ${y}
-                }`];
+                let x = Blockly.Pseudo.valueToCode(block, 'X') - 1 || 0,
+                    y = Blockly.Pseudo.valueToCode(block, 'Y') - 1 || 0;
+                if (block.parentBlock_) {
+                    return [`{
+                        type: 'single',
+                        x: ${x},
+                        y: ${y}
+                    }`];
+                }
+                return;
             };
         }
     },{
