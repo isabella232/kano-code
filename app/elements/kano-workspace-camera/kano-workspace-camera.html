@@ -43,7 +43,8 @@
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.Behaviors.UIBehavior, Kano.MakeApps.PartsAPI.camera],
             listeners: {
                 'play-picture-list': '_playPictureList',
-                'pause-picture-list': '_pausePictureList'
+                'pause-picture-list': '_pausePictureList',
+                'save-gif': '_saveGifFromPictureList'
             },
             ready () {
                 // Will contain the listeners attached to the socket
@@ -82,6 +83,14 @@
                 this.pictures = detail.pictures;
                 this.speed = detail.speed;
                 this._updateFrame();
+            },
+            _saveFile (src, name) {
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.download = name;
+                a.href = src;
+                a.click();
+                document.body.removeChild(a);
             },
             _updateFrame () {
                 this._paintFrame(this.pictures[this.frameId]);
@@ -128,6 +137,49 @@
                 } else {
                     Kano.MakeApps.PartsAPI.camera.takePicture.apply(this);
                 }
+            },
+            savePicture () {
+                // If this method ends up in a loop, make sure only one dowload happens every second
+                this.throttle('savePicture', () => {
+                    let src = this.canvas.toDataURL('image/jpeg');
+                    this._saveFile(url, 'kano-code-picture.jpg');
+                }, 1000);
+            },
+            _saveGifFromPictureList (e) {
+                let pictures = e.detail.pictures,
+                    canvases = [],
+                    speed = e.detail.pictures,
+                    tasks = Promise.resolve();
+
+                for (let i = pictures.length; i >= 0; i--) {
+                    tasks = tasks.then(_ => {
+                        let tmpCanvas = document.createElement('canvas');
+                        tmpCanvas.width = this.width;
+                        tmpCanvas.height = this.height;
+                        return this._paintFrame(pictures[i], tmpCanvas, true)
+                            .then(_ => canvases.push(tmpCanvas));
+                    });
+                }
+
+                tasks.then(_ => {
+                    return new Promise((resolve, reject) => {
+                        let gif = new GIF({
+                            workers: 2,
+                            quality: 100,
+                            workerScript: '/scripts/workers/gif.worker.js'
+                        });
+                        canvases.forEach(canvas => {
+                            gif.addFrame(canvas, { delay: 1000 / speed });
+                        });
+                        gif.on('finished', (blob) => {
+                            resolve(blob);
+                        });
+                        gif.render();
+                    });
+                }).then(blob => {
+                    let url = URL.createObjectURL(blob);
+                    this._saveFile(url, 'kano-code-gif.gif');
+                });
             },
             stop () {
                 Kano.MakeApps.PartsAPI.camera.stop.apply(this, arguments);

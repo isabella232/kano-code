@@ -44,21 +44,20 @@
             _propagateButtonPress (data) {
                 this.fire("camera-" + data['button-id']);
             },
-            _paintFrame (src, targetCanvas) {
+            _paintFrame (src, targetCanvas, force=false) {
                 src = src || this.lastPictureUrl;
                 targetCanvas = targetCanvas || this.canvas;
-                let targetCtx = targetCanvas.getContext('2d');
+                let targetCtx = targetCanvas.getContext('2d'),
+                    paint;
                 if (!src) {
                     return;
                 }
-                this.throttle('paintFrame', () => {
-                    let img = new Image(),
-                        width = targetCanvas.width,
-                        height = targetCanvas.height,
-                        finalHeight,
-                        heightDiff;
-                    img.crossOrigin = "Anonymous";
-                    img.onload = () => {
+                paint = () => {
+                    return this._loadImage(src).then(img => {
+                        let width = targetCanvas.width,
+                            height = targetCanvas.height,
+                            finalHeight,
+                            heightDiff;
                         let tmpCanvas = document.createElement('canvas'),
                             tmpCtx;
                         tmpCanvas.width = width;
@@ -67,16 +66,32 @@
                         finalHeight = width * (img.naturalHeight / img.naturalWidth);
                         heightDiff = height - finalHeight;
                         tmpCtx.drawImage(img, 0, heightDiff / 2, width, finalHeight);
-                        this.applyFilters(tmpCanvas)
+                        return this.applyFilters(tmpCanvas)
                             .then(data => {
                                 targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
                                 tmpCtx.putImageData(data, 0, 0);
                                 this.applyKaleidoscope(tmpCanvas, targetCanvas);
                                 this.fire('rendering-done');
                             });
+                    });
+                };
+                if (force) {
+                    return paint();
+                } else {
+                    this.throttle('paintFrame', () => {
+                        paint().then(() => {});
+                    }, 32);
+                }
+            },
+            _loadImage (src) {
+                return new Promise((resolve, reject) => {
+                    let img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = () => {
+                        resolve(img);
                     };
                     img.src = src;
-                }, 32);
+                });
             },
             applyKaleidoscope (canvas, targetCanvas) {
                 targetCanvas = targetCanvas || this.canvas;
@@ -106,6 +121,7 @@
                 };
                 this._paintFrame();
             },
+            savePicture () {},
             start () {
                 PartsAPI.kaleidoscope.start.apply(this, arguments);
                 PartsAPI.filters.start.apply(this, arguments);

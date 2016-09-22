@@ -209,7 +209,7 @@ export default pictureList = {
         block: (part) => {
             return {
                 id: 'picture_list_set_speed',
-                message0: `${part.name} set speed to %1`,
+                message0: `${part.name}: set speed to %1`,
                 args0: [{
                     type: 'input_value',
                     name: 'SPEED',
@@ -241,20 +241,20 @@ export default pictureList = {
         block: (part) => {
             return {
                 id: 'picture_download_gif',
-                message0: `${part.name} download GIF`,
+                message0: `${part.name}: save gif`,
                 previousStatement: null,
                 nextStatement: null
             };
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').downloadGif();\n`;
+                let code = `devices.get('${part.id}').saveGif();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').downloadGif();\n`;
+                let code = `devices.get('${part.id}').saveGif();\n`;
                 return code;
             };
         }
