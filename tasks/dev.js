@@ -73,7 +73,8 @@ module.exports = (gulp, $) => {
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/util/router.js',
-            'app/scripts/index.js'
+            'app/scripts/index.js',
+            'app/loading-share.html'
         ],
         process: copy
     };

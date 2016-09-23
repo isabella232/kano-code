@@ -80,6 +80,7 @@ export default class Part {
         plain.id = this.id;
         plain.name = this.name;
         plain.type = this.type;
+        plain.tagName = this.tagName;
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
         plain.position = this.position;

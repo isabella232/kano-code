@@ -74,6 +74,9 @@
                             kano-ui-viewport * {
                                 position: absolute;
                             }
+                            kano-workspace-lightboard {
+                                margin-top: 35px;
+                            }
                             .workspace {
                                 width: 100%;
                                 height: 100%;
@@ -99,13 +102,14 @@
                                     }
                                 },
                                 attached: function () {
+                                    this.workspace = this.$['${mode.id}'];
                                     this.appModules = Kano.AppModules.createStandalone();
                                     this.appModules.init(Kano.MakeApps.config);
                                     this.appModules.loadParts(this.$);
                                     var ws = this.$['${mode.id}'];
 
-                                    if (ws.setBackgroundColor) {
-                                        ws.setBackgroundColor('${background}');
+                                    if (this.workspace.setBackgroundColor) {
+                                        this.workspace.setBackgroundColor('${background}');
                                     }
 
                                     ${code}
@@ -163,7 +167,7 @@
             static enablePreviousVersionsSupport () {
                 Kano.MakeApps = Kano.MakeApps || {};
                 Kano.MakeApps.Modules = AppModules.default.modules;
-                KanoModules = AppModules.default.modules;
+                window.KanoModules = AppModules.default.modules;
                 KanoModules.init = { methods: {} };
             }
 

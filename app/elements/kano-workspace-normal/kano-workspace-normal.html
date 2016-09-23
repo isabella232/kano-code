@@ -20,6 +20,7 @@
 
         :host .actions {
             position: absolute;
+            top: 100%;
         }
         :host .actions .coordinates {
             background-color: #222D33;
@@ -43,8 +44,6 @@
             is: 'kano-workspace-normal',
             behaviors: [Kano.Behaviors.WorkspaceBehavior],
             properties: {
-                width: Number,
-                height: Number,
                 autoStart: Boolean
             },
             ready () {
@@ -64,10 +63,10 @@
                 this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
             },
             setBackgroundColor (color) {
-                this.style.background = color;
+                this.style.backgroundColor = color;
             },
             getBackgroundColor () {
-                return this.style.background;
+                return this.style.backgroundColor;
             },
             start () {
                 this.reset();
@@ -82,6 +81,8 @@
             },
             renderOnCanvas (ctx, util, scaleFactor) {
                 let image = new Image();
+                ctx.fillStyle = this.style.backgroundColor || '#ffffff';
+                ctx.fillRect(0, 0, this.$.canvas.width, this.$.canvas.height);
                 image.src = this.$.canvas.toDataURL();
                 ctx.drawImage(image, 0, 0);
                 return Promise.resolve();
