@@ -2,7 +2,6 @@ node {
     stage('check environment') {
         env.DEV_ENV = "staging"
         env.NODE_ENV = "${env.DEV_ENV}"
-        sh "source /var/lib/jenkins/userContent/make-apps-config/${env.DEV_ENV}.env #LOAD CONFIGURATION FILE"
         sh "node -v"
         sh "npm -v"
         sh "bower -v"
