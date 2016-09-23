@@ -107,6 +107,17 @@
                     }
                 });
         },
+        saveGif () {
+            if (!this.pictures.length) {
+                return;
+            }
+            this.throttle('saveGif', () => {
+                this.fire('save-gif', {
+                    pictures: this.pictures,
+                    speed: this.get('model.userProperties.speed')
+                });
+            }, 1000);
+        },
         _slidePictures () {
             let pictures = Polymer.dom(this.root).querySelectorAll('.picture'),
                 count = Math.min(6, pictures.length),

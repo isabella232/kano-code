@@ -120,5 +120,29 @@ export default Camera = {
                 return code;
             };
         }
-    }].concat(filters).concat(backgroundBlocks)
+    }].concat(filters)
+    .concat([{
+        block: () => {
+            return {
+                id: 'camera_save_picture',
+                message0: 'Camera: save picture',
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null
+            };
+        },
+        javascript: (part) => {
+            return (block) => {
+                let code = `devices.get('${part.id}').savePicture();\n`;
+                return code;
+            };
+        },
+        pseudo: (part) => {
+            return (block) => {
+                let code = `devices.get('${part.id}').savePicture();\n`;
+                return code;
+            };
+        }
+    }])
+    .concat(backgroundBlocks)
 };
