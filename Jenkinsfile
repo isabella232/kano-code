@@ -1,3 +1,4 @@
+#!groovy
 node {
     stage('check environment') {
         env.DEV_ENV = "staging"
