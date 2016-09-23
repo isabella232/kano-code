@@ -9,6 +9,7 @@ export default lightRectangle = {
     image: '/assets/part/pixels-rectangle.svg',
     colour: '#FFB347',
     component: 'kano-part-light-rectangle',
+    configPanel: 'light-shape',
     excludeDefaultBlocks: true,
     restrict: 'workspace',
     customizable: {
