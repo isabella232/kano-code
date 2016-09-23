@@ -1,7 +1,7 @@
 node {
     stage('check environment') {
         env.DEV_ENV = "staging"
-        env.NODE_ENV = "${DEV_ENV}"
+        env.NODE_ENV = "${env.DEV_ENV}"
         sh "source ../../userContent/make-apps-config/$DEV_ENV.env #LOAD CONFIGURATION FILE"
         sh "node -v"
         sh "npm -v"
