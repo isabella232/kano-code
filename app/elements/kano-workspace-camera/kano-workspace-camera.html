@@ -78,9 +78,14 @@
             },
             _playPictureList (e) {
                 let detail = e.detail;
+
+                // Stop picture list if it was previously playing
+                this._pausePictureList();
+
                 this.frameId = 0;
                 this.pictures = detail.pictures;
                 this.speed = detail.speed;
+
                 this._updateFrame();
             },
             _updateFrame () {
@@ -92,8 +97,10 @@
                 this.playingId = setTimeout(this._updateFrame.bind(this), 1000 / Math.max(1, this.speed));
             },
             _pausePictureList (e) {
-                clearTimeout(this.playingId);
-                this.playingId = null;
+                if (this.playingId) {
+                    clearTimeout(this.playingId);
+                    this.playingId = null;
+                }
             },
             _startWebcam () {
                 this.webcam = new Kano.Webcam();
@@ -130,6 +137,7 @@
                 }
             },
             stop () {
+                this._pausePictureList();
                 Kano.MakeApps.PartsAPI.camera.stop.apply(this, arguments);
                 this.reset();
             },
@@ -138,6 +146,7 @@
                 return this;
             },
             detached () {
+                this._pausePictureList();
                 this._stopWebcam();
             },
             renderOnCanvas (ctx, util, scaleFactor) {
