@@ -81,16 +81,16 @@
             '_virtualPositionChanged(position.*)'
         ],
         _computeMaxX () {
-            if (!this.element || this.element.userProperties) {
+            if (!this.element || !this.element.userProperties) {
                 return 16;
             }
-            return 16 - parseInt(this.element.userProperties.width || this.element.userProperties.radius) || 16;
+            return 16 - parseInt(this.element.userProperties.width || this.element.userProperties.radius) + 1 || 16;
         },
          _computeMaxY () {
-             if (!this.element || this.element.userProperties) {
+             if (!this.element || !this.element.userProperties) {
                 return 8;
             }
-            return 8 - parseInt(this.element.userProperties.height || this.element.userProperties.radius) || 8;
+            return 8 - parseInt(this.element.userProperties.height || this.element.userProperties.radius) + 1 || 8;
         },
         _positionChanged () {
             if (this.element) {
