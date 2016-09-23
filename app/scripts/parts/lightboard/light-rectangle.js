@@ -57,14 +57,14 @@ export default lightRectangle = {
         javascript: (part) => {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').setX(${x});\n`;
+                    code = `devices.get('${part.id}').setX(${x}-1);\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').setX(${x});\n`;
+                    code = `devices.get('${part.id}').setX(${x}-1);\n`;
                 return code;
             };
         }
@@ -89,14 +89,14 @@ export default lightRectangle = {
         javascript: (part) => {
             return (block) => {
                 let y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').setY(${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y}-1);\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').setY(${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y-1});\n`;
                 return code;
             };
         }
@@ -204,13 +204,13 @@ export default lightRectangle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getX()`;
+                let code = `devices.get('${part.id}').getX()+1`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getX()`;
+                let code = `devices.get('${part.id}').getX()+1`;
                 return [code];
             };
         }
@@ -224,13 +224,13 @@ export default lightRectangle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getY()`;
+                let code = `devices.get('${part.id}').getY()+1`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getY()`;
+                let code = `devices.get('${part.id}').getY()+1`;
                 return [code];
             };
         }

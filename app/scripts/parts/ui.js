@@ -339,7 +339,7 @@ export default class UI extends Part {
                 return function (block) {
                     let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                         y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                        code = `devices.get('${ui.id}').setXY(${x},${y});\n`;
+                        code = `devices.get('${ui.id}').setXY(${x}-1,${y}-1);\n`;
                     return code;
                 };
             },
@@ -347,7 +347,7 @@ export default class UI extends Part {
                 return function (block) {
                     let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
                         y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                        code = `${ui.id}.moveTo(${x}, ${y});\n`;
+                        code = `${ui.id}.moveTo(${x}-1, ${y}-1);\n`;
                     return code;
                 };
             }
@@ -484,12 +484,12 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function () {
-                    return [`devices.get('${ui.id}').getX()`];
+                    return [`devices.get('${ui.id}').getX()+1`];
                 };
             },
             pseudo: (ui) => {
                 return function () {
-                    return [`${ui.id}.x`];
+                    return [`${ui.id}.x+1`];
                 };
             }
         });
@@ -503,12 +503,12 @@ export default class UI extends Part {
             },
             javascript: (ui) => {
                 return function () {
-                    return [`devices.get('${ui.id}').getY()`];
+                    return [`devices.get('${ui.id}').getY()+1`];
                 };
             },
             pseudo: (ui) => {
                 return function () {
-                    return [`${ui.id}.y`];
+                    return [`${ui.id}.y+1`];
                 };
             }
         });
