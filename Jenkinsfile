@@ -1,22 +1,30 @@
 #!groovy
 node {
     stage('check environment') {
-        env.DEV_ENV = "staging"
+        if (env.BRANCH_NAME=="master") {
+            env.DEV_ENV = "staging"
+        } else if (env.BRANCH_NAME=="prod") {
+            env.DEV_ENV = "production"
+        }
         env.NODE_ENV = "${env.DEV_ENV}"
-        sh "node -v"
-        sh "npm -v"
-        sh "bower -v"
-        sh "gulp -v"
     }
 
     stage('checkout') {
         checkout scm
     }
 
-    stage('install dependencies') {
+    stage('clean') {
         sh "rm -rf app/bower_components"
         sh "bower cache clean"
-        sh "npm install"
+    }
+
+    stage('install dependencies') {
+        sh "npm install --ignore-scripts"
+        sh "bower install"
+    }
+
+    stage('build') {
+        sh "gulp build"
     }
 
     stage('compress') {
@@ -24,6 +32,18 @@ node {
     }
 
     stage('deploy') {
-        sh "echo 'Will deploy here when configured'"
+        if (env.NODE_ENV=="staging") {
+            deploy_staging()
+        } else if (env.NODE_ENV=="production") {
+            deploy_prod()
+        }
     }
+}
+
+def deploy_staging() {
+    sh 'aws s3 sync ./www s3://make-apps-staging-site.kano.me --region eu-west-1 --cache-control "max-age=600"'
+}
+
+def deploy_prod() {
+    sh 'aws s3 sync ./www s3://make-apps-prod-site.kano.me --region us-west-1 --cache-control "max-age=600"'
 }
