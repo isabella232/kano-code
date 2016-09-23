@@ -69,6 +69,8 @@ export default class UI extends Part {
         }
         this.partType = 'ui';
         this.rotation = opts.rotation || 0;
+        this.rotationDisabled = typeof opts.rotationDisabled === 'undefined' ? false : opts.rotationDisabled;
+        this.scaleDisabled = typeof opts.scaleDisabled === 'undefined' ? false : opts.scaleDisabled;
         this.scale = opts.scale || 100;
         this.visible = opts.visible || true;
         // Each UI part has its specific component to render on the screen

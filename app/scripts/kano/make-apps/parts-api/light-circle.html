@@ -43,6 +43,16 @@
             },
             getHeight () {
                 return parseInt(this.get('model.userProperties.radius')) * 2;
+            },
+            getX () {
+                let newPos = Math.max(0, Math.floor(PartsAPI.Base.getX.apply(this) / this.PIXEL_SIZE));
+                    newPos = Math.min(this.BOARD_WIDTH + this.getWidth(), newPos);
+                return newPos;
+            },
+            getY () {
+                let newPos = Math.max(0, Math.floor(PartsAPI.Base.getY.apply(this) / this.PIXEL_SIZE));
+                    newPos = Math.min(this.BOARD_HEIGHT + this.getHeight(), newPos);
+                return newPos;
             }
         };
 
