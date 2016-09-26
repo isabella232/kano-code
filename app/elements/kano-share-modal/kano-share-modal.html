@@ -353,9 +353,6 @@
     Polymer({
         is: 'kano-share-modal',
         behaviors: [Kano.Behaviors.CoverGeneratorBehavior],
-        listeners: {
-            'app-ready': '_onAppReady'
-        },
         properties: {
             shareInfo: {
                 type: Object,
@@ -428,6 +425,7 @@
         attached () {
             this.recording = false;
             this.firstRender = true;
+            this.addEventListener('app-ready', this._onAppReady);
         },
         confirm () {
             if (this._checkTitleInput()) {
@@ -453,10 +451,11 @@
             // Force a change on the src to reload the app from the beginning
             appPreview.src = null;
             appPreview.src = this.shareInfo.app.src;
-            
         },
         _onAppReady () {
-            this._generateAppGif();
+            if (this.firstRender) {
+                this._generateAppGif();
+            }
         },
         _generateAppGif () {
             let workspace = this.$['app-preview'].getWorkspace(),
