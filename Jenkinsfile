@@ -24,9 +24,10 @@ node {
     }
 
     stage('test') {
+        sh "gulp build-dev"
         sh "xvfb-run --auto-servernum gulp wct"
         // Remove the test folder
-        sh "rm -rf www/test"
+        sh "rm -rf www"
     }
 
     stage('build') {
