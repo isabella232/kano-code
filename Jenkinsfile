@@ -51,7 +51,8 @@ node {
     stage('pwa') {
         parallel(
             'lighthouse report': {
-                def report_path = 'lighthouse-report.html'
+                def report_file = 'index.html'
+                def report_folder = './lighthouse-report/'
                 def deployed_url = ''
                 if (env.NODE_ENV=="staging") {
                     deployed_url = "https://apps-staging.kano.me"
@@ -60,14 +61,14 @@ node {
                 }
                 env.DISPLAY = ':99.0'
                 env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
-                sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_path} --quiet"
+                sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet"
 
                 publishHTML (target: [
                     allowMissing: false,
                     alwaysLinkToLastBuild: false,
                     keepAll: true,
-                    reportDir: './',
-                    reportFiles: report_path,
+                    reportDir: report_folder,
+                    reportFiles: report_file,
                     reportName: "Lighthouse report"
                 ])
             },
