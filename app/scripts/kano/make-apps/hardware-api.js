@@ -131,7 +131,7 @@
         }
 
         connect () {
-            if (!HardwareAPI.socket) {
+            if (!HardwareAPI.socket && this.endpoint) {
                 HardwareAPI.socket = io.connect(this.endpoint);
             }
         }
@@ -140,7 +140,9 @@
             if (!HardwareAPI.socket) {
                 this.connect();
             }
-            HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+            if (HardwareAPI.socket) {
+                HardwareAPI.socket.on.apply(HardwareAPI.socket, arguments);
+            }
         }
 
         removeListener () {
@@ -168,7 +170,7 @@
         }
 
         socketEmit (name, data) {
-            if (HardwareAPI.socket.connected) {
+            if (HardwareAPI.socket && HardwareAPI.socket.connected) {
                 HardwareAPI.socket.emit(name, data);
             }
         }
