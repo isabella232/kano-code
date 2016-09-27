@@ -33,7 +33,7 @@
         <div class="make">
             <paper-card image="/assets/make-apps-logo.svg">
                 <div class="card-actions">
-                    <a href$="/make?mode=[[mode]]" tabindex="-1">
+                    <a href$="/?mode=[[mode]]" tabindex="-1">
                         <paper-button>Make</paper-button>
                     </a>
                 </div>
@@ -136,7 +136,7 @@
                 .then(r => r.json())
                 .then(appJson => {
                     localStorage.setItem(`savedApp-${appJson.mode}`, JSON.stringify(appJson));
-                    page.redirect(`/make?mode=${appJson.mode}`);
+                    page.redirect(`/?mode=${appJson.mode}`);
                 });
         },
         _getMode (context) {
