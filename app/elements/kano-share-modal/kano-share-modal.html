@@ -259,8 +259,8 @@
     <template>
         <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
             <div class="gif-creator" name="gif-creation">
-                <h2 hidden$="[[!firstRender]]">We're generating an animated gif of your app, wait just a bit...</h2>
-                <h2 hidden$="[[firstRender]]">Make an animated gif of your app to show the world how it works</h2>
+                <h2 hidden$="[[!firstRender]]">Recording your gif &hellip;</h2>
+                <h2 hidden$="[[firstRender]]">Click to begin recording your gif</h2>
                 <paper-progress value="[[gifRenderProgress]]" secondary-progress="[[gifProgress]]"></paper-progress>
                 <div class="gif-creation">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
@@ -471,15 +471,51 @@
 
             this.recording = true;
 
-            this._generateGifCover(workspace, parts, 0.5, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
-                let url = URL.createObjectURL(blob);
-                this.gifSrc = url;
-                this.shareInfo.coverBlob = blob;
-                this.fire('cover-generated');
-                // Reset UI for potential future gif-creation
-                this.recording = false;
-                this.firstRender = false;
-            });
+            if (sharingConfig.cover === 'still') {
+                let waitingFrame = 0,
+                    interval;
+                this.gifRenderProgress = 0;
+                // Simulate gif recording
+                interval = setInterval(_ => {
+                    // Fake frame increment
+                    waitingFrame++;
+                    // Let the user know the progress state
+                    this.gifRenderProgress += (100 / LENGTH);
+                    // The number of fake frames hit the limit
+                    if (waitingFrame > LENGTH) {
+                        clearInterval(interval);
+                        // Generate the still cover
+                        this.generateCover(workspace,
+                                    parts,
+                                    workspace.width,
+                                    workspace.height,
+                                    1,
+                                    sharingConfig.padding,
+                                    sharingConfig.color)
+                            .then(image => {
+                                let base64Data = image.src.split(',').pop(),
+                                    blob = this.base64toBlob(base64Data, 'image/png');
+                                this.gifSrc = image.src;
+                                this.shareInfo.coverBlob = blob;
+                                this.fire('cover-generated');
+                                // Reset UI for potential future gif-creation
+                                this.recording = false;
+                                this.firstRender = false;
+                                this.gifRenderProgress = 0;
+                            });
+                    }
+                }, 1000 / FPS);
+            } else {
+                this._generateGifCover(workspace, parts, 0.6, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
+                    let url = URL.createObjectURL(blob);
+                    this.gifSrc = url;
+                    this.shareInfo.coverBlob = blob;
+                    this.fire('cover-generated');
+                    // Reset UI for potential future gif-creation
+                    this.recording = false;
+                    this.firstRender = false;
+                });
+            }
         },
         _generateUrl () {
             if (this.isAuthenticated) {
