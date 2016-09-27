@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../kano-style/input.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
@@ -29,7 +30,7 @@
         .button-container {
             position: relative;
             width: 100%;
-            height: 52px;
+            height: 47px;
             @apply(--layout-horizontal);
             @apply(--layout-end-justified);
             @apply(--layout-center);
@@ -83,6 +84,10 @@
             border-radius: 24px;
             margin-bottom: 12px;
         }
+        iron-image.cover {
+            width: 512px;
+            height: 384px;
+        }
         .success iron-image.cover {
             flex: 1 1 300px;
             margin-bottom: 20px;
@@ -124,17 +129,10 @@
             padding-top: 12px;
         }
         .dialog {
-            @apply(--layout-horizontal);
+            display: flex;
+            flex-direction: row-reverse;
         }
-        @media screen and (max-width: 960px) {
-            .dialog {
-                @apply(--layout-vertical);
-            }
-            .app-preview, .screenshot {
-                width: 100%;
-            }
-        }
-        :host .form {
+        .form {
             @apply(--layout-vertical);
             padding-right: 24px;
         }
@@ -243,6 +241,7 @@
         }
         .app-player-container {
             position: relative;
+            text-align: center;
         }
         .generate-url-container {
             position: relative;
@@ -254,7 +253,71 @@
             margin: 4px;
             border: 0px;
         }
-        
+        paper-card {
+            font-family: Bariol;
+        }
+        .kit-card {
+            display: flex;
+            flex-direction: row;
+            height: 187px;
+            background-color: white;
+            margin-top: 20px;
+        }
+        .kit-card iron-image {
+            width: 220px;
+            height: 100%;
+        }
+        .kit-card .card-content {
+            padding: 18px 11px;
+        }
+        .kit-card button {
+            background-color: white;
+            background-image: url("/assets/campaign/ks-button.svg");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 250px;
+            height: 40px;
+            margin: 20px 0px 20px;
+            border: 1px solid green;
+            border-radius: 3px;
+        }
+        @media screen and (max-width: 1200px) {
+            iron-image.cover {
+                width: 305px;
+                height: 255px;
+            }
+        }
+        @media screen and (max-width: 960px) {
+            .dialog {
+                @apply(--layout-vertical);
+            }
+            .app-preview, .screenshot {
+                width: 100%;
+            }
+            .form {
+                padding-right: 0px;
+            }
+            iron-image.cover {
+                width: 70%;
+                height: 200px;
+            }
+            .kit-card {
+                flex-direction: column;
+            }
+            .kit-card button {
+                width: 100%;
+                margin-left: 0;
+            }
+            .kit-card iron-image {
+                display: none;
+            }
+            .kit-card h2 {
+                font-size: 1.2em;
+                text-align: center;
+            }
+        }
+
     </style>
     <template>
         <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
@@ -271,6 +334,12 @@
             </div>
             <div class="dialog" name="sharing-form">
                 <button type="button" name="button" class="close" on-tap="dismiss"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+                <div class="app-player-container">
+                    <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                    <div class="change-gif-container">
+                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; Make another gif</button>
+                    </div>
+                </div>
                 <form class="form">
                     <div class="form-group">
                         <input type="text"
@@ -308,18 +377,24 @@
                                 <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                             </div>
                         </div>
-                  </div>
-                </form>
-                <div class="app-player-container">
-                    <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
-                    <div class="change-gif-container">
-                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; Make another gif</button>
                     </div>
-                </div>
+
+                    <template is="dom-if" if="[[isKitAvailable(shareInfo.mode.id)]]">
+                        <paper-card class="kit-card">
+                            <iron-image src="/assets/campaign/[[shareInfo.mode.id]].jpg" sizing="contain">
+                            </iron-image>
+                            <div class="card-content">
+                                <h2>Bring your own creation to life -<br>build your own [[shareInfo.mode.id]]</h2>
+                                <a href="https://kano.me/kickstarter"><button type="button"></button></a>
+                           </div>
+                       </paper-card>
+                    </template>
+
+                </form>
             </div>
             <div name="publishing">Publishing ...</div>
             <div name="success" class="success">
-                <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain"></iron-image>
                 <div class="title">[[shareInfo.title]]</div>
                 <div class="instructions">
                     Your app is live! Share it with your friends.
@@ -453,7 +528,6 @@
             // Force a change on the src to reload the app from the beginning
             appPreview.src = null;
             appPreview.src = this.shareInfo.app.src;
-            
         },
         _onAppReady () {
             this._generateAppGif();
@@ -466,9 +540,6 @@
                 sharingConfig = this.shareInfo.mode.sharing,
                 FPS = 4,
                 LENGTH = 10;
-
-            this.coverWidth = workspace.width;
-            this.coverHeight = workspace.height;
 
             this.recording = true;
 
@@ -529,6 +600,11 @@
                 winLeft = (screen.width / 2) - (socialConfig.width / 2),
                 url = loading ? `${location.protocol}//${location.host}/loading-share.html` : '';
             this.popup = window.open(url, 'sharer', `top=${winTop},left=${winLeft},toolbar=0,status=0,width=${socialConfig.width},height=${socialConfig.height}`);
+        },
+        isKitAvailable () {
+            if (this.shareInfo.mode) {
+                return this.shareInfo.mode.id === 'lightboard' || this.shareInfo.mode.id === 'camera'
+            }
         }
     });
 </script>
