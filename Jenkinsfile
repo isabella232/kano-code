@@ -65,14 +65,14 @@ node {
                 sh "mkdir ${report_folder}"
                 sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet"
 
-                publishHTML (target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: true,
-                    reportDir: report_folder,
-                    reportFiles: report_file,
-                    reportName: "Lighthouse report"
-                ])
+                timeout(time: 5000, unit: 'MILLISECONDS') {
+                    publishHTML (target: [
+                        keepAll: true,
+                        reportDir: report_folder,
+                        reportFiles: report_file,
+                        reportName: "Lighthouse report"
+                    ])
+                }
             },
             'archive': {
                 def version = getVersion()
