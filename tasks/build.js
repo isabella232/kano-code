@@ -57,7 +57,7 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www'));
     });
 
-    gulp.task('build-alt', () => {
+    gulp.task('build', () => {
         return $.runSequence('copy-all',
             ['parts-module', 'kano-canvas-api', 'app'],
             'shards',
