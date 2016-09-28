@@ -526,6 +526,7 @@
             // Force a change on the src to reload the app from the beginning
             appPreview.src = null;
             appPreview.src = this.shareInfo.app.src;
+            this.firstRender = false;
         },
         _onAppReady () {
             if (this.firstRender) {
@@ -585,7 +586,7 @@
                     this.fire('cover-generated');
                     // Reset UI for potential future gif-creation
                     this.recording = false;
-                    this.firstRender = false;
+                    this.firstRender = true;
                 });
             }
         },
