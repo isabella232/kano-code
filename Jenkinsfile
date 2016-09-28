@@ -63,16 +63,16 @@ node {
                 env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
                 sh "rm -rf ${report_folder}"
                 sh "mkdir ${report_folder}"
-                sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet"
-
-                timeout(time: 5000, unit: 'MILLISECONDS') {
-                    publishHTML (target: [
-                        keepAll: true,
-                        reportDir: report_folder,
-                        reportFiles: report_file,
-                        reportName: "Lighthouse report"
-                    ])
+                
+                timeout(time: 20000, unit: 'MILLISECONDS') {
+                    sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet"
                 }
+                publishHTML (target: [
+                    keepAll: true,
+                    reportDir: report_folder,
+                    reportFiles: report_file,
+                    reportName: "Lighthouse report"
+                ])
             },
             'archive': {
                 def version = getVersion()
