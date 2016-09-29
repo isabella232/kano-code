@@ -67,7 +67,11 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('copy-index', () => {
-        return gulp.src(['app/index.html', 'app/scripts/index.js', 'app/assets/vendor/cache-polyfill/cache-polyfill.js'], { base: 'app' })
+        return gulp.src(['app/index.html',
+                        'app/scripts/index.js',
+                        'app/assets/vendor/cache-polyfill/cache-polyfill.js',
+                        'app/bower_components/webcomponentsjs/webcomponents-lite.min.js'
+                        ], { base: 'app' })
             .pipe($.if('index.html', $.htmlReplace($.utils.getHtmlReplaceOptions())))
             .pipe(gulp.dest('www'));
     });
