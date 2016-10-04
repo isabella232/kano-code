@@ -5,6 +5,7 @@
 <link rel="import" href="../kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../kano-challenge-progress/kano-challenge-progress.html">
+<link rel="import" href="../kano-share-modal/kano-share-modal.html">
 <dom-module id="kano-scene-editor">
   <style>
     :host {
@@ -21,6 +22,16 @@
         position: absolute;
         top: 20px;
         right: 20px;
+    }
+    @media screen and (max-width: 1200px) {
+        #share-modal {
+            max-width: 900px;
+        }
+    }
+    @media screen and (max-width: 960px) {
+        #share-modal {
+            max-width: 330px;
+        }
     }
   </style>
   <template>
@@ -40,7 +51,8 @@
                             title="[[storyName]]"
                             code="{{code}}"
                             mode="[[_computeMode(mode, remix)]]"
-                            on-blockly-ready="_blocklyReady">
+                            on-blockly-ready="_blocklyReady"
+                            on-share="_pauseAndShare">
               <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory.id]]" on-share-app="shareApp" remix-mode="[[remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
@@ -53,6 +65,13 @@
                             on-power-up="powerUp"
                             on-share-app="shareApp"></kano-power-up-modal>
       </paper-dialog>
+      <paper-dialog id="share-modal" with-backdrop>
+            <kano-share-modal on-confirm="confirmShare"
+                              on-dismiss="dismissShare"
+                              share-info="{{shareInfo}}"
+                              world-url="[[config.WORLD_URL]]"
+                              is-authenticated="[[user]]"></kano-share-modal>
+      </paper-dialog>
   </template>
 </dom-module>
 <script type="text/javascript">
@@ -61,7 +80,7 @@
 
     Polymer({
         is: 'kano-scene-editor',
-        behaviors: [Kano.Behaviors.EditorViewBehavior, Kano.Behaviors.SceneComponentBehavior],
+        behaviors: [Kano.Behaviors.EditorViewBehavior, Kano.Behaviors.SceneComponentBehavior, Kano.Behaviors.SharingBehavior],
         properties: {
             storyName: {
                 type: String
@@ -94,6 +113,10 @@
             '_sceneStarted(scene.started)',
             '_addedPartsChanged(addedParts.splices)'
         ],
+        _pauseAndShare (e) {
+            this.running = false;
+            this.share(e);
+        },
         _remixChanged (remix) {
             if (remix) {
                 // Look for the previously removed blocks in the addedParts
@@ -189,6 +212,7 @@
             }, 300);
         },
         attached () {
+            this.modal = this.$['share-modal'];
             this.mode = Kano.MakeApps.Mode.modes[(this.scene.mode || 'normal')];
         },
         shareApp () {

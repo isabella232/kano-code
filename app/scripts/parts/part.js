@@ -84,6 +84,7 @@ export default class Part {
         plain.tagName = this.tagName;
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
+        plain.nonvolatileProperties = this.nonvolatileProperties;
         plain.position = this.position;
         plain.partType = this.partType;
         plain.configPanel = this.configPanel;
