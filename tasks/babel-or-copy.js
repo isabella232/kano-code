@@ -8,8 +8,7 @@ module.exports = (gulp, $) => {
         if (!process.env.ES6) {
             stream = stream
                 .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
-                .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
-                .pipe($.if('*.js', $.babel({ presets: ['es2015'] })));
+                .pipe($.if('*.js', $.babel({ presets: ['es2015'], sourceMaps: $.debug ? 'inline' : false })));
         }
         return stream;
     }

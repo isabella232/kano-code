@@ -16,11 +16,7 @@ let gulp = require('gulp'),
     env = process.env.NODE_ENV || 'development',
     target = process.env.TARGET || 'web',
     config = Object.assign(configs.COMMON, configs.TARGET[target], configs.ENV[env], { ENV: env,  TARGET: target }),
-    bundler,
     utils;
-
-bundler = browserify('app/scripts/app.js', { cache: {}, packageCache: {} })
-        .transform(babelify.configure({ presets: ['es2015'] }));
 
 utils = {
     notifyError: $.notify.onError((error) => {
@@ -108,9 +104,10 @@ $.watchify = watchify;
 $.runSequence = runSequence;
 $.browserSync = browserSync;
 $.historyApiFallback = historyApiFallback;
+$.debug = env === 'development' || process.env.DEBUG;
 
 gulp.task('serve', () => {
-    $.browserSync.init({
+    return $.browserSync.init({
         server: {
             baseDir: './www',
             middleware: [$.historyApiFallback()]
