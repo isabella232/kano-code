@@ -49,7 +49,7 @@
     </style>
     <template>
         <template is="dom-if" if="[[shareLoaded]]" on-dom-change="_editorDomChanged">
-            <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[_share.title]]" on-scene-done="_showEndModal" on-share="share"></kano-scene-editor>
+            <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[_share.title]]" on-scene-done="_showEndModal" on-share="_pauseAndShare"></kano-scene-editor>
         </template>
         <paper-dialog id="share-modal" with-backdrop>
             <kano-share-modal on-confirm="confirmShare"
@@ -163,6 +163,10 @@
             window.dumpChallenge = () => {
                 return JSON.stringify(this.challenge, null, '\t');
             };
+        },
+        _pauseAndShare (e) {
+            this.running = false;
+            this.share(e);
         },
         _getMode (context) {
             let modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');

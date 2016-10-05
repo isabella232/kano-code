@@ -47,6 +47,7 @@
                 .then(buffer => {
                     let source = this.createSource(buffer);
                     source.start(this.ctx.currentTime);
+                    this.sources.push(source);
                 });
         },
         loop (sample) {
@@ -58,6 +59,7 @@
                     let source = this.createSource(buffer);
                     source.loop = true;
                     source.start(this.ctx.currentTime);
+                    this.sources.push(source);
                 });
         },
         stop () {
