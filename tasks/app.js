@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (gulp, $) => {
-    let bundler = $.browserify('app/scripts/app.js', { cache: {}, packageCache: {} })
-        .transform($.babelify.configure({ presets: ['es2015'] }));
+    let bundler = $.browserify('app/scripts/app.js', { cache: {}, packageCache: {}, debug: $.debug })
+        .transform($.babelify.configure({ presets: ['es2015'], sourceMaps: $.debug ? 'inline' : false }));
 
     function bundle(target, refresh) {
         return () => {
