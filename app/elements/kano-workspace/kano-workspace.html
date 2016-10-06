@@ -63,7 +63,7 @@
             <button type="button"
                     name="button"
                     class="edit-layout-button"
-                    on-tap="toggleEditableLayout"
+                    on-tap="_editableLayoutTapped"
                     style$="[[_computeEditingButtonStyle(mode.workspace.viewport.height)]]">
                         <span>[[_computeEditingButtonLabel(editableLayout)]]</span>
                         <span hidden$="[[!editableLayout]]">&times;</span>
@@ -76,7 +76,7 @@
         </kano-ui-viewport>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
-        <iron-a11y-keys keys="alt+t" on-keys-pressed="toggleEditableLayout" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="esc" on-keys-pressed="_cancel" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="tab" on-keys-pressed="_selectNextPart" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="shift+tab" on-keys-pressed="_selectPrevPart" target="[[target]]"></iron-a11y-keys>
@@ -151,6 +151,12 @@
         attached () {
             this.target = document.body;
         },
+        _editableLayoutTapped () {
+            this.toggleEditableLayout();
+        },
+        _onAltT () {
+            this.toggleEditableLayout();
+        },
         _toggleFullscreen () {
             this.toggleClass('fullscreen');
             this.$.content.resizeView();
@@ -182,9 +188,7 @@
             partElem.move(x, y);
         },
         _cancel () {
-            if (this.editableLayout) {
-                this.toggleEditableLayout(false);
-            }
+            this.toggleEditableLayout(false);
         },
         _selectNextPart (e) {
             if (this.editableLayout) {
@@ -219,7 +223,7 @@
             }
         },
         toggleEditableLayout (value) {
-            this.set('editableLayout', typeof value === 'boolean' ? !this.editableLayout : value);
+            this.set('editableLayout', typeof value !== 'boolean' ? !this.editableLayout : value);
             if (this.editableLayout) {
                 this.prevRunningState = this.running;
                 this.set('running', false);
