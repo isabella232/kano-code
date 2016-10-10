@@ -43,7 +43,7 @@ node {
             echo 'deploy skipped'
         } else if (env.NODE_ENV=="staging") {
             deploy_staging()
-        } else if (env.NODE_ENV=="pre-release") {
+        } else if (env.BRANCH_NAME=="pre-release") {
             deploy_pre_release()
         } else if (env.NODE_ENV=="production") {
             deploy_prod()
