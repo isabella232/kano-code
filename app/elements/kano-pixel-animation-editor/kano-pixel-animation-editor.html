@@ -1,48 +1,40 @@
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-style/input.html">
 <dom-module id="kano-pixel-animation-editor">
-    <style is="custom-style" include="input-range"></style>
     <style>
     :host {
         display: block;
     }
     .content {
-        min-width: 465px;
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
     .frame-list {
-        @apply(--layout-flex);
         @apply(--layout-horizontal);
         @apply(--layout-center);
-        padding-left: 4px;
+        padding: 11px 4px;
         overflow-x: auto;
     }
-    .frames {
-        @apply(--layout-horizontal);
-        margin: 16px 0px 16px;
-        max-width: 400px;
-        width: 400px;
-        border-radius: 3px;
-        background-color: #e6e6e6;
-        border: solid 1px #7e7e7e;
-        padding-left: 5px;
-    }
-    .frames kano-bitmap-renderer {
+    .frame-list kano-bitmap-renderer {
         cursor: pointer;
-        border: 1px solid transparent;
-        margin: 11px 2px;
+        border: 1px solid white;
         border-radius: 3px;
-        padding: 2px;
+        background: grey;
+        margin-left: -2px;
+        @apply(--shadow-elevation-2dp);
         --kano-bitmap-renderer-canvas: {
             border-radius: 3px;
         };
     }
-    .frames kano-bitmap-renderer.selected {
-        border-color: var(--color-orange);
+    .frame-list kano-bitmap-renderer:nth-child(odd) {
+        transform: rotate(-1deg);
     }
-    .frame-rate-label>span {
-        font-weight: bold;
+    .frame-list kano-bitmap-renderer:nth-child(even) {
+        transform: rotate(1deg);
+    }
+    .frame-list kano-bitmap-renderer.selected {
+        border-color: var(--color-orange);
     }
     .add-frame {
         background: transparent;
@@ -59,22 +51,110 @@
         outline: none;
         color: var(--color-orange);
     }
+    .toolbox {
+        box-sizing: border-box;
+        width: 100%;
+        @apply(--layout-horizontal);
+        padding: 7px;
+    }
+    .palette, .controls {
+        @apply(--layout-flex);
+    }
+    .palette {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-start-justified);
+    }
+    .palette-color, .pen-control button {
+        width: 26px;
+        height: 26px;
+        margin: 3px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        box-sizing: border-box;
+    }
+    .palette-color.selected {
+        border-color: grey;
+    }
+    .controls {
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+    }
+    .pen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 30px;
+        height: 30px;
+        opacity: 0.45;
+        border: 2px solid white;
+        pointer-events: none;
+        @apply(--shadow-elevation-2dp);
+        border-radius: 1px;
+    }
+    .add-color {
+        background: transparent;
+        color: grey;
+        font-size: 22px;
+        font-family: Bariol;
+        line-height: 20px;
+    }
+    .add-color:focus {
+        outline: none;
+        color: var(--color-orange);
+    }
+    .pen-control iron-selector {
+        @apply(--layout-vertical);
+    }
+    .pen-control button:focus {
+        outline: none;
+    }
+    .pen-control button.iron-selected {
+        outline: none;
+        background: blue;
+        border-color: grey;
+    }
+    kano-pixel-canvas {
+        cursor: none;
+    }
+    .divider {
+        margin: 3px 2px;
+        width: 2px;
+        background: lightgrey;
+    }
     </style>
     <template>
-        <array-selector id="selector" items="{{bitmaps}}" selected="{{bitmap}}"></array-selector>
         <div class="content">
-            <div class="frames">
-                <div class="frame-list">
-                    <template is="dom-repeat" items="[[bitmaps]]" as="bm">
-                        <kano-bitmap-renderer width="[[width]]" height="[[height]]" pixel-size="8" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(bm, bitmap)]]"></kano-bitmap-renderer>
+            <div class="frame-list">
+                <template is="dom-repeat" items="[[bitmaps]]" as="bm">
+                    <kano-bitmap-renderer width="[[width]]" height="[[height]]" spacing="1" pixel-size="5" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
+                </template>
+            </div>
+            <kano-pixel-canvas id="canvas" bitmap="{{selected}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="30" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
+            <div class="toolbox">
+                <div class="pen-control">
+                    <iron-selector selected="[[penType]]" attr-for-selected="name">
+                        <button on-tap="_penControlTapped" name="draw">I</button>
+                        <button on-tap="_penControlTapped" name="fill">O</button>
+                    </iron-selector>
+                </div>
+                <div class="divider"></div>
+                <div class="palette">
+                    <template is="dom-repeat" items="[[palette]]" as="color">
+                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                     </template>
+                    <button class="palette-color add-color" on-tap="_openWheel" id="add-color">+</button>
+                </div>
+                <div class="controls">
+                    <button type="button" name="button" on-tap="_addFrame" class="add-frame">+</button>
                 </div>
             </div>
-            <kano-pixel-canvas bitmap="{{bitmap}}" width="[[width]]" height="[[height]]"></kano-pixel-canvas>
-            <div class="controls">
-                <button type="button" name="button" on-tap="_addFrame" class="add-frame">+</button>
-            </div>
         </div>
+        <kano-tooltip class="tooltip" position="right" id="tooltip" target="[[tooltipTarget]]">
+            <kano-color-wheel value="{{penColor}}" on-value-changed="_penColorChanged"></kano-color-wheel>
+            <button type="button" name="button" class="close" on-tap="_closeWheel">&times;</button>
+        </kano-tooltip>
+        <div class="pen" id="pen" style$="[[_computePenStyle(penColor)]]"></div>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -87,9 +167,6 @@
                     },
                     notify: true
                 },
-                bitmap: {
-                    type: Object
-                },
                 width: {
                     type: Number,
                     value: 1
@@ -98,16 +175,92 @@
                     type: Number,
                     value: 1
                 },
-                speed: {
-                    type: Number,
-                    value: 15,
-                    notify: true
+                penType: {
+                    type: String,
+                    computed: '_computePenType(_penType, _isShiftPressed)'
                 }
+            },
+            listeners: {
+                'canvas.mouseover': '_onMouseOver',
+                'canvas.mouseout': '_onMouseOut',
+                'canvas.mousemove': '_onMouseMove',
+                'keydown': '_onKeyEvent',
+                'keyup': '_onKeyEvent'
             },
             observers: [
                 '_bitmapChanged(bitmap, width, height)',
-                '_bitmapsChanged(bitmaps.splices)'
+                '_bitmapsChanged(bitmaps.splices)',
+                '_selectedChanged(selected.*)'
             ],
+            attached () {
+                this._penType = 'draw';
+                this._isShiftPressed = false;
+            },
+            select (bitmap) {
+                this.selected = bitmap.slice(0);
+                this.selectedIndex = this.bitmaps.indexOf(bitmap);
+            },
+            isSelected (index) {
+                return index === this.selectedIndex;
+            },
+            _computePenType (penType, shiftPressed) {
+                return shiftPressed ? 'fill' : penType;
+            },
+            _onKeyEvent (e) {
+                this.set('_isShiftPressed', e.shiftKey);
+            },
+            _penControlTapped (e) {
+                let target = e.target;
+                this.set('_penType', target.getAttribute('name'));
+            },
+            _computePenStyle (color) {
+                return `background: ${color};`;
+            },
+            _onMouseOver () {
+                this._isMouseOver = true;
+                this.$.pen.style.display = 'block';
+            },
+            _onMouseMove (e) {
+                if (this._isMouseOver) {
+                    this.transform(`translate(${e.x - 14}px, ${e.y - 14}px)`, this.$.pen);
+                }
+            },
+            _onMouseOut () {
+                this._isMouseOver = false;
+                this.$.pen.style.display = 'none';
+            },
+            _penColorChanged () {
+                this._computePalette();
+                this._closeWheel();
+            },
+            _openWheel () {
+                requestAnimationFrame(() => {
+                    this.tooltipTarget = this.$['add-color'].getBoundingClientRect();
+                    this.$.tooltip.open();
+                });
+            },
+            _paletteItemTapped (e) {
+                let color = e.model.get('color');
+                this.set('penColor', color);
+            },
+            _closeWheel () {
+                this.$.tooltip.close();
+            },
+            _computePaletteColor (color) {
+                return `background: ${color}`;
+            },
+            _selectedChanged (e) {
+                let index = this.selectedIndex,
+                    splices;
+
+                if (e.path === 'selected.splices') {
+                    splices = e.value;
+                    splices.indexSplices.forEach(splice => {
+                        this.splice(`bitmaps.#${index}`, splice.index, 1, this.selected[splice.index]);
+                    });
+                }
+                this._computePalette();
+            },
             _generateEmptyBitmap (name, width, height, color='#000000') {
                 let length = width * height;
                 for (let i = 0; i < length; i++) {
@@ -126,7 +279,7 @@
                 if (this.bitmaps.length === 0) {
                     this.set('bitmaps', [[]]);
                 }
-                this.$.selector.select(this.bitmaps[0]);
+                this.select(this.bitmaps[0]);
             },
             _addFrame () {
                 let copy;
@@ -139,13 +292,33 @@
                     copy = this.bitmaps[this.bitmaps.length - 1].slice(0);
                 }
                 this.push('bitmaps', copy);
-                this.$.selector.select(copy);
+                this.select(copy);
             },
             _selectFrame (e) {
-                this.$.selector.select(e.model.get('bm'));
+                this.select(e.model.get('bm'));
             },
-            _isFrameSelectedClass (bm, selected) {
-                return this.$.selector.isSelected(bm) ? 'selected' : '';
+            _isFrameSelectedClass (index) {
+                return this.isSelected(index) ? 'selected' : '';
+            },
+            _computePalette () {
+                this.debounce('palette', () => {
+                    let palette = this.bitmaps.reduce((acc, bitmap) => {
+                        return acc.concat(bitmap);
+                    }, []);
+
+                    palette.push(this.penColor);
+                    
+                    palette = palette.filter((elem, pos, self) => {
+                        return self.indexOf(elem) === pos && elem !== null && typeof elem !== 'undefined';
+                    }).splice(-16, 16);
+                    this.set('palette', palette);
+                    if (!this.penColor) {
+                        this.set('penColor', this.palette[0]);
+                    }
+                }, 16);
+            },
+            _computePaletteItemSelectedClass (color, penColor) {
+                return color === penColor ? 'selected' : '';
             }
         });
     </script>
