@@ -1,6 +1,6 @@
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
-<link rel="import" href="../kano-style/input.html">
+<link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <dom-module id="kano-pixel-animation-editor">
     <style>
     :host {
@@ -9,12 +9,16 @@
     .content {
         @apply(--layout-vertical);
         @apply(--layout-center);
+        max-width: 552px;
+        min-width: 552px;
     }
     .frame-list {
         @apply(--layout-horizontal);
         @apply(--layout-center);
         padding: 11px 4px;
         overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     .frame-list kano-bitmap-renderer {
         cursor: pointer;
@@ -35,21 +39,6 @@
     }
     .frame-list kano-bitmap-renderer.selected {
         border-color: var(--color-orange);
-    }
-    .add-frame {
-        background: transparent;
-        border: 0px;
-        line-height: 34px;
-        font-family: Bariol;
-        font-weight: bold;
-        font-size: 32px;
-        padding: 0px 20px;
-        /* Recenter the font in the button */
-        margin-bottom: 12px;
-    }
-    .add-frame:focus {
-        outline: none;
-        color: var(--color-orange);
     }
     .toolbox {
         box-sizing: border-box;
@@ -72,13 +61,53 @@
         cursor: pointer;
         border: 1px solid transparent;
         box-sizing: border-box;
+        position: relative;
     }
     .palette-color.selected {
         border-color: grey;
     }
+    .palette-color.selected::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: 70% 70%;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.7;
+    }
+    .palette-color.selected.fill::before {
+        background-image: url(/assets/icons/bucket.svg);
+    }
+    .palette-color.selected.draw::before {
+        background-image: url(/assets/icons/pencil.svg);
+    }
     .controls {
         @apply(--layout-horizontal);
         @apply(--layout-end-justified);
+        @apply(--layout-center);
+    }
+    .controls button {
+        border: 0px;
+        border-radius: 4px;
+        font-family: Bariol;
+        font-size: 16px;
+        color: white;
+        padding: 12px;
+        cursor: pointer;
+    }
+    .controls button:focus {
+        outline: none;
+    }
+    button.add-frame {
+        background: rgb(155, 155, 155);
+        margin-right: 6px;
+    }
+    button.preview-control {
+        background: var(--color-green, green);
+        padding: 12px 20px;
     }
     .pen {
         position: fixed;
@@ -103,6 +132,18 @@
         outline: none;
         color: var(--color-orange);
     }
+    .pen-control button {
+        padding: 0px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .pen-control button iron-image {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+        pointer-events: none;
+    }
     .pen-control iron-selector {
         @apply(--layout-vertical);
     }
@@ -111,16 +152,37 @@
     }
     .pen-control button.iron-selected {
         outline: none;
-        background: blue;
-        border-color: grey;
+        border-color: var(--color-orange);
+        background: rgba(255, 132, 42, 0.5);
+    }
+    .canvas-container {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-self-stretch);
+        background: #444;
     }
     kano-pixel-canvas {
         cursor: none;
     }
     .divider {
-        margin: 3px 2px;
+        margin: 3px 8px;
         width: 2px;
         background: lightgrey;
+    }
+    kano-animated-svg {
+        @apply(--layout-flex);
+        width: 20px;
+        height: 20px;
+        -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        --kano-animated-path: {
+            fill: white;
+            stroke: white;
+            stroke-width: 7px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all ease-in-out 200ms;
+        }
     }
     </style>
     <template>
@@ -130,23 +192,35 @@
                     <kano-bitmap-renderer width="[[width]]" height="[[height]]" spacing="1" pixel-size="5" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
                 </template>
             </div>
-            <kano-pixel-canvas id="canvas" bitmap="{{selected}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="30" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
+            <div class="canvas-container">
+                <kano-pixel-canvas id="canvas" bitmap="{{selected}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="30" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
+            </div>
             <div class="toolbox">
                 <div class="pen-control">
                     <iron-selector selected="[[penType]]" attr-for-selected="name">
-                        <button on-tap="_penControlTapped" name="draw">I</button>
-                        <button on-tap="_penControlTapped" name="fill">O</button>
+                        <button on-tap="_penControlTapped" name="draw">
+                            <iron-image src="/assets/icons/pencil.svg" preload sizing="contain"></iron-image>
+                        </button>
+                        <button on-tap="_penControlTapped" name="fill">
+                            <iron-image src="/assets/icons/bucket.svg" preload sizing="contain"></iron-image>
+                        </button>
                     </iron-selector>
                 </div>
                 <div class="divider"></div>
                 <div class="palette">
                     <template is="dom-repeat" items="[[palette]]" as="color">
-                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
+                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor, penType)]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                     </template>
                     <button class="palette-color add-color" on-tap="_openWheel" id="add-color">+</button>
                 </div>
                 <div class="controls">
-                    <button type="button" name="button" on-tap="_addFrame" class="add-frame">+</button>
+                    <button type="button" name="button" on-tap="_addFrame" class="add-frame">
+                        <span>+</span>
+                        <span>new frame</span>
+                    </button>
+                    <button type="button" name="button" class="preview-control" on-tap="_togglePreviewState">
+                        <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -154,7 +228,7 @@
             <kano-color-wheel value="{{penColor}}" on-value-changed="_penColorChanged"></kano-color-wheel>
             <button type="button" name="button" class="close" on-tap="_closeWheel">&times;</button>
         </kano-tooltip>
-        <div class="pen" id="pen" style$="[[_computePenStyle(penColor)]]"></div>
+        <div class="pen" id="pen" style$="[[_computePenStyle(penColor, _isMouseOver)]]"></div>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -183,9 +257,7 @@
             listeners: {
                 'canvas.mouseover': '_onMouseOver',
                 'canvas.mouseout': '_onMouseOut',
-                'canvas.mousemove': '_onMouseMove',
-                'keydown': '_onKeyEvent',
-                'keyup': '_onKeyEvent'
+                'canvas.mousemove': '_onMouseMove'
             },
             observers: [
                 '_bitmapChanged(bitmap, width, height)',
@@ -193,8 +265,20 @@
                 '_selectedChanged(selected.*)'
             ],
             attached () {
+                this._onKeyEvent = this._onKeyEvent.bind(this);
+                document.addEventListener('keydown', this._onKeyEvent);
+                document.addEventListener('keyup', this._onKeyEvent);
                 this._penType = 'draw';
                 this._isShiftPressed = false;
+                this.previewButtonIconPaths = {
+                    stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
+                    running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+                };
+                this.previewState = 'stopped';
+            },
+            detached () {
+                document.removeEventListener('keydown', this._onKeyEvent);
+                document.removeEventListener('keyup', this._onKeyEvent);
             },
             select (bitmap) {
                 this.selected = bitmap.slice(0);
@@ -202,6 +286,9 @@
             },
             isSelected (index) {
                 return index === this.selectedIndex;
+            },
+            _togglePreviewState () {
+                this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
             },
             _computePenType (penType, shiftPressed) {
                 return shiftPressed ? 'fill' : penType;
@@ -213,12 +300,11 @@
                 let target = e.target;
                 this.set('_penType', target.getAttribute('name'));
             },
-            _computePenStyle (color) {
-                return `background: ${color};`;
+            _computePenStyle (color, isMouseOver) {
+                return `background: ${color}; display: ${isMouseOver ? 'block' : 'none'}`;
             },
             _onMouseOver () {
                 this._isMouseOver = true;
-                this.$.pen.style.display = 'block';
             },
             _onMouseMove (e) {
                 if (this._isMouseOver) {
@@ -227,7 +313,6 @@
             },
             _onMouseOut () {
                 this._isMouseOver = false;
-                this.$.pen.style.display = 'none';
             },
             _penColorChanged () {
                 this._computePalette();
@@ -317,8 +402,10 @@
                     }
                 }, 16);
             },
-            _computePaletteItemSelectedClass (color, penColor) {
-                return color === penColor ? 'selected' : '';
+            _computePaletteItemSelectedClass (color, penColor, penType) {
+                let classes = color === penColor ? 'selected' : '';
+                classes += ` ${penType}`;
+                return classes;
             }
         });
     </script>

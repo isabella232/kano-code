@@ -74,7 +74,8 @@
                 },
                 penType: {
                     type: String,
-                    value: 'draw'
+                    value: 'draw',
+                    observer: '_penTypeChanged'
                 }
             },
             ready () {
@@ -129,10 +130,21 @@
             _computePixelStyle (pixel) {
                 return `background-color: ${pixel || '#000000'}; width: ${this.pixelSize}px; height: ${this.pixelSize}px; margin: ${this.spacing}px`;
             },
+            _penTypeChanged () {
+                if (this.currentIndex) {
+                    this._blurAll();
+                    this._paintOrHover(this.currentIndex);
+                }
+            },
             _pixelOver (e) {
                 let target = e.path ? e.path[0] : e.target,
                     model = e.model || this.$$('#repeat').modelForElement(target),
                     index = model.get('index');
+                this.currentIndex = index;
+                this._paintOrHover(index, target);
+            },
+            _paintOrHover (index, target) {
+                target = target || this.$$(`#pixel-${index}`);
                 // The mouse is down, effectively paint on the bitmap, otherwise just apply a hover
                 if (this.isMouseDown) {
                     if (this.penType === 'draw') {
@@ -192,6 +204,7 @@
                 return y * this.width + x;
             },
             _pixelOut (e) {
+                this.currentIndex = null;
                 this._blurAll();
             },
             _mouseDown (e) {
