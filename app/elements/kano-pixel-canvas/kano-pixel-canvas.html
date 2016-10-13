@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../kano-color-wheel/kano-color-wheel.html">
 <dom-module id="kano-pixel-canvas">
     <style>
@@ -52,6 +53,7 @@
             </div>
         </div>
         <div class="pen" id="pen" style$="[[_computePenStyle(penColor, _isMouseOver)]]"></div>
+        <iron-a11y-keys target="[[target]]" keys="cmd+z ctrl+z" on-keys-pressed="undo"></iron-a11y-keys>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -95,21 +97,49 @@
                 'mouseout': '_onMouseOut',
                 'mousemove': '_onMouseMove'
             },
-            ready () {
+            attached () {
                 this._mouseDown = this._mouseDown.bind(this);
                 this._mouseUp = this._mouseUp.bind(this);
-            },
-            attached () {
                 document.addEventListener('mousedown', this._mouseDown);
                 document.addEventListener('touchstart', this._mouseDown);
                 document.addEventListener('mouseup', this._mouseUp);
                 document.addEventListener('touchend', this._mouseUp);
+                this._history = [];
+                this.MAX_HISTORY_LENGTH = 5;
+                this.target = document.body;
             },
             detached () {
                 document.removeEventListener('mousedown', this._mouseDown);
                 document.removeEventListener('touchstart', this._mouseDown);
                 document.removeEventListener('mouseup', this._mouseUp);
                 document.removeEventListener('touchend', this._mouseUp);
+            },
+            _startHistoryRecord () {
+                this._currentHistoryChanges = [];
+            },
+            _endHistoryRecord () {
+                this._addHistoryRecord(this._currentHistoryChanges);
+            },
+            _recordHistoryChange (index, oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    this._currentHistoryChanges.push({
+                        index,
+                        oldValue,
+                        newValue
+                    });
+                }
+            },
+            _addHistoryRecord (changes) {
+                changes = this._cleanHistoryChanges(changes);
+                if (changes.length) {
+                    this._history.push({ changes });
+                    if (this._history.length > this.MAX_HISTORY_LENGTH) {
+                        this._history.shift();
+                    }
+                }
+            },
+            _cleanHistoryChanges (changes) {
+                return changes.filter(change => change.oldValue !== change.newValue);
             },
             _paintPixel (index, color) {
                 color = color || this.penColor
@@ -168,9 +198,21 @@
                 // The mouse is down, effectively paint on the bitmap, otherwise just apply a hover
                 if (this.isMouseDown) {
                     if (this.penType === 'draw') {
-                        this._paintPixel(index, color);
+                        if (this.bitmap[index] !== color) {
+                            this._recordHistoryChange(index, this.bitmap[index], color);
+                            this._paintPixel(index, color);
+                        }
+                        
                     } else if (this.penType === 'fill') {
-                        this._paintGroup(this.getFillGroup(index), color);
+                        let group = this.getFillGroup(index);
+                        this._addHistoryRecord(group.map(idx => {
+                            return {
+                                index: idx,
+                                oldValue: this.bitmap[idx],
+                                newValue: color
+                            };
+                        }));
+                        this._paintGroup(group, color);
                     }
                     this._blurAll();
                 } else {
@@ -223,6 +265,14 @@
             coordToIndex (x, y) {
                 return y * this.width + x;
             },
+            undo () {
+                if (this._history.length) {
+                    let record = this._history.pop();
+                    record.changes.forEach(change => {
+                        this._paintPixel(change.index, change.oldValue);
+                    });
+                }
+            },
             _pixelOut (e) {
                 this.currentIndex = null;
                 this._blurAll();
@@ -231,6 +281,7 @@
                 let target = e.path ? e.path[0] : e.target;
                 this.isMouseDown = true;
                 this.rightClick = (e.button === 2);
+                this._startHistoryRecord();
                 if (target.classList.contains('pixel')) {
                     this._pixelOver(e);
                 }
@@ -242,6 +293,7 @@
             },
             _mouseUp () {
                 this.isMouseDown = false;
+                this._endHistoryRecord();
             },
             _onMouseOver () {
                 this._isMouseOver = true;

@@ -3,6 +3,8 @@
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
+<link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
@@ -113,6 +115,10 @@
     button.add-frame {
         background: rgb(155, 155, 155);
         margin-right: 6px;
+        transition: opacity ease-in-out 70ms;
+    }
+    button.add-frame:disabled {
+        opacity: 0.3;
     }
     button.preview-control {
         background: var(--color-green, green);
@@ -223,7 +229,7 @@
                     <button class="palette-color add-color" on-tap="_openWheel" id="add-color">+</button>
                 </div>
                 <div class="controls">
-                    <button type="button" name="button" on-tap="_addFrame" class="add-frame">
+                    <button type="button" name="button" on-tap="_addFrame" class="add-frame" disabled$="[[isEq(previewState, 'running')]]">
                         <span>+</span>
                         <span>new frame</span>
                     </button>
@@ -240,6 +246,7 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-pixel-animation-editor',
+            behaviors: [PolymerFilters.FilterBehavior],
             properties: {
                 bitmaps: {
                     type: Array,
@@ -417,6 +424,9 @@
                 let classes = color === penColor ? 'selected' : '';
                 classes += ` ${penType}`;
                 return classes;
+            },
+            _isNewFrameDisabled (previewState) {
+                return (previewState === 'running');
             }
         });
     </script>
