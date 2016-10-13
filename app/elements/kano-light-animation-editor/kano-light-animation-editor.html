@@ -1,5 +1,9 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
 <link rel="import" href="../kano-pixel-animation-editor/kano-pixel-animation-editor.html">
+<link rel="import" href="../kano-style/typography.html">
+<link rel="import" href="../kano-style/button.html">
 
 <dom-module id="kano-light-animation-editor">
     <style>
@@ -62,13 +66,16 @@
         border-radius: 3px;
         box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
     }
+    button {
+        @apply(--kano-button);
+    }
     </style>
     <template>
         <div class="content">
             <div class="preview">
                 <kano-bitmap-renderer width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" pixel-size="24" bitmap="[[preview]]"></kano-bitmap-renderer>
             </div>
-            <button type="button" on-tap="_openConfig">Draw</button>
+            <button type="button" on-tap="_openConfig">Change Animation</button>
             <div class="fullscreen-config" id="config">
                 <div id="config-content">
                     <div class="properties">
@@ -82,6 +89,7 @@
                         <div class="editor">
                             <kano-pixel-animation-editor width="[[selected.userProperties.width]]"
                                                 height="[[selected.userProperties.height]]"
+                                                speed="[[selected.userProperties.speed]]"
                                                 bitmaps="{{selected.userProperties.bitmaps}}"></kano-pixel-animation-editor>
                         </div>
                     </div>
