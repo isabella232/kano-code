@@ -265,12 +265,16 @@
             coordToIndex (x, y) {
                 return y * this.width + x;
             },
-            undo () {
+            undo (e) {
                 if (this._history.length) {
                     let record = this._history.pop();
                     record.changes.forEach(change => {
                         this._paintPixel(change.index, change.oldValue);
                     });
+                }
+                if (e && e.detail && e.detail.keyboardEvent) {
+                    e.detail.keyboardEvent.stopPropagation();
+                    return false;
                 }
             },
             _pixelOut (e) {
