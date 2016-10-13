@@ -3,12 +3,15 @@
     <style>
     :host {
         display: block;
+        --kano-pixel-editor-background: #444;
     }
     .pixel {
         width: 24px;
         height: 24px;
-        margin: 3px;
+        /* Use a border the same color as the background, allows the spacing to trigger the mouseover event */
+        border: 3px solid var(--kano-pixel-editor-background);
         background-color: black;
+        @apply(--kano-pixel-canvas-pixel);
     }
     .canvas {
         @apply(--layout-horizontal);
@@ -17,12 +20,20 @@
     }
     .canvas-wrapper {
         padding: 4px;
-        background-color: #444;
+        background-color: var(--kano-pixel-editor-background);
     }
     .pen {
-        width: 26px;
-        height: 26px;
-        margin-right: 5px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 30px;
+        height: 30px;
+        opacity: 0.45;
+        border: 2px solid white;
+        pointer-events: none;
+        @apply(--shadow-elevation-2dp);
+        border-radius: 1px;
+        display: none;
     }
     .picker {
         @apply(--layout-horizontal);
@@ -31,7 +42,7 @@
     }
     </style>
     <template>
-        <div class="content">
+        <div class="content" on-contextmenu="_preventContextMenu">
             <div class="canvas-wrapper">
                 <div class="canvas" style$="[[_computeCanvasStyle(width, pixelSize, spacing)]]">
                     <template is="dom-repeat" items="[[bitmap]]" as="pixel" id="repeat">
@@ -40,6 +51,7 @@
                 </div>
             </div>
         </div>
+        <div class="pen" id="pen" style$="[[_computePenStyle(penColor, _isMouseOver)]]"></div>
     </template>
     <script type="text/javascript">
         Polymer({
@@ -78,6 +90,11 @@
                     observer: '_penTypeChanged'
                 }
             },
+            listeners: {
+                'mouseover': '_onMouseOver',
+                'mouseout': '_onMouseOut',
+                'mousemove': '_onMouseMove'
+            },
             ready () {
                 this._mouseDown = this._mouseDown.bind(this);
                 this._mouseUp = this._mouseUp.bind(this);
@@ -94,11 +111,13 @@
                 document.removeEventListener('mouseup', this._mouseUp);
                 document.removeEventListener('touchend', this._mouseUp);
             },
-            _paintPixel (index) {
-                this.splice('bitmap', index, 1, this.penColor);
+            _paintPixel (index, color) {
+                color = color || this.penColor
+                this.splice('bitmap', index, 1, color);
             },
-            _paintGroup (indices) {
-                indices.forEach(this._paintPixel.bind(this));
+            _paintGroup (indices, color) {
+                color = color || this.penColor
+                indices.forEach(index => this._paintPixel(index, color));
             },
             _blurAll () {
                 let pixels = Polymer.dom(this.root).querySelectorAll('[data-color]'),
@@ -116,7 +135,7 @@
                 el.setAttribute('data-color', el.style.backgroundColor);
                 el.style.backgroundColor = this.penColor;
             },
-            _hoverGroup (indices) {
+            _hoverGroup (indices, color) {
                 indices.forEach(index => {
                     let el = this.$$(`#pixel-${index}`);
                     el.setAttribute('data-color', el.style.backgroundColor);
@@ -128,7 +147,7 @@
                 return `max-width: ${w}px; width: ${w}px;`;
             },
             _computePixelStyle (pixel) {
-                return `background-color: ${pixel || '#000000'}; width: ${this.pixelSize}px; height: ${this.pixelSize}px; margin: ${this.spacing}px`;
+                return `background-color: ${pixel || '#000000'}; width: ${this.pixelSize}px; height: ${this.pixelSize}px; border-width: ${this.spacing}px`;
             },
             _penTypeChanged () {
                 if (this.currentIndex) {
@@ -144,13 +163,14 @@
                 this._paintOrHover(index, target);
             },
             _paintOrHover (index, target) {
+                let color = this.rightClick ? '#000000' : this.penColor;
                 target = target || this.$$(`#pixel-${index}`);
                 // The mouse is down, effectively paint on the bitmap, otherwise just apply a hover
                 if (this.isMouseDown) {
                     if (this.penType === 'draw') {
-                        this._paintPixel(index);
+                        this._paintPixel(index, color);
                     } else if (this.penType === 'fill') {
-                        this._paintGroup(this.getFillGroup(index));
+                        this._paintGroup(this.getFillGroup(index), color);
                     }
                     this._blurAll();
                 } else {
@@ -210,12 +230,32 @@
             _mouseDown (e) {
                 let target = e.path ? e.path[0] : e.target;
                 this.isMouseDown = true;
+                this.rightClick = (e.button === 2);
                 if (target.classList.contains('pixel')) {
                     this._pixelOver(e);
                 }
             },
+            _preventContextMenu (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            },
             _mouseUp () {
                 this.isMouseDown = false;
+            },
+            _onMouseOver () {
+                this._isMouseOver = true;
+            },
+            _onMouseMove (e) {
+                if (this._isMouseOver) {
+                    this.transform(`translate(${e.x - 14}px, ${e.y - 14}px)`, this.$.pen);
+                }
+            },
+            _onMouseOut () {
+                this._isMouseOver = false;
+            },
+            _computePenStyle (color, isMouseOver) {
+                return `background: ${color}; display: ${isMouseOver ? 'block' : 'none'}`;
             }
         });
     </script>
