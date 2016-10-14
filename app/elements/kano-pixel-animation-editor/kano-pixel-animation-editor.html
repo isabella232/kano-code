@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
+<link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-style/typography.html">
@@ -22,33 +23,10 @@
         max-width: 552px;
         min-width: 552px;
     }
-    .frame-list {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        padding: 11px 4px;
-        overflow-x: auto;
-        max-width: 100%;
+    #frames {
+        width: 100%;
+        padding: 0px 7px;
         box-sizing: border-box;
-    }
-    .frame-list kano-bitmap-renderer {
-        cursor: pointer;
-        border: 1px solid white;
-        border-radius: 3px;
-        background: grey;
-        margin-left: -2px;
-        @apply(--shadow-elevation-2dp);
-        --kano-bitmap-renderer-canvas: {
-            border-radius: 3px;
-        };
-    }
-    .frame-list kano-bitmap-renderer:nth-child(odd) {
-        transform: rotate(-1deg);
-    }
-    .frame-list kano-bitmap-renderer:nth-child(even) {
-        transform: rotate(1deg);
-    }
-    .frame-list kano-bitmap-renderer.selected {
-        border-color: var(--color-orange);
     }
     .toolbox {
         box-sizing: border-box;
@@ -196,11 +174,7 @@
     </style>
     <template>
         <div class="content">
-            <div class="frame-list">
-                <template is="dom-repeat" items="[[bitmaps]]" as="bm">
-                    <kano-bitmap-renderer width="[[width]]" height="[[height]]" spacing="1" pixel-size="5" bitmap="[[bm]]" on-tap="_selectFrame" class$="[[_isFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
-                </template>
-            </div>
+            <kano-bitmap-list bitmaps="{{bitmaps}}" selected="{{selected}}" width="[[width]]" height="[[height]]" class="frame-list" id="frames"></kano-bitmap-list>
             <div class="canvas-container">
                 <iron-pages selected="[[previewState]]" attr-for-selected="name">
                     <kano-pixel-canvas id="canvas" name="stopped" bitmap="{{selected}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="30" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
@@ -274,7 +248,6 @@
             },
             observers: [
                 '_bitmapChanged(selected, width, height)',
-                '_bitmapsChanged(bitmaps.splices)',
                 '_selectedChanged(selected.*)'
             ],
             attached () {
@@ -295,13 +268,6 @@
             detached () {
                 document.removeEventListener('keydown', this._onKeyEvent);
                 document.removeEventListener('keyup', this._onKeyEvent);
-            },
-            select (bitmap) {
-                this.selected = bitmap.slice(0);
-                this.selectedIndex = this.bitmaps.indexOf(bitmap);
-            },
-            isSelected (index) {
-                return index === this.selectedIndex;
             },
             _updatePreview () {
                 if (this.bitmaps) {
@@ -350,15 +316,6 @@
                 return `background: ${color}`;
             },
             _selectedChanged (e) {
-                let index = this.selectedIndex,
-                    splices;
-
-                if (e.path === 'selected.splices') {
-                    splices = e.value;
-                    splices.indexSplices.forEach(splice => {
-                        this.splice(`bitmaps.#${index}`, splice.index, 1, this.selected[splice.index]);
-                    });
-                }
                 this._computePalette();
             },
             _generateEmptyBitmap (name, width, height, color='#000000') {
@@ -375,30 +332,8 @@
                     this._generateEmptyBitmap('selected', this.width, this.height);
                 }
             },
-            _bitmapsChanged () {
-                if (this.bitmaps.length === 0) {
-                    this.set('bitmaps', [[]]);
-                }
-                this.select(this.bitmaps[0]);
-            },
             _addFrame () {
-                let copy;
-                if (!this.bitmaps.length) {
-                    copy = [];
-                    for (let i = 0; i < this.width * this.height; i++) {
-                        copy.push('#000000');
-                    }
-                } else {
-                    copy = this.bitmaps[this.bitmaps.length - 1].slice(0);
-                }
-                this.push('bitmaps', copy);
-                this.select(copy);
-            },
-            _selectFrame (e) {
-                this.select(e.model.get('bm'));
-            },
-            _isFrameSelectedClass (index) {
-                return this.isSelected(index) ? 'selected' : '';
+                this.$.frames.addFrame();
             },
             _computePalette () {
                 this.debounce('palette', () => {

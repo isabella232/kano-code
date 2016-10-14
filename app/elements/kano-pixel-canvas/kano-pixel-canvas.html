@@ -1,3 +1,5 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../kano-color-wheel/kano-color-wheel.html">
 <dom-module id="kano-pixel-canvas">
@@ -93,14 +95,13 @@
                 }
             },
             listeners: {
+                'mousedown': '_mouseDown',
                 'mouseover': '_onMouseOver',
                 'mouseout': '_onMouseOut',
                 'mousemove': '_onMouseMove'
             },
             attached () {
-                this._mouseDown = this._mouseDown.bind(this);
                 this._mouseUp = this._mouseUp.bind(this);
-                document.addEventListener('mousedown', this._mouseDown);
                 document.addEventListener('touchstart', this._mouseDown);
                 document.addEventListener('mouseup', this._mouseUp);
                 document.addEventListener('touchend', this._mouseUp);
@@ -109,7 +110,6 @@
                 this.target = document.body;
             },
             detached () {
-                document.removeEventListener('mousedown', this._mouseDown);
                 document.removeEventListener('touchstart', this._mouseDown);
                 document.removeEventListener('mouseup', this._mouseUp);
                 document.removeEventListener('touchend', this._mouseUp);
@@ -118,7 +118,9 @@
                 this._currentHistoryChanges = [];
             },
             _endHistoryRecord () {
-                this._addHistoryRecord(this._currentHistoryChanges);
+                if (this._currentHistoryChanges) {
+                    this._addHistoryRecord(this._currentHistoryChanges);
+                }
             },
             _recordHistoryChange (index, oldValue, newValue) {
                 if (oldValue !== newValue) {
