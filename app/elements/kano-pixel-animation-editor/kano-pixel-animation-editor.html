@@ -195,10 +195,10 @@
                 <div class="divider"></div>
                 <div class="palette">
                     <template is="dom-repeat" items="[[DEFAULT_PALETTE]]" as="color">
-                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor, penType)]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
+                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]] [[penType]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                     </template>
                     <template is="dom-repeat" items="[[palette]]" as="color">
-                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor, penType)]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
+                        <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]] [[penType]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                     </template>
                     <button class="palette-color add-color" on-tap="_openWheel" id="add-color">+</button>
                 </div>
@@ -356,9 +356,7 @@
                 }, 16);
             },
             _computePaletteItemSelectedClass (color, penColor, penType) {
-                let classes = color === penColor ? 'selected' : '';
-                classes += ` ${penType}`;
-                return classes;
+                return color === penColor ? 'selected' : '';
             },
             _isNewFrameDisabled (previewState) {
                 return (previewState === 'running');
