@@ -2,6 +2,12 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../kano-color-wheel/kano-color-wheel.html">
+<!--
+
+@group Kano Elements
+@hero hero.svg
+@demo ./demo/index.html
+-->
 <dom-module id="kano-pixel-canvas">
     <style>
     :host {
@@ -61,6 +67,9 @@
         Polymer({
             is: 'kano-pixel-canvas',
             properties: {
+                /**
+                 * An array of all the pixels of the canvas
+                 */
                 bitmap: {
                     type: Array,
                     value: () => {
@@ -68,26 +77,44 @@
                     },
                     notify: true
                 },
+                /**
+                 * Width of the canvas
+                 */
                 width: {
                     type: Number,
                     value: 1
                 },
+                /**
+                 * Height of the canvas
+                 */
                 height: {
                     type: Number,
                     value: 1
                 },
+                /**
+                 * Size of the pixels, defines the size of the rendered pixel square 
+                 */
                 pixelSize: {
                     type: Number,
                     value: 24
                 },
+                /**
+                 * Space between each pixels
+                 */
                 spacing: {
                     type: Number,
                     value: 3
                 },
+                /**
+                 * Color of the pen. This color will be used to draw on the canvas
+                 */
                 penColor: {
                     type: String,
                     value: '#000000'
                 },
+                /**
+                 * Type of the pen, either fill or draw
+                 */
                 penType: {
                     type: String,
                     value: 'draw',
@@ -267,6 +294,9 @@
             coordToIndex (x, y) {
                 return y * this.width + x;
             },
+            /**
+             * Goes a step back in the history
+             */
             undo (e) {
                 if (this._history.length) {
                     let record = this._history.pop();

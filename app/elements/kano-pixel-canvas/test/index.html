@@ -5,6 +5,7 @@
         <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
         <script src="../../../bower_components/web-component-tester/browser.js"></script>
         <link rel="import" href="../kano-pixel-canvas.html">
+        <link rel="import" href="../../../bower_components/iron-test-helpers/mock-interactions.html">
     </head>
     <body>
         <test-fixture id="default">
@@ -84,12 +85,7 @@
                     pixels = Polymer.dom(canvas.root).querySelectorAll('.pixel');
                     pixel = pixels[randomPixel];
 
-                    // Click on the canvas
-                    dispatchEvent(canvas, 'mousedown');
-                    // Move over the pixel
-                    dispatchEvent(pixel, 'mouseover');
-                    // Release click over the pixel
-                    dispatchEvent(canvas, 'mouseup');
+                    MockInteractions.track(pixel, 5, 0);
 
                     assert.equal(canvas.bitmap[randomPixel], canvas.penColor);
 
@@ -107,12 +103,7 @@
                     pixels = Polymer.dom(canvas.root).querySelectorAll('.pixel');
                     pixel = pixels[randomPixel];
 
-                    // Click on the canvas
-                    dispatchEvent(canvas, 'mousedown');
-                    // Move over the pixel
-                    dispatchEvent(pixel, 'mouseover');
-                    // Release click over the pixel
-                    dispatchEvent(canvas, 'mouseup');
+                    MockInteractions.track(pixel, 5, 0);
 
                     canvas.bitmap.forEach(color => {
                         assert.equal(color, canvas.penColor);
@@ -138,12 +129,7 @@
                         canvas.penType = Math.floor(Math.random() * 2) === 0 ? 'draw' : 'fill';
                         canvas.penColor = `hsl(${Math.random() * 260}, 100%, 100%)`;
 
-                        // Click on the canvas
-                        dispatchEvent(canvas, 'mousedown');
-                        // Move over the pixel
-                        dispatchEvent(pixel, 'mouseover');
-                        // Release click over the pixel
-                        dispatchEvent(canvas, 'mouseup');
+                        MockInteractions.track(pixel, 5, 0);
 
                         states.push(prevBitmap);
                     }
