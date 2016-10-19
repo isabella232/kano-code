@@ -45,13 +45,19 @@
                     };
                 }
             },
+            mode: {
+                type: Object,
+                observer: '_modeChanged'
+            },
             isNormalMode: {
                 type: Boolean,
                 notify: true
             }
         },
-        attached () {
+        _modeChanged (newValue, oldValue) {
             this.isNormalMode = (this.mode === 'normal');
+        },
+        attached () {
             this.set('backgroundOptions', [{
                 key: 'background',
                 type: 'background',
