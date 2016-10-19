@@ -84,7 +84,7 @@ Polymer({
             type: String
         },
         mode: {
-            type: String
+            type: Object
         }
     },
     observers: [
