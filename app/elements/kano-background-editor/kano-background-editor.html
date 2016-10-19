@@ -55,7 +55,9 @@
             }
         },
         _modeChanged (newValue, oldValue) {
-            this.isNormalMode = (this.mode === 'normal');
+            if (newValue !== oldValue) {
+                this.isNormalMode = (newValue === 'normal');
+            }
         },
         attached () {
             this.set('backgroundOptions', [{
