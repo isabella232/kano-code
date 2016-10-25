@@ -5,6 +5,7 @@
 
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="./blocks/set-blocks.html">
+<link rel="import" href="../../scripts/kano/make-apps/blockly/minecraft-blockly.html">
 
 <dom-module id="kano-minecraft">
     <template>
@@ -37,6 +38,7 @@
                 this.$.blockly.removeEventListener('blockly-ready', this._onBlocklyReady);
             },
             _onBlocklyReady () {
+                Kano.MakeApps.Blockly.register(Blockly);
                 this.toolbox = [{
                     name: 'Minecraft',
                     id: 'minecraft',
@@ -44,9 +46,14 @@
                     blocks: [{
                         id: 'minecraft_set_blocks'
                     },{
-                        id: 'minecraft_coordinates'
+                        id: 'minecraft_coordinates',
+                        shadow: {
+                            'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
+                            'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
+                            'Z': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                        }
                     }]
-                }];
+                }].concat(Object.keys(Kano.MakeApps.Blockly.categories).map(key => Kano.MakeApps.Blockly.categories[key]));
             },
             _onBlockyEvent (e) {
                 // Check if a create event follows a close-flyout event. If so, do not notify

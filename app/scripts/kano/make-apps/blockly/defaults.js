@@ -228,6 +228,11 @@
         'ledring_flash': {
             'COLOR': '#ffffff',
             'LENGTH': 200
+        },
+        'minecraft_coordinates': {
+            'X': 0,
+            'Y': 0,
+            'Z': 0
         }
     };
 
