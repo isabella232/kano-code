@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+        <link rel="import" href="../kc-minecraft-challenge.html">
+        <link rel="import" href="../../kano-minecraft/kano-minecraft.html">
+        <link rel="import" href="../../kano-app-challenge/kano-app-challenge.html">
+        <style media="screen">
+            html, body {
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                flex-direction: row;
+                margin: 0;
+                padding: 0;
+            }
+            kano-app-challenge {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+            }
+            kano-minecraft {
+                flex: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <template is="dom-bind" id="blockly">
+            <kano-app-challenge steps="[[steps]]" started>
+                <kano-minecraft slot="editor"></kano-minecraft>
+            </kano-app-challenge>
+        </template>
+        <script type="text/javascript">
+            var b = document.getElementById('blockly');
+
+            b.steps = [{
+                "tooltips": [
+                    {
+                        "location": {
+                            "category": "minecraft"
+                        },
+                        "position": "right",
+                        "text": "Open the minecraft tray"
+                    }
+                ],
+                "validation": {
+                    "blockly": {
+                        "open-flyout": "minecraft"
+                    }
+                }
+            },{
+                "tooltips": [
+                    {
+                        "location": {
+                            "flyout_block": "minecraft_set_blocks"
+                        },
+                        "position": "left",
+                        "text": "Drag the <kano-blockly-block type=\"minecraft_set_blocks\"></kano-blockly-block><br />block onto your code space"
+                    }
+                ],
+                "arrow": {
+                    "target": {
+                        "flyout_block": "minecraft_set_blocks"
+                    },
+                    "angle": 45,
+                    "size": 80
+                },
+                "validation": {
+                    "blockly": {
+                        "create": {
+                            "type": "minecraft_set_blocks",
+                            "id": "block_0"
+                        }
+                    }
+                }
+            }];
+        </script>
+    </body>
+</html>

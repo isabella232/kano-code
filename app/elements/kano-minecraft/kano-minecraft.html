@@ -1,19 +1,40 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../kano-blockly/kano-blocky.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../kano-style/typography.html">
 
 <link rel="import" href="./blocks/set-blocks.html">
 
 <dom-module id="kano-minecraft">
     <template>
         <style>
-
+            :host {
+                display: block;
+                @apply --layout-vertical;
+            }
+            kano-blockly {
+                @apply --layout-flex;
+            }
         </style>
+        <kano-blockly id="blockly" toolbox="[[toolbox]]" code="{{code}}"></kano-blockly>
     </template>
-    <kano-blocky toolbox="[[toolbox]]"></kano-blocky>
     <script>
         Polymer({
             is: 'kano-minecraft',
+            properties: {
+                code: {
+                    type: String,
+                    notify: true
+                }
+            },
             attached () {
+                this._onBlocklyReady = this._onBlocklyReady.bind(this);
+                this.$.blockly.addEventListener('blockly-ready', this._onBlocklyReady);
+            },
+            detached () {
+                this.$.blockly.removeEventListener('blockly-ready', this._onBlocklyReady);
+            },
+            _onBlocklyReady () {
                 this.toolbox = [{
                     name: 'Minecraft',
                     id: 'minecraft',
@@ -24,6 +45,9 @@
                         id: 'minecraft_coordinates'
                     }]
                 }];
+            },
+            getBlocklyWorkspace () {
+                return this.$.blockly.getWorkspace();
             }
         });
     </script>
