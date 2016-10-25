@@ -183,6 +183,10 @@
             defaultBlocks: {
                 type: String,
                 observer: '_defaultBlocksChanged'
+            },
+            language: {
+                type: String,
+                value: 'JavaScript'
             }
         },
         ready () {
@@ -390,7 +394,7 @@
             }
             this.fire('change', e);
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
-                this.set('code', this.getCode('JavaScript'));
+                this.set('code', this.getCode(this.language));
             }
         },
         /**
@@ -416,7 +420,7 @@
             }
         },
         save () {
-            let javascript = this.getCode('JavaScript'),
+            let javascript = this.getCode(this.language),
                 pseudo = this.getCode('Pseudo'),
                 blocks = this.getBlocks(),
                 snapshot = {

@@ -16,7 +16,7 @@ if (window.CustomBlocklyMsg) {
 }
 
 Blockly.isAnimationsDisabled = function () {
-    return Kano.MakeApps.config.PERF_SAFE;
+    return false;
 };
 
 function lightenColor (hex, lum) {
