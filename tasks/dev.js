@@ -54,7 +54,7 @@ module.exports = (gulp, $) => {
 
     function scripts(src) {
         return () => {
-            return gulp.src(src, { base: 'app' })
+            return babelOrCopy(src, { base: 'app' })
             .pipe(gulp.dest('www'))
             .pipe($.browserSync.stream());
         };

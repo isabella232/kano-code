@@ -3,6 +3,7 @@
 <link rel="import" href="../kano-blockly/kano-blockly.html">
 <link rel="import" href="../kano-style/typography.html">
 
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="./blocks/set-blocks.html">
 
 <dom-module id="kano-minecraft">
@@ -16,11 +17,12 @@
                 @apply --layout-flex;
             }
         </style>
-        <kano-blockly id="blockly" toolbox="[[toolbox]]" code="{{code}}"></kano-blockly>
+        <kano-blockly id="blockly" toolbox="[[toolbox]]" code="{{code}}" on-change="_onBlockyEvent"></kano-blockly>
     </template>
     <script>
         Polymer({
             is: 'kano-minecraft',
+            behaviors: [Kano.Behaviors.AppEditorBehavior],
             properties: {
                 code: {
                     type: String,
@@ -45,6 +47,22 @@
                         id: 'minecraft_coordinates'
                     }]
                 }];
+            },
+            _onBlockyEvent (e) {
+                // Check if a create event follows a close-flyout event. If so, do not notify
+                // of the close-flyout event
+                if (e.detail.type === 'close-flyout') {
+                    // Defer the notification
+                    this.closeFlyoutTimeoutId = setTimeout(() => {
+                        this.notifyChange('blockly', { event: e.detail });
+                    });
+                } else {
+                    // A create event will cancel its previous close-flyout event
+                    if (e.detail.type === 'create') {
+                        clearTimeout(this.closeFlyoutTimeoutId);
+                    }
+                    this.notifyChange('blockly', { event: e.detail });
+                }
             },
             getBlocklyWorkspace () {
                 return this.$.blockly.getWorkspace();

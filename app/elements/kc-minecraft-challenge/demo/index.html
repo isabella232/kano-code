@@ -31,6 +31,32 @@
                 <kano-minecraft slot="editor"></kano-minecraft>
             </kano-app-challenge>
         </template>
+        <script>
+            if (typeof Object.assign != 'function') {
+                (function () {
+                    Object.assign = function (target) {
+                    'use strict';
+                    // We must check against these specific cases.
+                    if (target === undefined || target === null) {
+                        throw new TypeError('Cannot convert undefined or null to object');
+                    }
+
+                    var output = Object(target);
+                    for (var index = 1; index < arguments.length; index++) {
+                        var source = arguments[index];
+                        if (source !== undefined && source !== null) {
+                        for (var nextKey in source) {
+                            if (source.hasOwnProperty(nextKey)) {
+                            output[nextKey] = source[nextKey];
+                            }
+                        }
+                        }
+                    }
+                    return output;
+                    };
+                })();
+            }
+        </script>
         <script type="text/javascript">
             var b = document.getElementById('blockly');
 
@@ -55,7 +81,7 @@
                         "location": {
                             "flyout_block": "minecraft_set_blocks"
                         },
-                        "position": "left",
+                        "position": "right",
                         "text": "Drag the <kano-blockly-block type=\"minecraft_set_blocks\"></kano-blockly-block><br />block onto your code space"
                     }
                 ],
