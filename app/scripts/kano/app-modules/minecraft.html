@@ -8,10 +8,16 @@
             constructor () {
                 super();
 
+                this.minecraftAPI = {
+                    setBlocks: () => {
+                        console.log("Not sent to QWebchannel (not initalised)");
+                    }
+                };
+
                 let scriptTag = document.createElement('script');
                 scriptTag.onload = () => {
                     new QWebChannel(qt.webChannelTransport, (channel) => {
-                        this.channel = channel;
+                        this.minecraftAPI = channel.objects.minecraftComponent;
                     });
                 };
                 scriptTag.src = 'qrc:///qtwebchannel/qwebchannel.js';
@@ -26,15 +32,12 @@
              * @param type String    Type of material for the block
              */
             _setBlocks (position, size, type) {
-                if (this.channel) {
-                    let minecraftComponent = this.channel.objects.minecraftComponent;
-                    minecraftComponent.setBlocks(
-                        position[0], position[1], position[2],
-                        size[0], size[1], size[2],
-                        type, 0
-                    );
-                }
-                console.log(`BLOCK [${type}] pos(${position.x}, ${position.y}, ${position.z}) size(${size.x}, ${size.y}, ${size.z})`);
+                this.minecraftAPI.setBlocks(
+                    position[0], position[1], position[2],
+                    size[0], size[1], size[2],
+                    type, 0
+                );
+                console.log(`BLOCK [${type}] pos(${position[0]}, ${position[1]}, ${position[2]}) size(${size[0]}, ${size[1]}, ${size[2]})`);
             }
         }
 

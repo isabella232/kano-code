@@ -39,8 +39,8 @@
     };
 
     Blockly.JavaScript.minecraft_set_blocks = (block) => {
-        let vpos = Blockly.JavaScript.valueToCode(block, 'POSITION', Blockly.JavaScript.ORDER_ATOMIC),
-            vsize = Blockly.JavaScript.valueToCode(block, 'SIZE', Blockly.JavaScript.ORDER_ATOMIC),
+        let vpos = Blockly.JavaScript.valueToCode(block, 'POSITION', Blockly.JavaScript.ORDER_ATOMIC) || '[0, 0, 0]',
+            vsize = Blockly.JavaScript.valueToCode(block, 'SIZE', Blockly.JavaScript.ORDER_ATOMIC) || '[0, 0, 0]',
             type = block.getFieldValue('TYPE'),
             code = `minecraft.setBlocks(${vpos}, ${vsize}, ${type});\n`;
 
@@ -78,9 +78,9 @@
     };
 
     Blockly.JavaScript.minecraft_coordinates = (block) => {
-        let x = Blockly.JavaScript.valueToCode(block, 'X', Blockly.JavaScript.ORDER_ATOMIC),
-            y = Blockly.JavaScript.valueToCode(block, 'Y', Blockly.JavaScript.ORDER_ATOMIC),
-            z = Blockly.JavaScript.valueToCode(block, 'Z', Blockly.JavaScript.ORDER_ATOMIC),
+        let x = Blockly.JavaScript.valueToCode(block, 'X', Blockly.JavaScript.ORDER_ATOMIC) || '0',
+            y = Blockly.JavaScript.valueToCode(block, 'Y', Blockly.JavaScript.ORDER_ATOMIC) || '0',
+            z = Blockly.JavaScript.valueToCode(block, 'Z', Blockly.JavaScript.ORDER_ATOMIC) || '0',
 
             code = `[${x}, ${y}, ${z}]`;
         return [code, Blockly.JavaScript.ORDER_ATOMIC];
