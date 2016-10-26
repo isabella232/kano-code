@@ -199,38 +199,36 @@
             this.varModal = this.$['var-modal'];
             this.target = document.body;
             this.visible = false;
-            Polymer.RenderStatus.afterNextRender(this, () => {
-                this.workspace = Blockly.inject(this.$.workspace, {
-                    toolbox: this.toolboxXml,
-                    media: '/assets/vendor/google-blockly/media/',
-                    scrollbars: true,
-                    zoom: {
-                        controls: true,
-                        startScale: 1.0,
-                        maxScale: 3,
-                        minScale: 0.3,
-                        scaleSpeed: 1.2
-                    }
-                });
-                this.$.omnibox.targetWorkspace = this.workspace;
-                // Oddly, panning doesn't work if the background has a fill property
-                Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
-                Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
-                this.workspace.componentRoot_ = Polymer.dom(this.root);
-                this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
-                this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
-                this.async(() => {
-                    this.fire('blockly-ready');
-                    this.resize();
-                    // Trick to enable shadow DOM like styling of xtag generated components
-                    if (!Polymer.Settings.useNativeShadow) {
-                        let elems = Polymer.dom(this.root).querySelectorAll('svg, div');
+            this.workspace = Blockly.inject(this.$.workspace, {
+                toolbox: this.toolboxXml,
+                media: '/assets/vendor/google-blockly/media/',
+                scrollbars: true,
+                zoom: {
+                    controls: true,
+                    startScale: 1.0,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                }
+            });
+            this.$.omnibox.targetWorkspace = this.workspace;
+            // Oddly, panning doesn't work if the background has a fill property
+            Polymer.dom(this.root).querySelector('.blocklyMainBackground').style.fill = '';
+            Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
+            this.workspace.componentRoot_ = Polymer.dom(this.root);
+            this.workspace.options.modalFunction = this._blocklyVarModal.bind(this);
+            this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
+            this.async(() => {
+                this.fire('blockly-ready');
+                this.resize();
+                // Trick to enable shadow DOM like styling of xtag generated components
+                if (!Polymer.Settings.useNativeShadow) {
+                    let elems = Polymer.dom(this.root).querySelectorAll('svg, div');
 
-                        for (let i = 0; i < elems.length; i++) {
-                            this.toggleClass('kano-blockly', true, elems[i]);
-                        }
+                    for (let i = 0; i < elems.length; i++) {
+                        this.toggleClass('kano-blockly', true, elems[i]);
                     }
-                });
+                }
             });
         },
         detached () {
