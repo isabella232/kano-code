@@ -38,7 +38,8 @@ module.exports = (gulp, $) => {
     function notBowerComponent(file) {
         let needTranspile = ((file.relative.indexOf('bower_components') === -1 &&
             file.relative.indexOf('assets/vendor/') === -1) ||
-            file.relative.indexOf('kano-circle-progress') !== -1);
+            file.relative.indexOf('kano-circle-progress') !== -1 ||
+            file.relative.indexOf('Sortable') !== -1);
         return needTranspile;
     }
 
