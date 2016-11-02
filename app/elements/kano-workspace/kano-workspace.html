@@ -74,6 +74,28 @@
         transform: translate(0, -9px);
         color: #eaeaea;
     }
+    .pause-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .pause-overlay iron-image {
+        width: 40%;
+        height: 40%;
+        cursor: pointer;
+    }
+    .editable-layout {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
         <button class="fullscreen-close" hidden$="[[!fullscreen]]" on-tap="_toggleFullscreen">
@@ -101,6 +123,9 @@
                 on-reset-button-clicked="_resetAppState"
                 on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
         </kano-ui-viewport>
+        <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
+            <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+        </div>
         <kano-workspace-head
             title="[[title]]"
             show-save-button="{{showSaveButton}}"
@@ -115,6 +140,7 @@
         <iron-a11y-keys keys="shift+right right" on-keys-pressed="_moveRight" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="shift+up up" on-keys-pressed="_moveUp" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="shift+down down" on-keys-pressed="_moveDown" target="[[target]]"></iron-a11y-keys>
+
     </template>
 </dom-module>
 
@@ -214,6 +240,9 @@
             this.toggleClass('fullscreen');
             this.$.content.resizeView();
             this.fullscreen = !this.fullscreen;
+        },
+         _isPauseOverlayHidden (running, editableLayout) {
+        return running || editableLayout;
         },
         _moveLeft (e) {
             this._movePart('left', e.detail.keyboardEvent.shiftKey);
