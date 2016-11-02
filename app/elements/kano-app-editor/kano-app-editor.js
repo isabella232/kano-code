@@ -90,6 +90,10 @@ Polymer({
             type: Boolean,
             value: false,
             computed: 'isPartsMenuOpen(partsPanelState, drawerPage)'
+        },
+        progress: {
+            type: Number,
+            value: 0
         }
     },
     observers: [

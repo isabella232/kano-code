@@ -100,7 +100,10 @@
                 on-reset-button-clicked="_resetAppState"
                 on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
         </kano-ui-viewport>
-        <kano-workspace-head title="[[title]]" show-save-button="{{showSaveButton}}"></kano-workspace-head>
+        <kano-workspace-head
+            title="[[title]]"
+            show-save-button="{{showSaveButton}}"
+            progress="[[progress]]"></kano-workspace-head>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
@@ -162,6 +165,9 @@
             },
             showSaveButton: {
                 type: Boolean
+            },
+            progress: {
+                type: Number
             }
         },
         observers: [

@@ -42,7 +42,8 @@
                             code="{{code}}"
                             mode="[[_computeMode(mode, remix)]]"
                             on-blockly-ready="_blocklyReady"
-                            on-share="_pauseAndShare">
+                            on-share="_pauseAndShare"
+                            progress="[[progress]]">
               <kano-challenge-progress id="challenge-progress" progress="[[progress]]" title="[[storyName]]" next-challenge="[[nextStory.id]]" on-share-app="shareApp" remix-mode="[[remix]]"></kano-challenge-progress>
           </kano-app-editor>
       </kano-app-challenge>
@@ -119,7 +120,7 @@
         },
         /**
          * Observes the `addedParts` array. Goes through the added splice and removes the blocks from a part if needed.
-         * Stores the removed blocks in a `removedBlocks` object for future re-injection 
+         * Stores the removed blocks in a `removedBlocks` object for future re-injection
          */
         _addedPartsChanged (e) {
             if (!e || this.remix || !this.scene.filterBlocks) {
