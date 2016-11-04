@@ -19,19 +19,19 @@
         @apply(--layout-vertical);
     }
     :host section {
-        @apply(--layout-horizontal);
+        @apply(--layout-horizontal-reverse);
         @apply(--layout-flex);
     }
-    :host section #right-panel {
+    :host section #blocks-panel {
         position: relative;
         @apply(--layout-flex);
         @apply(--layout-vertical);
         @apply(--kano-inset-box-shadow)
         min-width: 38%;
         max-width: 62%;
-        width: 62%;
+        width: 55%;
     }
-    :host section #left-panel {
+    :host section #workspace-panel {
         position: relative;
         @apply(--layout-vertical);
         @apply(--kano-box-shadow);
@@ -39,9 +39,9 @@
         max-width: 62%;
         background-color: var(--color-dark, black);
     }
-    :host #left-panel kano-workspace {
+    :host #workspace-panel kano-workspace {
         @apply(--layout-flex);
-        padding: 10px;
+        padding: 10px 20px;
     }
     :host [main] {
         @apply(--layout-vertical);
@@ -54,34 +54,7 @@
         position: relative;
         width: 8px;
         cursor: ew-resize;
-        background-color: rgba(0, 0, 0, 0.11);
-    }
-    #resize .handle {
-        position: absolute;
-        background-color: #404040;
-        width: 16px;
-        height: 38px;
-        border: 2px solid #616161;
-        border-radius: 5px;
-        top: calc(50% - 19px);
-        left: -8px;
-        box-sizing: border-box;
-    }
-    :host #resize .handle::before,
-    :host #resize .handle::after {
-        content: '';
-        position: absolute;
-        top: calc(50% - 5px);
-        width: 2px;
-        border-radius: 1px;
-        height: 10px;
-        background-color: white;
-    }
-    :host #resize .handle::before {
-        left: 3px;
-    }
-    :host #resize .handle::after {
-        right: 3px;
+        background-color: var(--color-dark, black);
     }
     :host .root-view-wrapper {
         position: relative;
@@ -134,8 +107,7 @@
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
-            <div class="ui-edition" id="left-panel">
-
+            <div class="ui-edition" id="workspace-panel">
                 <kano-workspace id="workspace"
                                 class="visible-when-running"
                                 parts="{{addedParts}}"
@@ -146,9 +118,7 @@
                                 mode="[[mode]]"
                                 background="[[background.userStyle.background]]"
                                 parts-menu-open="[[partsMenuOpen]]"
-                                title="[[title]]"
-                                show-save-button="[[showShareButton]]"
-                                progress="[[progress]]"
+                                challenge-state="{{challengeState}}"
                                 on-ui-ready="workspaceUiReady"
                                 on-open-settings="onPartSettings"
                                 on-close-settings="closeSettings"
@@ -159,15 +129,14 @@
                                 on-settings-button-clicked="toggleMenu"
                                 on-save-button-clicked="share"></kano-workspace>
             </div>
-            <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running">
-                <div class="handle"></div>
-            </div>
-            <div name="code" class="editor" id="right-panel">
+            <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
+            <div name="code" class="editor" id="blocks-panel">
                 <paper-drawer-panel
                     id="partsPanel"
                     force-narrow
                     disable-edge-swipe
                     disable-swipe
+                    right-drawer
                     selected="{{partsPanelState}}"
                     drawer-width="{{drawerWidth}}">
                     <div main>
