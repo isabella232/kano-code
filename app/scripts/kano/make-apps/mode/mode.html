@@ -1,0 +1,21 @@
+<script>
+    (function (Kano) {
+        Kano.MakeApps = Kano.MakeApps || {};
+        Kano.MakeApps.Mode = {
+            addMode (name, mode) {
+                this.modes[name] = mode;
+            },
+            modes: {},
+            experiments: {},
+            init (config) {
+                let flags = config.getFlags();
+                flags.experiments.forEach(exp => {
+                    if (Mode.experiments[exp]) {
+                        this.modes[exp] = this.experiments[exp];
+                    }
+                });
+                config.addExperiments('modes', Object.keys(this.experiments));
+            }
+        };
+    })(window.Kano = window.Kano || {});
+</script>

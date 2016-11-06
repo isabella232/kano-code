@@ -1,0 +1,114 @@
+<link rel="import" href="./mode.html">
+<link rel="import" href="../parts/canvas/blocks/general.html">
+<link rel="import" href="../parts/canvas/blocks/paths.html">
+<link rel="import" href="../parts/canvas/blocks/setters.html">
+<link rel="import" href="../parts/canvas/blocks/shapes.html">
+<link rel="import" href="../parts/canvas/blocks/space.html">
+
+<link rel="import" href="../parts/button.html">
+<link rel="import" href="../parts/box.html">
+<link rel="import" href="../parts/text-input.html">
+<link rel="import" href="../parts/text.html">
+<link rel="import" href="../parts/map.html">
+<link rel="import" href="../parts/sticker.html">
+<link rel="import" href="../parts/scrolling-text.html">
+<link rel="import" href="../parts/slider.html">
+<link rel="import" href="../parts/oscillator.html">
+
+<link rel="import" href="../parts/data/space/iss.html">
+<link rel="import" href="../parts/data/weather/weather.html">
+<link rel="import" href="../parts/data/kano/share.html">
+<link rel="import" href="../parts/data/rss.html">
+<link rel="import" href="../parts/data/sports.html">
+<link rel="import" href="../parts/clock.html">
+
+<link rel="import" href="../parts/speaker.html">
+<link rel="import" href="../parts/microphone.html">
+
+<script>
+
+    (function (Kano) {
+        let normal,
+            blocks = [];
+
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.general);
+
+        blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'clear',
+                    message0: `${ui.name}: clear drawing`,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    return `devices.get('${ui.id}').reset();`;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    return `devices.get('${ui.id}').reset();`;
+                };
+            }
+        });
+
+        blocks.push({
+            block: (ui) => {
+                return {
+                    id: 'set_transparency',
+                    message0: `${ui.name}: set transparency to %1`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'ALPHA',
+                        check: 'Number'
+                    }],
+                    previousStatement: null,
+                    nextStatement: null,
+                    shadow: {
+                        'ALPHA': '<shadow type="math_number"><field name="NUM">100</field></shadow>'
+                    }
+                };
+            },
+            javascript: (ui) => {
+                return function (block) {
+                    let alpha = Blockly.JavaScript.valueToCode(block, 'ALPHA');
+                    return `devices.get('${ui.id}').setTransparency(${alpha});`;
+                };
+            },
+            pseudo: (ui) => {
+                return function (block) {
+                    let alpha = Blockly.JavaScript.valueToCode(block, 'ALPHA');
+                    return `devices.get('${ui.id}').setTransparency(${alpha});`;
+                };
+            }
+        });
+
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.setters);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.space);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.paths);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.shapes);
+
+        Kano.MakeApps.Mode.addMode('normal', {
+            id: 'normal',
+            name: 'Draw',
+            colour: '#82C23D',
+            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="90" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>`,
+            blocks,
+            allowBackground: true,
+            workspace: {
+                viewport: {
+                    width: 512,
+                    height: 384
+                },
+                component: 'kano-workspace-normal'
+            },
+            sharing: {},
+            parts: ['clock', 'microphone', 'speaker', 'button', 'box',
+                        'sticker', 'map', 'scrolling-text', 'slider',
+                        'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
+                        'share', 'canvas', 'oscillator']
+        });
+    })(window.Kano = window.Kano || {});
+</script>
