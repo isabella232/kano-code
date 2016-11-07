@@ -112,6 +112,9 @@
             <div id="workspace-placeholder">
 
             </div>
+            <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
+                <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+            </div>
             <kano-workspace-toolbar
                 id="toolbar"
                 show-mouse-position="{{showMousePosition}}"
@@ -125,9 +128,6 @@
                 on-reset-button-clicked="_resetAppState"
                 on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
         </kano-ui-viewport>
-        <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
-            <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
-        </div>
         <kano-workspace-head challenge-state="[[challengeState]]"></kano-workspace-head>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
