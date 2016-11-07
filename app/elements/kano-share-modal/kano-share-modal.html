@@ -531,7 +531,8 @@
         },
         _onAppReady () {
             if (this.firstRender) {
-                this._generateAppGif();
+                /* setTimeout required on Safari */
+                setTimeout(this._generateAppGif.bind(this), 0);
             }
         },
         _generateAppGif () {
