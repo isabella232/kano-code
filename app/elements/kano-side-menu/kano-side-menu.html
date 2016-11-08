@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 
 <dom-module id="kano-side-menu">
     <style>
@@ -19,7 +20,7 @@
         :host ul li.separated {
             border-bottom: 2px solid var(--color-grey-lightest);
         }
-        li a {
+        li {
             display: block;
             width: 100%;
             height: 100%;
@@ -33,14 +34,15 @@
             color: black;
             box-sizing: border-box;
         }
-        li a:hover {
+        li:hover {
             background: var(--color-grey-lightest);
         }
-        li.login a {
-            @apply(--layout-horizontal);
-        }
-        li.login a .label {
+        li a {
             @apply(--layout-flex);
+            @apply(--layout-horizontal);
+
+            text-decoration: none;
+            color: black;
         }
         li.user {
             @apply(--layout-horizontal);
@@ -74,16 +76,16 @@
         .userInfo .userLevel {
             color: var(--color-grey-light);
         }
-        .triangle {
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-            border-right: 8px solid var(--color-grey-light);
-            pointer-events: all;
-        }
-        .triangle:hover {
-            border-right: 10px solid var(--color-grey);
+        .close-menu {
             cursor: pointer;
+            font-size: 1.8em;
+            color: var(--color-grey);
+            transition: all 0.2s ease;
+            margin-bottom: 10px;
+        }
+        .close-menu:hover {
+            color: black;
+            transform: translateY(-1px);
         }
         a>* {
             pointer-events: none;
@@ -95,8 +97,8 @@
                 <a on-tap="login">
                     <iron-image class="icon" src="/assets/icons/login.png" sizing="contain"></iron-image>
                     <div class="label">Login</div>
-                    <div class="triangle" on-tap="toggleMenu"></div>
                 </a>
+                <div class="close-menu" on-tap="toggleMenu">&times;</div>
             </li>
             <li class="user separated" hidden$="[[!isUserLoggedIn(user)]]">
                 <iron-image src="[[getUserAvatar(user.avatar.urls.circle)]]" preload sizing="contain"></iron-image>
@@ -105,7 +107,7 @@
                     <div class="userLevel">Level {{profile.level}} | {{profile.xp}}XP</div>
                 </div>
                 <div>
-                    <div class="triangle" on-tap="toggleMenu"></div>
+                    <div class="close-menu" on-tap="toggleMenu">&times;</div>
                 </div>
             </li>
             <li>
@@ -115,7 +117,19 @@
                 </a>
             </li>
             <li>
-                <a href="/" on-tap="backToProjects">
+                <a on-tap="_exportApp">
+                    <iron-image class="icon" src="/assets/icons/export.png" sizing="contain"></iron-image>
+                    <div class="label">Export</div>
+                </a>
+            </li>
+            <li>
+                <a on-tap="_importApp">
+                    <iron-image class="icon" src="/assets/icons/import.png" sizing="contain"></iron-image>
+                    <div class="label">Import</div>
+                </a>
+            </li>
+            <li>
+                <a href$="[[worldUrl]]/projects" on-tap="backToProjects">
                     <iron-image class="icon" src="/assets/icons/projects.png" sizing="contain"></iron-image>
                     <div class="label">Back to Projects</div>
                 </a>
@@ -135,6 +149,9 @@
                 </a>
             </li>
         </ul>
+        <iron-a11y-keys keys="ctrl+s meta+s" on-keys-pressed="_exportApp" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="ctrl+o meta+o" on-keys-pressed="_importApp" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="alt+d" on-keys-pressed="resetWorkspace" target="[[target]]"></iron-a11y-keys>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -154,7 +171,14 @@
             offline: {
                 type: Boolean,
                 value: false
+            },
+            worldUrl: {
+                type: String,
+                value: '//world.kano.me'
             }
+        },
+        attached () {
+            this.target = document.body;
         },
         login () {
             this.fire('login');
@@ -165,6 +189,24 @@
         // Hack to make the app work on safari
         getUserAvatar (avatar) {
             return avatar || '';
+        },
+        _exportApp (e) {
+            let keyboardEvent = e.detail.keyboardEvent;
+            if (keyboardEvent) {
+                keyboardEvent.stopPropagation();
+                keyboardEvent.preventDefault();
+            }
+            this.fire('iron-signal', { name: 'export-app' });
+            this.fire('toggle-menu', false);
+        },
+        _importApp (e) {
+            let keyboardEvent = e.detail.keyboardEvent;
+            if (keyboardEvent) {
+                keyboardEvent.stopPropagation();
+                keyboardEvent.preventDefault();
+            }
+            this.fire('iron-signal', { name: 'import-app' });
+            this.fire('toggle-menu', false);
         },
         userChanged (newValue, old) {
             if (newValue) {
@@ -188,15 +230,12 @@
             return !!this.user;
         },
         toggleMenu (e) {
-            this.fire('toggle-menu');
+            this.fire('toggle-menu', false);
             e.stopPropagation();
         },
         resetWorkspace () {
-            this.fire('reset-workspace');
-            this.fire('toggle-menu');
-        },
-        backToProjects () {
-            this.fire('toggle-menu');
+            this.fire('iron-signal', { name: 'reset-workspace' });
+            this.fire('toggle-menu', false);
         },
         /* FIXME: This was copied out of Kano World. We need to put this
                   functionality into the API. */

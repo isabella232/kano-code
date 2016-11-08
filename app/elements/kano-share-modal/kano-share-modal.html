@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../kano-style/input.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
@@ -29,7 +30,7 @@
         .button-container {
             position: relative;
             width: 100%;
-            height: 52px;
+            height: 47px;
             @apply(--layout-horizontal);
             @apply(--layout-end-justified);
             @apply(--layout-center);
@@ -83,9 +84,12 @@
             border-radius: 24px;
             margin-bottom: 12px;
         }
+        iron-image.cover {
+            width: 512px;
+            height: 384px;
+        }
         .success iron-image.cover {
-            flex: 1 1 300px;
-            margin-bottom: 20px;
+            margin: 0px auto 20px;
         }
         .success {
             @apply(--layout-vertical);
@@ -124,19 +128,13 @@
             padding-top: 12px;
         }
         .dialog {
-            @apply(--layout-horizontal);
+            display: flex;
+            flex-direction: row-reverse;
         }
-        @media screen and (max-width: 960px) {
-            .dialog {
-                @apply(--layout-vertical);
-            }
-            .app-preview, .screenshot {
-                width: 100%;
-            }
-        }
-        :host .form {
+        .form {
             @apply(--layout-vertical);
             padding-right: 24px;
+            flex: 1;
         }
         :host .form a {
             text-align: center;
@@ -243,6 +241,7 @@
         }
         .app-player-container {
             position: relative;
+            text-align: center;
         }
         .generate-url-container {
             position: relative;
@@ -254,13 +253,77 @@
             margin: 4px;
             border: 0px;
         }
-        
+        paper-card {
+            font-family: Bariol;
+        }
+        .kit-card {
+            display: flex;
+            flex-direction: row;
+            height: 187px;
+            background-color: white;
+            margin-top: 20px;
+        }
+        .kit-card iron-image {
+            width: 220px;
+            height: 100%;
+        }
+        .kit-card .card-content {
+            padding: 18px 11px;
+        }
+        .kit-card button {
+            background-color: white;
+            background-image: url("/assets/campaign/ks-button.svg");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 250px;
+            height: 40px;
+            margin: 20px 0px 20px;
+            border: 1px solid green;
+            border-radius: 3px;
+        }
+        @media screen and (max-width: 1200px) {
+            iron-image.cover {
+                width: 305px;
+                height: 255px;
+            }
+        }
+        @media screen and (max-width: 960px) {
+            .dialog {
+                @apply(--layout-vertical);
+            }
+            .app-preview, .screenshot {
+                width: 100%;
+            }
+            .form {
+                padding-right: 0px;
+            }
+            iron-image.cover {
+                width: 70%;
+                height: 200px;
+            }
+            .kit-card {
+                flex-direction: column;
+            }
+            .kit-card button {
+                width: 100%;
+                margin-left: 0;
+            }
+            .kit-card iron-image {
+                display: none;
+            }
+            .kit-card h2 {
+                font-size: 1.2em;
+                text-align: center;
+            }
+        }
+
     </style>
     <template>
         <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
             <div class="gif-creator" name="gif-creation">
-                <h2 hidden$="[[!firstRender]]">We're generating an animated gif of your app, wait just a bit...</h2>
-                <h2 hidden$="[[firstRender]]">Make an animated gif of your app to show the world how it works</h2>
+                <h2 hidden$="[[!firstRender]]">Recording your gif &hellip;</h2>
+                <h2 hidden$="[[firstRender]]">Click to begin recording your gif</h2>
                 <paper-progress value="[[gifRenderProgress]]" secondary-progress="[[gifProgress]]"></paper-progress>
                 <div class="gif-creation">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
@@ -271,6 +334,12 @@
             </div>
             <div class="dialog" name="sharing-form">
                 <button type="button" name="button" class="close" on-tap="dismiss"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+                <div class="app-player-container">
+                    <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                    <div class="change-gif-container">
+                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; Make another gif</button>
+                    </div>
+                </div>
                 <form class="form">
                     <div class="form-group">
                         <input type="text"
@@ -286,7 +355,7 @@
                     </div>
 
                     <div class="button-container">
-                        <button type="button" name="button" class="share normal-button" on-tap="_shareOnKW"><img class="button-img" src="../../assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
+                        <button type="button" name="button" class="share normal-button" on-tap="_shareOnKW"><img class="button-img" src="/assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
                     </div>
 
                     <div class="button-container generate-url">
@@ -300,26 +369,32 @@
                         </div>
                         <div class="composed-button" hidden$="[[!shareInfo.slug]]">
                             <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
-                            <button on-tap="copyToClipboard" type="button"><img src="../../assets/get-share-link.svg"/> <span>copy</span></button>
+                            <button on-tap="copyToClipboard" type="button"><img src="/assets/get-share-link.svg"/> <span>copy</span></button>
                         </div>
                         <div class="generate-url-container">
-                            <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button right" type="button"><img src="../../assets/get-share-link.svg"/> <span>Get share link</span></button>
+                            <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button right" type="button"><img src="/assets/get-share-link.svg"/> <span>Get share link</span></button>
                             <div class="loading-overlay" hidden$="[[!loading]]">
                                 <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                             </div>
                         </div>
-                  </div>
-                </form>
-                <div class="app-player-container">
-                    <iron-image src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
-                    <div class="change-gif-container">
-                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; Make another gif</button>
                     </div>
-                </div>
+
+                    <template is="dom-if" if="[[isKitAvailable(shareInfo.mode.id)]]">
+                        <paper-card class="kit-card">
+                            <iron-image src="/assets/campaign/[[shareInfo.mode.id]].jpg" sizing="contain">
+                            </iron-image>
+                            <div class="card-content">
+                                <h2>Bring your own creation to life -<br>build your own [[shareInfo.mode.id]]</h2>
+                                <a href="https://kano.me/kickstarter"><button type="button"></button></a>
+                           </div>
+                       </paper-card>
+                    </template>
+
+                </form>
             </div>
-            <div name="publishing">Publishing ...</div>
+            <div id='publish-process' name="publishing">Publishing ...</div>
             <div name="success" class="success">
-                <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
+                <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain"></iron-image>
                 <div class="title">[[shareInfo.title]]</div>
                 <div class="instructions">
                     Your app is live! Share it with your friends.
@@ -418,7 +493,8 @@
                 width: 550,
                 height: 285,
                 generateUrl (url, title) {
-                    return `https://twitter.com/intent/tweet?source=${encodeURIComponent(url)}&text=${encodeURIComponent(title + ' ' + url)}`;
+                    let text = `I just coded ${title} with @TeamKano – check it out: ${url}`;
+                    return `https://twitter.com/intent/tweet?source=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
                 }
             }
         },
@@ -451,10 +527,12 @@
             // Force a change on the src to reload the app from the beginning
             appPreview.src = null;
             appPreview.src = this.shareInfo.app.src;
+            this.firstRender = false;
         },
         _onAppReady () {
             if (this.firstRender) {
-                this._generateAppGif();
+                /* setTimeout required on Safari */
+                setTimeout(this._generateAppGif.bind(this), 0);
             }
         },
         _generateAppGif () {
@@ -466,20 +544,54 @@
                 FPS = 4,
                 LENGTH = 10;
 
-            this.coverWidth = workspace.width;
-            this.coverHeight = workspace.height;
-
             this.recording = true;
 
-            this._generateGifCover(workspace, parts, 0.5, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
-                let url = URL.createObjectURL(blob);
-                this.gifSrc = url;
-                this.shareInfo.coverBlob = blob;
-                this.fire('cover-generated');
-                // Reset UI for potential future gif-creation
-                this.recording = false;
-                this.firstRender = false;
-            });
+            if (sharingConfig.cover === 'still') {
+                let waitingFrame = 0,
+                    interval;
+                this.gifRenderProgress = 0;
+                // Simulate gif recording
+                interval = setInterval(_ => {
+                    // Fake frame increment
+                    waitingFrame++;
+                    // Let the user know the progress state
+                    this.gifRenderProgress += (100 / LENGTH);
+                    // The number of fake frames hit the limit
+                    if (waitingFrame > LENGTH) {
+                        clearInterval(interval);
+                        // Generate the still cover
+                        this.generateCover(workspace,
+                                    parts,
+                                    workspace.width,
+                                    workspace.height,
+                                    1,
+                                    sharingConfig.padding,
+                                    sharingConfig.color)
+                            .then(image => {
+                                let base64Data = image.src.split(',').pop(),
+                                    blob = this.base64toBlob(base64Data, 'image/png');
+                                this.gifSrc = image.src;
+                                this.shareInfo.coverBlob = blob;
+                                this.fire('cover-generated');
+                                // Reset UI for potential future gif-creation
+                                this.recording = false;
+                                this.firstRender = false;
+                                this.gifRenderProgress = 0;
+                            });
+                    }
+                }, 1000 / FPS);
+            } else {
+                this._generateGifCover(workspace, parts, 0.6, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
+                    let url = URL.createObjectURL(blob);
+                    this.gifSrc = url;
+                    this.shareInfo.coverBlob = blob;
+                    this.$['app-preview'].stop();
+                    this.fire('cover-generated');
+                    // Reset UI for potential future gif-creation
+                    this.recording = false;
+                    this.firstRender = true;
+                });
+            }
         },
         _generateUrl () {
             if (this.isAuthenticated) {
@@ -524,10 +636,25 @@
         },
         _preparePopup (loading) {
             let socialConfig = this.socialConfigs[this.socialTarget],
-                winTop = (screen.height / 2) - (socialConfig.height / 2),
-                winLeft = (screen.width / 2) - (socialConfig.width / 2),
+                //split screen scenario
+                dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left,
+                dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top,
+
+                width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width,
+                height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height,
+
+                winLeft = ((width / 2) - (socialConfig.width / 2)) + dualScreenLeft,
+                winTop = ((height / 2) - (socialConfig.height / 2)) + dualScreenTop,
+
                 url = loading ? `${location.protocol}//${location.host}/loading-share.html` : '';
-            this.popup = window.open(url, 'sharer', `top=${winTop},left=${winLeft},toolbar=0,status=0,width=${socialConfig.width},height=${socialConfig.height}`);
+
+            this.popup = window.open("", 'sharer', `top=${winTop},left=${winLeft},toolbar=0,status=0,width=${socialConfig.width},height=${socialConfig.height}`);
+            this.popup.document.write("<p>Fetching your link...</p>")
+        },
+        isKitAvailable () {
+            if (this.shareInfo.mode) {
+                return this.shareInfo.mode.id === 'lightboard' || this.shareInfo.mode.id === 'camera'
+            }
         }
     });
 </script>

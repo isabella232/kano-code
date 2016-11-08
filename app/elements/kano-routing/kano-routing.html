@@ -35,9 +35,6 @@
       }
     </style>
     <iron-lazy-pages selected="[[page]]" attr-for-selected="name" loading="{{loading}}" restamp>
-        <template is="iron-lazy-page" name="home" path="/views/kano-view-home/kano-view-home.html">
-            <kano-view-home context="[[context]]" user="{{user}}"></kano-view-home>
-        </template>
         <template is="iron-lazy-page" name="story" path="/views/kano-view-story/kano-view-story.html">
             <kano-view-story context="[[context]]" user="{{user}}"></kano-view-story>
         </template>
@@ -46,9 +43,6 @@
         </template>
         <template is="iron-lazy-page" name="editor" path="/views/kano-view-editor/kano-view-editor.html">
             <kano-view-editor context="[[context]]" user="{{user}}"></kano-view-editor>
-        </template>
-        <template is="iron-lazy-page" name="apps" path="/views/kano-view-apps/kano-view-apps.html">
-            <kano-view-apps context="[[context]]" user="{{user}}"></kano-view-apps>
         </template>
         <template is="iron-lazy-page" name="play" path="/views/kano-view-play/kano-view-play.html">
             <kano-view-play context="[[context]]" user="{{user}}"></kano-view-play>
@@ -87,14 +81,11 @@
        * Initialize the views
        */
       ready () {
-          page('/',             this._showPageThunk('home'));
-          page('/apps',         this._showPageThunk('apps'));
-          page('/apps/:view',   this._showPageThunk('apps'));
-          page('/make',         this._showPageThunk('editor'));
-          page('/demo',         this._showPageThunk('demo'));
-          page('/story/:id',    this._showPageThunk('story'));
-          page('/tutorial/:slug', this._showPageThunk('tutorial'));
-          page('/remix/:slug',  this._showPageThunk('editor'));
+          page('/',                 this._showPageThunk('editor'));
+          page('/remix/:slug',      this._showPageThunk('editor'));
+          page('/demo',             this._showPageThunk('demo'));
+          page('/story/:id',        this._showPageThunk('story'));
+          page('/tutorial/:slug',   this._showPageThunk('tutorial'));
           page('/app/:slug', (ctx) => {
               window.location = Kano.MakeApps.config.WORLD_URL + "/shared/" + ctx.params.slug;
           });
@@ -102,10 +93,10 @@
           if (Kano.MakeApps.config.ENV !== 'production') {
               page('/flags', this._showPageThunk('flags'));
           }
-
-          // Used for debugging apps export
-          //page('/preview', this.partial('kano-view-preview'));
-          page('*', () => {});
+          // Fallback to /make if no match is found
+          page('*', () => {
+              page.redirect('/' + document.location.search);
+          });
           page(); // force trigger the initial root page
       },
       /**

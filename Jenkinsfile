@@ -3,7 +3,7 @@ node {
     stage('check environment') {
         if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins") {
             env.DEV_ENV = "staging"
-        } else if (env.BRANCH_NAME=="prod") {
+        } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="pre-release") {
             env.DEV_ENV = "production"
         }
         env.NODE_ENV = "${env.DEV_ENV}"
@@ -43,6 +43,9 @@ node {
             echo 'deploy skipped'
         } else if (env.NODE_ENV=="staging") {
             deploy_staging()
+            deploy_doc()
+        } else if (env.BRANCH_NAME=="pre-release") {
+            deploy_pre_release()
         } else if (env.NODE_ENV=="production") {
             deploy_prod()
         }
@@ -63,11 +66,10 @@ node {
                 env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
                 sh "rm -rf ${report_folder}"
                 sh "mkdir ${report_folder}"
-                sh "xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet"
-
+                
+                sh "timeout 20000 xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet || echo 'Lighthouse timedout'"
+                
                 publishHTML (target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
                     keepAll: true,
                     reportDir: report_folder,
                     reportFiles: report_file,
@@ -84,17 +86,26 @@ node {
     }
 }
 
+def deploy_doc() {
+    sh 'gulp doc'
+    sh 'aws s3 sync ./www-doc s3://make-apps-doc --region eu-west-1 --cache-control "max-age=600" --only-show-errors'
+}
+
 def deploy_staging() {
-    sh 'aws s3 sync ./www s3://make-apps-staging-site.kano.me --region eu-west-1 --cache-control "max-age=600"'
+    sh 'aws s3 sync ./www s3://make-apps-staging-site.kano.me --region eu-west-1 --cache-control "max-age=600" --only-show-errors'
+}
+
+def deploy_pre_release() {
+    sh 'aws s3 sync ./www s3://apps-pre-release.kano.me --region eu-west-1 --cache-control "max-age=600" --only-show-errors'
 }
 
 def deploy_prod() {
-    sh 'aws s3 sync ./www s3://make-apps-prod-site.kano.me --region us-west-1 --cache-control "max-age=600"'
+    sh 'aws s3 sync ./www s3://make-apps-prod-site.kano.me --region us-west-1 --cache-control "max-age=600" --only-show-errors'
     // Rebuild the config of the index with the kit's target env
     env.TARGET = "osonline"
     sh 'gulp copy-index'
     // Upload the modified version to the kit's bucket
-    sh 'aws s3 sync ./www s3://make-apps-kit-site.kano.me --region eu-west-1 --cache-control "max-age=600"'
+    sh 'aws s3 sync ./www s3://make-apps-kit-site.kano.me --region eu-west-1 --cache-control "max-age=600" --only-show-errors'
 }
 
 def getVersion() {

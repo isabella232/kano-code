@@ -1,8 +1,10 @@
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts-api/lightboard.html">
+<link rel="import" type="" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <dom-module id="kano-workspace-lightboard">
     <style>
         :host {
+            margin-top: -35px;
             display: block;
             width: 100%;
             height: 100%;
@@ -17,13 +19,10 @@
             background-color: transparent;
         }
 
-        :host ::content > * {
+        :host ::slotted(*) {
             position: absolute;
             top: 0px;
             left: 0px;
-        }
-        iron-image, #led-matrix {
-            margin-top: -35px;
         }
         .btn {
             position: absolute;
@@ -39,11 +38,11 @@
             @apply(--shadow-elevation-2dp);
         }
         .btn.a {
-            top: 227px;
+            top: 262px;
             left: 365px;
         }
         .btn.b {
-            top: 227px;
+            top: 262px;
             left: 411px;
         }
         .joystick {
@@ -52,7 +51,7 @@
             height: 36px;
             border-radius: 50%;
             cursor: pointer;
-            top: 228px;
+            top: 263px;
             left: 21px;
             background-color: #4c4f55;
             transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
@@ -79,6 +78,15 @@
             background-color: #3c3d3f;
             border: 0px;
             cursor: pointer;
+            color: #000;
+            box-shadow: none;
+            border-radius: 0;
+            display: block;
+            font-weight: normal;
+            text-transform: none;
+            font-size: auto;
+            margin: 0;
+
         }
         .joystick button.js-dir:focus, .joystick button.js-dir:hover {
             outline: none;
@@ -139,7 +147,7 @@
                 <div class="arrow-icon"></div>
             </button>
         </div>
-        <content></content>
+        <slot></slot>
     </template>
     <script>
         /* globals Polymer, Kano */
@@ -150,7 +158,7 @@
                 'update-shape': '_updateShape'
             },
             ready () {
-                this.set('bitmap', []);
+                this.set('bitmap', new Array(128));
             },
             attached () {
                 Kano.AppModules.getModule('lightboard').connect({

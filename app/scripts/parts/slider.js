@@ -5,7 +5,7 @@ export default button = {
     partType: 'ui',
     type: 'slider',
     label: 'Slider',
-    image: '/assets/part/button.svg',
+    image: '/assets/part/slider.svg',
     component: 'kano-part-slider',
     customizable: {
         properties: [{
@@ -28,31 +28,6 @@ export default button = {
         id: 'update'
     }],
     blocks: [{
-        block: (ui) => {
-            return {
-                id: 'connect',
-                message0: `${ui.name}: connect to %1`,
-                args0: [{
-                    type: "input_value",
-                    name: "TARGET"
-                }],
-                previousStatement: null,
-                nextStatement: null
-            };
-        },
-        javascript: (ui) => {
-            return function (block) {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET');
-                return `devices.get('${ui.id}').connectTo(${target});\n`;
-            };
-        },
-        pseudo: (ui) => {
-            return function (block) {
-                let target = Blockly.JavaScript.valueToCode(block, 'TARGET');
-                return `devices.get('${ui.id}').connectTo(${target});\n`;
-            };
-        }
-    },{
         block: (ui) => {
             return {
                 id: 'get_value',

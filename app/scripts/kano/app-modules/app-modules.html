@@ -76,9 +76,6 @@
                             kano-ui-viewport * {
                                 position: absolute;
                             }
-                            kano-workspace-lightboard {
-                                margin-top: 35px;
-                            }
                             .workspace {
                                 width: 100%;
                                 height: 100%;
@@ -104,10 +101,9 @@
                                     }
                                 },
                                 attached: function () {
-                                    let hardwareAPI = new Kano.MakeApps.HardwareAPI();
                                     this.workspace = this.$['${mode.id}'];
                                     this.appModules = Kano.AppModules.createStandalone();
-                                    this.appModules.init(Object.assign({ hardwareAPI: hardwareAPI }, Kano.MakeApps.config));
+                                    this.appModules.init(Object.assign({ hardwareAPI: new Kano.MakeApps.HardwareAPI()}, Kano.MakeApps.config));
                                     this.appModules.loadParts(this.$);
                                     var ws = this.$['${mode.id}'];
 
@@ -122,6 +118,9 @@
                                     });
                                 },
                                 detached () {
+                                    this.appModules.stop();
+                                },
+                                stop () {
                                     this.appModules.stop();
                                 }
                             });
@@ -142,7 +141,9 @@
 
             _runModuleLifecycleStep (name) {
                 Object.keys(this.modules).forEach(key => {
-                    this.modules[key].executeLifecycleStep(name);
+                    if (typeof this.modules[key].executeLifecycleStep === 'function') {
+                        this.modules[key].executeLifecycleStep(name);
+                    }
                 });
             }
 

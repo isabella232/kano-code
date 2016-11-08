@@ -48,6 +48,7 @@ export default class Part {
         this.codes = {};
         this.userStyle = Object.assign({}, opts.userStyle);
         this.userProperties = Object.assign({}, opts.userProperties);
+        this.nonvolatileProperties = Array.isArray(opts.nonvolatileProperties) ? opts.nonvolatileProperties : [];
         this.removable = typeof opts.removable === 'undefined' ? true : opts.removable;
     }
     getUniqueName (value, inc=0) {
@@ -83,9 +84,9 @@ export default class Part {
         plain.tagName = this.tagName;
         plain.userStyle = this.userStyle;
         plain.userProperties = this.userProperties;
+        plain.nonvolatileProperties = this.nonvolatileProperties;
         plain.position = this.position;
         plain.partType = this.partType;
-        plain.configPanel = this.configPanel;
         return plain;
     }
 }

@@ -9,7 +9,8 @@ export default light = {
     parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
                 'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
                 'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
-                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer'],
+                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer',
+                'oscillator'],
     workspace: {
         viewport: {
             width: 466,
@@ -192,8 +193,7 @@ export default light = {
                 message0: 'Lights: show text %1 color %2 background %3',
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 },{
                     type: "input_value",
                     name: "COLOR",

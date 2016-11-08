@@ -9,7 +9,7 @@
             box-shadow: 4px 4px 5px 0 rgba(0, 0, 0, 0.14);
             border-radius: 5px;
         }
-        :host ::content > *:not(.hole) {
+        :host ::slotted(*:not(.hole)) {
             position: absolute;
             top: 0px;
             left: 0px
@@ -17,26 +17,10 @@
         canvas {
             border-radius: 5px;
         }
-
-        :host .actions {
-            position: absolute;
-            top: 100%;
-        }
-        :host .actions .coordinates {
-            background-color: #222D33;
-            border-radius: 6px;
-            margin-top: 8px;
-            color: white;
-            display: inline-block;
-            padding: 8px 12px;
-        }
     </style>
     <template>
         <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-        <div class="actions">
-            <div class="coordinates">X: {{ mousePositionX }}, Y: {{ mousePositionY }}</div>
-        </div>
-        <content></content>
+        <slot></slot>
     </template>
     <script>
         /* globals Polymer, Kano */
@@ -44,7 +28,17 @@
             is: 'kano-workspace-normal',
             behaviors: [Kano.Behaviors.WorkspaceBehavior],
             properties: {
-                autoStart: Boolean
+                autoStart: Boolean,
+                mousePositionX: {
+                    type: Number,
+                    value: 250,
+                    notify: true
+                },
+                mousePositionY: {
+                    type: Number,
+                    value: 250,
+                    notify: true
+                }
             },
             ready () {
                 this.mousePositionX = 250;
@@ -68,11 +62,16 @@
             getBackgroundColor () {
                 return this.style.backgroundColor;
             },
+            setTransparency (value) {
+                let alpha = Math.min(Math.max(0, value), 100) / 100;
+                this.ctx.globalAlpha = alpha;
+            },
             start () {
                 this.reset();
             },
             reset () {
                 this.ctx = this.$.canvas.getContext('2d');
+                this.ctx.globalAlpha = 1;
                 this.modules = new Kano.CanvasAPI({
                     ctx: this.ctx,
                     width: this.width,

@@ -1,5 +1,13 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
+<link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
+<link rel="import" href="../kano-workspace-camera/kano-workspace-camera.html">
+<link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
+<link rel="import" href="../kano-workspace-head/kano-workspace-head.html">
+<link rel="import" href="../ui/kano-ui/kano-ui.html">
 
 <dom-module id="kano-workspace">
     <style>
@@ -12,13 +20,23 @@
     :host .content {
         position: relative;
         @apply(--layout-flex);
+        transition: background linear 150ms;
     }
     :host.running .content {
         --kano-ui-viewport: {
             border: none;
         };
     }
-    :host ::content #dropzone {
+    :host(.fullscreen) .content {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    :host ::slotted(#dropzone) {
         margin: auto;
         position: relative;
     }
@@ -27,39 +45,101 @@
         color: #B3B3B3;
         pointer-events: none;
     }
-    .edit-layout-button {
-        @apply(--kano-button);
-        background-color: var(--color-green, green);
-        position: absolute;
-        right: 0px;
-        z-index: -1;
-    }
     #workspace-placeholder {
         height: 100%;
     }
+    :host kano-workspace-head {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+    :host .fullscreen-close {
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        color: white;
+        background-color: transparent;
+        z-index: 101;
+        border: none;
+        width: 56px;
+        height: 56px;
+        font-size: 50px;
+        outline: none;
+        cursor: pointer;
+    }
+    :host .fullscreen-close div {
+        transition: all 0.3s ease;
+        transform: translate(0, -7px);
+    }
+    :host .fullscreen-close div:hover {
+        transform: translate(0, -9px);
+        color: #eaeaea;
+    }
+    .pause-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+    }
+    .pause-overlay iron-image {
+        width: 40%;
+        height: 40%;
+        cursor: pointer;
+    }
+    .editable-layout {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    *[hidden] {
+        display: none !important;
+    }
     </style>
     <template>
+        <button class="fullscreen-close" hidden$="[[!fullscreen]]" on-tap="_toggleFullscreen">
+            <div>&times;</div>
+        </button>
         <kano-ui-viewport mode="scaled"
                     view-width="[[mode.workspace.viewport.width]]"
                     view-height="[[mode.workspace.viewport.height]]"
                     class="content"
                     id="content"
                     on-tap="onTap">
-            <button type="button"
-                    name="button"
-                    class="edit-layout-button"
-                    on-tap="toggleEditableLayout"
-                    style$="[[_computeEditingButtonStyle(mode.workspace.viewport.height)]]">
-                        <span>[[_computeEditingButtonLabel(editableLayout)]]</span>
-                        <span hidden$="[[!editableLayout]]">&times;</span>
-                    </button>
             <!-- The variable workspace component will be inserted here -->
             <div id="workspace-placeholder">
 
             </div>
-            <h3 class="made-with-kano">made with Kano</h3>
+            <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
+                <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+            </div>
+            <kano-workspace-toolbar
+                id="toolbar"
+                show-mouse-position="{{showMousePosition}}"
+                mouse-x="[[mouseX]]"
+                mouse-y="[[mouseY]]"
+                running="[[running]]"
+                editable-layout="[[editableLayout]]"
+                parts-menu-open="[[partsMenuOpen]]"
+                on-pause-run-button-clicked="_runButtonClicked"
+                on-fullscreen-button-clicked="_toggleFullscreen"
+                on-reset-button-clicked="_resetAppState"
+                on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
         </kano-ui-viewport>
+        <kano-workspace-head challenge-state="[[challengeState]]"></kano-workspace-head>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
+        <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="esc" on-keys-pressed="_cancel" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="tab" on-keys-pressed="_selectNextPart" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="shift+tab" on-keys-pressed="_selectPrevPart" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="shift+left left" on-keys-pressed="_moveLeft" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="shift+right right" on-keys-pressed="_moveRight" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="shift+up up" on-keys-pressed="_moveUp" target="[[target]]"></iron-a11y-keys>
+        <iron-a11y-keys keys="shift+down down" on-keys-pressed="_moveDown" target="[[target]]"></iron-a11y-keys>
+
     </template>
 </dom-module>
 
@@ -67,7 +147,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace',
-        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.CoverGeneratorBehavior],
+        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.CoverGeneratorBehavior, Kano.Behaviors.SoundPlayerBehavior],
         properties: {
             parts: {
                 type: Array,
@@ -86,6 +166,7 @@
             },
             selected: {
                 type: Object,
+                observer: '_selectedChanged',
                 notify: true
             },
             internalSelection: {
@@ -101,6 +182,12 @@
             },
             background: {
                 type: String
+            },
+            partsMenuOpen: {
+                type: Boolean
+            },
+            challengeState: {
+                type: Object
             }
         },
         observers: [
@@ -122,9 +209,97 @@
             };
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
+
+            this.showMousePosition = false;
+            this.mouseX = 250;
+            this.mouseY = 250;
+
+            this.fullscreen = false;
         },
-        toggleEditableLayout () {
-            this.set('editableLayout', !this.editableLayout);
+        attached () {
+            this.target = document.body;
+            // Enable pop on drop part only after initialisation
+            this.async(() => {
+                this.soundReady = true;
+            }, 500);
+        },
+        _editLayoutClicked () {
+            this.toggleEditableLayout();
+        },
+        _onAltT () {
+            this.toggleEditableLayout();
+        },
+        _toggleFullscreen () {
+            this.toggleClass('fullscreen');
+            this.$.content.resizeView();
+            this.fullscreen = !this.fullscreen;
+        },
+         _isPauseOverlayHidden (running, editableLayout) {
+        return running || editableLayout;
+        },
+        _moveLeft (e) {
+            this._movePart('left', e.detail.keyboardEvent.shiftKey);
+        },
+        _moveRight (e) {
+            this._movePart('right', e.detail.keyboardEvent.shiftKey);
+        },
+        _moveUp (e) {
+            this._movePart('up', e.detail.keyboardEvent.shiftKey);
+        },
+        _moveDown (e) {
+            this._movePart('down', e.detail.keyboardEvent.shiftKey);
+        },
+        _movePart (dir, shift) {
+            let movement, axis, partElem, x, y;
+            if (!this.selected || !this.dropzone) {
+                return;
+            }
+            movement = (dir === 'right' || dir === 'down') ? 1 : -1;
+            if (shift) {
+                movement *= 10;
+            }
+            x = (dir === 'right' || dir === 'left') ? movement : 0;
+            y = (dir === 'up' || dir === 'down') ? movement : 0;
+            partElem = this.dropzone.querySelector(`#${this.selected.id}`);
+            partElem.move(x, y);
+        },
+        _cancel () {
+            this.toggleEditableLayout(false);
+        },
+        _selectNextPart (e) {
+            if (this.editableLayout) {
+                let selectedIndex = this.parts.indexOf(this.selected),
+                    nextPartIndex;
+                if (this.parts.length) {
+                    nextPartIndex = selectedIndex + 1;
+                    if (nextPartIndex >= this.parts.length) {
+                        nextPartIndex = 0;
+                    }
+                    this.clearSelection();
+                    this.$.selector.select(this.parts[nextPartIndex]);
+                }
+                e.detail.keyboardEvent.preventDefault();
+                e.detail.keyboardEvent.stopPropagation();
+            }
+        },
+        _selectPrevPart (e) {
+            if (this.editableLayout) {
+                let selectedIndex = this.parts.indexOf(this.selected),
+                    prevPartIndex;
+                if (this.parts.length) {
+                    if (selectedIndex <= -1) {
+                        selectedIndex = this.parts.length;
+                    }
+                    prevPartIndex = selectedIndex - 1;
+                    this.clearSelection();
+                    this.$.selector.select(this.parts[prevPartIndex]);
+                }
+                e.detail.keyboardEvent.preventDefault();
+                e.detail.keyboardEvent.stopPropagation();
+            }
+        },
+        toggleEditableLayout (value) {
+            this.set('editableLayout', typeof value !== 'boolean' ? !this.editableLayout : value);
             if (this.editableLayout) {
                 this.prevRunningState = this.running;
                 this.set('running', false);
@@ -133,12 +308,6 @@
                 this.set('running', this.prevRunningState);
                 this.fire('close-settings');
             }
-        },
-        _computeEditingButtonStyle (height) {
-            return `top: ${height}px`;
-        },
-        _computeEditingButtonLabel (editableLayout) {
-            return editableLayout ? 'Done' : 'Edit Layout';
         },
         _getPartById (id) {
             if (id === this.dropzone.getAttribute('id') || id === 'dropzone') {
@@ -163,8 +332,13 @@
             }
 
             newDropzone.setAttribute('id', this.mode.id);
+            newDropzone.setAttribute('class', 'dropzone');
             newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
             newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
+
+            newDropzone.addEventListener('mouse-position-x-changed', this.mouseXChanged.bind(this));
+            newDropzone.addEventListener('mouse-position-y-changed', this.mouseYChanged.bind(this));
+            this.showMousePosition = mode.id === 'normal';
 
             if (newDropzone.setBackgroundColor) {
                 newDropzone.setBackgroundColor(this.background);
@@ -182,6 +356,12 @@
             this.parts.forEach((model, index) => {
                 this.insertPart(`#${index}`);
             });
+        },
+        mouseXChanged (e) {
+            this.mouseX = e.detail.value;
+        },
+        mouseYChanged (e) {
+            this.mouseY = e.detail.value;
         },
         onTap (e) {
             let target;
@@ -218,7 +398,14 @@
             }
             this.clearSelection();
             this.$.selector.select(e.detail.model);
-            this.toggleClass('selected', true, e.detail);
+        },
+        _selectedChanged (part) {
+            let partElement;
+            if (!this.dropzone || !part) {
+                return;
+            }
+            partElement = this.dropzone.querySelector(`#${part.id}`);
+            this.toggleClass('selected', true, partElement);
             this.fire('open-settings');
         },
         partsChanged (e) {
@@ -299,6 +486,9 @@
             element.model = model;
             this.elements[key] = element;
             this.dropzone.appendChild(element);
+            if (this.soundReady) {
+                this.playSound('/assets/audio/sounds/pop.wav');
+            }
         },
         removePart (key) {
             let element = this.elements[key];
@@ -352,6 +542,12 @@
         },
         reset () {
             this.dropzone.clear();
+        },
+        _runButtonClicked () {
+            this.fire('run-button-clicked');
+        },
+        _resetAppState () {
+            this.fire('reset-app-state');
         }
     });
 </script>
