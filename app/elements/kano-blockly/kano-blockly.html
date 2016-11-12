@@ -1,10 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="./import.html">
 <link rel="import" href="../kano-blockly-omnibox/kano-blockly-omnibox.html">
+<link rel="import" href="../kano-blockly-toolbox/kano-blockly-toolbox.html">
 
 <dom-module id="kano-blockly">
     <style>
@@ -20,6 +22,14 @@
             right: 0px;
             @apply(--layout-horizontal);
             background-color: rgb(33, 53, 66);
+        }
+        #toolbox {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            box-sizing: border-box;
+            width: 200px;
         }
         svg {
             @apply(--layout-flex);
@@ -157,19 +167,10 @@
             /* 150px is half the max size of the flyout */
             padding-top: calc(50% - 150px);
         }
-        g.blocklyDragging {
-            opacity: 0.45;
-        }
     </style>
     <template>
         <div id="workspace">
-            <div class="gutter">
-                <template is="dom-repeat" items="[[lines]]" as="line">
-                    <div style$="[[_computeLineHeight(line)]]">
-                        <span>[[index]]</span>
-                    </div>
-                </template>
-            </div>
+            <kano-blockly-toolbox id="toolbox" toolbox="[[toolbox]]" on-start-drag="_onToolboxStartDrag"></kano-blockly-toolbox>
             <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
@@ -231,6 +232,9 @@
                 media: '/assets/vendor/google-blockly/media/',
                 scrollbars: true,
                 hasScrollbars: true,
+                trashcan: true,
+                comments: true,
+                disable: true,
                 zoom: {
                     controls: true,
                     startScale: 1.0,
@@ -252,6 +256,7 @@
             this.workspace.addChangeListener(this.onBlocklyChange.bind(this));
 
             this.$.omnibox.targetWorkspace = this.workspace;
+            this.$.toolbox.targetWorkspace = this.workspace;
 
             this.async(() => {
                 this.fire('blockly-ready');
@@ -272,62 +277,11 @@
             this.workspace.dispose();
             document.body.style.overflow = undefined;
         },
-        _computeLineHeight (line) {
-            return `height: ${line}px;`;
+        _onToolboxStartDrag () {
+            this.$.svg.style.zIndex = 1;
         },
-        _updateGutter () {
-            let topBlocks = this.workspace.getTopBlocks(),
-                lines;
-            this.set('lines', topBlocks.reduce((acc, block) => {
-                lines = this._extractLines(block);
-                // Extend the last line to include the space between top blocks
-                lines[lines.length - 1] += 5;
-                return acc.concat(lines);
-            }, []));
-        },
-        _extractLines (block) {
-            var hv = block.getHeightWidth(),
-                lines = [hv.height],
-                nextStatement,
-                doStatement,
-                connections = [],
-                nextSize;
-            if (block.nextConnection && block.nextConnection.targetConnection) {
-                nextStatement = block.nextConnection.targetConnection;
-            }
-            block.inputList.forEach(input => {
-                if (input.type === Blockly.NEXT_STATEMENT && input.connection.targetConnection) {
-                    doStatement = input.connection.targetConnection;
-                }
-            });
-            if (doStatement) {
-                nextSize = this._extractLines(doStatement.getSourceBlock());
-                nextSize.forEach(size => {
-                    lines[0] -= size;
-                });
-                lines = lines.concat(nextSize);
-            }
-            // insert the line here if there is a nextStatement
-            if (doStatement && nextStatement) {
-                lines[0] -= 10;
-                lines.push(10);
-            }
-            if (nextStatement) {
-                nextSize = this._extractLines(nextStatement.getSourceBlock());
-                nextSize.forEach(size => {
-                    lines[0] -= size;
-                });
-                lines = lines.concat(nextSize);
-            } else {
-                lines[0] -= 3;
-            }
-            // Add the line at the end if there is a doStatement but no nextStatement
-            if (doStatement && !nextStatement) {
-                lines[0] -= 10;
-                lines.push(10);
-            }
-
-            return lines;
+        _onToolboxEndDrag () {
+            this.$.svg.style.zIndex = '';
         },
         _createWorkspace (svg, options) {
             options.parentWorkspace = null;
@@ -536,23 +490,41 @@
             if (e.type === Blockly.Events.CREATE) {
                 this.lastCreated = e.blockId;
             }
-            // If there is a move event or a click event, we check if it matches the last block created
-            if ((e.type === Blockly.Events.MOVE || e.type === Blockly.Events.UI && e.element === 'click') &&
-                this.lastCreated === e.blockId) {
-                // The block targetted by the last event matches the last created,
-                //  we trigger a drop event
-                let ev = {
-                    type: Blockly.Events.DROP_BLOCK,
-                    blockId: e.blockId
-                };
-                this.workspace.fireChangeListener(ev);
-                this.lastCreated = null;
+            if ((e.type === Blockly.Events.MOVE || e.type === Blockly.Events.UI && e.element === 'click')) {
+                let block = this.workspace.getBlockById(e.blockId),
+                    coord, dimensions;
+                if (block) {
+                    coord = Blockly.getSvgXY_(block.getSvgRoot(), this.workspace);
+                    dimensions = block.getHeightWidth();
+
+                    if (coord.x + dimensions.width / 3 < 200) {
+                        // Delete block over the toolbox
+                        Blockly.Events.setGroup(true);
+                        block.dispose(true, true);
+                        Blockly.Events.setGroup(false);
+                        this._onToolboxEndDrag();
+                        return;
+                    }
+                }
+                
+
+                // If there is a move event or a click event, we check if it matches the last block created
+                if (this.lastCreated === e.blockId) {
+                    // The block targetted by the last event matches the last created,
+                    //  we trigger a drop event
+                    let ev = {
+                        type: Blockly.Events.DROP_BLOCK,
+                        blockId: e.blockId
+                    };
+                    this.workspace.fireChangeListener(ev);
+                    this.lastCreated = null;
+                    this._onToolboxEndDrag();
+                }
             }
             this.fire('change', e);
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
                 this.set('code', this.getCode(this.language));
             }
-            this._updateGutter();
         },
         /**
          * Generate a XML string representation of the blocks
@@ -618,6 +590,9 @@
         },
         getWorkspace () {
             return this.workspace;
+        },
+        getToolbox () {
+            return this.$.toolbox;
         }
     });
 </script>

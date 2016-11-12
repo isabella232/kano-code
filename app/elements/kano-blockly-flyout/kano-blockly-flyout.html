@@ -37,14 +37,20 @@
                 },
                 width: {
                     type: Number,
-                    value: 300
+                    value: 300,
+                    observer: '_widthChanged'
+                },
+                paddingLeft: {
+                    type: Number,
+                    value: 20
                 }
             },
             ready () {
                 this._listeners = [];
                 this._separators = [];
+                this._blockDB = {};
             },
-            _createWorskspace () {
+            _createWorkspace () {
                 this.ws = new Blockly.WorkspaceSvg({});
                 this.ws.isFlyout = true;
                 this.wsDom = this.ws.createDom();
@@ -52,13 +58,15 @@
             },
             _toolboxChanged (toolbox) {
                 if (!this.ws) {
-                    this._createWorskspace();
+                    this._createWorkspace();
                 }
-                this._separators.forEach(sep => {
-                    if (sep.parentNode) {
-                        sep.parentNode.removeChild(sep);
-                    }
-                });
+                if (this._separators) {
+                    this._separators.forEach(sep => {
+                        if (sep.parentNode) {
+                            sep.parentNode.removeChild(sep);
+                        }
+                    });
+                }
                 this._separators = [];
                 let xmlString,
                     content,
@@ -69,7 +77,7 @@
                     if (block.shadow) {
                         content = Object.keys(block.shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
                     }
-                    return `<block type="${block.type}">${content}</block>`;
+                    return `<block type="${block.id}">${content}</block>`;
                 }).join('');
 
                 xmlString = `<xml>${xmlString}</xml>`
@@ -80,32 +88,52 @@
                     try {
                         Blockly.Xml.domToWorkspace(xml, this.ws);
                     } catch (e) {} // Ignore loading errors
+                    this._updateDB();
                     this._updateSvgSize();
                 });
             },
+            _updateDB () {
+                this._blockDB = {};
+                this.ws.getAllBlocks().forEach(block => {
+                    this._blockDB[block.type] = block;
+                });
+            },
+            getBlockByType (type) {
+                return this._blockDB[type];
+            },
+            _widthChanged () {
+                this._updateSvgSize();
+            },
             _updateSvgSize () {
+                if (!this.ws) {
+                    this._createWorkspace();
+                }
                 let blocks = this.ws.getTopBlocks(),
-                    cursorX = 20 + Blockly.BlockSvg.TAB_WIDTH,
+                    cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                     cursorY = 0,
-                    rect;
+                    rect, canvas, allBlocks, root, sep, hw;
+
                 blocks.forEach((block, index) => {
-                    let allBlocks = block.getDescendants();
+                    canvas = this.ws.getCanvas();
+                    if (!canvas) {
+                        return;
+                    }
+                    allBlocks = block.getDescendants();
                     allBlocks.forEach(child => {
                         child.isInFlyout = true;
                     });
-                    let root = block.getSvgRoot();
+                    root = block.getSvgRoot();
                     block.render();
-                    var sep = Blockly.createSvgElement('rect', { height: 1, width: this.width, fill: '#37454d' }, null);
+                    sep = Blockly.createSvgElement('rect', { height: 1, width: this.width, fill: '#37454d' }, null);
                     sep.setAttribute('transform', `translate(0, ${cursorY})`);
-                    this._separators.push(sep);
-                    this.ws.getCanvas().insertBefore(sep, root);
+                    canvas.insertBefore(sep, root);
 
                     cursorY += 12;
                     
-                    let hw = block.getHeightWidth();
+                    hw = block.getHeightWidth();
                     block.moveBy(cursorX, cursorY);
                     cursorY += hw.height + 12;
-                    var rect = Blockly.createSvgElement('rect', {'fill-opacity': 0}, null);
+                    rect = Blockly.createSvgElement('rect', {'fill-opacity': 0}, null);
                     rect.tooltip = block;
                     Blockly.Tooltip.bindMouseEvents(rect);
                     this.ws.getCanvas().insertBefore(rect, root);
@@ -113,7 +141,7 @@
                     this._addBlockListeners(root, block, rect)
                 });
                 rect = this.wsDom.getBoundingClientRect();
-                this.$.svg.style.width = 300;
+                this.$.svg.style.width = this.width;
                 this.$.svg.style.height = rect.height + 20;
             },
             _addBlockListeners (root, block, rect) {
@@ -143,6 +171,7 @@
                         Blockly.Flyout.startFlyout_ = this;
                         Blockly.Flyout.onMouseUpWrapper_ = Blockly.bindEvent_(document, 'mouseup', this, this._onMouseUp);
                         Blockly.Flyout.onMouseMoveBlockWrapper_ = Blockly.bindEvent_(document, 'mousemove', this, this._onMouseMoveBlock);
+                        this.fire('start-drag');
                     }
                     // This event has been handled.  No need to bubble up to the document.
                     e.stopPropagation();
