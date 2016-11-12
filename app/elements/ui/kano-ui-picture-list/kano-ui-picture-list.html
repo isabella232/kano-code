@@ -9,101 +9,41 @@
         display: inline-block;
     }
     .container {
+        overflow-x: auto;
         position: relative;
-        width: 320px;
-        height: 244px;
-    }
-    :host(.playing) .container .picture {
-        transform: none;
-        box-shadow: none;
-    }
-    :host(.playing) .container .picture .counter {
-        display: none;
-    }
-    :host(.playing) .top {
-        display: none;
-    }
-    :host(.playing) .frame {
-        display: block;
-    }
-    .frame {
-        display: none;
+        max-width: 379px;
+        @apply(--layout-horizontal);
+        border-radius: 3px;
+        background-color: rgba(0, 0, 0, 0.22);
+        padding: 12px;
+        box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
     }
     .picture {
-        @apply(--shadow-elevation-4dp);
-        position: absolute;
-        border-radius: 6px;
-        border: 2px solid white;
-        background-color: lightgrey;
-        min-width: 320px;
-        min-height: 244px;
-        transition: all ease-out 150ms;
-    }
-    .picture:nth-child(1) {
-        transform: rotate(5deg) translate(0px, -7px);
-    }
-    .picture:nth-child(2) {
-        transform: rotate(-3deg) translate(0px, -5px);
-    }
-    .picture:nth-child(3) {
-        transform: rotate(3deg) translate(5px);
-    }
-    .picture:nth-child(4) {
-        transform: rotate(1deg);
-        position: relative;
-    }
-    .container:hover .picture {
-        @apply(--shadow-elevation-2dp);
-        transform-origin: 20px 80px;
-    }
-    .container:hover .picture:nth-child(1) {
-        transform: rotate(-6deg);
-    }
-    .container:hover .picture:nth-child(2) {
-        transform: rotate(-4deg);
-    }
-    .container:hover .picture:nth-child(3) {
-        transform: rotate(-2deg);
-    }
-    .container:hover .picture:nth-child(4) {
-        transform: rotate(-1deg);
-    }
-    .counter {
-        position: absolute;
-        right: 0px;
-        top: calc(50% - 11px);
-        @apply(--layout-horizontal);
+        @apply(--layout-vertical);
         @apply(--layout-center);
-        @apply(--layout-justified);
-        background-color: rgba(0, 0, 0, 0.45);
-        border-top-left-radius: 11px;
-        border-bottom-left-radius: 11px;
-        color: white;
-        width: 40px;
-        height: 22px;
-        font-size: 14px;
-        padding-left: 9px;
-        padding-right: 6px;
+        @apply(--layout-center-jusitfied);
+        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+        border-radius: 3px;
+        border: 1px solid white;
+        background-color: #f3f3f3;
+        padding: 5px;
+        transition: all linear 1000ms;
     }
-    kano-gif-creator {
-        margin: 7px;
+    .picture:not(:first-of-type) {
+        margin-left: -7px;
     }
-    img {
-        width: 11px;
+    iron-image {
+        width: 66px;
+        height: 36px;
     }
     </style>
     <template>
         <div class="container">
-            <div class="picture"></div>
-            <div class="picture"></div>
-            <div class="picture"></div>
-            <div class="picture">
-                <kano-gif-creator id="gif-creator" width="[[FRAME_WIDTH]]" height="[[FRAME_HEIGHT]]" pictures="[[pictures]]" framerate="[[model.userProperties.speed]]"></kano-gif-creator>
-                <div class="counter">
-                    <img src="/assets/part/camera.png" alt="Camera icon"/>
-                    <span>[[pictures.length]]</span>
+            <template is="dom-repeat" items="[[_computePictureArray(pictures.splices)]]" as="picture">
+                <div class="picture" style$="[[_computeTilt(index)]]">
+                    <iron-image src="[[picture]]" preload fade sizing="cover"></iron-image>
                 </div>
-            </div>
+            </template>
         </div>
     </template>
 </dom-module>
@@ -114,46 +54,108 @@
     Polymer({
         is: 'kano-ui-picture-list',
         behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
-        properties: {
-            topPicture: {
-                type: String,
-                computed: '_computeTopPicture(pictures.*)'
-            }
-        },
         ready () {
             this.pictures = [];
-            this.frameId = 0;
-            this.FRAME_WIDTH = 306;
-            this.FRAME_HEIGHT = 230;
-        },
-        attached () {
-            this.reset();
-        },
-        reset () {
-            this.$['gif-creator']._paintFrame('/assets/part/picture-list-placeholder.svg');
         },
         stop () {
             Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
             this.pictures = [];
             this.pause();
-            this.reset();
         },
-        _computeTopPicture () {
-            return this.pictures[this.pictures.length - 1];
+        _computeTilt (index) {
+            return `transform: rotate(${((index % 2) * 4) - 2}deg)`;
+        },
+        _computePictureArray () {
+            let internalPictures = [],
+                index = 0;
+            if (this.pictures.length >= 5) {
+                return this.pictures.slice(0);
+            }
+            while (internalPictures.length < 5) {
+                internalPictures.push(this.pictures[index] || '/assets/part/picture-list-placeholder.svg');
+                index++;
+            }
+            return internalPictures;
         },
         play () {
-            this.toggleClass('playing', true);
-            this.$['gif-creator'].play();
+            this.playing = true;
+            this._playOnModeCanvas();
+        },
+        _playOnModeCanvas () {
+            this.fire('play-picture-list', {
+                pictures: this.pictures,
+                speed: this.get('model.userProperties.speed')
+            });
+        },
+        _pauseOnModeCanvas () {
+            this.fire('pause-picture-list');
         },
         pause () {
-            this.toggleClass('playing', false);
-            this.$['gif-creator'].pause();
+            this.playing = false;
+            this._pauseOnModeCanvas();
         },
         setSpeed (speed) {
             this.set('model.userProperties.speed', Math.max(0, Math.min(15, speed)));
         },
-        downloadGif () {
-            this.$['gif-creator'].downloadGif();
+        addPicture(src) {
+            this._slidePictures()
+                .then(_ => {
+                    this.unshift('pictures', src);
+                    this._animateNewPictureIn();
+                    if (this.playing) {
+                        this._playOnModeCanvas();
+                    }
+                });
+        },
+        saveGif () {
+            if (!this.pictures.length) {
+                return;
+            }
+            this.throttle('saveGif', () => {
+                this.fire('save-gif', {
+                    pictures: this.pictures,
+                    speed: this.get('model.userProperties.speed')
+                });
+            }, 1000);
+        },
+        _slidePictures () {
+            let pictures = Polymer.dom(this.root).querySelectorAll('.picture'),
+                count = Math.min(6, pictures.length),
+                animation,
+                lastAnimation;
+            // Do not animate if there is less than 5 pictures
+            if (this.pictures.length <= 4) {
+                return Promise.resolve();
+            }
+            // Only animate the visible pictures
+            for (let i = 0; i < count; i++) {
+                animation = pictures[i].animate([
+                    { transform: 'translateX(0px)' },
+                    { transform: 'translateX(100%)' }
+                ], {
+                    duration: 200,
+                    delay: (count - i) * 40,
+                    easing: 'ease-in-out'
+                });
+                if (i === 0) {
+                    lastAnimation = animation;
+                }
+            }
+            return lastAnimation.finished;
+        },
+        _animateNewPictureIn () {
+            let picture = this.$$('.picture');
+            // Do not animate if there is less than 5 pictures
+            if (this.pictures.length <= 4) {
+                return;
+            }
+            picture.animate([
+                { transform: 'scale(0)', opacity: 0 },
+                { transform: 'scale(1)', opacity: 1 }
+            ], {
+                duration: 200,
+                easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+            });
         }
     });
 </script>

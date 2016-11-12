@@ -30,6 +30,37 @@ blocks.push({
     }
 });
 
+blocks.push({
+    block: (ui) => {
+        return {
+            id: 'set_transparency',
+            message0: `${ui.name}: set transparency to %1`,
+            args0: [{
+                type: 'input_value',
+                name: 'ALPHA',
+                check: 'Number'
+            }],
+            previousStatement: null,
+            nextStatement: null,
+            shadow: {
+                'ALPHA': '<shadow type="math_number"><field name="NUM">100</field></shadow>'
+            }
+        };
+    },
+    javascript: (ui) => {
+        return function (block) {
+            let alpha = Blockly.JavaScript.valueToCode(block, 'ALPHA');
+            return `devices.get('${ui.id}').setTransparency(${alpha});`;
+        };
+    },
+    pseudo: (ui) => {
+        return function (block) {
+            let alpha = Blockly.JavaScript.valueToCode(block, 'ALPHA');
+            return `devices.get('${ui.id}').setTransparency(${alpha});`;
+        };
+    }
+});
+
 blocks = blocks.concat(setters);
 blocks = blocks.concat(space);
 blocks = blocks.concat(paths);
@@ -39,6 +70,7 @@ export default normal = {
     id: 'normal',
     name: 'Draw',
     colour: '#82C23D',
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="90" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>`,
     blocks,
     allowBackground: true,
     workspace: {
@@ -48,8 +80,9 @@ export default normal = {
         },
         component: 'kano-workspace-normal'
     },
+    sharing: {},
     parts: ['clock', 'microphone', 'speaker', 'button', 'box',
-                'image', 'map', 'scrolling-text', 'slider',
+                'sticker', 'map', 'scrolling-text', 'slider',
                 'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
-                'share', 'canvas']
+                'share', 'canvas', 'oscillator']
 };

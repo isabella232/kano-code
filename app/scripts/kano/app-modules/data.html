@@ -88,8 +88,9 @@
                 this.addMethod('weather', '_weather');
 
                 this._space = {};
-                this._space.getISSStatus = (id) => {
-                    return this.get(id, this.fetchData(data.buildUrl('iss')))
+                this._space.getISSStatus = (id, config) => {
+                    let url = this.buildUrl('iss');
+                    return this.get(id, this.fetchData(url))
                         .then(r => r.json());
                 };
 
@@ -195,7 +196,7 @@
                                     init = {"status" : r.status, "statusText" : r.statusText},
                                     response;
 
-                                if (d.success) {
+                                if (d.success && d.value) {
                                     s = JSON.stringify(d.value);
                                 } else {
                                     console.error('Failed to retrieve data');

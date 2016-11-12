@@ -8,6 +8,7 @@
         transition: all linear 100ms;
     }
     :host .line {
+        width: 100%;
         margin-top: 5px;
         @apply(--layout-vertical);
     }
@@ -26,6 +27,7 @@
                         type="{{property.type}}"
                         name="name"
                         label="{{property.label}}"
+                        symbol="{{property.symbol}}"
                         on-value-changed="propertyChanged"
                         value$="[[computeValue(property.key)]]"
                         min="[[property.min]]"
@@ -52,7 +54,18 @@
             }
         },
         propertyChanged (e) {
+            let target = e.path ? e.path[0] : e.target;
+            if (target.tagName !== 'KANO-INPUT') {
+                return;
+            }
             let propertyName = e.model.get('property.key');
+            if (typeof(e.detail.value) == 'number') {
+                if (propertyName == 'width' || propertyName == 'height') {
+                      e.detail.value = `${e.detail.value.toString()}px`;
+                } else if (propertyName == 'font-size') {
+                      e.detail.value = `${e.detail.value.toString()}em`;
+                }
+            }
             this.set(`userValues.${propertyName}`, e.detail.value);
         },
         computeValue (propertyName) {

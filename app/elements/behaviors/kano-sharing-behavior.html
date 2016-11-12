@@ -19,29 +19,45 @@ var SharingBehavior = {
             notify: true
         }
     },
+    listeners: {
+        'cover-generated': '_goToForm',
+        'change-gif': '_goToGifCreator'
+    },
     observers: [
         '_userChanged(user)'
     ],
-
-    shareApp () {
+    _goToPage (page) {
+        this.set('shareInfo.page', page);
+        this.modal.refit();
+    },
+    _goToGifCreator () {
+        this._goToPage('gif-creation');
+    },
+    _goToForm () {
+        this._goToPage('sharing-form');
+    },
+    _shareApp () {
         // Generates the standalone component
         let savedApp,
         attachment,
-        cover = FileUtils.dataURItoBlob(this.shareInfo.image.src),
+        cover = this.shareInfo.coverBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
 
-        cover.filename = 'cover.png';
+        cover.filename = 'cover.gif';
         workspaceInfo.filename = 'workspace_info.json';
 
+        this.set('shareInfo.loading', true);
+
         //Share by calling the API
-        Kano.MakeApps.sdk.api.share.post({
+        return Kano.MakeApps.sdk.api.share.post({
             app: 'make-apps',
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: {
                 cover: cover,
                 workspace_info: workspaceInfo
-            }
+            },
+            is_private: this.shareInfo.is_private || false
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
@@ -68,30 +84,46 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
-            this.set('shareInfo.page', 2);
             this.set('shareInfo.id', share.id);
-            this.modal.refit();
+            this.set('shareInfo.slug', share.slug);
+            if (!this.shareInfo.is_private) {
+                this._goToPage('success');
+            }
+            return share;
         }).catch((e) => {
             console.error(e);
-            this.set('shareInfo.page', 3);
-            this.modal.refit();
+            this._goToPage('failure');
         });
     },
+
     /**
     * Opens the sharing modal and share the app
     */
     share (e) {
-        let shareInfo = {
-            image: e.detail.cover,
+        let app = e.detail.app,
+            slug = Date.now().toString(),
+            mode = Kano.MakeApps.Mode.modes[app.mode],
+            shareInfo, component;
+        component = Kano.AppModules.generateStandaloneComponent(
+            slug,
+            app.parts,
+            app.background,
+            mode,
+            app.code);
+        shareInfo = {
+            app: {
+                src: 'data:text/html;base64,' + window.btoa(component),
+                slug
+            },
             workspaceInfo: e.detail.workspaceInfo,
-            page: 0,
+            page: 'gif-creation',
             title: '',
             description: '',
             id: null,
             background: e.detail.background,
             parts: e.detail.parts,
             code: e.detail.code,
-            mode: e.detail.mode
+            mode
         };
 
         this.set('shareInfo', shareInfo);
@@ -118,6 +150,11 @@ var SharingBehavior = {
                 }
             }
         };
+        let onAppReady = () => {
+            this.modal.refit();
+            this.modal.removeEventListener('app-ready', onAppReady);
+        };
+        this.modal.addEventListener('app-ready', onAppReady);
         this.modal.open();
     },
 
@@ -127,7 +164,7 @@ var SharingBehavior = {
             return;
         }
         // The user logged in and the sharing was waiting authentication, trigger the share
-        if (this.waitingAuth) {
+        if (this.waitingAuth && !this.shareInfo.is_private) {
             this.confirmShare();
         }
     },
@@ -139,9 +176,12 @@ var SharingBehavior = {
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this.set('shareInfo.page', 1);
-        this.shareApp();
-        this.modal.refit();
+        this._shareApp();
+
+        if (!this.shareInfo.is_private) {
+            this._goToPage('publishing');
+        }
+
     },
 
     dismissShare () {

@@ -9,7 +9,8 @@ export default light = {
     parts: ['clock', 'microphone', 'speaker', 'light-animation-display',
                 'light-animation', 'light-circle', 'light-frame', 'light-rectangle',
                 'rss', 'sports', 'weather', 'iss', 'share', 'proximity-sensor',
-                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer'],
+                'motion-sensor', 'gesture-sensor', 'gyro-accelerometer',
+                'oscillator'],
     workspace: {
         viewport: {
             width: 466,
@@ -17,6 +18,30 @@ export default light = {
         },
         component: 'kano-workspace-lightboard'
     },
+    sharing: {
+        padding: 10,
+        color: '#ef3442'
+    },
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" id="default_part_event_id" colour="#33a7ff" x="90" y="120"><field name="EVENT">global.start</field></block></xml>`,
+    events: [{
+        label: 'UP pressed',
+        id: 'lightboard-js-up'
+    }, {
+        label: 'DOWN pressed',
+        id: 'lightboard-js-down'
+    }, {
+        label: 'LEFT pressed',
+        id: 'lightboard-js-left'
+    }, {
+        label: 'RIGHT pressed',
+        id: 'lightboard-js-right'
+    },{
+        label: 'A pressed',
+        id: 'lightboard-btn-A'
+    },{
+        label: 'B pressed',
+        id: 'lightboard-btn-B'
+    }],
     blocks: [{
         block: () => {
             return {
@@ -90,18 +115,24 @@ export default light = {
                 output: 'Light'
             };
         },
-        javascript: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
+        javascript: (part) => {
+            return (block) => {
+                if (block.parentBlock_) {
+                    return [JSON.stringify({
+                        type: 'all'
+                    })];
+                }
+                return;
             };
         },
-        pseudo: () => {
-            return () => {
-                return [JSON.stringify({
-                    type: 'all'
-                })];
+        pseudo: (part) => {
+            return (block) => {
+                if (block.parentBlock_) {
+                    return [JSON.stringify({
+                        type: 'all'
+                    })];
+                }
+                return;
             };
         }
     },{
@@ -122,8 +153,8 @@ export default light = {
                     align: "RIGHT"
                 }],
                 shadow: {
-                    'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>',
-                    'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'X': '<shadow type="math_number"><field name="NUM">1</field></shadow>',
+                    'Y': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
@@ -131,22 +162,28 @@ export default light = {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                     y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
-                return [`{
-                    type: 'single',
-                    x: ${x},
-                    y: ${y}
-                }`];
+                if (block.parentBlock_) {
+                    return [`{
+                        type: 'single',
+                        x: ${x}-1,
+                        y: ${y}-1
+                    }`];
+                }
+                return;
             };
         },
         pseudo: () => {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
                     y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
-                return [`{
-                    type: 'single',
-                    x: ${x},
-                    y: ${y}
-                }`];
+                if (block.parentBlock_) {
+                    return [`{
+                        type: 'single',
+                        x: ${x}-1,
+                        y: ${y}-1
+                    }`];
+                }
+                return;
             };
         }
     },{
@@ -156,8 +193,7 @@ export default light = {
                 message0: 'Lights: show text %1 color %2 background %3',
                 args0: [{
                     type: "input_value",
-                    name: "TEXT",
-                    check: 'String'
+                    name: "TEXT"
                 },{
                     type: "input_value",
                     name: "COLOR",
@@ -180,7 +216,7 @@ export default light = {
         },
         javascript: (part) => {
             return (block) => {
-                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '""',
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     backgroundColor = Blockly.JavaScript.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
                     code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
@@ -189,7 +225,7 @@ export default light = {
         },
         pseudo: (part) => {
             return (block) => {
-                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '""',
                     color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
                     backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
                     code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
@@ -232,7 +268,7 @@ export default light = {
         },
         javascript: (part) => {
             return (block) => {
-                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.JavaScript.valueToCode(block, 'TEXT') || '""',
                     color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     backgroundColor = Blockly.JavaScript.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
                     speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || '50',
@@ -242,53 +278,12 @@ export default light = {
         },
         pseudo: (part) => {
             return (block) => {
-                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '',
+                let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '""',
                     color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
                     backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
                     speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || '50',
                     code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
                 return code;
-            };
-        }
-    },{
-        block: () => {
-            return {
-                id: 'button_down',
-                message0: 'when button %1 is pressed',
-                inputsInline: true,
-                args0: [{
-                    type: "field_dropdown",
-                    name: "KEY",
-                    options: [
-                        ['up', 'js-up'],
-                        ['down', 'js-down'],
-                        ['left', 'js-left'],
-                        ['right', 'js-right'],
-                        ['A', 'btn-A'],
-                        ['B', 'btn-B']
-                    ]
-                }],
-                message1: '%1',
-                args1: [{
-                    type: 'input_statement',
-                    name: 'DO'
-                }],
-                previousStatement: true,
-                nextStatement: true,
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let key = block.getFieldValue('KEY'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onKeyDown('${key}', function (){\n${statement}\n});\n`;
             };
         }
     }]

@@ -5,7 +5,7 @@ let gyroAccelerometer;
 export default gyroAccelerometer = {
     partType: 'hardware',
     type: 'gyro-accelerometer',
-    label: 'Gyroscope/Accelerometer',
+    label: 'Tilt',
     image: '/assets/part/proximity.svg',
     colour: '#FFB347',
     component: 'kano-part-gyro-accelerometer',

@@ -9,6 +9,7 @@ export default lightRectangle = {
     image: '/assets/part/pixels-rectangle.svg',
     colour: '#FFB347',
     component: 'kano-part-light-rectangle',
+    configPanel: 'kano-light-shape-configuration',
     excludeDefaultBlocks: true,
     restrict: 'workspace',
     customizable: {
@@ -50,21 +51,21 @@ export default lightRectangle = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'X': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'X': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
         javascript: (part) => {
             return (block) => {
                 let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').setX(${x});\n`;
+                    code = `devices.get('${part.id}').setX(${x}-1);\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                    code = `devices.get('${part.id}').setX(${x});\n`;
+                    code = `devices.get('${part.id}').setX(${x}-1);\n`;
                 return code;
             };
         }
@@ -82,21 +83,21 @@ export default lightRectangle = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'Y': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'Y': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
         javascript: (part) => {
             return (block) => {
                 let y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').setY(${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y}-1);\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
                 let y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                    code = `devices.get('${part.id}').setY(${y});\n`;
+                    code = `devices.get('${part.id}').setY(${y-1});\n`;
                 return code;
             };
         }
@@ -114,7 +115,7 @@ export default lightRectangle = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'WIDTH': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'WIDTH': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
@@ -146,7 +147,7 @@ export default lightRectangle = {
                 previousStatement: null,
                 nextStatement: null,
                 shadow: {
-                    'HEIGHT': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                    'HEIGHT': '<shadow type="math_number"><field name="NUM">1</field></shadow>'
                 }
             };
         },
@@ -174,6 +175,7 @@ export default lightRectangle = {
                     name: "COLOR",
                     check: 'Colour'
                 }],
+
                 inputsInline: false,
                 previousStatement: null,
                 nextStatement: null
@@ -181,14 +183,14 @@ export default lightRectangle = {
         },
         javascript: (part) => {
             return (block) => {
-                let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || 1,
+                let color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || 1,
+                let color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
                     code = `devices.get('${part.id}').setColor(${color});\n`;
                 return code;
             };
@@ -203,13 +205,13 @@ export default lightRectangle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getX()`;
+                let code = `devices.get('${part.id}').getX()+1`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getX()`;
+                let code = `devices.get('${part.id}').getX()+1`;
                 return [code];
             };
         }
@@ -223,13 +225,13 @@ export default lightRectangle = {
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getY()`;
+                let code = `devices.get('${part.id}').getY()+1`;
                 return [code];
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').getY()`;
+                let code = `devices.get('${part.id}').getY()+1`;
                 return [code];
             };
         }

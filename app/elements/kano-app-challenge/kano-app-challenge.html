@@ -1,10 +1,14 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
 <link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
 <link rel="import" href="../kano-highlight/kano-highlight.html">
 <link rel="import" href="../behaviors/kano-validator-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
+<link rel="import" href="../kano-value-preview/kano-value-preview.html">
+<link rel="import" href="../kano-style/typography.html">
 <dom-module id="kano-app-challenge">
     <style>
     :host {
@@ -59,6 +63,7 @@
         --kano-tooltip-border-color: white;
         --kano-tooltip-border-width: 1px;
         color: white;
+        font-family: var(--font-body);
         --kano-tooltip: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
             padding: 18px 26px 20px;
@@ -91,10 +96,10 @@
     }
     </style>
     <template>
-        <content select=".editor" id="content"></content>
+        <slot name="editor" id="content"></slot>
         <kano-highlight id="highlight" x="[[highlight.x]]" y="[[highlight.y]]" width="[[highlight.width]]" height="[[highlight.height]]"></kano-highlight>
         <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
-            <iron-image class="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
+            <iron-image slot="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
         <template is="dom-repeat" items="{{tooltips}}" as="tooltip" on-dom-change="_tooltipDomChanged">
             <kano-tooltip id$="tooltip-[[index]]"

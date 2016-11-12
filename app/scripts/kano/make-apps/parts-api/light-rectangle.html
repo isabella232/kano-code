@@ -12,23 +12,24 @@
                 this._updateLightboard();
             },
             getWidth () {
-                return this.get('model.userProperties.width');
+                return parseInt(this.get('model.userProperties.width'));
             },
             setHeight (h) {
                 this.set('model.userProperties.height', h);
                 this._updateLightboard();
             },
             getHeight () {
-                return this.get('model.userProperties.height');
+                return parseInt(this.get('model.userProperties.height'));
             },
             setColor (c) {
+                c = c || '#ffffff';
                 this.set('model.userProperties.color', c);
                 this._updateLightboard();
             },
             getColor () {
                 return this.get('model.userProperties.color');
             },
-            _updateLightboard () {
+            _updateLightboard (force) {
                 this.debounce('_updateLightboard', () => {
                     if (this.isRunning) {
                         let shape = {
@@ -38,7 +39,8 @@
                             width: parseInt(this.model.userProperties.width),
                             height: parseInt(this.model.userProperties.height),
                             color: this.model.userProperties.color,
-                            type: 'rectangle'
+                            type: 'rectangle',
+                            force
                         };
                         this.fire('update-shape', shape);
                     }

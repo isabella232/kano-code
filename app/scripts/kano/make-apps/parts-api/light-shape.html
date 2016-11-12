@@ -10,7 +10,7 @@
             PIXEL_SIZE: 27,
             start () {
                 PartsAPI.Base.start.apply(this);
-                this._updateLightboard();
+                this._updateLightboard(true);
             },
             move (x, y) {
                 x *= this.PIXEL_SIZE;
@@ -28,11 +28,27 @@
                 PartsAPI.Base.setY.call(this, y);
                 this._updateLightboard();
             },
+            getWidth () {
+                return null;
+            },
+            getHeight () {
+                return null;
+            },
             getX () {
-                return Math.max(0, Math.floor(PartsAPI.Base.getX.apply(this) / this.PIXEL_SIZE));
+                let width = this.getWidth(),
+                    newPos = Math.max(0, Math.floor(PartsAPI.Base.getX.apply(this) / this.PIXEL_SIZE));
+                if (width) {
+                    newPos = Math.min(this.BOARD_WIDTH - width, newPos);
+                }
+                return newPos;
             },
             getY () {
-                return Math.max(0, Math.floor(PartsAPI.Base.getY.apply(this) / this.PIXEL_SIZE));
+                let height = this.getHeight(),
+                    newPos = Math.max(0, Math.floor(PartsAPI.Base.getY.apply(this) / this.PIXEL_SIZE));
+                if (height) {
+                    newPos = Math.min(this.BOARD_HEIGHT - height, newPos);
+                }
+                return newPos;
             },
             _updateLightboard() {}
         };

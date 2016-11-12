@@ -29,7 +29,7 @@ module.exports = (gulp, $) => {
 
     function views(src) {
         return () => {
-            return babelOrCopy(src)
+            return babelOrCopy(src, { base: 'app/views/' })
             .pipe(gulp.dest('www/views'))
             .pipe($.browserSync.stream());
         };
@@ -37,10 +37,9 @@ module.exports = (gulp, $) => {
 
     function styles(src) {
         return () => {
-            return gulp.src(src)
-            .pipe($.concat('main.css'))
+            return gulp.src(src, { base: 'app' })
             .pipe($.autoprefixer())
-            .pipe(gulp.dest('www/css'))
+            .pipe(gulp.dest('www'))
             .pipe($.browserSync.stream());
         };
     }
@@ -55,7 +54,7 @@ module.exports = (gulp, $) => {
 
     function scripts(src) {
         return () => {
-            return gulp.src(src, { base: 'app' })
+            return babelOrCopy(src, { base: 'app' })
             .pipe(gulp.dest('www'))
             .pipe($.browserSync.stream());
         };
@@ -73,7 +72,8 @@ module.exports = (gulp, $) => {
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/util/router.js',
-            'app/scripts/index.js'
+            'app/scripts/index.js',
+            'app/loading-share.html'
         ],
         process: copy
     };

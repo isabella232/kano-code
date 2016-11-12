@@ -1,8 +1,16 @@
-<link rel="import" href="../../elements/editor-bundle.html">
-<link rel="import" href="../../elements/share-bundle.html">
-<link rel="import" href="../../elements/story-bundle.html">
-<link rel="import" href="../../elements/tutorial-bundle.html">
-<link rel="import" href="../../elements/run-bundle.html">
+<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
+<link rel="import" href="../../scripts/kano/util/router.html">
+<link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
+<link rel="import" href="../../scripts/kano/make-apps/challenge.html">
+<link rel="import" href="../../scripts/kano/app-modules/index.html">
+<link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
+<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
+<link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
+<link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
+
 <dom-module id="kano-view-tutorial">
     <style>
         :host {
@@ -29,6 +37,8 @@
         }
         .challenge-modal {
             max-width: 514px;
+            max-height: 500px;
+            overflow-y: scroll;
         }
         .share-preview {
             width: 100%;
@@ -41,7 +51,7 @@
     </style>
     <template>
         <template is="dom-if" if="[[shareLoaded]]" on-dom-change="_editorDomChanged">
-            <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[_share.title]]" on-scene-done="_showEndModal" on-share="share"></kano-scene-editor>
+            <kano-scene-editor id="editor" scene="[[scene]]" story-name="[[_share.title]]" on-scene-done="_showEndModal" on-share="_pauseAndShare"></kano-scene-editor>
         </template>
         <paper-dialog id="share-modal" with-backdrop>
             <kano-share-modal on-confirm="confirmShare"
@@ -82,7 +92,9 @@
         <paper-dialog id="share-modal" with-backdrop>
             <kano-share-modal on-confirm="confirmShare"
                               on-dismiss="dismissShare"
-                              share-info="{{shareInfo}}"></kano-share-modal>
+                              share-info="{{shareInfo}}"
+                              world-url="[[config.WORLD_URL]]"
+                              is-authenticated="[[user]]"></kano-share-modal>
         </paper-dialog>
     </template>
 </dom-module>
@@ -115,7 +127,7 @@
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
         },
         attached () {
-            let editor = window.RouterUtil.parseQsParam(this.context.querystring, 'editor');
+            let editor = Kano.Util.Router.parseQsParam(this.context.querystring, 'editor');
             this.modal = this.$['share-modal'];
             this.$['start-modal'].open();
             this.selectedStartPage = 'loading';
@@ -154,8 +166,12 @@
                 return JSON.stringify(this.challenge, null, '\t');
             };
         },
+        _pauseAndShare (e) {
+            this.running = false;
+            this.share(e);
+        },
         _getMode (context) {
-            let modeFromQs = window.RouterUtil.parseQsParam(this.context.querystring, 'mode');
+            let modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
         },
         _startTutorial () {

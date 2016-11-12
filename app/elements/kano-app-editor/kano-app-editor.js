@@ -1,15 +1,5 @@
 /* globals Polymer, Kano, interact, Part */
 
-const DEFAULT_BLOCKS = "<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" colour=\"#33a7ff\" x=\"90\" y=\"120\"><field name=\"EVENT\">global.start</field></block></xml>";
-
-function getDefaultCode() {
-    return {
-        snapshot: {
-            blocks: DEFAULT_BLOCKS
-        }
-    };
-}
-
 function getDefaultBackground() {
     return {
         name: 'My app',
@@ -36,7 +26,13 @@ Polymer({
         code: {
             type: Object,
             notify: true,
-            value: getDefaultCode()
+            value: () => {
+                return {
+                    snapshot: {
+                        blocks: ''
+                    }
+                };
+            }
         },
         selected: {
             type: Object,
@@ -49,7 +45,7 @@ Polymer({
             notify: true,
             observer: '_runningChanged'
         },
-        tinkering: {
+        editableLayout: {
             type: Boolean,
             value: false
         },
@@ -72,10 +68,6 @@ Polymer({
         selectedParts: {
             type: Array
         },
-        showShareButton: {
-            type: Boolean,
-            value: false
-        },
         drawerPage: {
             type: String,
             value: 'sidebar'
@@ -84,11 +76,17 @@ Polymer({
             type: String,
             value: '80%'
         },
-        title: {
-            type: String
-        },
         mode: {
-            type: String
+            type: Object
+        },
+        partsMenuOpen: {
+            type: Boolean,
+            value: false,
+            computed: 'isPartsMenuOpen(partsPanelState, drawerPage)'
+        },
+        challengeState: {
+            type: Object,
+            value: null
         }
     },
     observers: [
@@ -100,12 +98,12 @@ Polymer({
         '_codeChanged(code.*)'
     ],
     _partsPanelStateChanged (state) {
-        if (this.tinkering && state === 'main') {
-            this.$.workspace.toggleTinkering();
+        if (this.editableLayout && state === 'main') {
+            this.$.workspace.toggleEditableLayout();
         }
     },
-    _isPauseOverlayHidden (running, tinkering) {
-        return running || tinkering;
+    _isPauseOverlayHidden (running, editableLayout) {
+        return running || editableLayout;
     },
     _codeChanged () {
         this.code = this._formatCode(this.code);
@@ -239,9 +237,9 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save (snapshot=false) {
+    save (snapshot=false, to_json=true) {
         let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push(part.toJSON());
+            acc.push((to_json) ? part.toJSON() : part);
             return acc;
         }, []),
             savedApp = {};
@@ -256,16 +254,18 @@ Polymer({
 
         return savedApp;
     },
-    share () {
-        this.generateCover().then(image => {
-            this.fire('share', {
-                cover: image,
-                workspaceInfo: JSON.stringify(this.save()),
-                background: this.background.userStyle.background,
-                mode: this.mode,
-                code: this.code,
-                parts: this.addedParts
-            });
+    share (e) {
+        if (e && e.detail && e.detail.keyboardEvent) {
+            e.detail.keyboardEvent.preventDefault();
+            e.detail.keyboardEvent.stopPropagation();
+        }
+        this.fire('share', {
+            app: this.save(false, false),
+            workspaceInfo: JSON.stringify(this.save()),
+            background: this.background.userStyle.background,
+            mode: this.mode,
+            code: this.code,
+            parts: this.addedParts
         });
     },
     generateCover () {
@@ -302,19 +302,17 @@ Polymer({
         this.set('background', savedApp.background);
     },
     _formatCode (code) {
-        let emptyBlocks = ['<xml xmlns="http://www.w3.org/1999/xhtml"></xml>', '', null, undefined];
         code = code || {};
         code.snapshot = code.snapshot || {};
-        if (code && code.snapshot && emptyBlocks.indexOf(code.snapshot.blocks) !== -1) {
-            code.snapshot.blocks = DEFAULT_BLOCKS;
-        }
         return code;
     },
     reset () {
         this.set('addedParts', []);
-        this.set('code', getDefaultCode());
+        this.set('code', this._formatCode({}));
         this.set('background', getDefaultBackground());
         this.save();
+
+        this.$.workspace.reset();
     },
     closeDrawer () {
         this.$.partsPanel.closeDrawer();
@@ -349,8 +347,15 @@ Polymer({
         } else {
             this.drawerPage = 'sidebar';
             this.drawerWidth = '80%';
-            this.$.partsPanel.openDrawer();
+            this._openDrawer();
         }
+    },
+    _openDrawer () {
+        // HACK. Removes the will-change transform from the drawer inside the paper-drawer-panel shadow dom because
+        // it creates a new stacking context and prevent children using position: fixed to refer to the viewport
+        let drawer = Polymer.dom(this.$.partsPanel.root).querySelector('#drawer');
+        this.$.partsPanel.openDrawer();
+        drawer.style.willChange = 'initial';
     },
     onPartSettings () {
         // No part selected, show the background editor
@@ -360,12 +365,12 @@ Polymer({
             } else {
                 this.drawerPage = 'background-editor';
                 this.drawerWidth = '60%';
-                this.$.partsPanel.openDrawer();
+                this._openDrawer();
             }
         } else {
             this.drawerPage = 'part-editor';
             this.drawerWidth = '60%';
-            this.$.partsPanel.openDrawer();
+            this._openDrawer();
             this.notifyChange('open-part-settings', { part: this.selected });
         }
     },
@@ -380,7 +385,6 @@ Polymer({
             Kano.MakeApps.Blockly.removeLookupString(id);
         });
         this.splice('addedParts', index, 1);
-        this.$.partsPanel.closeDrawer();
         this.$.workspace.clearSelection();
     },
     onPartReady (e) {
@@ -444,7 +448,6 @@ Polymer({
         let sidebar = this.$.drawer;
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
         this.panelStateChanged = this.panelStateChanged.bind(this);
-        document.addEventListener('reset-workspace', this.reset);
 
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
         if (sidebar.classList.contains('animatable')) {
@@ -456,7 +459,6 @@ Polymer({
     detachEvents () {
         let sidebar = this.$.drawer;
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
-        document.addEventListener('reset-workspace', this.reset);
         if (sidebar.classList.contains('animatable')) {
             sidebar.removeEventListener('transitionend', this.panelStateChanged);
         } else {
@@ -464,19 +466,17 @@ Polymer({
         }
     },
     ready () {
-        this.makeButtonIconPaths = {
-            stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
-            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
-        };
         this.reset = this.reset.bind(this);
+        this._exportApp = this._exportApp.bind(this);
+        this._importApp = this._importApp.bind(this);
     },
     attached () {
-        this.title = this.title ? "My " + this.title.toLowerCase() : "Kano Code";
+        this.target = document.body;
 
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
 
-        interact(this.$['left-panel']).dropzone({
+        interact(this.$['workspace-panel']).dropzone({
             // TODO rename to kano-part-item
             accept: 'kano-ui-item:not([instance])',
             ondrop: (e) => {
@@ -500,15 +500,51 @@ Polymer({
         });
         this.bindEvents();
 
-        window.onbeforeunload = () => {
-            return 'Any unsaved changes to your app will be lost. Continue?';
-        };
+        if (!window.navigator.userAgent.match("Electron")) {
+            window.onbeforeunload = () => {
+                return 'Any unsaved changes to your app will be lost. Continue?';
+            }
+        }
     },
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
 
         window.onbeforeunload = null;
+    },
+    _exportApp () {
+        let savedApp = this.save(),
+            a = document.createElement('a'),
+            file = new Blob([JSON.stringify(savedApp)], {type: 'application/kcode'}),
+            url = URL.createObjectURL(file);
+        document.body.appendChild(a);
+        a.download = 'my-app.kcode';
+        a.href = url;
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+    _importApp () {
+        this.fileInput = document.createElement('input');
+        this.fileInput.setAttribute('type', 'file');
+        this.fileInput.style.display = 'none';
+        this.fileInput.addEventListener('change', (evt) => {
+            let f = evt.target.files[0];
+            if (f) {
+                let r = new FileReader();
+                r.onload = (e) => {
+                    // Read the mode
+                    let app = JSON.parse(e.target.result);
+                    this.set('mode', Kano.MakeApps.Mode.modes[app.mode]);
+                    Kano.MakeApps.Parts.clear();
+                    this.load(app, Kano.MakeApps.Parts.list);
+                };
+                r.readAsText(f);
+                document.body.removeChild(this.fileInput);
+            }
+        });
+        document.body.appendChild(this.fileInput);
+        this.fileInput.click();
     },
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
@@ -560,9 +596,6 @@ Polymer({
     _runButtonClicked () {
         this.toggleRunning();
     },
-    /**
-     * Toggle the running state of the current app
-     */
     toggleRunning (state) {
         this.running = typeof state === 'undefined' ? !this.running : state;
     },
@@ -592,7 +625,7 @@ Polymer({
             if (!draggable.model) {
                 return;
             }
-            restrictEl = draggable.model.restrict === 'workspace' ? this.$.workspace.getViewport().getRestrictElement() : this.$['left-panel'];
+            restrictEl = draggable.model.restrict === 'workspace' ? this.$.workspace.getViewport().getRestrictElement() : this.$['workspace-panel'];
             interact(draggable).draggable({
                 onmove: this.getDragMoveListener(true),
                 onend: (e) => {
@@ -603,8 +636,7 @@ Polymer({
                     });
                 },
                 restrict: {
-                    restriction: restrictEl,
-                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+                    restriction: restrictEl
                 }
             });
         });
@@ -614,21 +646,17 @@ Polymer({
         e.stopPropagation();
     },
 
-    getMakeButtonClass (running, tinkering) {
+    getMakeButtonClass (running, editableLayout) {
         let classes = [];
         if (running) {
             classes.push('running');
         } else {
             classes.push('stopped');
         }
-        if (tinkering) {
-            classes.push('tinkering');
+        if (editableLayout) {
+            classes.push('editable-layout');
         }
         return classes.join(' ');
-    },
-
-    applyElevateClass () {
-        return this.running ? 'elevate' : '';
     },
 
     applyHiddenClass () {
@@ -678,18 +706,17 @@ Polymer({
      * Mouse moved handler
      */
     mouseMoved (e) {
-        let leftPanel = this.$['left-panel'],
+        let workspacePanel = this.$['workspace-panel'],
             container = this.$.section,
-            offsetLeftPanel;
+            offsetPanel;
 
         if (!this.isResizing) {
             return;
         }
         this.pauseEvent(e);
 
-        offsetLeftPanel = e.clientX - container.getBoundingClientRect().left;
-        offsetLeftPanel = offsetLeftPanel;
-        leftPanel.style.width = `${offsetLeftPanel}px`;
+        offsetPanel = container.getBoundingClientRect().right - e.clientX;
+        workspacePanel.style.width = `${offsetPanel}px`;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
@@ -698,26 +725,29 @@ Polymer({
         this.notifyChange('running', {
             value: this.running
         });
-        // Removes the elevate class only after the animation
         if (!this.running) {
             this._enableDrag();
         } else {
             // Disable drag when starts
             this._disableDrag();
-            this.set('tinkering', false);
+            this.set('editableLayout', false);
             this.closeDrawer();
         }
     },
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
     },
-    partsMenuLabel () {
-        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'close' : 'add part';
-    },
-    applyOpenClass () {
-        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar' ? 'open' : '';
+    isPartsMenuOpen () {
+        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar';
     },
     getWorkspace () {
         return this.$.workspace;
+    },
+    _resetAppState () {
+        this.running = false;
+
+        setTimeout(() => {
+            this.running = true;
+        }, 0);
     }
 });

@@ -15,7 +15,9 @@ if (window.CustomBlocklyMsg) {
     Object.assign(Blockly.Msg, window.CustomBlocklyMsg);
 }
 
-Blockly.isAnimationsDisabled = Kano.MakeApps.config.PERF_SAFE;
+Blockly.isAnimationsDisabled = function () {
+    return false;
+};
 
 function lightenColor (hex, lum) {
 
@@ -160,14 +162,10 @@ Blockly.isTargetInput_ = function(e) {
 
 Blockly.Variables.variablesDB = {};
 
-/**
- * Find all user-created variables.
- * @param {!Blockly.Block|!Blockly.Workspace} root Root block or workspace.
- * @return {!Array.<string>} Array of variable names.
- */
-Blockly.Variables.allVariables = function(root) {
+
+Blockly.Variables.allUsedVariables = function(root) {
   var blocks;
-  if (root.getDescendants) {
+  if (root instanceof Blockly.Block) {
     // Root is Block.
     blocks = root.getDescendants();
   } else if (root.getAllBlocks) {
@@ -178,13 +176,15 @@ Blockly.Variables.allVariables = function(root) {
   }
   var variableHash = Object.create(null);
   // Iterate through every block and add each variable to the hash.
-  for (var i = 0; i < blocks.length; i++) {
-    var blockVariables = blocks[i].getVars();
-    for (var j = 0; j < blockVariables.length; j++) {
-      var varName = blockVariables[j];
-      // Variable name may be null if the block is only half-built.
-      if (varName) {
-        variableHash[varName.toLowerCase()] = varName;
+  for (var x = 0; x < blocks.length; x++) {
+    var blockVariables = blocks[x].getVars();
+    if (blockVariables) {
+      for (var y = 0; y < blockVariables.length; y++) {
+        var varName = blockVariables[y];
+        // Variable name may be null if the block is only half-built.
+        if (varName) {
+          variableHash[varName.toLowerCase()] = varName;
+        }
       }
     }
   }
@@ -301,39 +301,6 @@ Blockly.Workspace.prototype.getFlyoutBlockByType = (type) => {
 };
 
 /**
- * Initializes the flyout.
- * @param {!Blockly.Workspace} targetWorkspace The workspace in which to create
- *     new blocks.
- */
-Blockly.Flyout.prototype.init = function(targetWorkspace) {
-    var svg = targetWorkspace.getParentSvg(),
-        container = svg.parentNode,
-        triangle = document.createElement('div');
-
-    triangle.className = 'blocklyTriangle';
-    triangle.setAttribute('id', 'blocklyTriangle');
-
-    container.appendChild(triangle);
-
-    this.triangle = triangle;
-
-    this.targetWorkspace_ = targetWorkspace;
-    this.workspace_.targetWorkspace = targetWorkspace;
-    // Add scrollbar.
-    this.scrollbar_ = new Blockly.Scrollbar(this.workspace_, this.horizontalLayout_, false);
-
-    this.hide();
-
-    Array.prototype.push.apply(this.eventWrappers_, Blockly.bindEvent_(this.svgGroup_, 'wheel', this, this.wheel_));
-    if (!this.autoClose) {
-        this.filterWrapper_ = this.filterForCapacity_.bind(this);
-        this.targetWorkspace_.addChangeListener(this.filterWrapper_);
-    }
-    // Dragging the flyout up and down.
-    Array.prototype.push.apply(this.eventWrappers_, Blockly.bindEvent_(this.svgGroup_, 'mousedown', this, this.onMouseDown_));
-};
-
-/**
  * Hide and empty the flyout.
  */
 Blockly.Flyout.prototype.hide = function() {
@@ -346,14 +313,16 @@ Blockly.Flyout.prototype.hide = function() {
   var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
   var origin = this.trianglePos_;
   this.svgGroup_.style.transformOrigin = `left ${origin}px`;
-  if (Blockly.isAnimationsDisabled) {
+  if (Blockly.isAnimationsDisabled()) {
       this.svgGroup_.style.display = 'none';
   } else {
       this.animation = this.svgGroup_.animate([{
           transform: `${translate} scale(1)`,
+          webkitTransform: `${translate} scale(1)`,
           opacity: 1
       },{
           transform: `${translate} scale(0.5)`,
+          webkitTransform: `${translate} scale(0.5)`,
           opacity: 0
       }], {
           duration: 200,
@@ -399,25 +368,49 @@ Blockly.Flyout.prototype.show = function(xmlList) {
 
   this.svgGroup_.style.display = 'block';
   // Create the blocks to be shown in this flyout.
-  var blocks = [];
+  var contents = [];
   var gaps = [];
   this.permanentlyDisabled_.length = 0;
   for (var i = 0, xml; xml = xmlList[i]; i++) {
-    if (xml.tagName && xml.tagName.toUpperCase() == 'BLOCK') {
+    var tagName = xml.tagName.toUpperCase();
+    var default_gap = this.horizontalLayout_ ? this.GAP_X : this.GAP_Y;
+    if (tagName == 'BLOCK') {
       var curBlock = Blockly.Xml.domToBlock(xml, this.workspace_);
       if (curBlock.disabled) {
         // Record blocks that were initially disabled.
         // Do not enable these blocks as a result of capacity filtering.
         this.permanentlyDisabled_.push(curBlock);
       }
-      blocks.push(curBlock);
+      contents.push({ type: 'block', block: curBlock });
+      // CUTSOM CODE
       Blockly.Flyout.blocks[curBlock.type] = curBlock;
+      // END CUSTOM CODE
       var gap = parseInt(xml.getAttribute('gap'), 10);
-      gaps.push(isNaN(gap) ? this.MARGIN * 3 : gap);
+      gaps.push(isNaN(gap) ? default_gap : gap);
+    } else if (tagName === 'SEP') {
+        // Change the gap between two blocks.
+        // <sep gap="36"></sep>
+        // The default gap is 24, can be set larger or smaller.
+        // This overwrites the gap attribute on the previous block.
+        // Note that a deprecated method is to add a gap to a block.
+        // <block type="math_arithmetic" gap="8"></block>
+        var newGap = parseInt(xml.getAttribute('gap'), 10);
+        // Ignore gaps before the first block.
+        if (!isNaN(newGap) && gaps.length > 0) {
+            gaps[gaps.length - 1] = newGap;
+        } else {
+            gaps.push(default_gap);
+        }
+    } else if (tagName == 'BUTTON') {
+        var label = xml.getAttribute('text');
+        var curButton = new Blockly.FlyoutButton(this.workspace_,
+            this.targetWorkspace_, label);
+        contents.push({type: 'button', button: curButton});
+        gaps.push(default_gap);
     }
   }
 
-  this.layoutBlocks_(blocks, gaps);
+  this.layout_(contents, gaps);
 
   // IE 11 is an incompetent browser that fails to fire mouseout events.
   // When the mouse is over the background, deselect all blocks.
@@ -442,13 +435,15 @@ Blockly.Flyout.prototype.show = function(xmlList) {
 
   // Correctly position the flyout's scrollbar when it opens.
   this.position();
+
+  // CUSTOM CODE
   var translate = this.svgGroup_.style.webkitTransform || this.svgGroup_.style.transform;
   var origin = this.trianglePos_;
   this.svgGroup_.style.transformOrigin = `left ${origin}px`;
   if (this.animation) {
       this.animation.cancel();
   }
-  if (!Blockly.isAnimationsDisabled) {
+  if (!Blockly.isAnimationsDisabled()) {
       this.animation = this.svgGroup_.animate([{
           transform: `${translate} scale(0.5)`,
           opacity: 0
@@ -460,6 +455,8 @@ Blockly.Flyout.prototype.show = function(xmlList) {
           easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
       });
   }
+
+  // END CUSTOM CODE
 
   this.reflowWrapper_ = this.reflow.bind(this);
   this.workspace_.addChangeListener(this.reflowWrapper_);
@@ -863,71 +860,6 @@ Blockly.Toolbox.prototype.populate_ = function(newTree) {
 };
 
 /**
- * Create a copy of this block on the workspace.
- * @param {!Blockly.Block} originBlock The flyout block to copy.
- * @return {!Function} Function to call when block is clicked.
- * @private
- */
-Blockly.Flyout.prototype.createBlockFunc_ = function(originBlock) {
-  var flyout = this;
-  var workspace = this.targetWorkspace_;
-  return function(e) {
-    if (Blockly.isRightButton(e)) {
-      // Right-click.  Don't create a block, let the context menu show.
-      return;
-    }
-    if (originBlock.disabled) {
-      // Beyond capacity.
-      return;
-    }
-    Blockly.Events.disable();
-    // Create the new block by cloning the block in the flyout (via XML).
-    var xml = Blockly.Xml.blockToDom(originBlock);
-    var block = Blockly.Xml.domToBlock(xml, workspace);
-    // Place it in the same spot as the flyout copy.
-    var svgRootOld = originBlock.getSvgRoot();
-    if (!svgRootOld) {
-      throw 'originBlock is not rendered.';
-    }
-    var xyOld = Blockly.getSvgXY_(svgRootOld, workspace);
-    // Scale the scroll (getSvgXY_ did not do this).
-    if (flyout.RTL) {
-      var width = workspace.getMetrics().viewWidth - flyout.width_;
-      xyOld.x += width / workspace.scale - width;
-    } else {
-      xyOld.x += flyout.workspace_.scrollX / flyout.workspace_.scale -
-          flyout.workspace_.scrollX;
-    }
-    xyOld.y += flyout.workspace_.scrollY / flyout.workspace_.scale -
-        flyout.workspace_.scrollY;
-    var svgRootNew = block.getSvgRoot();
-    if (!svgRootNew) {
-      throw 'block is not rendered.';
-    }
-    var xyNew = Blockly.getSvgXY_(svgRootNew, workspace);
-    // Scale the scroll (getSvgXY_ did not do this).
-    xyNew.x += workspace.scrollX / workspace.scale - workspace.scrollX;
-    xyNew.y += workspace.scrollY / workspace.scale - workspace.scrollY;
-    if (workspace.toolbox_ && !workspace.scrollbar) {
-      xyNew.x += workspace.toolbox_.width / workspace.scale;
-    }
-    block.moveBy(xyOld.x - xyNew.x, xyOld.y - xyNew.y);
-    Blockly.Events.enable();
-    if (Blockly.Events.isEnabled() && !block.isShadow()) {
-      Blockly.Events.fire(new Blockly.Events.Create(block));
-    }
-    if (flyout.autoClose) {
-      flyout.hide();
-    } else {
-      flyout.filterForCapacity_();
-    }
-    // Start a dragging operation on the new block.
-    block.onMouseDown_(e);
-    block.setColour(originBlock.getColour());
-  };
-};
-
-/**
  * Overrides Blockly color computation to use HEX colors instead of
  * fixed saturation and value
  */
@@ -1321,57 +1253,113 @@ Blockly.BlockSvg.prototype.renderDrawLeft_ =
       return this.svgGroup_;
     };
 
-/**
-* Event handler for a change in variable name.
-* Special case the 'New variable...' and 'Rename variable...' options.
-* In both of these special cases, prompt the user for a new name.
-* @param {string} text The selected dropdown menu option.
-* @return {null|undefined|string} An acceptable new variable name, or null if
-*     change is to be either aborted (cancel button) or has been already
-*     handled (rename), or undefined if an existing variable was chosen.
-* @this {!Blockly.FieldVariable}
-*/
-Blockly.FieldVariable.dropdownChange = function(text) {
+
+Blockly.Variables.asyncPromptName = function (workspace, promptText, defaultText) {
+    var promptFunction;
     // Default prompt behavior from Blockly
     function defaultPromptFunction (promptText, defaultText) {
-        return Promise.resolve(window.prompt(promptText, defaultText));
+        return Promise.resolve(Blockly.Variables.promptName(promptText, defaultText));
     }
-    var workspace = this.sourceBlock_.workspace,
-        // Get optional custom prompt behavior
-        promptFunction = workspace.options.modalFunction || defaultPromptFunction,
-        // generate new name for 'New variable...'
-        newVarName = Blockly.Variables.generateUniqueName(workspace),
-        // Get current value
-        oldVar = this.getText();
-    // Callback of the async prompt
-    function promptCallback(newVar) {
-        Blockly.hideChaff();
+    promptFunction = workspace.options.modalFunction || defaultPromptFunction;
+
+    return promptFunction(promptText, defaultText).then((newVar) => {
         // Merge runs of whitespace.  Strip leading and trailing whitespace.
         // Beyond this, all names are legal.
         if (newVar) {
             newVar = newVar.replace(/[\s\xa0]+/g, ' ').replace(/^ | $/g, '');
-            if (newVar == Blockly.Msg.RENAME_VARIABLE || newVar == Blockly.Msg.NEW_VARIABLE) {
-                // Ok, not ALL names are legal...
-                newVar = null;
+            if (newVar == Blockly.Msg.RENAME_VARIABLE ||
+                newVar == Blockly.Msg.NEW_VARIABLE) {
+            // Ok, not ALL names are legal...
+            newVar = null;
             }
         }
-        if (text == Blockly.Msg.RENAME_VARIABLE) {
-            Blockly.Variables.renameVariable(oldVar, newVar, workspace);
-        } else if (text == Blockly.Msg.NEW_VARIABLE) {
-            // If the prompt was canceled, restore old value
-            newVar = newVar || oldVar;
-            Blockly.Variables.renameVariable(newVarName, newVar, workspace);
+        return newVar;
+    });
+};
+
+/**
+ * Create a new variable on the given workspace.
+ * @param {!Blockly.Workspace} workspace The workspace on which to create the
+ *     variable.
+ * @return {null|undefined|string} An acceptable new variable name, or null if
+ *     change is to be aborted (cancel button), or undefined if an existing
+ *     variable was chosen.
+ */
+Blockly.Variables.createVariable = function(workspace) {
+    return Blockly.Variables.asyncPromptName(workspace, Blockly.Msg.NEW_VARIABLE_TITLE, '').then(text => {
+        if (text) {
+            workspace.createVariable(text);
         }
-    }
-    if (text == Blockly.Msg.RENAME_VARIABLE) {
-        promptFunction(Blockly.Msg.RENAME_VARIABLE_TITLE.replace('%1', oldVar), oldVar).then(promptCallback);
-        return null;
-    } else if (text == Blockly.Msg.NEW_VARIABLE) {
-        promptFunction(Blockly.Msg.NEW_VARIABLE_TITLE, '').then(promptCallback);
-        // Preemptively update the value to simulate a sync behavior. Will be renamed by the callback
-        return newVarName;
-    }
-    return undefined;
+    });
+};
+
+/**
+ * Event handler for a change in variable name.
+ * Special case the 'Rename variable...' and 'Delete variable...' options.
+ * In the rename case, prompt the user for a new name.
+ * @param {string} text The selected dropdown menu option.
+ * @return {null|undefined|string} An acceptable new variable name, or null if
+ *     change is to be either aborted (cancel button) or has been already
+ *     handled (rename), or undefined if an existing variable was chosen.
+ */
+Blockly.FieldVariable.prototype.classValidator = function(text) {
+  var workspace = this.sourceBlock_.workspace;
+  if (text == Blockly.Msg.RENAME_VARIABLE) {
+    var oldVar = this.getText();
+    Blockly.hideChaff();
+    Blockly.Variables.asyncPromptName(workspace, Blockly.Msg.RENAME_VARIABLE_TITLE.replace('%1', oldVar), oldVar)
+        .then(t => {
+            if (text) {
+            workspace.renameVariable(oldVar, t);
+            }
+        });
+    return null;
+  } else if (text == 'New variable') {
+      Blockly.hideChaff();
+      Blockly.Variables.asyncPromptName(workspace, 'Give your variable a name', oldVar)
+          .then(t => {
+              if (text) {
+                workspace.createVariable(t);
+                this.setValue(t);
+              }
+         });
+      return null;
+  } else if (text == Blockly.Msg.DELETE_VARIABLE.replace('%1', this.getText())) {
+    workspace.deleteVariable(this.getText());
+    return null;
+  }
+  return undefined;
+};
+
+/**
+ * Return a sorted list of variable names for variable dropdown menus.
+ * Include a special option at the end for creating a new variable name.
+ * @return {!Array.<string>} Array of variable names.
+ * @this {!Blockly.FieldVariable}
+ */
+Blockly.FieldVariable.dropdownCreate = function() {
+  if (this.sourceBlock_ && this.sourceBlock_.workspace) {
+    // Get a copy of the list, so that adding rename and new variable options
+    // doesn't modify the workspace's list.
+    var variableList = this.sourceBlock_.workspace.variableList.slice(0);
+  } else {
+    var variableList = [];
+  }
+  // Ensure that the currently selected variable is an option.
+  var name = this.getText();
+  if (name && variableList.indexOf(name) == -1) {
+    variableList.push(name);
+  }
+  variableList.sort(goog.string.caseInsensitiveCompare);
+  variableList.push('New variable');
+  variableList.push(Blockly.Msg.RENAME_VARIABLE);
+  // Variables are not language-specific, use the name as both the user-facing
+  // text and the internal representation.
+  var options = [];
+  for (var i = 0; i < variableList.length; i++) {
+    options[i] = [variableList[i], variableList[i]];
+  }
+  return options;
 };
 
 Blockly.setPhantomBlock = function (connection, targetBlock) {

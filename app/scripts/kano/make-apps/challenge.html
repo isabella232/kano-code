@@ -1,4 +1,5 @@
 <link rel="import" href="./copy-manager.html">
+<link rel="import" href="./blockly/defaults.html">
 <script>
     (function (Kano) {
 
@@ -11,6 +12,7 @@
             this.data.parts = [];
             this.data.modules = [];
             this.data.variables = [];
+            this.data.filterBlocks = {};
 
             this.appParts = {};
             this.partsIds = {};
@@ -87,13 +89,17 @@
 
         Challenge.prototype.loadFromApp = function (app) {
             var xml = Blockly.Xml.textToDom(app.code.snapshot.blocks),
+                mode,
+                defaultXml,
                 block, i;
             // Support older apps that saved the whole mode
             this.data.mode = app.mode.id || app.mode;
+            mode = Kano.MakeApps.Mode.modes[this.data.mode]
+            defaultXml = Blockly.Xml.textToDom(mode.defaultBlocks);
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "add-part-button",
+                        "location": "workspace.toolbar.add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('add-parts') + "<br>" + Kano.MakeApps.CopyManager.get('open-parts-drawer')
                     }],
@@ -118,7 +124,7 @@
                     "highlight": location,
                     "arrow": {
                         "source": location,
-                        "target": "left-panel",
+                        "target": "workspace-panel",
                         "size": 120
                     },
                     "validation": {
@@ -132,7 +138,7 @@
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "add-part-button",
+                        "location": "workspace.toolbar.add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('start-code') + "<br>" + Kano.MakeApps.CopyManager.get('close-parts-drawer')
                     }],
@@ -141,291 +147,389 @@
                     }
                 });
             }
-            for (i = 0; i < xml.children.length; i++) {
-                block = xml.children[i];
-                this.data.steps = this.data.steps.concat(this.nodeToSteps(block));
-            }
+            this.data.steps = this.data.steps.concat(this.matchDefaultBlocks(xml.children, defaultXml.children));
             this.data.steps.push({
                 "tooltips": [{
-                    "location": "left-panel",
-                    "position": "right",
+                    "location": "workspace-panel",
+                    "position": "left",
                     "text": "You can now test the app",
                     "next_button": true
                 }]
             });
         };
 
-        Challenge.prototype.eventBlockToSteps = function (block) {
-            var steps = [],
-                blockChallengeId = 'default_part_event',
-                pieces,
-                part,
-                name;
+        Challenge.prototype.matchDefaultBlocks = function (blocks, defaultBlocks) {
+            let steps = [];
+            for (let i = 0; i < blocks.length; i++) {
+                steps = steps.concat(this.matchDefaultNode(blocks[i], defaultBlocks[i]));
+            }
+            return steps;
+        };
 
-            if (block.children.EVENT.innerText !== 'global.start') {
-                pieces = block.children.EVENT.innerText.split('.');
-                part = pieces[0];
-                name = pieces[1];
-                steps.push({
+        Challenge.prototype.matchDefaultNode = function (node, defaultNode) {
+            let steps = [];
+            switch (node.tagName) {
+                /**
+                 * Compare the blocks. Jump to children if they match, add a delete step to remove the existing the default block
+                 * if the block from the challenge is different from the one defined in the mode
+                 */
+                case 'block': {
+                    if (!defaultNode) {
+                        steps = steps.concat(this.blockToSteps(node));
+                    } else if (node.getAttribute('type') === defaultNode.getAttribute('type') &&
+                        node.getAttribute('id') === defaultNode.getAttribute('id')) {
+                        steps = steps.concat(this.matchDefaultBlocks(node.children, defaultNode.children));
+                    } else {
+                        steps.push({
+                            "tooltips": [{
+                                "text": "You can remove this block we won't need it for this app",
+                                "position": "left",
+                                "location": {
+                                    "block": {
+                                        "rawId": defaultNode.getAttribute('id')
+                                    }
+                                }
+                            }],
+                            "arrow": {
+                                "target": 'blockly-bin',
+                                "angle": 210,
+                                "size": 80
+                            },
+                            "validation": {
+                                "blockly": {
+                                    "delete": {
+                                        "target": {
+                                            "rawId": defaultNode.getAttribute('id')
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        steps = steps.concat(this.blockToSteps(node));
+                    }
+                    break;
+                }
+                /**
+                 * Adds a change step if the value is different
+                 */
+                case 'field': {
+                    if (node.firstChild.nodeValue !== defaultNode.firstChild.nodeValue ||
+                        node.firstChild.nodeValue !== node.firstChild.nodeValue) {
+                        steps = steps.concat(this.fieldToSteps(node, defaultNode.firstChild.nodeValue));
+                    }
+                    break;
+                }
+                case 'statement': {
+                    if (defaultNode) {
+                        steps = steps.concat(this.matchDefaultNode(node.firstChild, defaultNode.firstChild));
+                    }
+                    if (node) {
+                        steps = steps.concat(this.blockToSteps(node.firstChild));
+                    }
+                    break;
+                }
+                case 'next': {
+                    if (!defaultNode) {
+                        steps = steps.concat(this.blockToSteps(node.firstChild));
+                    } else {
+                        steps = steps.concat(this.matchDefaultNode(node.firstChild, defaultNode.firstChild));
+                    }
+                    break;
+                }
+            }
+            return steps;
+        };
+
+        /**
+         * Generate the steps matching a `field` node in a Blockly XML tree
+         */
+        Challenge.prototype.fieldToSteps = function (node, fieldDefault) {
+            let parent = node.parentNode,
+                parentTagName = parent.tagName,
+                parentBlockType = Challenge.parseBlockType(parent.getAttribute('type')),
+                steps = [],
+                fieldValue,
+                inputName,
+                fieldName;
+
+            if (parentBlockType.block === 'variables_set' && this.data.variables.indexOf(node.firstChild.nodeValue) === -1) {
+                this.data.variables.push(node.firstChild.nodeValue);
+            }
+            if (node.firstChild.nodeValue !== null) {
+                if (parentTagName === 'shadow') {
+                    inputName = parent.parentNode.getAttribute('name');
+                    fieldName = inputName;
+                    parent = parent.parentNode.parentNode;
+                    parentBlockType = Challenge.parseBlockType(parent.getAttribute('type'));
+                } else {
+                    fieldName = node.getAttribute('name');
+                }
+                if (fieldName && !fieldDefault) {
+                    if (!Challenge.fieldDefaults[parentBlockType.block]) {
+                        console.log('missing default field: ', parentBlockType.block, fieldName);
+                    } else {
+                        fieldDefault = Challenge.fieldDefaults[parentBlockType.block][fieldName];
+                    }
+                }
+                // Loose check of the value
+                if (node.firstChild.nodeValue != fieldDefault) {
+                    let challengeId = parent.getAttribute('challengeId'),
+                        rawId = parent.getAttribute('id');
+                    let selector = {
+                        shadow: inputName
+                    },
+                        step;
+                    if (challengeId) {
+                        selector.id = challengeId
+                    } else {
+                        selector.rawId = rawId;
+                    }
+                    fieldValue = this.translate('field', node.firstChild.nodeValue);
+                    // Add a `change value` step to get the right value
+                    step = {
+                        "tooltips": [{
+                            "location": {
+                                "block": selector
+                            },
+                            "position": "top",
+                            "text": 'Change to <kano-value-preview><span>' + fieldValue + '</span></kano-value-preview>'
+                        }],
+                        "validation": {
+                            "blockly": {
+                                "value": {
+                                    "target": selector,
+                                    "value": node.firstChild.nodeValue
+                                }
+                            }
+                        }
+                    };
+                    steps.push(step);
+                }
+                return steps;
+            }
+        };
+
+        /**
+         * Generate the steps matching a `block` node in a Blockly XML tree
+         */
+        Challenge.prototype.blockToSteps = function (node) {
+            // Defines the location of the toolbox category. Can be the category itself or from a previously added part
+            var blockChallengeId = 'block_' + this.uid('block'),
+                type = node.getAttribute('type'),
+                blockType = Challenge.parseBlockType(type),
+                steps = [],
+                parent = node.parentNode,
+                parentTagName,
+                categoryLocation,
+                blockLocation,
+                markdownType,
+                creationType,
+                categoryLabel,
+                inputName;
+
+            node.setAttribute('challengeId', blockChallengeId);
+
+            parentTagName = parent.tagName;
+
+            // The block from the original app isn't from a created part, thus doens't contain a category field
+            if (!blockType.category) {
+                categoryLocation = blockType.category = Challenge.categoryMap[blockType.block];
+                blockLocation = markdownType = blockType.block;
+                creationType = {
+                    type: blockLocation,
+                    id: blockChallengeId
+                };
+                if (this.data.modules.indexOf(blockType.category) === -1) {
+                    this.data.modules.push(blockType.category);
+                }
+            } else if (this.partsIds[blockType.category]) {
+                blockLocation = {
+                    part: this.partsIds[blockType.category],
+                    type: blockType.block
+                };
+                categoryLocation = {
+                    part: blockLocation.part
+                };
+                creationType = {
+                    target: blockLocation.part,
+                    type: blockLocation.type,
+                    id: blockChallengeId
+                };
+                markdownType = blockLocation.part + "#" + blockLocation.type;
+            } else {
+                blockLocation = creationType = markdownType = type;
+                categoryLocation = blockType.category;
+                creationType = {
+                    type: blockLocation,
+                    id: blockChallengeId
+                };
+            }
+
+            // Adds the block to the whitelist
+            this.data.filterBlocks[blockType.category] = this.data.filterBlocks[blockType.category] || [];
+            if (this.data.filterBlocks[blockType.category].indexOf(blockType.block) === -1) {
+                this.data.filterBlocks[blockType.category].push(blockType.block)
+            }
+
+            categoryLabel = this.translate('category', blockType.category);
+            if (categoryLabel !== blockType.category) {
+                categoryLabel = "the " + categoryLabel;
+            } else {
+                categoryLabel = "this";
+            }
+
+            steps.push({
+                "tooltips": [{
+                    "location": {
+                        "category": categoryLocation
+                    },
+                    "position": "right",
+                    "text": "Open " + categoryLabel + " tray"
+                }],
+                "validation": {
+                    "blockly": {
+                        "open-flyout": categoryLocation
+                    }
+                }
+            });
+            steps.push({
+                "tooltips": [{
+                    "location": {
+                        "flyout_block": blockLocation
+                    },
+                    "position": "right",
+                    "text": 'Drag the <kano-blockly-block type="' + markdownType + '"></kano-blockly-block> block onto your code space'
+                }],
+                "arrow": {
+                    "target": {
+                        "flyout_block": blockLocation
+                    },
+                    "angle": 120,
+                    "size": 80
+                },
+                "validation": {
+                    "blockly": {
+                        "create": creationType
+                    }
+                }
+            });
+            if (parentTagName === 'next') {
+                parent = parent.parentNode;
+            } else if (parentTagName === 'statement' || parentTagName === 'value') {
+                inputName = parent.getAttribute('name');
+                parent = parent.parentNode;
+            } else {
+                parent = null;
+            }
+            if (parent) {
+                let step = {
                     "tooltips": [{
                         "location": {
-                            "block": blockChallengeId
+                            "block": {
+                                id: parent.getAttribute('challengeId'),
+                                rawId: parent.getAttribute('id')
+                            }
                         },
-                        "position": "top",
-                        "text": `Change ‘app starts’ to <kano-value-preview>‘${pieces.join('.')}’</kano-value-preview>`
+                        "position": "left",
+                        "text": Kano.MakeApps.CopyManager.get('connect-blocks')
                     }],
                     "validation": {
                         "blockly": {
-                            "value": {
-                                "target": blockChallengeId,
-                                "value": {
-                                    "event_from": this.partsIds[part],
-                                    "event": name
-                                }
+                            "connect": {
+                                "parent": {
+                                    id: parent.getAttribute('challengeId'),
+                                    rawId: parent.getAttribute('id'),
+                                    inputName
+                                },
+                                "target": blockChallengeId
+                            }
+                        }
+                    }
+                };
+                step.phantom_block = {
+                    "location": {
+                        "block": {
+                            id: parent.getAttribute('challengeId'),
+                            rawId: parent.getAttribute('id')
+                        }
+                    },
+                    "target": inputName
+                };
+                steps.push(step);
+            } else {
+                steps.push({
+                    "tooltips": [
+                        {
+                            "location": "blocks-panel",
+                            "position": "right",
+                            "text": Kano.MakeApps.CopyManager.get('drop-codespace')
+                        }
+                    ],
+                    "validation": {
+                        "blockly": {
+                            "drop": {
+                                "target": blockChallengeId
                             }
                         }
                     }
                 });
             }
 
+            for (let i = 0; i < node.children.length; i++) {
+                steps = steps.concat(this.nodeToSteps(node.children[i]));
+            }
+
             return steps;
         };
 
-        Challenge.prototype.nodeToSteps = function (node, parentSelector, parentType) {
+        /**
+         * Generate the steps matching a `value` node in a Blockly XML tree
+         */
+        Challenge.prototype.valueToSteps = function (node) {
+            let steps = [],
+                child;
+            for (let i = 0; i < node.children.length; i++) {
+                if (node.children[i].tagName === 'block') {
+                    child = node.children[i];
+                    break;
+                }
+            }
+            if (!child) {
+                child = node.firstChild;
+            }
+            steps = steps.concat(this.nodeToSteps(child));
+
+            return steps;
+        };
+
+        Challenge.prototype.nodeToSteps = function (node) {
             var steps = [],
-                type = node.getAttribute('type'),
-                parentBlockType,
-                blockChallengeId,
-                categoryLabel,
-                fieldDefault,
-                fieldValue,
-                fieldName,
-                blockType = Challenge.parseBlockType(type || ''),
                 child,
                 i;
 
             switch (node.tagName) {
                 case 'field': {
-                    if (parentType === 'variables_set' && this.data.variables.indexOf(node.firstChild.nodeValue) === -1) {
-                        this.data.variables.push(node.firstChild.nodeValue);
-                    }
-                    if (node.firstChild.nodeValue !== null) {
-                        fieldName = parentSelector.shadow || node.getAttribute('name');
-                        if (node.parentNode.tagName === 'shadow') {
-                            parentBlockType = Challenge.parseBlockType(node.parentNode.parentNode.parentNode.getAttribute('type'));
-                            parentType = parentBlockType.block;
-                        }
-                        if (fieldName) {
-                            if (!Challenge.fieldDefaults[parentType]) {
-                                console.log('missing default field: ', parentType, fieldName);
-                            } else {
-                                fieldDefault = Challenge.fieldDefaults[parentType][fieldName];
-                            }
-                        }
-                        // Loose check of the value
-                        if (node.firstChild.nodeValue != fieldDefault) {
-                            fieldValue = this.translate('field', node.firstChild.nodeValue);
-                            // Add a `change value` step to get the right value
-                            steps.push({
-                                "tooltips": [{
-                                    "location": {
-                                        "block": parentSelector
-                                    },
-                                    "position": "top",
-                                    "text": 'Change to <kano-value-preview>' + fieldValue + '</kano-value-preview>'
-                                }],
-                                "validation": {
-                                    "blockly": {
-                                        "value": {
-                                            "target": parentSelector,
-                                            "value": node.firstChild.nodeValue
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    steps = steps.concat(this.fieldToSteps(node));
                     break;
                 }
                 case 'next':
                 case 'value': {
-                    for (i = 0; i < node.children.length; i++) {
-                        if (node.children[i].tagName === 'block') {
-                            child = node.children[i];
-                            break;
-                        }
-                    }
-                    if (!child) {
-                        child = node.firstChild;
-                    }
-                    parentSelector = {
-                        id: parentSelector
-                    };
-                    if (child.tagName === 'shadow') {
-                        parentSelector.shadow = node.getAttribute('name');
-                    } else {
-                        parentSelector.inputName = node.getAttribute('name');
-                    }
-                    steps = steps.concat(this.nodeToSteps(child, parentSelector, parentType));
+                    steps = steps.concat(this.valueToSteps(node));
                     break;
                 }
                 case 'statement': {
-                    parentSelector = {
-                        id: parentSelector,
-                        inputName: node.getAttribute('name')
-                    };
-                    steps = steps.concat(this.nodeToSteps(node.firstChild, parentSelector, parentType));
+                    steps = steps.concat(this.nodeToSteps(node.firstChild));
                     break;
                 }
                 case 'shadow': {
                     for (i = 0; i < node.children.length; i++) {
                         child = node.children[i];
-                        steps = steps.concat(this.nodeToSteps(child, parentSelector, blockType.block));
+                        steps = steps.concat(this.nodeToSteps(child));
                     }
                     break;
                 }
                 case 'block': {
-                    var id = node.getAttribute('id');
-                    if (id === 'default_part_event_id') {
-                        blockChallengeId = 'default_part_event';
-                        blockType.block = 'part_event';
-                        steps = steps.concat(this.eventBlockToSteps(node));
-                    } else {
-                        blockChallengeId = 'block_' + this.uid('block');
-
-                        // Defines the location of the toolbox category. Can be the category itself or from a previously added part
-                        var categoryLocation,
-                            blockLocation,
-                            markdownType,
-                            creationType;
-
-
-                        // The block from the original app isn't from a created part, thus doens't contain a category field
-                        if (!blockType.category) {
-                            categoryLocation = blockType.category = Challenge.categoryMap[blockType.block];
-                            blockLocation = markdownType = blockType.block;
-                            creationType = {
-                                type: blockLocation,
-                                id: blockChallengeId
-                            };
-                            if (this.data.modules.indexOf(blockType.category) === -1) {
-                                this.data.modules.push(blockType.category);
-                            }
-                        } else if (this.partsIds[blockType.category]) {
-                            blockLocation = {
-                                part: this.partsIds[blockType.category],
-                                type: blockType.block
-                            };
-                            categoryLocation = {
-                                part: blockLocation.part
-                            };
-                            creationType = {
-                                target: blockLocation.part,
-                                type: blockLocation.type,
-                                id: blockChallengeId
-                            };
-                            markdownType = blockLocation.part + "#" + blockLocation.type;
-                        } else {
-                            blockLocation = creationType = markdownType = type;
-                            categoryLocation = blockType.category;
-                            creationType = {
-                                type: blockLocation,
-                                id: blockChallengeId
-                            };
-                        }
-
-                        categoryLabel = this.translate('category', blockType.category);
-                        if (categoryLabel !== blockType.category) {
-                            categoryLabel = "the " + categoryLabel;
-                        } else {
-                            categoryLabel = "this";
-                        }
-
-                        steps.push({
-                            "tooltips": [{
-                                "location": {
-                                    "category": categoryLocation
-                                },
-                                "position": "left",
-                                "text": "Open " + categoryLabel + " tray"
-                            }],
-                            "validation": {
-                                "blockly": {
-                                    "open-flyout": categoryLocation
-                                }
-                            }
-                        });
-                        steps.push({
-                            "tooltips": [{
-                                "location": {
-                                    "flyout_block": blockLocation
-                                },
-                                "position": "left",
-                                "text": 'Drag the <kano-blockly-block type="' + markdownType + '"></kano-blockly-block> block onto your code space'
-                            }],
-                            "arrow": {
-                                "target": {
-                                    "flyout_block": blockLocation
-                                },
-                                "angle": 315,
-                                "size": 80
-                            },
-                            "validation": {
-                                "blockly": {
-                                    "create": creationType
-                                }
-                            }
-                        });
-                        if (parentSelector) {
-                            let step = {
-                                "tooltips": [{
-                                    "location": {
-                                        "block": parentSelector.id
-                                    },
-                                    "position": "left",
-                                    "text": Kano.MakeApps.CopyManager.get('connect-blocks')
-                                }],
-                                "validation": {
-                                    "blockly": {
-                                        "connect": {
-                                            "parent": parentSelector,
-                                            "target": blockChallengeId
-                                        }
-                                    }
-                                }
-                            };
-                            step.phantom_block = {
-                                "location": {
-                                    "block": parentSelector.id
-                                }
-                            };
-                            if (parentSelector.inputName) {
-                                step.phantom_block.target =  parentSelector.inputName;
-                            }
-                            steps.push(step);
-                        } else {
-                            steps.push({
-                                "tooltips": [
-                                    {
-                                        "location": "right-panel",
-                                        "position": "left",
-                                        "text": Kano.MakeApps.CopyManager.get('drop-codespace')
-                                    }
-                                ],
-                                "validation": {
-                                    "blockly": {
-                                        "drop": {
-                                            "target": blockChallengeId
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-                    for (i = 0; i < node.children.length; i++) {
-                        child = node.children[i];
-                        steps = steps.concat(this.nodeToSteps(child, blockChallengeId, blockType.block));
-                    }
+                    steps = steps.concat(this.blockToSteps(node));
                     break;
                 }
             }

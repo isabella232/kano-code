@@ -90,9 +90,9 @@
 
         Blockly.JavaScript.create_color = (block) => {
             let type = block.getFieldValue('TYPE'),
-                one = Blockly.Pseudo.valueToCode(block, '1') || 0,
-                two = Blockly.Pseudo.valueToCode(block, '2'),
-                three = Blockly.Pseudo.valueToCode(block, '3'),
+                one = Blockly.JavaScript.valueToCode(block, '1') || 0,
+                two = Blockly.JavaScript.valueToCode(block, '2'),
+                three = Blockly.JavaScript.valueToCode(block, '3'),
                 defaults = type === 'hsv' ? 100 : 0;
             two = two || defaults;
             three = three || defaults;
@@ -113,7 +113,7 @@
         };
 
         category.blocks.forEach((category) => {
-            Kano.BlocklyUtil.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
+            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
         });
     };
     category = Kano.MakeApps.Blockly.Defaults.createCategory({

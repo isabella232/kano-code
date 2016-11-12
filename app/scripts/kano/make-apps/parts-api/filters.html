@@ -22,7 +22,11 @@
                 this._filters = this._filters || [];
                 this._filters.push({ name, args: args || [] });
             },
+            clearFilters () {
+                this._filters = [];
+            },
             applyFilters (canvas) {
+                this._filters = this._filters || {};
                 return new Promise((resolve, reject) => {
                     let p,
                         worker = this._getWorker(),

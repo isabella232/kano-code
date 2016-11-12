@@ -29,12 +29,23 @@
             'applyTransform(model.*)'
         ],
         listeners: {
-            'tap': 'onTap'
+            'down': 'onTap',
+            'up': 'clearMoveCursor'
         },
         onTap () {
             // Do not trigger `part-tapped` if no model is present i.e if this is a mode
             if (this.model) {
                 this.fire('part-tapped', this);
+            }
+        },
+        clearMoveCursor () {
+            let htmlStyle = document.documentElement.style;
+
+            /* Interact sets cursor globally and sometimes it fails to
+               clear it up. This is an extra check to make sure it goes away
+               every time properly. */
+            if (htmlStyle.cursor === 'move') {
+                htmlStyle.cursor = '';
             }
         },
         attached () {
@@ -65,7 +76,7 @@
             this.style.visibility = visibility;
         },
         renderOnCanvas (ctx) {
-            if (this.model.partType !== 'ui') {
+            if (!this.model || this.model.partType !== 'ui') {
                 return Promise.resolve();
             }
             let position = this.model.position || { x: 0, y: 0 },

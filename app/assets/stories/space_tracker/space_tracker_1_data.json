@@ -3,7 +3,7 @@
 		{
 			"tooltips": [
 				{
-					"location": "add-part-button",
+					"location": "workspace.toolbar.add-part-button",
 					"position": "top",
 					"text": "This app needs a map<br />and the Space Station data parts"
 				}
@@ -23,7 +23,7 @@
 			"highlight": "sidebar.parts.part-map",
 			"arrow": {
 				"source": "sidebar.parts.part-map",
-				"target": "left-panel",
+				"target": "workspace-panel",
 				"size": 120
 			},
 			"validation": {
@@ -44,7 +44,7 @@
 			"highlight": "sidebar.parts.part-iss",
 			"arrow": {
 				"source": "sidebar.parts.part-iss",
-				"target": "left-panel",
+				"target": "workspace-panel",
 				"size": 120
 			},
 			"validation": {
@@ -57,7 +57,7 @@
 		{
 			"tooltips": [
 				{
-					"location": "add-part-button",
+					"location": "workspace.toolbar.add-part-button",
 					"position": "top",
 					"text": "That's all the parts!<br />Close the drawer to start coding."
 				}
@@ -72,8 +72,8 @@
 					"location": {
 						"category": "control"
 					},
-					"position": "left",
-					"text": "Open the Control tray"
+					"position": "right",
+					"text": "We want to grab data every second.<br>Open the Control tray so we can get a <em>loop</em>"
 				}
 			],
 			"validation": {
@@ -88,15 +88,15 @@
 					"location": {
 						"flyout_block": "every_x_seconds"
 					},
-					"position": "left",
-					"text": "Grab one of these blocks<br /><kano-blockly-block type=\"every_x_seconds\"></kano-blockly-block>"
+					"position": "right",
+					"text": "Drag in this <em>loop</em>"
 				}
 			],
 			"arrow": {
 				"target": {
 					"flyout_block": "every_x_seconds"
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -113,18 +113,18 @@
 				{
 					"location": {
 						"block": {
-							"id": "default_part_event"
+							"rawId": "default_part_event_id"
 						}
 					},
-					"position": "left",
-					"text": "Connect it to the start event"
+					"position": "right",
+					"text": "Connect it here so the loop is triggered when the app starts"
 				}
 			],
 			"validation": {
 				"blockly": {
 					"connect": {
 						"parent": {
-							"id": "default_part_event",
+							"rawId": "default_part_event_id",
 							"inputName": "DO"
 						},
 						"target": "block_0"
@@ -133,7 +133,9 @@
 			},
 			"phantom_block": {
 				"location": {
-					"block": "default_part_event"
+					"block": {
+						"rawId": "default_part_event_id"
+					}
 				},
 				"target": "DO"
 			}
@@ -146,8 +148,8 @@
 							"part": "part_1"
 						}
 					},
-					"position": "left",
-					"text": "Open the ISS tray"
+					"position": "right",
+					"text": "Next we need to refresh the data<br>The code to control it is in the ISS tray"
 				}
 			],
 			"validation": {
@@ -167,8 +169,8 @@
 							"type": "refresh"
 						}
 					},
-					"position": "left",
-					"text": "Grab a <kano-blockly-block type=\"part_1#refresh\"></kano-blockly-block> code block"
+					"position": "right",
+					"text": "Drag in this block to refresh the data"
 				}
 			],
 			"arrow": {
@@ -178,7 +180,7 @@
 						"type": "refresh"
 					}
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -199,8 +201,8 @@
 							"id": "block_0"
 						}
 					},
-					"position": "left",
-					"text": "Connect it to this block"
+					"position": "right",
+					"text": "Drop it inside the loop so it runs every second"
 				}
 			],
 			"validation": {
@@ -227,7 +229,7 @@
                     "path": "workspace",
                     "part": "part_1"
                 },
-                "position": "right",
+                "position": "left",
                 "next_button": true,
                 "text": "You've made the data refresh every second."
             }]
@@ -238,8 +240,8 @@
 					"location": {
 						"category": "events"
 					},
-					"position": "left",
-					"text": "Open the Events tray"
+					"position": "right",
+					"text": "Finally let's update the map when the data is updated<br>Open the Events tray"
 				}
 			],
 			"validation": {
@@ -254,8 +256,8 @@
 					"location": {
 						"flyout_block": "part_event"
 					},
-					"position": "left",
-					"text": "Drag an event block onto your code space<br /><kano-blockly-block type=\"part_event\"></kano-blockly-block>"
+					"position": "right",
+					"text": "Drag in this block to trigger the map update"
 				}
 			],
 			"arrow": {
@@ -277,8 +279,8 @@
 		{
 			"tooltips": [
 				{
-					"location": "right-panel",
-					"position": "left",
+					"location": "blocks-panel",
+					"position": "right",
 					"text": "Drop the block anywhere on your code space"
 				}
 			],
@@ -297,7 +299,7 @@
 						"block": "block_2"
 					},
 					"position": "top",
-					"text": "Change <kano-value-preview>app starts</kano-value-preview> to <kano-value-preview>ISS updated</kano-value-preview>"
+					"text": "We want it to trigger when the data is updated<br>Change <kano-value-preview><span>app starts</span></kano-value-preview> to <kano-value-preview><span>ISS updated</span></kano-value-preview>"
 				}
 			],
 			"validation": {
@@ -317,8 +319,8 @@
 							"part": "part_0"
 						}
 					},
-					"position": "left",
-					"text": "Open the Map tray"
+					"position": "right",
+					"text": "Now to tell the map to move..."
 				}
 			],
 			"validation": {
@@ -330,18 +332,6 @@
 			}
 		},
 		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_0",
-							"type": "show_marker"
-						}
-					},
-					"position": "left",
-					"text": "Drag one of these blocks onto your code space<br /> <kano-blockly-block type=\"part_0#show_marker\"></kano-blockly-block>"
-				}
-			],
 			"arrow": {
 				"target": {
 					"flyout_block": {
@@ -370,8 +360,8 @@
 							"id": "block_2"
 						}
 					},
-					"position": "left",
-					"text": "Connect it to the refresh event"
+					"position": "right",
+					"text": "Drop it inside the event so it triggers<br>when the latest data arrives"
 				}
 			],
 			"validation": {
@@ -400,8 +390,8 @@
 							"part": "part_1"
 						}
 					},
-					"position": "left",
-					"text": "Open the ISS tray"
+					"position": "right",
+					"text": "Next we want to move it to the ISS's position<br>Let's grab the data from the ISS tray"
 				}
 			],
 			"validation": {
@@ -421,8 +411,8 @@
 							"type": "get_value"
 						}
 					},
-					"position": "left",
-					"text": "Drag out the <kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block> block"
+					"position": "right",
+					"text": "Drag out the latitude block"
 				}
 			],
 			"arrow": {
@@ -432,7 +422,7 @@
 						"type": "get_value"
 					}
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -453,8 +443,8 @@
 							"id": "block_3"
 						}
 					},
-					"position": "left",
-					"text": "Plug it in"
+					"position": "right",
+					"text": "Move the map's latitude to the ISS's latitude"
 				}
 			],
 			"validation": {
@@ -483,7 +473,7 @@
 							"part": "part_1"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Open the ISS tray again"
 				}
 			],
@@ -504,7 +494,7 @@
 							"type": "get_value"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Let’s grab another of those blocks: <br /><kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block>"
 				}
 			],
@@ -515,7 +505,7 @@
 						"type": "get_value"
 					}
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -536,7 +526,7 @@
 							"id": "block_3"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Plug it in here"
 				}
 			],
@@ -565,7 +555,7 @@
 						"block": "block_5"
 					},
 					"position": "top",
-					"text": "Change <kano-value-preview>latitude</kano-value-preview> to <kano-value-preview>longitude</kano-value-preview>"
+					"text": "Change <kano-value-preview><span>latitude</span></kano-value-preview> to <kano-value-preview><span>longitude</span></kano-value-preview>"
 				}
 			],
 			"validation": {
@@ -580,9 +570,9 @@
 		{
 			"tooltips": [
 				{
-					"location": "left-panel",
-					"position": "right",
-					"text": "<strong>You did it!</strong> The space station is 400km<br />above the marker. You can make the map bigger<br />by clicking 'tinker', then clicking on the map.",
+					"location": "workspace-panel",
+					"position": "left",
+					"text": "<strong>You did it!</strong> The space station is 400km<br />above the marker. You can make the map bigger<br />by clicking 'edit layout', then clicking on the map.",
 					"next_button": true
 				}
 			]

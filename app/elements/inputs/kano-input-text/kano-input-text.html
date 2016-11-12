@@ -1,21 +1,24 @@
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../behaviors.html">
 
 <dom-module id="kano-input-text">
     <style>
-    :host {
-        display: block;
-    }
     :host label {
-        display: block;
+        @apply(--kano-settings-label);
     }
-    :host input {
-        @apply(--kano-light-input);
-        font-size: var(--kano-input-text-size);
+    :host .inputs {
+        @apply(--kano-settings-container);
+    }
+    paper-input {
+        text-align: left;
+        width: 87%;
+        --paper-input-container-focus-color: var(--color-orange, orange);
     }
     </style>
     <template>
-        <label>{{label}}</label>
-        <input type="text" value="{{value::keyup}}">
+        <div class="inputs">
+          <paper-input value="{{value}}" label="[[label]]" on-keydown="enterQuitsInput"></paper-input>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -29,6 +32,12 @@
         ],
         valueChanged () {
             this.fire('change');
+        },
+        enterQuitsInput () {
+            if (event.keyCode == 13) {
+                this.blur();
+                return false;
+            }
         }
     });
 </script>

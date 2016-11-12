@@ -72,13 +72,13 @@ export default pictureList = {
         javascript: (ui) => {
             return function (block) {
                 let picture = Blockly.JavaScript.valueToCode(block, 'PICTURE') || "''";
-                return `devices.get('${ui.id}').push('pictures', ${picture});\n`;
+                return `devices.get('${ui.id}').addPicture(${picture});\n`;
             };
         },
         pseudo: (ui) => {
             return function (block) {
                 let picture = Blockly.Pseudo.valueToCode(block, 'PICTURE') || "''";
-                return `devices.get('${ui.id}').push('pictures', ${picture});\n`;
+                return `devices.get('${ui.id}').addPicture(${picture});\n`;
             };
         }
     },{
@@ -209,7 +209,7 @@ export default pictureList = {
         block: (part) => {
             return {
                 id: 'picture_list_set_speed',
-                message0: `${part.name} set speed to %1`,
+                message0: `${part.name}: set speed to %1`,
                 args0: [{
                     type: 'input_value',
                     name: 'SPEED',
@@ -241,20 +241,20 @@ export default pictureList = {
         block: (part) => {
             return {
                 id: 'picture_download_gif',
-                message0: `${part.name} download GIF`,
+                message0: `${part.name}: save gif`,
                 previousStatement: null,
                 nextStatement: null
             };
         },
         javascript: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').downloadGif();\n`;
+                let code = `devices.get('${part.id}').saveGif();\n`;
                 return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let code = `devices.get('${part.id}').downloadGif();\n`;
+                let code = `devices.get('${part.id}').saveGif();\n`;
                 return code;
             };
         }

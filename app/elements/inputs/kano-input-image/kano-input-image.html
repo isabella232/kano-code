@@ -39,7 +39,7 @@
             <button type="button" on-tap="openModal" class="change-button">Change image</button>
             <button type="button" on-tap="removeImage" class="remove-button" hidden$="[[!src]]">Remove image</button>
         </div>
-        <kano-file-picker-modal files="[[files]]" id="modal" on-select-file="fileSelected"></kano-file-picker-modal>
+        <kano-file-picker-modal files="[[flatFiles]]" id="modal" on-select-file="fileSelected"></kano-file-picker-modal>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -59,6 +59,16 @@
             src: {
                 type: String,
                 value: null
+            },
+            options: {
+                type: Object,
+                observer: '_optionsChanged'
+            },
+            flatFiles: {
+                type: Array,
+                value: () => {
+                    return [];
+                }
             }
         },
         observers: [
@@ -66,17 +76,30 @@
         ],
         attached () {
             document.body.appendChild(this.$.modal);
-            fetch('/assets/filesets/images.json')
-                .then(r => r.json())
-                .then((response) => {
-                    this.files = response;
-                });
         },
-
         detached () {
             document.body.removeChild(this.$.modal);
         },
-
+        _optionsChanged (options) {
+            let files = options.files,
+                group,
+                groupFiles,
+                allFiles;
+            allFiles = Object.keys(Kano.MakeApps.Files[files]).reduce((acc, groupKey) => {
+                group = Kano.MakeApps.Files[files][groupKey];
+                groupFiles = Object.keys(group).map((key) => {
+                    return {
+                        name: group[key],
+                        type: 'image',
+                        data: {
+                            src: Kano.MakeApps.Files.generators[files](groupKey, key)
+                        }
+                    };
+                });
+                return acc.concat(groupFiles);
+            }, []);
+            this.set('flatFiles', allFiles);
+        },
         openModal () {
             this.$.modal.open();
         },

@@ -3,7 +3,7 @@
        {
 			"tooltips": [
 				{
-					"location": "add-part-button",
+					"location": "workspace.toolbar.add-part-button",
 					"position": "top",
 					"text": "This app needs two parts:<br />scrolling text and sports news data"
 				}
@@ -23,7 +23,7 @@
 			"highlight": "sidebar.parts.part-sports",
 			"arrow": {
 				"source": "sidebar.parts.part-sports",
-				"target": "left-panel",
+				"target": "workspace-panel",
 				"size": 120
 			},
 			"validation": {
@@ -44,7 +44,7 @@
 			"highlight": "sidebar.parts.part-scrolling-text",
 			"arrow": {
 				"source": "sidebar.parts.part-scrolling-text",
-				"target": "left-panel",
+				"target": "workspace-panel",
 				"size": 120
 			},
 			"validation": {
@@ -57,7 +57,7 @@
 		{
 			"tooltips": [
 				{
-					"location": "add-part-button",
+					"location": "workspace.toolbar.add-part-button",
 					"position": "top",
 					"text": "Close the parts drawer"
 				}
@@ -70,16 +70,20 @@
 			"tooltips": [
 				{
 					"location": {
-						"block": "default_part_event"
+						"block": {
+							"rawId": "default_part_event_id"
+						}
 					},
 					"position": "top",
-					"text": "This is your event block.<br />Change <kano-value-preview>‘app starts’</kano-value-preview> to <kano-value-preview>‘Sports updated’</kano-value-preview>"
+					"text": "This is your event block.<br />Change <kano-value-preview><span>‘app starts’</span></kano-value-preview> to <kano-value-preview><span>‘Sports updated’</span></kano-value-preview>"
 				}
 			],
 			"validation": {
 				"blockly": {
 					"value": {
-						"target": "default_part_event",
+						"target": {
+							"rawId": "default_part_event_id"
+						},
 						"value": {
 							"event_from": "part_0",
 							"event": "update"
@@ -96,7 +100,7 @@
 							"part": "part_0"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Open the Sports tray"
 				}
 			],
@@ -117,7 +121,7 @@
 							"type": "for_each"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Grab a<br /><kano-blockly-block type=\"part_0#for_each\"></kano-blockly-block> block"
 				}
 			],
@@ -128,7 +132,7 @@
 						"type": "for_each"
 					}
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -146,10 +150,10 @@
 				{
 					"location": {
 						"block": {
-							"id": "default_part_event"
+							"rawId": "default_part_event_id"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Connect it to your event block"
 				}
 			],
@@ -157,7 +161,7 @@
 				"blockly": {
 					"connect": {
 						"parent": {
-							"id": "default_part_event",
+							"rawId": "default_part_event_id",
 							"inputName": "DO"
 						},
 						"target": "block_0"
@@ -166,7 +170,9 @@
 			},
 			"phantom_block": {
 				"location": {
-					"block": "default_part_event"
+					"block": {
+						"rawId": "default_part_event_id"
+					}
 				},
 				"target": "DO"
 			}
@@ -179,7 +185,7 @@
 							"part": "part_1"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Open the Scroller tray"
 				}
 			],
@@ -200,7 +206,7 @@
 							"type": "scroll"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Drag the <kano-blockly-block type=\"part_1#scroll\"></kano-blockly-block> block onto your code space"
 				}
 			],
@@ -211,7 +217,7 @@
 						"type": "scroll"
 					}
 				},
-				"angle": 45,
+				"angle": 90,
 				"size": 80
 			},
 			"validation": {
@@ -232,7 +238,7 @@
 							"id": "block_0"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Connect the blocks"
 				}
 			],
@@ -262,7 +268,7 @@
 							"part": "part_0"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Open the Sports tray again"
 				}
 			],
@@ -283,7 +289,7 @@
 							"type": "get_value_at"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Drag out the <kano-blockly-block type=\"part_0#get_value_at\"></kano-blockly-block> block"
 				}
 			],
@@ -294,7 +300,7 @@
 						"type": "get_value_at"
 					}
 				},
-				"angle": 315,
+				"angle": 120,
 				"size": 80
 			},
 			"validation": {
@@ -315,7 +321,7 @@
 							"id": "block_1"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Connect the blocks"
 				}
 			],
@@ -340,9 +346,9 @@
 		{
 			"tooltips": [
 				{
-					"location": "left-panel",
-					"position": "right",
-					"text": "<strong>You did it!</strong><br />Your text scroller shows the latest sports news.<br /> Click the 'tinker' button to change the layout.",
+					"location": "workspace-panel",
+					"position": "left",
+					"text": "<strong>You did it!</strong><br />Your text scroller shows the latest sports news.<br /> Click the 'edit layout' button to change the layout.",
 					"next_button": true
 				}
 			]

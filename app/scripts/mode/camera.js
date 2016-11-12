@@ -14,16 +14,29 @@ export default Camera = {
         },
         component: 'kano-workspace-camera'
     },
+    sharing: {
+        cover: 'still'
+    },
+    defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="83" y="102" id="default_event_part_id"><field name="EVENT">camera.camera-shutter-button</field><statement name="DO"><block type="camera#take_picture" id="default_take_picture_id"></block></statement></block></xml>`,
     colour: '#82C23D',
-    parts: ['clock', 'microphone', 'speaker', 'kaleidoscope',
-                'button', 'box', 'image', 'map', 'picture-list',
+    parts: ['clock', 'microphone', 'speaker', 'button', 'box',
+                'sticker', 'map', 'picture-list',
                 'scrolling-text', 'slider', 'text-input', 'text',
                 'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
                 'proximity-sensor', 'motion-sensor', 'gesture-sensor',
-                'gyro-accelerometer'],
+                'gyro-accelerometer', 'oscillator'],
     events: [{
         label: 'takes picture',
         id: 'picture-taken'
+    }, {
+        label: 'shutter pushed',
+        id: 'camera-shutter-button'
+    }, {
+        label: 'timer turns left',
+        id: 'camera-timer-cw'
+    }, {
+        label: 'timer turns right',
+        id: 'camera-timer-ccw'
     }],
     blocks: [{
         block: () => {
@@ -110,69 +123,29 @@ export default Camera = {
                 return code;
             };
         }
-    },{
+    }].concat(filters)
+    .concat([{
         block: () => {
             return {
-                id: 'timer_turned',
-                message0: 'when shutter turns %1',
-                inputsInline: true,
-                args0: [{
-                    type: "field_dropdown",
-                    name: "DIRECTION",
-                    options: [
-                        ['left', 'cw'],
-                        ['right', 'ccw']
-                    ]
-                }],
-                message1: '%1',
-                args1: [{
-                    type: 'input_statement',
-                    name: 'DO'
-                }],
-                previousStatement: true,
-                nextStatement: true,
+                id: 'camera_save_picture',
+                message0: 'Camera: save picture',
+                inputsInline: false,
+                previousStatement: null,
+                nextStatement: null
             };
         },
         javascript: (part) => {
             return (block) => {
-                let direction = block.getFieldValue('DIRECTION'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onShutterTurns('${direction}', function (){\n${statement}\n});\n`;
+                let code = `devices.get('${part.id}').savePicture();\n`;
+                return code;
             };
         },
         pseudo: (part) => {
             return (block) => {
-                let direction = block.getFieldValue('DIRECTION'),
-                    statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onShutterTurns('${direction}', function (){\n${statement}\n});\n`;
+                let code = `devices.get('${part.id}').savePicture();\n`;
+                return code;
             };
         }
-    },{
-        block: () => {
-            return {
-                id: 'shutter_down',
-                message0: 'when shutter is pushed',
-                inputsInline: true,
-                message1: '%1',
-                args1: [{
-                    type: 'input_statement',
-                    name: 'DO'
-                }],
-                previousStatement: true,
-                nextStatement: true,
-            };
-        },
-        javascript: (part) => {
-            return (block) => {
-                let statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onShutterDown(function (){\n${statement}\n});\n`;
-            };
-        },
-        pseudo: (part) => {
-            return (block) => {
-                let statement = Blockly.JavaScript.statementToCode(block, 'DO');
-                return `devices.get('${part.id}').onShutterDown(function (){\n${statement}\n});\n`;
-            };
-        }
-    }].concat(filters).concat(backgroundBlocks)
+    }])
+    .concat(backgroundBlocks)
 };

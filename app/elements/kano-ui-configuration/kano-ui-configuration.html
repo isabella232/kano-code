@@ -5,13 +5,11 @@
     <style>
     :host {
         @apply(--layout-vertical);
+        padding: 35px 20px 15px 0px;
     }
     :host .name-edit input {
         @apply(--kano-light-input);
         font-size: 1.4em;
-    }
-    :host kano-ui-customizer {
-        margin-top: 10px;
     }
     :host .input-line {
         margin-top: 5px;
@@ -27,26 +25,6 @@
     }
     </style>
     <template>
-        <div hidden$="[[!element.showDefaultConfiguration]]">
-            <div class="input-line" hidden$="[[element.positionDisabled]]">
-                <span class="label">Position: <span class="value">{{roundPosition.x}}, {{roundPosition.y}}</span></span>
-            </div>
-            <div class="input-line" hidden$="[[element.rotationDisabled]]">
-                <span class="label">Rotation: <span class="value">{{element.rotation}}°</span></span>
-                <input type="range"
-                min="0"
-                max="360"
-                value="{{element.rotation::input}}">
-            </div>
-            <div class="input-line" hidden$="[[element.scaleDisabled]]">
-                <span class="label">Scale: <span class="value">{{element.scale}}%</span></span>
-                <input type="range"
-                min="1"
-                max="1000"
-                step="1"
-                value="{{element.scale::input}}">
-            </div>
-        </div>
         <kano-ui-customizer id="properties"
             customizable="{{element.customizable.properties}}"
             user-values="{{element.userProperties}}">
@@ -55,6 +33,24 @@
             customizable="{{element.customizable.style}}"
             user-values="{{element.userStyle}}">
         </kano-ui-customizer>
+        <div hidden$="[[!element.showDefaultConfiguration]]">
+            <div class="input-line" hidden$="[[element.positionDisabled]]">
+                <kano-input-range value="{{element.position.x}}" label="X Position" min="0" max="[[mode.workspace.viewport.width]]">
+                </kano-input-range>
+            </div>
+            <div class="input-line" hidden$="[[element.positionDisabled]]">
+                <kano-input-range value="{{element.position.y}}" label="Y Position" min="0" max="[[mode.workspace.viewport.height]]">
+                </kano-input-range>
+            </div>
+            <div class="input-line" hidden$="[[element.rotationDisabled]]">
+                <kano-input-range value="{{element.rotation}}" label="Rotation" min="0" max="360" symbol="°">
+                </kano-input-range>
+            </div>
+            <div class="input-line" hidden$="[[element.scaleDisabled]]">
+                <kano-input-range value="{{element.scale}}" label="Scale" min="1" max="500" symbol="%">
+                </kano-input-range>
+            </div>
+        </div>
     </template>
 </dom-module>
 
@@ -67,6 +63,9 @@
             element: {
                 type: Object,
                 notify: true
+            },
+            mode: {
+                type: Object
             },
             roundPosition: {
                 type: Object

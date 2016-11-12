@@ -20,7 +20,7 @@
             }
             to {
                 opacity: 1;
-                transform: translateY(100%);
+                transform: translateY(500%);
             }
         }
         @keyframes fade-in {
@@ -54,7 +54,7 @@
             animation: fade-in ease-in-out 800ms;
             animation-fill-mode: forwards;
             animation-delay: 400ms;
-            background-color: rgba(255, 255, 255, 0.45);
+            background-color: rgba(0, 0, 0, 0.35);
         }
         :host .overlay.animate-out {
             animation: fade-out ease-in-out 400ms;
@@ -63,9 +63,14 @@
         }
         :host .content {
             position: absolute;
-            right: 0px;
-            bottom: 0px;
-            width: 50%;
+            right: 0; bottom: 0; left: 0; top: 0;
+            margin: auto;
+            width: 80%;
+            height: 512px;
+            border-radius: 6px;
+            background-color: #D2D7D8;
+            @apply(--layout-horizontal);
+            overflow: hidden;
         }
         :host button {
             @apply(--kano-button);
@@ -75,12 +80,10 @@
         :host .background,
         :host .char-bubble {
             position: absolute;
-            right: 0px;
-            bottom: 0px;
-        }
-        :host .char-bubble {
-            width: 100%;
-            @apply(--layout-end);
+            height: 100%;
+            /*right: 0px;*/
+            /*bottom: 0px;*/
+            /*@apply(--layout-end);*/
         }
         :host .background,
         :host .character,
@@ -96,11 +99,21 @@
             opacity: 0;
             animation-delay: 400ms;
             max-height: 400px;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
         }
         :host .character {
             opacity: 0;
             animation-delay: 800ms;
             max-height: 200px;
+            vertical-align: bottom;
+            bottom: 0;
+            vertical-align: bottom;
+        }
+        :host .character-container {
+            position: absolute;
+            bottom: 0;
         }
         :host .background.animate-out {
             opacity: 1;
@@ -117,31 +130,50 @@
         :host .ui {
             opacity: 0;
             animation-delay: 600ms;
-            @apply(--layout-vertical);
+            /*@apply(--layout-vertical);
             @apply(--layout-center);
-            @apply(--layout-flex);
+            @apply(--layout-flex);*/
             text-align: center;
-            color: white;
+            color: black;
             margin-right: -10px;
         }
         :host .char-bubble {
-            @apply(--layout-horizontal);
+            padding: 12px 42px;
+            box-sizing: border-box;
+            width: 40%;
         }
         :host .bubble {
-            border-radius: 4px;
-            padding: 10px 20px;
-            background-color: #4b99e0;
-            color: white;
             margin-bottom: 20px;
-            box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.45);
             @apply(--layout-self-stretch);
+        }
+
+        :host .app-player-container {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 60%;
+            background-color: white;
+            border-left: 1px solid #343536;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+        :host kano-app-player {
+            position: absolute;
+            opacity: 0;
+            top: 0; bottom: 0;
+            margin: auto;
+            height: 90%;
+            width: 100%;
+            animation: fade-in ease-in-out 800ms;
+            animation-fill-mode: forwards;
+            animation-delay: 400ms;
         }
     </style>
   <template>
       <div class="overlay" id="overlay"></div>
       <div class="content">
-          <img class="background" src$="[[scene.background]]" id="background"/>
           <div class="char-bubble">
+              <img class="background" src$="[[scene.background]]" id="background"/>
               <div class="ui" id="ui">
                   <div class="bubble">
                       <marked-element markdown="[[scene.text]]">
@@ -150,7 +182,12 @@
                   </div>
                   <button type="button" name="button" on-tap="overlayDone">[[scene.buttonText]]</button>
               </div>
-              <img class="character" src$="[[scene.character]]" id="character"/>
+              <div class="character-container">
+                  <img class="character" src$="[[scene.character]]" id="character"/>
+              </div>
+          </div>
+          <div class="app-player-container">
+              <kano-app-player src="[[scene.example_story_url]]" slug="[[scene.example_story_slug]]"></kano-app-player>
           </div>
       </div>
   </template>

@@ -1,0 +1,210 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+    
+    window.Kano.Behaviors.CoverGeneratorBehavior = {
+        generateCover (workspace, parts, width, height, scale=1, padding=0, background='#ffffff') {
+            let canvas = document.createElement('canvas'),
+                ctx = canvas.getContext('2d'),
+                rect = workspace.getBoundingClientRect(),
+                scaleFactor = rect.width / width,
+                util = {
+                    getStyle: this.getStyle,
+                    roundRect: this.roundRect
+                },
+                image,
+                promise;
+
+            canvas.id = 'screenshot';
+            canvas.width  = width;
+            canvas.height = height;
+
+            //setting background color
+            ctx.fillStyle = workspace.getBackgroundColor();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            promise = this.renderOnCanvas(workspace, ctx, util, scaleFactor);
+            parts.forEach((part) => {
+                let el = workspace.querySelector(`#${part.id}`);
+                if (typeof el.renderOnCanvas === 'function') {
+                    promise = promise.then(() => {
+                        return el.renderOnCanvas(ctx, util, scaleFactor);
+                    });
+                }
+            });
+            return promise.then(() => {
+                let tmpCanvas = document.createElement('canvas'),
+                    tmpCtx;
+                tmpCanvas.width = (width * scale) + (padding * 2);
+                tmpCanvas.height = (height * scale) + (padding * 2);
+                tmpCtx = tmpCanvas.getContext('2d');
+                tmpCtx.fillStyle = background;
+                tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+                tmpCtx.drawImage(canvas, padding, padding, tmpCanvas.width - (padding * 2), tmpCanvas.height - (padding * 2));
+                image = new Image();
+                image.src = tmpCanvas.toDataURL();
+                return image;
+            });
+        },
+        base64toBlob (b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+
+            let byteCharacters = atob(b64Data),
+                byteArrays = [],
+                slice, byteNumbers,
+                byteArray, offset;
+
+            for (offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                byteArray = new Uint8Array(byteNumbers);
+
+                byteArrays.push(byteArray);
+            }
+
+            return new Blob(byteArrays, {type: contentType});
+        },
+        renderOnCanvas (workspace, ctx, util, scaleFactor) {
+            if (!workspace || !workspace.renderOnCanvas) {
+                return Promise.resolve();
+            }
+            workspace.safeRender = true;
+            return workspace.renderOnCanvas(ctx, util, scaleFactor).then(_ => {
+                workspace.safeRender = false;
+                return _;
+            });
+        },
+        _generateGifCover (workspace, parts, scale, padding, color, fps, length) {
+            let wait = (delay) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(resolve, delay);
+                    });
+                },
+                p = wait(300),
+                images = [];
+
+            let getFrame = () => {
+                return this.generateCover(workspace,
+                                            parts,
+                                            workspace.width,
+                                            workspace.height,
+                                            scale,
+                                            padding,
+                                            color)
+                    .then(image => {
+                        images.push(image);
+                        this.gifProgress += (100 / length);
+                        return wait(1000 / fps);
+                    });
+            }
+            this.gifProgress = 0;
+            this.gifRenderProgress = 0;
+            for (let i = 0; i < length; i++) {
+                p = p.then(getFrame.bind(this));
+            }
+            return p.then(_ => {
+                return new Promise((resolve, reject) => {
+                    let gif = new GIF({
+                        workers: 2,
+                        quality: 1,
+                        workerScript: '/scripts/workers/gif.worker.js'
+                    });
+                    images.forEach((image) => {
+                        gif.addFrame(image, { delay: 1000 / fps });
+                    });
+                    gif.on('progress', (p) => {
+                        this.gifRenderProgress = p * 100;
+                    });
+                    gif.on('finished', (blob) => {
+                        resolve(blob);
+                    });
+                    gif.render();
+                })
+            }).then(blob => {
+                this.gifProgress = 0;
+                this.gifRenderProgress = 0;
+                return blob;
+            });
+        },
+        /**
+         * Helper to get style from element
+         * @param  {Object} element  DOM element you want to inspect
+         * @param  {String} css_rule CSS rule you want to get
+         * @return {String} value of the css_rule for the DOM element
+         */
+        getStyle (element, css_rule) {
+            var strValue = "";
+            if (!element) {
+                return strValue;
+            }
+            if (document.defaultView && document.defaultView.getComputedStyle) {
+                strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
+            } else if (element.currentStyle) {
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1) {
+                    return p1.toUpperCase();
+                });
+                strValue = element.currentStyle[css_rule];
+            }
+            return strValue;
+        },
+        /**
+         * Draws a rounded rectangle using the current state of the canvas.
+         * If you omit the last three params, it will draw a rectangle
+         * outline with a 5 pixel border radius
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {Number} x The top left x coordinate
+         * @param {Number} y The top left y coordinate
+         * @param {Number} width The width of the rectangle
+         * @param {Number} height The height of the rectangle
+         * @param {Number} [radius = 5] The corner radius; It can also be an object
+         *                 to specify different radii for corners
+         * @param {Number} [radius.tl = 0] Top left
+         * @param {Number} [radius.tr = 0] Top right
+         * @param {Number} [radius.br = 0] Bottom right
+         * @param {Number} [radius.bl = 0] Bottom left
+         * @param {Boolean} [fill = false] Whether to fill the rectangle.
+         * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+         */
+        roundRect (ctx, x, y, width, height, radius, fill, stroke) {
+            if (typeof stroke == 'undefined') {
+                stroke = true;
+            }
+            if (typeof radius === 'undefined') {
+                radius = 5;
+            }
+            if (typeof radius === 'number') {
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            } else {
+                let defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+                for (let side in defaultRadius) {
+                    radius[side] = radius[side] || defaultRadius[side];
+                }
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            if (fill) {
+                ctx.fill();
+            }
+            if (stroke) {
+                ctx.stroke();
+            }
+
+        }
+    };
+</script>
