@@ -7,7 +7,7 @@
         <style>
             :host {
                 display: block;
-                padding-top: 24px;
+                padding: 24px 12px 0px 12px;
                 color: white;
                 font-family: var(--font-body);
                 background: black;
@@ -25,12 +25,36 @@
                 font-family: var(--font-body);
                 font-size: 14px;
                 cursor: pointer;
+                border-top: 1px solid transparent;
+                transition: border-color linear 100ms;
+            }
+            .category>* {
+                pointer-events: none;
+            }
+            .category.selected {
+                border-top-color: #383838;
             }
             .category:focus {
-                color: var(--selected-color, white);
                 outline: none;
             }
-            .category:focus .color {
+            @keyframes fade-in {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            .flyout-host {
+                transition: border-color linear 150ms;
+                border-bottom: 1px solid transparent;
+                animation: fade-in ease-out 150ms;
+                overflow: hidden;
+            }
+            .category.selected+.flyout-host {
+                border-bottom-color: #383838;
+            }
+            .category.selected .color {
                 box-shadow: 0 0 0 1px black,
                             0 0 0 2px var(--selected-color, black);
             }
@@ -38,32 +62,25 @@
                 width: 12px;
                 height: 12px;
                 margin: 12px;
+                margin-left: 2px;
                 border-radius: 50%;
                 box-shadow: 0 0 0 1px black,
                             0 0 0 2px black;
-                transition: box-shadow linear 100ms;
-            }
-            @keyframes height-up {
-                from {
-                    max-height: 0px; 
-                }
-                to {
-                    max-height: 100%;
-                }
-            }
-            .flyout-host {
-                animation: height-up linear 300ms;
-                overflow: hidden;
+                transition: box-shadow linear 150ms;
             }
         </style>
         <template is="dom-repeat" items="[[toolbox]]" as="category">
-            <button type="button" class="category" on-tap="_selectCategory" id$="category-[[category.id]]">
+            <button type="button" class$="category [[_computeSelectedClass(category.selected)]]" on-tap="_selectCategory" id$="category-[[category.id]]">
                 <div class="color" style$="[[_computeColorStyle(category.colour)]]"></div>
                 <div>[[category.name]]</div>
             </button>
-            <template is="dom-if" if="[[category.selected]]" restamp>
+            <template is="dom-if" if="[[category.selected]]">
                 <div class="flyout-host">
-                    <kano-blockly-flyout id="flyout" padding-left="5" toolbox="[[currentToolbox]]" target-workspace="[[targetWorkspace]]" width="200"></kano-blockly-flyout>
+                    <kano-blockly-flyout id$="flyout-[[category.id]]"
+                                            padding-left="0"
+                                            toolbox="[[currentToolbox]]"
+                                            target-workspace="[[targetWorkspace]]"
+                                            on-block-created="_onBlockCreated"></kano-blockly-flyout>
                 </div>
             </template>
         </template>
@@ -73,17 +90,57 @@
             is: 'kano-blockly-toolbox',
             properties: {
                 targetWorkspace: {
-                    type: Object
+                    type: Object,
+                    observer: '_targetWorkspaceChanged'
                 },
                 toolbox: {
                     type: Array
+                },
+                opened: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+                autoClose: {
+                    type: Boolean,
+                    value: false
                 }
             },
             _computeColorStyle (color) {
                 return `background: ${color};`;
             },
+            _computeSelectedClass (selected) {
+                return selected ? 'selected' : '';
+            },
+            _onBlockCreated () {
+                if (this.autoClose) {
+                    this.close();
+                }
+            },
+            close () {
+                this.set(`toolbox.${this.currentSelected}.selected`, false);
+                let e = {
+                    type: Blockly.Events.CLOSE_FLYOUT
+                };
+                this.currentSelected = undefined;
+                this.customStyle['--selected-color'] = null;
+                this.updateStyles();
+                if (this.targetWorkspace) {
+                    this.targetWorkspace.fireChangeListener(e);
+                }
+            },
+            _targetWorkspaceChanged (ws) {
+                if (!ws) {
+                    return;
+                }
+                ws.getParentSvg().addEventListener('click', this._targetWorkspaceClicked.bind(this));
+            },
+            _targetWorkspaceClicked () {
+                this.close();
+            },
             _selectCategory (e) {
                 let category = e.model.get('category'),
+                    target = e.target,
                     index = e.model.get('index');
 
                 if (category.type === 'separator') {
@@ -100,11 +157,15 @@
                         categoryId: category.id
                     };
                     this.currentSelected = index;
-                    this.set(`toolbox.${index}.selected`, true);
+                    this.set(`toolbox.${this.currentSelected}.selected`, true);
                     this.currentToolbox = category.blocks;
                     this.customStyle['--selected-color'] = category.colour;
                     this.updateStyles();
+                    Polymer.RenderStatus.afterNextRender(this, () => {
+                        this._scrollIfNeeded(category.id);
+                    });
                     this.targetWorkspace.fireChangeListener(e);
+                    this.set('opened', true);
                 } else {
                     let e = {
                         type: Blockly.Events.CLOSE_FLYOUT
@@ -112,8 +173,21 @@
                     this.currentSelected = undefined;
                     this.customStyle['--selected-color'] = null;
                     this.updateStyles();
-                    this.targetWorkspace.fireChangeListener(e);
+                    if (this.targetWorkspace) {
+                        this.targetWorkspace.fireChangeListener(e);
+                    }
+                    target.blur();
+                    this.set('opened', false);
                 }
+            },
+            _scrollIfNeeded (categoryId) {
+                let flyout = this.$$(`#flyout-${categoryId}`),
+                    rect, flyoutRect;
+                    rect = this.getBoundingClientRect();
+                    flyoutRect = flyout.getBoundingClientRect();
+                    if (flyoutRect.height > rect.height) {
+                        this.$$(`#category-${categoryId}`).scrollIntoView({block: 'start', behavior: 'smooth'});
+                    }
             },
             getCategoryElement (id) {
                 return this.$$(`#category-${id}`);
@@ -123,6 +197,27 @@
                 if (flyout) {
                     return flyout.getBlockByType(type);
                 }
+            },
+            _flyoutDOMChanged (e) {
+                let categoryId = e.model.get('category.id'),
+                    flyout = this.$$(`#flyout-${categoryId}`),
+                    flyoutSizeChanged;
+                if (!flyout) {
+                    return;
+                }
+                flyoutSizeChanged = (e) => {
+                    let size = e.detail,
+                        rect = this.getBoundingClientRect(),
+                        categoryButton;
+                    flyout.removeEventListener('size-changed', flyoutSizeChanged);
+                    if (size.height > rect.height) {
+                        categoryButton = this.$$(`#category-${categoryId}`);
+                        Polymer.RenderStatus.afterNextRender(this, () => {
+                            categoryButton.scrollIntoView(true);
+                        });
+                    }
+                };
+                flyout.addEventListener('size-changed', flyoutSizeChanged);
             }
         });
     </script>

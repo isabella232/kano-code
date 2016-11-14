@@ -29,7 +29,7 @@
             top: 0;
             height: 100%;
             box-sizing: border-box;
-            width: 200px;
+            min-width: 200px;
         }
         svg {
             @apply(--layout-flex);
@@ -170,7 +170,7 @@
     </style>
     <template>
         <div id="workspace">
-            <kano-blockly-toolbox id="toolbox" toolbox="[[toolbox]]" on-start-drag="_onToolboxStartDrag"></kano-blockly-toolbox>
+            <kano-blockly-toolbox id="toolbox" toolbox="[[toolbox]]" on-block-created="_onToolboxBlockCreated" auto-close></kano-blockly-toolbox>
             <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
@@ -277,7 +277,7 @@
             this.workspace.dispose();
             document.body.style.overflow = undefined;
         },
-        _onToolboxStartDrag () {
+        _onToolboxBlockCreated () {
             this.$.svg.style.zIndex = 1;
         },
         _onToolboxEndDrag () {

@@ -5,6 +5,9 @@
                 display: block;
                 overflow-y: auto;
             }
+            svg {
+                width: 0;
+            }
             svg path.blocklyPathDark, svg path.blocklyPathLight {
                 display: none;
             }
@@ -35,14 +38,13 @@
                 targetWorkspace: {
                     type: Object
                 },
-                width: {
-                    type: Number,
-                    value: 300,
-                    observer: '_widthChanged'
-                },
                 paddingLeft: {
                     type: Number,
                     value: 20
+                },
+                separators: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready () {
@@ -111,7 +113,18 @@
                 let blocks = this.ws.getTopBlocks(),
                     cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                     cursorY = 0,
+                    maxWidth = 0,
+                    thisRect = this.getBoundingClientRect(),
                     rect, canvas, allBlocks, root, sep, hw;
+
+                blocks.forEach(block => {
+                    hw = block.getHeightWidth();
+                    if (hw.width > maxWidth) {
+                        maxWidth = hw.width;
+                    }
+                });
+
+                maxWidth = Math.max(maxWidth + this.paddingLeft + 20, thisRect.width);
 
                 blocks.forEach((block, index) => {
                     canvas = this.ws.getCanvas();
@@ -124,9 +137,11 @@
                     });
                     root = block.getSvgRoot();
                     block.render();
-                    sep = Blockly.createSvgElement('rect', { height: 1, width: this.width, fill: '#37454d' }, null);
-                    sep.setAttribute('transform', `translate(0, ${cursorY})`);
-                    canvas.insertBefore(sep, root);
+                    if (this.separators) {
+                        sep = Blockly.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
+                        sep.setAttribute('transform', `translate(0, ${cursorY})`);
+                        canvas.insertBefore(sep, root);
+                    }
 
                     cursorY += 12;
                     
@@ -141,10 +156,15 @@
                     this._addBlockListeners(root, block, rect)
                 });
                 rect = this.wsDom.getBoundingClientRect();
-                this.$.svg.style.width = this.width;
+                this.$.svg.style.width = maxWidth;
                 this.$.svg.style.height = rect.height + 20;
+                this.fire('size-changed', {
+                    width: maxWidth,
+                    height: rect.height + 20
+                });
             },
             _addBlockListeners (root, block, rect) {
+                this._listeners = this._listeners || [];
                 this._listeners.push(Blockly.bindEvent_(root, 'mousedown', null, this._blockMouseDown(block)));
                 this._listeners.push(Blockly.bindEvent_(rect, 'mousedown', null, this._blockMouseDown(block)));
                 this._listeners.push(Blockly.bindEvent_(root, 'mouseover', block, block.addSelect));
@@ -171,7 +191,6 @@
                         Blockly.Flyout.startFlyout_ = this;
                         Blockly.Flyout.onMouseUpWrapper_ = Blockly.bindEvent_(document, 'mouseup', this, this._onMouseUp);
                         Blockly.Flyout.onMouseMoveBlockWrapper_ = Blockly.bindEvent_(document, 'mousemove', this, this._onMouseMoveBlock);
-                        this.fire('start-drag');
                     }
                     // This event has been handled.  No need to bubble up to the document.
                     e.stopPropagation();
