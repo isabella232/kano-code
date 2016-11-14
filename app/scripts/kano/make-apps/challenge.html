@@ -1,5 +1,5 @@
 <link rel="import" href="./copy-manager.html">
-<script src="./blockly/defaults.js"></script>
+<link rel="import" href="./blockly/defaults.html">
 <script>
     (function (Kano) {
 
@@ -99,7 +99,7 @@
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "add-part-button",
+                        "location": "workspace.toolbar.add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('add-parts') + "<br>" + Kano.MakeApps.CopyManager.get('open-parts-drawer')
                     }],
@@ -124,7 +124,7 @@
                     "highlight": location,
                     "arrow": {
                         "source": location,
-                        "target": "left-panel",
+                        "target": "workspace-panel",
                         "size": 120
                     },
                     "validation": {
@@ -138,7 +138,7 @@
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "add-part-button",
+                        "location": "workspace.toolbar.add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('start-code') + "<br>" + Kano.MakeApps.CopyManager.get('close-parts-drawer')
                     }],
@@ -150,8 +150,8 @@
             this.data.steps = this.data.steps.concat(this.matchDefaultBlocks(xml.children, defaultXml.children));
             this.data.steps.push({
                 "tooltips": [{
-                    "location": "left-panel",
-                    "position": "right",
+                    "location": "workspace-panel",
+                    "position": "left",
                     "text": "You can now test the app",
                     "next_button": true
                 }]
@@ -241,7 +241,7 @@
         };
 
         /**
-         * Generate the steps matching a `field` node in a Blockly XML tree 
+         * Generate the steps matching a `field` node in a Blockly XML tree
          */
         Challenge.prototype.fieldToSteps = function (node, fieldDefault) {
             let parent = node.parentNode,
@@ -310,7 +310,7 @@
         };
 
         /**
-         * Generate the steps matching a `block` node in a Blockly XML tree 
+         * Generate the steps matching a `block` node in a Blockly XML tree
          */
         Challenge.prototype.blockToSteps = function (node) {
             // Defines the location of the toolbox category. Can be the category itself or from a previously added part
@@ -383,7 +383,7 @@
                     "location": {
                         "category": categoryLocation
                     },
-                    "position": "left",
+                    "position": "right",
                     "text": "Open " + categoryLabel + " tray"
                 }],
                 "validation": {
@@ -397,14 +397,14 @@
                     "location": {
                         "flyout_block": blockLocation
                     },
-                    "position": "left",
+                    "position": "right",
                     "text": 'Drag the <kano-blockly-block type="' + markdownType + '"></kano-blockly-block> block onto your code space'
                 }],
                 "arrow": {
                     "target": {
                         "flyout_block": blockLocation
                     },
-                    "angle": 315,
+                    "angle": 120,
                     "size": 80
                 },
                 "validation": {
@@ -460,8 +460,8 @@
                 steps.push({
                     "tooltips": [
                         {
-                            "location": "right-panel",
-                            "position": "left",
+                            "location": "blocks-panel",
+                            "position": "right",
                             "text": Kano.MakeApps.CopyManager.get('drop-codespace')
                         }
                     ],
@@ -483,7 +483,7 @@
         };
 
         /**
-         * Generate the steps matching a `value` node in a Blockly XML tree 
+         * Generate the steps matching a `value` node in a Blockly XML tree
          */
         Challenge.prototype.valueToSteps = function (node) {
             let steps = [],

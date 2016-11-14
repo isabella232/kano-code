@@ -1,4 +1,5 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
@@ -49,7 +50,8 @@
     }
     :host kano-workspace-head {
         position: absolute;
-        width: 100%;
+        right: 10px;
+        top: 10px;
     }
     :host .fullscreen-close {
         position: fixed;
@@ -110,7 +112,11 @@
             <div id="workspace-placeholder">
 
             </div>
+            <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
+                <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
+            </div>
             <kano-workspace-toolbar
+                id="toolbar"
                 show-mouse-position="{{showMousePosition}}"
                 mouse-x="[[mouseX]]"
                 mouse-y="[[mouseY]]"
@@ -122,13 +128,7 @@
                 on-reset-button-clicked="_resetAppState"
                 on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
         </kano-ui-viewport>
-        <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
-            <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
-        </div>
-        <kano-workspace-head
-            title="[[title]]"
-            show-save-button="{{showSaveButton}}"
-            progress="[[progress]]"></kano-workspace-head>
+        <kano-workspace-head challenge-state="[[challengeState]]"></kano-workspace-head>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
@@ -147,7 +147,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace',
-        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.CoverGeneratorBehavior],
+        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.CoverGeneratorBehavior, Kano.Behaviors.SoundPlayerBehavior],
         properties: {
             parts: {
                 type: Array,
@@ -186,14 +186,8 @@
             partsMenuOpen: {
                 type: Boolean
             },
-            title: {
-                type: String
-            },
-            showSaveButton: {
-                type: Boolean
-            },
-            progress: {
-                type: Number
+            challengeState: {
+                type: Object
             }
         },
         observers: [
@@ -224,6 +218,10 @@
         },
         attached () {
             this.target = document.body;
+            // Enable pop on drop part only after initialisation
+            this.async(() => {
+                this.soundReady = true;
+            }, 500);
         },
         _editLayoutClicked () {
             this.toggleEditableLayout();
@@ -488,6 +486,9 @@
             element.model = model;
             this.elements[key] = element;
             this.dropzone.appendChild(element);
+            if (this.soundReady) {
+                this.playSound('/assets/audio/sounds/pop.wav');
+            }
         },
         removePart (key) {
             let element = this.elements[key];
