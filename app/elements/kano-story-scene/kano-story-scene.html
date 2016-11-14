@@ -130,6 +130,9 @@
                     this.set('sceneData.ended', true);
                 }
                 this.fire('scene-done');
+                this.async(() => {
+                    this.trackSceneDone();
+                });
             }
             target.end().then(() => {
                 this.overlayHidden = true;
@@ -163,6 +166,11 @@
             this.set('overlayScene', overlayConfig.data);
             this.set('overlayName', component.name);
             this.overlayHidden = false;
+        },
+        trackSceneDone () {
+            window.dataLayer.push({
+                'event': 'worldTutorialCompleted'
+            });
         }
     });
 </script>
