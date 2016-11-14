@@ -481,10 +481,12 @@
                     dimensions = block.getHeightWidth();
 
                     if (coord.x + dimensions.width / 3 < 200) {
-                        // Delete block over the toolbox
-                        Blockly.Events.setGroup(true);
-                        block.dispose(true, true);
-                        Blockly.Events.setGroup(false);
+                        // Cancel move event so that the undostack doesn't get populated
+                        Blockly.Events.disable();
+                        this.workspace.undo();
+                        Blockly.Events.enable();
+                        // Delete the block without animation
+                        block.dispose(true, false);
                         this._onToolboxEndDrag();
                         return;
                     }
