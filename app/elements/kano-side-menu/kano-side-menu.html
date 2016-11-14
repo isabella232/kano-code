@@ -25,7 +25,6 @@
             width: 100%;
             height: 100%;
 
-            padding: 10px;
             @apply(--layout-horizontal);
             align-items: center;
 
@@ -34,7 +33,7 @@
             color: black;
             box-sizing: border-box;
         }
-        li:hover {
+        li a:hover {
             background: var(--color-grey-lightest);
         }
         li a {
@@ -43,6 +42,16 @@
 
             text-decoration: none;
             color: black;
+            padding: 10px;
+
+            background-color: #ffffff;
+
+            transition: transform 0.3s ease-in-out;
+
+            position: relative;
+        }
+        li a.reveal {
+            transform: translateX(71px);
         }
         li.user {
             @apply(--layout-horizontal);
@@ -90,6 +99,15 @@
         a>* {
             pointer-events: none;
         }
+        .reset-confirmation {
+            background-color: var(--color-red);
+            color: #ffffff;
+            padding: 10px;
+            position: absolute;
+        }
+        .reset-confirmation:hover {
+            background-color: var(--color-lighter-red);
+        }
     </style>
     <template>
         <ul>
@@ -111,7 +129,10 @@
                 </div>
             </li>
             <li>
-                <a on-tap="resetWorkspace">
+                <div on-tap="resetWorkspace" class="reset-confirmation">
+                    Confirm
+                </div>
+                <a on-tap="confirmReset" id="reset">
                     <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
                     <div class="label">Reset Workspace</div>
                 </a>
@@ -230,12 +251,16 @@
             return !!this.user;
         },
         toggleMenu (e) {
+            this.$.reset.classList.remove('reveal');
             this.fire('toggle-menu', false);
             e.stopPropagation();
         },
-        resetWorkspace () {
+        confirmReset () {
+            this.$.reset.classList.toggle('reveal');
+        },
+        resetWorkspace (e) {
             this.fire('iron-signal', { name: 'reset-workspace' });
-            this.fire('toggle-menu', false);
+            this.toggleMenu(e)
         },
         /* FIXME: This was copied out of Kano World. We need to put this
                   functionality into the API. */
