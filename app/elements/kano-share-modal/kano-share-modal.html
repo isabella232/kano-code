@@ -472,8 +472,8 @@
         _externalShare () {
             let socialConfig = this.socialConfigs[this.socialTarget];
             this.popup.location.href = socialConfig.generateUrl(this.playUrl(), this.shareInfo.title);
-            this.async(() => {
-                this.trackShare('worldExternalShare');
+            this.fire('track-event', {
+                event: 'worldExternalShare'
             });
         },
         _checkTitleInput () {
@@ -607,8 +607,8 @@
             if (this._checkTitleInput()) {
                 this.shareInfo.is_private = false;
                 this.fire('confirm');
-                this.async(() => {
-                    this.trackShare('worldInternalShare');
+                this.fire('track-event', {
+                    event: 'worldInternalShare'
                 });
             }
         },
@@ -661,11 +661,6 @@
             if (this.shareInfo.mode) {
                 return this.shareInfo.mode.id === 'lightboard' || this.shareInfo.mode.id === 'camera'
             }
-        },
-        trackShare (eventName) {
-            window.dataLayer.push({
-                'event': eventName
-            });
         }
     });
 </script>
