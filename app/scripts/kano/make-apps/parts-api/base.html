@@ -44,20 +44,6 @@
                 this.userListeners = {};
                 if (this.savedState) {
                     let savedState = this.savedState || {};
-                    //need to update state when stop running
-                    if (this.model) {
-                        savedState = {
-                            position: {
-                                x: this.model.position.x,
-                                y: this.model.position.y
-                            },
-                            rotation: this.model.rotation,
-                            scale: this.model.scale,
-                            visible: this.model.visible,
-                            userProperties: Object.assign({}, this.model.userProperties),
-                            userStyle: Object.assign({}, this.model.userStyle)
-                        };
-                    }
                     savedState.position = savedState.position || { x: 0, y: 0 };
                     this.set('model.position.x', savedState.position.x);
                     this.set('model.position.y', savedState.position.y);

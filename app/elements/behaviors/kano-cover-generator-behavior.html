@@ -1,10 +1,11 @@
 <script type="text/javascript">
+
     window.Kano = window.Kano || {};
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
-
+    
     window.Kano.Behaviors.CoverGeneratorBehavior = {
-        generateCover(workspace, parts, width, height, scale = 1, padding = 0, background = '#ffffff') {
+        generateCover (workspace, parts, width, height, scale=1, padding=0, background='#ffffff') {
             let canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
                 rect = workspace.getBoundingClientRect(),
@@ -17,7 +18,7 @@
                 promise;
 
             canvas.id = 'screenshot';
-            canvas.width = width;
+            canvas.width  = width;
             canvas.height = height;
 
             //setting background color
@@ -46,7 +47,7 @@
                 return image;
             });
         },
-        base64toBlob(b64Data, contentType, sliceSize) {
+        base64toBlob (b64Data, contentType, sliceSize) {
             contentType = contentType || '';
             sliceSize = sliceSize || 512;
 
@@ -68,11 +69,9 @@
                 byteArrays.push(byteArray);
             }
 
-            return new Blob(byteArrays, {
-                type: contentType
-            });
+            return new Blob(byteArrays, {type: contentType});
         },
-        renderOnCanvas(workspace, ctx, util, scaleFactor) {
+        renderOnCanvas (workspace, ctx, util, scaleFactor) {
             if (!workspace || !workspace.renderOnCanvas) {
                 return Promise.resolve();
             }
@@ -82,7 +81,7 @@
                 return _;
             });
         },
-        _generateGifCover(workspace, parts, scale, padding, color, fps, length) {
+        _generateGifCover (workspace, parts, scale, padding, color, fps, length) {
             let wait = (delay) => {
                     return new Promise((resolve, reject) => {
                         setTimeout(resolve, delay);
@@ -93,12 +92,12 @@
 
             let getFrame = () => {
                 return this.generateCover(workspace,
-                        parts,
-                        workspace.width,
-                        workspace.height,
-                        scale,
-                        padding,
-                        color)
+                                            parts,
+                                            workspace.width,
+                                            workspace.height,
+                                            scale,
+                                            padding,
+                                            color)
                     .then(image => {
                         images.push(image);
                         this.gifProgress += (100 / length);
@@ -111,7 +110,6 @@
                 p = p.then(getFrame.bind(this));
             }
             return p.then(_ => {
-                images.unshift(images[images.length - 1]);
                 return new Promise((resolve, reject) => {
                     let gif = new GIF({
                         workers: 2,
@@ -119,9 +117,7 @@
                         workerScript: '/scripts/workers/gif.worker.js'
                     });
                     images.forEach((image) => {
-                        gif.addFrame(image, {
-                            delay: 1000 / fps
-                        });
+                        gif.addFrame(image, { delay: 1000 / fps });
                     });
                     gif.on('progress', (p) => {
                         this.gifRenderProgress = p * 100;
@@ -143,7 +139,7 @@
          * @param  {String} css_rule CSS rule you want to get
          * @return {String} value of the css_rule for the DOM element
          */
-        getStyle(element, css_rule) {
+        getStyle (element, css_rule) {
             var strValue = "";
             if (!element) {
                 return strValue;
@@ -151,7 +147,7 @@
             if (document.defaultView && document.defaultView.getComputedStyle) {
                 strValue = document.defaultView.getComputedStyle(element, "").getPropertyValue(css_rule);
             } else if (element.currentStyle) {
-                css_rule = css_rule.replace(/\-(\w)/g, function(strMatch, p1) {
+                css_rule = css_rule.replace(/\-(\w)/g, function (strMatch, p1) {
                     return p1.toUpperCase();
                 });
                 strValue = element.currentStyle[css_rule];
@@ -176,7 +172,7 @@
          * @param {Boolean} [fill = false] Whether to fill the rectangle.
          * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
          */
-        roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        roundRect (ctx, x, y, width, height, radius, fill, stroke) {
             if (typeof stroke == 'undefined') {
                 stroke = true;
             }
@@ -184,19 +180,9 @@
                 radius = 5;
             }
             if (typeof radius === 'number') {
-                radius = {
-                    tl: radius,
-                    tr: radius,
-                    br: radius,
-                    bl: radius
-                };
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
             } else {
-                let defaultRadius = {
-                    tl: 0,
-                    tr: 0,
-                    br: 0,
-                    bl: 0
-                };
+                let defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
                 for (let side in defaultRadius) {
                     radius[side] = radius[side] || defaultRadius[side];
                 }
