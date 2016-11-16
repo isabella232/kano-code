@@ -13,6 +13,7 @@
         :host {
             display: block;
             position: relative;
+            --kano-blockly-background: #56445d;
         }
         #workspace {
             position: absolute;
@@ -21,7 +22,7 @@
             left: 0px;
             right: 0px;
             @apply(--layout-horizontal);
-            background-color: rgb(33, 53, 66);
+            background-color: var(--kano-blockly-background);
         }
         #toolbox {
             position: absolute;
@@ -29,10 +30,10 @@
             top: 0;
             height: 100%;
             box-sizing: border-box;
-            min-width: 200px;
+            --kano-blockly-toolbox-background: var(--kano-blockly-background);
         }
         svg {
-            @apply(--layout-flex);
+            @apply --layout-flex;
         }
         .gutter {
             width: 20px;
@@ -225,13 +226,13 @@
          * Inject blockly to the workspace div
          */
         attached () {
+            let options, defs;
             this.varModal = this.$['var-modal'];
             this.target = document.body;
             this.visible = false;
-            var options = new Blockly.Options({
+            options = new Blockly.Options({
                 media: '/assets/vendor/google-blockly/media/',
                 scrollbars: true,
-                hasScrollbars: true,
                 trashcan: true,
                 comments: true,
                 disable: true,
@@ -243,10 +244,12 @@
                     scaleSpeed: 1.2
                 }
             });
+            defs = Blockly.createSvgElement('defs', {}, this.$.svg);
+            options.gridPattern = Blockly.createSvgElement('pattern', {'id': 'blocklyGridPattern' + String(Math.random()).substring(2), 'patternUnits': 'userSpaceOnUse'}, defs);
             // Load CSS.
             Blockly.Css.inject(options.hasCss, options.pathToMedia);
             this.workspace = this._createWorkspace(this.$.svg, options);
-            this._initWorkspace(this.workspace);
+            this._initWorkspace();
             this.workspace.markFocused();
             Blockly.bindEvent_(this.$.svg, 'focus', this.workspace, this.workspace.markFocused);
             Blockly.svgResize(this.workspace);
@@ -287,44 +290,44 @@
             options.parentWorkspace = null;
             var mainWorkspace = new Blockly.WorkspaceSvg(options);
             mainWorkspace.scale = options.zoomOptions.startScale;
-            svg.appendChild(mainWorkspace.createDom());
+            svg.appendChild(mainWorkspace.createDom('blocklyMainBackground'));
             // A null translation will also apply the correct initial scale.
             mainWorkspace.translate(0, 0);
             mainWorkspace.markFocused();
+
             // The SVG is now fully assembled.
             Blockly.svgResize(mainWorkspace);
             Blockly.WidgetDiv.createDom();
             Blockly.Tooltip.createDom();
             return mainWorkspace;
         },
-        _initWorkspace (mainWorkspace) {
-            var options = mainWorkspace.options;
-            var svg = mainWorkspace.getParentSvg();
+        _initWorkspace () {
+            let options = this.workspace.options;
+            var svg = this.workspace.getParentSvg();
 
             // Supress the browser's context menu.
-            Blockly.bindEvent_(svg, 'contextmenu', null,
-                function(e) {
-                    if (!Blockly.isTargetInput_(e)) {
+            Blockly.bindEvent_(svg, 'contextmenu', null, (e) => {
+                if (!Blockly.isTargetInput_(e)) {
                     e.preventDefault();
-                    }
-                });
+                }
+            });
 
-            var workspaceResizeHandler = Blockly.bindEvent_(window, 'resize', null, function() {
-                    Blockly.hideChaff(true);
-                    Blockly.svgResize(mainWorkspace);
-                });
-            mainWorkspace.setResizeHandlerWrapper(workspaceResizeHandler);
+            var workspaceResizeHandler = Blockly.bindEvent_(window, 'resize', null, () => {
+                Blockly.hideChaff(true);
+                Blockly.svgResize(this.workspace);
+            });
+            this.workspace.setResizeHandlerWrapper(workspaceResizeHandler);
 
             Blockly.inject.bindDocumentEvents_();
 
             if (options.hasScrollbars) {
-                mainWorkspace.scrollbar = new Blockly.ScrollbarPair(mainWorkspace);
-                mainWorkspace.scrollbar.resize();
+                this.workspace.scrollbar = new Blockly.ScrollbarPair(this.workspace);
+                this.workspace.scrollbar.resize();
             }
 
             // Load the sounds.
             if (options.hasSounds) {
-                Blockly.inject.loadSounds_(options.pathToMedia, mainWorkspace);
+                Blockly.inject.loadSounds_(options.pathToMedia, this.workspace);
             }
         },
         _closeOmnibox (e) {
@@ -475,12 +478,13 @@
             }
             if ((e.type === Blockly.Events.MOVE || e.type === Blockly.Events.UI && e.element === 'click')) {
                 let block = this.workspace.getBlockById(e.blockId),
-                    coord, dimensions;
+                    coord, dimensions, toolboxRect;
                 if (block) {
                     coord = Blockly.getSvgXY_(block.getSvgRoot(), this.workspace);
                     dimensions = block.getHeightWidth();
+                    toolboxRect = this.$.toolbox.getBoundingClientRect();
 
-                    if (coord.x + dimensions.width / 3 < 200) {
+                    if (coord.x + dimensions.width / 3 < toolboxRect.width) {
                         // Cancel move event so that the undostack doesn't get populated
                         Blockly.Events.disable();
                         this.workspace.undo();

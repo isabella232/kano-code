@@ -7,11 +7,14 @@
         <style>
             :host {
                 display: block;
-                padding: 24px 12px 0px 12px;
+                --kano-blockly-toolbox-background: #56445d;
+                padding: 18px 22px 0px 12px;
                 color: white;
                 font-family: var(--font-body);
-                background: black;
+                background: var(--kano-blockly-toolbox-background);
                 overflow-y: auto;
+                border-right: 1px solid #645a6e;
+                @apply --kano-blockly-toolbox;
             }
             .category {
                 @apply --layout-horizontal;
@@ -27,6 +30,9 @@
                 cursor: pointer;
                 border-top: 1px solid transparent;
                 transition: border-color linear 100ms;
+            }
+            .separator {
+                height: 16px;
             }
             .category>* {
                 pointer-events: none;
@@ -51,11 +57,11 @@
                 animation: fade-in ease-out 150ms;
                 overflow: hidden;
             }
-            .category.selected+.flyout-host {
+            .category.selected+.separator+.flyout-host {
                 border-bottom-color: #383838;
             }
             .category.selected .color {
-                box-shadow: 0 0 0 1px black,
+                box-shadow: 0 0 0 1px var(--kano-blockly-toolbox-background),
                             0 0 0 2px var(--selected-color, black);
             }
             .color {
@@ -64,16 +70,23 @@
                 margin: 12px;
                 margin-left: 2px;
                 border-radius: 50%;
-                box-shadow: 0 0 0 1px black,
-                            0 0 0 2px black;
+                box-shadow: 0 0 0 1px var(--kano-blockly-toolbox-background),
+                            0 0 0 2px var(--kano-blockly-toolbox-background);
                 transition: box-shadow linear 150ms;
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            :host([opened]) {
+                @apply --shadow-elevation-4dp;
             }
         </style>
         <template is="dom-repeat" items="[[toolbox]]" as="category">
-            <button type="button" class$="category [[_computeSelectedClass(category.selected)]]" on-tap="_selectCategory" id$="category-[[category.id]]">
+            <button type="button" class$="category [[_computeSelectedClass(category.selected)]]" on-tap="_selectCategory" id$="category-[[category.id]]" hidden$="[[_isSeparator(category.type)]]">
                 <div class="color" style$="[[_computeColorStyle(category.colour)]]"></div>
                 <div>[[category.name]]</div>
             </button>
+            <div class="separator" hidden$="[[!_isSeparator(category.type)]]"></div>
             <template is="dom-if" if="[[category.selected]]">
                 <div class="flyout-host">
                     <kano-blockly-flyout id$="flyout-[[category.id]]"
@@ -99,12 +112,16 @@
                 opened: {
                     type: Boolean,
                     value: false,
-                    notify: true
+                    notify: true,
+                    reflectToAttribute: true
                 },
                 autoClose: {
                     type: Boolean,
                     value: false
                 }
+            },
+            _isSeparator(type) {
+                return type === 'separator';
             },
             _computeColorStyle (color) {
                 return `background: ${color};`;
@@ -183,6 +200,10 @@
             _scrollIfNeeded (categoryId) {
                 let flyout = this.$$(`#flyout-${categoryId}`),
                     rect, flyoutRect;
+                    rect;
+                    if (!flyout) {
+                        return;
+                    }
                     rect = this.getBoundingClientRect();
                     flyoutRect = flyout.getBoundingClientRect();
                     if (flyoutRect.height > rect.height) {
