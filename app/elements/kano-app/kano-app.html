@@ -147,7 +147,8 @@ Example:
             shutdown: '_shutdown',
             signup: '_signup',
             'kano-error': '_showErrorOnToast',
-            'view-loaded': '_viewLoaded'
+            'view-loaded': '_viewLoaded',
+            'track-event': '_trackEvent'
         },
         _routeChanged (route) {
             // User not authenticated not actions to be done
@@ -323,6 +324,9 @@ Example:
         },
         _viewLoaded () {
             window.prerenderReady = true;
+        },
+        _trackEvent (e, payload) {
+            window.dataLayer.push(payload);
         }
     });
 </script>

@@ -472,6 +472,9 @@
         _externalShare () {
             let socialConfig = this.socialConfigs[this.socialTarget];
             this.popup.location.href = socialConfig.generateUrl(this.playUrl(), this.shareInfo.title);
+            this.fire('track-event', {
+                event: 'worldExternalShare'
+            });
         },
         _checkTitleInput () {
             if (!this.shareInfo.title || this.shareInfo.title.length < 1) {
@@ -604,6 +607,9 @@
             if (this._checkTitleInput()) {
                 this.shareInfo.is_private = false;
                 this.fire('confirm');
+                this.fire('track-event', {
+                    event: 'worldInternalShare'
+                });
             }
         },
         copyToClipboard () {
