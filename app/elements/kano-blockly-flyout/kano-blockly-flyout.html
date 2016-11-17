@@ -6,7 +6,8 @@
                 overflow-y: auto;
             }
             svg {
-                width: 0;
+                width: 500px;
+                height: 2000px;
             }
             svg path.blocklyPathDark, svg path.blocklyPathLight {
                 display: none;
@@ -32,7 +33,7 @@
             is: 'kano-blockly-flyout',
             properties: {
                 toolbox: {
-                    type: Object,
+                    type: Array,
                     observer: '_toolboxChanged'
                 },
                 targetWorkspace: {
@@ -72,7 +73,7 @@
                 this._separators = [];
                 let xmlString,
                     content,
-                    xml;
+                    xml, xmlList;
 
                 xmlString = toolbox.map(block => {
                     content = '';
@@ -85,14 +86,14 @@
                 xmlString = `<xml>${xmlString}</xml>`
                     
                 xml = Blockly.Xml.textToDom(xmlString);
-                this.ws.clear();
-                this.async(() => {
-                    try {
-                        Blockly.Xml.domToWorkspace(xml, this.ws);
-                    } catch (e) {} // Ignore loading errors
-                    this._updateDB();
-                    this._updateSvgSize();
-                });
+                xmlList = xml.children;
+                this._clearOldBlocks();
+                this.blocks = [];
+                for (let i = 0; i < xmlList.length; i++) {
+                    this.blocks.push(Blockly.Xml.domToBlock(xmlList[i], this.ws));
+                }
+                this._updateDB();
+                this._updateSvgSize();
             },
             _updateDB () {
                 this._blockDB = {};
@@ -110,14 +111,13 @@
                 if (!this.ws) {
                     this._createWorkspace();
                 }
-                let blocks = this.ws.getTopBlocks(),
-                    cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
+                let cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                     cursorY = 0,
                     maxWidth = 0,
                     thisRect = this.getBoundingClientRect(),
                     rect, canvas, allBlocks, root, sep, hw;
 
-                blocks.forEach(block => {
+                this.blocks.forEach(block => {
                     hw = block.getHeightWidth();
                     if (hw.width > maxWidth) {
                         maxWidth = hw.width;
@@ -126,17 +126,17 @@
 
                 maxWidth = Math.max(maxWidth + this.paddingLeft + 20, thisRect.width);
 
-                blocks.forEach((block, index) => {
-                    canvas = this.ws.getCanvas();
-                    if (!canvas) {
-                        return;
-                    }
+                canvas = this.ws.getCanvas();
+                if (!canvas) {
+                    return;
+                }
+
+                this.blocks.forEach((block, index) => {
                     allBlocks = block.getDescendants();
                     allBlocks.forEach(child => {
                         child.isInFlyout = true;
                     });
                     root = block.getSvgRoot();
-                    block.render();
                     if (this.separators) {
                         sep = Blockly.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
                         sep.setAttribute('transform', `translate(0, ${cursorY})`);
@@ -151,16 +151,21 @@
                     rect = Blockly.createSvgElement('rect', {'fill-opacity': 0}, null);
                     rect.tooltip = block;
                     Blockly.Tooltip.bindMouseEvents(rect);
-                    this.ws.getCanvas().insertBefore(rect, root);
+                    canvas.insertBefore(rect, root);
                     block.flyoutRect_ = rect;
                     this._addBlockListeners(root, block, rect)
                 });
                 rect = this.wsDom.getBoundingClientRect();
                 this.$.svg.style.width = maxWidth;
                 this.$.svg.style.height = rect.height + 20;
-                this.fire('size-changed', {
-                    width: maxWidth,
-                    height: rect.height + 20
+            },
+            _clearOldBlocks () {
+                let oldBlocks = this.ws.getTopBlocks(false);
+
+                oldBlocks.forEach(block => {
+                    if (block.workspace === this.ws) {
+                        block.dispose(false, false);
+                    }
                 });
             },
             _addBlockListeners (root, block, rect) {
