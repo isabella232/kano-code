@@ -89,7 +89,7 @@
                 <div class="flyout-host">
                     <kano-blockly-flyout id$="flyout-[[category.id]]"
                                             padding-left="0"
-                                            toolbox="[[currentToolbox]]"
+                                            toolbox="[[category.blocks]]"
                                             target-workspace="[[targetWorkspace]]"
                                             on-block-created="_onBlockCreated"></kano-blockly-flyout>
                 </div>
@@ -173,7 +173,6 @@
                     };
                     this.originalRect = this.getBoundingClientRect();
                     this.currentSelected = index;
-                    this.currentToolbox = this.toolbox[index].blocks;
                     this.set(`toolbox.${this.currentSelected}.selected`, true);
                     this.customStyle['--selected-color'] = category.colour;
                     this.updateStyles();

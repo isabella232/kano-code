@@ -6,8 +6,7 @@
                 overflow-y: auto;
             }
             svg {
-                width: 500px;
-                height: 2000px;
+                width: 0px;
             }
             svg path.blocklyPathDark, svg path.blocklyPathLight {
                 display: none;
@@ -53,27 +52,21 @@
                 this._separators = [];
                 this._blockDB = {};
             },
+            attached () {
+                this._render();
+            },
             _createWorkspace () {
                 this.ws = new Blockly.WorkspaceSvg({});
                 this.ws.isFlyout = true;
                 this.wsDom = this.ws.createDom();
-                this.$.svg.appendChild(this.wsDom);
+                this.svgGroup = Blockly.createSvgElement('g', { 'class': 'kanoBlocklyFlyout' }, null);
+                this.svgGroup.appendChild(this.wsDom);
+                this.$.svg.appendChild(this.svgGroup);
             },
             _toolboxChanged (toolbox) {
-                if (!this.ws) {
-                    this._createWorkspace();
-                }
-                if (this._separators) {
-                    this._separators.forEach(sep => {
-                        if (sep.parentNode) {
-                            sep.parentNode.removeChild(sep);
-                        }
-                    });
-                }
-                this._separators = [];
                 let xmlString,
                     content,
-                    xml, xmlList;
+                    xml;
 
                 xmlString = toolbox.map(block => {
                     content = '';
@@ -86,14 +79,24 @@
                 xmlString = `<xml>${xmlString}</xml>`
                     
                 xml = Blockly.Xml.textToDom(xmlString);
-                xmlList = xml.children;
-                this._clearOldBlocks();
-                this.blocks = [];
-                for (let i = 0; i < xmlList.length; i++) {
-                    this.blocks.push(Blockly.Xml.domToBlock(xmlList[i], this.ws));
+                this.xmlList = xml.children;
+
+                if (this.ws) {
+                    this._renderBlocks();
                 }
+            },
+            _render () {
+                this._createWorkspace();
+                if (this._separators) {
+                    this._separators.forEach(sep => {
+                        if (sep.parentNode) {
+                            sep.parentNode.removeChild(sep);
+                        }
+                    });
+                }
+                this._separators = [];
+                this._renderBlocks();
                 this._updateDB();
-                this._updateSvgSize();
             },
             _updateDB () {
                 this._blockDB = {};
@@ -104,18 +107,30 @@
             getBlockByType (type) {
                 return this._blockDB[type];
             },
-            _widthChanged () {
-                this._updateSvgSize();
+            render () {
+                this._renderBlocks();
             },
-            _updateSvgSize () {
-                if (!this.ws) {
-                    this._createWorkspace();
-                }
+            _renderBlocks () {
                 let cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                     cursorY = 0,
                     maxWidth = 0,
-                    thisRect = this.getBoundingClientRect(),
-                    rect, canvas, allBlocks, root, sep, hw;
+                    thisRect, rect, canvas, allBlocks, root, sep, hw;
+
+                if (!this.xmlList) {
+                    return;
+                }
+
+                this._clearOldBlocks();
+
+                thisRect = this.getBoundingClientRect();
+
+                this.$.svg.style.width = '500px';
+                this.$.svg.style.height = '2000px';
+
+                this.blocks = [];
+                for (let i = 0; i < this.xmlList.length; i++) {
+                    this.blocks.push(Blockly.Xml.domToBlock(this.xmlList[i], this.ws));
+                }
 
                 this.blocks.forEach(block => {
                     hw = block.getHeightWidth();
