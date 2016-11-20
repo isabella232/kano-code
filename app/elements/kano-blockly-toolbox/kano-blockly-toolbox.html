@@ -13,13 +13,15 @@
                 background: var(--kano-blockly-toolbox-background, white);
                 overflow-y: auto;
                 @apply --kano-blockly-toolbox;
+                /* Promoto to it's own layer is it is a prime element */
+                transform: translateZ(0);
             }
             .category {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 width: 100%;
-                color: var(--kano-blockly-toolbox-color, black);
                 background: transparent;
+                color: var(--kano-blockly-toolbox-color, black);
                 padding: 0;
                 border: 0;
                 margin-right: 12px;
@@ -49,14 +51,15 @@
                     opacity: 1;
                 }
             }
-            .flyout-host {
+            #flyout {
+                position: absolute;
+                top: 0;
+                pointer-events: none;
                 transition: border-color linear 300ms;
-                border-bottom: 1px solid transparent;
+                border-bottom: 1px solid #383838;
                 overflow: hidden;
                 animation: fade-in ease-out 300ms;
-            }
-            .category.selected+.separator+.flyout-host {
-                border-bottom-color: #383838;
+                display: none;
             }
             .category.selected .color {
                 box-shadow: 0 0 0 1px var(--kano-blockly-toolbox-background, white),
@@ -78,22 +81,28 @@
             :host([opened]) {
                 @apply --shadow-elevation-4dp;
             }
+            .mask {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: inherit;
+                display: none;
+            }
         </style>
+        <kano-blockly-flyout id="flyout"
+                            padding-left="0"
+                            toolbox="[[currentToolbox]]"
+                            target-workspace="[[targetWorkspace]]"
+                            on-block-created="_onBlockCreated"></kano-blockly-flyout>
+        <div id="mask" class="mask"></div>
         <template is="dom-repeat" items="[[toolbox]]" as="category">
             <button type="button" class$="category [[_computeSelectedClass(category.selected)]]" on-tap="_selectCategory" id$="category-[[category.id]]" hidden$="[[_isSeparator(category.type)]]">
                 <div class="color" style$="[[_computeColorStyle(category.colour)]]"></div>
                 <div>[[category.name]]</div>
             </button>
             <div class="separator" hidden$="[[!_isSeparator(category.type)]]"></div>
-            <template is="dom-if" if="[[category.selected]]" restamp>
-                <div class="flyout-host">
-                    <kano-blockly-flyout id$="flyout-[[category.id]]"
-                                            padding-left="0"
-                                            toolbox="[[category.blocks]]"
-                                            target-workspace="[[targetWorkspace]]"
-                                            on-block-created="_onBlockCreated"></kano-blockly-flyout>
-                </div>
-            </template>
         </template>
     </template>
     <script>
@@ -133,10 +142,13 @@
                 }
             },
             close () {
+                let categoryEl = this.$$(`#category-${this.toolbox[this.currentSelected].id}`),
+                    e;
+                categoryEl.style.marginBottom = '';
+                this.style.width = '';
+                this.$.flyout.style.display = 'none';
                 this.set(`toolbox.${this.currentSelected}.selected`, false);
-                let e = {
-                    type: Blockly.Events.CLOSE_FLYOUT
-                };
+                e = { type: Blockly.Events.CLOSE_FLYOUT };
                 this.currentSelected = undefined;
                 this.customStyle['--selected-color'] = null;
                 this.updateStyles();
@@ -163,6 +175,10 @@
                 }
 
                 if (typeof this.currentSelected !== 'undefined') {
+                    let categoryEl = this.$$(`#category-${this.toolbox[this.currentSelected].id}`);
+                    categoryEl.style.marginBottom = '';
+                    this.style.width = '';
+                    this.$.flyout.style.display = 'none';
                     this.set(`toolbox.${this.currentSelected}.selected`, false);
                 }
 
@@ -170,15 +186,49 @@
                     let e = {
                         type: Blockly.Events.OPEN_FLYOUT,
                         categoryId: category.id
+                    },
+                        onSizeChanged;
+                    onSizeChanged = (e) => {
+                        let size = e.detail,
+                            categoryEl = this.$$(`#category-${category.id}`),
+                            rect = categoryEl.getBoundingClientRect(),
+                            buttons = Polymer.dom(this.root).querySelectorAll('button.category, .separator:not([hidden])'),
+                            over = false, duration;
+                        this.$.flyout.removeEventListener('size-changed', onSizeChanged);
+                        this.transform(`translate(0px, ${rect.top + rect.height}px`, this.$.flyout);
+                        categoryEl.style.marginBottom = `${size.height}px`;
+                        this.style.width = `${size.width + 35}px`;
+                        this._scrollIfNeeded(categoryEl);
+                        this.$.mask.style.display = 'block';
+                        this.$.mask.style.top = `${rect.top + rect.height}px`;
+                        duration = size.height / 3;
+                        for (let i = 0; i < buttons.length; i++) {
+                            if (over) {
+                                buttons[i].animate({
+                                    transform: [`translate(0px, -${size.height}px`, 'translate(0px, 0px)']
+                                }, {
+                                    duration
+                                });
+                            } else if (buttons[i] === categoryEl) {
+                                over = true;
+                            }
+                        }
+                        this.$.mask.animate({
+                            transform: ['translate(0px, 0px)', `translate(0px, ${size.height}px`]
+                        }, {
+                            duration,
+                            fill: 'forwards'
+                        }).onfinish = () => {
+                            this.$.mask.style.display = 'none';
+                        };
                     };
-                    this.originalRect = this.getBoundingClientRect();
+                    this.$.flyout.addEventListener('size-changed', onSizeChanged);
+                    this.$.flyout.style.display = 'block';
                     this.currentSelected = index;
+                    this.currentToolbox = category.blocks;
                     this.set(`toolbox.${this.currentSelected}.selected`, true);
                     this.customStyle['--selected-color'] = category.colour;
                     this.updateStyles();
-                    Polymer.RenderStatus.afterNextRender(this, () => {
-                        this._scrollIfNeeded(category.id);
-                    });
                     this.targetWorkspace.fireChangeListener(e);
                     this.set('opened', true);
                 } else {
@@ -186,6 +236,7 @@
                         type: Blockly.Events.CLOSE_FLYOUT
                     };
                     this.currentSelected = undefined;
+                    this.currentToolbox = undefined;
                     this.customStyle['--selected-color'] = null;
                     this.updateStyles();
                     if (this.targetWorkspace) {
@@ -194,17 +245,13 @@
                     this.set('opened', false);
                 }
             },
-            _scrollIfNeeded (categoryId) {
-                let flyout = this.$$(`#flyout-${categoryId}`),
-                    rect, flyoutRect;
-                    rect;
-                    if (!flyout) {
-                        return;
-                    }
+            _scrollIfNeeded (toEl) {
+                let flyout = this.$.flyout,
+                    flyoutRect, rect;
                     rect = this.getBoundingClientRect();
                     flyoutRect = flyout.getBoundingClientRect();
                     if (flyoutRect.top + flyoutRect.height > rect.top + rect.height) {
-                        this.$$(`#category-${categoryId}`).scrollIntoView({block: 'start', behavior: 'smooth'});
+                        toEl.scrollIntoView({block: 'start', behavior: 'smooth'});
                     }
             },
             getCategoryElement (id) {

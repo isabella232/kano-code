@@ -68,6 +68,8 @@
                     content,
                     xml;
 
+                toolbox = toolbox || [];
+
                 xmlString = toolbox.map(block => {
                     content = '';
                     if (block.shadow) {
@@ -122,8 +124,6 @@
 
                 this._clearOldBlocks();
 
-                thisRect = this.getBoundingClientRect();
-
                 this.$.svg.style.width = '500px';
                 this.$.svg.style.height = '2000px';
 
@@ -139,14 +139,15 @@
                     }
                 });
 
-                maxWidth = Math.max(maxWidth + this.paddingLeft + 20, thisRect.width);
+                maxWidth = Math.max(maxWidth + this.paddingLeft + 20, 200);
 
                 canvas = this.ws.getCanvas();
                 if (!canvas) {
                     return;
                 }
 
-                this.blocks.forEach((block, index) => {
+                for (let i = 0; i < this.blocks.length; i++) {
+                    let block = this.blocks[i];
                     allBlocks = block.getDescendants();
                     allBlocks.forEach(child => {
                         child.isInFlyout = true;
@@ -163,16 +164,19 @@
                     hw = block.getHeightWidth();
                     block.moveBy(cursorX, cursorY);
                     cursorY += hw.height + 12;
-                    rect = Blockly.createSvgElement('rect', {'fill-opacity': 0}, null);
+                    rect = Blockly.createSvgElement('rect', { 'fill-opacity': 0 }, null);
                     rect.tooltip = block;
                     Blockly.Tooltip.bindMouseEvents(rect);
                     canvas.insertBefore(rect, root);
                     block.flyoutRect_ = rect;
-                    this._addBlockListeners(root, block, rect)
-                });
-                rect = this.wsDom.getBoundingClientRect();
+                    this._addBlockListeners(root, block, rect);
+                }
                 this.$.svg.style.width = maxWidth;
-                this.$.svg.style.height = rect.height + 20;
+                this.$.svg.style.height = cursorY + 20;
+                this.fire('size-changed', {
+                    width: maxWidth,
+                    height: cursorY + 20
+                });
             },
             _clearOldBlocks () {
                 let oldBlocks = this.ws.getTopBlocks(false);
