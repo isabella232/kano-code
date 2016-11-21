@@ -75,20 +75,27 @@
             this.style.webkitTransform = this.style.transform = transform;
             this.style.visibility = visibility;
         },
-        renderOnCanvas (ctx) {
+        renderOnCanvas (ctx, util, s) {
             if (!this.model || this.model.partType !== 'ui') {
                 return Promise.resolve();
             }
             let position = this.model.position || { x: 0, y: 0 },
                 rotation = this.model.rotation || 0,
+                rad = rotation * Math.PI / 180,
+                cos = Math.cos(rad),
+                sin = Math.sin(rad),
                 scale = this.model.scale / 100 || 1,
-                rect = this.getBoundingClientRect();
+                w = this.offsetWidth,
+                h = this.offsetHeight;
 
             ctx.save();
-            ctx.translate(position.x + rect.width / 2, position.y + rect.height / 2);
-            ctx.rotate(rotation * Math.PI / 180);
-            ctx.scale(scale, scale);
-            ctx.translate(-(rect.width / 2), -(rect.height / 2));
+
+            ctx.transform(1, 0, 0, 1, position.x, position.y);
+            ctx.transform(1, 0, 0, 1, w / 2, h / 2);
+            ctx.transform(cos, sin, -sin, cos, 0, 0);
+            ctx.transform(scale, 0, 0, scale, 0, 0);
+            ctx.transform(1, 0, 0, 1, -w / 2, -h / 2);
+
             return Promise.resolve();
         },
         renderFallback (ctx) {
