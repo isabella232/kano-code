@@ -152,7 +152,6 @@
                     allBlocks.forEach(child => {
                         child.isInFlyout = true;
                     });
-                    root = block.getSvgRoot();
                     if (this.separators) {
                         sep = Blockly.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
                         sep.setAttribute('transform', `translate(0, ${cursorY})`);
@@ -165,8 +164,13 @@
                     block.moveBy(cursorX, cursorY);
                     cursorY += hw.height + 12;
                     rect = Blockly.createSvgElement('rect', { 'fill-opacity': 0 }, null);
+                    rect.setAttribute('x', cursorX);
+                    rect.setAttribute('y', cursorY);
+                    rect.setAttribute('width', hw.width);
+                    rect.setAttribute('height', hw.height);
                     rect.tooltip = block;
                     Blockly.Tooltip.bindMouseEvents(rect);
+                    root = block.getSvgRoot();
                     canvas.insertBefore(rect, root);
                     block.flyoutRect_ = rect;
                     this._addBlockListeners(root, block, rect);

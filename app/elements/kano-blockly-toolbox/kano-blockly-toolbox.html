@@ -54,7 +54,6 @@
             #flyout {
                 position: absolute;
                 top: 0;
-                pointer-events: none;
                 transition: border-color linear 300ms;
                 border-bottom: 1px solid #383838;
                 overflow: hidden;
@@ -142,14 +141,18 @@
                 }
             },
             close () {
-                let categoryEl = this.$$(`#category-${this.toolbox[this.currentSelected].id}`),
-                    e;
-                categoryEl.style.marginBottom = '';
+                let category, categoryEl, e;
+                category = this.toolbox[this.currentSelected];
+                if (category) {
+                    categoryEl = this.$$(`#category-${category.id}`),
+                    categoryEl.style.marginBottom = '';
+                }
                 this.style.width = '';
                 this.$.flyout.style.display = 'none';
                 this.set(`toolbox.${this.currentSelected}.selected`, false);
                 e = { type: Blockly.Events.CLOSE_FLYOUT };
                 this.currentSelected = undefined;
+                this.currentToolbox = undefined;
                 this.customStyle['--selected-color'] = null;
                 this.updateStyles();
                 if (this.targetWorkspace) {
