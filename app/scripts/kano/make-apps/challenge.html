@@ -23,7 +23,21 @@
 
         Challenge.categoryMap = Kano.MakeApps.Blockly.Defaults.categoryMap;
 
-        Challenge.fieldDefaults = Kano.MakeApps.Blockly.Defaults.values;
+        Challenge.fieldDefaults = {};
+
+        let block;
+
+        Object.keys(Kano.MakeApps.Blockly.Defaults.values).forEach(blockId => {
+            Challenge.fieldDefaults[blockId] = {};
+            block = Kano.MakeApps.Blockly.Defaults.values[blockId];
+            Object.keys(block).forEach(fieldId => {
+                if (block[fieldId].default) {
+                    Challenge.fieldDefaults[blockId][fieldId] = block[fieldId].default;
+                } else {
+                    Challenge.fieldDefaults[blockId][fieldId] = block[fieldId];
+                }
+            });
+        });
 
         Challenge.labels = Kano.MakeApps.Blockly.Defaults.labels;
 
