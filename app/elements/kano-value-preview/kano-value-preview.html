@@ -23,7 +23,7 @@
         </div>
     </template>
     <script type="text/javascript">
-        var regexp = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/;
+        const HEX_COLOR_REGEXP = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/;
         Polymer({
             is: 'kano-value-preview',
             properties: {
@@ -37,7 +37,7 @@
             },
             _render () {
                 let value = this.textContent;
-                if (regexp.exec(value)) {
+                if (HEX_COLOR_REGEXP.exec(value)) {
                     this.type = "color-value";
                     this.$.display.style.backgroundColor = value;
                     this.$.input.innerHTML = '';
