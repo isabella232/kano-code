@@ -51,11 +51,19 @@
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
-    :host .tooltip-content button {
+    :host .tooltip-content button,
+    :host .banner-content button {
         margin-top: 10px;
         background-color: white;
         color: #435055;
         text-shadow: none;
+    }
+    :host .banner-content {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+    }
+    :host .banner-content button {
+        margin: auto 10px;
     }
     kano-tooltip {
         z-index: 101;
@@ -118,6 +126,19 @@
                 </div>
             </kano-tooltip>
         </template>
+        <template is="dom-if" if="{{banner}}">
+            <kano-tooltip position="float" target="{{blocksPanel}}" track-target>
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <marked-element markdown="[[banner.text]]">
+                            <div class="markdown-html"></div>
+                        </marked-element>
+                    </div>
+                    <button type="button" on-tap="showHints" hidden$="{{!banner.hint_button}}">Hint</button>
+                    <button type="button" on-tap="nextStep" hidden$="{{!banner.next_button}}">Next</button>
+                </div>
+            </kano-tooltip>
+        </template>
         <paper-dialog id="modal"
                       modal>
             <div class="modal-content">
@@ -139,6 +160,9 @@
         is: 'kano-app-challenge',
         behaviors: [Kano.Behaviors.BlocklyValidatorBehavior],
         properties: {
+            steps: {
+                type: Object
+            },
             tooltips: {
                 type: Array
             },
@@ -157,10 +181,24 @@
             started: {
                 type: Boolean,
                 value: false
+            },
+            state: {
+                type: Object,
+                value: () => {
+                    return {
+                        hints: {
+                            enabled: true
+                        }
+                    };
+                }
+            },
+            banner: {
+                type: Object,
+                value: null
             }
         },
         observers: [
-            'stepChanged(steps, step, started)',
+            'stepChanged(steps, step, started, state.*)',
             'doneChanged(done)'
         ],
         listeners: {
@@ -221,6 +259,7 @@
             this.editor.addEventListener('blockly-ready', (e) => {
                 let target = e.path ? e.path[0] : e.target;
                 this.setWorkspace(target.getWorkspace());
+                this.blocksPanel = this.getDeepElement('blocks-panel');
             });
         },
         attached () {
@@ -237,6 +276,12 @@
         computeTooltips (step) {
             this.set('tooltips', []);
             this.debounce('computeTooltips', () => {
+                /* With hints disabled, only show tooltips for injected steps */
+                if (!this.state.hints.enabled && !step.injected) {
+                    this.set('tooltips', []);
+                    return;
+                }
+
                 let tooltips = step.tooltips || [];
                 tooltips = tooltips.map((tooltip) => {
                     let copy = Object.assign({}, tooltip);
@@ -245,6 +290,7 @@
                     copy.tracking = tooltip.tracking !== false ? true : false;
                     return copy;
                 });
+
                 this.set('tooltips', tooltips);
             }, 200);
         },
@@ -290,7 +336,8 @@
         },
         computeArrow (step) {
             let source, target;
-            if (!step.arrow) {
+
+            if (!step.arrow || (!this.state.hints.enabled && !step.injected)) {
                 this.$.arrow.hide();
                 this.set('arrow', {});
                 return;
@@ -350,11 +397,41 @@
                     step.modal.text = this._processMarkdown(step.modal.text);
                     this.modal.open();
                 }
+
+                if (step['set-state']) {
+                    this.set('state', Object.assign(this.state, step['set-state']));
+                    this.nextStep();
+                    return;
+                }
+
                 this.computeTooltips(step);
+                this.computeBanner(step);
                 this.computeArrow(step);
                 this.computeHighlight(step);
                 this.computePhantomBlock(step);
             }, 10);
+        },
+        computeBanner (step) {
+            if (this.state.hints.enabled) {
+                if (step.banner) {
+                    this.banner = this.banner || {};
+                    this.set('banner.text', step.banner.text);
+                    this.set('banner.next_button', step.banner.next_button);
+                    this.set('banner.hint_button', false);
+                } else {
+                    this.banner = null;
+                }
+            } else {
+                let bannerProps = this.state.hints['disabled-banner'];
+                if (bannerProps) {
+                    this.banner = this.banner || {};
+                    this.set('banner.text', bannerProps.text);
+                    this.set('banner.hint_button', bannerProps.hint_button);
+                    this.set('banner.next_button', false);
+                } else {
+                    this.banner = null;
+                }
+            }
         },
         computePhantomBlock (step) {
             let phantom_block = step.phantom_block,
@@ -568,6 +645,9 @@
         },
         isStepEvent (step, type, event) {
             return step[type] && event.type === type;
+        },
+        showHints () {
+            this.set('state.hints', {enabled: true});
         }
     });
 </script>

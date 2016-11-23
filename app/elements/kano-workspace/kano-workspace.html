@@ -17,17 +17,17 @@
         border: 0px;
         overflow: hidden;
     }
-    :host .content {
+    :host #content {
         position: relative;
         @apply(--layout-flex);
         transition: background linear 150ms;
     }
-    :host.running .content {
+    :host.running #content {
         --kano-ui-viewport: {
             border: none;
         };
     }
-    :host(.fullscreen) .content {
+    :host(.fullscreen) #content {
         position: fixed;
         top: 0px;
         left: 0px;
@@ -75,6 +75,12 @@
         transform: translate(0, -9px);
         color: #eaeaea;
     }
+    :host kano-workspace-lightboard {
+        margin-top: -35px;
+    }
+    :host(.fullscreen) kano-workspace-lightboard {
+        margin-top: 0;
+    }
     .pause-overlay {
         position: absolute;
         top: 0px;
@@ -105,7 +111,6 @@
         <kano-ui-viewport mode="scaled"
                     view-width="[[mode.workspace.viewport.width]]"
                     view-height="[[mode.workspace.viewport.height]]"
-                    class="content"
                     id="content"
                     on-tap="onTap">
             <!-- The variable workspace component will be inserted here -->
