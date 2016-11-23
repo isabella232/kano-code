@@ -3,13 +3,13 @@
     :host {
         display: inline-block;
     }
-    .color-value {
+    :host .color-value {
         border-radius: 3px;
         border: 1px solid rgba(0, 0, 0, 0.55);
         width: 24px;
         height: 18px;
     }
-    :host(.simple-value) {
+    host .simple-value {
         border: 1px solid rgba(255, 255, 255, 0.4);
         border-radius: 9px;
         padding: 0px 8px;
@@ -17,27 +17,32 @@
     }
     </style>
     <template>
-        <slot></slot>
+        <div id="display" class$="[[type]]"></div>
+        <div id="input">
+            <slot></slot>
+        </div>
     </template>
     <script type="text/javascript">
-        const HEX_COLOR_REGEXP = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        const HEX_COLOR_REGEXP = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/;
         Polymer({
             is: 'kano-value-preview',
+            properties: {
+                type: {
+                    type: String,
+                    value: null
+                }
+            },
             attached () {
                 this._render();
             },
             _render () {
-                let value = this.textContent,
-                    container;
-                if (HEX_COLOR_REGEXP.test(value)) {
-                    container = document.createElement('div');
-                    container.style.backgroundColor = value;
-                    container.className = 'color-value';
-                    Polymer.dom(this.root).appendChild(container);
-                    this.innerHTML = '';
-                    this.toggleClass('simple-value', false);
+                let value = this.textContent;
+                if (HEX_COLOR_REGEXP.exec(value)) {
+                    this.type = "color-value";
+                    this.$.display.style.backgroundColor = value;
+                    this.$.input.innerHTML = '';
                 } else {
-                    this.toggleClass('simple-value', true);
+                    this.type = "simple-value";
                 }
             }
         });
