@@ -44,6 +44,63 @@
             </demo-snippet>
         </div>
         <script>
+            Blockly.FieldCustom = function (value, opt_validator) {
+                Blockly.FieldCustom.superClass_.constructor.call(this, value, opt_validator);
+                //this.setText(Blockly.Field.NBSP + Blockly.Field.NBSP + Blockly.Field.NBSP);
+            };
+            goog.inherits(Blockly.FieldCustom, Blockly.Field);
+
+            Blockly.FieldCustom.prototype.showEditor_ = function () {
+                Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL, Blockly.FieldCustom.widgetDispose_);
+
+                // Position the palette to line up with the field.
+                // Record windowSize and scrollOffset before adding the palette.
+                var windowSize = goog.dom.getViewportSize();
+                var scrollOffset = goog.style.getViewportPageOffset(document);
+                var xy = this.getAbsoluteXY_();
+                var borderBBox = this.getScaledBBox_();
+                var div = Blockly.WidgetDiv.DIV;
+                
+                var customEl = document.createElement('span');
+                customEl.innerText = this.getValue();
+
+                customEl.addEventListener('click', function () {
+                    this.setValue(Number(this.getValue()) + 1);
+                    customEl.innerText = this.getValue();
+                }.bind(this));
+
+                div.appendChild(customEl);
+
+                var size = customEl.getBoundingClientRect();
+
+                // Flip the palette vertically if off the bottom.
+                if (xy.y + size.height + borderBBox.height >= windowSize.height + scrollOffset.y) {
+                    xy.y -= size.height - 1;
+                } else {
+                    xy.y += borderBBox.height - 1;
+                }
+                if (this.sourceBlock_.RTL) {
+                    xy.x += borderBBox.width;
+                    xy.x -= size.width;
+                    // Don't go offscreen left.
+                    if (xy.x < scrollOffset.x) {
+                        xy.x = scrollOffset.x;
+                    }
+                } else {
+                    // Don't go offscreen right.
+                    if (xy.x > windowSize.width + scrollOffset.x - size.width) {
+                        xy.x = windowSize.width + scrollOffset.x - size.width;
+                    }
+                }
+                Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset, this.sourceBlock_.RTL);
+            };
+
+            Blockly.Blocks.custom_input_test = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldCustom(1));
+                }
+            };
             const TOOLBOX = [{
                 name: 'Control',
                 id: 'control',
@@ -64,6 +121,12 @@
                 colour: 'red',
                 blocks: [{
                     id: 'math_number'
+                }]
+            }, {
+                id: 'custom',
+                name: 'Custom',
+                blocks: [{
+                    id: 'custom_input_test'
                 }]
             }];
         </script>
