@@ -148,7 +148,9 @@
             }
 
             removeListener () {
-                HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
+                if (HardwareAPI.socket) {
+                    HardwareAPI.socket.removeListener.apply(HardwareAPI.socket, arguments);
+                }
             }
 
             emit () {
