@@ -23,6 +23,7 @@
                 this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
                 this.addMethod('connect', '_connect');
                 this.addMethod('getBitmap', '_getBitmap');
+                this.addMethod('clear', '_clear');
             }
 
             config (opts) {
@@ -31,10 +32,10 @@
 
             _stop () {
                 this.lights = new Array(128);
+                this.bitmap = new Array(128);
                 this.shapes = {};
                 this.currentAnimation = null;
             }
-
             static getIndex (x, y) {
                 return LightboardModule.coordToIndex(x, y, 16);
             }
@@ -182,6 +183,12 @@
                     }, speed);
                 }
 
+            }
+
+            _clear (cb) {
+                this.lights = new Array(128);
+                this.bitmap = new Array(128);
+                this.updateAndSync(false, cb);
             }
 
             _scroll (text, color, backgroundColor, speed, callback) {
