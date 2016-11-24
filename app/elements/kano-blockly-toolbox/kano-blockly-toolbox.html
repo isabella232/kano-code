@@ -7,7 +7,7 @@
         <style>
             :host {
                 display: block;
-                padding: 18px 22px 0px 12px;
+                padding: 18px 0px 0px 0px;
                 color: var(--kano-blockly-toolbox-color, black);
                 font-family: var(--font-body, Arial);
                 background: var(--kano-blockly-toolbox-background, white);
@@ -19,17 +19,21 @@
             .category {
                 @apply --layout-horizontal;
                 @apply --layout-center;
+                padding-left: 12px;
+                padding-right: 22px;
                 width: 100%;
                 background: transparent;
                 color: var(--kano-blockly-toolbox-color, black);
-                padding: 0;
                 border: 0;
                 margin-right: 12px;
                 font-family: var(--font-body, Arial);
-                font-size: 14px;
+                font-size: 16px;
                 cursor: pointer;
                 border-top: 1px solid transparent;
                 transition: border-color linear 100ms;
+            }
+            .category:hover {
+                background-color: #f2f2f2;
             }
             .separator {
                 height: 16px;
@@ -38,7 +42,10 @@
                 pointer-events: none;
             }
             .category.selected {
-                border-top-color: #383838;
+                border-top-color: #f2f2f2;
+            }
+            .category.selected {
+                background-color: #f2f2f2;
             }
             .category:focus {
                 outline: none;
@@ -55,10 +62,11 @@
                 position: absolute;
                 top: 0;
                 transition: border-color linear 300ms;
-                border-bottom: 1px solid #383838;
+                /*border-bottom: 1px solid #383838;*/
                 overflow: hidden;
                 animation: fade-in ease-out 300ms;
                 display: none;
+                margin-left: 12px;
             }
             .category.selected .color {
                 box-shadow: 0 0 0 1px var(--kano-blockly-toolbox-background, white),
@@ -70,15 +78,11 @@
                 margin: 12px;
                 margin-left: 2px;
                 border-radius: 50%;
-                box-shadow: 0 0 0 1px var(--kano-blockly-toolbox-background, white),
-                            0 0 0 2px var(--kano-blockly-toolbox-background, white);
+                box-shadow: none;
                 transition: box-shadow linear 150ms;
             }
             *[hidden] {
                 display: none !important;
-            }
-            :host([opened]) {
-                @apply --shadow-elevation-4dp;
             }
             .mask {
                 position: absolute;
@@ -145,7 +149,7 @@
                 category = this.toolbox[this.currentSelected];
                 if (category) {
                     categoryEl = this.$$(`#category-${category.id}`),
-                    categoryEl.style.marginBottom = '';
+                    categoryEl.style.paddingBottom = '';
                 }
                 this.style.width = '';
                 this.$.flyout.style.display = 'none';
@@ -179,7 +183,7 @@
 
                 if (typeof this.currentSelected !== 'undefined') {
                     let categoryEl = this.$$(`#category-${this.toolbox[this.currentSelected].id}`);
-                    categoryEl.style.marginBottom = '';
+                    categoryEl.style.paddingBottom = '';
                     this.style.width = '';
                     this.$.flyout.style.display = 'none';
                     this.set(`toolbox.${this.currentSelected}.selected`, false);
@@ -199,7 +203,7 @@
                             over = false, duration;
                         this.$.flyout.removeEventListener('size-changed', onSizeChanged);
                         this.transform(`translate(0px, ${rect.top + rect.height}px`, this.$.flyout);
-                        categoryEl.style.marginBottom = `${size.height}px`;
+                        categoryEl.style.paddingBottom = `${size.height}px`;
                         this.style.width = `${size.width + 35}px`;
                         this._scrollIfNeeded(categoryEl);
                         this.$.mask.style.display = 'block';

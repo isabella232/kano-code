@@ -4,7 +4,7 @@ function getDefaultBackground() {
     return {
         name: 'My app',
         userStyle: {
-            background: '#F5F5F5'
+            background: '#ffffff'
         }
     };
 }
