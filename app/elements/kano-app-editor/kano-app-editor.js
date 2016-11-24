@@ -734,6 +734,9 @@ Polymer({
             this.closeDrawer();
         }
     },
+    getBlockly () {
+        return this.$['root-view'].getBlockly();
+    },
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
     },
