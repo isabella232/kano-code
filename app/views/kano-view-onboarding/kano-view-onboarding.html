@@ -89,10 +89,6 @@
                 }));
             }
         },
-        _getMode (context) {
-            var modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
-            return modeFromQs ? modeFromQs : 'normal';
-        },
         ready () {
             let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
@@ -111,7 +107,7 @@
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
             Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
 
-            this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
+            this.mode = Kano.MakeApps.Mode.modes.simple;
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
