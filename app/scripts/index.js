@@ -2,14 +2,32 @@
     var webComponentsSupported = ('registerElement' in document &&
         'import' in document.createElement('link') &&
         'content' in document.createElement('template')),
-        msg = 'Loading',
         loaded = false,
         loadEventFired = false,
         kanoAppInserted = false,
         loadTimeoutId, started,
         timeout, wcPoly,
         isCore, userAgent,
-        isPi;
+        isPi,
+        splashTimeoutId;
+
+    var lines = 0,
+        current,
+        space,
+        col = 0,
+        colours = [
+            ['#00ffff', '#2dfffe', '#45afff'], //, '#6ccece'], // cyan
+            ['#ff00f9', '#fc27f6', '#ff118b'], //, '#d282d0'], // magenta
+            ['#ffff00', '#fffd38', '#ff842a'], //, '#dfde89'], //yellow
+            ['#00ff67', '#2afd6f', '#00ff2b'] //, '#71d591']  // green
+        ],
+        MARGIN = 10,
+        MIN_WIDTH = 10,
+        SPACE_LIMIT = 120,
+        DELAY_MIN = 100,
+        DELAY_MAX = 400,
+        MAX_LINES = 7;
+
 
 
     /**
@@ -41,24 +59,56 @@
             return;
         }
         document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
+        clearTimeout(splashTimeoutId);
+
         loader = document.getElementById('loader');
-        logo = document.getElementById('logo');
-        loader.className += ' animate-out';
-        logo.className += ' animate-out';
+
         loaded = true;
         setTimeout(function () {
             loader.parentNode.removeChild(loader);
         }, 400);
     }
 
-    function startBreathing() {
-        setTimeout(function () {
-            var title = document.getElementById('title');
-            if (!title) {
-                return;
-            }
-            title.className += ' animate-breathe';
-        }, 300);
+    function splashNewLine() {
+        var line = document.createElement('div'),
+            blocksNode = document.getElementById('blocks');
+
+        line.className = 'line';
+
+        if (blocksNode.childNodes.length >= MAX_LINES) {
+            blocksNode.removeChild(blocksNode.childNodes[0]);
+        }
+
+        blocksNode.appendChild(line);
+
+        return line;
+    }
+
+    function splashLoop() {
+        var block, w, to;
+        if (!current || space < MARGIN + MIN_WIDTH) {
+            space = SPACE_LIMIT;
+            current = splashNewLine();
+        }
+
+        w = Math.random() * (space - MARGIN - MIN_WIDTH) + MIN_WIDTH;
+        if (w > SPACE_LIMIT * 0.75) {
+            w = w * (Math.random() * 0.5 + 0.5);
+        }
+
+        space -= w;
+        space -= 10;
+
+        block = document.createElement('div');
+        block.className = 'block';
+        block.style.width = w + 'px';
+        block.style['background-color'] = colours[col][Math.floor(Math.random() * colours[col].length)];
+        col = (col + 1) % colours.length;
+
+        current.appendChild(block);
+
+        to = Math.random() * (DELAY_MAX - DELAY_MIN) + DELAY_MIN;
+        splashTimeoutId = setTimeout(splashLoop, to);
     }
 
     function onElementsLoaded() {
@@ -99,8 +149,7 @@
         }
         loadEventFired = true;
         clearTimeout(loadTimeoutId);
-        // Animate the loader to keep the user chill
-        animateLoader();
+        splashLoop();
         if (!webComponentsSupported) {
             wcPoly = document.createElement('script');
             wcPoly.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
@@ -110,60 +159,6 @@
             lazyLoadElements();
         }
     }
-
-    /**
-     * Display a random fact about coding, and shows a binary to text loading message
-     */
-    function animateLoader() {
-        var messageBoard = document.getElementById('message-board'),
-            funFacts = [
-                'Code is a set of instructions (or rules) that computers can understand',
-                'People write code, code powers computers and computers power many everyday objects like phones, watches, microwaves and cars',
-                'Almost anything powered by electricity uses code',
-                'There are many names for people who code: coders, programmers, developers, computer scientists, software engineers, etc.',
-                'Computers run on binary code—written in 1s and 0s—which is very difficult for humans to work with',
-                'Computers can understand different languages (like Python, C, C++, Javascript, Lua...) which translate our instructions into binary',
-                'Learning to code is like learning a new language (learning to construct sentences, etc.)',
-                'A text file written in a particular language is called a program',
-                'Ada Lovelace is the first computer programmer. She created the first program ever',
-                'The first video game was created in 1961'
-            ],
-            rndIndex = Math.floor(Math.random() * funFacts.length),
-            title = document.getElementById('title'),
-            loader = document.getElementById('loader'),
-            letters = [],
-            msgCopy = msg,
-            updateLetter,
-            len,
-            i;
-
-        updateLetter = function (i) {
-            setTimeout(function () {
-                var l = msgCopy.split('');
-                l[i] = letters[i].shift();
-                msgCopy = l.join('');
-                title.innerText = msgCopy + '   ';
-                if (!letters[i].length) {
-                    l = msgCopy.split('');
-                    l[i] = msg[i];
-                    msgCopy = l.join('');
-                    title.innerText = msgCopy + '   ';
-                    startBreathing();
-                    return;
-                }
-                updateLetter(i);
-            }, (Math.random() * 100) + 50);
-        };
-
-        for (i = 0, len = msgCopy.length; i < len; i++) {
-            letters.push(msgCopy[i].charCodeAt(0).toString(2).split(''));
-            updateLetter(i);
-        }
-        started = new Date();
-        messageBoard.innerText = funFacts[rndIndex];
-        loader.style.opacity = 1;
-    }
-
 
     // Attach the loading of the dependencies when the page is loaded
     if (window.addEventListener) {

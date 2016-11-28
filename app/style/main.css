@@ -40,68 +40,51 @@ html {
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    transition: opacity ease-in-out 300ms;
-    background-color: #fbfbfb;
+    background-color: #5a6872;
     z-index: 101;
-    opacity: 0;
-}
-@media screen and (max-width: 960px) {
-    .loader {
-        flex-direction: column;
-    }
-    .text {
-        align-items: center;
-    }
-    .message-board {
-        text-align: center;
-    }
-    .loader-img {
-        margin-bottom: 22px;
-        margin-right: 0px !important;
-    }
+    /*transition: opacity ease-in-out 300ms;
+    opacity: 0;*/
 }
 
-.loader-img {
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2);
-    margin-right: 22px;
-    border-radius: 4px;
-    width: 160px;
-    height: 160px;
-}
+.loader .blocks {
+    margin: auto;
+    width: 120px;
+    height: 120px;
 
-.loader-img.animate-out {
-    animation: logo-out ease-in 400ms;
-}
-
-.loader>.text {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    height: 160px;
 }
 
-.loader.animate-out {
-    animation: fade-out ease-in 400ms;
+.loader .line {
+    width: 100%;
+
+    transform-origin: center;
+
+    display: flex;
 }
 
-.loader>.text>#title.animate-breathe {
-    animation: breathe ease-in 2s infinite;
+.loader .block {
+    opacity: 1;
+    border-radius: 2px;
+
+    background-color: rgba(0,0,0,0.5);
+
+    margin: 2px;
+    width: 10px;
+    height: 12px;
+
+    animation: pop-in .2s;
+    transform-origin: left;
+    transition-timing-function: cubic-bezier(0.000, 0.965, 0.875, 1.140);
 }
 
-.loader>.text>#title {
-    font-family: monospace;
-    font-size: 48px;
-    margin: 0px;
-    margin-bottom: 12px;
+@keyframes pop-in {
+    0% { transform: scale(0, 1); }
+    /*90% { transform: scale(1.1, 1); }*/
+    100% { transform: scale(1, 1); }
 }
 
-.message-board {
-    max-width: 440px;
-    font-size: 18px;
-    flex: 1;
-}
+
 
 paper-dialog {
     border-radius: 3px;
