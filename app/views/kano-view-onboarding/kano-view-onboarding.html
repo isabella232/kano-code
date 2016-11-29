@@ -6,8 +6,6 @@
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
-<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
-
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 
 <dom-module id="kano-view-onboarding">
@@ -28,7 +26,8 @@
             code="{{code}}"
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
-            mode="[[mode]]"></kano-app-editor>
+            mode="[[mode]]"
+            banner="[[banner]]"></kano-app-editor>
     </template>
 </dom-module>
 
@@ -54,9 +53,8 @@
             usedBlocks: {
                 type: Object
             },
-            remixMode: {
-                type: Boolean,
-                value: false
+            banner: {
+                type: Object
             }
         },
         attached () {
@@ -64,38 +62,24 @@
         detached () {
         },
         _registerBlockly () {
-            let appToLoad,
-                stage = this.context.params.stage,
-                modeId;
+            let stage = this.context.params.stage;
+
             Kano.Behaviors.EditorViewBehavior._registerBlockly.apply(this, arguments);
 
             if (this.loaded) {
                 return;
             }
             this.loaded = true;
-            modeId = this.mode.id;
 
-            this.set('defaultCategories', Kano.MakeApps.Blockly.categories);
-
-            appToLoad = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
-            this._filterParts();
-            this.editor.load(appToLoad, Kano.MakeApps.Parts.list);
-        },
-        _filterParts () {
-            // Only include the parts defined in the mode
-            if (this.mode.parts) {
-                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
-                    return this.mode.parts.indexOf(part.type) !== -1;
-                }));
-            }
+            this.set('defaultCategories', {});
+            this.parts = [];
+            console.log(this.defaultCategories, this.parts);
         },
         ready () {
             let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
-            this.editor.addEventListener('change', this.save.bind(this));
-            this.modal = this.$['share-modal'];
 
             Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
@@ -108,32 +92,13 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
 
             this.mode = Kano.MakeApps.Mode.modes.simple;
+            this.banner = {
+                head: 'Part Two',
+                text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
+            };
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
-        },
-        save () {
-            let modeId = this.mode.id;
-            // Save after 3secs without changes
-            if (!this.remixMode) {
-                this.debounce('save', () => {
-                    let editor = this.$.editor,
-                        savedApp = editor.save();
-                    localStorage.setItem(`savedApp-${modeId}`, JSON.stringify(savedApp));
-                }, 3000);
-            }
-        },
-        /**
-         * When the current code changes, save it in the components store
-         * @param  {Event} e  Informations about the code updated
-         */
-        codeChanged (e) {
-            let data = e.detail;
-            // Add the new code and its rule to the components store
-            Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
-        },
-        detached () {
-            window.removeEventListener('resize', this.updateWorkspaceRect.bind(this));
         }
     });
 </script>

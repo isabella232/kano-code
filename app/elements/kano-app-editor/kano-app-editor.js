@@ -87,6 +87,10 @@ Polymer({
         challengeState: {
             type: Object,
             value: null
+        },
+        banner: {
+            type: Object,
+            value: null
         }
     },
     observers: [
