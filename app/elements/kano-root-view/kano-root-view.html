@@ -56,9 +56,9 @@
             'computeToolboxDebounced(defaultCategories.*)',
             'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)',
-            '_computeMode(mode)'
+            '_onModeChange(mode)'
         ],
-        _computeMode (mode){
+        _onModeChange (mode){
             var simpleMode = (mode.id === "simple");
             this.noTrashcan = simpleMode;
             this.noZoomControl = simpleMode;
@@ -210,12 +210,9 @@
                 parts = this.parts,
                 blocks,
                 weight;
-
-        
             if (!parts || !this.defaultCategories || !this.mode) {
                 return;
             }
-   
             this.computeBlocks();
             // Reset events blocks
             weight = {
@@ -249,7 +246,6 @@
 
             categories = categories || [];
             categories = categories.filter((category) => category.blocks.length);
-
             Object.keys(this.defaultCategories).forEach((id) => {
                 let cat = this.defaultCategories[id];
                 cat.blocks.forEach((block) => {
