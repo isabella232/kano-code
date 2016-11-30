@@ -218,7 +218,14 @@
             }
         },
         getTargetBlock (selector) {
-            let block = this.editor.getBlocklyWorkspace().getBlockById(selector.id);
+            let block;
+            if (typeof selector === 'string') {
+                block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector]);
+            } else if (selector.id) {
+                block = this.editor.getBlocklyWorkspace().getBlockById(this.blockIds[selector.id]);
+            } else if (selector.rawId) {
+                block = this.editor.getBlocklyWorkspace().getBlockById(selector.rawId);
+            }
             if (selector.shadow) {
                 block = block.getInput(selector.shadow).connection.targetBlock();
             }
