@@ -57,6 +57,8 @@
                 type: Object
             }
         },
+        observers: [
+        ],
         attached () {
         },
         detached () {
@@ -72,8 +74,19 @@
             this.loaded = true;
 
             this.set('defaultCategories', {});
-            this.parts = [];
-            console.log(this.defaultCategories, this.parts);
+
+            this._filterParts();
+        },
+        _filterParts () {
+            // Only include the parts defined in the mode
+            if (this.mode.parts) {
+                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
+                    return this.mode.parts.indexOf(part.type) !== -1;
+                }));
+
+                let part = Kano.MakeApps.Parts.create(this.parts[0], this.mode.workspace.viewport);
+                this.push('addedParts', part);
+            }
         },
         ready () {
             let hardwareAPI = new Kano.MakeApps.HardwareAPI();
@@ -96,6 +109,7 @@
                 head: 'Part Two',
                 text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
             };
+
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
