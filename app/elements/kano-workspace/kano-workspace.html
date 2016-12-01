@@ -209,8 +209,8 @@
         listeners: {
             'part-tapped': 'onPartTapped'
         },
-        _computeMode (mode){
-            this.noControls = (mode.id === "simple") ? true : false
+        _computeMode (mode) {
+            this.noControls = mode.id === "simple";
         },
         ready () {
             this.elements = {};
@@ -249,8 +249,8 @@
             this.$.content.resizeView();
             this.fullscreen = !this.fullscreen;
         },
-         _isPauseOverlayHidden (running, editableLayout) {
-        return running || editableLayout;
+        _isPauseOverlayHidden (running, editableLayout) {
+            return running || editableLayout;
         },
         _moveLeft (e) {
             this._movePart('left', e.detail.keyboardEvent.shiftKey);
