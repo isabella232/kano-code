@@ -19,7 +19,8 @@
     }
     </style>
     <template>
-        <canvas id="canvas" on-tap="_clicked"></canvas>
+        <!-- TODO FIXME Remove hardcoded values -->
+        <canvas id="canvas" on-tap="_clicked" width="502" height="264"></canvas>
     </template>
     <script type="text/javascript">
         /* globals Polymer, Kano */
@@ -63,8 +64,10 @@
             _clicked (e) {
                 if (this.enabled) {
                     let bounds = this.$.canvas.getBoundingClientRect();
-                    let x = e.detail.x - bounds.left,
-                        y = e.detail.y - bounds.top;
+                    // TODO FIXME ugly, hardcoded and generally wrong hack
+                    // remove ASAP
+                    let x = (e.detail.x - bounds.left) * (502 / bounds.width),
+                        y = (e.detail.y - bounds.top) * (264 / bounds.height);
                     if (this.soundReady) {
                         this.playSound('/assets/audio/sounds/pop.wav');
                     }
@@ -99,7 +102,7 @@
             drawCircle (x, y, r, color) {
                 this.ctx.beginPath();
                 this.ctx.arc(x, y, r, 0, 2 * Math.PI, true);
-                this.ctx.fillStyle = color
+                this.ctx.fillStyle = color;
                 this.ctx.fill();
             },
             frameTick () {
