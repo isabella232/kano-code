@@ -58,6 +58,52 @@
                         return [`true`];
                     };
                 }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'say_accent',
+                        message0: 'Say with %1 %2',
+                        args0: [{
+                            "type": "field_dropdown",
+                            "name": "laguage",
+                            "options": [
+                                [
+                                    "English accent",
+                                    "english"
+                                ],
+                                [
+                                    "Scottish accent",
+                                    "scottish"
+                                ],
+                                [
+                                    "Italian accent",
+                                    "italian"
+                                ],
+                                [
+                                    "French accent",
+                                    "frnch"
+                                ]
+                            ]
+                        }, {
+                            type: 'input_value',
+                            name: 'FLAG'
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG') || false,
+                            language = block.getFieldValue('laguage');
+                        return `devices.get('${part.id}').runAnimation(${flag}, '${language}');`;
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG'),
+                            language = block.getFieldValue('laguage');
+                        return `devices.get('${part.id}').runAnimation(${flag}, '${language}');`;
+                    };
+                }
             }]
         };
 

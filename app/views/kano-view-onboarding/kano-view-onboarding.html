@@ -33,13 +33,13 @@
             mode="[[mode]]"
             banner="[[banner]]"
             challenge-state="{{challengeState}}"
-            on-blockly-ready="_onBlocklyReady"></kano-app-editor>
+            on-talking-face-animation-stopped="_stageFinished"></kano-app-editor>
         <paper-dialog
             id="reward-modal"
             with-backdrop>
             <kano-reward-modal
                 on-interaction='_handleModalAction'
-                content='[[_currentReward(rewardContent, context.params.stage)]]'></kano-reward-modal>
+                content='[[_currentReward(rewardContent, stageNo)]]'></kano-reward-modal>
         </paper-dialog>
     </template>
 </dom-module>
@@ -73,34 +73,6 @@
                 type: Object,
                 value: () => {
                     return {
-                        1: {
-                            icon: 'star',
-                            color: 'yellow',
-                            title: 'You completed a challenge!',
-                            body: 'Now try another: get more powers',
-                            links: [{
-                                text: 'Try second challenge',
-                                type: 'progress'
-                            }, {
-                                text: 'Save',
-                                type: 'save'
-                            }],
-                            xp: 100
-                        },
-                        2: {
-                            icon: 'tick',
-                            color: 'green',
-                            title: 'Don’t your new powers feel good?',
-                            body: 'Last challenge: try it',
-                            links: [{
-                                text: 'Try last challenge',
-                                type: 'progress'
-                            }, {
-                                text: 'Save',
-                                type: 'save'
-                            }],
-                            xp: 200
-                        },
                         3: {
                             icon: 'heart',
                             color: 'red',
@@ -129,9 +101,45 @@
                             banner: {
                                 head: 'Part One',
                                 text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
+                            },
+                            reward: {
+                                icon: 'star',
+                                color: 'yellow',
+                                title: 'You completed a challenge!',
+                                body: 'Now try another: get more powers',
+                                links: [{
+                                    text: 'Try second challenge',
+                                    type: 'progress'
+                                }, {
+                                    text: 'Save',
+                                    type: 'save'
+                                }],
+                                xp: 100
                             }
                         },
-                        {},
+                        {
+                            mode: 'simple',
+                            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="talkingface1#say_accent" id="yo1" x="161" y="157"></block><block type="talkingface1#superpowers" id="yo2" x="418" y="157"></block></xml>`,
+                            defaultParts: ['talking-face'],
+                            banner: {
+                                head: 'Part Two',
+                                text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
+                            },
+                            reward: {
+                                icon: 'tick',
+                                color: 'green',
+                                title: 'Don’t your new powers feel good?',
+                                body: 'Last challenge: try it',
+                                links: [{
+                                    text: 'Try last challenge',
+                                    type: 'progress'
+                                }, {
+                                    text: 'Save',
+                                    type: 'save'
+                                }],
+                                xp: 200
+                            }
+                        },
                         {}
                     ];
                 }
@@ -166,7 +174,6 @@
             }
         },
         ready () {
-            this.$['reward-modal'].open();
             this.loaded = false;
 
             this.editor = this.$.editor;
@@ -180,6 +187,7 @@
             this.stageNo = 0;
         },
         onStageChanged (stageNo) {
+            console.log("stage changed", stageNo, this.code);
             let stage = this.stages[stageNo],
                 addedParts = [];
 
@@ -188,30 +196,36 @@
             }
 
             this.mode = Kano.MakeApps.Mode.modes[stage.mode];
-            this.set('mode.defaultBlocks', stage.defaultBlocks);
             this._filterParts();
 
             stage.defaultParts.map((partName) => {
                 this.parts.forEach((part) => {
                     if (part.type === partName) {
-                        addedParts.push(Kano.MakeApps.Parts.create(this.parts[0], this.mode.workspace.viewport));
+                        addedParts.push(Kano.MakeApps.Parts.create(this.parts[0],
+                                        this.mode.workspace.viewport));
                     }
                 });
             });
             this.set('addedParts', addedParts);
 
             this.banner = stage.banner;
+            this.set('code', {snapshot: {blocks: stage.defaultBlocks}});
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
         },
-        _currentReward (content, stage) {
-            return content[stage];
+        _currentReward (content, stageNo) {
+            return this.stages[stageNo].reward;
         },
         _handleModalAction (e) {
             console.log('Modal interaction');
             console.log(e.detail.type);
             this.$['reward-modal'].close();
+            this.stageNo++;
+        },
+        _stageFinished () {
+            console.log("stageF");
+            this.$['reward-modal'].open();
         }
     });
 </script>
