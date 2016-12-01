@@ -15,7 +15,7 @@
 
     // @polymerBehavior
     window.Kano.Behaviors.SoundPlayerBehavior = {
-        playSound (url) {
+        playSound (url, isAnalyserRequired) {
             if (!ctx) {
                 return;
             }
@@ -23,6 +23,11 @@
                 .then(buffer => {
                     let source = ctx.createBufferSource();
                     source.buffer = buffer;
+                    if (isAnalyserRequired) {
+                        let analyserTools = this.setupAnalyser();
+                        source.connect(analyserTools.analyser);
+                        analyserTools.jsNode.connect(ctx.destination);
+                    }
                     source.connect(ctx.destination);
                     source.start(ctx.currentTime);
                 });
@@ -42,6 +47,38 @@
                         });
                     });
             }
+        },
+        setupAnalyser () {
+            let analyser = ctx.createAnalyser();
+            analyser.smoothingTimeConstant = 0.3;
+            analyser.fftSize = 1024;
+            let jsNode = ctx.createScriptProcessor(2048, 1, 1);
+            jsNode.onaudioprocess = () => {
+                this.debounce('getTheVolume',() => {
+                  var array = new Uint8Array(analyser.frequencyBinCount);
+                  analyser.getByteFrequencyData(array);
+                  this.volume = (Math.floor(this.mathAverage(array))) * 0.5;
+                  this.fire('volume-changed', {volume: this.volume});
+                }, 30);
+            }.bind(this);
+            return {analyser: analyser,
+                    jsNode: jsNode}
+        },
+        mathAverage (data) {
+            let numbers;
+            if (data[0] instanceof Array) {
+                numbers = data[0];
+            }
+            else if (typeof data[0] == "number") {
+                numbers = data;
+            }
+            let sum = 0;
+            let average = 0;
+            for (let i = 0; i < numbers.length; i++) {
+                sum += numbers[i];
+            }
+            average = sum / numbers.length;
+            return average;
         }
     };
 

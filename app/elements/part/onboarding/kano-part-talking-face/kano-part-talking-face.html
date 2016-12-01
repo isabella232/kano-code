@@ -6,7 +6,6 @@
         display: flex;
         width: 100%;
         height: 100%;
-
         justify-content: center;
         align-content: center;
     }
@@ -17,7 +16,7 @@
     </style>
     <template>
         <div class="container">
-            <kano-bitmap-renderer width="18" height="13" bitmap="[[bitmap]]" pixel-size="21" spacing="3"></kano-bitmap-renderer>
+            <kano-bitmap-renderer width="16" height="8" bitmap="[[bitmap]]" pixel-size="24" spacing="3"></kano-bitmap-renderer>
         </div>
     </template>
     <script type="text/javascript">
@@ -25,28 +24,51 @@
 
         Polymer({
             is: 'kano-part-talking-face',
-            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior, Kano.Behaviors.SoundPlayerBehavior],
             properties: {
                 bitmap: {
                     type: Array,
                     value: () => {
                         return [];
                     }
+                },
+                maxVol: {
+                    type: Number,
+                    //reasonable start value
+                    value: 25
+                },
+                frames: {
+                    type: Array,
+                    value: () => { 
+                        return [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72",0,0,0,0,"#addf72",0,0,0,0,0,0,0,0,0,"#addf72",0,"#addf72",0,0,"#addf72",0,"#addf72",0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#addf72","#addf72","#addf72",0,0,"#addf72","#addf72","#addf72",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,0,0,"#6fb3eb",0,0,0,0,0,0,"#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb","#6fb3eb",0,0,0]]
+                  }
                 }
             },
-            behaviors: [],
-            observers: [],
+            listeners: {
+                'volume-changed': 'triggerFrame'
+            },
             ready () {
-                this.fill('#ddd');
+                this.fill('#000');
             },
             fill (c) {
                 this.bitmap = new Array(18 * 13);
                 this.bitmap.fill(c);
             },
-            runAnimation (flag) {
-                if (flag) {
-                    this.fill('#ff842a')
-                }
+            say (flag) {
+                if (flag) this.playSound('/assets/audio/peoplesing.mp3', true);
+            },
+            triggerFrame (e) {
+                this.maxVol = e.detail.volume > this.maxVol ? e.detail.volume : this.maxVol;
+                let triggerIndex = Math.round(e.detail.volume / this.maxVol * 10);
+                this.runAnimation(triggerIndex);
+            },
+            runAnimation (choice) {
+                this.bitmap.fill('#000');
+                this.frames[choice].forEach((value, index) => {
+                  if (value) {
+                      this.bitmap[index] = value;
+                  }
+                });
             }
         });
     </script>
