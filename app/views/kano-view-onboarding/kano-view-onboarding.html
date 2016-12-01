@@ -33,6 +33,7 @@
             mode="[[mode]]"
             banner="[[banner]]"
             challenge-state="{{challengeState}}"
+            on-fireworks-triggered="_stageFinished"
             on-talking-face-animation-stopped="_stageFinished"></kano-app-editor>
         <paper-dialog
             id="reward-modal"
@@ -48,20 +49,6 @@
     /* globals Polymer, Kano */
 
     // TODO use this when we add a third step
-    // {
-    //     icon: 'tick',
-    //     color: 'green',
-    //     title: 'Don’t your new powers feel good?',
-    //     body: 'Last challenge: try it',
-    //     links: [{
-    //         text: 'Try last challenge',
-    //         type: 'progress'
-    //     }, {
-    //         text: 'Save',
-    //         type: 'save'
-    //     }],
-    //     xp: 200
-    // }
     Polymer({
         is: 'kano-view-onboarding',
         behaviors: [Kano.Behaviors.EditorViewBehavior],
@@ -91,6 +78,13 @@
                     return [
                         {
                             mode: 'simple',
+                            workspace: {
+                                viewport: {
+                                    width: 502,
+                                    height: 264
+                                },
+                                component: 'kano-workspace-normal'
+                            },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
                                                 <block type="talkingface#say" id=",!{#F,2}aLq:}v0hw_?C" x="266" y="157" deletable="false"></block>
                                                 <block type="talkingface#superpowers" id="3N1Ko#F(V2wrTUjLan;G" x="383" y="157" deletable="false"></block>
@@ -114,9 +108,15 @@
                                 }],
                                 xp: 100
                             }
-                        },
-                        {
+                        }, {
                             mode: 'simple',
+                            workspace: {
+                                viewport: {
+                                    width: 502,
+                                    height: 264
+                                },
+                                component: 'kano-workspace-normal'
+                            },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
                                                 <block type="talkingface1#say_accent" id="yo1" x="161" y="157" deletable="false"></block>
                                                 <block type="talkingface1#superpowers" id="yo2" x="418" y="157" deletable="false"></block>
@@ -126,11 +126,44 @@
                                 head: 'Part Two',
                                 text: 'Take your powers to the next level: can you change the voice?'
                             },
+                            reward:     {
+                                icon: 'tick',
+                                color: 'green',
+                                title: 'Don’t your new powers feel good?',
+                                body: 'Last challenge: try it',
+                                links: [{
+                                    text: 'Try last challenge',
+                                    type: 'progress'
+                                }, {
+                                    text: 'Save',
+                                    type: 'save'
+                                }],
+                                xp: 200
+                            }
+                        }, {
+                            mode: 'simple',
+                            workspace: {
+                                viewport: {
+                                    width: 502,
+                                    height: 264
+                                },
+                                component: 'kano-workspace-normal'
+                            },
+                            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
+                                                <block type="fireworks#when" id="yo3" x="181" y="104" deletable="false"></block>
+                                                <block type="fireworks#mouse_pos" id="yo3" x="486" y="137" deletable="false"></block>
+                                                <block type="fireworks#fireworks" id="yo4" x="335" y="206" deletable="false"></block>
+                                            </xml>`,
+                            defaultParts: ['fireworks'],
+                            banner: {
+                                head: 'Part Three',
+                                text: "OK here's your last superpower: can you make your mouse explode?"
+                            },
                             reward: {
                                 icon: 'heart',
                                 color: 'red',
                                 title: 'Save your XP!',
-                                body: 'You’ve earned 200 XP – keep it safe.',
+                                body: 'You’ve earned 300 XP – keep it safe.',
                                 links: [{
                                     text: 'Save now',
                                     type: 'save'
@@ -138,7 +171,7 @@
                                     text: 'Try more challenges',
                                     type: 'progress'
                                 }],
-                                xp: 200
+                                xp: 300
                             }
                         }];
                 }
@@ -183,7 +216,7 @@
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
             Kano.AppModules.init(Object.assign({}, Kano.MakeApps.config));
 
-            this.stageNo = 0;
+            this.stageNo = 2;
         },
         onStageChanged (stageNo) {
             let stage = this.stages[stageNo],
@@ -194,12 +227,15 @@
             }
 
             this.mode = Kano.MakeApps.Mode.modes[stage.mode];
+            if (stage.workspace) {
+                this.set('mode.workspace', stage.workspace);
+            }
             this._filterParts();
 
             stage.defaultParts.map((partName) => {
                 this.parts.forEach((part) => {
                     if (part.type === partName) {
-                        addedParts.push(Kano.MakeApps.Parts.create(this.parts[0],
+                        addedParts.push(Kano.MakeApps.Parts.create(part,
                                         this.mode.workspace.viewport));
                     }
                 });

@@ -204,13 +204,10 @@
         observers: [
             'partsChanged(parts.*)',
             'backgroundChanged(background)',
-            '_computeMode(mode)'
+            'viewportDimensionsChanged(mode.workspace.viewport.*)'
         ],
         listeners: {
             'part-tapped': 'onPartTapped'
-        },
-        _computeMode (mode) {
-            this.noControls = mode.id === "simple";
         },
         ready () {
             this.elements = {};
@@ -371,6 +368,13 @@
             this.parts.forEach((model, index) => {
                 this.insertPart(`#${index}`);
             });
+
+            this.noControls = mode.id === "simple";
+        },
+        viewportDimensionsChanged () {
+            this.dropzone.setAttribute('width', this.mode.workspace.viewport.width);
+            this.dropzone.setAttribute('height', this.mode.workspace.viewport.height);
+            this.$.content.resizeView();
         },
         mouseXChanged (e) {
             this.mouseX = e.detail.value;
