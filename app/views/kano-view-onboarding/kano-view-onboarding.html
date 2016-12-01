@@ -6,6 +6,7 @@
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
+<link rel="import" href="../../elements/kano-reward-modal/kano-reward-modal.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 
 <dom-module id="kano-view-onboarding">
@@ -16,6 +17,10 @@
     }
     :host kano-app-editor {
         @apply(--layout-flex);
+    }
+    :host paper-dialog {
+        background: transparent;
+        overflow: hidden;
     }
     </style>
     <template>
@@ -28,6 +33,13 @@
             default-categories="[[defaultCategories]]"
             mode="[[mode]]"
             banner="[[banner]]"></kano-app-editor>
+        <paper-dialog
+            id="reward-modal"
+            with-backdrop>
+            <kano-reward-modal
+                on-interaction='_handleModalAction'
+                content='[[_currentReward(rewardContent, context.params.stage)]]'></kano-reward-modal>
+        </paper-dialog>
     </template>
 </dom-module>
 
@@ -55,6 +67,55 @@
             },
             banner: {
                 type: Object
+            },
+            rewardContent: {
+                type: Object,
+                value: () => {
+                    return {
+                        1: {
+                            icon: 'star',
+                            color: 'yellow',
+                            title: 'You completed a challenge!',
+                            body: 'Now try another: get more powers',
+                            links: [{
+                                text: 'Try second challenge',
+                                type: 'progress'
+                            }, {
+                                text: 'Save',
+                                type: 'save'
+                            }],
+                            xp: 100
+                        },
+                        2: {
+                            icon: 'tick',
+                            color: 'green',
+                            title: 'Don’t your new powers feel good?',
+                            body: 'Last challenge: try it',
+                            links: [{
+                                text: 'Try last challenge',
+                                type: 'progress'
+                            }, {
+                                text: 'Save',
+                                type: 'save'
+                            }],
+                            xp: 200
+                        },
+                        3: {
+                            icon: 'heart',
+                            color: 'red',
+                            title: 'Save your XP!',
+                            body: 'You’ve earned 300 XP – keep it safe.',
+                            links: [{
+                                text: 'Save now',
+                                type: 'save'
+                            }, {
+                                text: 'Try more challenges',
+                                type: 'progress'
+                            }],
+                            xp: 300
+                        }
+                    }
+                }
             }
         },
         attached () {
@@ -76,6 +137,7 @@
             console.log(this.defaultCategories, this.parts);
         },
         ready () {
+            this.$['reward-modal'].open();
             let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
             this.editor = this.$.editor;
@@ -99,6 +161,14 @@
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
+        },
+        _currentReward (content, stage) {
+            return content[stage];
+        },
+        _handleModalAction (e) {
+            console.log('Modal interaction');
+            console.log(e.detail.type);
+            this.$['reward-modal'].close();
         }
     });
 </script>

@@ -1,0 +1,214 @@
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="kano-reward-modal">
+    <style is="custom-style" include="input-text"></style>
+    <style>
+        :host {
+            --color-background: #ffffff;
+            --color-green: #5ac3ac;
+            --color-red: #ff7473;
+            --color-yellow: #f1cb44;
+            --color-light-grey: #f4f5f6;
+            --color-medium-grey: #a7aeb2;
+            --color-dark-grey: #999999;
+            --color-text: #253541;
+            --border-radius-large: 10px;
+            --border-radius-medium: 5px;
+            background-color: transparent;
+            border-radius: var(--border-radius-large);
+            display: block;
+            position: relative;
+            font-family: Bariol;
+            /* It's bad practice to use !important but there is no other way
+            to remove the padding & margins without affecting other
+            paper-dialogs */
+            margin: 0px !important;
+            overflow: hidden;
+            padding: 0px !important;
+        }
+        :host .wrapper {
+            background-color: var(--color-light-grey);
+            color: var(--color-text);
+            padding-top: 90px;
+        }
+        :host .content {
+            background-color: var(--color-background);
+            box-sizing: border-box;
+            max-width: 400px;
+            padding: 0 60px 30px 60px;
+            position: relative;
+            text-align: center;
+        }
+        :host .icon.icon--main {
+            border-radius: 100%;
+            display: block;
+            height: 90px;
+            left: 0;
+            margin: 0 auto;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transform: translateY(-50%);
+            width: 90px;
+        }
+        :host .wrapper.wrapper--green .icon.icon--main {
+            background-color: var(--color-green);
+        }
+        :host .wrapper.wrapper--red .icon.icon--main {
+            background-color: var(--color-red);
+        }
+        :host .wrapper.wrapper--yellow .icon.icon--main {
+            background-color: var(--color-yellow);
+        }
+        :host .title {
+            font-size: 30px;
+            font-weight: bold;
+            line-height: 1.2em;
+            margin: 0;
+            padding: 65px 20px 12px 20px;
+        }
+        :host .body {
+            color: var(--color-dark-grey);
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1.2em;
+            margin: 0;
+            padding: 0px 20px 25px 20px;
+        }
+        :host .xp::before {
+            color: var(--color-yellow);
+            content: '+';
+            display: inline-block;
+            font-size: 28px;
+            vertical-align: 35%;
+        }
+        :host .xp {
+            border-bottom: 2px solid var(--color-light-grey);
+            border-top: 2px solid var(--color-light-grey);
+            display: inline-block;
+            font-size: 46px;
+            font-weight: bold;
+            padding: 18px 20px;
+            text-align: center;
+        }
+        :host .xp::after {
+            background-color: var(--color-yellow);
+            border-radius: var(--border-radius-large);
+            color: var(--color-background);
+            content: 'xp';
+            display: inline-block;
+            font-size: 22px;
+            padding: 8px;
+            text-transform: uppercase;
+            vertical-align: 35%;
+        }
+        :host .action {
+            padding: 20px 20px 0 20px;
+        }
+        :host .button {
+            appearance: none;
+            -webkit-appearance: none;
+            border: 0;
+            border-radius: var(--border-radius-medium);
+            cursor: pointer;
+            display: inline-block;
+            font-family: Bariol;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 auto;
+            outline: 0;
+            text-transform: uppercase;
+        }
+        :host .button.button--primary {
+            color: var(--color-background);
+            padding: 14px 24px;
+        }
+        :host .wrapper.wrapper--green .button.button--primary {
+            background-color: var(--color-green);
+        }
+        :host .wrapper.wrapper--red .button.button--primary {
+            background-color: var(--color-red);
+        }
+        :host .wrapper.wrapper--yellow .button.button--primary {
+            background-color: var(--color-yellow);
+        }
+        :host .button.button--secondary {
+            background-color: var(--color-light-grey);
+            color: var(--color-medium-grey);
+            padding: 12px 20px;
+        }
+    </style>
+    <template>
+        <div class$="[[_wrapperClass(content.color)]]">
+            <div class="content">
+                <div class="icon icon--main">
+                    <template is="dom-if" if="[[_iconType('heart', content.icon)]]">
+                        Heart
+                    </template>
+                    <template is="dom-if" if="[[_iconType('star', content.icon)]]">
+                        Star
+                    </template>
+                    <template is="dom-if" if="[[_iconType('tick', content.icon)]]">
+                        Tick
+                    </template>
+                </div>
+                <h3 class="title">{{content.title}}</h3>
+                <p class="body">{{content.body}}</p>
+                <div class="xp">
+                  {{content.xp}}
+                </div>
+                <template is="dom-repeat" items={{content.links}} as="link">
+                    <div class="action">
+                        <button class$="[[_buttonClass(index)]]" on-tap="_handleTap">
+                            <template is="dom-if" if="[[_iconType('save', link.type)]]">
+                                <div class="icon">
+                                  Disk
+                                </div>
+                            </template>
+                            {{link.text}}
+                            <template is="dom-if" if="[[_iconType('progress', link.type)]]">
+                                <div class="icon">
+                                  Arrow
+                                </div>
+                            </template>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-reward-modal',
+        properties: {
+            content: {
+                type: Object
+            }
+        },
+        attached () {},
+        dettached () {},
+        _buttonClass (index) {
+            if (index === 0) {
+                return `button button--primary`;
+            };
+            return 'button button--secondary';
+        },
+        _handleTap (e) {
+            this.fire('interaction', {
+                type: e.model.link.type
+            });
+        },
+        _iconType (icon, content) {
+            return icon === content;
+        },
+        _wrapperClass (color) {
+            return `wrapper wrapper--${color || "default"}`
+        }
+    });
+</script>
