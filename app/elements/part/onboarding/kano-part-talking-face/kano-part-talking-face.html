@@ -34,7 +34,7 @@
                 },
                 maxVol: {
                     type: Number,
-                    //reasonable start value
+                    //giving a reasonable start value
                     value: 25
                 },
                 frames: {
@@ -45,7 +45,8 @@
                 }
             },
             listeners: {
-                'volume-changed': 'triggerFrame'
+                'volume-changed': 'triggerFrame',
+                'sound-ended': 'endAnimation'
             },
             ready () {
                 this.fill('#000');
@@ -54,13 +55,20 @@
                 this.bitmap = new Array(18 * 13);
                 this.bitmap.fill(c);
             },
-            say (flag) {
-                if (flag) this.playSound('/assets/audio/peoplesing.mp3', true);
+            say (flag, accent) {
+                if (flag) {
+                    accent = accent || 'english';
+                    this.playSound(`/assets/audio/onboarding/${accent}.m4a`, true);
+                }
             },
             triggerFrame (e) {
                 this.maxVol = e.detail.volume > this.maxVol ? e.detail.volume : this.maxVol;
-                let triggerIndex = Math.round(e.detail.volume / this.maxVol * 10);
-                this.runAnimation(triggerIndex);
+                let triggerIndex = Math.round(e.detail.volume / this.maxVol * 10) - 1;
+                if (triggerIndex > -1) this.runAnimation(triggerIndex);
+            },
+            endAnimation () {
+                this.fire('talking-face-animation-stopped');
+                
             },
             runAnimation (choice) {
                 this.bitmap.fill('#000');
