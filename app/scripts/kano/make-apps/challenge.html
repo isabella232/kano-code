@@ -113,7 +113,7 @@
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "workspace.toolbar.add-part-button",
+                        "location": "add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('add-parts') + "<br>" + Kano.MakeApps.CopyManager.get('open-parts-drawer')
                     }],
@@ -123,7 +123,7 @@
                 });
             }
             this.data.steps = this.data.steps.concat(app.parts.map(function (part, index) {
-                var location = "sidebar.parts.part-" + part.type;
+                var location = "parts-panel-part-" + part.type;
                 if (this.data.parts.indexOf(part.type) === -1) {
                     this.data.parts.push(part.type);
                 }
@@ -152,7 +152,7 @@
             if (app.parts.length) {
                 this.data.steps.push({
                     "tooltips": [{
-                        "location": "workspace.toolbar.add-part-button",
+                        "location": "add-part-button",
                         "position": "top",
                         "text": Kano.MakeApps.CopyManager.get('start-code') + "<br>" + Kano.MakeApps.CopyManager.get('close-parts-drawer')
                     }],
@@ -327,7 +327,7 @@
                 if (node.firstChild.nodeValue != fieldDefault) {
                     let challengeId = parent.getAttribute('challengeId'),
                         rawId = parent.getAttribute('id'),
-                        tooltipText;
+                        tooltipText, fieldPreview;
                     let selector = {
                         shadow: inputName
                     },
@@ -338,7 +338,9 @@
                         selector.rawId = rawId;
                     }
                     fieldValue = this.translate('field', node.firstChild.nodeValue);
-                    tooltipText = commentData.tooltipText || 'Change to <kano-value-preview><span>' + fieldValue + '</span></kano-value-preview>';
+                    fieldPreview = this.generateFieldPreview(node, fieldValue);
+                    tooltipText = commentData.tooltipText || 'Change to $fieldPreview';
+                    tooltipText = tooltipText.replace(/\$fieldPreview/g, fieldPreview);
                     // Add a `change value` step to get the right value
                     step = {
                         "tooltips": [{
@@ -609,6 +611,10 @@
                 }
             }
             return steps;
+        };
+
+        Challenge.prototype.generateFieldPreview = function (node, fieldValue) {
+            return '<kano-value-preview><span>' + fieldValue + '</span></kano-value-preview>';
         };
 
     })(window.Kano = window.Kano || {});

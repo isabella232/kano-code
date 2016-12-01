@@ -1,4 +1,5 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../kano-blockly/kano-blockly.html">
 
 <dom-module id="kano-root-view">
@@ -17,7 +18,10 @@
         <kano-blockly id="code-editor"
                 toolbox="[[toolbox]]"
                 on-change="saveCode"
-                default-blocks="[[mode.defaultBlocks]]"></kano-blockly>
+                default-blocks="[[mode.defaultBlocks]]"
+                no-trashcan="{{noTrashcan}}"
+                no-zoom-control="{{noZoomControl}}"
+                no-toolbox="{{noToolbox}}"></kano-blockly>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -25,7 +29,7 @@
 
     Polymer({
         is: 'kano-root-view',
-        behaviors: [Kano.Behaviors.AppEditorBehavior],
+        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.AppElementRegistryBehavior],
         properties: {
             parts: {
                 type: Array,
@@ -51,8 +55,19 @@
             'computeToolboxDebounced(parts.*)',
             'computeToolboxDebounced(defaultCategories.*)',
             'computeToolboxDebounced(mode)',
-            'defaultCategoriesLoaded(defaultCategories.events)'
+            'defaultCategoriesLoaded(defaultCategories.events)',
+            '_onModeChange(mode)'
         ],
+        _onModeChange (mode){
+            var simpleMode = (mode.id === "simple");
+            this.noTrashcan = simpleMode;
+            this.noZoomControl = simpleMode;
+            this.noToolbox = simpleMode;
+        },
+        _onBlocklyReady () {
+            this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
+            this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
+        },
         codeChanged () {
             if (!this.code) {
                 return;
@@ -231,7 +246,6 @@
 
             categories = categories || [];
             categories = categories.filter((category) => category.blocks.length);
-
             Object.keys(this.defaultCategories).forEach((id) => {
                 let cat = this.defaultCategories[id];
                 cat.blocks.forEach((block) => {
@@ -240,7 +254,6 @@
             });
 
             toolbox = Object.keys(this.defaultCategories).map(id => this.defaultCategories[id]);
-
             toolbox = toolbox
                 .concat({ type: 'separator' });
             // Generate the toolbox for the special mode

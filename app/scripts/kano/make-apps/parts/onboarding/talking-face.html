@@ -1,0 +1,120 @@
+<link rel="import" href="../parts.html">
+<link rel="import" href="../ui.html">
+<script>
+    (function (Kano) {
+
+        let talkingFace = {
+            partType: 'ui',
+            type: 'talking-face',
+            label: 'Talking face',
+            image: '/assets/part/pixels-animation.svg',
+            colour: '#249afb',
+            component: 'kano-part-talking-face',
+            restrict: 'workspace',
+            customizable: {
+                properties: [],
+                style: []
+            },
+            userProperties: {
+            },
+            blocks: [{
+                block: (ui) => {
+                    return {
+                        id: 'say',
+                        message0: 'Say %1',
+                        args0: [{
+                            type: 'input_value',
+                            name: 'FLAG'
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
+                        return `devices.get('${part.id}').say(${flag});`;
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
+                        return `devices.get('${part.id}').say(${flag});`;
+                    };
+                }
+            }, {
+                block: (part) => {
+                    return {
+                        id: 'superpowers',
+                        message0: 'You now have superpowers!',
+                        output: null
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        return [`true`];
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        return [`true`];
+                    };
+                }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'say_accent',
+                        message0: 'Say in %1 %2',
+                        args0: [{
+                            "type": "field_dropdown",
+                            "name": "language",
+                            "options": [
+                                [
+                                    "Scottish",
+                                    "scottish"
+                                ],
+                                [
+                                    "English",
+                                    "english"
+                                ],
+                                [
+                                    "American",
+                                    "us"
+                                ],
+                                [
+                                    "Italian",
+                                    "italian"
+                                ],
+                                [
+                                    "French",
+                                    "french"
+                                ],
+                                [
+                                    "Bubbles",
+                                    "bubbles"
+                                ]
+                            ]
+                        }, {
+                            type: 'input_value',
+                            name: 'FLAG'
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG') || false,
+                            language = block.getFieldValue('language');
+                        return `devices.get('${part.id}').say(${flag}, '${language}');`;
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG'),
+                            language = block.getFieldValue('language');
+                        return `devices.get('${part.id}').say(${flag}, '${language}');`;
+                    };
+                }
+            }]
+        };
+
+        Kano.MakeApps.Parts.registerPart(talkingFace);
+    })(window.Kano = window.Kano || {});
+</script>

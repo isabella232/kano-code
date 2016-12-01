@@ -1,4 +1,6 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
@@ -126,9 +128,9 @@
                 on-pause-run-button-clicked="_runButtonClicked"
                 on-fullscreen-button-clicked="_toggleFullscreen"
                 on-reset-button-clicked="_resetAppState"
-                on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
+                on-edit-layout-button-clicked="_editLayoutClicked" hidden$="{{noControls}}"></kano-workspace-toolbar>
         </kano-ui-viewport>
-        <kano-workspace-head challenge-state="[[challengeState]]"></kano-workspace-head>
+        <kano-workspace-head challenge-state="[[challengeState]]" hidden$="{{noControls}}"></kano-workspace-head>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
@@ -147,7 +149,12 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace',
-        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.CoverGeneratorBehavior, Kano.Behaviors.SoundPlayerBehavior],
+        behaviors: [
+            Kano.Behaviors.AppEditorBehavior,
+            Kano.Behaviors.CoverGeneratorBehavior,
+            Kano.Behaviors.SoundPlayerBehavior,
+            Kano.Behaviors.AppElementRegistryBehavior
+        ],
         properties: {
             parts: {
                 type: Array,
@@ -188,14 +195,22 @@
             },
             challengeState: {
                 type: Object
+            },
+            noControls: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
             'partsChanged(parts.*)',
-            'backgroundChanged(background)'
+            'backgroundChanged(background)',
+            '_computeMode(mode)'
         ],
         listeners: {
             'part-tapped': 'onPartTapped'
+        },
+        _computeMode (mode) {
+            this.noControls = mode.id === "simple";
         },
         ready () {
             this.elements = {};
@@ -234,8 +249,8 @@
             this.$.content.resizeView();
             this.fullscreen = !this.fullscreen;
         },
-         _isPauseOverlayHidden (running, editableLayout) {
-        return running || editableLayout;
+        _isPauseOverlayHidden (running, editableLayout) {
+            return running || editableLayout;
         },
         _moveLeft (e) {
             this._movePart('left', e.detail.keyboardEvent.shiftKey);
@@ -489,6 +504,7 @@
             if (this.soundReady) {
                 this.playSound('/assets/audio/sounds/pop.wav');
             }
+            this._registerElement(`workspace-part-${model.id}`, element);
         },
         removePart (key) {
             let element = this.elements[key];
