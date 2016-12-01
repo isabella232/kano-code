@@ -1,0 +1,91 @@
+<link rel="import" href="../parts.html">
+<link rel="import" href="../ui.html">
+<script>
+    (function (Kano) {
+
+        let fireworks = {
+            partType: 'ui',
+            type: 'fireworks',
+            label: 'Fireworks',
+            image: '/assets/part/pixels-animation.svg',
+            colour: '#249afb',
+            component: 'kano-part-fireworks',
+            restrict: 'workspace',
+            customizable: {
+                properties: [],
+                style: []
+            },
+            userProperties: {
+            },
+            blocks: [{
+                block: (ui) => {
+                    return {
+                        id: 'fireworks',
+                        message0: 'Make fireworks at %1',
+                        previousStatement: null,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'FLAG'
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG') || false;
+                        return `${flag}`;
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        let flag = blockly.javascript.valuetocode(block, 'flag') || false;
+                        return `${flag}`;
+                    };
+                }
+            }, {
+                block: (part) => {
+                    return {
+                        id: 'mouse_pos',
+                        message0: 'Mouse position',
+                        output: null
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        return [`true`];
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        return [`true`];
+                    };
+                }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'when',
+                        message0: 'When mouse clicked %1',
+                        args0: [{
+                            "type": "input_statement",
+                            "name": "trigger"
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return function (block) {
+                        let statement = Blockly.JavaScript.statementToCode(block, 'trigger') || 'false';
+                        console.log(statement);
+                        return `devices.get('${part.id}').enable(${statement});`;
+                    };
+                },
+                pseudo: (part) => {
+                    return function (block) {
+                        let statement = Blockly.JavaScript.statementToCode(block, 'trigger') || 'false';
+                        return `devices.get('${part.id}').enable(${statement});`;
+                    };
+                }
+            }]
+        };
+
+        Kano.MakeApps.Parts.registerPart(fireworks);
+    })(window.Kano = window.Kano || {});
+</script>

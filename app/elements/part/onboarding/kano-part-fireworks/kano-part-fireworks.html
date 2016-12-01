@@ -1,0 +1,55 @@
+<link rel="import" href="../../../kano-style/part.html">
+
+<dom-module id="kano-part-fireworks">
+    <style is="custom-style" include="part-style"></style>
+    <style>
+    :host {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-content: center;
+    }
+    #canvas {
+        margin: auto;
+        width: 100%;
+        height: 100%;
+        background-color: #ddd;
+    }
+    </style>
+    <template>
+        <div id="canvas" on-tap="_clicked"></div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-fireworks',
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            properties: {
+                enabled: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            listeners: {
+            },
+            ready () {
+                this.clicks = 0;
+            },
+            enable (flag) {
+                this.enabled = flag;
+            },
+            _clicked (e) {
+                if (this.enabled) {
+                    console.log("DISPLAY FIREWORKS at", e);
+                    this.clicks++;
+
+                    if (this.clicks > 5) {
+                        this.fire('fireworks-triggered');
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>
