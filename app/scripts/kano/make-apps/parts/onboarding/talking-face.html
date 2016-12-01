@@ -31,13 +31,13 @@
                 javascript: (part) => {
                     return function (block) {
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
-                        return `devices.get('${part.id}').runAnimation(${flag});`;
+                        return `devices.get('${part.id}').say(${flag});`;
                     };
                 },
                 pseudo: (part) => {
                     return function (block) {
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
-                        return `devices.get('${part.id}').runAnimation(${flag});`;
+                        return `devices.get('${part.id}').say(${flag});`;
                     };
                 }
             }, {
@@ -65,11 +65,15 @@
                         message0: 'Say with %1 %2',
                         args0: [{
                             "type": "field_dropdown",
-                            "name": "laguage",
+                            "name": "language",
                             "options": [
                                 [
                                     "English accent",
                                     "english"
+                                ],
+                                [
+                                    "American accent",
+                                    "us"
                                 ],
                                 [
                                     "Scottish accent",
@@ -81,7 +85,11 @@
                                 ],
                                 [
                                     "French accent",
-                                    "frnch"
+                                    "french"
+                                ],
+                                [
+                                    "Bubbles",
+                                    "bubbles"
                                 ]
                             ]
                         }, {
@@ -93,15 +101,15 @@
                 javascript: (part) => {
                     return function (block) {
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG') || false,
-                            language = block.getFieldValue('laguage');
-                        return `devices.get('${part.id}').runAnimation(${flag}, '${language}');`;
+                            language = block.getFieldValue('language');
+                        return `devices.get('${part.id}').say(${flag}, '${language}');`;
                     };
                 },
                 pseudo: (part) => {
                     return function (block) {
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG'),
-                            language = block.getFieldValue('laguage');
-                        return `devices.get('${part.id}').runAnimation(${flag}, '${language}');`;
+                            language = block.getFieldValue('language');
+                        return `devices.get('${part.id}').say(${flag}, '${language}');`;
                     };
                 }
             }]
