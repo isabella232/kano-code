@@ -27,11 +27,15 @@
             if (!this.started) {
                 return null;
             }
+
             selectedStep = this.steps[this.step];
 
             if (!selectedStep) {
                 return null;
             }
+
+            // Deep clone the step to not change the original step when updating the ids
+            selectedStep = JSON.parse(JSON.stringify(selectedStep));
 
             if (selectedStep.tooltips) {
                 selectedStep.tooltips = selectedStep.tooltips.map(tooltip => {
@@ -57,7 +61,7 @@
          * Changes the location to adapt to the current context 
          */
         processLocation (location) {
-            if (typeof location == 'object') {
+            if (typeof location === 'object') {
                 if (location.category) {
                     let cat = location.category;
                     if (cat.part) {
@@ -103,7 +107,7 @@
         nextStep () {
             // The current step was injected, we remove it form the array
             if (this.selectedStep.injected) {
-                this.splice('steps', this.steps.indexOf(this.selectedStep), 1);
+                this.splice('steps', this.step, 1);
                 this.stepChanged();
             } else {
                 if (this.step < this.steps.length - 1) {

@@ -1,4 +1,3 @@
-<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
@@ -116,15 +115,37 @@
                         }
                     }
                 }
+            },
+            stages: {
+                type: Array,
+                value: () => {
+                    return [
+                        {
+                            mode: 'simple',
+                            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="talkingface#say" id=",!{#F,2}aLq:}v0hw_?C" x="266" y="157"></block><block type="talkingface#superpowers" id="3N1Ko#F(V2wrTUjLan;G" x="383" y="157"></block></xml>`,
+                            defaultParts: ['talking-face'],
+                            banner: {
+                                head: 'Part One',
+                                text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
+                            }
+                        },
+                        {},
+                        {}
+                    ];
+                }
+            },
+            stageNo: {
+                type: Number
             }
         },
+        observers: [
+            'onStageChanged(stageNo)'
+        ],
         attached () {
         },
         detached () {
         },
         _registerBlockly () {
-            let stage = this.context.params.stage;
-
             Kano.Behaviors.EditorViewBehavior._registerBlockly.apply(this, arguments);
 
             if (this.loaded) {
@@ -133,31 +154,51 @@
             this.loaded = true;
 
             this.set('defaultCategories', {});
-            this.parts = [];
-            console.log(this.defaultCategories, this.parts);
+        },
+        _filterParts () {
+            // Only include the parts defined in the mode
+            if (this.mode.parts) {
+                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
+                    return this.mode.parts.indexOf(part.type) !== -1;
+                }));
+            }
         },
         ready () {
             this.$['reward-modal'].open();
-            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
+
             this.editor = this.$.editor;
             this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
-
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-
-            hardwareAPI.config(Kano.MakeApps.config);
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
+            Kano.AppModules.init(Object.assign({}, Kano.MakeApps.config));
 
-            this.mode = Kano.MakeApps.Mode.modes.simple;
-            this.banner = {
-                head: 'Part Two',
-                text: 'That code you wrote had two parts: a command and a parameter. Can you connect them together?'
-            };
+            this.stageNo = 0;
+        },
+        onStageChanged (stageNo) {
+            let stage = this.stages[stageNo],
+                addedParts = [];
+
+            if (stageNo === null) {
+                return;
+            }
+
+            this.mode = Kano.MakeApps.Mode.modes[stage.mode];
+            this.set('mode.defaultBlocks', stage.defaultBlocks);
+            this._filterParts();
+
+            stage.defaultParts.map((partName) => {
+                this.parts.forEach((part) => {
+                    if (part.type === partName) {
+                        addedParts.push(Kano.MakeApps.Parts.create(this.parts[0], this.mode.workspace.viewport));
+                    }
+                });
+            });
+            this.set('addedParts', addedParts);
+
+            this.banner = stage.banner;
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);

@@ -1,0 +1,53 @@
+<link rel="import" href="../../../kano-style/part.html">
+<dom-module id="kano-part-talking-face">
+    <style is="custom-style" include="part-style"></style>
+    <style>
+    :host {
+        display: flex;
+        width: 100%;
+        height: 100%;
+
+        justify-content: center;
+        align-content: center;
+    }
+    .container {
+        margin: auto;
+    }
+
+    </style>
+    <template>
+        <div class="container">
+            <kano-bitmap-renderer width="18" height="13" bitmap="[[bitmap]]" pixel-size="21" spacing="3"></kano-bitmap-renderer>
+        </div>
+    </template>
+    <script type="text/javascript">
+        /* globals Polymer, Kano */
+
+        Polymer({
+            is: 'kano-part-talking-face',
+            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            properties: {
+                bitmap: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    }
+                }
+            },
+            behaviors: [],
+            observers: [],
+            ready () {
+                this.fill('#ddd');
+            },
+            fill (c) {
+                this.bitmap = new Array(18 * 13);
+                this.bitmap.fill(c);
+            },
+            runAnimation (flag) {
+                if (flag) {
+                    this.fill('#ff842a')
+                }
+            }
+        });
+    </script>
+</dom-module>
