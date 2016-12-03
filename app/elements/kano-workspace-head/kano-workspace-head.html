@@ -1,5 +1,11 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../kano-style/typography.html">
+<link rel="import" href="../kano-style/color.html">
 <dom-module id="kano-workspace-head">
     <style>
+        :host {
+            display: block;
+        }
         :host .head-controls {
             display: flex;
             flex-direction: row;
@@ -83,6 +89,9 @@
         :host .settings:hover img {
             transform: rotate(30deg);
         }
+        [hidden] {
+            display: none !important;
+        }
     </style>
     <template>
         <div class="head-controls">
@@ -97,8 +106,8 @@
                     [[_computeTitle(challengeState.title)]]
                 </h1>
             </div>
-            <button class="save" on-tap="_saveButtonClicked">Save</button>
-            <button class="settings" on-tap="_settingsButtonClicked">
+            <button class="save" on-tap="_saveButtonClicked" hidden$="[[noSave]]">Save</button>
+            <button class="settings" on-tap="_settingsButtonClicked" hidden$="[[noSettings]]">
                 <img src="/assets/icons/settings-icon.svg" alt="Settings"/>
             </button>
         </div>
@@ -112,6 +121,14 @@
         properties: {
             challengeState: {
                 type: Object
+            },
+            noSettings: {
+                type: Boolean,
+                value: false
+            },
+            noSave: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
