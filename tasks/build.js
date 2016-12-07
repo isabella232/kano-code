@@ -77,7 +77,7 @@ module.exports = (gulp, $) => {
 
     gulp.task('build', () => {
         return $.runSequence('copy-all',
-            ['parts-module', 'kano-canvas-api', 'app'],
+            ['kano-canvas-api', 'app'],
             'shards',
             'split',
             ['copy-index', 'blockly-media', 'assets', 'workers'],

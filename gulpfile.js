@@ -127,7 +127,6 @@ require('./tasks/service-worker')(gulp, $);
 require('./tasks/workers')(gulp, $);
 require('./tasks/parts-api')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
-require('./tasks/parts-module')(gulp, $);
 require('./tasks/app')(gulp, $);
 require('./tasks/kano-canvas-api')(gulp, $);
 require('./tasks/dev')(gulp, $);
