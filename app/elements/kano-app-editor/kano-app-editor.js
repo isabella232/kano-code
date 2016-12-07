@@ -92,9 +92,9 @@ Polymer({
             type: Object,
             value: null
         },
-        hideLeaveAlert: {
+        showLeaveAlert: {
             type: Boolean,
-            value: false,
+            value: true,
             observer: 'setBeforeUnload'
         }
     },
@@ -518,7 +518,7 @@ Polymer({
     },
     setBeforeUnload (flag) {
         //show alert on default flag
-        if (!flag && !window.navigator.userAgent.match("Electron")) {
+        if (flag && !window.navigator.userAgent.match("Electron")) {
             window.onbeforeunload = () => {
                 return 'Any unsaved changes to your app will be lost. Continue?';
             }
