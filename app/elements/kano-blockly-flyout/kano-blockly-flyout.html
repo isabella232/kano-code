@@ -312,8 +312,8 @@
                 return block;
             },
             detached () {
-                if (this.ws) {
-                    this.ws.dispose();
+                while (this.$.svg.firstChild) {
+                    this.$.svg.removeChild(this.$.svg.firstChild);
                 }
             }
         });

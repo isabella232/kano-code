@@ -147,9 +147,11 @@
                 return selected ? 'selected' : '';
             },
             _onBlockCreated () {
-                if (this.autoClose) {
-                    this.close();
-                }
+                this.debounce('onBlockCreated', () => {
+                    if (this.autoClose) {
+                        this.close();
+                    }
+                });
             },
             close () {
                 let category, categoryEl, e;
@@ -163,7 +165,7 @@
                 this.set(`toolbox.${this.currentSelected}.selected`, false);
                 e = { type: Blockly.Events.CLOSE_FLYOUT };
                 this.currentSelected = undefined;
-                this.currentToolbox = undefined;
+                //this.currentToolbox = undefined;
                 this.customStyle['--selected-color'] = null;
                 this.updateStyles();
                 if (this.targetWorkspace) {
