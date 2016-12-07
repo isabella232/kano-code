@@ -92,10 +92,10 @@ Polymer({
             type: Object,
             value: null
         },
-        showLeaveAlert: {
+        hideLeaveAlert: {
             type: Boolean,
-            value: true,
-            observer: 'setBeforeUnload'
+            value: false,
+            observer: 'onHideLeaveAlertChanged'
         }
     },
     observers: [
@@ -514,11 +514,11 @@ Polymer({
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
-        this.setBeforeUnload(true);
+        this.onHideLeaveAlertChanged(false);
     },
-    setBeforeUnload (flag) {
+    onHideLeaveAlertChanged (flag) {
         //show alert on default flag
-        if (flag && !window.navigator.userAgent.match("Electron")) {
+        if (!flag && !window.navigator.userAgent.match("Electron")) {
             window.onbeforeunload = () => {
                 return 'Any unsaved changes to your app will be lost. Continue?';
             }
