@@ -17,10 +17,6 @@
     :host kano-app-editor {
         @apply(--layout-flex);
     }
-    :host paper-dialog {
-        background: transparent;
-        overflow: hidden;
-    }
     </style>
     <template>
         <kano-app-editor
@@ -35,13 +31,10 @@
             challenge-state="{{challengeState}}"
             on-fireworks-triggered="_stageFinished"
             on-talking-face-animation-stopped="_stageFinished"></kano-app-editor>
-        <paper-dialog
+        <kano-reward-modal
+            content="[[_currentReward(stageNo)]]"
             id="reward-modal"
-            with-backdrop>
-            <kano-reward-modal
-                on-interaction='_handleModalAction'
-                content='[[_currentReward(stageNo)]]'></kano-reward-modal>
-        </paper-dialog>
+            on-interaction="_handleModalAction"></kano-reward-modal>
     </template>
 </dom-module>
 
@@ -102,9 +95,6 @@
                                 links: [{
                                     text: 'Try second challenge',
                                     type: 'progress'
-                                }, {
-                                    text: 'Save',
-                                    type: 'save'
                                 }],
                                 xp: 100
                             }
@@ -134,9 +124,6 @@
                                 links: [{
                                     text: 'Try last challenge',
                                     type: 'progress'
-                                }, {
-                                    text: 'Save',
-                                    type: 'save'
                                 }],
                                 xp: 200
                             }
@@ -252,8 +239,6 @@
             return this.stages[stageNo].reward;
         },
         _handleModalAction (e) {
-            this.$['reward-modal'].close();
-
             if (e.detail.type === 'save') {
                 this.fire('signup');
             } else if (e.detail.type ==='progress' && this.stageNo === 2) {
