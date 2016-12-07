@@ -514,11 +514,11 @@ Polymer({
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
-        window.onbeforeunload = null;
+        this.setBeforeUnload(true);
     },
     setBeforeUnload (flag) {
         //show alert on default flag
-        if (!flag & !window.navigator.userAgent.match("Electron")) {
+        if (!flag && !window.navigator.userAgent.match("Electron")) {
             window.onbeforeunload = () => {
                 return 'Any unsaved changes to your app will be lost. Continue?';
             }
