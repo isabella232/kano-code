@@ -91,6 +91,11 @@ Polymer({
         banner: {
             type: Object,
             value: null
+        },
+        hideLeaveAlert: {
+            type: Boolean,
+            value: false,
+            observer: 'onHideLeaveAlertChanged'
         }
     },
     observers: [
@@ -503,21 +508,24 @@ Polymer({
             }
         });
         this.bindEvents();
-
-        if (!window.navigator.userAgent.match("Electron")) {
-            window.onbeforeunload = () => {
-                return 'Any unsaved changes to your app will be lost. Continue?';
-            }
-        }
-
         this._registerElement('workspace-panel', this.$['workspace-panel']);
         this._registerElement('blocks-panel', this.$['blocks-panel']);
     },
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
-
-        window.onbeforeunload = null;
+        this.onHideLeaveAlertChanged(false);
+    },
+    onHideLeaveAlertChanged (flag) {
+        //show alert on default flag
+        if (!flag && !window.navigator.userAgent.match("Electron")) {
+            window.onbeforeunload = () => {
+                return 'Any unsaved changes to your app will be lost. Continue?';
+            }
+        } else {
+        //don't alert
+            window.onbeforeunload = null;
+        }
     },
     _exportApp () {
         let savedApp = this.save(),
