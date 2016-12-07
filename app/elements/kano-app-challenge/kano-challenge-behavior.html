@@ -109,7 +109,8 @@
             // The current step was injected, we remove it form the array
             if (this.selectedStep.injected) {
                 this.splice('steps', this.step, 1);
-                this.stepChanged();
+                // Use `_goToStep` to force a refresh of the current step 
+                this._goToStep(this.step);
             } else {
                 if (this.step < this.steps.length - 1) {
                     this.step++;
@@ -128,10 +129,14 @@
             }
         },
         _goToStep (index) {
+            // Force a change notification
+            if (this.step === index) {
+                this.set('step', index - 1);
+            }
             this.set('step', index);
         },
         _injectStep (step, offset) {
-            let index = this.step + (offset || 1);
+            let index = this.step + (typeof offset === 'undefined' ? 1 : offset);
             step.injected = true;
             // Insert the new step just after that
             this.splice('steps', index, 0, step);
