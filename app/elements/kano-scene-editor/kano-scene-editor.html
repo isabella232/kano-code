@@ -42,7 +42,8 @@
                             mode="[[_computeMode(mode, remix)]]"
                             on-blockly-ready="_blocklyReady"
                             on-share="_pauseAndShare"
-                            challenge-state="[[challengeState]]">
+                            challenge-state="[[challengeState]]"
+                            hide-leave-alert="[[alertDisabled]]">
           </kano-app-editor>
       </kano-app-challenge>
       <kano-challenge-completed-modal id="challenge-completed"
@@ -178,6 +179,9 @@
                     this.$['challenge-completed'].open();
                     this.playSound('/assets/audio/samples/challenge_complete.wav');
                 });
+            }
+            if (this.scene.ended && !this.nextStory) {
+                this.alertDisabled = true;
             }
         },
         computeProgress (currentStep, scene) {
