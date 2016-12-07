@@ -101,6 +101,9 @@
             } else if (this.scene.show_remix_options) {
                 this.set('sceneData.ended', true);
             }
+            this.fire('track-event', {
+                event: 'worldTutorialCompleted'
+            });
         },
         componentChanged () {
             let scene = this.scene,
@@ -130,9 +133,6 @@
                     this.set('sceneData.ended', true);
                 }
                 this.fire('scene-done');
-                this.fire('track-event', {
-                    event: 'worldTutorialCompleted'
-                });
             }
             target.end().then(() => {
                 this.overlayHidden = true;
