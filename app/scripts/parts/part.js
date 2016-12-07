@@ -1,5 +1,5 @@
 /* globals Blockly */
-import slug from 'speakingurl';
+import slug from '../../bower_components/speakingurl';
 
 export default class Part {
 
