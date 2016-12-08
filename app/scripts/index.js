@@ -9,26 +9,29 @@
         timeout, wcPoly,
         isCore, userAgent,
         isPi,
-        splashTimeoutId;
-
-    var lines = 0,
-        current,
-        space,
-        col = 0,
-        colours = [
-            ['#00ffff', '#2dfffe', '#45afff'], //, '#6ccece'], // cyan
-            ['#ff00f9', '#fc27f6', '#ff118b'], //, '#d282d0'], // magenta
-            ['#ffff00', '#fffd38', '#ff842a'], //, '#dfde89'], //yellow
-            ['#00ff67', '#2afd6f', '#00ff2b'] //, '#71d591']  // green
-        ],
-        MARGIN = 10,
-        MIN_WIDTH = 10,
-        SPACE_LIMIT = 120,
-        DELAY_MIN = 100,
-        DELAY_MAX = 400,
-        MAX_LINES = 7;
-
-
+        splashTimeoutId,
+        splash = {
+            MARGIN: 10,
+            MIN_WIDTH: 10,
+            SPACE_LIMIT: 120,
+            DELAY_MIN: 100,
+            DELAY_MAX: 400,
+            LINES: 7,
+            BLOCKS_PER_LINE: 5,
+            HIDDEN_STYLE: 'width: 0px;',
+            COLOURS: [
+                '#3d50b4', '#1f93f3', '#fd9626',
+                '#6638b5', '#1ea8f3', '#fcc02d', '#795348',
+                '#9b26ae', '#1fbad1', '#fee839', '#9d9d9d',
+                '#e81c62', '#169487', '#ccdb37', '#5f7b88',
+                '#f34335', '#4bad50', '#8ac349', '#000000',
+            ],
+            current: 0,
+            column: 0,
+            colour: 0,
+            state: []
+        };
+    splash.space = splash.SPACE_LIMIT;
 
     /**
      * Redirects to the projects page on the Core Kit™ on first landing
@@ -52,64 +55,106 @@
      */
     function onFirstPageLoaded() {
         var duration = new Date() - started,
-            loader,
-            logo;
+            loader;
         if (duration < 1500) {
             timeout = setTimeout(onFirstPageLoaded, 1500 - duration);
             return;
         }
         document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
-        clearTimeout(splashTimeoutId);
 
         loader = document.getElementById('loader');
+        loader.style.opacity = 0;
 
         loaded = true;
         setTimeout(function () {
+            clearTimeout(splashTimeoutId);
             loader.parentNode.removeChild(loader);
         }, 400);
     }
 
     function splashNewLine() {
-        var line = document.createElement('div'),
-            blocksNode = document.getElementById('blocks');
+        var line = [],
+            c;
 
-        line.className = 'line';
-
-        if (blocksNode.childNodes.length >= MAX_LINES) {
-            blocksNode.removeChild(blocksNode.childNodes[0]);
+        splash.current++;
+        if (splash.current > splash.LINES - 1) {
+            splash.current = splash.LINES - 1;
+            splash.state.shift();
+            for (c = 0; c < splash.BLOCKS_PER_LINE; c++) {
+                line.push(splash.HIDDEN_STYLE);
+            }
+            splash.state.push(line);
+            splashRerender();
         }
-
-        blocksNode.appendChild(line);
-
-        return line;
     }
 
     function splashLoop() {
-        var block, w, to;
-        if (!current || space < MARGIN + MIN_WIDTH) {
-            space = SPACE_LIMIT;
-            current = splashNewLine();
+        var block, w, to, style;
+
+        if (splash.space < splash.MARGIN + splash.MIN_WIDTH || splash.column > 4) {
+            splash.space = splash.SPACE_LIMIT;
+            splash.column = 0;
+            splashNewLine();
         }
 
-        w = Math.random() * (space - MARGIN - MIN_WIDTH) + MIN_WIDTH;
-        if (w > SPACE_LIMIT * 0.75) {
+        w = Math.random() * (splash.space - splash.MARGIN - splash.MIN_WIDTH) + splash.MIN_WIDTH;
+        if (w > splash.SPACE_LIMIT * 0.75) {
             w = w * (Math.random() * 0.5 + 0.5);
         }
 
-        space -= w;
-        space -= 10;
+        splash.space -= w;
+        splash.space -= splash.MARGIN;
 
-        block = document.createElement('div');
-        block.className = 'block';
-        block.style.width = w + 'px';
-        block.style['background-color'] = colours[col][Math.floor(Math.random() * colours[col].length)];
-        col = (col + 1) % colours.length;
+        block = document.getElementById('line-' + splash.current + '-block-' + splash.column);
+        style = 'background-color: ' + splash.COLOURS[splash.colour] + '; width: ' + w + 'px;';
+        block.style.cssText = style + 'animation: pop-in .2s;' +
+                                      'transform-origin: left;' +
+                                      'transition-timing-function: cubic-bezier(0.000, 0.965, 0.875, 1.140);';
+        splash.state[splash.current][splash.column] = style;
+        splash.colour = (splash.colour + 1) % splash.COLOURS.length;
+        splash.column++;
 
-        current.appendChild(block);
 
-        to = Math.random() * (DELAY_MAX - DELAY_MIN) + DELAY_MIN;
+        to = Math.random() * (splash.DELAY_MAX - splash.DELAY_MIN) + splash.DELAY_MIN;
         splashTimeoutId = setTimeout(splashLoop, to);
     }
+
+    function splashInit() {
+        var root = document.getElementById('blocks'),
+            line,
+            block,
+            styles, l, c;
+
+        for (l = 0; l < splash.LINES; l++) {
+            line = document.createElement('div');
+            styles = [];
+            line.id = 'line-' + l;
+            line.className = 'line';
+            root.appendChild(line);
+
+            for (c = 0; c < splash.BLOCKS_PER_LINE; c++) {
+                block = document.createElement('div');
+                block.id = 'line-' + l + '-block-' + c;
+                block.className = 'block';
+                block.style.cssText = splash.HIDDEN_STYLE;
+                line.appendChild(block);
+                styles.push(splash.HIDDEN_STYLE);
+            }
+            splash.state.push(styles);
+        }
+    }
+
+    function splashRerender() {
+        var block, l, c;
+        for (l = 0; l < splash.LINES; l++) {
+            for (c = 0; c < splash.BLOCKS_PER_LINE; c++) {
+                block = document.getElementById('line-' + l + '-block-' + c);
+                block.style.cssText = splash.state[l][c];
+            }
+        }
+    }
+
+
 
     function onElementsLoaded() {
         if (kanoAppInserted) {
@@ -149,6 +194,7 @@
         }
         loadEventFired = true;
         clearTimeout(loadTimeoutId);
+        splashInit();
         splashLoop();
         if (!webComponentsSupported) {
             wcPoly = document.createElement('script');
