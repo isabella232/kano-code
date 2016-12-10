@@ -20,7 +20,7 @@
     </style>
     <template>
         <!-- TODO FIXME Remove hardcoded values -->
-        <canvas id="canvas" on-tap="_clicked" width="502" height="264"></canvas>
+        <canvas id="canvas" width="502" height="264"></canvas>
     </template>
     <script type="text/javascript">
         /* globals Polymer, Kano */
@@ -36,10 +36,6 @@
             is: 'kano-part-fireworks',
             behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior, Kano.Behaviors.SoundPlayerBehavior],
             properties: {
-                enabled: {
-                    type: Boolean,
-                    value: false
-                },
                 ctx: {
                     type: Object,
                     value: null
@@ -60,9 +56,9 @@
             },
             randomFireTick(enabled) {
                 if (enabled) {
-                    this.clicks = 0;
+                    this.fireTimes = 0;
                     let bounds = this.$.canvas.getBoundingClientRect();
-                    let loopFirework = setInterval( () => {
+                    let loopFirework = setInterval(() => {
                         let x = Math.random() * bounds.width,
                             y = Math.random() * bounds.height;
                         if (this.soundReady) {
@@ -71,9 +67,9 @@
                         this.generateParticles(x, y);
                     }, 200);
 
-                    var loopInSecond = setInterval(() => {
-                        this.clicks++;
-                        if (this.clicks > 5) {
+                    let loopInSecond = setInterval(() => {
+                        this.fireTimes++;
+                        if (this.fireTimes > 5) {
                             this.fire('fireworks-triggered');
                             window.clearInterval(loopInSecond);
                             window.clearInterval(loopFirework);
