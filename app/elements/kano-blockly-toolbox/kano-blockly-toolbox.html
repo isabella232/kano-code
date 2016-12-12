@@ -156,6 +156,9 @@
             },
             close () {
                 let category, categoryEl, e;
+                if (!this.opened) {
+                    return;
+                }
                 category = this.toolbox[this.currentSelected];
                 if (category) {
                     categoryEl = this.$$(`#category-${category.id}`),
@@ -172,6 +175,7 @@
                 if (this.targetWorkspace) {
                     this.targetWorkspace.fireChangeListener(e);
                 }
+                this.set('opened', false);
             },
             _targetWorkspaceChanged (ws) {
                 if (!ws) {
