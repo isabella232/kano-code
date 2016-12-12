@@ -27,13 +27,12 @@ html {
     font: normal 1.5em bariol, Arial !important;
 }
 
-.loader {
+.splash {
     position: absolute;
     top: 0px;
     bottom: 0px;
     left: 0px;
     right: 0px;
-    font-family: Arial;
     height: 100%;
     width: 100%;
     display: flex;
@@ -46,16 +45,19 @@ html {
     opacity: 1;
 }
 
-.loader .blocks {
+.splash .blocks {
     margin: auto;
     width: 120px;
     height: 120px;
 
     display: flex;
     flex-direction: column;
+
+    animation: fade-in .3s;
+    transition-timing-function: ease-in;
 }
 
-.loader .line {
+.splash .line {
     width: 100%;
 
     transform-origin: center;
@@ -63,7 +65,7 @@ html {
     display: flex;
 }
 
-.loader .block {
+.splash .block {
     opacity: 1;
     border-radius: 2px;
 
@@ -74,13 +76,17 @@ html {
     height: 12px;
 }
 
-@keyframes pop-in {
-    0% { transform: scale(0, 1); }
-    /*90% { transform: scale(1.1, 1); }*/
+@keyframes splash-block-pop-in {
+    0% { transform: scale(0, 1); opacity: 0.5; }
+    90% { transform: scale(1.1, 1); opacity: 1.0; }
     100% { transform: scale(1, 1); }
 }
 
-
+.splash .last {
+    animation: splash-block-pop-in .2s;
+    transform-origin: left;
+    transition-timing-function: ease-in;
+}
 
 paper-dialog {
     border-radius: 3px;
