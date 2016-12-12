@@ -49,10 +49,6 @@
                 this.clicks = 0;
                 this.ctx = this.$.canvas.getContext("2d");
                 this.frameTick();
-                // Enable pop on drop part only after initialisation
-                this.async(() => {
-                    this.soundReady = true;
-                }, 500);
             },
             randomFireTick(enabled) {
                 if (enabled) {
@@ -61,9 +57,7 @@
                     let loopFirework = setInterval(() => {
                         let x = Math.random() * bounds.width * (this.$.canvas.width / bounds.width),
                             y = Math.random() * bounds.width * (this.$.canvas.height / bounds.width)
-                        if (this.soundReady) {
-                            this.playSound('/assets/audio/sounds/pop.wav');
-                        }
+                        this.playSound('/assets/audio/sounds/pop.wav');
                         this.generateParticles(x, y);
                     }, 200);
 
