@@ -95,7 +95,8 @@
                                 body: 'Now try another: get more powers',
                                 links: [{
                                     text: 'Try second challenge',
-                                    type: 'progress'
+                                    type: 'progress',
+                                    glint: true
                                 }],
                                 xp: 100
                             }
@@ -124,7 +125,8 @@
                                 body: 'Last challenge: try it',
                                 links: [{
                                     text: 'Try last challenge',
-                                    type: 'progress'
+                                    type: 'progress',
+                                    glint: true
                                 }],
                                 xp: 200
                             }
@@ -154,10 +156,12 @@
                                 body: 'You’ve earned 300 XP – keep it safe.',
                                 links: [{
                                     text: 'Save now',
-                                    type: 'save'
+                                    type: 'save',
+                                    glint: true
                                 }, {
                                     text: 'Try more challenges',
-                                    type: 'progress'
+                                    type: 'progress',
+                                    glint: false
                                 }],
                                 xp: 300
                             }
@@ -237,12 +241,17 @@
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
         },
         _currentReward (stageNo) {
-            return this.stages[stageNo].reward;
+            let reward = this.stages[stageNo].reward;
+            reward.progress = {
+                current: stageNo + 1,
+                total: this.stages.length
+            };
+            return reward;
         },
         _handleModalAction (e) {
             if (e.detail.type === 'save') {
                 this.fire('signup');
-            } else if (e.detail.type ==='progress' && this.stageNo === (this.stages.length - 1)) {
+            } else if (e.detail.type === 'progress' && this.stageNo === (this.stages.length - 1)) {
                 this.alertDisabled = true;
                 location.href = Kano.MakeApps.config.WORLD_URL + "/projects";
             } else {
