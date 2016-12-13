@@ -15,28 +15,22 @@
 
     // @polymerBehavior
     window.Kano.Behaviors.SoundPlayerBehavior = {
-        playSound (url, isAnalyserRequired) {
+        playSound (url, analyserOn) {
             if (!ctx) {
                 return;
             }
-            this._loadSound(url)
+            this.loadSound(url)
                 .then(buffer => {
                     let source = ctx.createBufferSource();
                     source.buffer = buffer;
-                    if (isAnalyserRequired) {
-                        let analyserTools = this.setupAnalyser();
-                        source.connect(analyserTools.analyser);
-                        analyserTools.jsNode.connect(ctx.destination);
-                        source.onended = () => {
-                            this.fire('sound-ended');
-                            analyserTools.jsNode.onaudioprocess = null;
-                        };
+                    if (analyserOn) {
+                        this.analyseSound(source);
                     }
                     source.connect(ctx.destination);
                     source.start(ctx.currentTime);
                 });
         },
-        _loadSound (url) {
+        loadSound (url) {
             if (cache[url]) {
                 return Promise.resolve(cache[url]);
             } else {
@@ -52,37 +46,25 @@
                     });
             }
         },
-        setupAnalyser () {
+        analyseSound (source) {
             let analyser = ctx.createAnalyser();
             analyser.smoothingTimeConstant = 0.3;
             analyser.fftSize = 1024;
-            let jsNode = ctx.createScriptProcessor(2048, 1, 1);
-            jsNode.onaudioprocess = function () {
+            source.connect(analyser);
+            //a script processor to listen for audio process in the audio context
+            let processorNode = ctx.createScriptProcessor(2048, 1, 1);
+            processorNode.connect(ctx.destination);
+            processorNode.onaudioprocess = function () {
                 this.debounce('getTheVolume', () => {
-                  var array = new Uint8Array(analyser.frequencyBinCount);
-                  analyser.getByteFrequencyData(array);
-                  this.volume = (Math.floor(this.mathAverage(array))) * 0.4;
-                  this.fire('volume-changed', {volume: this.volume});
+                  let values = new Uint8Array(analyser.frequencyBinCount);
+                  analyser.getByteFrequencyData(values);
+                  this.fire('frequency-data', {data: values});
                 }, 30);
             }.bind(this);
-            return {analyser: analyser,
-                    jsNode: jsNode}
-        },
-        mathAverage (data) {
-            let numbers;
-            if (data[0] instanceof Array) {
-                numbers = data[0];
+            source.onended = () => {
+                this.fire('audio-ended');
+                processorNode.onaudioprocess = null;
             }
-            else if (typeof data[0] == "number") {
-                numbers = data;
-            }
-            let sum = 0;
-            let average = 0;
-            for (let i = 0; i < numbers.length; i++) {
-                sum += numbers[i];
-            }
-            average = sum / numbers.length;
-            return average;
         }
     };
 
