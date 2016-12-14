@@ -123,7 +123,10 @@ if len(sys.argv) > 1:
     kwargs['load_path'] = sys.argv[1]
 
 URL = os.getenv('URL') or "https://make-apps-kit.kano.me"
-cmdline=['chromium-browser', '--start-maximized', URL]
+
+# TODO: for when Kano Code can handle the UI without a top bar
+# chromium-browser --kiosk URL
+cmdline=['chromium-browser',  '--app="{}"'.format(URL), '--start-maximized']
 UI_PROC = subprocess.Popen(cmdline)
 
 
