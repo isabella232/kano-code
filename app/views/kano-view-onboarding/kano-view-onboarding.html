@@ -30,6 +30,7 @@
             mode="[[mode]]"
             banner="[[banner]]"
             challenge-state="{{challengeState}}"
+            on-change="_onBlocklyChange"
             on-fireworks-triggered="_stageFinished"
             on-talking-face-animation-stopped="_stageFinished"
             hide-leave-alert="[[alertDisabled]]"></kano-app-editor>
@@ -174,6 +175,28 @@
             },
             stageNo: {
                 type: Number
+            },
+            trackingEvents: {
+                type: Array,
+                value: () => {
+                  return [
+                        {
+                            move: {
+                                'FLAG': 'onboardingC1Part1Join'
+                          }
+                        }, {
+                            language: 'onboardingC2Toggle',
+                            move: {
+                                'FLAG': 'onboardingC2Part1Join'
+                            }
+                        }, {
+                            move: {
+                                'FLAG': 'onboardingC3Part2Join',
+                                'trigger': 'onboardingC3Part1Join'
+                            }
+                        }
+                    ]
+                }
             }
         },
         observers: [
@@ -260,6 +283,18 @@
                 if (this.stageNo < this.stages.length - 1) {
                     this.stageNo++;
                 }
+            }
+        },
+        _onBlocklyChange (e) {
+            let details = e.detail,
+              eventType;
+            if (details.type && details.newInputName) {
+                eventType = this.trackingEvents[this.stageNo][details.type][details.newInputName];
+            } else if (details.name && details.newValue) {
+                eventType = this.trackingEvents[this.stageNo][details.name];
+            }
+            if (eventType) {
+                this.dispatchTrackingEvent(eventType);
             }
         },
         _stageFinished () {
