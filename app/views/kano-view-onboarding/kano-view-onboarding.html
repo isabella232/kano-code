@@ -7,6 +7,7 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-reward-modal/kano-reward-modal.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-view-behavior.html">
 
 <dom-module id="kano-view-onboarding">
     <style>
@@ -29,6 +30,7 @@
             mode="[[mode]]"
             banner="[[banner]]"
             challenge-state="{{challengeState}}"
+            on-change="_onBlocklyChange"
             on-fireworks-triggered="_stageFinished"
             on-talking-face-animation-stopped="_stageFinished"
             hide-leave-alert="[[alertDisabled]]"></kano-app-editor>
@@ -45,7 +47,10 @@
     // TODO use this when we add a third step
     Polymer({
         is: 'kano-view-onboarding',
-        behaviors: [Kano.Behaviors.EditorViewBehavior],
+        behaviors: [
+            Kano.Behaviors.EditorViewBehavior,
+            Kano.Behaviors.ViewBehavior
+        ],
         properties: {
             context: Object,
             addedParts: {
@@ -95,6 +100,7 @@
                                 body: 'Now try another: get more powers',
                                 links: [{
                                     text: 'Try second challenge',
+                                    trackingEvent: 'onboardingC1C2Click',
                                     type: 'progress'
                                 }],
                                 xp: 100
@@ -124,6 +130,7 @@
                                 body: 'Last challenge: try it',
                                 links: [{
                                     text: 'Try last challenge',
+                                    trackingEvent: 'onboardingC2C3Click',
                                     type: 'progress'
                                 }],
                                 xp: 200
@@ -154,9 +161,11 @@
                                 body: 'You’ve earned 300 XP – keep it safe.',
                                 links: [{
                                     text: 'Save now',
+                                    trackingEvent: 'onboardingC3ClickSave',
                                     type: 'save'
                                 }, {
                                     text: 'Try more challenges',
+                                    trackingEvent: 'onboardingC3ClickMoreChallenge',
                                     type: 'progress'
                                 }],
                                 xp: 300
@@ -166,6 +175,28 @@
             },
             stageNo: {
                 type: Number
+            },
+            trackingEvents: {
+                type: Array,
+                value: () => {
+                  return [
+                        {
+                            move: {
+                                'FLAG': 'onboardingC1Part1Join'
+                          }
+                        }, {
+                            language: 'onboardingC2Toggle',
+                            move: {
+                                'FLAG': 'onboardingC2Part1Join'
+                            }
+                        }, {
+                            move: {
+                                'FLAG': 'onboardingC3Part2Join',
+                                'trigger': 'onboardingC3Part1Join'
+                            }
+                        }
+                    ]
+                }
             }
         },
         observers: [
@@ -240,6 +271,9 @@
             return this.stages[stageNo].reward;
         },
         _handleModalAction (e) {
+            if (e.detail.trackingEvent) {
+                this.dispatchTrackingEvent(e.detail.trackingEvent);
+            }
             if (e.detail.type === 'save') {
                 this.fire('signup');
             } else if (e.detail.type ==='progress' && this.stageNo === (this.stages.length - 1)) {
@@ -249,6 +283,18 @@
                 if (this.stageNo < this.stages.length - 1) {
                     this.stageNo++;
                 }
+            }
+        },
+        _onBlocklyChange (e) {
+            let details = e.detail,
+              eventType;
+            if (details.type && details.newInputName) {
+                eventType = this.trackingEvents[this.stageNo][details.type][details.newInputName];
+            } else if (details.name && details.newValue) {
+                eventType = this.trackingEvents[this.stageNo][details.name];
+            }
+            if (eventType) {
+                this.dispatchTrackingEvent(eventType);
             }
         },
         _stageFinished () {
