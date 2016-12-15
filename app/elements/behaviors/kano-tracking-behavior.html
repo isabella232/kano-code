@@ -1,0 +1,20 @@
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    window.Kano.Behaviors.TrackingBehavior = {
+        dispatchTrackingEvent (trackingEvent) {
+            let payload = trackingEvent;
+            if (trackingEvent !== Object(trackingEvent)) {
+                payload = {
+                    event: trackingEvent
+                };
+            }
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push(payload);
+        }
+    };
+
+</script>
