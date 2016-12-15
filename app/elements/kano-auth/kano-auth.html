@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../kano-style/input.html">
+<link rel="import" href="../behaviors/kano-tracking-behavior.html">
 
 <dom-module id="kano-auth">
     <style is="custom-style" include="input-text"></style>
@@ -118,6 +119,9 @@
     /* globals Polymer */
     Polymer({
         is: 'kano-auth',
+        behaviors: [
+            Kano.Behaviors.TrackingBehavior
+        ],
         properties: {
             authView: {
                 type: String,
@@ -129,6 +133,7 @@
             this.authView = this.authView === 'login' ? 'signup' : 'login';
         },
         loginSuccess (e) {
+            this.dispatchTrackingEvent(this.authView + 'Success');
             this.fire('login', e.details);
         },
         reset () {

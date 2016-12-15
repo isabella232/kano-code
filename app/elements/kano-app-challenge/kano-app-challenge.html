@@ -3,6 +3,7 @@
 <link rel="import" href="./kano-challenge-ui.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="./kano-challenge-behavior.html">
+
 <dom-module id="kano-app-challenge">
     <style>
         :host {
@@ -13,7 +14,7 @@
         }
     </style>
     <template>
-        <kano-challenge-ui step="[[selectedStep]]" on-next-step="nextStep">
+        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep">
             <slot name="editor" id="content"></slot>
         </kano-challenge-ui>
     </template>
@@ -173,6 +174,11 @@
         },
         isStepEvent (step, type, event) {
             return step[type] && event.type === type;
+        },
+        nextStep () {
+            //tell UI and validator separately that step has finished
+            this.$.ui.finishStep();
+            Kano.Behaviors.ChallengeBehavior.nextStep.call(this);
         }
     });
 </script>

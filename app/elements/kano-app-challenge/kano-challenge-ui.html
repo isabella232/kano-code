@@ -10,6 +10,8 @@
 <link rel="import" href="../kano-value-preview/kano-value-preview.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
+<link rel="import" href="../behaviors/kano-sound-player-behavior.html">
+
 <link rel="import" href="../kano-style/typography.html">
 <dom-module id="kano-challenge-ui">
     <style>
@@ -156,7 +158,7 @@
 
     Polymer({
         is: 'kano-challenge-ui',
-        behaviors: [Kano.Behaviors.AppElementRegistryBehavior],
+        behaviors: [Kano.Behaviors.AppElementRegistryBehavior, Kano.Behaviors.SoundPlayerBehavior],
         properties: {
             tooltips: {
                 type: Array
@@ -352,7 +354,13 @@
                 this.computeArrow(step);
                 this.computeHighlight(step);
                 this.computePhantomBlock(step);
+                this.computeSounds(step);
             }, 10);
+        },
+        computeSounds (step) {
+            if (this.step.play_on_end) {
+                this.loadSound(`/assets/audio/sounds/${this.step.play_on_end}.wav`);
+            }
         },
         computeBanner (step) {
             if (this.state.hints.enabled) {
@@ -510,6 +518,11 @@
 
             return pos;
 
+        },
+        finishStep () {
+            if (this.step.play_on_end) {
+                this.playSound(`/assets/audio/sounds/${this.step.play_on_end}.wav`);
+            }
         }
     });
 </script>
