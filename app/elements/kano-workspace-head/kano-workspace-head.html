@@ -132,6 +132,14 @@
             noSave: {
                 type: Boolean,
                 value: false
+            },
+            endMessage: {
+                type: String,
+                value: 'Pick next project'
+            },
+            nextMessage: {
+                type: String,
+                value: 'Go to next story'
             }
         },
         observers: [
@@ -174,7 +182,7 @@
         _computeTitle () {
             if (this.challengeState) {
                 if (this.challengeState.ended) {
-                    return this.challengeState.nextStory ? 'Go to next story' : "Pick next project";
+                    return this.challengeState.nextStory ? this.nextMessage : this.endMessage;
                 } else {
                     return this.challengeState.title;
                 }
