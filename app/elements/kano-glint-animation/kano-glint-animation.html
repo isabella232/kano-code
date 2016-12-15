@@ -26,7 +26,7 @@
             animation-iteration-count: infinite;
             transform-origin: center;
         }
-        :host .running {
+        :host([running]) .glint {
             animation-name: glint;
         }
         @keyframes glint {
@@ -38,7 +38,7 @@
     <template>
         <div class="wrapper">
             <slot></slot>
-            <div class$="glint {{computeAnimation(running)}}"></div>
+            <div class="glint"></div>
         </div>
     </template>
 </dom-module>
@@ -50,17 +50,9 @@
         properties: {
             running: {
                 type: Boolean,
-                value: false
+                value: false,
+                reflectToAttribute: true
             }
-        },
-        start () {
-            this.running = true;
-        },
-        stop () {
-            this.running = false;
-        },
-        computeAnimation (running) {
-            return running ? 'running' : '';
         }
     });
 </script>
