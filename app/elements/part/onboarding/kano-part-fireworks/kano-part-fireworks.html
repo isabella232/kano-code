@@ -49,6 +49,14 @@
                 this.clicks = 0;
                 this.ctx = this.$.canvas.getContext("2d");
                 this.frameTick();
+                // load sound after initialisation
+                this.async(() => {
+                    this.loadSound('/assets/audio/sounds/pop.wav');
+                }, 500);
+            },
+            enable (flag) {
+                this.enabled = flag;
+
             },
             randomFireTick (enabled) {
                 if (enabled) {

@@ -53,6 +53,14 @@
             ready () {
                 this.fill('#000');
             },
+            attached () {
+                // load sounds after initialisation
+                this.async(() => {
+                    ['english', 'french', 'italian', 'scottish', 'us'].forEach((accent) => {
+                        this.loadSound(`/assets/audio/onboarding/${accent}.m4a`);
+                    })
+                }, 500);
+            },
             fill (c) {
                 this.bitmap = new Array(18 * 13);
                 this.bitmap.fill(c);
