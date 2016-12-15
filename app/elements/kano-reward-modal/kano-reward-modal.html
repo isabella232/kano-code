@@ -21,13 +21,18 @@
         :host {
             --color-background: #ffffff;
             --color-green: #5ac3ac;
+            --color-green-darker: #4DB69F;
             --color-red: #ff7473;
+            --color-red-darker: #F26766;
             --color-yellow: #f1cb44;
+            --color-yellow-darker: #E4BE37;
             --color-light-grey: #f4f5f6;
             --color-medium-grey: #a7aeb2;
             --color-dark-grey: #999999;
             --color-black: #000000;
             --color-text: #253541;
+            --color-progress-bar: #9FD465;
+            --color-progress-bar-bg: #e5e5e5;
             --border-radius-large: 6px;
             --border-radius-medium: 3px;
             background-color: transparent;
@@ -184,11 +189,20 @@
         :host .wrapper.wrapper--green .button.button--primary {
             background-color: var(--color-green);
         }
+        :host .wrapper.wrapper--green .button.button--primary:hover {
+            background-color: var(--color-green-darker);
+        }
         :host .wrapper.wrapper--red .button.button--primary {
             background-color: var(--color-red);
         }
+        :host .wrapper.wrapper--red .button.button--primary:hover {
+            background-color: var(--color-red-darker);
+        }
         :host .wrapper.wrapper--yellow .button.button--primary {
             background-color: var(--color-yellow);
+        }
+        :host .wrapper.wrapper--yellow .button.button--primary:hover {
+            background-color: var(--color-yellow-darker);
         }
         :host .button.button--secondary {
             background-color: var(--color-light-grey);
@@ -217,7 +231,8 @@
             }
             :host .title,
             :host .body,
-            :host .action {
+            :host .action,
+            :host .progress {
                 padding-left: 20px;
                 padding-right: 20px;
             }
@@ -232,10 +247,75 @@
             }
             :host .title,
             :host .body,
-            :host .action {
+            :host .action,
+            :host .progress {
                 padding-left: 50px;
                 padding-right: 50px;
             }
+        }
+
+        :host .glint {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+
+            transform: translateX(-160px);
+
+            animation-delay: 2s;
+            animation-duration: 5s;
+            animation-name: glint;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        :host .glint[hidden] {
+            display: none;
+        }
+
+        :host .glint .left, :host .glint .right {
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        :host .glint .left {
+            border-width: 0 0 50px 80px;
+            border-color: transparent transparent
+                          rgba(255, 255, 255, 0.3) transparent;
+        }
+        :host .glint .right {
+            border-width: 50px 80px 0 0;
+            border-color: rgba(255, 255, 255, 0.3) transparent
+                          transparent transparent;
+        }
+        @keyframes glint {
+            0% { transform: translateX(-160px); }
+            90% { transform: translateX(-160px); }
+            100% { transform: translateX(300px); }
+        }
+        :host .progress {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        :host .progress-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 12px;
+            background-color: var(--color-progress-bar-bg);
+            max-width: 200px;
+        }
+        :host .progress-bar .gauge {
+            height: 100%;
+            width: 0px;
+            background-color: var(--color-progress-bar);
+            border-radius: 12px;
+        }
+        :host .progress .fraction {
+            color: #444444;
+            font-weight: bold;
+            margin-top: -3px;
+            margin-left: 10px;
         }
     </style>
     <template>
@@ -265,8 +345,20 @@
                       <span class="xp-component xp-value">{{content.xp}}</span>
                       <span class="xp-component xp-suffix">xp</span>
                     </div>
+                    <template is="dom-if" if="{{content}}">
+                        <div class="progress">
+                            <div class="progress-bar">
+                                <div class="gauge" style$="{{calculateGaugeWidth(content.progress.*)}}"></div>
+                            </div>
+                            <div class="fraction">{{content.progress.current}}/{{content.progress.total}}</div>
+                        </div>
+                    </template>
                     <template is="dom-repeat" items={{content.links}} as="link">
                         <div class="action">
+                            <div class="glint" hidden$="{{!link.glint}}">
+                                <div class="left"></div>
+                                <div class="right"></div>
+                            </div>
                             <button class$="[[_buttonClass(index)]]" on-tap="_handleTap">
                                 <template is="dom-if" if="[[_iconType('save', link.type)]]">
                                   <div class="icon icon-floppy-disc">
@@ -372,6 +464,13 @@
         },
         _wrapperClass (color) {
             return `wrapper wrapper--${color || "default"}`
+        },
+        calculateGaugeWidth () {
+            let progress;
+            if (this.content && this.content.progress) {
+                progress = this.content.progress;
+                return `width: ${(progress.current / progress.total) * 100}%;`
+            }
         }
     });
 </script>
