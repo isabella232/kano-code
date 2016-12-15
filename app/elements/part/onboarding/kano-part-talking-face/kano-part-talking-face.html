@@ -65,17 +65,21 @@
             },
             triggerFrame (e) {
                 //calculating average volume from frequency data
-                let volumeArray = e.detail.data;
-                let sum = 0;
+                let volumeArray = e.detail.data,
+                    sum = 0,
+                    masterVolume,
+                    triggeredFrame;
                 for (let i = 0, len = volumeArray.length; i < len; i++) {
                     sum += volumeArray[i];
                 }
-                let volume = sum / volumeArray.length;
-                //updating maxVolume if necessary
-                this.maxVol = volume > this.maxVol ? volume : this.maxVol;
+                masterVolume = sum / volumeArray.length;
+                //updating maxVolume
+                this.maxVol = masterVolume > this.maxVol ? masterVolume : this.maxVol;
                 //assigning one from the 10 hard-coded frames
-                let triggerFrame = Math.round(volume / this.maxVol * 10) - 1;
-                if (triggerFrame > -1) this.runAnimation(triggerFrame);
+                triggeredFrame = Math.round(masterVolume / this.maxVol * 10) - 1;
+                if (triggeredFrame > -1) {
+                    this.runAnimation(triggeredFrame);
+                }
             },
             endAnimation () {
                 this.fire('talking-face-animation-stopped');
