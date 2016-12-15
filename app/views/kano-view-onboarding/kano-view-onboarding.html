@@ -7,6 +7,7 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-reward-modal/kano-reward-modal.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-view-behavior.html">
 
 <dom-module id="kano-view-onboarding">
     <style>
@@ -29,6 +30,7 @@
             mode="[[mode]]"
             banner="[[banner]]"
             challenge-state="{{challengeState}}"
+            on-change="_onBlocklyChange"
             on-fireworks-triggered="_stageFinished"
             on-talking-face-animation-stopped="_stageFinished"
             hide-leave-alert="[[alertDisabled]]"></kano-app-editor>
@@ -45,7 +47,10 @@
     // TODO use this when we add a third step
     Polymer({
         is: 'kano-view-onboarding',
-        behaviors: [Kano.Behaviors.EditorViewBehavior],
+        behaviors: [
+            Kano.Behaviors.EditorViewBehavior,
+            Kano.Behaviors.ViewBehavior
+        ],
         properties: {
             context: Object,
             addedParts: {
@@ -96,6 +101,7 @@
                                 links: [{
                                     text: 'Try second challenge',
                                     type: 'progress',
+                                    trackingEvent: 'onboardingC1C2Click',
                                     glint: true
                                 }],
                                 xp: 100
@@ -126,6 +132,7 @@
                                 links: [{
                                     text: 'Try last challenge',
                                     type: 'progress',
+                                    trackingEvent: 'onboardingC2C3Click',
                                     glint: true
                                 }],
                                 xp: 200
@@ -140,9 +147,9 @@
                                 component: 'kano-workspace-normal'
                             },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
-                                                <block type="fireworks#when" id="yo3" x="181" y="104" deletable="false"></block>
-                                                <block type="fireworks#mouse_pos" id="yo3" x="486" y="137" deletable="false"></block>
+                                                <block type="fireworks#repeat" id="yo3" x="181" y="104" deletable="false"></block>
                                                 <block type="fireworks#fireworks" id="yo4" x="335" y="206" deletable="false"></block>
+                                                <block type="fireworks#anywhere" id="yo4" x="235" y="306" deletable="false"></block>
                                             </xml>`,
                             defaultParts: ['fireworks'],
                             banner: {
@@ -157,10 +164,12 @@
                                 links: [{
                                     text: 'Save now',
                                     type: 'save',
+                                    trackingEvent: 'onboardingC3ClickSave',
                                     glint: true
                                 }, {
                                     text: 'Try more challenges',
                                     type: 'progress',
+                                    trackingEvent: 'onboardingC3ClickMoreChallenge',
                                     glint: false
                                 }],
                                 xp: 300
@@ -170,6 +179,28 @@
             },
             stageNo: {
                 type: Number
+            },
+            trackingEvents: {
+                type: Array,
+                value: () => {
+                  return [
+                        {
+                            move: {
+                                'FLAG': 'onboardingC1Part1Join'
+                          }
+                        }, {
+                            language: 'onboardingC2Toggle',
+                            move: {
+                                'FLAG': 'onboardingC2Part1Join'
+                            }
+                        }, {
+                            move: {
+                                'FLAG': 'onboardingC3Part2Join',
+                                'trigger': 'onboardingC3Part1Join'
+                            }
+                        }
+                    ]
+                }
             }
         },
         observers: [
@@ -249,6 +280,9 @@
             return reward;
         },
         _handleModalAction (e) {
+            if (e.detail.trackingEvent) {
+                this.dispatchTrackingEvent(e.detail.trackingEvent);
+            }
             if (e.detail.type === 'save') {
                 this.fire('signup');
             } else if (e.detail.type === 'progress' && this.stageNo === (this.stages.length - 1)) {
@@ -258,6 +292,18 @@
                 if (this.stageNo < this.stages.length - 1) {
                     this.stageNo++;
                 }
+            }
+        },
+        _onBlocklyChange (e) {
+            let details = e.detail,
+              eventType;
+            if (details.type && details.newInputName) {
+                eventType = this.trackingEvents[this.stageNo][details.type][details.newInputName];
+            } else if (details.name && details.newValue) {
+                eventType = this.trackingEvents[this.stageNo][details.name];
+            }
+            if (eventType) {
+                this.dispatchTrackingEvent(eventType);
             }
         },
         _stageFinished () {
