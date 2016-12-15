@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../behaviors/kano-sound-player-behavior.html">
 
 <dom-module id="kano-reward-modal">
     <style is="custom-style" include="input-text"></style>
@@ -365,6 +366,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-reward-modal',
+        behaviors: [Kano.Behaviors.SoundPlayerBehavior],
         properties: {
             content: {
                 type: Object
@@ -379,11 +381,13 @@
         ],
         attached () {
             this.$['reward-modal-dialog'].backdropElement.classList.add('reward');
+            this.loadSound(`/assets/audio/onboarding/challenge_complete.wav`);
         },
-        deattached () {
+        detached () {
             this.$['reward-modal-dialog'].backdropElement.classList.remove('reward');
         },
         open () {
+            this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
             this.$['reward-modal-dialog'].open();
         },
         close () {
