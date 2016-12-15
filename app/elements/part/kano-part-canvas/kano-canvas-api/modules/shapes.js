@@ -1,6 +1,7 @@
 (function (Kano) {
     function Shapes(session) {
         this.session = session;
+        this.setters = new Kano.CanvasAPI.Setters(this.session);
     }
 
     /*
@@ -133,6 +134,18 @@
         }
         this.session.ctx.restore();
         Kano.CanvasAPI.Utils.endShape(this.session, close);
+    };
+
+    /*
+    * Draw a single pixel with no stroke using current cursor position as origin
+    *
+    * @return void
+    */
+    Shapes.prototype.pixel = function () {
+        var previousStrokeWidth = this.session.settings.stroke.width;
+        this.setters.strokeWidth(0);
+        this.rectangle(1, 1);
+        this.setters.strokeWidth(previousStrokeWidth);
     };
 
     Kano.CanvasAPI.Shapes = Shapes;
