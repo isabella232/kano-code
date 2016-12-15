@@ -36,7 +36,7 @@
                 },
                 maxVol: {
                     type: Number,
-                    //giving a reasonable start value
+                    //a reasonable start value
                     value: 25
                 },
                 frames: {
@@ -47,7 +47,7 @@
                 }
             },
             listeners: {
-                'volume-changed': 'triggerFrame',
+                'frequency-data': 'triggerFrame',
                 'sound-ended': 'endAnimation'
             },
             ready () {
@@ -64,9 +64,22 @@
                 }
             },
             triggerFrame (e) {
-                this.maxVol = e.detail.volume > this.maxVol ? e.detail.volume : this.maxVol;
-                let triggerIndex = Math.round(e.detail.volume / this.maxVol * 10) - 1;
-                if (triggerIndex > -1) this.runAnimation(triggerIndex);
+                //calculating average volume from frequency data
+                let volumeArray = e.detail.data,
+                    sum = 0,
+                    masterVolume,
+                    triggeredFrame;
+                for (let i = 0, len = volumeArray.length; i < len; i++) {
+                    sum += volumeArray[i];
+                }
+                masterVolume = sum / volumeArray.length;
+                //updating maxVolume
+                this.maxVol = masterVolume > this.maxVol ? masterVolume : this.maxVol;
+                //assigning one from the 10 hard-coded frames
+                triggeredFrame = Math.round(masterVolume / this.maxVol * 10) - 1;
+                if (triggeredFrame > -1) {
+                    this.runAnimation(triggeredFrame);
+                }
             },
             endAnimation () {
                 this.fire('talking-face-animation-stopped');
