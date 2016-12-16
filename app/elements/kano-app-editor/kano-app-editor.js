@@ -326,7 +326,7 @@ Polymer({
         this.save();
         this.$.workspace.reset();
         let modeId = this.mode.id;
-        // Save after reset work space
+        // reset work space
         if (!this.remixMode) {
             localStorage.removeItem(`savedApp-${modeId}`);
         }
