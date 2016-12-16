@@ -1,0 +1,171 @@
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../kano-modal/kano-modal.html">
+<link rel="import" href="../kano-style/button.html">
+
+<dom-module id="kano-sign-up-modal">
+    <style is="custom-style"></style>
+    <style>
+        :host {
+        }
+        :host kano-modal > * {
+            margin: auto;
+            color: #4d4d4d;
+        }
+        :host kano-modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        :host #pager > * {
+            margin: auto 50px;
+        }
+        :host h2 {
+            font-family: 'Bariol', sans-serif;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        :host .body {
+            color: #999;
+            margin-bottom: 10px;
+        }
+        :host .fields {
+            display: flex;
+            align-items: stretch;
+            justify-content:center;
+            flex-direction: column;
+        }
+        :host .fields input {
+            display: block;
+            margin: 5px 0px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+            font-family: 'Bariol', sans-serif;
+            padding: 10px;
+        }
+        :host .fields input:focus {
+            border-color: #ff842a;
+        }
+        :host .fields input[type=checkbox] {
+            background: #ff842a;
+        }
+        :host button {
+            @apply(--kano-button);
+            margin-top: 20px;
+            background-color: #ff842a;
+            font-weight: bold;
+            width: 80%;
+        }
+        :host button:hover {
+            background-color: #FF9137;
+        }
+        :host button:focus {
+            text-decoration: underline;
+        }
+        :host fieldset {
+            border: 1px #ff842a dashed;
+            border-radius: 5px;
+        }
+        :host fieldset button {
+            margin: 5px auto;
+        }
+        :host fieldset legend {
+            font-weight: bold;
+            background-color: #fff;
+            padding: 0px 10px;
+        }
+        :host .footer {
+            margin-top: 20px;
+        }
+        :host .footer .bold {
+            font-weight: bold;
+        }
+        :host .footer a {
+            color: #999;
+            text-decoration: none;
+            border-bottom: 1px solid #e2e2e2;
+        }
+        @media all and (max-width: 580px) {
+        }
+        @media all and (min-width: 580px) {
+        }
+    </style>
+    <template>
+        <kano-modal id="dialog">
+            <iron-pages attr-for-selected="id" selected="form" id="pager">
+                <div id="form">
+                    <h2>Save your XP: join Kano</h2>
+                    <div class="body">
+                        Make a special username to save what you've earned.
+                    </div>
+                    <form class="fields">
+                        <input type="text" value="" placeholder="Type your first name" tabindex="0" />
+                        <input type="text" value="" placeholder="Make up a Kano username" tabindex="0" />
+                        <input type="text" value="" placeholder="Make up a secret password" tabindex="0" />
+                    </form>
+                    <button on-tap="validateForm">Join</button>
+                </div>
+                <div id="grownups">
+                    <h2>Now go find your mum or dad!</h2>
+                    <div class="body">
+                        Ask a parent, teacher or guardian to help you (it'll take less than a minute).
+                        If they can't help right now, press 'skip'.
+                    </div>
+                    <fieldset>
+                        <legend>Grown Ups Only</legend>
+                        <button on-tap="grownupsSection">Join</button>
+                    </fieldset>
+                    <div class="footer">
+                        <div class="bold">
+                            No grown ups around?
+                        </div>
+                        <a href="#">Skip for now</a>
+                    </div>
+                </div>
+                <div id="email">
+                    <h2>Secure your child's Kano Account</h2>
+                    <div class="body">
+                        Kano accounts need to be associated with an adult's
+                        email address. You'll be able to see XXX's progress in
+                        learning to code, creative shares, and awards won.
+                    </div>
+                    <form class="fields">
+                        <input type="text" value="" placeholder="Add your email address" tabindex="0" />
+                        <input type="checkbox" name="" value="">
+                    </form>
+                    <button on-tap="validateEmail">Join</button>
+                </div>
+                <div id="done"></div>
+            </iron-pages>
+        </kano-modal>
+    </template>
+</dom-module>
+
+<script>
+    /* globals Polymer, Kano */
+    Polymer({
+        is: 'kano-sign-up-modal',
+        properties: {},
+        observers: [],
+        attached () {
+        },
+        detached () {
+        },
+        open () {
+            this.$['dialog'].open();
+        },
+        close () {
+            this.$['dialog'].close();
+        },
+        validateForm (e) {
+            this.$.pager.selected = 'grownups';
+        },
+        grownupsSection (e) {
+            this.$.pager.selected = 'email';
+        }
+    });
+</script>
