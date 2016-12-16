@@ -34,6 +34,10 @@ Polymer({
                 };
             }
         },
+        remixMode: {
+            type: Boolean,
+            value: false
+        },
         selected: {
             type: Object,
             value: null,
@@ -321,7 +325,11 @@ Polymer({
         this.set('background', getDefaultBackground());
         this.save();
         this.$.workspace.reset();
-        this.fire('reset');
+        let modeId = this.mode.id;
+        // Save after reset work space
+        if (!this.remixMode) {
+            localStorage.removeItem(`savedApp-${modeId}`);
+        }
     },
     closeDrawer () {
         this.$.partsPanel.closeDrawer();

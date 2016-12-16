@@ -79,7 +79,7 @@
             default-categories="[[defaultCategories]]"
             on-share="_pauseAndShare"
             mode="[[mode]]"
-            on-reset="_reset"
+            remix-mode="[[remixMode]]"
             show-share-button></kano-app-editor>
         <paper-dialog id='error-dialog' with-backdrop>
             <h2 class="title">{{error.title}}</h2>
@@ -397,13 +397,6 @@
         },
         updateWorkspaceRect (rect) {
             Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
-        },
-        _reset (e) {
-            let modeId = this.mode.id;
-            // Save after reset work space
-            if (!this.remixMode) {
-                localStorage.removeItem(`savedApp-${modeId}`);
-            }
         },
         save () {
             let modeId = this.mode.id;
