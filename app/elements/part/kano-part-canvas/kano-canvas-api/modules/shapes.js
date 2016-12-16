@@ -1,7 +1,6 @@
 (function (Kano) {
     function Shapes(session) {
         this.session = session;
-        this.setters = new Kano.CanvasAPI.Setters(this.session);
     }
 
     /*
@@ -142,10 +141,12 @@
     * @return void
     */
     Shapes.prototype.pixel = function () {
-        var previousStrokeWidth = this.session.settings.stroke.width;
-        this.setters.strokeWidth(0);
-        this.rectangle(1, 1);
-        this.setters.strokeWidth(previousStrokeWidth);
+        var x = this.session.pos.x * this.session.ratio,
+            y = this.session.pos.y * this.session.ratio;
+        this.session.ctx.save();
+        this.session.ctx.lineWidth = 0;
+        this.session.ctx.fillRect(x, y, 1, 1);
+        this.session.ctx.restore();
     };
 
     Kano.CanvasAPI.Shapes = Shapes;
