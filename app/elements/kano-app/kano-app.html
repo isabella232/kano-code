@@ -18,6 +18,7 @@
 <link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../behaviors/kano-modal-animator-behavior.html">
 <link rel="import" href="../behaviors/kano-view-behavior.html">
+<link rel="import" href="../behaviors/kano-tracking-behavior.html">
 <link rel="import" href="../kano-slider/kano-slider.html">
 <link rel="import" href="../kano-try-chrome/kano-try-chrome.html">
 <!--
@@ -133,9 +134,13 @@ Example:
 
     Polymer({
         is: 'kano-app',
+        behaviors: [
+            Kano.Behaviors.TrackingBehavior
+        ],
         properties: {
             user: {
-                type: Object
+                type: Object,
+                observer: '_userChanged'
             },
             offline: {
                 type: Boolean,
@@ -231,6 +236,8 @@ Example:
             } else {
                 initialiseSDK();
             }
+            this.checkUserDevice();
+            this.checkProgress();
         },
         _showErrorOnToast (e) {
             this.message = e.detail;
@@ -325,6 +332,20 @@ Example:
                 .then((res) => {
                     this.set('user.profile', res.body.user.profile);
                 });
+        },
+        _userChanged (user) {
+            this.debounce('userChanged', () => {
+                if (user) {
+                    this.dispatchTrackingEvent({
+                        account: true,
+                        visitType: 'Logged in'
+                    });
+                } else {
+                    this.dispatchTrackingEvent({
+                        visitType: 'Logged out'
+                    });
+                }
+            });
         },
         _viewLoaded () {
             window.prerenderReady = true;
