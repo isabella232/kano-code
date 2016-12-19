@@ -38,8 +38,8 @@
     */
     Space.prototype.moveToRandom = function () {
         var x, y;
-        x = Math.floor(Math.random() * (this.session.width + 1));
-        y = Math.floor(Math.random() * (this.session.height + 1));
+        x = Math.floor(Math.random() * this.session.width);
+        y = Math.floor(Math.random() * this.session.height);
         this.moveTo(x,y);
     };
 
