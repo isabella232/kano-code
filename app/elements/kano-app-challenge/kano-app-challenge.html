@@ -4,6 +4,22 @@
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="./kano-challenge-behavior.html">
 
+<!--
+
+`kano-app-challenge`
+
+Example:
+    <kano-app-challenge steps="[[steps]]" step="1"></kano-app-challenge>
+
+ The following custom properties and mixins are also available for styling:
+
+ Custom property | Description | Default
+ ----------------|-------------|----------
+
+@group Kano Elements
+@hero hero.svg
+@demo ./demo/kano-app-challenge.html
+-->
 <dom-module id="kano-app-challenge">
     <style>
         :host {
@@ -14,15 +30,13 @@
         }
     </style>
     <template>
-        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep">
+        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}">
             <slot name="editor" id="content"></slot>
         </kano-challenge-ui>
     </template>
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer, Kano */
-
     Polymer({
         is: 'kano-app-challenge',
         behaviors: [Kano.Behaviors.BlocklyValidatorBehavior, Kano.Behaviors.AppElementRegistryBehavior],
