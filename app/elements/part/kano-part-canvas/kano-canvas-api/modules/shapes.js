@@ -145,6 +145,7 @@
             y = this.session.pos.y * this.session.ratio;
         this.session.ctx.save();
         this.session.ctx.lineWidth = 0;
+        this.session.ctx.fillStyle = this.session.settings.fill;
         this.session.ctx.fillRect(x, y, 1, 1);
         this.session.ctx.restore();
     };
