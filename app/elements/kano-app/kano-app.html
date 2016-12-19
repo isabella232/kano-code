@@ -14,7 +14,8 @@
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
 <link rel="import" href="../kano-style/kano-style.html">
 <link rel="import" href="../kano-style/themes/light.html">
-<link rel="import" href="../kano-auth/kano-auth.html">
+<!-- <link rel="import" href="../kano-auth/kano-auth.html"> -->
+<link rel="import" href="../kano-sign-up-modal/kano-sign-up-modal.html">
 <link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../behaviors/kano-modal-animator-behavior.html">
 <link rel="import" href="../behaviors/kano-view-behavior.html">
@@ -102,9 +103,9 @@ Example:
         @apply(--layout-flex);
         @apply(--layout-vertical);
     }
-    :host .auth-modal {
+    /*:host .auth-modal {
         border-radius: 5px;
-    }
+    }*/
     #toast button {
         background-color: var(--color-green);
         margin-left: 16px;
@@ -119,9 +120,10 @@ Example:
                             world-url="[[worldUrl]]"></kano-side-menu>
             <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
         </paper-drawer-panel>
-        <paper-dialog id="auth-modal" class="auth-modal" with-backdrop>
+        <!-- <paper-dialog id="auth-modal" class="auth-modal" with-backdrop>
             <kano-auth on-login="_onLogin" auth-view="{{authView}}" id="auth"></kano-auth>
-        </paper-dialog>
+        </paper-dialog> -->
+        <kano-sign-up-modal id="auth" on-login="_onLogin" world-url="{{worldUrl}}" api-url="{{apiUrl}}"></kano-sign-up-modal>
         <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
             <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
         </paper-toast>
@@ -174,29 +176,30 @@ Example:
             this.editor = null;
             this.offline = Kano.MakeApps.config.TARGET === 'osonline' && ClientUtil.isPi();
             this.worldUrl = Kano.MakeApps.config.WORLD_URL;
-            this.$['auth-modal'].animationConfig = {
-                entry: [{
-                    name: 'transform-animation',
-                    transformFrom: 'scale(1.5)',
-                    node: this.$['auth-modal'],
-                    timing: {
-                        duration: 200
-                    }
-                },{
-                    name: 'fade-in-animation',
-                    node: this.$['auth-modal'],
-                    timing: {
-                        duration: 200
-                    }
-                }],
-                exit: {
-                    name: 'fade-out-animation',
-                    node: this.$['auth-modal'],
-                    timing: {
-                        duration: 200
-                    }
-                }
-            };
+            this.apiUrl = Kano.MakeApps.config.API_URL;
+            // this.$['auth-modal'].animationConfig = {
+            //     entry: [{
+            //         name: 'transform-animation',
+            //         transformFrom: 'scale(1.5)',
+            //         node: this.$['auth-modal'],
+            //         timing: {
+            //             duration: 200
+            //         }
+            //     },{
+            //         name: 'fade-in-animation',
+            //         node: this.$['auth-modal'],
+            //         timing: {
+            //             duration: 200
+            //         }
+            //     }],
+            //     exit: {
+            //         name: 'fade-out-animation',
+            //         node: this.$['auth-modal'],
+            //         timing: {
+            //             duration: 200
+            //         }
+            //     }
+            // };
             let initialiseSDK = () => {
                 Kano.MakeApps.sdk.auth.initSession((err, user) => {
                     if (user) {
@@ -270,19 +273,17 @@ Example:
             clearInterval(this._pollingIntervalId);
         },
         _login () {
-            let modal = this.$['auth-modal'];
-            modal.open();
+            this.$.auth.open('login');
         },
         _signup () {
-            this._login();
-            this.authView = 'signup';
+            this.$.auth.open('signup');
         },
         _onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
             data.user.notifications = [];
             this.user = data.user;
-            this.$['auth-modal'].close();
+            this.$.auth.close();
             this._populateUser();
             if (this._needsNotifications()) {
                 this._startNotificationsPolling();
