@@ -11,7 +11,7 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
     // @polymerBehavior
     window.Kano.Behaviors.SoundPlayerBehavior = {
-        playSound (url, analyserOn) {
+        playSound (url, analyserOn, offset=0) {
             if (!ctx) {
                 return;
             }
@@ -24,7 +24,7 @@
                     }
                     source.connect(ctx.destination);
                     //playback starts at first non-null value in buffer (idea from https://jakearchibald.com/2016/sounds-fun/)
-                    source.start(ctx.currentTime + safetyBuffer, cache[url].startTime);
+                    source.start(ctx.currentTime + safetyBuffer + offset, cache[url].startTime);
                 });
         },
         loadSound (url) {
