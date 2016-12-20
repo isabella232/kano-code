@@ -129,15 +129,24 @@
     Polymer({
         is: 'kano-modal',
         behaviors: [Kano.Behaviors.SoundPlayerBehavior],
-        properties: {},
+        properties: {
+            sound: {
+                type: Boolean,
+                value: false
+            }
+        },
         observers: [],
         attached () {
-            this.loadSound(`/assets/audio/onboarding/challenge_complete.wav`);
+            if (this.sound) {
+                this.loadSound(`/assets/audio/onboarding/challenge_complete.wav`);
+            }
         },
         detached () {
         },
         open () {
-            this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
+            if (this.sound) {
+                this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
+            }
             this.$['modal-dialog'].open();
         },
         close () {
