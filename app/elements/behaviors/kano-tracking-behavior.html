@@ -10,31 +10,6 @@
 
     window.Kano.Behaviors.TrackingBehavior = {
           /**
-           * Check whether the user is using a Kano Kit
-           */
-          checkUserDevice () {
-              let type = ClientUtil.isPi() ? 'paid' : 'free';
-              this.dispatchTrackingEvent({
-                  userType: type
-              });
-          },
-          /**
-           * Check whether the user has any progress this session
-           */
-          checkProgress () {
-              let storedProgress = sessionStorage.getItem('progress');
-              if (storedProgress) {
-                  let sessionProgress = JSON.parse(storedProgress);
-                  this.dispatchTrackingEvent({
-                      challengesCompleted: sessionProgress.completedStories.length
-                  });
-              } else {
-                  this.dispatchTrackingEvent({
-                      challengesCompleted: 0
-                  });
-              }
-          },
-          /**
            * Wrapper for dispatching events to GTM datalayer
            *
            * @param {Object || String} trackingEvent
@@ -63,13 +38,23 @@
                       completedStories: []
                   }
               }
-              if (sessionProgress.completedStories.indexOf(challenge) === -1) {
+              if (challenge && sessionProgress.completedStories.indexOf(challenge) === -1) {
                   sessionProgress.completedStories.push(challenge);
               }
               this.dispatchTrackingEvent({
                   challengesCompleted: sessionProgress.completedStories.length
               });
               sessionStorage.setItem('progress', JSON.stringify(sessionProgress));
+          },
+          /**
+           * Track whether the user is a paid or free user, based on whether
+           * they are browsing from the Computer Kit or another device
+           */
+          trackUserDevice () {
+              let type = ClientUtil.isPi() ? 'paid' : 'free';
+              this.dispatchTrackingEvent({
+                  userType: type
+              });
           }
     };
 
