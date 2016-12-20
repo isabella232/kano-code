@@ -325,10 +325,8 @@ Polymer({
         this.set('background', getDefaultBackground());
         this.save();
         this.$.workspace.reset();
-        let modeId = this.mode.id;
-        // reset work space
         if (!this.remixMode) {
-            localStorage.removeItem(`savedApp-${modeId}`);
+            localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
     },
     closeDrawer () {
