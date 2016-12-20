@@ -2,9 +2,6 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../behaviors/kano-sound-player-behavior.html">
 
-<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-bottom-animation.html">
-<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
-
 <dom-module id="kano-modal">
     <style is="custom-style"></style>
     <style>
@@ -106,7 +103,7 @@
         }
     </style>
     <template>
-        <paper-dialog id="modal-dialog" modal>
+        <paper-dialog id="modal" on-iron-overlay-opened="_openAnimation" modal>
             <div class="wrapper" id="wrapper">
                 <img class="close-icon"
                      src="/assets/icons/modal-close-icon.svg"
@@ -135,34 +132,38 @@
             'soundChanged(sound)'
         ],
         attached () {
-            this.$['modal-dialog'].animationConfig = {
-                entry: [{
-                    name: 'slide-from-bottom-animation',
-                    node: this.$['modal-dialog'],
-                    timing: {
-                        duration: 200
-                    }
-                }],
-                exit: {
-                    name: 'slide-down-animation',
-                    node: this.$['modal-dialog'],
-                    timing: {
-                        duration: 200
-                    },
-                    transformOrigin: 'top'
-                }
-            };
         },
         detached () {
+        },
+        _openAnimation () {
+            if ('animate' in HTMLElement.prototype) {
+                this.$.modal.animate([
+                    {transform: 'translateY(150%)'},
+                    {transform: 'translateY(0%)'}
+                ], {
+                    duration: 200,
+                    easing: 'ease-out'
+                });
+            }
         },
         open () {
             if (this.sound) {
                 this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
             }
-            this.$['modal-dialog'].open();
+            this.$.modal.open();
         },
         close () {
-            this.$['modal-dialog'].close();
+            if ('animate' in HTMLElement.prototype) {
+                this.$.modal.animate([
+                    {transform: 'translateY(0%)'},
+                    {transform: 'translateY(150%)'}
+                ], {
+                    duration: 200,
+                    easing: 'ease-in'
+                }).onfinish = () => {
+                    this.$.modal.close();
+                };
+            }
         },
         soundChanged (sound) {
             if (sound) {
