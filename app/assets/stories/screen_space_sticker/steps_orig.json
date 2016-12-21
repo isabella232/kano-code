@@ -3,16 +3,65 @@
 		{
 			"tooltips": [
 				{
+					"location": "add-part-button",
+					"position": "top",
+					"text": "To build the interface of the app, we need parts<br>Open the parts drawer by clicking here."
+				}
+			],
+			"validation": {
+				"open-parts": true
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "parts-panel-part-sticker",
+					"position": "right",
+					"text": "Drag the Sticker to your app"
+				}
+			],
+			"highlight": "parts-panel-part-sticker",
+			"arrow": {
+				"source": "parts-panel-part-sticker",
+				"target": "workspace-panel",
+				"size": 120
+			},
+			"validation": {
+				"add-part": {
+					"type": "sticker",
+					"id": "part_0"
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": "add-part-button",
+					"position": "top",
+					"text": "All the parts are here, let's code!<br>Close the drawer."
+				}
+			],
+			"validation": {
+				"close-parts": true
+			}
+		},
+		{
+			"tooltips": [
+				{
 					"location": {
-						"category": "normal"
+						"category": {
+							"part": "part_0"
+						}
 					},
 					"position": "right",
-					"text": "Open this tray"
+					"text": "Open the Sticker tray"
 				}
 			],
 			"validation": {
 				"blockly": {
-					"open-flyout": "normal"
+					"open-flyout": {
+						"part": "part_0"
+					}
 				}
 			}
 		},
@@ -20,15 +69,21 @@
 			"tooltips": [
 				{
 					"location": {
-						"flyout_block": "normal#set_background_color"
+						"flyout_block": {
+							"part": "part_0",
+							"type": "set_sticker"
+						}
 					},
 					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"normal#set_background_color\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"part_0#set_sticker\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
 				"target": {
-					"flyout_block": "normal#set_background_color"
+					"flyout_block": {
+						"part": "part_0",
+						"type": "set_sticker"
+					}
 				},
 				"angle": 120,
 				"size": 80
@@ -36,7 +91,8 @@
 			"validation": {
 				"blockly": {
 					"create": {
-						"type": "normal#set_background_color",
+						"target": "part_0",
+						"type": "set_sticker",
 						"id": "block_0"
 					}
 				}
@@ -81,23 +137,109 @@
 			"tooltips": [
 				{
 					"location": {
+						"category": {
+							"part": "part_0"
+						}
+					},
+					"position": "right",
+					"text": "Open the Sticker tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_0"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_0",
+							"type": "random_from_set"
+						}
+					},
+					"position": "right",
+					"text": "Drag the <kano-blockly-block type=\"part_0#random_from_set\"></kano-blockly-block> block onto your code space"
+				}
+			],
+			"arrow": {
+				"target": {
+					"flyout_block": {
+						"part": "part_0",
+						"type": "random_from_set"
+					}
+				},
+				"angle": 120,
+				"size": 80
+			},
+			"validation": {
+				"blockly": {
+					"create": {
+						"target": "part_0",
+						"type": "random_from_set",
+						"id": "block_1"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
 						"block": {
-							"shadow": "COLOR",
-							"id": "block_0"
+							"id": "block_0",
+							"rawId": "n]C3LnT::26#)Gy*97u3"
+						}
+					},
+					"position": "left",
+					"text": "Connect it to this block"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"connect": {
+						"parent": {
+							"id": "block_0",
+							"rawId": "n]C3LnT::26#)Gy*97u3",
+							"inputName": "PICTURE"
+						},
+						"target": "block_1"
+					}
+				}
+			},
+			"phantom_block": {
+				"location": {
+					"block": {
+						"id": "block_0",
+						"rawId": "n]C3LnT::26#)Gy*97u3"
+					}
+				},
+				"target": "PICTURE"
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_1"
 						}
 					},
 					"position": "top",
-					"text": "Change to <kano-value-preview><span>#000000</span></kano-value-preview>"
+					"text": "Change to <kano-value-preview><span>space</span></kano-value-preview>"
 				}
 			],
 			"validation": {
 				"blockly": {
 					"value": {
 						"target": {
-							"shadow": "COLOR",
-							"id": "block_0"
+							"id": "block_1"
 						},
-						"value": "#000000"
+						"value": "space"
 					}
 				}
 			}
@@ -122,15 +264,15 @@
 			"tooltips": [
 				{
 					"location": {
-						"flyout_block": "repeat_x_times"
+						"flyout_block": "every_x_seconds"
 					},
 					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"repeat_x_times\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"every_x_seconds\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
 				"target": {
-					"flyout_block": "repeat_x_times"
+					"flyout_block": "every_x_seconds"
 				},
 				"angle": 120,
 				"size": 80
@@ -138,107 +280,7 @@
 			"validation": {
 				"blockly": {
 					"create": {
-						"type": "repeat_x_times",
-						"id": "block_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_0",
-							"rawId": "|Q%H3dhT@Skfp}eCiOX."
-						}
-					},
-					"position": "left",
-					"text": "Connect it to this block"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_0",
-							"rawId": "|Q%H3dhT@Skfp}eCiOX."
-						},
-						"target": "block_1"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": {
-						"id": "block_0",
-						"rawId": "|Q%H3dhT@Skfp}eCiOX."
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"shadow": "N",
-							"id": "block_1"
-						}
-					},
-					"position": "top",
-					"text": "Change to <kano-value-preview><span>10000</span></kano-value-preview>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"value": {
-						"target": {
-							"shadow": "N",
-							"id": "block_1"
-						},
-						"value": "10000"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": "normal"
-					},
-					"position": "right",
-					"text": "Open this tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": "normal"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": "normal#move_to_random"
-					},
-					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"normal#move_to_random\"></kano-blockly-block> block onto your code space"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": "normal#move_to_random"
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"type": "normal#move_to_random",
+						"type": "every_x_seconds",
 						"id": "block_2"
 					}
 				}
@@ -249,8 +291,8 @@
 				{
 					"location": {
 						"block": {
-							"id": "block_1",
-							"rawId": "DTuehhI:^;K,7`l2$uzK"
+							"id": "block_0",
+							"rawId": "n]C3LnT::26#)Gy*97u3"
 						}
 					},
 					"position": "left",
@@ -261,9 +303,8 @@
 				"blockly": {
 					"connect": {
 						"parent": {
-							"id": "block_1",
-							"rawId": "DTuehhI:^;K,7`l2$uzK",
-							"inputName": "DO"
+							"id": "block_0",
+							"rawId": "n]C3LnT::26#)Gy*97u3"
 						},
 						"target": "block_2"
 					}
@@ -272,26 +313,32 @@
 			"phantom_block": {
 				"location": {
 					"block": {
-						"id": "block_1",
-						"rawId": "DTuehhI:^;K,7`l2$uzK"
+						"id": "block_0",
+						"rawId": "n]C3LnT::26#)Gy*97u3"
 					}
-				},
-				"target": "DO"
+				}
 			}
 		},
 		{
 			"tooltips": [
 				{
 					"location": {
-						"category": "normal"
+						"block": {
+							"id": "block_2"
+						}
 					},
-					"position": "right",
-					"text": "Open this tray"
+					"position": "top",
+					"text": "Change to <kano-value-preview><span>frames</span></kano-value-preview>"
 				}
 			],
 			"validation": {
 				"blockly": {
-					"open-flyout": "normal"
+					"value": {
+						"target": {
+							"id": "block_2"
+						},
+						"value": "frames"
+					}
 				}
 			}
 		},
@@ -299,15 +346,41 @@
 			"tooltips": [
 				{
 					"location": {
-						"flyout_block": "normal#color"
+						"category": {
+							"part": "part_0"
+						}
 					},
 					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"normal#color\"></kano-blockly-block> block onto your code space"
+					"text": "Open the Sticker tray"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"open-flyout": {
+						"part": "part_0"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"flyout_block": {
+							"part": "part_0",
+							"type": "ui_move_by"
+						}
+					},
+					"position": "right",
+					"text": "Drag the <kano-blockly-block type=\"part_0#ui_move_by\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
 				"target": {
-					"flyout_block": "normal#color"
+					"flyout_block": {
+						"part": "part_0",
+						"type": "ui_move_by"
+					}
 				},
 				"angle": 120,
 				"size": 80
@@ -315,7 +388,8 @@
 			"validation": {
 				"blockly": {
 					"create": {
-						"type": "normal#color",
+						"target": "part_0",
+						"type": "ui_move_by",
 						"id": "block_3"
 					}
 				}
@@ -327,7 +401,7 @@
 					"location": {
 						"block": {
 							"id": "block_2",
-							"rawId": "3emroy[@tk!+ek5riiX3"
+							"rawId": "Oct!*:3b-{IB.|01jI!l"
 						}
 					},
 					"position": "left",
@@ -339,7 +413,8 @@
 					"connect": {
 						"parent": {
 							"id": "block_2",
-							"rawId": "3emroy[@tk!+ek5riiX3"
+							"rawId": "Oct!*:3b-{IB.|01jI!l",
+							"inputName": "DO"
 						},
 						"target": "block_3"
 					}
@@ -349,24 +424,25 @@
 				"location": {
 					"block": {
 						"id": "block_2",
-						"rawId": "3emroy[@tk!+ek5riiX3"
+						"rawId": "Oct!*:3b-{IB.|01jI!l"
 					}
-				}
+				},
+				"target": "DO"
 			}
 		},
 		{
 			"tooltips": [
 				{
 					"location": {
-						"category": "color"
+						"category": "variables"
 					},
 					"position": "right",
-					"text": "Open the Color tray"
+					"text": "Open the Variables tray"
 				}
 			],
 			"validation": {
 				"blockly": {
-					"open-flyout": "color"
+					"open-flyout": "variables"
 				}
 			}
 		},
@@ -374,15 +450,15 @@
 			"tooltips": [
 				{
 					"location": {
-						"flyout_block": "random_colour"
+						"flyout_block": "math_number"
 					},
 					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"random_colour\"></kano-blockly-block> block onto your code space"
+					"text": "Drag the <kano-blockly-block type=\"math_number\"></kano-blockly-block> block onto your code space"
 				}
 			],
 			"arrow": {
 				"target": {
-					"flyout_block": "random_colour"
+					"flyout_block": "math_number"
 				},
 				"angle": 120,
 				"size": 80
@@ -390,7 +466,7 @@
 			"validation": {
 				"blockly": {
 					"create": {
-						"type": "random_colour",
+						"type": "math_number",
 						"id": "block_4"
 					}
 				}
@@ -401,11 +477,10 @@
 				{
 					"location": {
 						"block": {
-							"id": "block_3",
-							"rawId": "2(lpb`clLfkW?~bceAnz"
+							"id": "block_3"
 						}
 					},
-					"position": "left",
+					"position": "right",
 					"text": "Connect it to this block"
 				}
 			],
@@ -414,8 +489,7 @@
 					"connect": {
 						"parent": {
 							"id": "block_3",
-							"rawId": "2(lpb`clLfkW?~bceAnz",
-							"inputName": "COLOR"
+							"inputName": "pixels"
 						},
 						"target": "block_4"
 					}
@@ -424,53 +498,10 @@
 			"phantom_block": {
 				"location": {
 					"block": {
-						"id": "block_3",
-						"rawId": "2(lpb`clLfkW?~bceAnz"
+						"id": "block_3"
 					}
 				},
-				"target": "COLOR"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": "normal"
-					},
-					"position": "right",
-					"text": "Open this tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": "normal"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": "normal#square"
-					},
-					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"normal#square\"></kano-blockly-block> block onto your code space"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": "normal#square"
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"type": "normal#square",
-						"id": "block_5"
-					}
-				}
+				"target": "pixels"
 			}
 		},
 		{
@@ -478,55 +509,20 @@
 				{
 					"location": {
 						"block": {
-							"id": "block_3",
-							"rawId": "2(lpb`clLfkW?~bceAnz"
-						}
-					},
-					"position": "left",
-					"text": "Connect it to this block"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_3",
-							"rawId": "2(lpb`clLfkW?~bceAnz"
-						},
-						"target": "block_5"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": {
-						"id": "block_3",
-						"rawId": "2(lpb`clLfkW?~bceAnz"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"shadow": "SIZE",
-							"id": "block_5"
+							"id": "block_4"
 						}
 					},
 					"position": "top",
-					"text": "Change to <kano-value-preview><span>20</span></kano-value-preview>"
+					"text": "Change to <kano-value-preview><span>2</span></kano-value-preview>"
 				}
 			],
 			"validation": {
 				"blockly": {
 					"value": {
 						"target": {
-							"shadow": "SIZE",
-							"id": "block_5"
+							"id": "block_4"
 						},
-						"value": "20"
+						"value": "2"
 					}
 				}
 			}
@@ -542,24 +538,33 @@
 			]
 		}
 	],
-	"parts": [],
+	"parts": [
+		"sticker"
+	],
 	"modules": [
+		"math",
 		"control",
-		"color"
+		"variables"
 	],
 	"variables": [],
 	"filterBlocks": {
 		"normal": [
 			"set_background_color",
-			"move_to_random",
 			"color",
-			"square"
+			"move_to_random",
+			"circle"
+		],
+		"sticker": [
+			"set_sticker",
+			"random_from_set",
+			"ui_move_by"
 		],
 		"control": [
-			"repeat_x_times"
+			"repeat_x_times",
+			"every_x_seconds"
 		],
-		"color": [
-			"random_colour"
+		"math": [
+			"math_random"
 		]
 	},
 	"mode": "normal"
