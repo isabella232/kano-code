@@ -373,6 +373,8 @@
                         this.finished = finished;
                         this.setView('done');
                         this.set('errors.connection', undefined);
+
+                        this.do_login(this.username, this.password);
                     } else {
                         this.set('errors.connection', 'Something went wrong. Please try again later.');
                     }
@@ -411,6 +413,9 @@
                 return;
             }
 
+            this.do_login(this.username, this.password);
+        },
+        do_login (username, password) {
             fetch(url, {
                 method: 'post',
                 headers: new Headers({
