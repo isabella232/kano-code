@@ -17,6 +17,7 @@
         }
         canvas {
             border-radius: 5px;
+            background: var(--canvas-background);
         }
     </style>
     <template>
@@ -56,6 +57,10 @@
                 this.canvasElement.addEventListener('mouseover', this._onMouseOver.bind(this));
                 this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
                 this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
+            },
+            setBackground (bg) {
+                this.customStyle['--canvas-background'] = bg;
+                this.updateStyles();
             },
             setBackgroundColor (color) {
                 this.style.backgroundColor = color;
