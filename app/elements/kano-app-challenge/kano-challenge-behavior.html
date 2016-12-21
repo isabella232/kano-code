@@ -81,7 +81,9 @@
                     } else if (type.rawPart) {
                         partId = type.rawPart;
                     }
-                    location.flyout_block = `${partId}#${type.type}`;
+                    if (partId) {
+                        location.flyout_block = `${partId}#${type.type}`;
+                    }
                 } else if (location.path && (location.part || location.rawPart)) {
                     let partId = location.part ? this.stepIds[location.part] : location.rawPart;
                     location = `${location.path}-part-${partId}`;

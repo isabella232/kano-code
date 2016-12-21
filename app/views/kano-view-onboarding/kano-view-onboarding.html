@@ -85,8 +85,8 @@
                                 component: 'kano-workspace-normal'
                             },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
-                                                <block type="talkingface#say" id=",!{#F,2}aLq:}v0hw_?C" x="266" y="157" deletable="false"></block>
-                                                <block type="talkingface#superpowers" id="3N1Ko#F(V2wrTUjLan;G" x="383" y="157" deletable="false"></block>
+                                                <block type="talkingface#say" id="onboarding1" x="266" y="157" deletable="false"></block>
+                                                <block type="talkingface#superpowers" id="onboarding2" x="383" y="157" deletable="false"></block>
                                             </xml>`,
                             defaultParts: ['talking-face'],
                             banner: {
@@ -114,8 +114,8 @@
                                 component: 'kano-workspace-normal'
                             },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
-                                                <block type="talkingface1#say_accent" id="yo1" x="161" y="157" deletable="false"></block>
-                                                <block type="talkingface1#superpowers" id="yo2" x="418" y="157" deletable="false"></block>
+                                                <block type="talkingface1#say_accent" id="onboarding3" x="161" y="157" deletable="false"></block>
+                                                <block type="talkingface1#superpowers" id="onboarding4" x="418" y="157" deletable="false"></block>
                                             </xml>`,
                             defaultParts: ['talking-face'],
                             banner: {
@@ -143,9 +143,9 @@
                                 component: 'kano-workspace-normal'
                             },
                             defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml">
-                                                <block type="fireworks#repeat" id="yo3" x="181" y="104" deletable="false"></block>
-                                                <block type="fireworks#fireworks" id="yo4" x="335" y="206" deletable="false"></block>
-                                                <block type="fireworks#anywhere" id="yo4" x="235" y="306" deletable="false"></block>
+                                                <block type="fireworks#repeat" id="onboarding5" x="181" y="104" deletable="false"></block>
+                                                <block type="fireworks#fireworks" id="onboarding6" x="335" y="206" deletable="false"></block>
+                                                <block type="fireworks#anywhere" id="onboarding7" x="235" y="306" deletable="false"></block>
                                             </xml>`,
                             defaultParts: ['fireworks'],
                             banner: {
@@ -175,25 +175,15 @@
                 type: Number
             },
             trackingEvents: {
-                type: Array,
+                type: Object,
                 value: () => {
-                  return [
-                        {
-                            move: {
-                                'FLAG': 'onboardingC1Part1Join'
-                          }
-                        }, {
-                            language: 'onboardingC2Toggle',
-                            move: {
-                                'FLAG': 'onboardingC2Part1Join'
-                            }
-                        }, {
-                            move: {
-                                'FLAG': 'onboardingC3Part2Join',
-                                'trigger': 'onboardingC3Part1Join'
-                            }
-                        }
-                    ]
+                  return {
+                      'onboarding2': 'onboardingC1Part1Join',
+                      'onboarding3': 'onboardingC2Toggle',
+                      'onboarding4': 'onboardingC2Part1Join',
+                      'onboarding6': 'onboardingC3Part1Join',
+                      'onboarding7': 'onboardingC3Part2Join'
+                    }
                 }
             }
         },
@@ -291,10 +281,8 @@
         _onBlocklyChange (e) {
             let details = e.detail,
               eventType;
-            if (details.type && details.newInputName) {
-                eventType = this.trackingEvents[this.stageNo][details.type][details.newInputName];
-            } else if (details.name && details.newValue) {
-                eventType = this.trackingEvents[this.stageNo][details.name];
+            if ((details.type && details.newInputName) || (details.name && details.newValue)) {
+                eventType = this.trackingEvents[details.blockId];
             }
             if (eventType) {
                 this.dispatchTrackingEvent(eventType);
