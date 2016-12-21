@@ -40,10 +40,10 @@
                     this._isOppositeAction(validation[type], type, detail)
                 } else {
                     if (this._validateEvent(validation[type], type, detail)) {
-                        if (!validation[type].skip) {
+                        if (!validation[type].skipForward) {
                             this.nextStep();
                         } else {
-                            this._goToStep(this.step + validation[type].skip);
+                            this._goToStep(this.step + validation[type].skipForward + 1);
                         }
                     // The matching event didn't pass the checks, find a fallback
                     } else {
