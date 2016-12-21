@@ -141,7 +141,7 @@
         }
     </style>
     <template>
-        <kano-modal id="dialog">
+        <kano-modal id="dialog" on-dismiss="_cancel">
             <iron-pages attr-for-selected="id" selected="login" id="pager">
                 <div id="login">
                     <h2>Log in to your account</h2>
@@ -221,7 +221,7 @@
                         <div class="username"><strong>Username</strong> {{username}}</div>
                         <div class="password"><strong>Password</strong> {{password}}</div>
                     </fieldset>
-                    <button on-tap="close">Done</button>
+                    <button on-tap="_success">Done</button>
                 </div>
             </iron-pages>
         </kano-modal>
@@ -283,7 +283,7 @@
         },
         _skip () {
             this.dispatchTrackingEvent('authModalGrownupsViewSkipClicked');
-            this.close();
+            this._cancel();
         },
         reset () {
             this.set('errors', {});
@@ -401,7 +401,8 @@
             });
         },
         confirmLogin () {
-            let url = this.apiUrl + "/auth";
+            this.set('errors.username', undefined);
+            this.set('errors.password', undefined);
 
             if (!this.username) {
                 this.set('errors.username', 'Username cannot be empty.');
@@ -414,8 +415,10 @@
             }
 
             this.do_login(this.username, this.password);
+            this.fire('success');
         },
         do_login (username, password) {
+            let url = this.apiUrl + "/auth";
             fetch(url, {
                 method: 'post',
                 headers: new Headers({
@@ -426,16 +429,28 @@
                     password: this.password
                 })
             }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Username or password not recognised');
+                }
                 return res.json();
             }).then((data) => {
                 this.fire('login', data.session);
             }).catch((err) => {
-                console.log("Failed to connect to the API");
+                this.set('errors.username', err);
+                console.log("Login failed", err);
             });
         },
         signupClicked () {
             this.reset();
             this.setView('signup');
+        },
+        _success () {
+            this.fire('success');
+            this.close();
+        },
+        _cancel () {
+            this.fire('cancel');
+            this.close();
         }
     });
 </script>
