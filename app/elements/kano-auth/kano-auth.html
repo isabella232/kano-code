@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../kano-modal/kano-modal.html">
 <link rel="import" href="../kano-style/button.html">
+<link rel="import" href="../behaviors/kano-tracking-behavior.html">
 
 <dom-module id="kano-auth">
     <style is="custom-style"></style>
@@ -184,7 +185,7 @@
                         <div class="bold">
                             No grown ups around?
                         </div>
-                        <a on-tap="close">Skip for now</a>
+                        <a on-tap="_skip">Skip for now</a>
                     </div>
                 </div>
                 <div id="email">
@@ -261,19 +262,28 @@
                 value: false
             }
         },
-        observers: [],
+        behaviors: [Kano.Behaviors.TrackingBehavior],
         attached () {
         },
         detached () {
         },
+        setView (viewName) {
+            this.$.pager.selected = viewName;
+
+            let cap = viewName.charAt(0).toUpperCase() + viewName.slice(1);
+            this.dispatchTrackingEvent("authModal" + cap + "ViewLoaded");
+        },
         open (defaultPage) {
-            if (defaultPage) {
-                this.$.pager.selected = defaultPage;
-            }
+            defaultPage = defaultPage || 'login';
+            this.setView(defaultPage);
             this.$.dialog.open();
         },
         close () {
             this.$.dialog.close();
+        },
+        _skip () {
+            this.dispatchTrackingEvent('authModalGrownupsViewSkipClicked');
+            this.close();
         },
         reset () {
             this.set('errors', {});
@@ -335,7 +345,7 @@
                             this.firstName = 'your kid';
                         }
 
-                        this.$.pager.selected = 'grownups';
+                        this.setView('grownups');
                     } else {
                         this.set('errors.username', 'This one is already taken.')
                     }
@@ -343,7 +353,7 @@
             }
         },
         grownupsSection (e) {
-            this.$.pager.selected = 'email';
+            this.setView('email');
         },
         validateEmail (email) {
             let emailRegex = /^[_a-z0-9-\+]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]+)$/i;
@@ -361,7 +371,7 @@
                 this.signup().then((finished) => {
                     if (finished) {
                         this.finished = finished;
-                        this.$.pager.selected = 'done';
+                        this.setView('done');
                         this.set('errors.connection', undefined);
                     } else {
                         this.set('errors.connection', 'Something went wrong. Please try again later.');
@@ -420,7 +430,7 @@
         },
         signupClicked () {
             this.reset();
-            this.$.pager.selected = 'signup';
+            this.setView('signup');
         }
     });
 </script>
