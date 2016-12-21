@@ -7,7 +7,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: #ffffff;
+            background: var(--canvas-background, #ffffff);
             border-radius: 5px;
         }
         :host ::slotted(*:not(.hole)) {
@@ -56,6 +56,10 @@
                 this.canvasElement.addEventListener('mouseover', this._onMouseOver.bind(this));
                 this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
                 this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
+            },
+            setBackground (bg) {
+                this.customStyle['--canvas-background'] = bg;
+                this.updateStyles();
             },
             setBackgroundColor (color) {
                 this.style.backgroundColor = color;
