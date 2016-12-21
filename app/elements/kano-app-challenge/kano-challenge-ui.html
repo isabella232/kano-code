@@ -81,26 +81,44 @@ Example:
         @apply(--layout-horizontal);
         @apply(--layout-center);
     }
+    :host .banner-content .banner-text {
+        flex: 1 0 auto;
+    }
     :host .banner-content button {
         margin: auto 10px;
     }
-    @keyframes fade-in-grow {
-        from {
-            opacity: 0;
-            transform: scale(0);
+    @keyframes button-hint-enter {
+        0% {
+          margin: 0 10px;
+          opacity: 1;
+          flex: 0 1 auto;
+          padding: 19px 22px 17px 22px;
+          transform: scale(0);
+          width: 100%;
         }
-        to {
-            opacity: 1;
-            transform: scale(1);
+        100% {
+          margin: 0 10px;
+          opacity: 1;
+          flex: 0 1 auto;
+          padding: 19px 22px 17px 22px;
+          transform: scale(1);
+          width: 100%;
         }
     }
     :host .banner-content button.button-hint {
         opacity: 0;
-        animation-name: fade-in-grow;
+        width: 0;
+        margin: 0;
+        padding: 0;
         animation-duration: 0.3s;
+        animation-delay: 6s;
         animation-fill-mode: forwards;
         background-color: #256883;
+        box-sizing: border-box;
         color: white;
+    }
+    :host .banner-content button.button-hint-animation {
+        animation-name: button-hint-enter;
     }
     kano-tooltip {
         z-index: 101;
@@ -171,7 +189,7 @@ Example:
                             <div class="markdown-html"></div>
                         </marked-element>
                     </div>
-                    <button class="button-hint" type="button" on-tap="showHints" hidden$="{{!hint.display}}">Hint</button>
+                    <button id="hint-button" class="button-hint" type="button" on-tap="showHints">Hint</button>
                     <button type="button" on-tap="_nextStep" hidden$="{{!banner.next_button}}">Next</button>
                 </div>
             </kano-tooltip>
@@ -216,18 +234,11 @@ Example:
             banner: {
                 type: Object,
                 value: null
-            },
-            hint: {
-                type: Object,
-                value: {
-                    display: false,
-                    interval: null
-                }
             }
         },
         observers: [
             'stepChanged(step, state.*)',
-            'checkHints(banner.*, banner.hint_button)'
+            'animateHintButton(banner.*, banner.hint_button)'
         ],
         listeners: {
             'change': '_editorChanged'
@@ -426,16 +437,12 @@ Example:
                 }
             }
         },
-        checkHints (banner, hintButton) {
-            this.set('hint.display', false);
-            if (this.hint) {
-                window.clearTimeout(this.hint.interval);
+        animateHintButton (banner, hintButton) {
+            if (hintButton) {
+                this.toggleClass('button-hint-animation', false, this.$$('#hint-button'));
+                this.$$('#hint-button').getBoundingClientRect();
+                this.toggleClass('button-hint-animation', true, this.$$('#hint-button'));
             }
-            let interval = hintButton ? window.setTimeout(this.displayHint.bind(this), 6000) : null;
-            this.set('hint.interval', interval);
-        },
-        displayHint () {
-            this.set('hint.display', true);
         },
         computePhantomBlock (step) {
             let phantom_block = step.phantom_block,
