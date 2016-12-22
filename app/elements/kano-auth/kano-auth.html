@@ -372,7 +372,7 @@
                         this.setView('done');
                         this.set('errors.connection', undefined);
 
-                        this.do_login(this.username, this.password);
+                        this.doLogin(this.username, this.password);
                     } else {
                         this.set('errors.connection', 'Something went wrong. Please try again later.');
                     }
@@ -410,13 +410,13 @@
                 return;
             }
 
-            this.do_login(this.username, this.password).then(() => {
+            this.doLogin(this.username, this.password).then(() => {
                 this._success();
             }).catch((err) => {
                 this.set('errors.username', err);
             });
         },
-        do_login (username, password) {
+        doLogin (username, password) {
             let url = this.apiUrl + "/auth";
             return fetch(url, {
                 method: 'post',
