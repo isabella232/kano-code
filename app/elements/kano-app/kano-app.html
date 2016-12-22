@@ -114,7 +114,12 @@ Example:
                             world-url="[[worldUrl]]"></kano-side-menu>
             <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
         </paper-drawer-panel>
-        <kano-auth id="auth" on-login="_onLogin" world-url="{{worldUrl}}" api-url="{{apiUrl}}"></kano-auth>
+        <kano-auth id="auth"
+                   on-login="_onLogin"
+                   world-url="{{worldUrl}}"
+                   api-url="{{apiUrl}}"
+                   on-success="_authSuccess"
+                   on-cancel="_authCancelled"></kano-auth>
         <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
             <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
         </paper-toast>
@@ -250,18 +255,39 @@ Example:
             Kano.MakeApps.progress.reset();
             clearInterval(this._pollingIntervalId);
         },
-        _login () {
+        _login (e) {
+            if (e && e.detail) {
+                this.authCallbacks = e.detail;
+            }
+
+            this.authCallbacks = this.authCallbacks || {};
             this.$.auth.open('login');
         },
-        _signup () {
+        _signup (e) {
+            if (e && e.detail) {
+                this.authCallbacks = e.detail;
+            }
+
+            this.authCallbacks = this.authCallbacks || {};
             this.$.auth.open('signup');
+        },
+        _authSuccess () {
+            if (this.authCallbacks && this.authCallbacks.onSuccess) {
+                this.authCallbacks.onSuccess.call();
+                this.set('authCallbacks', null);
+            }
+        },
+        _authCancelled () {
+            if (this.authCallbacks && this.authCallbacks.onCancel) {
+                this.authCallbacks.onCancel.call();
+                this.set('authCallbacks', null);
+            }
         },
         _onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
             data.user.notifications = [];
             this.user = data.user;
-            this.$.auth.close();
             this._populateUser();
             if (this._needsNotifications()) {
                 this._startNotificationsPolling();

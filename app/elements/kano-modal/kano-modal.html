@@ -107,7 +107,7 @@
             <div class="wrapper" id="wrapper">
                 <img class="close-icon"
                      src="/assets/icons/modal-close-icon.svg"
-                     on-tap="close" />
+                     on-tap="_xTapped" />
                 <div class="content">
                     <img class="motif" src="/assets/avatar/judoka-face.svg" />
                     <slot></slot>
@@ -164,6 +164,10 @@
                     this.$.modal.close();
                 };
             }
+        },
+        _xTapped () {
+            this.close();
+            this.fire('dismiss');
         },
         soundChanged (sound) {
             if (sound) {
