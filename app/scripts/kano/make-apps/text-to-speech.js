@@ -23,7 +23,7 @@
             this.backendStop = this.remoteStop;
 
             this.cache = {};
-            this.audio = null;
+            this.playQueue = [];
         }
 
         configure (c) {
@@ -107,16 +107,33 @@
         }
 
         playAudio (url) {
-            this.audio = document.createElement('audio');
-            this.audio.src = url;
-            this.audio.load();
-            this.audio.play();
+            let audio = document.createElement('audio');
+            audio.src = url;
+            audio.load();
+
+            this.playQueue.push(audio);
+            if (this.playQueue.length === 1) {
+                this.playNext();
+            }
+        }
+
+        playNext () {
+            if (this.playQueue.length > 0) {
+                let audio = this.playQueue[0];
+
+                audio.addEventListener('ended', () => {
+                    this.playQueue.shift();
+                    this.playNext();
+                });
+                audio.play();
+            }
         }
 
         audioStop () {
-            if (this.audio) {
-                this.audio.pause();
+            if (this.playQueue.length > 0) {
+                this.playQueue[0].pause();
             }
+            this.playQueue = [];
         }
 
         normaliseRateToRSS (rate) {
