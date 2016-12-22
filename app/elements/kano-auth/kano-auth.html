@@ -318,8 +318,6 @@
             let url = this.apiUrl + "/users/username/" + username;
             return fetch(url).then((res) => {
                 return !res.ok;
-            }).catch((err) => {
-                console.log("Failed to connect to the API. (" + err + ")");
             });
         },
         validatePassword (password) {
@@ -396,8 +394,6 @@
                 })
             }).then((res) => {
                 return res.ok;
-            }).catch((err) => {
-                console.log("Failed to connect to the API");
             });
         },
         confirmLogin () {
@@ -418,7 +414,6 @@
                 this._success();
             }).catch((err) => {
                 this.set('errors.username', err);
-                console.log("Login failed", err);
             });
         },
         do_login (username, password) {
