@@ -130,8 +130,8 @@
         }
 
         audioStop () {
-            if (this.playing) {
-                this.playing.pause();
+            if (this.playQueue.length > 0) {
+                this.playQueue[0].pause();
             }
             this.playQueue = [];
         }
