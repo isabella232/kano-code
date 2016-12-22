@@ -4,11 +4,13 @@
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
+<link rel="import" href="../../scripts/kano/make-apps/stories.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
 <link rel="import" href="../../elements/behaviors/kano-tracking-behavior.html">
+<link rel="import" href="../../scripts/kano/make-apps/progress.html">
 
 <dom-module id="kano-view-story">
     <style>
@@ -78,10 +80,10 @@
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
         },
         attached () {
-            Kano.MakeApps.stories.getById(this.context.params.id)
+            Kano.MakeApps.Stories.getById(this.context.params.id)
                 .then((story) => {
                     if (typeof story.next === 'string') {
-                        return Kano.MakeApps.stories.getById(story.next)
+                        return Kano.MakeApps.Stories.getById(story.next)
                             .then((nextStory) => {
                                 story.next = nextStory;
                                 return story;
@@ -91,7 +93,7 @@
                 })
                 .then((story) => {
                     this.story = story;
-                    return Kano.MakeApps.progress.loadProgress(story.progress.group);
+                    return Kano.MakeApps.Progress.loadProgress(story.progress.group);
                 })
                 .then((progress) => this.updateExtensions(progress));
         },
@@ -119,7 +121,7 @@
                 //story completed!!!
                 let progress = this.story.progress,
                     extension = this.story.extension ? this.story.id : null;
-                Kano.MakeApps.progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id)
+                Kano.MakeApps.Progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id)
                     .then((progress) => this.updateExtensions(progress));
             }
         },
@@ -127,7 +129,7 @@
             if (!this.story) {
                 return;
             }
-            Kano.MakeApps.stories.getSceneByIndex(this.story, this.selected)
+            Kano.MakeApps.Stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
                     this.set('scene', scene);
                     this.set('scene.modeConfig', {

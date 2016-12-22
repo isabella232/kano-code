@@ -216,7 +216,6 @@
             this.loaded = false;
 
             this.editor = this.$.editor;
-            this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
@@ -251,9 +250,6 @@
 
             this.banner = stage.banner;
             this.set('code', {snapshot: {blocks: stage.defaultBlocks}});
-        },
-        updateWorkspaceRect (rect) {
-            Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
         },
         _currentReward (stageNo) {
             let reward = this.stages[stageNo].reward;
