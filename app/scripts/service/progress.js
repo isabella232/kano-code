@@ -1,9 +1,13 @@
+import crossStorage from 'cross-storage';
+
 let progressService = (sdk) => {
     let loadDebouncer = null,
         neverLoaded = true,
         progress = {};
 
-    const LOAD_DEBOUNCE_DELAY = 3000;
+    const storageLocation = Kano.MakeApps.config.WORLD_URL + '/cross-storage.html',
+        sharedStorage = new crossStorage.CrossStorageClient(storageLocation),
+        LOAD_DEBOUNCE_DELAY = 3000;
 
     localStorage.progress = localStorage.progress || JSON.stringify({});
 
@@ -136,7 +140,11 @@ let progressService = (sdk) => {
             return p;
         },
         saveToStorage () {
-            localStorage.progress = JSON.stringify(progress);
+            let storedProgress = JSON.stringify(progress);
+            localStorage.progress = storedProgress;
+            sharedStorage.onConnect().then(function () {
+                return sharedStorage.set('progress', storedProgress);
+            });
         },
         loadFromStorage () {
             try {
