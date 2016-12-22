@@ -414,12 +414,16 @@
                 return;
             }
 
-            this.do_login(this.username, this.password);
-            this.fire('success');
+            this.do_login(this.username, this.password).then(() => {
+                this._success();
+            }).catch((err) => {
+                this.set('errors.username', err);
+                console.log("Login failed", err);
+            });
         },
         do_login (username, password) {
             let url = this.apiUrl + "/auth";
-            fetch(url, {
+            return fetch(url, {
                 method: 'post',
                 headers: new Headers({
                     'Content-Type': 'application/json'
@@ -435,9 +439,7 @@
                 return res.json();
             }).then((data) => {
                 this.fire('login', data.session);
-            }).catch((err) => {
-                this.set('errors.username', err);
-                console.log("Login failed", err);
+                return;
             });
         },
         signupClicked () {
