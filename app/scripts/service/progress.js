@@ -53,7 +53,7 @@ let progressService = (sdk) => {
         saveToRemote () {
             let p = Promise.resolve(progress);
             // If the user is authenticated, we can proceed, otherwise the saved progress will be resolved
-            if (sdk.auth.getUser()) {
+            if (sdk.auth.getToken()) {
                 p = new Promise((resolve, reject) => {
                     // Update the values
                     sdk.appStorage.set('make-apps', { progress }, (err, data) => {
