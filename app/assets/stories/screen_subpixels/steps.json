@@ -2,14 +2,19 @@
 	"steps": [
 		{
 			"banner": {
-				"text":"Hidden inside of each pixel are things called subpixels...<br>Let's take control of them to make colors!",
+				"text":"We can do more than just turn pixels on.<br>Let’s learn the power to change their color!",
 				"next_button": true
 			}
 		},
 		{
-			"banner": {
-				"text":"There is a faster way to turn on all the pixels...<br>We can use the background color block",
-				"next_button": true
+			"set-state": {
+				"hints": {
+					"enabled": false,
+					"disabled-banner": {
+						"text": "A faster way to turn on all the pixels is to use the <b>background color</b> block<br>Can you find it?",
+						"hint_button": true
+					}
+				}
 			}
 		},
 		{
@@ -52,6 +57,14 @@
 						"id": "block_0"
 					}
 				}
+			},
+			"reward":true
+		},
+		{
+			"set-state": {
+				"hints": {
+					"enabled": true
+				}
 			}
 		},
 		{
@@ -64,7 +77,7 @@
 						}
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Sweet!<br>Connect it to this block"
 				}
 			],
 			"validation": {
@@ -91,8 +104,19 @@
 		},
 		{
 			"banner": {
-				"text":"Inside of each pixel are subpixels<br>They contain tiny red, green and blue lights<br>ILLUSTRATION HERE<br>We can control these subpixels to make any color we want!",
+				"text":"Inside of each pixel are three tiny lights called subpixels...<br><img src='/assets/stories/screen_subpixels/subpixel.png' width='100' /><br>There is a red, green and blue subpixel (RGB)",
 				"next_button": true
+			}
+		},
+		{
+			"set-state": {
+				"hints": {
+					"enabled": false,
+					"disabled-banner": {
+						"text": "We can tell these subpixels to make any color we want!<br>Can you find a block to create a new color?",
+						"hint_button": true
+					}
+				}
 			}
 		},
 		{
@@ -135,6 +159,14 @@
 						"id": "block_1"
 					}
 				}
+			},
+			"reward":true
+		},
+		{
+			"set-state": {
+				"hints": {
+					"enabled": true
+				}
 			}
 		},
 		{
@@ -147,7 +179,7 @@
 						}
 					},
 					"position": "left",
-					"text": "Connect it to this block"
+					"text": "Awesome!<br>Connect it to this block"
 				}
 			],
 			"validation": {
@@ -179,7 +211,7 @@
 						"category": "variables"
 					},
 					"position": "right",
-					"text": "Open the Variables tray"
+					"text": "Now we need some numbers...<br>Open the Variables tray"
 				}
 			],
 			"validation": {
@@ -247,30 +279,8 @@
 					}
 				},
 				"target": "1"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_2"
-						}
-					},
-					"position": "top",
-					"text": "Change to <kano-value-preview><span>100</span></kano-value-preview>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"value": {
-						"target": {
-							"id": "block_2"
-						},
-						"value": "100"
-					}
-				}
-			}
+			},
+			"reward":true
 		},
 		{
 			"tooltips": [
@@ -347,7 +357,8 @@
 					}
 				},
 				"target": "2"
-			}
+			},
+			"reward":true
 		},
 		{
 			"tooltips": [
@@ -424,11 +435,81 @@
 					}
 				},
 				"target": "3"
+			},
+			"reward":true
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_2"
+						}
+					},
+					"position": "top",
+					"text": "Let's turn on all the red subpixels!<br>Change to <kano-value-preview><span>100</span></kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": {
+							"id": "block_2"
+						},
+						"value": "100"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_3"
+						}
+					},
+					"position": "top",
+					"text": "Now turn on the green subpixels too!<br>Change to <kano-value-preview><span>100</span></kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": {
+							"id": "block_3"
+						},
+						"value": "100"
+					}
+				}
+			}
+		},
+		{
+			"tooltips": [
+				{
+					"location": {
+						"block": {
+							"id": "block_4"
+						}
+					},
+					"position": "top",
+					"text": "Finally turn on the blue subpixels!<br>Change to <kano-value-preview><span>100</span></kano-value-preview>"
+				}
+			],
+			"validation": {
+				"blockly": {
+					"value": {
+						"target": {
+							"id": "block_4"
+						},
+						"value": "100"
+					}
+				}
 			}
 		},
 		{
 			"banner": {
-				"text":"Try different mixes of the red, green, and blue channels to make any color!",
+				"text":"Blending together red, green and blue makes white!<br><img src='/assets/stories/screen_subpixels/rgb.png' width='200' />",
 				"next_button": true
 			}
 		},
@@ -437,10 +518,16 @@
 				{
 					"location": "workspace-panel",
 					"position": "left",
-					"text": "You can now test the app",
+					"text": "<kano-blockly-block type=\"normal#set_background_color\"></kano-blockly-block><br>and<br><kano-blockly-block type=\"create_color\"></kano-blockly-block><br>Unlocked!<br><br>Stunning! You now have power over colors!",
 					"next_button": true
 				}
 			]
+		},
+		{
+			"banner": {
+				"text":"Try different mixes of the red, green, and blue channels to make any color!<br>When you're ready click next to unlock new shape powers...",
+				"next_button": true
+			}
 		}
 	],
 	"parts": [],
