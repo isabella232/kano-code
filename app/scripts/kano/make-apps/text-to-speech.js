@@ -21,6 +21,8 @@
 
             this.backend = this.remote;
             this.backendStop = this.remoteStop;
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
 
             this.cache = {};
             this.playQueue = [];
@@ -86,17 +88,18 @@
             fetch(url)
                 .then((res) => {
                     if (res.ok) {
-                        return res.blob();
+                        return res.arrayBuffer();
                     } else {
                         console.log("Voice API request failed: " + res.status);
                         return;
                     }
-                }).then((blob) => {
-                    let objectUrl = URL.createObjectURL(blob);
-                    this.playAudio(objectUrl);
-                    if (!(text in this.cache[cacheTag])) {
-                        this.cache[cacheTag][text] = objectUrl;
-                    }
+                }).then((ab) => {
+                    this.ctx.decodeAudioData(ab, buffer => {
+                        this.playAudio(buffer);
+                        if (!(text in this.cache[cacheTag])) {
+                            this.cache[cacheTag][text] = buffer;
+                        }
+                    });
                 }).catch((err) => {
                     console.log("Voice API request failed: " + err);
                 });
@@ -106,12 +109,8 @@
             this.audioStop();
         }
 
-        playAudio (url) {
-            let audio = document.createElement('audio');
-            audio.src = url;
-            audio.load();
-
-            this.playQueue.push(audio);
+        playAudio (buffer) {
+            this.playQueue.push(buffer);
             if (this.playQueue.length === 1) {
                 this.playNext();
             }
@@ -119,19 +118,24 @@
 
         playNext () {
             if (this.playQueue.length > 0) {
-                let audio = this.playQueue[0];
+                let buffer = this.playQueue[0],
+                    source = this.ctx.createBufferSource();
 
-                audio.addEventListener('ended', () => {
+                source.buffer = buffer;
+
+                source.connect(this.ctx.destination);
+
+                source.onended = () => {
                     this.playQueue.shift();
                     this.playNext();
-                });
-                audio.play();
+                };
+                source.start();
             }
         }
 
         audioStop () {
-            if (this.playQueue.length > 0) {
-                this.playQueue[0].pause();
+            if (this.playQueue.length > 0 && typeof this.playQueue[0].stop === 'function') {
+                this.playQueue[0].stop();
             }
             this.playQueue = [];
         }
