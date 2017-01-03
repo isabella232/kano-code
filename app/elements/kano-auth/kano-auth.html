@@ -93,18 +93,19 @@
             padding: 0px 10px;
         }
         :host .footer {
+            color: #999;
             margin-top: 56px;
         }
         :host .footer .bold {
             font-weight: bold;
         }
-        :host .footer a, :host .checkboxes a {
+        :host a, :host a {
             color: #999;
             text-decoration: none;
             border-bottom: 1px solid #e2e2e2;
             cursor: pointer;
         }
-        :host .footer a:hover, :host .checkboxes a:hover {
+        :host a:hover, :host a:hover {
             color: black;
         }
         :host .checkboxes {
@@ -153,7 +154,8 @@
                     </form>
                     <button on-tap="confirmLogin">Log In</button>
                     <div class="footer">
-                        <a href="{{worldUrl}}/reset-password">Forgot your password?</a><br />
+                        Forgot your <a on-tap="displayPasswordReset">password</a> or
+                        <a on-tap="displayUsernameReminder">username</a>?<br />
                         <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
                     </div>
                 </div>
@@ -222,6 +224,44 @@
                         <div class="password"><strong>Password</strong> {{password}}</div>
                     </fieldset>
                     <button on-tap="_success">Done</button>
+                </div>
+                <div id="username-reminder">
+                    <h2>Forgotten your username?</h2>
+                    <form class="fields">
+                        <input type="text" value="{{email::input}}" placeholder="Your email address" tabindex="0" />
+                        <div class="form-error" hidden$="{{!errors.email}}">{{errors.email}}</div>
+                    </form>
+                    <button on-tap="confirmUsernameReminder">Request reminder</button>
+                    <div class="footer">
+                        <a on-tap="displayPasswordReset">Forgot your password?</a><br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                </div>
+                <div id="password-reset">
+                    <h2>Forgotten your password?</h2>
+                    <form class="fields">
+                        <input type="text" value="{{username::input}}" placeholder="Your username" tabindex="0" />
+                        <div class="form-error" hidden$="{{!errors.username}}">{{errors.username}}</div>
+                    </form>
+                    <button on-tap="confirmPasswordReset">Request new password</button>
+                    <div class="footer">
+                        <a on-tap="displayUsernameReminder">Forgot your username?</a><br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                </div>
+                <div id="reset-confirmation">
+                    <h2>Thanks!</h2>
+                    <div class="body">
+                        Please check your email and follow the instructions that have been sent to you.
+                    </div>
+                    <div class="body">
+                      Or <a on-tap="loginClicked">Log in <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                    <div class="footer">
+                      Forgot your <a on-tap="displayPasswordReset">password</a> or
+                      <a on-tap="displayUsernameReminder">username</a>?<br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
                 </div>
             </iron-pages>
         </kano-modal>
@@ -437,9 +477,87 @@
                 return;
             });
         },
+        confirmUsernameReminder () {
+            this.set('errors.email', undefined);
+
+            if (!this.email) {
+                this.set('errors.email', 'Email cannot be empty.');
+                return;
+            }
+
+            if (this.validateEmail(this.email)) {
+                this.requestUsernameReminder(this.email).then(() => {
+                    this.setView('reset-confirmation');
+                }).catch((err) => {
+                    this.set('errors.email', err);
+                });
+            }
+        },
+        requestUsernameReminder (email) {
+            let url = `${this.apiUrl}/accounts/username-reminder`;
+            return fetch(url, {
+                method: 'post',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify({
+                    email: this.email
+                })
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Email not recognised');
+                }
+                return res.json();
+            });
+        },
+        confirmPasswordReset () {
+            this.set('errors.email', undefined);
+
+            if (!this.username) {
+                this.set('errors.username', 'Username cannot be empty.');
+                return;
+            }
+
+            if (this.validateUsername(this.username)) {
+                this.requestPasswordReset(this.username).then(() => {
+                    this.setView('reset-confirmation');
+                }).catch((err) => {
+                    this.set('errors.username', err);
+                });
+            }
+        },
+        requestPasswordReset (username) {
+            let url = `${this.apiUrl}/accounts/reset-password`;
+            return fetch(url, {
+                method: 'post',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify({
+                    username: this.username
+                })
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Username not recognised');
+                }
+                return res.json();
+            });
+        },
+        loginClicked () {
+            this.reset();
+            this.setView('login');
+        },
         signupClicked () {
             this.reset();
             this.setView('signup');
+        },
+        displayUsernameReminder() {
+            this.reset();
+            this.setView('username-reminder');
+        },
+        displayPasswordReset() {
+            this.reset();
+            this.setView('password-reset');
         },
         _success () {
             this.fire('success');
