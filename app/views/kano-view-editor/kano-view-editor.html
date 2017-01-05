@@ -4,6 +4,7 @@
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
+<link rel="import" href="../../scripts/kano/make-apps/sdk.html">
 
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
@@ -379,7 +380,6 @@
             let hardwareAPI = new Kano.MakeApps.HardwareAPI();
             this.loaded = false;
             this.editor = this.$.editor;
-            this.editor.addEventListener('ws-update', this.updateWorkspaceRect.bind(this));
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
 
@@ -394,9 +394,6 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
-        },
-        updateWorkspaceRect (rect) {
-            Kano.MakeApps.dragAndDrop.setWorkspaceRect(rect);
         },
         save () {
             let modeId = this.mode.id;

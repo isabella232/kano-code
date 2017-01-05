@@ -76,8 +76,8 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('build', () => {
-        return $.runSequence('copy-all',
-            ['kano-canvas-api', 'app'],
+        return $.runSequence(
+            'copy-all',
             'shards',
             'split',
             ['copy-index', 'blockly-media', 'assets', 'workers'],
@@ -90,6 +90,7 @@ module.exports = (gulp, $) => {
                         'app/scripts/index.js',
                         'app/scripts/splash.js',
                         'app/assets/vendor/cache-polyfill/cache-polyfill.js',
+                        'app/assets/vendor/object-assign/object-assign.js',
                         'app/bower_components/webcomponentsjs/webcomponents-lite.min.js'
                         ], { base: 'app' })
             .pipe($.if('index.html', $.htmlReplace($.utils.getHtmlReplaceOptions())))
