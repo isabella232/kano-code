@@ -21,6 +21,14 @@
             started: {
                 type: Boolean,
                 value: false
+            },
+            hintStats: {
+                type: Object,
+                value: {
+                    total: 0,
+                    used: 0
+                },
+                notify: true
             }
         },
         computeSelectedStep () {
@@ -37,6 +45,11 @@
 
             // Deep clone the step to not change the original step when updating the ids
             selectedStep = JSON.parse(JSON.stringify(selectedStep));
+
+            // update stats if step includes optional hint
+            if (selectedStep['set-state'] && selectedStep['set-state'].hints && selectedStep['set-state'].hints.enabled === false) {
+                this.set('hintStats.total', this.hintStats.total + 1);
+            }
 
             if (selectedStep.tooltips) {
                 selectedStep.tooltips = selectedStep.tooltips.map(tooltip => {

@@ -30,7 +30,7 @@ Example:
         }
     </style>
     <template>
-        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}">
+        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}" on-hint-used="hintUsed">
             <slot name="editor" id="content"></slot>
         </kano-challenge-ui>
     </template>
@@ -193,6 +193,9 @@ Example:
             //tell UI and validator separately that step has finished
             this.$.ui.finishStep();
             Kano.Behaviors.ChallengeBehavior.nextStep.call(this);
+        },
+        hintUsed () {
+            this.set('hintStats.used', this.hintStats.used + 1);
         }
     });
 </script>
