@@ -519,6 +519,9 @@ Example:
                         Blockly.Events.enable();
                         // Delete the block without animation
                         block.dispose(true, false);
+                        // Compensate for the lack of audio
+                        // with the suppressed animation
+                        this.workspace.playAudio('delete');
                         this._onToolboxEndDrag();
                         return;
                     }
