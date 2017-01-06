@@ -163,6 +163,8 @@
         },
         _sceneChanged () {
             this._loadVariables();
+            //async for correct data-binding with child element
+            this.async(this.resetHintStats, 0);
         },
         _loadVariables () {
             let workspace = this.$.editor.getBlocklyWorkspace();
@@ -204,6 +206,10 @@
                 started: this.scene.started,
                 ended: this.done
             };
+        },
+        resetHintStats () {
+            this.set('hintStats.total', 0);
+            this.set('hintStats.used', 0);
         },
         ready () {
             this.remix = false;
