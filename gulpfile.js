@@ -51,9 +51,10 @@ utils = {
     getEnvVars () {
         let code = '';
 
-        code += `window.Kano = window.Kano || {};`;
-        code += `window.Kano.MakeApps = window.Kano.MakeApps || {};`;
+        code += 'window.Kano = window.Kano || {}';
+        code += 'window.Kano.MakeApps = window.Kano.MakeApps || {};';
         code += `window.Kano.MakeApps.config = ${JSON.stringify(config)};`;
+        code += 'window.AudioContext = window.AudioContext || window.webkitAudioContext;';
 
         return code;
     },

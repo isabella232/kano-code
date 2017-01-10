@@ -13,8 +13,7 @@
     */
 
     /* globals SpeechSynthesisUtterance*/
-    
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
     Kano.AudioContext = Kano.AudioContext || new AudioContext();
 
     class TextToSpeech {
