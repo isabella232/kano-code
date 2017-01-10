@@ -13,6 +13,9 @@
     */
 
     /* globals SpeechSynthesisUtterance*/
+    
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    Kano.AudioContext = Kano.AudioContext || new AudioContext();
 
     class TextToSpeech {
 
@@ -21,8 +24,7 @@
 
             this.backend = this.remote;
             this.backendStop = this.remoteStop;
-            window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.ctx = new AudioContext();
+            this.ctx = Kano.AudioContext;
 
             this.cache = {};
             this.playQueue = [];
