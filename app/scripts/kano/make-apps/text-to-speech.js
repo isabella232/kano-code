@@ -14,6 +14,8 @@
 
     /* globals SpeechSynthesisUtterance*/
 
+    Kano.AudioContext = Kano.AudioContext || new AudioContext();
+
     class TextToSpeech {
 
         constructor (config) {
@@ -21,8 +23,7 @@
 
             this.backend = this.remote;
             this.backendStop = this.remoteStop;
-            window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.ctx = new AudioContext();
+            this.ctx = Kano.AudioContext;
 
             this.cache = {};
             this.playQueue = [];
