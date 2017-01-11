@@ -2,7 +2,6 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../kano-modal/kano-modal.html">
 <link rel="import" href="../kano-style/button.html">
-<link rel="import" href="../behaviors/kano-tracking-behavior.html">
 
 <dom-module id="kano-auth">
     <style is="custom-style"></style>
@@ -302,7 +301,6 @@
                 value: false
             }
         },
-        behaviors: [Kano.Behaviors.TrackingBehavior],
         attached () {
         },
         detached () {
@@ -311,7 +309,7 @@
             this.$.pager.selected = viewName;
 
             let cap = viewName.charAt(0).toUpperCase() + viewName.slice(1);
-            this.dispatchTrackingEvent("authModal" + cap + "ViewLoaded");
+            this.fire('track-event', 'authModal' + cap + 'ViewLoaded');
         },
         open (defaultPage) {
             defaultPage = defaultPage || 'login';
@@ -322,7 +320,7 @@
             this.$.dialog.close();
         },
         _skip () {
-            this.dispatchTrackingEvent('authModalGrownupsViewSkipClicked');
+            this.fire('track-event', 'authModalGrownupsViewSkipClicked');
             this._cancel();
         },
         reset () {
