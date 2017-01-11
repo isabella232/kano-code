@@ -114,7 +114,13 @@ Example:
                             offline="[[offline]]"
                             on-login="_login"
                             world-url="[[worldUrl]]"></kano-side-menu>
-            <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
+            <kano-routing main id="router"
+                          ctx="{{ctx}}"
+                          name="app"
+                          on-toggle-menu="toggleMenu"
+                          user="[[user]]"
+                          on-login="_login"
+                          page="{{route}}"></kano-routing>
         </paper-drawer-panel>
         <kano-auth id="auth"
                    on-login="_onLogin"
@@ -156,7 +162,8 @@ Example:
             signup: '_signup',
             'kano-error': '_showErrorOnToast',
             'view-loaded': '_viewLoaded',
-            'track-event': '_trackEvent'
+            'track-event': '_trackEvent',
+            'track-page': '_trackPage'
         },
         _routeChanged (route) {
             // User not authenticated not actions to be done
@@ -188,9 +195,7 @@ Example:
                             this._startNotificationsPolling();
                         }
                     } else {
-                        this.dispatchTrackingEvent({
-                            visitType: 'Logged out'
-                        });
+                        this.trackVisitType('Logged out');
                     }
                 });
             };
@@ -217,8 +222,6 @@ Example:
             } else {
                 initialiseSDK();
             }
-            this.trackUserDevice();
-            this.trackProgress();
         },
         _showErrorOnToast (e) {
             this.message = e.detail;
@@ -335,14 +338,9 @@ Example:
         _userChanged (user) {
             this.debounce('userChanged', () => {
                 if (user) {
-                    this.dispatchTrackingEvent({
-                        account: true,
-                        visitType: 'Logged in'
-                    });
+                    this.trackVisitType('Logged in');
                 } else {
-                    this.dispatchTrackingEvent({
-                        visitType: 'Logged out'
-                    });
+                    this.trackVisitType('Logged out');
                 }
             });
         },
@@ -350,7 +348,10 @@ Example:
             window.prerenderReady = true;
         },
         _trackEvent (e, payload) {
-            window.dataLayer.push(payload);
+            this.dispatchTrackingEvent(payload);
+        },
+        _trackPage (e, payload) {
+            this.dispatchVirtualPageView(payload.title, payload.path);
         }
     });
 </script>

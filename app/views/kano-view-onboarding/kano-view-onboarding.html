@@ -262,7 +262,7 @@
         _handleModalAction (e) {
             let projectsUrl = Kano.MakeApps.config.WORLD_URL + "/projects";
             if (e.detail.trackingEvent) {
-                this.dispatchTrackingEvent(e.detail.trackingEvent);
+                this.fire('track-event', e.detail.trackingEvent);
             }
             if (e.detail.type === 'save') {
                 this.alertDisabled = true;
@@ -290,7 +290,7 @@
                 eventType = this.trackingEvents[details.blockId];
             }
             if (eventType) {
-                this.dispatchTrackingEvent(eventType);
+                this.fire('track-event', eventType);
             }
         },
         _stageFinished () {
