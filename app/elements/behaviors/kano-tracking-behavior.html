@@ -27,7 +27,7 @@
            * Check whether the user has ever had an account
            */
           checkAccount () {
-              let account = this.account || this.checkVisitType() === 'Logged in';
+              let account = this.account || this.checkVisitType() === 'Logged in' || ClientUtil.isPi();
               if (!account) {
                   let storedAccount = localStorage.getItem('KW_ACCOUNT');
                   account = storedAccount ? JSON.parse(storedAccount) : false;
