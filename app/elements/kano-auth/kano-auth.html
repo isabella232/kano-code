@@ -2,7 +2,6 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../kano-modal/kano-modal.html">
 <link rel="import" href="../kano-style/button.html">
-<link rel="import" href="../behaviors/kano-tracking-behavior.html">
 
 <dom-module id="kano-auth">
     <style is="custom-style"></style>
@@ -93,18 +92,19 @@
             padding: 0px 10px;
         }
         :host .footer {
+            color: #999;
             margin-top: 56px;
         }
         :host .footer .bold {
             font-weight: bold;
         }
-        :host .footer a, :host .checkboxes a {
+        :host a, :host a {
             color: #999;
             text-decoration: none;
             border-bottom: 1px solid #e2e2e2;
             cursor: pointer;
         }
-        :host .footer a:hover, :host .checkboxes a:hover {
+        :host a:hover, :host a:hover {
             color: black;
         }
         :host .checkboxes {
@@ -141,7 +141,7 @@
         }
     </style>
     <template>
-        <kano-modal id="dialog">
+        <kano-modal id="dialog" on-dismiss="_cancel">
             <iron-pages attr-for-selected="id" selected="login" id="pager">
                 <div id="login">
                     <h2>Log in to your account</h2>
@@ -153,7 +153,8 @@
                     </form>
                     <button on-tap="confirmLogin">Log In</button>
                     <div class="footer">
-                        <a href="{{this.worldUrl}}/reset-password">Forgot your password?</a><br />
+                        Forgot your <a on-tap="displayPasswordReset">password</a> or
+                        <a on-tap="displayUsernameReminder">username</a>?<br />
                         <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
                     </div>
                 </div>
@@ -200,7 +201,7 @@
                         <div class="form-error" hidden$="{{!errors.email}}">{{errors.email}}</div>
                         <div class="checkboxes">
                             <div class="checkbox-input">
-                                <input type="checkbox" checked="{{terms::change}}" id="tcs"><label for="tcs">I accept all the <a href="{{this.worldUrl}}/terms-of-use">Terms &amp; Conditions</a></label>
+                                <input type="checkbox" checked="{{terms::change}}" id="tcs"><label for="tcs">I accept all the <a href="{{worldUrl}}/terms-of-use" target="_blank">Terms &amp; Conditions</a></label>
                             </div>
                             <div class="checkbox-input">
                                 <input type="checkbox" checked="{{newsletter::change}}" id="newsletter"><label for="newsletter">Subscribe to the Kano newsletter</label>
@@ -221,7 +222,45 @@
                         <div class="username"><strong>Username</strong> {{username}}</div>
                         <div class="password"><strong>Password</strong> {{password}}</div>
                     </fieldset>
-                    <button on-tap="close">Done</button>
+                    <button on-tap="_success">Done</button>
+                </div>
+                <div id="username-reminder">
+                    <h2>Forgotten your username?</h2>
+                    <form class="fields">
+                        <input type="text" value="{{email::input}}" placeholder="Your email address" tabindex="0" />
+                        <div class="form-error" hidden$="{{!errors.email}}">{{errors.email}}</div>
+                    </form>
+                    <button on-tap="confirmUsernameReminder">Request reminder</button>
+                    <div class="footer">
+                        <a on-tap="displayPasswordReset">Forgot your password?</a><br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                </div>
+                <div id="password-reset">
+                    <h2>Forgotten your password?</h2>
+                    <form class="fields">
+                        <input type="text" value="{{username::input}}" placeholder="Your username" tabindex="0" />
+                        <div class="form-error" hidden$="{{!errors.username}}">{{errors.username}}</div>
+                    </form>
+                    <button on-tap="confirmPasswordReset">Request new password</button>
+                    <div class="footer">
+                        <a on-tap="displayUsernameReminder">Forgot your username?</a><br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                </div>
+                <div id="reset-confirmation">
+                    <h2>Thanks!</h2>
+                    <div class="body">
+                        Please check your email and follow the instructions that have been sent to you.
+                    </div>
+                    <div class="body">
+                        Or <a on-tap="loginClicked">Log in <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
+                    <div class="footer">
+                        Forgot your <a on-tap="displayPasswordReset">password</a> or
+                        <a on-tap="displayUsernameReminder">username</a>?<br />
+                        <a on-tap="signupClicked">Sign up <img src="/assets/icons/link-arrow.svg" class="link-arrow" /></a>
+                    </div>
                 </div>
             </iron-pages>
         </kano-modal>
@@ -251,7 +290,7 @@
             },
             terms: {
                 type: Boolean,
-                value: false
+                value: true
             },
             newsletter: {
                 type: Boolean,
@@ -262,7 +301,6 @@
                 value: false
             }
         },
-        behaviors: [Kano.Behaviors.TrackingBehavior],
         attached () {
         },
         detached () {
@@ -271,7 +309,7 @@
             this.$.pager.selected = viewName;
 
             let cap = viewName.charAt(0).toUpperCase() + viewName.slice(1);
-            this.dispatchTrackingEvent("authModal" + cap + "ViewLoaded");
+            this.fire('track-event', 'authModal' + cap + 'ViewLoaded');
         },
         open (defaultPage) {
             defaultPage = defaultPage || 'login';
@@ -282,8 +320,8 @@
             this.$.dialog.close();
         },
         _skip () {
-            this.dispatchTrackingEvent('authModalGrownupsViewSkipClicked');
-            this.close();
+            this.fire('track-event', 'authModalGrownupsViewSkipClicked');
+            this._cancel();
         },
         reset () {
             this.set('errors', {});
@@ -291,7 +329,7 @@
             this.username = null;
             this.password = null;
             this.email = null;
-            this.terms = false;
+            this.terms = true;
             this.newsletter = false;
             this.finished = false;
         },
@@ -318,8 +356,6 @@
             let url = this.apiUrl + "/users/username/" + username;
             return fetch(url).then((res) => {
                 return !res.ok;
-            }).catch((err) => {
-                console.log("Failed to connect to the API. (" + err + ")");
             });
         },
         validatePassword (password) {
@@ -373,6 +409,8 @@
                         this.finished = finished;
                         this.setView('done');
                         this.set('errors.connection', undefined);
+
+                        this.doLogin(this.username, this.password);
                     } else {
                         this.set('errors.connection', 'Something went wrong. Please try again later.');
                     }
@@ -394,12 +432,11 @@
                 })
             }).then((res) => {
                 return res.ok;
-            }).catch((err) => {
-                console.log("Failed to connect to the API");
             });
         },
         confirmLogin () {
-            let url = this.apiUrl + "/auth";
+            this.set('errors.username', undefined);
+            this.set('errors.password', undefined);
 
             if (!this.username) {
                 this.set('errors.username', 'Username cannot be empty.');
@@ -411,7 +448,15 @@
                 return;
             }
 
-            fetch(url, {
+            this.doLogin(this.username, this.password).then(() => {
+                this._success();
+            }).catch((err) => {
+                this.set('errors.username', err);
+            });
+        },
+        doLogin (username, password) {
+            let url = this.apiUrl + "/auth";
+            return fetch(url, {
                 method: 'post',
                 headers: new Headers({
                     'Content-Type': 'application/json'
@@ -421,16 +466,104 @@
                     password: this.password
                 })
             }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Username or password not recognised');
+                }
                 return res.json();
             }).then((data) => {
                 this.fire('login', data.session);
-            }).catch((err) => {
-                console.log("Failed to connect to the API");
+                return;
             });
+        },
+        confirmUsernameReminder () {
+            this.set('errors.email', undefined);
+
+            if (!this.email) {
+                this.set('errors.email', 'Email cannot be empty.');
+                return;
+            }
+
+            if (this.validateEmail(this.email)) {
+                this.requestUsernameReminder(this.email).then(() => {
+                    this.setView('reset-confirmation');
+                }).catch((err) => {
+                    this.set('errors.email', err);
+                });
+            }
+        },
+        requestUsernameReminder (email) {
+            let url = `${this.apiUrl}/accounts/username-reminder`;
+            return fetch(url, {
+                method: 'post',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify({
+                    email: this.email
+                })
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Email not recognised');
+                }
+                return res.json();
+            });
+        },
+        confirmPasswordReset () {
+            this.set('errors.email', undefined);
+
+            if (!this.username) {
+                this.set('errors.username', 'Username cannot be empty.');
+                return;
+            }
+
+            if (this.validateUsername(this.username)) {
+                this.requestPasswordReset(this.username).then(() => {
+                    this.setView('reset-confirmation');
+                }).catch((err) => {
+                    this.set('errors.username', err);
+                });
+            }
+        },
+        requestPasswordReset (username) {
+            let url = `${this.apiUrl}/accounts/reset-password`;
+            return fetch(url, {
+                method: 'post',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify({
+                    username: this.username
+                })
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Username not recognised');
+                }
+                return res.json();
+            });
+        },
+        loginClicked () {
+            this.reset();
+            this.setView('login');
         },
         signupClicked () {
             this.reset();
             this.setView('signup');
+        },
+        displayUsernameReminder() {
+            this.reset();
+            this.setView('username-reminder');
+        },
+        displayPasswordReset() {
+            this.reset();
+            this.setView('password-reset');
+        },
+        _success () {
+            this.fire('success');
+            this.close();
+        },
+        _cancel () {
+            this.fire('cancel');
+            this.close();
         }
     });
 </script>

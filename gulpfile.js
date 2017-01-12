@@ -51,9 +51,10 @@ utils = {
     getEnvVars () {
         let code = '';
 
-        code += `window.Kano = window.Kano || {};`;
-        code += `window.Kano.MakeApps = window.Kano.MakeApps || {};`;
+        code += 'window.Kano = window.Kano || {};';
+        code += 'window.Kano.MakeApps = window.Kano.MakeApps || {};';
         code += `window.Kano.MakeApps.config = ${JSON.stringify(config)};`;
+        code += 'window.AudioContext = window.AudioContext || window.webkitAudioContext;';
 
         return code;
     },
@@ -127,8 +128,6 @@ require('./tasks/service-worker')(gulp, $);
 require('./tasks/workers')(gulp, $);
 require('./tasks/parts-api')(gulp, $);
 require('./tasks/app-modules')(gulp, $);
-require('./tasks/app')(gulp, $);
-require('./tasks/kano-canvas-api')(gulp, $);
 require('./tasks/dev')(gulp, $);
 require('./tasks/build')(gulp, $);
 require('./tasks/test')(gulp, $);

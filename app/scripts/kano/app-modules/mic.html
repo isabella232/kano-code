@@ -5,6 +5,9 @@
         class MicModule extends Kano.AppModules.AppModule {
             constructor () {
                 super();
+
+                this.addLifecycleStep('stop', '_stop');
+
                 this.addMethod('getAudioStream', '_getAudioStream');
                 this.addMethod('on', '_on');
                 this.addMethod('removeListener', '_removeListener');
@@ -30,6 +33,12 @@
 
             _removeListener () {
                 this.api.removeListener.apply(this.api, arguments);
+            }
+
+            _stop () {
+                if (this.api && this.api.microphone && typeof this.api.microphone.stopRecording === 'function') {
+                    this.api.microphone.stopRecording();
+                }
             }
 
             config (opts) {

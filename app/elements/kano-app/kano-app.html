@@ -1,4 +1,5 @@
 <script src="../../scripts/util/client.js"></script>
+<link rel="import" href="../../scripts/kano/make-apps/sdk.html">
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
@@ -18,6 +19,7 @@
 <link rel="import" href="../behaviors/kano-tracking-behavior.html">
 <link rel="import" href="../kano-slider/kano-slider.html">
 <link rel="import" href="../kano-try-chrome/kano-try-chrome.html">
+<link rel="import" href="../../scripts/kano/make-apps/progress.html">
 <!--
 `kano-app` provides the whole Make apps app.
 Example:
@@ -112,9 +114,20 @@ Example:
                             offline="[[offline]]"
                             on-login="_login"
                             world-url="[[worldUrl]]"></kano-side-menu>
-            <kano-routing main id="router" ctx="{{ctx}}" name="app" on-toggle-menu="toggleMenu" user="[[user]]" on-login="_login" page="{{route}}"></kano-routing>
+            <kano-routing main id="router"
+                          ctx="{{ctx}}"
+                          name="app"
+                          on-toggle-menu="toggleMenu"
+                          user="[[user]]"
+                          on-login="_login"
+                          page="{{route}}"></kano-routing>
         </paper-drawer-panel>
-        <kano-auth id="auth" on-login="_onLogin" world-url="{{worldUrl}}" api-url="{{apiUrl}}"></kano-auth>
+        <kano-auth id="auth"
+                   on-login="_onLogin"
+                   world-url="{{worldUrl}}"
+                   api-url="{{apiUrl}}"
+                   on-success="_authSuccess"
+                   on-cancel="_authCancelled"></kano-auth>
         <paper-toast id="toast" text="[[message.text]]" duration="[[message.duration]]">
             <button type="button" name="button" hidden$="[[!message.closeWithButton]]" on-tap="_closeToast">[[message.buttonText]]</button>
         </paper-toast>
@@ -149,7 +162,8 @@ Example:
             signup: '_signup',
             'kano-error': '_showErrorOnToast',
             'view-loaded': '_viewLoaded',
-            'track-event': '_trackEvent'
+            'track-event': '_trackEvent',
+            'track-page': '_trackPage'
         },
         _routeChanged (route) {
             // User not authenticated not actions to be done
@@ -181,9 +195,7 @@ Example:
                             this._startNotificationsPolling();
                         }
                     } else {
-                        this.dispatchTrackingEvent({
-                            visitType: 'Logged out'
-                        });
+                        this.trackVisitType('Logged out');
                     }
                 });
             };
@@ -210,8 +222,6 @@ Example:
             } else {
                 initialiseSDK();
             }
-            this.trackUserDevice();
-            this.trackProgress();
         },
         _showErrorOnToast (e) {
             this.message = e.detail;
@@ -244,24 +254,44 @@ Example:
             e.preventDefault();
             Kano.MakeApps.sdk.auth.logout(false);
             this.user = null;
-            page.redirect('/' + document.location.search);
             this.$.drawer.closeDrawer();
             this.$.auth.reset();
-            Kano.MakeApps.progress.reset();
+            Kano.MakeApps.Progress.reset();
             clearInterval(this._pollingIntervalId);
         },
-        _login () {
+        _login (e) {
+            if (e && e.detail) {
+                this.authCallbacks = e.detail;
+            }
+
+            this.authCallbacks = this.authCallbacks || {};
             this.$.auth.open('login');
         },
-        _signup () {
+        _signup (e) {
+            if (e && e.detail) {
+                this.authCallbacks = e.detail;
+            }
+
+            this.authCallbacks = this.authCallbacks || {};
             this.$.auth.open('signup');
+        },
+        _authSuccess () {
+            if (this.authCallbacks && this.authCallbacks.onSuccess) {
+                this.authCallbacks.onSuccess.call();
+                this.set('authCallbacks', null);
+            }
+        },
+        _authCancelled () {
+            if (this.authCallbacks && this.authCallbacks.onCancel) {
+                this.authCallbacks.onCancel.call();
+                this.set('authCallbacks', null);
+            }
         },
         _onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
             data.user.notifications = [];
             this.user = data.user;
-            this.$.auth.close();
             this._populateUser();
             if (this._needsNotifications()) {
                 this._startNotificationsPolling();
@@ -308,14 +338,9 @@ Example:
         _userChanged (user) {
             this.debounce('userChanged', () => {
                 if (user) {
-                    this.dispatchTrackingEvent({
-                        account: true,
-                        visitType: 'Logged in'
-                    });
+                    this.trackVisitType('Logged in');
                 } else {
-                    this.dispatchTrackingEvent({
-                        visitType: 'Logged out'
-                    });
+                    this.trackVisitType('Logged out');
                 }
             });
         },
@@ -323,7 +348,10 @@ Example:
             window.prerenderReady = true;
         },
         _trackEvent (e, payload) {
-            window.dataLayer.push(payload);
+            this.dispatchTrackingEvent(payload);
+        },
+        _trackPage (e, payload) {
+            this.dispatchVirtualPageView(payload.title, payload.path);
         }
     });
 </script>

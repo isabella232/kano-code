@@ -69,6 +69,7 @@ module.exports = (gulp, $) => {
             'app/assets/vendor/google-blockly/msg/js/en.js',
             'app/assets/vendor/google-blockly/media/**/*',
             'app/assets/vendor/cache-polyfill/cache-polyfill.js',
+            'app/assets/vendor/object-assign/object-assign.js',
             'app/scripts/util/dom.js',
             'app/scripts/util/client.js',
             'app/scripts/util/router.js',
@@ -115,7 +116,7 @@ module.exports = (gulp, $) => {
         process: assets
     };
 
-    gulp.task('elements-dev', ['kano-canvas-api-dev'], elements(watchMap.elements.src));
+    gulp.task('elements-dev', elements(watchMap.elements.src));
 
     gulp.task('scenes-dev', scenes(watchMap.scenes.src));
 
@@ -136,7 +137,7 @@ module.exports = (gulp, $) => {
 
     gulp.task('assets-dev', ['scenes-dev', 'blockly-media'], assets(watchMap.assets.src));
 
-    gulp.task('watch', ['app-modules-watch', 'app-watch', 'parts-api-watch', 'workers-watch'], () => {
+    gulp.task('watch', ['app-modules-watch', 'parts-api-watch', 'workers-watch'], () => {
         Object.keys(watchMap).forEach(key => {
             gulp.watch(watchMap[key].src)
                 .on('change', (e) => {
@@ -148,6 +149,6 @@ module.exports = (gulp, $) => {
 
     gulp.task('dev', ['watch', 'serve']);
     gulp.task('build-dev', () => {
-        return $.runSequence(['style-dev', 'app-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules', 'parts-api', 'scripts-dev', 'workers'], 'sw-dev');
+        return $.runSequence(['style-dev', 'elements-dev', 'assets-dev', 'views-dev', 'copy-dev', 'app-modules', 'parts-api', 'scripts-dev', 'workers'], 'sw-dev');
     });
 };

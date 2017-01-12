@@ -14,6 +14,8 @@
 
     /* globals SpeechSynthesisUtterance*/
 
+    Kano.AudioContext = Kano.AudioContext || new AudioContext();
+
     class TextToSpeech {
 
         constructor (config) {
@@ -21,9 +23,10 @@
 
             this.backend = this.remote;
             this.backendStop = this.remoteStop;
+            this.ctx = Kano.AudioContext;
 
             this.cache = {};
-            this.audio = null;
+            this.playQueue = [];
         }
 
         configure (c) {
@@ -86,17 +89,18 @@
             fetch(url)
                 .then((res) => {
                     if (res.ok) {
-                        return res.blob();
+                        return res.arrayBuffer();
                     } else {
                         console.log("Voice API request failed: " + res.status);
                         return;
                     }
-                }).then((blob) => {
-                    let objectUrl = URL.createObjectURL(blob);
-                    this.playAudio(objectUrl);
-                    if (!(text in this.cache[cacheTag])) {
-                        this.cache[cacheTag][text] = objectUrl;
-                    }
+                }).then((ab) => {
+                    this.ctx.decodeAudioData(ab, buffer => {
+                        this.playAudio(buffer);
+                        if (!(text in this.cache[cacheTag])) {
+                            this.cache[cacheTag][text] = buffer;
+                        }
+                    });
                 }).catch((err) => {
                     console.log("Voice API request failed: " + err);
                 });
@@ -106,17 +110,35 @@
             this.audioStop();
         }
 
-        playAudio (url) {
-            this.audio = document.createElement('audio');
-            this.audio.src = url;
-            this.audio.load();
-            this.audio.play();
+        playAudio (buffer) {
+            this.playQueue.push(buffer);
+            if (this.playQueue.length === 1) {
+                this.playNext();
+            }
+        }
+
+        playNext () {
+            if (this.playQueue.length > 0) {
+                let buffer = this.playQueue[0],
+                    source = this.ctx.createBufferSource();
+
+                source.buffer = buffer;
+
+                source.connect(this.ctx.destination);
+
+                source.onended = () => {
+                    this.playQueue.shift();
+                    this.playNext();
+                };
+                source.start();
+            }
         }
 
         audioStop () {
-            if (this.audio) {
-                this.audio.pause();
+            if (this.playQueue.length > 0 && typeof this.playQueue[0].stop === 'function') {
+                this.playQueue[0].stop();
             }
+            this.playQueue = [];
         }
 
         normaliseRateToRSS (rate) {

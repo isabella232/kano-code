@@ -81,9 +81,13 @@
         :host .content button:hover {
             background-color: var(--color-lighter-green);
         }
+        :host .content h2:first-child {
+            margin: 0;
+        }
         :host .content .small-text {
             font-size: 16px;
             margin-bottom: 10px;
+            line-height: 22px;
         }
     </style>
     <template>
@@ -101,7 +105,10 @@
             <div class="content">
                 <h2>Challenge Completed</h2>
                 <div class="small-text">
-                    Nice work! <span hidden$="{{!xp}}">You've just earned {{xp}} XP.</span>
+                    [[compliment]] <span hidden$="{{!xp}}">You've just earned {{xp}} XP.</span>
+                    <div hidden$="[[!hintStats.total]]">
+                        [[hintSummary]]
+                    </div>
                 </div>
                 <button class="next" on-tap="close">GOT IT</button>
             </div>
@@ -120,6 +127,18 @@
                 type: Boolean,
                 observer: 'openedChanged',
                 notify: true
+            },
+            hintStats: {
+                type: Object,
+                value: null
+            },
+            compliment: {
+                type: String,
+                value: 'Nice work!'
+            },
+            hintSummary: {
+                type: String,
+                value: null
             }
         },
         ready () {
@@ -149,6 +168,7 @@
             };
         },
         open () {
+            this.computeHintSummary();
             this.$.modal.open();
             this.previouslyOpened = true;
         },
@@ -163,6 +183,19 @@
         },
         computeImageClass (xp) {
             return xp ? 'xp-num' : 'star';
+        },
+        computeHintSummary () {
+            if (!this.hintStats.total) {
+                return;
+            }
+            if (this.hintStats.total === 1) {
+                this.hintSummary = `You used a hint. Think you can complete it without?`;
+            } else if (this.hintStats.used) {
+                this.hintSummary = `You used ${this.hintStats.used} of ${this.hintStats.total} hints. Think you can complete it without any hints?`;
+            } else {
+                this.compliment = 'Congratulations!';
+                this.hintSummary = 'You finished the challenge without using any hints!';
+            }
         }
     });
 </script>

@@ -10,6 +10,8 @@
         height: 100%;
         justify-content: center;
         align-content: center;
+        border-radius: 5px;
+        overflow: hidden;
     }
     #canvas {
         margin: auto;
@@ -71,13 +73,13 @@
 
                     let loopInSecond = setInterval(() => {
                         this.fireTimes++;
-                        if (this.fireTimes > 5) {
+                        if (this.fireTimes > 1) {
                             this.fire('fireworks-triggered');
                             window.clearInterval(loopInSecond);
                             window.clearInterval(loopFirework);
                         }
                     }, 1000);
-                    this.generateParticles(Math.random() * bounds.width * (this.$.canvas.width / bounds.width), 
+                    this.generateParticles(Math.random() * bounds.width * (this.$.canvas.width / bounds.width),
                     Math.random() * bounds.width * (this.$.canvas.height / bounds.width));
                 }
             },

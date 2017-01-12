@@ -31,7 +31,8 @@
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
                             step="{{currentStep}}"
-                            started="[[scene.started]]">
+                            started="[[scene.started]]"
+                            hint-stats="{{hintStats}}">
           <kano-app-editor id="editor"
                             added-parts="{{addedParts}}"
                             parts="[[computeParts(scene.*, remix)]]"
@@ -47,7 +48,8 @@
           </kano-app-editor>
       </kano-app-challenge>
       <kano-challenge-completed-modal id="challenge-completed"
-                                      on-close="goToRemixChallenge">
+                                      on-close="goToRemixChallenge"
+                                      hint-stats="[[hintStats]]">
       </kano-challenge-completed-modal>
   </template>
 </dom-module>
@@ -161,6 +163,8 @@
         },
         _sceneChanged () {
             this._loadVariables();
+            //async for correct data-binding with child element
+            this.async(this.resetHintStats, 0);
         },
         _loadVariables () {
             let workspace = this.$.editor.getBlocklyWorkspace();
@@ -192,7 +196,6 @@
             if (currentStep < 0) {
                 return 1;
             }
-
             return (currentStep + 1) / scene.steps.length;
         },
         computeChallengeStatus (progress, title, scene, done) {
@@ -203,6 +206,10 @@
                 started: this.scene.started,
                 ended: this.done
             };
+        },
+        resetHintStats () {
+            this.set('hintStats.total', 0);
+            this.set('hintStats.used', 0);
         },
         ready () {
             this.remix = false;
