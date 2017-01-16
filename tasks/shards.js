@@ -100,11 +100,11 @@ function getCommonDeps(opts) {
 function generateShared(commonDeps, opts) {
     let url, fileContent, fd;
     fileContent = commonDeps.reduce((acc, dep) => {
-        url = path.relative(opts.workdir, dep);
+        url = path.relative(opts.root, dep);
         return acc += `<link rel="import" href="${url}">\n`;
     }, '');
     mkdirp.sync(opts.workdir);
-    fd = fs.openSync(path.join(opts.workdir, 'shared.html'), 'w');
+    fd = fs.openSync(path.join(opts.root, 'shared.html'), 'w');
     fs.writeSync(fd, fileContent);
     return commonDeps;
 }
@@ -144,17 +144,17 @@ function vulcanizeSharedImport(opts) {
     return new Promise((resolve, reject) => {
         let outPath = path.join(opts.dest, opts.shared_import),
             outDir = path.dirname(outPath),
+            absPath = path.resolve(opts.root),
             vulcan, fd, unmute;
 
         vulcan = new Vulcan({
-            abspath: null,
+            abspath: absPath,
             inlineScripts: true,
-            inlineCss: true,
-            inputUrl: path.join(opts.workdir, 'shared.html')
+            inlineCss: true
         });
 
         unmute = mute();
-        vulcan.process(null, (err, doc) => {
+        vulcan.process('/shared.html', (err, doc) => {
             unmute();
             if (err) {
                 reject(err);
