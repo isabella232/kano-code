@@ -35,20 +35,19 @@
                 splash.parentNode.removeChild(splash);
             }, 400);
         }
-        function addAlertMessageBox() {
-            var splash = document.getElementById('splash');
-            var alertBox = document.createElement('DIV');
-            alertBox.className = 'alert';
-            alertBox.id = 'alert';
-            alertBox.innerHTML = "Hello. <br /> It looks like you've got a small screen here. <br />Kano Code is best when there's plenty of room to code. <br /> We recommend trying it out on a laptop or desktop.";
-            splash.appendChild(alertBox);
-        }
-        function addContinueButton() {
+        function showAlertBox(showed){
             var alertBox = document.getElementById('alert');
-            var button = document.createElement('BUTTON');
-            button.className = 'continue-btn';
-            button.innerHTML = 'Got it';
-            alertBox.appendChild(button);
+            var blocks = document.getElementById('blocks');
+            if (showed) {
+                blocks.parentNode.removeChild(blocks);
+                alertBox.style = "display: flex;";
+            } else {
+                alertBox.style = "display: none;";
+            }
+        }
+        function showContinueButton() {
+            var button = document.getElementById('close-btn');
+            button.style = "display: inline-block;";
             button.addEventListener('click', function(e) {
                 hideSplash ();
             });
@@ -62,11 +61,9 @@
         }
         if (isMobile()) {
             if (!showButton){
-                var splash = document.getElementById('splash');
-                splash.innerHTML = '';
-                addAlertMessageBox();
+                showAlertBox(true);
             } else {
-                addContinueButton();
+                showContinueButton();
             }
         }else {
             if (showButton){
