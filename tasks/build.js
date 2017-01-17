@@ -40,7 +40,7 @@ module.exports = (gulp, $) => {
         let needTranspile = ((file.relative.indexOf('bower_components') === -1 &&
             file.relative.indexOf('assets/vendor/') === -1) ||
             file.relative.indexOf('kano-circle-progress') !== -1 ||
-            file.relative.indexOf('Sortable') !== -1);
+            file.relative.indexOf('sortable') !== -1);
         return needTranspile;
     }
 
@@ -75,14 +75,14 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www'));
     });
 
-    gulp.task('build', () => {
+    gulp.task('build', (done) => {
         return $.runSequence(
             'copy-all',
             'shards',
             'split',
             ['copy-index', 'blockly-media', 'assets', 'workers'],
             'sw',
-            'external-play-bundle');
+            'external-play-bundle', done);
     });
 
     gulp.task('copy-index', () => {
@@ -110,6 +110,7 @@ module.exports = (gulp, $) => {
         return gulp.src([
             'app/assets/**/*',
             'app/manifest.json',
+            'app/bower_components/web-components/kano-style/fonts/*',
             '!app/assets/stories/**/*.{js,html}',
             '!app/assets/vendor/**/*'
         ], { base: 'app' })
