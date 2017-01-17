@@ -37,17 +37,17 @@
         }
         function showAlertBox(showed){
             var alertBox = document.getElementById('alert');
-            var blocks = document.getElementById('blocks');
             if (showed) {
+                var blocks = document.getElementById('blocks');
                 blocks.parentNode.removeChild(blocks);
-                alertBox.style = "display: flex;";
+                alertBox.style.display = "flex";
             } else {
-                alertBox.style = "display: none;";
+                alertBox.style.display = "none";
             }
         }
         function showContinueButton() {
             var button = document.getElementById('close-btn');
-            button.style = "display: inline-block;";
+            button.style.display = "inline-block";
             button.addEventListener('click', function(e) {
                 hideSplash ();
             });
