@@ -84,8 +84,7 @@
      * Makes sure that the splash is displayed at least 1.5s to prevent flashing
      */
     function onFirstPageLoaded () {
-        var duration = new Date() - started,
-            splash;
+        var duration = new Date() - started;
         if (duration < 1500) {
             timeout = setTimeout(onFirstPageLoaded, 1500 - duration);
             return;
