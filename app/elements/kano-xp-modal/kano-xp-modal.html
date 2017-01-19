@@ -68,25 +68,16 @@
             font-size: 36px;
             font-weight: bold;
         }
-        :host .xp-svg {
+        :host .xp-suffix-medium {
             width: 35px;
             height: 20px;
             margin-bottom: 2px;
         }
-        :host .xp-suffix {
-            background-color: var(--color-gold);
-            border-radius: var(--border-radius-large);
-            color: #fff;
-            display: inline-block;
-            font-size: 16px;
-            font-weight: bold;
-            margin-left: 15px;
-            padding: 6px;
-            text-transform: uppercase;
-            vertical-align: 30%;
+        :host .icon-light {
+            fill: var(--color-gold);
         }
-        :host .progress-prefix {
-            display: inline-block;
+        :host .icon-dark {
+            fill: var(--color-dark-yellow);
         }
         :host .progress-overlay {
             @apply --layout-horizontal;
@@ -115,7 +106,7 @@
             transform: rotate(45deg);
             width: 10px;
         }
-        :host .prefix-icon {
+        :host .overlay-xp {
             width: 20px;
         }
         :host .progress-value {
@@ -124,16 +115,6 @@
             font-size: 16px;
             font-weight: bold;
             margin-left: 6px;
-        }
-        :host .icon-light {
-            fill: var(--color-gold);
-        }
-        :host .icon-dark {
-            fill: var(--color-dark-yellow);
-        }
-        :host .icon-arrow-up.icon-arrow-right svg {
-            transform: rotate(90deg);
-            backface-visibility: hidden;
         }
         :host .slider-container {
             height: 100%;
@@ -184,14 +165,6 @@
         :host .button:hover {
             background-color: var(--color-light-grey);
         }
-        :host .button .icon {
-            display: inline-block;
-            height: auto;
-            line-height: 0;
-            opacity: 0.3;
-            vertical-align: top;
-            width: 20px;
-        }
         :host kano-glint-animation:first-child .button,
         :host kano-glint-animation[hidden] ~ kano-glint-animation .button {
             background-color: var(--color-orange);
@@ -215,14 +188,6 @@
         :host .button .icon ~ .action-text,
         :host .button .action-text ~ .icon {
             margin-left: 3px;
-        }
-        :host .button.button--primary .icon {
-            color: var(--color-black);
-        }
-        :host .content .small-text {
-            font-size: 16px;
-            margin-bottom: 10px;
-            line-height: 22px;
         }
         :host #progress-fill {
             height: 10px;
@@ -281,7 +246,7 @@
                         <span class="xp-prefix">+</span>
                         <span class="xp-value">100</span>
                             <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                 viewBox="0 0 31.3 24.6" xml:space="preserve" class="xp-svg">
+                                 viewBox="0 0 31.3 24.6" xml:space="preserve" class="xp-suffix-medium">
                                 <g>
                                     <g>
                                         <path class="icon-light" d="M27.6,0H3.7C1.7,0,0,1.7,0,3.7v17.1c0,2.1,1.7,3.7,3.7,3.7h23.9c2.1,0,3.7-1.7,3.7-3.7V3.7
@@ -307,7 +272,7 @@
                         <div id="progress-label">
                             <div class="progress-overlay float-in-label">
                                 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                     viewBox="0 0 31.3 24.6" xml:space="preserve" class="prefix-icon">
+                                     viewBox="0 0 31.3 24.6" xml:space="preserve" class="overlay-xp">
                                     <g>
                                         <g>
                                             <path class="icon-light" d="M27.6,0H3.7C1.7,0,0,1.7,0,3.7v17.1c0,2.1,1.7,3.7,3.7,3.7h23.9c2.1,0,3.7-1.7,3.7-3.7V3.7
@@ -418,13 +383,13 @@
                 newRatio = (this.xpOriginal + this.gainedXp) / this.max;
             this.$['progress-fill'].style.transform = `translateX(-${100 - oldRatio * 100}%)`;
             this.$['progress-label'].style.transform = `translateX(-${100 - oldRatio * 100}%)`;
-            this.async(()=>{this.$.modal.transitionImage('/assets/icons/xp-star.svg');}, 280);
-            this.async(()=>{this.$.modal.transitionImage('/assets/avatar/judoka-smile.svg');}, 2100);
-            this.async(()=>{this.panel = 'progress'}, 2800);
-            this.async(()=>{this._incrementXp(target, interval)}, 4000);
-            this.async(()=>{this._animateProgress(newRatio, speed)}, 4000);
-            this.async(()=>{this.avatar = '/assets/avatar/judoka-face.svg'}, 4800);
-            this.async(()=>{this.closingEnabled = true;}, 5500);
+            this.async(() => this.$.modal.transitionImage('/assets/icons/xp-star.svg'), 280);
+            this.async(() => this.$.modal.transitionImage('/assets/avatar/judoka-smile.svg'), 2100);
+            this.async(() => this.panel = 'progress', 2800);
+            this.async(() => this._incrementXp(target, interval), 4000);
+            this.async(() => this._animateProgress(newRatio, speed), 4000);
+            this.async(() => this.avatar = '/assets/avatar/judoka-face.svg', 4800);
+            this.async(() => this.closingEnabled = true, 5500);
         },
         open () {
             this._reset();
