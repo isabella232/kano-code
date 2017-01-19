@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+        <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
+        <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+        <link rel="import" href="../kano-xp-modal.html">
+        <style is="custom-style" include="demo-pages-shared-styles">
+            button {
+                background-color: #fff;
+                padding: 15px 25px;
+                margin: 0 15px;
+                border: 2px solid;
+            }
+            .events {
+                display: flex;
+                flex-direction: column;
+            }
+        </style>
+    </head>
+    <body unresolved>
+        <h2>kano-modal demo</h2>
+        <demo-snippet>
+            <template>
+                <template is="dom-bind" id="bind">
+                    <button type="button" name="button" on-tap="openModalAnonym">Modal without user</button>
+                    <button type="button" name="button" on-tap="openModalUser">Modal with user</button>
+                    <div class="events">
+                        <h2>Events</h2>
+                        <template is="dom-repeat" items="[[events]]">
+                            <div>[[item]]</div>
+                        </template>
+                    </div>
+                    <kano-xp-modal id="modal"
+                                   initial-xp="[[initialXp]]"
+                                   gained-xp="[[gainedXp]]"
+                                   min="[[min]]"
+                                   max="[[max]]"
+                                   user="[[user]]"></kano-xp-modal>
+                </template>
+            </template>
+        </demo-snippet>
+        <script type="text/javascript">
+            document.addEventListener('WebComponentsReady', () => {
+                var bind = document.getElementById('bind'),
+                    modal = document.getElementById('modal');
+                bind.events = [];
+                document.addEventListener('signup', () => {
+                    bind.push('events', 'signup');
+                });
+                document.addEventListener('next-story', () => {
+                    bind.push('events', 'next-story');
+                });
+                document.addEventListener('dismiss', () => {
+                    bind.push('events', 'dismiss');
+                });
+                bind.openModalAnonym = () => {
+                    bind.user = null;
+                    bind.min = 100;
+                    bind.max = 200;
+                    bind.initialXp = 110;
+                    bind.gainedXp = 50;
+                    modal.open();
+                };
+                bind.openModalUser = () => {
+                    bind.user = {name: "vikdoro"};
+                    bind.min = 50;
+                    bind.max = 200;
+                    bind.initialXp = 60;
+                    bind.gainedXp = 100;
+                    modal.open();
+                };
+            });
+        </script>
+    </body>
+</html>
