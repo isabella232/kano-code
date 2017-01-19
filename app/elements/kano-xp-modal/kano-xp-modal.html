@@ -27,13 +27,13 @@
         }
         :host .content {
             font-family: 'Bariol', Helvetica, Arial, sans-serif;
-            margin: 10px 50px 0;
-            height: 240px;
-            width: 360px;
-        }
-        :host([user]) .content {
+            margin: 10px 50px;
             height: 200px;
             width: 285px;
+        }
+        :host([sub-label]) .content {
+            height: 240px;
+            width: 360px;
         }
         :host .level {
             text-transform: uppercase;
@@ -209,7 +209,7 @@
             min-height: 60px;
             margin-top: 10px;
         }
-        :host .save-action {
+        :host .sub-action {
             margin-bottom: 13px;
         }
         :host .button .icon ~ .action-text,
@@ -328,14 +328,14 @@
                     </div>
                 </iron-pages>
                 <div class="action">
-                    <kano-glint-animation hidden$="[[user]]" running class="save-action">
-                        <button class="button float-in-button-first" on-tap="_saveTapped">
-                            <span class="action-text">Save XP</span>
+                    <kano-glint-animation hidden$="[[!subLabel]]" running class="sub-action">
+                        <button class="button float-in-button-first" on-tap="_subActionTapped">
+                            <span class="action-text">[[subLabel]]</span>
                         </button>
                     </kano-glint-animation>
                     <kano-glint-animation running>
-                        <button class="button float-in-button-second" on-tap="_progressTapped">
-                            <span class="action-text">Next Challenge</span>
+                        <button class="button float-in-button-second" on-tap="_confirmTapped">
+                            <span class="action-text">[[confirmLabel]]</span>
                         </button>
                     </kano-glint-animation>
                 </div>
@@ -379,12 +379,26 @@
             },
             user: {
                 type: Object,
-                value: null,
-                reflectToAttribute: true
+                value: null
             },
             header: {
                 type: String,
                 computed: '_computeHeader(user)'
+            },
+            /**
+             * Button label for main action
+             */
+            confirmLabel: {
+                type: String,
+                value: 'Next Challenge'
+            },
+            /**
+             * Button label for secondary action
+             */
+            subLabel: {
+                type: String,
+                value: null,
+                reflectToAttribute: true
             },
             opened: {
                 type: Boolean,
@@ -424,23 +438,22 @@
         _openedChanged (opened) {
             if (this.previouslyOpened && !opened) {
                 this.previouslyOpened = false;
-                this.fire('close');
+                this.fire('dismiss');
             }
         },
-        _saveTapped () {
-            this.fire('signup');
+        _subActionTapped () {
+            this.fire('sub-action');
         },
-        _progressTapped () {
-            this.fire('next-story');
+        _confirmTapped () {
+            this.fire('confirm');
         },
         _incrementXp (target, interval) {
-            let incrementing = setInterval(
-                function () {
-                    this.xpOriginal++;
-                    if (this.xpOriginal > target) {
-                        clearInterval(incrementing);
-                    }
-                }.bind(this), interval);
+            let incrementing = setInterval(() => {
+                this.xpOriginal++;
+                if (this.xpOriginal > target) {
+                    clearInterval(incrementing);
+                }
+            }, interval);
         },
         _animateProgress (ratio, speed) {
             this.$['progress-fill'].style.transition = `transform ${speed}ms linear`;
@@ -453,7 +466,7 @@
         },
         _reset () {
             this.closingEnabled = false;
-            this.panel = "xp";
+            this.panel = 'xp';
             this.xpOriginal = this.initialXp;
             this.avatar = null;
             this.$['progress-fill'].style.transition = 'none';

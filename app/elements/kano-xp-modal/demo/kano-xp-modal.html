@@ -37,7 +37,12 @@
                                    gained-xp="[[gainedXp]]"
                                    min="[[min]]"
                                    max="[[max]]"
-                                   user="[[user]]"></kano-xp-modal>
+                                   user="[[user]]"
+                                   confirm-label="[[confirmLabel]]"
+                                   sub-label="[[subLabel]]"
+                                   on-confirm="onConfirm"
+                                   on-sub-action="onSubAction"
+                                   on-dismiss="onDismiss"></kano-xp-modal>
                 </template>
             </template>
         </demo-snippet>
@@ -46,17 +51,10 @@
                 var bind = document.getElementById('bind'),
                     modal = document.getElementById('modal');
                 bind.events = [];
-                document.addEventListener('signup', () => {
-                    bind.push('events', 'signup');
-                });
-                document.addEventListener('next-story', () => {
-                    bind.push('events', 'next-story');
-                });
-                document.addEventListener('dismiss', () => {
-                    bind.push('events', 'dismiss');
-                });
+                bind.confirmLabel = 'Next challenge';
                 bind.openModalAnonym = () => {
                     bind.user = null;
+                    bind.subLabel = bind.user ? null : 'Save Xp';
                     bind.min = 100;
                     bind.max = 200;
                     bind.initialXp = 110;
@@ -65,12 +63,22 @@
                 };
                 bind.openModalUser = () => {
                     bind.user = {name: "vikdoro"};
+                    bind.subLabel = bind.user ? null : 'Save Xp';
                     bind.min = 50;
                     bind.max = 200;
                     bind.initialXp = 60;
                     bind.gainedXp = 100;
                     modal.open();
                 };
+                bind.onConfirm = () => {
+                    bind.push('events', 'confirm');
+                }
+                bind.onSubAction = () => {
+                    bind.push('events', 'sub-action');
+                }
+                bind.onDismiss = () => {
+                    bind.push('events', 'dismiss');
+                }
             });
         </script>
     </body>
