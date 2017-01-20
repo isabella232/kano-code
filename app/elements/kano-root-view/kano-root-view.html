@@ -6,15 +6,34 @@
     <style>
     :host {
         display: block;
-        @apply(--layout-vertical);
+        position: relative;
         background-color: var(--color-grey-darker, grey);
     }
     :host kano-blockly,
-    :host kano-code-editor {
-        @apply(--layout-flex);
+    :host kano-code-editor,
+    .shell {
+        @apply(--layout-fit);
+        transition: opacity 200ms linear;
+    }
+    .shell {
+        background-color: var(--kano-blockly-background, white);
+    }
+    .shell .toolbox {
+        content: ' ';
+        position: absolute;
+        @apply --kano-blockly-toolbox;
+        top: 0px;
+        bottom: 0px;
+        width: 130px;
+    }
+    :host([loading]) kano-blockly {
+        opacity: 0;
     }
     </style>
     <template>
+        <div class="shell">
+            <div class="toolbox"></div>
+        </div>
         <kano-blockly id="code-editor"
                 toolbox="[[toolbox]]"
                 on-change="saveCode"

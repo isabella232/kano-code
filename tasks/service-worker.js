@@ -64,9 +64,6 @@ module.exports = (gulp, $) => {
     gulp.task('sw', ['appcache'], (cb) => {
         writeServiceWorker(true, cb);
     });
-    gulp.task('sw-dev', ['appcache-dev'], (cb) => {
-        writeServiceWorker(false, cb);
-    });
 
     gulp.task('appcache-iframe', () => {
         return generateAppcacheIframe(MANIFEST_NAME)
@@ -75,9 +72,5 @@ module.exports = (gulp, $) => {
 
     gulp.task('appcache', ['appcache-iframe'], () => {
         generateAppcacheManifest(MANIFEST_NAME, true).pipe(gulp.dest('www'));
-    });
-
-    gulp.task('appcache-dev', ['appcache-iframe'], () => {
-        generateAppcacheManifest(MANIFEST_NAME, false).pipe(gulp.dest('www'));
     });
 };

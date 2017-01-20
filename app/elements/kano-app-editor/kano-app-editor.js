@@ -110,6 +110,12 @@ Polymer({
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)'
     ],
+    listeners: {
+        'mode-ready': '_onModeReady'
+    },
+    _onModeReady () {
+        this.modeReady = true;
+    },
     _partsPanelStateChanged (state) {
         if (this.editableLayout && state === 'main') {
             this.$.workspace.toggleEditableLayout();
@@ -484,6 +490,7 @@ Polymer({
         this.reset = this.reset.bind(this);
         this._exportApp = this._exportApp.bind(this);
         this._importApp = this._importApp.bind(this);
+        this.modeReady = false;
     },
     attached () {
         this.target = document.body;
@@ -529,7 +536,7 @@ Polymer({
                 return 'Any unsaved changes to your app will be lost. Continue?';
             }
         } else {
-        //don't alert
+            //don't alert
             window.onbeforeunload = null;
         }
     },

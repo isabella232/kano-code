@@ -1,18 +1,23 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/lazy-imports/lazy-imports.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
-<link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
-<link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
-<link rel="import" href="../kano-workspace-camera/kano-workspace-camera.html">
-<link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../kano-workspace-head/kano-workspace-head.html">
+<link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 
 <dom-module id="kano-workspace">
+    <link rel="lazy-import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html" group="lightboard">
+    <link rel="lazy-import" href="../kano-workspace-camera/kano-workspace-camera.html" group="camera">
+    <link rel="lazy-import" href="../kano-workspace-normal/kano-workspace-normal.html" group="normal">
     <style>
+    @keyframes fade-in {
+        from { opacity: 0 },
+        to { opacity: 1 }
+    }
     :host {
         position: relative;
         @apply(--layout-vertical);
@@ -44,6 +49,9 @@
     }
     #workspace-placeholder {
         height: 100%;
+    }
+    #workspace-placeholder>* {
+        animation: fade-in 200ms linear;
     }
     :host kano-workspace-head {
         position: absolute;
@@ -150,6 +158,10 @@
 </dom-module>
 
 <script type="text/javascript">
+    const importsMap = {
+        'simple': 'normal'
+    };
+    const importedWorkspaces = {};
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace',
@@ -157,7 +169,8 @@
             Kano.Behaviors.AppEditorBehavior,
             Kano.Behaviors.CoverGeneratorBehavior,
             Kano.Behaviors.SoundPlayerBehavior,
-            Kano.Behaviors.AppElementRegistryBehavior
+            Kano.Behaviors.AppElementRegistryBehavior,
+            Polymer.LazyImportsBehavior
         ],
         properties: {
             parts: {
@@ -207,8 +220,7 @@
         },
         observers: [
             'partsChanged(parts.*)',
-            'backgroundChanged(background)',
-            'viewportDimensionsChanged(mode.workspace.viewport.*)'
+            'backgroundChanged(background)'
         ],
         listeners: {
             'part-tapped': 'onPartTapped'
@@ -342,45 +354,55 @@
         _modeChanged (mode) {
             let oldDropzone = this.dropzone,
                 placeholder = this.$$('#workspace-placeholder'),
-                newDropzone;
+                newDropzone, modeId, importPromise;
 
-            if (mode && mode.workspace.component) {
-                newDropzone = document.createElement(mode.workspace.component);
-            } else {
-                newDropzone = document.createElement('kano-workspace-normal');
-            }
+            modeId = importsMap[mode.id] || mode.id;
 
-            newDropzone.setAttribute('id', this.mode.id);
-            newDropzone.setAttribute('class', 'dropzone');
-            newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
-            newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
+            this.async(() => {
+                if (importedWorkspaces[modeId]) {
+                    importPromise = Promise.resolve();
+                } else {
+                    importPromise = this.importLazyGroup(modeId);
+                }
+                importPromise.then(() => {
+                    importedWorkspaces[modeId] = true;
+                    if (mode && mode.workspace.component) {
+                        newDropzone = document.createElement(mode.workspace.component);
+                    } else {
+                        newDropzone = document.createElement('kano-workspace-normal');
+                    }
 
-            newDropzone.addEventListener('mouse-position-x-changed', this.mouseXChanged.bind(this));
-            newDropzone.addEventListener('mouse-position-y-changed', this.mouseYChanged.bind(this));
-            this.showMousePosition = mode.id === 'normal';
+                    newDropzone.setAttribute('id', this.mode.id);
+                    newDropzone.setAttribute('class', 'dropzone');
+                    newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
+                    newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
 
-            if (newDropzone.setBackground) {
-                newDropzone.setBackground(this.background);
-            }
+                    newDropzone.addEventListener('mouse-position-x-changed', this.mouseXChanged.bind(this));
+                    newDropzone.addEventListener('mouse-position-y-changed', this.mouseYChanged.bind(this));
+                    this.showMousePosition = mode.id === 'normal';
 
-            /* Remove old dropzone and add new one */
-            if (oldDropzone) {
-                placeholder.removeChild(oldDropzone);
-            }
-            placeholder.appendChild(newDropzone);
+                    if (newDropzone.setBackground) {
+                        newDropzone.setBackground(this.background);
+                    }
 
-            /* Update dropzone reference */
-            this.dropzone = newDropzone;
+                    /* Remove old dropzone and add new one */
+                    if (oldDropzone) {
+                        placeholder.removeChild(oldDropzone);
+                    }
+                    placeholder.appendChild(newDropzone);
 
-            this.parts.forEach((model, index) => {
-                this.insertPart(`#${index}`);
+                    /* Update dropzone reference */
+                    this.dropzone = newDropzone;
+
+                    this.parts.forEach((model, index) => {
+                        this.insertPart(`#${index}`);
+                    });
+                    this.dropzone.setAttribute('width', this.mode.workspace.viewport.width);
+                    this.dropzone.setAttribute('height', this.mode.workspace.viewport.height);
+                    this.$.content.resizeView();
+                    this.fire('mode-ready');
+                });
             });
-
-        },
-        viewportDimensionsChanged () {
-            this.dropzone.setAttribute('width', this.mode.workspace.viewport.width);
-            this.dropzone.setAttribute('height', this.mode.workspace.viewport.height);
-            this.$.content.resizeView();
         },
         mouseXChanged (e) {
             this.mouseX = e.detail.value;
