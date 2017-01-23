@@ -5,20 +5,31 @@
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
-    window.Kano.Behaviors.EditorViewBehavior = {
+    // @polymerBehavior
+    Kano.Behaviors.EditorViewBehavior = {
         properties: {
             running: {
                 type: Boolean,
                 observer: '_runningChanged'
+            },
+            modeReady: {
+                type: Boolean,
+                value: false
             }
         },
         listeners: {
-            'blockly-ready': '_registerBlockly'
+            'mode-ready': '_onModeReady'
         },
-        _registerBlockly () {
+        _onModeReady () {
             Kano.MakeApps.Blockly.register(window.Blockly);
+            this.notifyPath('mode.defaultBlocks', this.mode.defaultBlocks);
+            this._runningChanged(this.running);
+            this.modeReady = true;
         },
         _runningChanged (running) {
+            if (!this.modeReady) {
+                return;
+            }
             this.debounce('runningChanged', () => {
                 if (running) {
                     let parts,

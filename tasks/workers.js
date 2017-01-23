@@ -19,12 +19,4 @@ module.exports = (gulp, $) => {
     gulp.task('workers', () => {
         return generateWorkers(WORKERS_SRC);
     });
-
-    gulp.task('workers-watch', () => {
-        gulp.watch(WORKERS_SRC)
-            .on('change', (e) => {
-                $.utils.notifyUpdate(`File ${e.path} was ${e.type}...`);
-                return generateWorkers(e.path);
-            });
-    });
 };

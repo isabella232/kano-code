@@ -64,7 +64,7 @@ Example:
         @apply(--layout-vertical);
         @apply(--layout-flex);
     }
-    :host kano-root-view {
+    kano-root-view {
         @apply(--layout-flex);
     }
     :host #resize {
@@ -73,11 +73,6 @@ Example:
         cursor: ew-resize;
         background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
         border-left: 1px solid var(--kano-app-editor-workspace-border, #6f6f6f);
-    }
-    :host .root-view-wrapper {
-        position: relative;
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
     }
     :host .drawer {
         position: relative;
@@ -172,7 +167,8 @@ Example:
                             code="{{code}}"
                             mode="[[mode]]"
                             on-change="_proxyChange"
-                            default-categories="{{defaultCategories}}"></kano-root-view>
+                            default-categories="{{defaultCategories}}"
+                            loading$="[[!modeReady]]"></kano-root-view>
                         <slot></slot>
                     </div>
                     <div class="drawer animatable" drawer id="drawer">
