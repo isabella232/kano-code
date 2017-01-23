@@ -200,7 +200,7 @@ function getAllByPath(node, path) {
 
 function bundleLeaf(leaf, similar) {
     let lowestCommonNode,
-        longuestPath,
+        longestPath,
         parentsPath,
         it,
         p;
@@ -219,11 +219,11 @@ function bundleLeaf(leaf, similar) {
         return acc;
     }, []);
 
-    // Grab the longuest dependency path of all the similar nodes
-    longuestPath = paths.reduce((acc, p) => acc < p.length ? p.length : acc, 0);
+    // Grab the longest dependency path of all the similar nodes
+    longestPath = paths.reduce((acc, p) => acc < p.length ? p.length : acc, 0);
 
     // Start iterating at the end of the path
-    it = longuestPath - 1;
+    it = longestPath - 1;
 
     // Move up towards the root if not all the paths are the same
     while (it > 0 && !paths.every(p => p[it] && p[it].path === paths[0][it].path)) {
@@ -233,7 +233,7 @@ function bundleLeaf(leaf, similar) {
     // All the paths are the same, this is the lowest common ancestor in the tree
     lowestCommonNode = paths[0][it];
 
-    // Remove the bundle node if all of its children has been processed. A reference to the node is kept in `endpoints`
+    // Remove the bundle node if all of its children have been processed. A reference to the node is kept in `endpoints`
     if (lowestCommonNode.parent && lowestCommonNode.children.every(c => c.moved)) {
         TreeUtil.removeChild(lowestCommonNode.parent, lowestCommonNode);
     }
@@ -334,7 +334,7 @@ function build(opts) {
             // Grab the tree again
             return makeTree(opts).then(root => {
                 let deps = [];
-                // Get all dependencies fron the tree as an array of path
+                // Get all dependencies from the tree as an array of path
                 function iterate(node) {
                     if (deps.indexOf(node.path) === -1) {
                         deps.push(node.path);
@@ -351,7 +351,7 @@ function build(opts) {
                         let needed = bundles[bundlePath].map(c => c.path),
                             exclude, vulcan, fd, absPath, relPath;
                         needed.push(bundlePath);
-                        // Exclude contains all the dependencies except the one needed. This trick vulcanize into only bundling what we tell it to
+                        // Exclude contains all the dependencies except the one needed. This tricks vulcanize into only bundling what we tell it to
                         exclude = deps.filter(path => needed.indexOf(path) === -1);
                         absPath = path.resolve(opts.root);
                         relPath = path.relative(absPath, files[index]);
