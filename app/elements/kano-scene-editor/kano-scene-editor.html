@@ -41,7 +41,6 @@
                             running="{{running}}"
                             code="{{code}}"
                             mode="[[_computeMode(mode, remix)]]"
-                            on-blockly-ready="_blocklyReady"
                             on-share="_pauseAndShare"
                             challenge-state="[[challengeState]]"
                             hide-leave-alert="[[alertDisabled]]">
@@ -155,7 +154,8 @@
                 });
             });
         },
-        _blocklyReady (scene) {
+        _onModeReady () {
+            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
             this._loadVariables();
             this.async(() => {
                 this._loadDefaultApp();

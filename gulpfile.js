@@ -3,8 +3,6 @@
 
 let gulp = require('gulp'),
     $ = require('gulp-load-plugins')({ lazy: false }),
-    babelify = require('babelify'),
-    browserify = require('browserify'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
     es = require('event-stream'),
@@ -12,11 +10,20 @@ let gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
     historyApiFallback = require('connect-history-api-fallback'),
     runSequence = require('run-sequence'),
-    configs = require('./config.json'),
     env = process.env.NODE_ENV || 'development',
     target = process.env.TARGET || 'web',
-    config = Object.assign(configs.COMMON, configs.TARGET[target], configs.ENV[env], { ENV: env,  TARGET: target }),
     utils;
+
+const DEFAULT_META_DATA = [
+    ["og:title", "Kano Code"],
+    ["og:description", "Make real apps, real fast"],
+    ["og:site-name", "Kano Code"],
+    ["og:url", "https://apps.kano.me/"],
+    ["og:image", ""],
+    ["twitter:card", "summary_large_image"],
+    ["twitter:site", "@teamkano"],
+    ["theme-color", "#ff842a"]
+];
 
 utils = {
     notifyError: $.notify.onError((error) => {
@@ -51,9 +58,11 @@ utils = {
     getEnvVars () {
         let code = '';
 
-        code += 'window.Kano = window.Kano || {};';
-        code += 'window.Kano.MakeApps = window.Kano.MakeApps || {};';
-        code += `window.Kano.MakeApps.config = ${JSON.stringify(config)};`;
+        code += 'window.Kano = {};';
+        code += 'window.Kano.MakeApps = {};';
+        code += 'window.Kano.MakeApps.config = {};';
+        code += `window.Kano.MakeApps.config.ENV = '${env}';`;
+        code += `window.Kano.MakeApps.config.TARGET = '${target}';`;
         code += 'window.AudioContext = window.AudioContext || window.webkitAudioContext;';
 
         return code;
@@ -64,12 +73,14 @@ utils = {
     getHtmlReplaceOptions () {
 
         let mapping = {
-            config: `<script type="text/javascript">
+            env: `<script type="text/javascript">
                     ${utils.getEnvVars()}
                 </script>`,
+            config: `<link rel="import" href="./${env}.html">
+                <link rel="import" href="./${target}.html">`,
             base: `<base href="/" />`,
             meta: {
-                src: config.DEFAULT_META_DATA,
+                src: DEFAULT_META_DATA,
                 tpl: '<meta name="%s" content="%s">'
             }
         };
@@ -92,8 +103,6 @@ utils = {
     }
 };
 
-$.browserify = browserify;
-$.babelify = babelify;
 $.utils = utils;
 $.source = source;
 $.watchify = watchify;
@@ -101,6 +110,20 @@ $.runSequence = runSequence;
 $.browserSync = browserSync;
 $.historyApiFallback = historyApiFallback;
 $.debug = env === 'development' || process.env.DEBUG;
+
+$.transpile = () => {
+    return $.babel({
+        presets: [
+            ['env', {
+                targets: {
+                    browsers: ["last 2 versions"]
+                },
+                modules: false
+            }]
+        ],
+        sourceMaps: $.debug ? 'inline' : false
+    });
+};
 
 gulp.task('serve', () => {
     return $.browserSync.init({
@@ -118,6 +141,24 @@ gulp.task('serve', () => {
     });
 });
 
+gulp.task('watch', () => {
+    $.browserSync.init({
+        server: {
+            baseDir: './app',
+            middleware: [$.historyApiFallback()]
+        },
+        port: 4000,
+        open: false,
+        ghostMode: {
+            clicks: true,
+            forms: true,
+            scroll: true
+        }
+    });
+    return gulp.watch('./app/**/*')
+        .on('change', () => browserSync.reload());
+});
+
 // Copy the webcomponents polyfill to the vendor folder
 gulp.task('polyfill', () => {
     return gulp.src('app/bower_components/webcomponentsjs/webcomponents-lite.min.js')
@@ -127,8 +168,6 @@ gulp.task('polyfill', () => {
 require('./tasks/service-worker')(gulp, $);
 require('./tasks/workers')(gulp, $);
 require('./tasks/parts-api')(gulp, $);
-require('./tasks/app-modules')(gulp, $);
-require('./tasks/dev')(gulp, $);
 require('./tasks/build')(gulp, $);
 require('./tasks/test')(gulp, $);
 require('./tasks/doc')(gulp, $);
