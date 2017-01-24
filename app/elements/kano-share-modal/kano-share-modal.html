@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/input.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-app-player/kano-app-player.html">
 
 <dom-module id="kano-share-modal">
@@ -322,22 +323,22 @@
     <template>
         <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
             <div class="gif-creator" name="gif-creation">
-                <h2 hidden$="[[!firstRender]]">Recording your gif &hellip;</h2>
-                <h2 hidden$="[[firstRender]]">Click to begin recording your gif</h2>
+                <h2 hidden$="[[!firstRender]]">[[localize('RECORDING', 'Recording your gif')]] &hellip;</h2>
+                <h2 hidden$="[[firstRender]]">[[localize('BEGIN_RECORDING', 'Click to begin recording your gif')]]</h2>
                 <paper-progress value="[[gifRenderProgress]]" secondary-progress="[[gifProgress]]"></paper-progress>
                 <div class="gif-creation">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
                     <div class="start-gif-overlay" hidden$="[[recording]]" on-tap="_generateAppGif">
-                        <button class="gif" type="button">Start recording your animated gif</button>
+                        <button class="gif" type="button">[[localize('START_RECORDING', 'Start recording your animated gif')]]</button>
                     </div>
                 </div>
             </div>
             <div class="dialog" name="sharing-form">
-                <button type="button" name="button" class="close" on-tap="dismiss"><span>Close&nbsp;&nbsp;</span><span class="times">&times;</span></button>
+                <button type="button" name="button" class="close" on-tap="dismiss"><span>[[localize('CLOSE', 'Close')]]&nbsp;&nbsp;</span><span class="times">&times;</span></button>
                 <div class="app-player-container">
                     <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" width="[[coverWidth]]" height="[[coverHeight]]"></iron-image>
                     <div class="change-gif-container">
-                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; Make another gif</button>
+                        <button class="change-gif" on-tap="_changeGif" type="button">&larr; [[localize('MAKE_ANOTHER', 'Make another gif')]]</button>
                     </div>
                 </div>
                 <form class="form">
@@ -356,7 +357,7 @@
                     </div>
 
                     <div class="button-container">
-                        <button type="button" name="button" class="share normal-button" on-tap="_shareOnKW"><img class="button-img" src="/assets/kano-world-planet.svg" alt="" /><span>Share on Kano World</span></button>
+                        <button type="button" name="button" class="share normal-button" on-tap="_shareOnKW"><img class="button-img" src="/assets/kano-world-planet.svg" alt="" /><span>[[localize('SHARE_ON_WORLD', 'Share on Kano World')]]</span></button>
                     </div>
 
                     <div class="button-container generate-url">
@@ -370,10 +371,10 @@
                         </div>
                         <div class="composed-button" hidden$="[[!shareInfo.slug]]">
                             <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
-                            <button on-tap="copyToClipboard" type="button"><img src="/assets/get-share-link.svg"/> <span>copy</span></button>
+                            <button on-tap="copyToClipboard" type="button"><img src="/assets/get-share-link.svg"/> <span>[[localize('COPY', 'copy')]]</span></button>
                         </div>
                         <div class="generate-url-container">
-                            <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button right" type="button"><img src="/assets/get-share-link.svg"/> <span>Get share link</span></button>
+                            <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button right" type="button"><img src="/assets/get-share-link.svg"/> <span>[[localize('GET_SHARE_LINK', 'Get share link')]]</span></button>
                             <div class="loading-overlay" hidden$="[[!loading]]">
                                 <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                             </div>
@@ -385,7 +386,7 @@
                             <iron-image src="/assets/campaign/[[shareInfo.mode.id]].jpg" sizing="contain">
                             </iron-image>
                             <div class="card-content">
-                                <h2>Bring your own creation to life -<br>build your own [[shareInfo.mode.id]]</h2>
+                                <h2>[[localize('BRING_TO_LIFE', 'Bring your own creation to life')]] -<br>[[localize('BUILD_YOUR_OWN', 'build your own')]] [[shareInfo.mode.id]]</h2>
                                 <a href="https://kano.me/kickstarter"><button type="button"></button></a>
                            </div>
                        </paper-card>
@@ -393,12 +394,12 @@
 
                 </form>
             </div>
-            <div id='publish-process' name="publishing">Publishing ...</div>
+            <div id='publish-process' name="publishing">[[localize('PUBLISHING', 'Publishing')]] ...</div>
             <div name="success" class="success">
                 <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain"></iron-image>
                 <div class="title">[[shareInfo.title]]</div>
                 <div class="instructions">
-                    Your app is live! Share it with your friends.
+                    [[localize('APP_IS_LIVE', 'Your app is live! Share it with your friends.')]]
                 </div>
                 <div class="social-share-container">
                     <button type="button" class="social" on-tap="_socialShareFacebook">
@@ -408,16 +409,16 @@
                         <iron-image src="/assets/social-icons/twitter.png" sizing="contain"></iron-image>
                     </button>
                 </div>
-                <a href$="[[playUrl(shareInfo.slug)]]" target="_blank"><button class="open-app" type="button">Open app</button></a>
+                <a href$="[[playUrl(shareInfo.slug)]]" target="_blank"><button class="open-app" type="button">[[localize('OPEN_APP', 'Open app')]]</button></a>
             </div>
             <div class="fail" name="failure">
                 <div class="title">
-                    Publishing failed
+                    [[localize('PUBLISHING_FAILED', 'Publishing failed')]]
                 </div>
                 <div class="instructions">
-                    Please try again later.
+                    [[localize('TRY_LATER', 'Please try again later.')]]
                 </div>
-                <button on-tap="dismiss" type="button">This is unfortunate</button>
+                <button on-tap="dismiss" type="button">[[localize('UNFORTUNATE', 'This is unfortunate')]]</button>
             </div>
         </iron-pages>
 
@@ -428,7 +429,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-share-modal',
-        behaviors: [Kano.Behaviors.CoverGeneratorBehavior],
+        behaviors: [Kano.Behaviors.CoverGeneratorBehavior, Kano.Behaviors.I18nBehavior],
         properties: {
             shareInfo: {
                 type: Object,

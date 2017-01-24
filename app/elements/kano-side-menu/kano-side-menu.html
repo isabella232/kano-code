@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
 
@@ -120,15 +121,15 @@
             <li class="login separated" hidden$="[[isUserLoggedIn(user)]]">
                 <a on-tap="login">
                     <iron-image class="icon" src="/assets/icons/login.png" sizing="contain"></iron-image>
-                    <div class="label">Login</div>
+                    <div class="label">[[localize('LOGIN', 'Login')]]</div>
                 </a>
                 <div class="close-menu" on-tap="toggleMenu">&times;</div>
             </li>
             <li class="user separated" hidden$="[[!isUserLoggedIn(user)]]">
                 <iron-image src="[[getUserAvatar(user.avatar.urls.circle)]]" preload sizing="contain"></iron-image>
                 <div class="userInfo">
-                    <div class="userName">{{user.username}}</div>
-                    <div class="userLevel">Level {{profile.level}} | {{profile.xp}}XP</div>
+                    <div class="userName">[[user.username]]</div>
+                    <div class="userLevel">[[localize('LEVEL', 'Level')]] [[profile.level]] | [[profile.xp]]XP</div>
                 </div>
                 <div>
                     <div class="close-menu" on-tap="toggleMenu">&times;</div>
@@ -140,33 +141,31 @@
                 </div>
                 <a on-tap="confirmReset" id="reset">
                     <iron-image class="icon" src="/assets/icons/reset.png" sizing="contain"></iron-image>
-                    <div class="label">Reset Workspace</div>
+                    <div class="label">[[localize('RESET_WORKSPACE', 'Reset Workspace')]]</div>
                 </a>
             </li>
             <li>
                 <a on-tap="_exportApp">
                     <iron-image class="icon" src="/assets/icons/export.png" sizing="contain"></iron-image>
-                    <div class="label">Export</div>
+                    <div class="label">[[localize('EXPORT', 'Export')]]</div>
                 </a>
             </li>
             <li>
                 <a on-tap="_importApp">
                     <iron-image class="icon" src="/assets/icons/import.png" sizing="contain"></iron-image>
-                    <div class="label">Import</div>
+                    <div class="label">[[localize('IMPORT', 'Import')]]</div>
                 </a>
             </li>
             <li>
                 <a href$="[[worldUrl]]/projects" on-tap="backToProjects">
                     <iron-image class="icon" src="/assets/icons/projects.png" sizing="contain"></iron-image>
-                    <div class="label">Back to Projects</div>
+                    <div class="label">[[localize('BACK_TO_PROJECTS', 'Back to Projects')]]</div>
                 </a>
             </li>
             <li>
                 <a href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank">
                     <iron-image class="icon" src="/assets/icons/feedback.png" sizing="contain"></iron-image>
-                    <div class="label">
-                        Give Feedback
-                    </div>
+                    <div class="label">[[localize('GIVE_FEEDBACK', 'Give Feedback')]]</div>
                 </a>
             </li>
             <li hidden$="{{!isUserLoggedIn(user)}}" on-tap="logout">
@@ -186,6 +185,7 @@
 
     Polymer({
         is: 'kano-side-menu',
+        behaviors: [Kano.Behaviors.I18nBehavior],
         properties: {
             user: {
                 type: Object,
@@ -300,7 +300,7 @@
             return current;
         },
         _getLogoutLabel (offline) {
-            return offline ? 'Exit' : 'Log Out';
+            return offline ? this.localize('EXIT', 'Exit') : this.localize('LOG_OUT', 'Log Out');
         }
     });
 </script>

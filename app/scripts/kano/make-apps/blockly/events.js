@@ -13,7 +13,7 @@
                     let json = {
                         id: 'part_event',
                         colour: COLOUR,
-                        message0: Blockly.Msg.EVENT,
+                        message0: Blockly.Msg.GLOBAL_EVENT,
                         args0: [{
                             type: "field_dropdown",
                             name: "EVENT",

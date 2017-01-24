@@ -173,15 +173,15 @@
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_DONE = "Done";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_EDIT_LAYOUT = "Edit Layout";
 
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOGIN = "Login";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LEVEL = "Level";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_RESET_WORKSPACE = "Reset Workspace";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXPORT = "Export";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_IMPORT = "Import";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Back to Projects";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_GIVE_FEEDBACK = "Give Feedback";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXIT = "Exit";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOG_OUT = "Log Out";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOGIN = "Connexion";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_LEVEL = "Niveau";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_RESET_WORKSPACE = "Effacer";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXPORT = "Exporter";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_IMPORT = "Importer";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Retourner aux Projets";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_GIVE_FEEDBACK = "Donne ton Avis";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXIT = "Quitter";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOG_OUT = "Deconnexion";
 
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Recording your gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin recording your gif";
