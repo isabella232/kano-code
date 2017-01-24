@@ -24,7 +24,7 @@ node {
     }
 
     stage('test') {
-        sh "gulp build-dev"
+        sh "gulp build"
         try {
             sh "xvfb-run --auto-servernum gulp wct"
         } catch (Exception err) {
@@ -71,9 +71,9 @@ node {
                 env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
                 sh "rm -rf ${report_folder}"
                 sh "mkdir ${report_folder}"
-                
+
                 sh "timeout 20000 xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet || echo 'Lighthouse timedout'"
-                
+
                 publishHTML (target: [
                     keepAll: true,
                     reportDir: report_folder,
