@@ -6,7 +6,7 @@
         let input = {
             partType: 'ui',
             type: 'text-input',
-            label: 'Text input',
+            label: Kano.MakeApps.Msg.PART_TEXT_INPUT_NAME,
             image: '/assets/part/text-input.svg',
             colour: '#3CAA36',
             customizable: {
@@ -14,18 +14,18 @@
                 properties: [{
                     key: 'value',
                     type: 'text',
-                    label: 'Text'
+                    label: Kano.MakeApps.Msg.TEXT
                 },{
                     key: 'placeholder',
                     type: 'text',
-                    label: 'Placeholder'
+                    label: Kano.MakeApps.Msg.PLACEHOLDER
                 }]
             },
             userProperties: {
-                placeholder: 'Type in here...'
+                placeholder: Blockly.Msg.BLOCK_TEXT_INPUT_TYPE_IN
             },
             events: [{
-                label: 'has changed',
+                label: Blockly.Msg.BLOCK_TEXT_INPUT_CHANGED,
                 id: 'input-keyup'
             }],
             blocks: [{
@@ -33,7 +33,7 @@
                     return {
                         id: 'input_text_get_value',
                         output: 'String',
-                        message0: `${ui.name}: value`
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_VALUE}`
                     };
                 },
                 javascript: (ui) => {
@@ -51,7 +51,7 @@
                     return {
                         id: 'input_text_get_placeholder',
                         output: 'String',
-                        message0: `${ui.name}: placeholder`
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TEXT_INPUT_PLACEHOLDER}`
                     };
                 },
                 javascript: (ui) => {
@@ -68,7 +68,7 @@
                 block: (ui) => {
                     return {
                         id: 'input_text_set_value',
-                        message0: `${ui.name}: set value to %1`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TEXT_INPUT_SET_VALUE}`,
                         args0: [{
                             type: "input_value",
                             name: "INPUT"
@@ -93,7 +93,7 @@
                 block: (ui) => {
                     return {
                         id: 'input_text_set_placeholder',
-                        message0: `${ui.name}: set placeholder to %1`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TEXT_INPUT_SET_PLACEHOLDER}`,
                         args0: [{
                             type: "input_value",
                             name: "PLACEHOLDER"

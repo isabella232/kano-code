@@ -6,18 +6,18 @@
         let slider = {
             partType: 'ui',
             type: 'slider',
-            label: 'Slider',
+            label: Kano.MakeApps.Msg.PART_SLIDER_NAME,
             image: '/assets/part/slider.svg',
             component: 'kano-part-slider',
             customizable: {
                 properties: [{
                     key: 'min',
                     type: 'range',
-                    label: 'Min'
+                    label: Kano.MakeApps.Msg.MIN
                 },{
                     key: 'max',
                     type: 'range',
-                    label: 'Max'
+                    label: Kano.MakeApps.Msg.MAX
                 }],
                 style: []
             },
@@ -26,14 +26,14 @@
                 max: 100
             },
             events: [{
-                label: 'changed',
+                label: Kano.MakeApps.Msg.CHANGED,
                 id: 'update'
             }],
             blocks: [{
                 block: (ui) => {
                     return {
                         id: 'get_value',
-                        message0: `${ui.name}: value`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_VALUE}`,
                         output: 'Number'
                     };
                 },

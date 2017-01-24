@@ -6,7 +6,7 @@
         let text = {
             partType: 'ui',
             type: 'text',
-            label: 'Text',
+            label: Kano.MakeApps.Msg.PART_TEXT_NAME,
             image: '/assets/part/text.svg',
             colour: '#607d8b',
             customizable: {
@@ -14,7 +14,7 @@
                 properties: [{
                     key: 'text',
                     type: 'text',
-                    label: 'Text'
+                    label: Kano.MakeApps.Msg.TEXT
                 }]
             },
             userStyle: {
@@ -23,13 +23,13 @@
                 'font-family': 'Bariol'
             },
             userProperties: {
-                text: 'My text'
+                text: Kano.MakeApps.Msg.TEXT_DEFAULT
             },
             blocks: [{
                 block: (ui) => {
                     return {
                         id: 'set_value',
-                        message0: `${ui.name}: set text to %1`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TEXT_SET}`,
                         args0: [{
                             type: "input_value",
                             name: "INPUT"
@@ -55,7 +55,7 @@
                 block: (ui) => {
                     return {
                         id: 'get_text',
-                        message0: `${ui.name}: text`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TEXT_TEXT}`,
                         output: 'String'
                     }
                 },
@@ -71,7 +71,7 @@
                 }
             }],
             events: [{
-                label: 'is clicked',
+                label: Blockly.Msg.BLOCK_IS_CLICKED,
                 id: 'clicked'
             }]
         };
