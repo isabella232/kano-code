@@ -144,6 +144,11 @@
                 }
                 return p;
             },
+            recordOnboarding () {
+                sharedStorage.onConnect().then(function () {
+                    return sharedStorage.set('onboarding', true);
+                });
+            },
             saveToStorage () {
                 let storedProgress = JSON.stringify(progress);
                 localStorage.progress = storedProgress;
