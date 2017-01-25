@@ -100,14 +100,6 @@
             },
             _render () {
                 this._createWorkspace();
-                if (this._separators) {
-                    this._separators.forEach(sep => {
-                        if (sep.parentNode) {
-                            sep.parentNode.removeChild(sep);
-                        }
-                    });
-                }
-                this._separators = [];
                 this._renderBlocks();
             },
             _updateDB () {
@@ -133,6 +125,7 @@
                 }
 
                 this._clearOldBlocks();
+                this._clearOldSeparators();
 
                 this.$.svg.style.width = '500px';
                 this.$.svg.style.height = '2000px';
@@ -166,6 +159,7 @@
                         sep = Blockly.utils.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
                         sep.setAttribute('transform', `translate(0, ${cursorY})`);
                         canvas.insertBefore(sep, root);
+                        this._separators.push(sep);
                     }
 
                     cursorY += 12;
@@ -201,6 +195,16 @@
                         block.dispose(false, false);
                     }
                 });
+            },
+            _clearOldSeparators () {
+                if (this._separators) {
+                    this._separators.forEach(sep => {
+                        if (sep.parentNode) {
+                            sep.parentNode.removeChild(sep);
+                        }
+                    });
+                }
+                this._separators = [];
             },
             _addBlockListeners (root, block, rect) {
                 this._listeners = this._listeners || [];

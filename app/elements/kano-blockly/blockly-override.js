@@ -115,7 +115,7 @@ goog.a11y.aria.setState = function(element, stateName, value) {
  * @return {boolean} True if text input.
  * @private
  */
-Blockly.isTargetInput_ = function(e) {
+Blockly.utils.isTargetInput = function(e) {
   // In a shadow DOM the first element of the path is more accurate
   var target = e.path ? e.path[0] : e.target;
   return target.type == 'textarea' || target.type == 'text' ||
@@ -263,7 +263,59 @@ Blockly.hueToRgb = function(color) {
     return color;
 };
 
+//Blockly.BlockSvg.FIELD_PADDING_X = 5;
+//Blockly.BlockSvg.FIELD_PADDING_Y = 10;
+Blockly.BlockSvg.FIELD_PADDING_X = 0;
+Blockly.BlockSvg.FIELD_PADDING_Y = 0;
 
+Blockly.Field.prototype.getSize = function() {
+  if (!this.size_.width) {
+    this.render_();
+  }
+  return {
+      width: this.size_.width + Blockly.BlockSvg.FIELD_PADDING_X,
+      height: this.size_.height + Blockly.BlockSvg.FIELD_PADDING_Y
+  };
+};
+
+/**
+ * Render a list of fields starting at the specified location.
+ * @param {!Array.<!Blockly.Field>} fieldList List of fields.
+ * @param {number} cursorX X-coordinate to start the fields.
+ * @param {number} cursorY Y-coordinate to start the fields.
+ * @return {number} X-coordinate of the end of the field row (plus a gap).
+ * @private
+ */
+Blockly.BlockSvg.prototype.renderFields_ =
+    function(fieldList, cursorX, cursorY) {
+  /* eslint-disable indent */
+  cursorY += Blockly.BlockSvg.INLINE_PADDING_Y;
+  if (this.RTL) {
+    cursorX = -cursorX;
+  }
+  for (var t = 0, field; field = fieldList[t]; t++) {
+    var root = field.getSvgRoot();
+    if (!root) {
+      continue;
+    }
+    if (this.RTL) {
+      cursorX -= field.renderSep + field.renderWidth;
+      root.setAttribute('transform',
+          'translate(' + cursorX + ',' + cursorY + ')');
+      if (field.renderWidth) {
+        cursorX -= Blockly.BlockSvg.SEP_SPACE_X;
+      }
+    } else {
+      root.setAttribute('transform',
+          'translate(' + (cursorX + field.renderSep + Blockly.BlockSvg.FIELD_PADDING_X / 2) + ',' + (cursorY + Blockly.BlockSvg.FIELD_PADDING_Y / 2) + ')');
+      if (field.renderWidth) {
+        cursorX += field.renderSep + field.renderWidth +
+            Blockly.BlockSvg.SEP_SPACE_X;
+      }
+    }
+  }
+  return this.RTL ? -cursorX : cursorX;
+};  /* eslint-enable indent */
 
 // UI constants for rendering blocks.
 /**
@@ -1469,7 +1521,7 @@ Blockly.Workspace.prototype.openOmnibox = function () {
         this._omniboxContainer.appendChild(this._omnibox);
         svg.parentNode.appendChild(this._omniboxContainer);
         this._omnibox.style.position = 'fixed';
-        this._omnibox.style.maxHeight = '200px';
+        this._omnibox.style.maxHeight = '345px';
         this._omnibox.addEventListener('confirm', () => {
             this.closeOmnibox(true);
         });
@@ -1508,8 +1560,8 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
     }
 
     inputList.forEach((input) => {
-        if (input.connection && !input.connection.targetConnection) {
-            if (!input.button) {
+        if (!input.button) {
+            if (input.connection) {
                 let offsetX = 0,
                     offsetY = 0;
                 if (input.connection.type === Blockly.NEXT_STATEMENT) {
@@ -1538,6 +1590,18 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
                         omnibox = this.workspace.openOmnibox();
                     omnibox.style.top = `${rect.top}px`;
                     omnibox.style.left = `${rect.left}px`;
+                    omnibox.filter = (block) => {
+                        let dataBlock = Blockly.getDataBlock(block.id),
+                            blockConnection;
+                        if (input.connection.type === Blockly.NEXT_STATEMENT) {
+                            blockConnection = dataBlock.previousConnection;
+                        } else if (input.connection.type === Blockly.INPUT_VALUE) {
+                            blockConnection = dataBlock.outputConnection;
+                        }
+                        // The connection exists on the block found and it matches the type of the input
+                        return blockConnection && (!blockConnection.check_
+                                || input.connection.check_.some(inputCheck => blockConnection.check_.indexOf(inputCheck) !== -1));
+                    };
                     var onConfirm = (e) => {
                         let type;
                         omnibox.removeEventListener('confirm', onConfirm);
@@ -1577,17 +1641,25 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
                     }
                 });
             }
-            if (this.isInFlyout) {
-                input.button.style.display = 'none';
-            } else {
+        }
+        if (input.button) {
+            if (input.connection && !input.connection.targetConnection && !this.isInFlyout) {
                 input.button.style.display = 'block';
-            }
-        } else {
-            if (input.button) {
+            } else {
                 input.button.style.display = 'none';
             }
         }
     });
 };
 
+
+Blockly._dataWorkspace = new Blockly.Workspace();
+Blockly._dataBlocks = {};
+
+Blockly.getDataBlock = function (type) {
+    if (!Blockly._dataBlocks[type]) {
+        Blockly._dataBlocks[type] = new Blockly.Block(Blockly._dataWorkspace, type);
+    }
+    return Blockly._dataBlocks[type];
+};
 
