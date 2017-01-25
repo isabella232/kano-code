@@ -75,6 +75,24 @@ Example:
             fill-opacity: 0.6;
         }
 
+        .searchPlus,
+        ::slotted(* .searchPlus) {
+            cursor: pointer;
+        }
+
+        .searchPlus rect,
+        ::slotted(* .searchPlus rect) {
+            fill: #bbbbbb;
+            stroke: #737373;
+            rx: 4;
+            ry: 4;
+        }
+
+        .searchPlus text,
+        ::slotted(* .searchPlus text) {
+            fill: #eaeaea;
+        }
+
         .blocklyPathDark,
         .blocklyPathLight,
         ::slotted(* .blocklyPathDark),
@@ -271,8 +289,8 @@ Example:
                     scaleSpeed: 1.2
                 }
             });
-            defs = Blockly.createSvgElement('defs', {}, this.$.svg);
-            options.gridPattern = Blockly.createSvgElement('pattern', {'id': 'blocklyGridPattern' + String(Math.random()).substring(2), 'patternUnits': 'userSpaceOnUse'}, defs);
+            defs = Blockly.utils.createSvgElement('defs', {}, this.$.svg);
+            options.gridPattern = Blockly.utils.createSvgElement('pattern', {'id': 'blocklyGridPattern' + String(Math.random()).substring(2), 'patternUnits': 'userSpaceOnUse'}, defs);
             // Load CSS.
             Blockly.Css.inject(options.hasCss, options.pathToMedia);
             this.workspace = this._createWorkspace(this.$.svg, options);
@@ -379,7 +397,7 @@ Example:
             });
         },
         _openOmnibox (e) {
-            if (e.detail && e.detail.keyboardEvent) {
+            if (e && e.detail && e.detail.keyboardEvent) {
                 e.detail.keyboardEvent.preventDefault();
                 e.detail.keyboardEvent.stopPropagation();
             }
@@ -501,6 +519,11 @@ Example:
          * @return {[type]}   [description]
          */
         onBlocklyChange (e) {
+            if (e.type === Blockly.Events.OPEN_SEARCHBOX) {
+                this._openOmnibox();
+
+                return;
+            }
             if (e.type === Blockly.Events.CREATE) {
                 this.lastCreated = e.blockId;
             }

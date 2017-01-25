@@ -51,12 +51,13 @@
         </style>
         <div class="input-wrapper">
             <div class="hint">[[hint]]</div>
-            <input id="input" type="text" value="{{query::input}}">
+            <input id="input" type="text" value="{{query::input}}" on-keydown="_onInputKeydown">
         </div>
         <div class="flyout">
             <kano-blockly-flyout toolbox="[[resultToolbox]]"
                                 target-workspace="[[targetWorkspace]]"
                                 on-block-created="_blockCreated"
+                                no-drag="[[noDrag]]"
                                 separators></kano-blockly-flyout>
         </div>
         <div class="extra"></div>
@@ -71,6 +72,10 @@
                 },
                 targetWorkspace: {
                     type: Object
+                },
+                noDrag: {
+                    type: Boolean,
+                    value: false
                 }
             },
             attached () {
@@ -89,6 +94,14 @@
             },
             focus () {
                 this.$.input.focus();
+            },
+            clear () {
+                this.$.input.value = '';
+            },
+            _onInputKeydown (e) {
+                if (e.keyCode === 13) {
+                    this.fire('confirm', { selected: this.resultToolbox[0] });
+                }
             }
         });
     </script>
