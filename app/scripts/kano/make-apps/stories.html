@@ -7,13 +7,27 @@
 
         Kano.MakeApps.Stories = Kano.MakeApps.Stories || {};
 
+        Kano.MakeApps.Stories.getLang = function () {
+            var lang = window.navigator.languages ? window.navigator.languages[0] : null;
+            lang = lang || window.navigator.language || window.navigator.browserLanguage || window.navigator.userLanguage;
+            if (lang.indexOf('-') !== -1) {
+                lang = lang.split('-')[0];
+            }
+
+            if (lang.indexOf('_') !== -1) {
+                lang = lang.split('_')[0];
+            }
+            return lang;
+        };
+
         /**
          * Get a story from a given id
          * @param  {String} id Id of the story requested
          * @return {Promise}   promise that will resolve with the story requested
          */
         Kano.MakeApps.Stories.getById = function (id) {
-            let storyBase;
+            let lang = Kano.MakeApps.Stories.getLang(),
+                storyBase;
             // Lookup the cached stories and return if exists
             if (stories[id]) {
                 return Promise.resolve(stories[id]);
@@ -26,7 +40,7 @@
                 }
             }
             // Fetch the story definition from the assets
-            return fetch(`/assets/stories/${id}/index.json`)
+            return fetch(`/assets/stories/locales/${lang}/${id}/index.json`)
                 .then(r => r.json())
                 .then(data => {
                     // Merge the base and definition, store in stories and return it
@@ -43,11 +57,12 @@
          */
         Kano.MakeApps.Stories.getSceneByIndex = function (story, index) {
             // Grab the scene object from the story
-            let scene = story.scenes[index];
+            let scene = story.scenes[index],
+                lang = Kano.MakeApps.Stories.getLang();
             // Check if there is remote data to fetch
             if (!scene.data && scene.data_path) {
                 // Fetch the additional data
-                return fetch(`/assets/stories/${story.id}/${scene.data_path}`)
+                return fetch(`/assets/stories/locales/${lang}/${story.id}/${scene.data_path}`)
                     .then(r => r.json())
                     .then((data) => {
                         // Update the scene definition
