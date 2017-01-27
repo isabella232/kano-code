@@ -22,6 +22,9 @@
                 fill: black;
                 font-size: 16px;
             }
+            svg .blocklyDraggable {
+                cursor: pointer;
+            }
         </style>
         <div>
             <svg id="svg"></svg>
@@ -49,6 +52,10 @@
                 autoClose: {
                     type: Boolean,
                     value: false
+                },
+                noDrag: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready () {
@@ -63,7 +70,7 @@
                 this.ws = new Blockly.WorkspaceSvg({});
                 this.ws.isFlyout = true;
                 this.wsDom = this.ws.createDom();
-                this.svgGroup = Blockly.createSvgElement('g', { 'class': 'kanoBlocklyFlyout' }, null);
+                this.svgGroup = Blockly.utils.createSvgElement('g', { 'class': 'kanoBlocklyFlyout' }, null);
                 this.svgGroup.appendChild(this.wsDom);
                 this.$.svg.appendChild(this.svgGroup);
             },
@@ -93,14 +100,6 @@
             },
             _render () {
                 this._createWorkspace();
-                if (this._separators) {
-                    this._separators.forEach(sep => {
-                        if (sep.parentNode) {
-                            sep.parentNode.removeChild(sep);
-                        }
-                    });
-                }
-                this._separators = [];
                 this._renderBlocks();
             },
             _updateDB () {
@@ -126,6 +125,7 @@
                 }
 
                 this._clearOldBlocks();
+                this._clearOldSeparators();
 
                 this.$.svg.style.width = '500px';
                 this.$.svg.style.height = '2000px';
@@ -156,9 +156,10 @@
                         child.isInFlyout = true;
                     });
                     if (this.separators) {
-                        sep = Blockly.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
+                        sep = Blockly.utils.createSvgElement('rect', { height: 1, width: maxWidth, fill: '#37454d' }, null);
                         sep.setAttribute('transform', `translate(0, ${cursorY})`);
                         canvas.insertBefore(sep, root);
+                        this._separators.push(sep);
                     }
 
                     cursorY += 12;
@@ -166,7 +167,7 @@
                     hw = block.getHeightWidth();
                     block.moveBy(cursorX, cursorY);
                     cursorY += hw.height + 12;
-                    rect = Blockly.createSvgElement('rect', { 'fill-opacity': 0 }, null);
+                    rect = Blockly.utils.createSvgElement('rect', { 'fill-opacity': 0 }, null);
                     rect.setAttribute('x', cursorX);
                     rect.setAttribute('y', cursorY);
                     rect.setAttribute('width', hw.width);
@@ -195,6 +196,16 @@
                     }
                 });
             },
+            _clearOldSeparators () {
+                if (this._separators) {
+                    this._separators.forEach(sep => {
+                        if (sep.parentNode) {
+                            sep.parentNode.removeChild(sep);
+                        }
+                    });
+                }
+                this._separators = [];
+            },
             _addBlockListeners (root, block, rect) {
                 this._listeners = this._listeners || [];
                 this._listeners.push(Blockly.bindEvent_(root, 'mousedown', null, this._blockMouseDown(block)));
@@ -206,10 +217,14 @@
             },
             _blockMouseDown (block) {
                 return (e) => {
+                    if (this.noDrag) {
+                        this.fire('block-clicked', block);
+                        return;
+                    }
                     Blockly.terminateDrag_();
                     // maybe close itself?
                     //Blockly.hideChaff(true);
-                    if (Blockly.isRightButton(e)) {
+                    if (Blockly.utils.isRightButton(e)) {
                         // Right-click.
                         block.showContextMenu_(e);
                     } else {
@@ -260,7 +275,7 @@
             },
             _createBlockFunc (originBlock) {
                 return (e) => {
-                    if (Blockly.isRightButton(e)) {
+                    if (Blockly.utils.isRightButton(e)) {
                         // Right-click.  Don't create a block, let the context menu show.
                         return;
                     }
