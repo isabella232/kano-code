@@ -35,12 +35,12 @@
                             hint-stats="{{hintStats}}">
           <kano-app-editor id="editor"
                             added-parts="{{addedParts}}"
-                            parts="[[computeParts(scene.*, remix)]]"
-                            default-categories="[[computeCategories(scene.*, remix)]]"
+                            parts="[[parts]]"
+                            default-categories="[[categories]]"
                             slot="editor"
                             running="{{running}}"
                             code="{{code}}"
-                            mode="[[_computeMode(mode, remix)]]"
+                            mode="[[mode]]"
                             on-share="_pauseAndShare"
                             challenge-state="[[challengeState]]"
                             hide-leave-alert="[[alertDisabled]]">
@@ -112,6 +112,9 @@
         },
         _remixChanged (remix) {
             if (remix) {
+                this._computeMode();
+                this._computeCategories();
+                this._computeParts();
                 // Look for the previously removed blocks in the addedParts
                 this.addedParts.forEach((part, i) => {
                     // Some blocks were removed, we need to add them back
@@ -156,6 +159,9 @@
         },
         _onModeReady () {
             Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
+            this._computeMode();
+            this._computeCategories();
+            this._computeParts();
             this._loadVariables();
             this.async(() => {
                 this._loadDefaultApp();
@@ -228,20 +234,20 @@
         shareApp () {
             this.$.editor.share();
         },
-        computeParts () {
+        _computeParts () {
             if (this.remix) {
-                return Kano.MakeApps.Parts.list.filter((part) => {
+                this.parts = Kano.MakeApps.Parts.list.filter((part) => {
                     return this.mode.parts.indexOf(part.type) !== -1;
                 });
             } else {
-                return Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
+                this.parts = Kano.MakeApps.Parts.list.filter(part => this.scene.parts.indexOf(part.type) !== -1);
             }
         },
         /**
-         * Returns the categories that will be used in this challenge. Takes care of filtering the
+         * Compute the categories that will be used in this challenge. Takes care of filtering the
          * categories and blocks that will not be used. Resets everything when the users enters remix mode
          */
-        computeCategories () {
+        _computeCategories () {
             let cats = {},
                 cat;
             if (this.remix) {
@@ -265,27 +271,25 @@
                     });
                 }
             }
-
-            return cats;
+            this.categories = cats;
         },
         _computeMode () {
             let mode = this.mode;
             if (this.remix) {
                 if (mode.originalBlocks) {
-                    mode.blocks = mode.originalBlocks;
+                    this.set('mode.blocks', mode.originalBlocks);
                     delete mode.originalBlocks;
                 }
             } else if (this.scene.filterBlocks) {
                 let whitelist = this.scene.filterBlocks[mode.id];
                 if (whitelist) {
-                    mode.originalBlocks = mode.blocks;
-                    mode.blocks = mode.blocks.filter(block => {
+                    this.set('mode.originalBlocks', mode.blocks);
+                    this.set('mode.blocks', mode.blocks.filter(block => {
                         let definition = block.block(mode);
                         return whitelist.indexOf(definition.id) !== -1;
-                    });
+                    }));
                 }
             }
-            return mode;
         },
         saveApp (e) {
             let id = e.detail.id || 'current',
@@ -308,7 +312,7 @@
                 challenge;
             savedState = this.fromStore(id);
             challenge = this.$.challenge;
-            this.$.editor.load(savedState.app, this.computeParts());
+            this.$.editor.load(savedState.app, this._computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
         },
