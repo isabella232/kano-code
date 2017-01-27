@@ -3,7 +3,7 @@
 
     Blockly.Msg.CATEGORY_COLOR = "Couleur";
     Blockly.Msg.CATEGORY_CONTROL = "Contrôle";
-    Blockly.Msg.CATEGORY_EVENTS = "Evenements";
+    Blockly.Msg.CATEGORY_EVENTS = "Événements";
     Blockly.Msg.CATEGORY_LISTS = "Listes";
     Blockly.Msg.CATEGORY_LOGIC = "Logique";
     Blockly.Msg.CATEGORY_MATH = "Math";
@@ -18,7 +18,7 @@
 
     Blockly.Msg.LOOP_X_TIMES_REPEAT = "Répéter %1 fois";
 
-    Blockly.Msg.LOOP_EVERY_REPEAT = "Toute les";
+    Blockly.Msg.LOOP_EVERY_REPEAT = "Toutes les";
 
     Blockly.Msg.LOOP_IN = "Dans %1 %2";
 
@@ -33,7 +33,7 @@
     Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "changer la couleur de fond %1";
     Blockly.Msg.BLOCK_IS_CLICKED = "est clické";
 
-    Blockly.Msg.BLOCK_UI_MOVE_BY = "deplacer de %1 pixels";
+    Blockly.Msg.BLOCK_UI_MOVE_BY = "déplacer de %1 pixels";
     Blockly.Msg.BLOCK_UI_ROTATE = "tourner %1 de %2 degrées";
     Blockly.Msg.BLOCK_UI_ROTATE_CLOCKWISE = "tourner \u21BB de %1 degrées";
     Blockly.Msg.BLOCK_UI_ROTATE_COUNTER_CLOCKWISE = "tourner \u21BA de %1 degrees";

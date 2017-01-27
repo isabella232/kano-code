@@ -181,7 +181,7 @@
     Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Retourner aux Projets";
     Kano.MakeApps.Msg.KANO_SIDE_MENU_GIVE_FEEDBACK = "Donne ton Avis";
     Kano.MakeApps.Msg.KANO_SIDE_MENU_EXIT = "Quitter";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOG_OUT = "Deconnexion";
+    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOG_OUT = "Déconnexion";
 
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Recording your gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin recording your gif";
