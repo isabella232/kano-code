@@ -14,11 +14,11 @@
          */
         Kano.MakeApps.Stories.getById = function (id) {
             let storyBase;
-            // Lookup the cache and return if exists
-            if (cache[id]) {
-                return Promise.resolve(cache[id]);
+            // Lookup the cached stories and return if exists
+            if (stories[id]) {
+                return Promise.resolve(stories[id]);
             }
-            // Get the base definition from the stories list
+            // Get the base definition from the cached stories list
             for (let index in stories) {
                 if (stories[index].id === id) {
                     storyBase = stories[index];
@@ -29,9 +29,9 @@
             return fetch(`/assets/stories/${id}/index.json`)
                 .then(r => r.json())
                 .then(data => {
-                    // Merge the base and definition, store in cache and return it
+                    // Merge the base and definition, store in stories and return it
                     let story = Object.assign({}, storyBase, data);
-                    cache[id] = story;
+                    stories[id] = story;
                     return story;
                 });
         };

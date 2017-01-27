@@ -4,18 +4,17 @@ const shards = require('./shards');
 
 module.exports = (gulp, $) => {
 
+    gulp.task('treemap', () => {
+        return shards.generateTreeMap({
+            shell: 'elements/elements.html',
+            root: '.tmp/app',
+            dest: 'www'
+        });
+    });
+
     gulp.task('shards', () => {
         return shards.build({
-            endpoints: [
-                'elements/elements.html',
-                'views/kano-view-editor/kano-view-editor.html',
-                'views/kano-view-story/kano-view-story.html',
-                'views/kano-view-tutorial/kano-view-tutorial.html',
-                'views/kano-view-demo/kano-view-demo.html',
-                'views/kano-view-flags/kano-view-flags.html',
-                'views/kano-view-onboarding/kano-view-onboarding.html'
-            ],
-            shared_import: 'elements/shared.html',
+            shell: 'elements/elements.html',
             root: '.tmp/app',
             dest: 'www'
         });
@@ -37,20 +36,25 @@ module.exports = (gulp, $) => {
     });
 
     function notBowerComponent(file) {
-        let needTranspile = ((file.relative.indexOf('bower_components') === -1 &&
-            file.relative.indexOf('assets/vendor/') === -1) ||
-            file.relative.indexOf('kano-circle-progress') !== -1 ||
-            file.relative.indexOf('Sortable') !== -1);
+        let needTranspile = ((file.path.indexOf('bower_components') === -1 &&
+            file.path.indexOf('assets/vendor/') === -1) ||
+            file.path.indexOf('web-components') !== -1 ||
+            file.path.indexOf('lazy-imports') !== -1 ||
+            file.path.indexOf('Sortable') !== -1);
         return needTranspile;
     }
 
     function notBowerComponentJs(file) {
-        let needTranspile = file.relative.split('.').pop() === 'js' && notBowerComponent(file);
+        let needTranspile = file.path.split('.').pop() === 'js' && notBowerComponent(file);
         return needTranspile;
     }
 
+    function isConfig(file) {
+        return file.path.indexOf('config.html') !== -1;
+    }
+
     function notBowerComponentHtml(file) {
-        let needTranspile = file.relative.split('.').pop() === 'html' && notBowerComponent(file);
+        let needTranspile = file.path.split('.').pop() === 'html' && notBowerComponent(file);
         return needTranspile;
     }
 
@@ -63,9 +67,22 @@ module.exports = (gulp, $) => {
 
     gulp.task('copy-all', () => {
         return gulp.src('app/**/*', { base: 'app' })
+            // Rename the Sortable polymer wrapper to avoid name conflict with the library when crisper will create the .js file
+            .pipe($.rename((file) => {
+                if (file.basename === 'Sortable' && file.extname === '.html') {
+                    file.basename = 'Sortable.polymer';
+                }
+            }))
             .pipe($.if(notBowerComponentHtml, $.crisper({ scriptInHead: false })))
+            // Restore the polymer wrapper name
+            .pipe($.rename((file) => {
+                if (file.basename === 'Sortable.polymer' && file.extname === '.html') {
+                    file.basename = 'Sortable';
+                }
+            }))
+            .pipe($.if(isConfig, $.htmlReplace($.utils.getHtmlReplaceOptions())))
             .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
-            .pipe($.if(notBowerComponentJs, $.babel({ presets: ['es2015'] })))
+            .pipe($.if(notBowerComponentJs, $.transpile()))
             .pipe(gulp.dest('.tmp/app'));
     });
 
@@ -75,14 +92,14 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www'));
     });
 
-    gulp.task('build', () => {
+    gulp.task('build', (done) => {
         return $.runSequence(
             'copy-all',
             'shards',
             'split',
             ['copy-index', 'blockly-media', 'assets', 'workers'],
             'sw',
-            'external-play-bundle');
+            'external-play-bundle', done);
     });
 
     gulp.task('copy-index', () => {
@@ -110,6 +127,7 @@ module.exports = (gulp, $) => {
         return gulp.src([
             'app/assets/**/*',
             'app/manifest.json',
+            'app/bower_components/web-components/kano-style/fonts/*',
             '!app/assets/stories/**/*.{js,html}',
             '!app/assets/vendor/**/*'
         ], { base: 'app' })

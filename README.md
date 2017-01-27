@@ -4,29 +4,21 @@
 
 In the main folder, install the dependencies :
 
-npm is used for the gulp tasks and the service/data layer
-bower is used for the web UI components (Polymer, Pure ...)
+npm is used for the gulp tasks
+bower is used for the web UI components (Polymer...)
 
 ```shell
 npm install
 bower install
 ```
 
-If it is the first time you use the project, run
+Everything works out of the box in terms of development. You can start a server with `app` as root and Kano Code will load.
+For convenience, a gulp task was added. It starts a server with the right root and reloads the browser everytime a file changes.
+To run it just use
 
 ```shell
-npm run build
+gulp watch
 ```
-
-It will prepare everything.
-
-Once done, you can start the development task
-
-```shell
-npm run dev
-```
-
-This will watch the files and rebuild when necessary. It also start a web server listening on port 4000
 
 ## Take a snapshot of the app to be distributed with `kano-content`
 Check out the branch you want to take a snapshot of and follow these instructions:
@@ -104,8 +96,7 @@ Functional tests are located in `tests/` and can be run with `cucumber-js test/`
 You can choose the target browser by setting the env variable `TARGET_BROWSER` to `chrome`, `firefox` or `safari`, will default to `chrome` (WIP)
 
 ### Staging
-Master is automatically deployed to Heroku. May be found here: http://kano-make-apps-again.herokuapp.com/
+Master is automatically deployed by Jenkins. Can be found here: http://apps-staging.kano.me/
 
 ### Production
-Production is served from S3. May be found here: http://apps-site.kano.me
-In order to deploy please use jenkins.kano.me and select `make-apps` from the deploy project.
+Production is served from S3. Can be found here: http://apps.kano.me

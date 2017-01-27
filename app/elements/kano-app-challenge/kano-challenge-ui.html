@@ -10,9 +10,9 @@
 <link rel="import" href="../kano-value-preview/kano-value-preview.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
-<link rel="import" href="../behaviors/kano-sound-player-behavior.html">
+<link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 
-<link rel="import" href="../kano-style/typography.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
 
 
 <!--
@@ -91,23 +91,18 @@ Example:
         0% {
           margin: 0 10px;
           opacity: 1;
-          flex: 0 1 auto;
           padding: 19px 22px 17px 22px;
           transform: scale(0);
-          width: 100%;
         }
         100% {
           margin: 0 10px;
           opacity: 1;
-          flex: 0 1 auto;
           padding: 19px 22px 17px 22px;
           transform: scale(1);
-          width: 100%;
         }
     }
     :host .banner-content button.button-hint {
         opacity: 0;
-        width: 0;
         margin: 0;
         padding: 0;
         animation-duration: 0.3s;
@@ -242,7 +237,8 @@ Example:
             'animateHintButton(banner.*, banner.hint_button)'
         ],
         listeners: {
-            'change': '_editorChanged'
+            'change': '_editorChanged',
+            'mode-ready': 'stepChanged'
         },
         _editorChanged (e) {
             // Store current step object
@@ -267,8 +263,6 @@ Example:
             this.highlight = {};
         },
         attached () {
-            this.isAttached = true;
-            this.fire('attached');
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.updateTooltips = this.updateTooltips.bind(this);
             this.addEventListener('mousewheel', this.updateTooltips, true);
@@ -363,11 +357,6 @@ Example:
         },
         stepChanged () {
             let step;
-            // Prevent the loading of the saved app before the store is initialized
-            if (!this.isAttached) {
-                this.addEventListener('attached', this.stepChanged.bind(this));
-                return;
-            }
             this.debounce('stepChanged', () => {
                 step = this.step;
                 if (!step) {
@@ -402,7 +391,6 @@ Example:
                     this._nextStep();
                     return;
                 }
-
                 this.computeTooltips(step);
                 this.computeBanner(step);
                 this.computeArrow(step);

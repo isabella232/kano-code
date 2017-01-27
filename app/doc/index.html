@@ -89,47 +89,50 @@
         </script>
         <!-- endbuild -->
         <script type="text/javascript">
-            var bind = document.getElementById('bind');
-            bind.elements = [
-                'kano-circle-progress',
-                'kano-challenge-progress',
-                'kano-animated-svg',
-                'inputs/kano-input-color',
-                'inputs/kano-input-font-family',
-                'kano-pixel-canvas',
-                'kano-bitmap-list',
-                'kano-app-player',
-                'kano-blockly',
-                'kano-app-challenge',
-                'kano-app-editor'
-            ];
-            bind.sidebarView = 'list';
-            bind.addEventListener('dom-change', function () {
-                document.getElementById('list').addEventListener('selected-element-changed', function (e) {
-                    if (!e.detail.value) {
-                        return;
-                    }
-                    var pieces = e.detail.value.split('/'),
-                        element = pieces.pop();
-                    bind.base = `${location.href.split(/\?|#/)[0]}${window.ELEMENTS_LOCATION}${e.detail.value}/`;
-                    bind.element = element;
-                    bind.sidebarView = 'details';
-                    bind.view = 'docs';
-                    bind.detailsSelected = 'docs';
-                });
-            });
-            bind.showDocs = function () {
-                bind.view = 'docs';
-            };
-            bind.showDemo = function () {
-                bind.view = `demo:${bind.demos[0].path}`;
-            };
-            bind.goBack = function () {
+            (function () {
+                var bind = document.getElementById('bind');
+                bind.elements = [
+                    'kano-circle-progress',
+                    'kano-challenge-progress',
+                    'kano-animated-svg',
+                    'inputs/kano-input-color',
+                    'inputs/kano-input-font-family',
+                    'kano-pixel-canvas',
+                    'kano-bitmap-list',
+                    'kano-app-player',
+                    'kano-blockly',
+                    'kano-app-challenge',
+                    'kano-app-editor',
+                    'kano-xp-modal'
+                ];
                 bind.sidebarView = 'list';
-                bind.showDocs();
-                bind.element = null;
-                bind.set('selectedElement', null);
-            };
+                bind.addEventListener('dom-change', function () {
+                    document.getElementById('list').addEventListener('selected-element-changed', function (e) {
+                        if (!e.detail.value) {
+                            return;
+                        }
+                        var pieces = e.detail.value.split('/'),
+                            element = pieces.pop();
+                        bind.base = `${location.href.split(/\?|#/)[0]}${window.ELEMENTS_LOCATION}${e.detail.value}/`;
+                        bind.element = element;
+                        bind.sidebarView = 'details';
+                        bind.view = 'docs';
+                        bind.detailsSelected = 'docs';
+                    });
+                });
+                bind.showDocs = function () {
+                    bind.view = 'docs';
+                };
+                bind.showDemo = function () {
+                    bind.view = `demo:${bind.demos[0].path}`;
+                };
+                bind.goBack = function () {
+                    bind.sidebarView = 'list';
+                    bind.showDocs();
+                    bind.element = null;
+                    bind.set('selectedElement', null);
+                };
+            })();
         </script>
     </body>
 </html>

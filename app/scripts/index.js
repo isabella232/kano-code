@@ -1,13 +1,16 @@
 (function () {
     var webComponentsSupported = ('registerElement' in document &&
-        'import' in document.createElement('link') &&
-        'content' in document.createElement('template')),
+            'import' in document.createElement('link') &&
+            'content' in document.createElement('template')),
         loaded = false,
         loadEventFired = false,
         kanoAppInserted = false,
-        loadTimeoutId, started,
-        timeout, wcPoly,
-        isCore, userAgent,
+        loadTimeoutId,
+        started,
+        timeout,
+        wcPoly,
+        isCore,
+        userAgent,
         isPi;
 
     /**
@@ -21,35 +24,77 @@
         location.href = 'https://world.kano.me/projects';
         return;
     }
+
     if (isPi && location.href.indexOf('apps.kano.me') !== -1) {
         location.href = location.href.replace('apps.kano.me', 'make-apps-kit.kano.me');
         return;
     }
 
+    function showMobileAlert (showButton) {
+        function hideSplash() {
+            var splash = document.getElementById('splash');
+            splash.style.opacity = 0;
+            setTimeout(function () {
+                clearTimeout(window.splashTimeoutId);
+                splash.parentNode.removeChild(splash);
+            }, 400);
+        }
+
+        function showAlertBox (showed) {
+            var alertBox = document.getElementById('alert'),
+                blocks = document.getElementById('blocks');
+            if (showed) {
+                blocks.parentNode.removeChild(blocks);
+                alertBox.style.display = "flex";
+            } else {
+                alertBox.style.display = "none";
+            }
+        }
+
+        function showContinueButton () {
+            var button = document.getElementById('close-btn');
+            button.style.display = 'inline-block';
+            button.addEventListener('click', function (e) {
+                hideSplash();
+            });
+        }
+
+        function isMobile () {
+            var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            return width < 600;
+        }
+
+        if (isMobile()) {
+            if (!showButton) {
+                showAlertBox(true);
+            } else {
+                showContinueButton();
+            }
+        } else {
+            if (showButton) {
+                hideSplash();
+            }
+        }
+    }
+
+    showMobileAlert(false);
+
     /**
      * Makes the transition between the splash and the app itself
      * Makes sure that the splash is displayed at least 1.5s to prevent flashing
      */
-    function onFirstPageLoaded() {
-        var duration = new Date() - started,
-            splash;
+    function onFirstPageLoaded () {
+        var duration = new Date() - started;
         if (duration < 1500) {
             timeout = setTimeout(onFirstPageLoaded, 1500 - duration);
             return;
         }
         document.removeEventListener('kano-routing-load-finish', onFirstPageLoaded);
-
-        splash = document.getElementById('splash');
-        splash.style.opacity = 0;
-
+        showMobileAlert(true);
         loaded = true;
-        setTimeout(function () {
-            clearTimeout(window.splashTimeoutId);
-            splash.parentNode.removeChild(splash);
-        }, 400);
     }
 
-    function onElementsLoaded() {
+    function onElementsLoaded () {
         if (kanoAppInserted) {
             return;
         }
@@ -63,7 +108,7 @@
     /**
      * Imports the elements bundle
      */
-    function lazyLoadElements() {
+    function lazyLoadElements () {
         var elements = [
             '/elements/elements.html'
         ];
@@ -80,7 +125,7 @@
     /**
      * Optionally load the webcomponents polyfill and then load the elements bundle
      */
-    function deferLoading() {
+    function deferLoading () {
         // Race condition cause of safari fix hack
         if (loadEventFired) {
             return;
@@ -99,9 +144,9 @@
 
     // Attach the loading of the dependencies when the page is loaded
     if (window.addEventListener) {
-        window.addEventListener("load", deferLoading, false);
+        window.addEventListener('load', deferLoading, false);
     } else if (window.attachEvent) {
-        window.attachEvent("onload", deferLoading);
+        window.attachEvent('onload', deferLoading);
     } else {
         window.onload = deferLoading;
     }

@@ -7,24 +7,16 @@ module.exports = (gulp, $) => {
     ];
 
     function generateWorkers(src) {
-        return gulp.src(src)
+        return gulp.src(src, { base: 'app' })
             .pipe($.if('*.html', $.utils.vulcanize({
                 inlineScripts: true,
                 stripComments: true
             })))
             .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
-            .pipe($.if('*.js', gulp.dest('./www/scripts/workers')));
+            .pipe($.if('*.js', gulp.dest('www')));
     }
 
     gulp.task('workers', () => {
         return generateWorkers(WORKERS_SRC);
-    });
-
-    gulp.task('workers-watch', () => {
-        gulp.watch(WORKERS_SRC)
-            .on('change', (e) => {
-                $.utils.notifyUpdate(`File ${e.path} was ${e.type}...`);
-                return generateWorkers(e.path);
-            });
     });
 };

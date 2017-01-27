@@ -1,3 +1,4 @@
+<link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
@@ -93,14 +94,16 @@
                 })
                 .then((story) => {
                     this.story = story;
-                    return Kano.MakeApps.Progress.loadProgress(story.progress.group);
+                    if (story.progress) {
+                        return Kano.MakeApps.Progress.loadProgress(story.progress.group);
+                    }
                 })
                 .then((progress) => this.updateExtensions(progress));
         },
         updateExtensions (progress) {
             let story = this.story,
                 extensions = story.extensions,
-                progressGroup = progress[story.progress.group] || {},
+                progressGroup = story.progress && progress[story.progress.group] || {},
                 progressExtensions = progressGroup.extensions;
             if (story.extensions && progressExtensions) {
                 for (let i = 0, len = extensions.length; i < len; i++) {
