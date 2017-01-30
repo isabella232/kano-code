@@ -102,6 +102,8 @@
     Kano.MakeApps.Msg.PART_MOTION_SENSOR_NAME = "Tripwire";
     Kano.MakeApps.Msg.PART_PROXIMITY_SENSOR_NAME = "Proximity Sensor";
 
+    Kano.MakeApps.Msg.BLOCK_TEXT_INPUT_TYPE_IN = "Type in here...";
+
     Kano.MakeApps.Msg.PART_DATA_SHARE_TITLE_TITLE = "Title";
     Kano.MakeApps.Msg.PART_DATA_SHARE_TITLE_DESC = "Title of the share";
     Kano.MakeApps.Msg.PART_DATA_SHARE_LIKES_TITLE = "Likes";
