@@ -116,7 +116,6 @@
     Blockly.Msg.BLOCK_TEXT_TEXT = "text";
 
     Blockly.Msg.BLOCK_TEXT_INPUT_CHANGED = "has changed";
-    Blockly.Msg.BLOCK_TEXT_INPUT_TYPE_IN = "Type in here...";
     Blockly.Msg.BLOCK_TEXT_INPUT_PLACEHOLDER = "placeholder";
     Blockly.Msg.BLOCK_TEXT_INPUT_SET_VALUE = "set value to %1";
     Blockly.Msg.BLOCK_TEXT_INPUT_SET_PLACEHOLDER = "set placeholder to %1";
