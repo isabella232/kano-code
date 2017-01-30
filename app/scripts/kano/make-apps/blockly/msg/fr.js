@@ -1,43 +1,43 @@
 (function (Blockly) {
     Blockly.Msg = Blockly.Msg || {};
 
-    Blockly.Msg.CATEGORY_COLOR = "Color";
-    Blockly.Msg.CATEGORY_CONTROL = "Control";
-    Blockly.Msg.CATEGORY_EVENTS = "Events";
-    Blockly.Msg.CATEGORY_LISTS = "Lists";
-    Blockly.Msg.CATEGORY_LOGIC = "Logic";
+    Blockly.Msg.CATEGORY_COLOR = "Couleur";
+    Blockly.Msg.CATEGORY_CONTROL = "Contrôle";
+    Blockly.Msg.CATEGORY_EVENTS = "Événements";
+    Blockly.Msg.CATEGORY_LISTS = "Listes";
+    Blockly.Msg.CATEGORY_LOGIC = "Logique";
     Blockly.Msg.CATEGORY_MATH = "Math";
     Blockly.Msg.CATEGORY_VARIALBLES = "Variables";
     Blockly.Msg.CATEGORY_FUN = "Fun";
-    Blockly.Msg.CATEGORY_MISC = "Misc";
+    Blockly.Msg.CATEGORY_MISC = "Autres";
 
-    Blockly.Msg.COLOR_RANDOM = "random color";
+    Blockly.Msg.COLOR_RANDOM = "couleur aléatoire";
 
-    Blockly.Msg.LOOP_FOREVER_REPEAT = "Repeat";
-    Blockly.Msg.LOOP_FOREVER_FOREVER = "forever";
+    Blockly.Msg.LOOP_FOREVER_REPEAT = "Répéter";
+    Blockly.Msg.LOOP_FOREVER_FOREVER = "pour toujours";
 
-    Blockly.Msg.LOOP_X_TIMES_REPEAT = "Repeat %1 times";
+    Blockly.Msg.LOOP_X_TIMES_REPEAT = "Répéter %1 fois";
 
-    Blockly.Msg.LOOP_EVERY_REPEAT = "Every";
+    Blockly.Msg.LOOP_EVERY_REPEAT = "Toutes les";
 
-    Blockly.Msg.LOOP_IN = "In %1 %2";
+    Blockly.Msg.LOOP_IN = "Dans %1 %2";
 
-    Blockly.Msg.GLOBAL_EVENT = "When %1";
-    Blockly.Msg.APP_STARTS = "app starts";
+    Blockly.Msg.GLOBAL_EVENT = "Quand %1";
+    Blockly.Msg.APP_STARTS = "l'application démarre";
 
-    Blockly.Msg.KEY_EVENT = "When key %1 is %2";
+    Blockly.Msg.KEY_EVENT = "Quand la touche %1 est %2";
 
-    Blockly.Msg.RANDOM_CAT = "random cat";
+    Blockly.Msg.RANDOM_CAT = "chat aléatoire";
 
-    Blockly.Msg.BLOCK_VALUE = "value";
-    Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "set background color to %1";
-    Blockly.Msg.BLOCK_IS_CLICKED = "is clicked";
+    Blockly.Msg.BLOCK_VALUE = "valeur";
+    Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "changer la couleur de fond %1";
+    Blockly.Msg.BLOCK_IS_CLICKED = "est clické";
 
-    Blockly.Msg.BLOCK_UI_MOVE_BY = "move  %1 pixels";
-    Blockly.Msg.BLOCK_UI_ROTATE = "turn %1 %2 degrees";
-    Blockly.Msg.BLOCK_UI_ROTATE_CLOCKWISE = "turn \u21BB %1 degrees";
-    Blockly.Msg.BLOCK_UI_ROTATE_COUNTER_CLOCKWISE = "turn \u21BA %1 degrees";
-    Blockly.Msg.BLOCK_UI_ABSOLUTE_ROTATE = "point to %1 degrees";
+    Blockly.Msg.BLOCK_UI_MOVE_BY = "déplacer de %1 pixels";
+    Blockly.Msg.BLOCK_UI_ROTATE = "tourner %1 de %2 degrées";
+    Blockly.Msg.BLOCK_UI_ROTATE_CLOCKWISE = "tourner \u21BB de %1 degrées";
+    Blockly.Msg.BLOCK_UI_ROTATE_COUNTER_CLOCKWISE = "tourner \u21BA de %1 degrees";
+    Blockly.Msg.BLOCK_UI_ABSOLUTE_ROTATE = "pointer vers %1 degrées";
     Blockly.Msg.BLOCK_UI_SCALE = "set size to %1 %";
     Blockly.Msg.BLOCK_UI_RELATIVE_SCALE = "change size by %1 %";
     Blockly.Msg.BLOCK_UI_SET_X_Y = "move to x %1, y %2";

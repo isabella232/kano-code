@@ -6,7 +6,7 @@
         let gyroAccelerometer = {
             partType: 'hardware',
             type: 'gyro-accelerometer',
-            label: 'Tilt',
+            label: Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_NAME,
             image: '/assets/part/proximity.svg',
             colour: '#FFB347',
             component: 'kano-part-gyro-accelerometer',
@@ -16,14 +16,14 @@
             },
             userProperties: {},
             events: [{
-                label: 'reads data',
+                label: Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_READ_DATA,
                 id: 'gyro-accel-update'
             }],
             blocks: [{
                 block: (part) => {
                     return {
                         id: 'gyroscope_value',
-                        message0: `Gyroscope %1 axis`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_GYRO_ACCELEROMETER_AXIS}`,
                         inputsInline: true,
                         args0: [{
                             type: 'field_dropdown',
@@ -55,7 +55,7 @@
                 block: (part) => {
                     return {
                         id: 'accelerometer_value',
-                        message0: `Accelerometer %1 axis`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_GYRO_ACCELEROMETER_ACCEL_AXIS}`,
                         inputsInline: true,
                         args0: [{
                             type: 'field_dropdown',

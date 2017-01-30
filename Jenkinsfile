@@ -24,6 +24,7 @@ node {
     }
 
     stage('test') {
+        sh "gulp validate-challenges"
         try {
             sh "xvfb-run --auto-servernum gulp wct"
         } catch (Exception err) {

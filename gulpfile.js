@@ -9,6 +9,7 @@ let gulp = require('gulp'),
     htmlAutoprefixer = require("html-autoprefixer"),
     browserSync = require('browser-sync').create(),
     historyApiFallback = require('connect-history-api-fallback'),
+    validateChallenges = require('./tasks/validate-challenges-locales'),
     runSequence = require('run-sequence'),
     env = process.env.NODE_ENV || 'development',
     target = process.env.TARGET || 'web',
@@ -163,6 +164,10 @@ gulp.task('watch', () => {
 gulp.task('polyfill', () => {
     return gulp.src('app/bower_components/webcomponentsjs/webcomponents-lite.min.js')
         .pipe(gulp.dest('www/assets/vendor/webcomponentsjs/'));
+});
+
+gulp.task('validate-challenges', () => {
+    return validateChallenges.validateChallenges(true);
 });
 
 require('./tasks/service-worker')(gulp, $);

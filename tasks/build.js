@@ -86,6 +86,16 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('.tmp/app'));
     });
 
+    gulp.task('i18n', () => {
+        return gulp.src('.tmp/app/elements/msg/*.html', { base: '.tmp/app' })
+            .pipe($.vulcanize({
+                inlineScripts: true,
+                inlineCss: true,
+                stripComments: true
+            }))
+            .pipe(gulp.dest('www'));
+    });
+
     gulp.task('split', () => {
         gulp.src('www/**/*.html', { base: 'www' })
             .pipe($.crisper({ scriptInHead: false }))
@@ -97,7 +107,7 @@ module.exports = (gulp, $) => {
             'copy-all',
             'shards',
             'split',
-            ['copy-index', 'blockly-media', 'assets', 'workers'],
+            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n'],
             'sw',
             'external-play-bundle', done);
     });

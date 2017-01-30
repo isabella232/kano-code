@@ -6,19 +6,22 @@
         let microphone = {
             partType: 'hardware',
             type: 'microphone',
-            label: 'Mic',
+            label: Kano.MakeApps.Msg.PART_MIC_NAME,
             component: 'kano-part-microphone',
             image: '/assets/part/microphone.svg',
             colour: '#FFB347',
             blocks: [{
-                block: () => {
+                block: (ui) => {
                     return {
                         id: 'get_volume',
-                        message0: 'Microphone: %1',
+                        message0: `${ui.name}: %1`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'TYPE',
-                            options: [['volume', 'volume'], ['pitch', 'pitch']]
+                            options: [
+                                [Blockly.Msg.BLOCK_MIC_VOLUME, 'volume'],
+                                [Blockly.Msg.BLOCK_MIC_PITCH, 'pitch']
+                            ]
                         }],
                         output: 'Number'
                     };
@@ -38,14 +41,17 @@
                     };
                 }
             }, {
-                block: () => {
+                block: (ui) => {
                     return {
                         id: 'threshold',
-                        message0: 'Microphone: when volume goes %1 %2',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MIC_WHEN_VOLUME}`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'OVER',
-                            options: [['over', 'true'], ['under', 'false']]
+                            options: [
+                                [Blockly.Msg.BLOCK_MIC_OVER, 'true'],
+                                [Blockly.Msg.BLOCK_MIC_UNDER, 'false']
+                            ]
                         },{
                             type: 'input_value',
                             name: 'VALUE',

@@ -99,7 +99,7 @@
                 let json = {
                     id: 'in_x_time',
                     colour: COLOUR,
-                    message0: 'In %1 %2',
+                    message0: Blockly.Msg.LOOP_IN,
                     args0: [{
                         type: "input_value",
                         name: "DELAY"
@@ -117,7 +117,7 @@
                             ]
                         ]
                     }],
-                    message1: 'do %1',
+                    message1: `${Blockly.Msg.CONTROLS_REPEAT_INPUT_DO} %1`,
                     args1: [{
                         type: "input_statement",
                         name: "DO"

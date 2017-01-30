@@ -10,16 +10,16 @@
         speaker = {
             partType: 'hardware',
             type: 'speaker',
-            label: 'Speaker',
+            label: Kano.MakeApps.Msg.PART_SPEAKER_NAME,
             image: '/assets/part/speaker.svg',
             colour: COLOUR,
             component: 'kano-part-speaker',
             experiments: {},
             blocks: [{
-                block: () => {
+                block: (part) => {
                     return {
                         id: 'say',
-                        message0: 'Speaker: say %1 % speed %2 accent %3',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_SAY}`,
                         inputsInline: false,
                         args0: [{
                             type: "input_value",
@@ -37,23 +37,23 @@
                             name: "LANGUAGE",
                             options: [
                                 [
-                                    "British English",
+                                    Blockly.Msg.BLOCK_SPEAKER_BRITISH,
                                     "en-GB"
                                 ],
                                 [
-                                    "US English",
+                                    Blockly.Msg.BLOCK_SPEAKER_US,
                                     "en-US"
                                 ],
                                 [
-                                    "French",
+                                    Blockly.Msg.BLOCK_SPEAKER_FRENCH,
                                     "fr-FR"
                                 ],
                                 [
-                                    "German",
+                                    Blockly.Msg.BLOCK_SPEAKER_GERMAN,
                                     "de-DE"
                                 ],
                                 [
-                                    "Italian",
+                                    Blockly.Msg.BLOCK_SPEAKER_ITALIAN,
                                     "it-IT"
                                 ]
                             ],
@@ -104,10 +104,10 @@
         // Add speaker blocks if supported
         if (speaker.webAudioSupported) {
             speaker.blocks = speaker.blocks.concat([{
-                block: () => {
+                block: (part) => {
                     return {
                         id: 'speaker_play',
-                        message0: 'Speaker: play %1',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_PLAY}`,
                         args0: [{
                             type: "input_value",
                             name: "SAMPLE",
@@ -132,10 +132,10 @@
                     };
                 }
             },{
-                block: () => {
+                block: (part) => {
                     return {
                         id: 'speaker_loop',
-                        message0: 'Speaker: loop %1',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_LOOP}`,
                         args0: [{
                             type: "input_value",
                             name: "SAMPLE",

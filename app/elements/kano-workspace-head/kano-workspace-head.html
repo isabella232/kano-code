@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/color.html">
 <link rel="import" href="../kano-glint-animation/kano-glint-animation.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <dom-module id="kano-workspace-head">
     <style>
         :host {
@@ -115,7 +116,7 @@
                     </h1>
                 </div>
             </kano-glint-animation>
-            <button class="save" on-tap="_saveButtonClicked" hidden$="[[noSave]]">Save</button>
+            <button class="save" on-tap="_saveButtonClicked" hidden$="[[noSave]]">[[localize('SAVE', 'Save')]]</button>
             <button class="settings" on-tap="_settingsButtonClicked" hidden$="[[noSettings]]">
                 <img src="/assets/icons/settings-icon.svg" alt="Settings"/>
             </button>
@@ -127,6 +128,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace-head',
+        behaviors: [Kano.Behaviors.I18nBehavior],
         properties: {
             challengeState: {
                 type: Object

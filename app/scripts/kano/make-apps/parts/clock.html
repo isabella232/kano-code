@@ -6,7 +6,7 @@
         let clock = {
             partType: 'data',
             type: 'clock',
-            label: 'Clock',
+            label: Kano.MakeApps.Msg.PART_CLOCK_NAME,
             image: '/assets/part/clock.svg',
             component: 'kano-part-clock',
             excludeBlocks: ['refresh'],
@@ -14,37 +14,37 @@
             method: 'clock.noop',
             configPanel: 'disabled',
             blocks: [{
-                block: () => {
+                block: (ui) => {
                     return {
                         id: 'get_time',
-                        message0: 'Clock: current %1',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_CLOCK_CURRENT}`,
                         output: 'Number',
                         args0: [{
                             type: "field_dropdown",
                             name: "FIELD",
                             options: [
                                 [
-                                    "Year",
+                                    Blockly.Msg.BLOCK_CLOCK_YEAR,
                                     "year"
                                 ],
                                 [
-                                    "Month",
+                                    Blockly.Msg.BLOCK_CLOCK_MONTH,
                                     "month"
                                 ],
                                 [
-                                    "Day",
+                                    Blockly.Msg.BLOCK_CLOCK_DAY,
                                     "day"
                                 ],
                                 [
-                                    "Hour",
+                                    Blockly.Msg.BLOCK_CLOCK_HOUR,
                                     "hour"
                                 ],
                                 [
-                                    "Minute",
+                                    Blockly.Msg.BLOCK_CLOCK_MINUTE,
                                     "minute"
                                 ],
                                 [
-                                    "Seconds",
+                                    Blockly.Msg.BLOCK_CLOCK_SECONDS,
                                     "seconds"
                                 ]
                             ]
@@ -69,18 +69,18 @@
                 block: () => {
                     return {
                         id: 'get_formatted_time',
-                        message0: 'Clock: current %1',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_CLOCK_CURRENT}`,
                         output: 'String',
                         args0: [{
                             type: "field_dropdown",
                             name: "FIELD",
                             options: [
                                 [
-                                    "Date",
+                                    Blockly.Msg.BLOCK_CLOCK_DATE,
                                     "date"
                                 ],
                                 [
-                                    "Time",
+                                    Blockly.Msg.BLOCK_CLOCK_TIME,
                                     "time"
                                 ]
                             ]
