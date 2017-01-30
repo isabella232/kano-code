@@ -7,7 +7,7 @@
         let lightAnimationDisplay = {
             partType: 'ui',
             type: 'light-animation-display',
-            label: 'Player',
+            label: Kano.MakeApps.Msg.PART_LIGHT_ANIMATION_DISPLAY_NAME,
             image: '/assets/part/pixels-animation-play.svg',
             colour: '#FFB347',
             component: 'kano-part-light-animation-display',
@@ -17,7 +17,7 @@
                 properties: [{
                     key: 'animation',
                     type: 'light-animation',
-                    label: 'Animation',
+                    label: Kano.MakeApps.Msg.ANIMATION,
                     options: Object.keys(Kano.MakeApps.Parts.animations).map(key => {
                         return {
                             label: key,
@@ -27,11 +27,11 @@
                 },{
                     key: 'animations',
                     type: 'animations',
-                    label: 'Animations'
+                    label: Kano.MakeApps.Msg.ANIMATIONS
                 },{
                     key: 'speed',
                     type: 'range',
-                    label: 'Speed',
+                    label: Kano.MakeApps.Msg.SPEED,
                     min: 1,
                     max: 30
                 }],
@@ -46,7 +46,7 @@
                 block: (part) => {
                     return {
                         id: 'animation_display_set_animation',
-                        message0: `${part.name} set animation to %1`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_LIGHT_ANIMATION_DISPLAY_SET_ANIMATION}`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'ANIMATION',
@@ -75,7 +75,7 @@
                 block: (part) => {
                     return {
                         id: 'animation_display_play',
-                        message0: `${part.name} play`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_LIGHT_ANIMATION_PLAY}`,
                         inputsInline: false,
                         previousStatement: null,
                         nextStatement: null
@@ -97,7 +97,7 @@
                 block: (part) => {
                     return {
                         id: 'animation_display_stop',
-                        message0: `${part.name} stop`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_LIGHT_ANIMATION_STOP}`,
                         inputsInline: false,
                         previousStatement: null,
                         nextStatement: null
@@ -119,7 +119,7 @@
                 block: (part) => {
                     return {
                         id: 'animation_display_go_to_frame',
-                        message0: `${part.name} go to frame nº %1`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_LIGHT_ANIMATION_GO_TO_FRAME}`,
                         args0: [{
                             type: 'input_value',
                             name: 'FRAME',
@@ -151,7 +151,7 @@
                 block: (part) => {
                     return {
                         id: 'animation_display_set_speed',
-                        message0: `${part.name} set speed to %1`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_LIGHT_ANIMATION_SET_SPEED}`,
                         args0: [{
                             type: 'input_value',
                             name: 'SPEED',

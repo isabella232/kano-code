@@ -6,7 +6,7 @@
         let proximitySensor = {
             partType: 'hardware',
             type: 'proximity-sensor',
-            label: 'Proximity Sensor',
+            label: Kano.MakeApps.Msg.PART_PROXIMITY_SENSOR_NAME,
             image: '/assets/part/proximity.svg',
             colour: '#FFB347',
             component: 'kano-part-proximity-sensor',
@@ -16,14 +16,14 @@
             },
             userProperties: {},
             events: [{
-                label: 'reads data',
+                label: Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_READ_DATA,
                 id: 'proximity-update'
             }],
             blocks: [{
                 block: (part) => {
                     return {
                         id: 'proximity_sensor_value',
-                        message0: `${part.name} value`,
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_VALUE}`,
                         inputsInline: false,
                         output: 'Number'
                     };

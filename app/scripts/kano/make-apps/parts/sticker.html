@@ -13,21 +13,21 @@
         sticker = {
             partType: 'ui',
             type: 'sticker',
-            label: 'Sticker',
+            label: Kano.MakeApps.Msg.PART_STICKER_NAME,
             image: '/assets/part/image.svg',
             colour: COLOR,
             customizable: {
                 properties: [{
                     key: 'src',
                     type: 'image',
-                    label: 'Image',
+                    label: Kano.MakeApps.Msg.IMAGE,
                     options: {
                         files: 'stickers'
                     }
                 }, {
                     key: 'size',
                     type: 'size',
-                    label: 'Size',
+                    label: Kano.MakeApps.Msg.SIZE,
                     symbol: 'pixels'
                 }],
                 style: []
@@ -39,14 +39,14 @@
                 size: 100
             },
             events: [{
-                label: 'is clicked',
+                label: Kano.MakeApps.Msg.IS_CLICKED,
                 id: 'clicked'
             }],
             blocks: [{
                 block: (ui) => {
                     return {
                         id: 'set_sticker',
-                        message0: `${ui.name}: set to %1`,
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_STICKER_SET}`,
                         args0: [{
                             type: "input_value",
                             name: "PICTURE",
@@ -136,7 +136,7 @@
                 block: (ui) => {
                     return {
                         id: 'random_sticker',
-                        message0: `random sticker`,
+                        message0: Blockly.Msg.BLOCK_STICKER_RANDOM,
                         output: 'String'
                     };
                 },
@@ -157,7 +157,7 @@
                     let sets = Kano.MakeApps.Files.stickers;
                     return {
                         id: 'random_from_set',
-                        message0: `random %1`,
+                        message0: Blockly.Msg.BLOCK_STICKER_RANDOM_FROM,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'SET',

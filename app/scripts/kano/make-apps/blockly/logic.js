@@ -50,7 +50,7 @@
     };
 
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
-        name: 'Logic',
+        name: Blockly.Msg.CATEGORY_LOGIC,
         id: 'logic',
         colour: COLOUR,
         blocks: [

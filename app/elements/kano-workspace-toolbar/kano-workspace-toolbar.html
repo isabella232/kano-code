@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
 
 <dom-module id="kano-workspace-toolbar">
     <style>
@@ -125,7 +126,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-workspace-toolbar',
-        behaviors: [Kano.Behaviors.AppElementRegistryBehavior],
+        behaviors: [Kano.Behaviors.AppElementRegistryBehavior, Kano.Behaviors.I18nBehavior],
         properties: {
             mouseX: {
                 type: Number
@@ -183,7 +184,7 @@
             return running ? 'running' : 'stopped';
         },
         _computeEditingButtonLabel (editableLayout) {
-            return editableLayout ? 'Done' : 'Edit Layout';
+            return editableLayout ? this.localize('DONE', 'done') : this.localize('EDIT_LAYOUT', 'Edit Layout');
         },
         _editLayoutClicked () {
             this.fire('edit-layout-button-clicked');
@@ -192,7 +193,7 @@
             this.fire('toggle-parts-menu');
         },
         _computePartsMenuButtonLabel (open) {
-            return open ? 'close' : 'add parts';
+            return open ? this.localize('CLOSE', 'close') : this.localize('ADD_PARTS', 'add parts');
         },
         _applyButtonClass (open) {
             return open ? 'open' : '';

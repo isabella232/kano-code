@@ -6,66 +6,65 @@
         let weather = {
             partType: 'data',
             type: 'weather',
-            label: 'Weather',
+            label: Kano.MakeApps.Msg.PART_DATA_WEATHER_NAME,
             colour: '#cddc39',
             image: '/assets/part/weather.svg',
-            description: 'All around the world, people installed small boxes full of sensors to record the temperature, wind speed and much more about the weather. Thanks to them, you can get the current weather in any part of the world!',
             parameters: [{
-                label: 'Location',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_LOCATION_TITLE,
                 key: 'location',
                 type: 'text',
-                value: 'London, U.K.'
+                value: Kano.MakeApps.Msg.PART_DATA_WEATHER_LOCATION_DEFAULT
             },{
-                label: 'Units',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_TITLE,
                 key: 'units',
                 type: 'list',
                 value: 'metric',
-                description: 'The metric system will display the temperature in ºC while the imperial one will display it in ºF',
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_DESC,
                 options: [{
                     value: 'metric',
-                    label: 'Metric system'
+                    label: Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_METRIC
                 },{
                     value: 'imperial',
-                    label: 'Imperial system'
+                    label: Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_IMPERIAL
                 }]
             }],
             refreshFreq: 5,
             minRefreshFreq: 5,
             method: 'weather.getWeather',
             dataKeys: [{
-                label: 'Temperature',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_TEMPERATURE_TITLE,
                 key: 'temperature',
-                description: 'The current temperature at the location'
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_TEMPERATURE_DESC
             },{
-                label: 'Wind speed',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_SPEED_TITLE,
                 key: 'wind_speed',
-                description: 'The speed of the wind'
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_SPEED_DESC
             },{
-                label: 'Wind angle',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_ANGLE_TITLE,
                 key: 'wind_angle',
-                description: 'The general direction of the wind'
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_ANGLE_DESC
             },{
-                label: 'Clouds',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_CLOUDS_TITLE,
                 key: 'clouds',
-                description: 'The percentage of the sky covered by clouds'
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_CLOUDS_DESC
             },{
-                label: 'Emoji',
+                label: Kano.MakeApps.Msg.PART_DATA_WEATHER_EMOJI_TITLE,
                 key: 'emoji',
-                description: 'The emoji matching the weather'
+                description: Kano.MakeApps.Msg.PART_DATA_WEATHER_EMOJI_DESC
             }],
             blocks: [{
                 block: (ui) => {
                     return {
                         id: 'weather_is_status',
-                        message0: `${ui.name} is %1`,
+                        message0: `${ui.name} ${Blockly.Msg.BLOCK_WEATHER_IS}`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'STATUS',
                             options: [
-                                ['sunny', 'sunny'],
-                                ['rainy', 'rainy'],
-                                ['cloudy', 'cloudy'],
-                                ['snowy', 'snowy']
+                                [Blockly.Msg.BLOCK_WEATHER_SUNNY, 'sunny'],
+                                [Blockly.Msg.BLOCK_WEATHER_RAINY, 'rainy'],
+                                [Blockly.Msg.BLOCK_WEATHER_CLOUDY, 'cloudy'],
+                                [Blockly.Msg.BLOCK_WEATHER_SNOWY, 'snowy']
                             ]
                         }],
                         output: 'Boolean'
