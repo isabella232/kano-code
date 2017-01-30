@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../kano-glint-animation/kano-glint-animation.html">
+<link rel="import" href="../kano-progress-bar/kano-progress-bar.html">
 
 <dom-module id="kano-reward-modal">
     <style is="custom-style" include="input-text"></style>
@@ -126,9 +127,24 @@
             text-transform: uppercase;
             vertical-align: 30%;
         }
+        :host kano-progress-bar {
+            height: 12px;
+        }
         :host .action {
             padding-bottom: 0;
             padding-top: 25px;
+        }
+        :host .progress {
+            @apply --layout-horizontal;
+            @apply --layout-center;
+            @apply --layout-justified;
+            margin: 20px 23px 0;
+        }
+        :host .progress .fraction {
+            color: #444;
+            font-weight: bold;
+            margin-top: -3px;
+            margin-left: 10px;
         }
         :host .button {
             appearance: none;
@@ -204,6 +220,9 @@
                 padding-left: 20px;
                 padding-right: 20px;
             }
+            :host .progress {
+                margin: 20px 13px 0;
+            }
         }
         @media all and (min-width: 580px) {
             :host .wrapper {
@@ -221,32 +240,7 @@
                 padding-right: 50px;
             }
         }
-        :host .progress {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        :host .progress-bar {
-            width: 100%;
-            height: 12px;
-            border-radius: 12px;
-            background-color: var(--color-progress-bar-bg);
-            max-width: 200px;
-        }
-        :host .progress-bar .gauge {
-            height: 100%;
-            width: 0px;
-            background-color: var(--color-progress-bar);
-            border-radius: 12px;
-        }
-        :host .progress .fraction {
-            color: #444444;
-            font-weight: bold;
-            margin-top: -3px;
-            margin-left: 10px;
-        }
+
     </style>
     <template>
         <paper-dialog
@@ -257,7 +251,7 @@
             modal>
             <div class="wrapper">
                 <div class="content">
-                    <img class="motif" src='/assets/avatar/judoka-face.svg' />
+                    <img class="motif" src='/assets/avatar/judoka-face.svg'/>
                     <h3 class="title">{{content.title}}</h3>
                     <p class="body">{{content.body}}</p>
                     <div class="xp">
@@ -267,9 +261,9 @@
                     </div>
                     <template is="dom-if" if="{{content}}">
                         <div class="progress">
-                            <div class="progress-bar">
-                                <div class="gauge" style$="{{calculateGaugeWidth(content.progress.*)}}"></div>
-                            </div>
+                            <kano-progress-bar id="progress-bar"
+                                           min="[[progress.min]]"
+                                           max="[[progress.max]]"></kano-progress-bar>
                             <div class="fraction">{{content.progress.current}}/{{content.progress.total}}</div>
                         </div>
                     </template>
@@ -334,6 +328,13 @@
             modalVisibility: {
                 type: Boolean,
                 value: false
+            },
+            progress: {
+                type: Object,
+                value: {
+                    min: 0,
+                    max: 300
+                }
             }
         },
         observers: [
@@ -347,8 +348,9 @@
             this.$['reward-modal-dialog'].backdropElement.classList.remove('reward');
         },
         open () {
-            this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
             this.$['reward-modal-dialog'].open();
+            this.playSound(`/assets/audio/onboarding/challenge_complete.wav`);
+            this.async(() => this._animateProgress(), 1000);
         },
         close () {
             this.$['reward-modal-dialog'].close();
@@ -366,6 +368,9 @@
                 type: e.model.link.type
             });
         },
+        _animateProgress () {
+            this.$$('#progress-bar').addValue(100);
+        },
         _iconType (icon, content) {
             return icon === content;
         },
@@ -382,13 +387,6 @@
         },
         _updateModalVisibility () {
             this.set('modalVisibility', !this.modalVisibility);
-        },
-        calculateGaugeWidth () {
-            let progress;
-            if (this.content && this.content.progress) {
-                progress = this.content.progress;
-                return `width: ${(progress.current / progress.total) * 100}%;`
-            }
         }
     });
 </script>
