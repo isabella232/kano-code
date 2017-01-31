@@ -100,6 +100,7 @@
             },
             _render () {
                 this._createWorkspace();
+                this.ws.scale = this.targetWorkspace.scale;
                 this._renderBlocks();
             },
             _updateDB () {
@@ -118,7 +119,7 @@
                 let cursorX = this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                     cursorY = 0,
                     maxWidth = 0,
-                    thisRect, rect, canvas, allBlocks, root, sep, hw;
+                    thisRect, rect, canvas, allBlocks, root, sep, hw, height;
 
                 if (!this.xmlList) {
                     return;
@@ -148,6 +149,8 @@
                 if (!canvas) {
                     return;
                 }
+
+                canvas.setAttribute('transform', `scale(${this.ws.scale})`);
 
                 for (let i = 0; i < this.blocks.length; i++) {
                     let block = this.blocks[i];
@@ -179,11 +182,12 @@
                     block.flyoutRect_ = rect;
                     this._addBlockListeners(root, block, rect);
                 }
+                height = (cursorY + 20) * this.ws.scale;
                 this.$.svg.style.width = maxWidth;
-                this.$.svg.style.height = cursorY + 20;
+                this.$.svg.style.height = height;
                 this.fire('size-changed', {
                     width: maxWidth,
-                    height: cursorY + 20
+                    height
                 });
                 this._updateDB();
             },
