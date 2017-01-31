@@ -745,101 +745,32 @@ Blockly.Workspace.prototype.closeOmnibox = function (doNotNotify) {
 }
 
 Blockly.Block.prototype.renderSearchPlus_ = function () {
-    var inputList = this.inputList;
+    var inputList = this.inputList,
+        connections;
 
-    if (!this.workspace.searchPlusReady) {
-        let workspace = this.workspace;
-        workspace.searchPlusReady = true;
-        workspace.addChangeListener((e) => {
-            if (e.type === Blockly.Events.MOVE || e.type === Blockly.Events.DELETE) {
-                let blocks = workspace.getAllBlocks();
-                blocks.forEach(b => b.renderSearchPlus_());
-            }
-        });
+    if (this.isInFlyout) {
+        return;
     }
 
-    inputList.forEach((input) => {
-        if (!input.button) {
-            if (input.connection) {
-                let offsetX = 0,
-                    offsetY = 0;
-                if (input.connection.type === Blockly.NEXT_STATEMENT) {
-                    offsetX = -19;
-                    offsetY = 1;
-                } else if (input.connection.type === Blockly.INPUT_VALUE) {
-                    offsetX = 1;
-                    offsetY = 2 + Blockly.BlockSvg.ROW_PADDING_Y;
-                }
-                input.button = Blockly.utils.createSvgElement('g', {
-                    class: 'searchPlus',
-                    width: 20,
-                    height: 20,
-                    transform: `translate(${input.connection.x_ + offsetX}, ${input.connection.y_ + offsetY})`
-                }, this.svgGroup_);
-                Blockly.utils.createSvgElement('rect', {
-                    width: 20,
-                    height: 20
-                }, input.button);
-                var plus = Blockly.utils.createSvgElement('text', {
-                    transform: 'translate(6.5, 13.5)'
-                }, input.button);
-                plus.appendChild(document.createTextNode('+'));
-                input.button.addEventListener('mousedown', () => {
-                    var rect = input.button.getBoundingClientRect(),
-                        omnibox = this.workspace.openOmnibox();
-                    omnibox.style.top = `${rect.top}px`;
-                    omnibox.style.left = `${rect.left}px`;
-                    omnibox.filter = (block) => {
-                        let blockConnection;
-                        if (input.connection.type === Blockly.NEXT_STATEMENT) {
-                            blockConnection = block.previousConnection;
-                        } else if (input.connection.type === Blockly.INPUT_VALUE) {
-                            blockConnection = block.outputConnection;
-                        }
-                        // The connection exists on the block found and it matches the type of the input
-                        return blockConnection  && (!input.connection.check_ || !blockConnection.check_
-                                || input.connection.check_.some(inputCheck => blockConnection.check_.indexOf(inputCheck) !== -1));
-                    };
-                    var onConfirm = (e) => {
-                        let type;
-                        omnibox.removeEventListener('confirm', onConfirm);
-                        omnibox.removeEventListener('close', onConfirm);
-                        if (e.detail && e.detail.selected) {
-                            type = e.detail.selected.type;
-                            if (type) {
-                                let block = this.workspace.newBlock(type);
-                                block.initSvg();
-                                block.render();
-                                if (input.connection.type === Blockly.NEXT_STATEMENT) {
-                                    input.connection.connect(block.previousConnection);
-                                } else if (input.connection.type === Blockly.INPUT_VALUE) {
-                                    input.connection.connect(block.outputConnection);
-                                }
-                            }
-                        }
-                        
-                    };
-                    omnibox.addEventListener('confirm', onConfirm);
-                    omnibox.addEventListener('close', onConfirm);
-                    if ('animate' in HTMLElement.prototype) {
-                        let rect = omnibox.getBoundingClientRect();
-                        omnibox.style.transformOrigin = '0 0';
-                        omnibox.animate({
-                            transform: [`scale(${20 / rect.width}, ${20 / rect.height})`, 'scale(1, 1)']
-                        }, {
-                            duration: 170,
-                            easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-                        });
-                    }
-                });
+    connections = inputList.filter(input => input.type === Blockly.INPUT_VALUE || input.type === Blockly.NEXT_STATEMENT)
+                            .map(input => input.connection);
+    if (this.nextConnection) {
+        connections.push(this.nextConnection);
+    }
+    connections.forEach(connection => {
+        if (connection && !connection.targetConnection) {
+            let type, block, connectionName;
+            if (connection.type === Blockly.INPUT_VALUE) {
+                type = 'search_output';
+                connectionName = 'outputConnection';
+            } else if (connection.type === Blockly.NEXT_STATEMENT) {
+                type = 'search_statement';
+                connectionName = 'previousConnection';
             }
-        }
-        if (input.button) {
-            if (input.connection && !input.connection.targetConnection && !this.isInFlyout) {
-                input.button.style.display = 'block';
-            } else {
-                input.button.style.display = 'none';
-            }
+            block = this.workspace.newBlock(type);
+            block.initSvg();
+            block.render();
+            connection.connect(block[connectionName]);
         }
     });
 };
@@ -934,12 +865,137 @@ Blockly.Workspace.prototype.search = function (qs) {
         });
 };
 
+Blockly.FieldLookup = function (blocks) {
+    this._blocks = blocks;
+    this._width = 48;
+    this._height = 16;
+};
+goog.inherits(Blockly.FieldLookup, Blockly.Field);
+Blockly.FieldLookup.prototype.init = function () {
+    if (this._container) {
+        // Field has already been initialized once.
+        return;
+    }
+    // Build the DOM.
+    this._container = Blockly.utils.createSvgElement('g', {
+        class: 'blocklyEditableText'
+    }, null);
+    this._border = Blockly.utils.createSvgElement('rect', {
+        rx: 4,
+        ry: 4,
+        width: `${this._width + 4}px`,
+        height: `${this._height}px`
+    }, this._container);
+    this.sourceBlock_.getSvgRoot().appendChild(this._container);
+    Blockly.bindEvent_(this._container, 'mousedown', this, this._onMouseDown);
+};
+Blockly.FieldLookup.prototype._onMouseDown = function (e) {
+    if (Blockly.WidgetDiv.isVisible()) {
+        Blockly.WidgetDiv.hide();
+    } else if (!this.sourceBlock_.isInFlyout) {
+        this.showEditor_();
+        e.preventDefault();
+        e.stopPropagation();
+    }
+};
+Blockly.FieldLookup.prototype.getSvgRoot = function () {
+    return this._container;
+};
+Blockly.FieldLookup.prototype.getSize = function () {
+    return {
+        width: this._width + 4,
+        height: this._height,
+    };
+};
+Blockly.FieldLookup.prototype.getAbsoluteXY_ = function () {
+    return goog.style.getPageOffset(this._container);
+};
+Blockly.FieldLookup.prototype.getScaledBBox_ = function() {
+    let bbox = this._container.getBBox();
+    return new goog.math.Size(bbox.width * this.sourceBlock_.workspace.scale, bbox.height * this.sourceBlock_.workspace.scale)
+};
+Blockly.FieldLookup.prototype.showEditor_ = function () {
+    var block = this.sourceBlock_;
+    var xy = Blockly.getSvgXY_(block.svgGroup_, block.workspace);
+    var connection = block.outputConnection ? block.outputConnection : block.previousConnection;
+    var targetConnection = connection.targetConnection;
+    var workspace = this.sourceBlock_.workspace;
 
-Blockly.Blocks.search = {
+    var omnibox = workspace.openOmnibox();
+    omnibox.style.top = `${xy.y}px`;
+    omnibox.style.left = `${xy.x}px`;
+
+    omnibox.filter = (block) => {
+        let blockConnection;
+        if (targetConnection.type === Blockly.NEXT_STATEMENT) {
+            blockConnection = block.previousConnection;
+        } else if (targetConnection.type === Blockly.INPUT_VALUE) {
+            blockConnection = block.outputConnection;
+        }
+        // The connection exists on the block found and it matches the type of the input
+        return blockConnection  && (!targetConnection.check_ || !blockConnection.check_
+                || targetConnection.check_.some(inputCheck => blockConnection.check_.indexOf(inputCheck) !== -1));
+    };
+    var onConfirm = (e) => {
+        let type;
+        omnibox.removeEventListener('confirm', onConfirm);
+        omnibox.removeEventListener('close', onConfirm);
+        if (e.detail && e.detail.selected) {
+            type = e.detail.selected.type;
+            if (type) {
+                let block = workspace.newBlock(type);
+                block.initSvg();
+                block.render();
+                if (targetConnection.type === Blockly.NEXT_STATEMENT) {
+                    targetConnection.connect(block.previousConnection);
+                } else if (targetConnection.type === Blockly.INPUT_VALUE) {
+                    targetConnection.connect(block.outputConnection);
+                }
+            }
+        }
+        
+    };
+    omnibox.addEventListener('confirm', onConfirm);
+    omnibox.addEventListener('close', onConfirm);
+    if ('animate' in HTMLElement.prototype) {
+        let rect = omnibox.getBoundingClientRect(),
+            hw = block.getHeightWidth();
+        omnibox.style.transformOrigin = '0 0';
+        omnibox.animate({
+            transform: [`scale(${hw.width / rect.width}, ${hw.height / rect.height})`, 'scale(1, 1)']
+        }, {
+            duration: 170,
+            easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+        });
+    }
+};
+
+Blockly.Blocks.search_statement = {
     init: function () {
-        let searchField = new Blockly.FieldBlockPicker();
+        let searchField = new Blockly.FieldLookup();
         this.setColour('#bdbdbd');
         this.appendDummyInput('SEARCH')
             .appendField(searchField, 'SEARCH');
+        this.setPreviousStatement(true);
+        this.setShadow(true);
     }
+};
+
+Blockly.Blocks.search_output = {
+    init: function () {
+        let searchField = new Blockly.FieldLookup();
+        this.setColour('#bdbdbd');
+        this.appendDummyInput('SEARCH')
+            .appendField(searchField, 'SEARCH');
+        this.setOutput(true);
+        this.setShadow(true);
+    }
+};
+
+Blockly.JavaScript.search_output = function () {
+    return '';
+};
+
+Blockly.JavaScript.search_statement = function () {
+    return '';
 };
