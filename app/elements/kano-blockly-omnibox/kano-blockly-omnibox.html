@@ -1,4 +1,5 @@
-<link rel="import" href="../kano-blockly-flyout/kano-blockly-flyout.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <dom-module id="kano-blockly-omnibox">
     <template>
         <style>
@@ -8,8 +9,9 @@
                 overflow: hidden;
                 @apply(--shadow-elevation-16dp);
                 z-index: 0;
+                background: #152028;
             }
-            input, .hint {
+            input {
                 width: 100%;
                 color: white;
                 font-family: monospace;
@@ -23,17 +25,10 @@
                 outline: none;
                 /* Need design for focused input */
             }
-            .flyout {
-                max-height: 300px;
-                overflow-y: scroll;
-            }
-            kano-blockly-flyout {
-                background-color: #213542;
-            }
             .extra {
                 background-color: #0f181e;
                 min-height: 30px;
-                border-top: 1px solid #37454d;
+                border-top: 1px solid #1D2930;
             }
             .input-wrapper {
                 position: relative;
@@ -48,17 +43,42 @@
                 color: rgba(255, 255, 255, 0.45);
                 pointer-events: none;
             }
+            .results {
+                overflow: auto;
+                max-height: 300px;
+            }
+            .result {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                border-top: 1px solid #1D2930;
+                color: white;
+                padding: 6px 10px;
+                font-family: monospace;
+                cursor: pointer;
+            }
+            .result:hover {
+                background: #37464F;
+            }
+            .result .label {
+                @apply --layout-flex;
+            }
+            .result .color {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                margin-right: 10px;
+            }
         </style>
         <div class="input-wrapper">
-            <div class="hint">[[hint]]</div>
             <input id="input" type="text" value="{{query::input}}" on-keydown="_onInputKeydown">
         </div>
-        <div class="flyout">
-            <kano-blockly-flyout toolbox="[[resultToolbox]]"
-                                target-workspace="[[targetWorkspace]]"
-                                on-block-created="_blockCreated"
-                                no-drag="[[noDrag]]"
-                                separators></kano-blockly-flyout>
+        <div class="results">
+            <template is="dom-repeat" items="[[results]]" as="result">
+                <div class="result" on-tap="_onResultTapped">
+                    <div class="color" style$="[[_computeBlockStyle(result)]]"></div>
+                    <div class="label">[[_computeBlockLabel(result)]]</div>
+                </div>
+            </template>
         </div>
         <div class="extra"></div>
     </template>
@@ -98,12 +118,17 @@
                 }, 300);
             },
             lookup () {
-                let result = Kano.MakeApps.Blockly.lookupBlock(this.query || '');
+                let results = this.targetWorkspace.search(this.query || '');
                 if (typeof this.filter === 'function') {
-                    result.blocks = result.blocks.filter(this.filter);
+                    results = results.filter(this.filter);
                 }
-                this.set('hint', result.match);
-                this.set('resultToolbox', result.blocks);
+                this.set('results', results);
+            },
+            _computeBlockLabel (block) {
+                return block.toAPIString();
+            },
+            _computeBlockStyle (result) {
+                return `background: ${result.getColour()};`;
             },
             focus () {
                 this.$.input.focus();
@@ -111,9 +136,13 @@
             clear () {
                 this.query = '';
             },
+            _onResultTapped (e) {
+                let block = e.model.get('result');
+                this.fire('confirm', { selected: block });
+            },
             _onInputKeydown (e) {
                 if (e.keyCode === 13) {
-                    this.fire('confirm', { selected: this.resultToolbox[0] });
+                    this.fire('confirm', { selected: this.results[0] });
                 }
             }
         });

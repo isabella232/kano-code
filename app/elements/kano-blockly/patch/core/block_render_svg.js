@@ -270,7 +270,7 @@ Blockly.BlockSvg.prototype.render = function(opt_bubble) {
   this.renderMoveConnections_();
 
   // This enables the plus icons for quick block insert. Keep is commented until developement has finished
-  //this.renderSearchPlus_();
+  this.renderSearchPlus_();
 
   if (opt_bubble !== false) {
     // Render all blocks above this one (propagate a reflow).

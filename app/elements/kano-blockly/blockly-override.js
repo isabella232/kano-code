@@ -790,12 +790,11 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
                     omnibox.style.top = `${rect.top}px`;
                     omnibox.style.left = `${rect.left}px`;
                     omnibox.filter = (block) => {
-                        let dataBlock = Blockly.getDataBlock(block.id),
-                            blockConnection;
+                        let blockConnection;
                         if (input.connection.type === Blockly.NEXT_STATEMENT) {
-                            blockConnection = dataBlock.previousConnection;
+                            blockConnection = block.previousConnection;
                         } else if (input.connection.type === Blockly.INPUT_VALUE) {
-                            blockConnection = dataBlock.outputConnection;
+                            blockConnection = block.outputConnection;
                         }
                         // The connection exists on the block found and it matches the type of the input
                         return blockConnection  && (!input.connection.check_ || !blockConnection.check_
@@ -805,13 +804,8 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
                         let type;
                         omnibox.removeEventListener('confirm', onConfirm);
                         omnibox.removeEventListener('close', onConfirm);
-                        omnibox.removeEventListener('block-clicked', onConfirm);
-                        if (e.detail) {
-                            if (e.detail.type) {
-                                type = e.detail.type;
-                            } else if (e.detail.selected) {
-                                type = e.detail.selected.id;
-                            }
+                        if (e.detail && e.detail.selected) {
+                            type = e.detail.selected.type;
                             if (type) {
                                 let block = this.workspace.newBlock(type);
                                 block.initSvg();
@@ -827,7 +821,6 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
                     };
                     omnibox.addEventListener('confirm', onConfirm);
                     omnibox.addEventListener('close', onConfirm);
-                    omnibox.addEventListener('block-clicked', onConfirm);
                     if ('animate' in HTMLElement.prototype) {
                         let rect = omnibox.getBoundingClientRect();
                         omnibox.style.transformOrigin = '0 0';
@@ -862,3 +855,91 @@ Blockly.getDataBlock = function (type) {
     return Blockly._dataBlocks[type];
 };
 
+Blockly.stringMatch = function (s, lookup) {
+    return (s.toLowerCase().indexOf(lookup.toLowerCase()) !== -1);
+};
+
+
+Blockly.Block.prototype.matches = function (qs) {
+    let score = 0;
+    this.inputList.forEach(input => {
+        input.fieldRow.forEach(field => {
+            score += field.matches(qs) ? 1 : 0;
+        });
+    });
+    return score;
+};
+
+Blockly.Field.prototype.getAPIText = function () {
+    return this.getText();
+};
+
+Blockly.Field.prototype.matches = function (qs) {
+    return qs.split(' ').some(piece => Blockly.stringMatch(this.text_, piece));
+};
+
+Blockly.FieldDropdown.prototype.getAPIText = function () {
+    let options = this.getOptions_().map(options => options[0]);
+    return `[${options.join('|')}]`;
+};
+
+Blockly.FieldDropdown.prototype.matches = function (qs) {
+    let options = this.getOptions_().map(options => options[0]);
+    // As soon as we find an option containing a piece of the query string
+    return options.some(option => {
+        return qs.split(' ').some(piece => Blockly.stringMatch(option, piece));
+    });
+};
+
+Blockly.FieldNumber.prototype.getAPIText = function () {
+    return '<number>';
+};
+
+Blockly.FieldNumber.prototype.matches = function () {
+    return false;
+};
+
+Blockly.Input.prototype.toAPIString = function () {
+    let s = '';
+    // Deal with connection displays
+    if (this.type === Blockly.INPUT_VALUE) {
+
+    } else if (this.type === Blockly.NEXT_STATEMENT) {
+
+    }
+    s += this.fieldRow.map(field => {
+        return field.getAPIText();
+    }).join(' ');
+    return s;
+};
+
+Blockly.Block.prototype.toAPIString = function () {
+    return this.inputList.map(input => {
+        return input.toAPIString();
+    }).join(' ');
+};
+
+Blockly.Workspace.prototype.search = function (qs) {
+    let blocks = [];
+    // lookup blocks in the toolbox
+    this.toolbox.toolbox.forEach(category => {
+        blocks = blocks.concat(category.blocks.map(block => block.id));
+    });
+    // Lookup all blocks registered
+    //blocks = Object.keys(Blockly.Blocks);
+    return blocks
+        .map(Blockly.getDataBlock)
+        .filter(block => {
+            return block.matches(qs) > 0;
+        });
+};
+
+
+Blockly.Blocks.search = {
+    init: function () {
+        let searchField = new Blockly.FieldBlockPicker();
+        this.setColour('#bdbdbd');
+        this.appendDummyInput('SEARCH')
+            .appendField(searchField, 'SEARCH');
+    }
+};
