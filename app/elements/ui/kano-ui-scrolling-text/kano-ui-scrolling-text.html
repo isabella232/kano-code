@@ -20,7 +20,7 @@
         }
     </style>
     <template>
-        <div class="container" style$="[[computeContainerStyle(model.userStyle.*, isRunning)]]">
+        <div id="container" class="container" style$="[[computeContainerStyle(model.userStyle.*, isRunning)]]">
             <span id="label"
                 style$="[[computeLabelStyle(model.userStyle.*)]]">
                 {{model.userProperties.text}}
@@ -65,6 +65,7 @@
         scrollNext () {
             let value = this.stack.shift(),
                 rect,
+                left,
                 duration;
             if (!value) {
                 this.scrolling = false;
@@ -78,8 +79,9 @@
             // that will update the transitions
             rect = this.$.label.getBoundingClientRect();
             duration = rect.width / rect.height * 300;
+            left = rect.width + this.$.container.getBoundingClientRect().width;
             this.$.label.style.transition = `left linear ${duration}ms`;
-            this.$.label.style.left = `-${rect.width}px`;
+            this.$.label.style.left = `-${left}px`;
             this.nextTimeout = setTimeout(() => {
                 this.scrollNext();
             }, duration);
