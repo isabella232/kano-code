@@ -748,34 +748,73 @@ Blockly.Block.prototype.renderSearchPlus_ = function () {
     var inputList = this.inputList,
         connections;
 
-    if (this.isInFlyout) {
-        return;
-    }
-
-    connections = inputList.filter(input => input.type === Blockly.INPUT_VALUE || input.type === Blockly.NEXT_STATEMENT)
-                            .map(input => input.connection);
-    if (this.nextConnection) {
-        connections.push(this.nextConnection);
-    }
-    connections.forEach(connection => {
-        if (connection && !connection.targetConnection) {
-            let type, block, connectionName;
-            if (connection.type === Blockly.INPUT_VALUE) {
-                type = 'search_output';
-                connectionName = 'outputConnection';
-            } else if (connection.type === Blockly.NEXT_STATEMENT) {
-                type = 'search_statement';
-                connectionName = 'previousConnection';
-            }
-            block = this.workspace.newBlock(type);
-            block.initSvg();
-            block.render();
-            connection.connect(block[connectionName]);
+    // Only add the listener once, trick to avoid overriding the constructor
+    if (!this.listenerAdded) {
+        this.listenerAdded = true;
+        // Don't do it if in flyout
+        if (this.isInFlyout || !this.rendered) {
+            return;
         }
-    });
+
+        // Grab all the input connections that are eligible for search plus buttons
+        connections = inputList.filter(input => input.type === Blockly.INPUT_VALUE || input.type === Blockly.NEXT_STATEMENT)
+                                .map(input => input.connection);
+        // Create the buttons
+        connections.forEach(connection => this.attachSearchToConnection_(connection));
+        // Create a button for the nextConnection if exists and store the created block
+        this.shadowSearch_ = this.attachSearchToConnection_(this.nextConnection);
+        this.workspace.addChangeListener((e) => {
+            // On a move event, we might need to remove/add a button to the next connection as it is not dealt with the `shadow block` paradigm
+            if (e.type === Blockly.Events.MOVE) {
+                // A block was connected to this one and the next connection now contains a block that is not the search plus button
+                if (e.newParentId === this.id
+                    && this.shadowSearch_
+                    && this.nextConnection.targetConnection
+                    && this.nextConnection.targetConnection.getSourceBlock() !== this.shadowSearch_) {
+                    // Remove the search plus button and dereference it
+                    this.shadowSearch_.dispose();
+                    this.shadowSearch_ = null;
+                } else if (e.oldParentId === this.id
+                        && this.nextConnection
+                        && !this.nextConnection.targetConnection
+                        && this.workspace) {
+                    // A block disconnected from this block and the nextConnection is now empty
+                    this.attachSearchToConnection_(this.nextConnection);
+                }
+            }
+        });
+    }
 };
 
+Blockly.Block.prototype.attachSearchToConnection_ = function (connection) {
+    // Do not attach if a block is already connected
+    if (connection && !connection.targetConnection && this.workspace) {
+        let type, block, connectionName;
+        // Prevent this manipulation to trigger events
+        Blockly.Events.disable();
+        // Select the right type of search plus and connection for the current connection
+        if (connection.type === Blockly.INPUT_VALUE) {
+            type = 'search_output';
+            connectionName = 'outputConnection';
+        } else if (connection.type === Blockly.NEXT_STATEMENT) {
+            type = 'search_statement';
+            connectionName = 'previousConnection';
+        }
+        // Create the search plus block
+        block = this.workspace.newBlock(type);
+        block.initSvg();
+        block.render();
+        // Connect to the given connection
+        connection.connect(block[connectionName]);
+        Blockly.Events.enable();
+        return block;
+    }
+};
 
+/**
+ * Create a virtual workspace where virtual blocks will be added
+ * This is used to grab instances of blocks and extract data from them, without the need of rendering them
+ */
 Blockly._dataWorkspace = new Blockly.Workspace();
 Blockly._dataBlocks = {};
 
@@ -789,7 +828,6 @@ Blockly.getDataBlock = function (type) {
 Blockly.stringMatch = function (s, lookup) {
     return (s.toLowerCase().indexOf(lookup.toLowerCase()) !== -1);
 };
-
 
 Blockly.Block.prototype.matches = function (qs) {
     let score = 0;
@@ -865,10 +903,10 @@ Blockly.Workspace.prototype.search = function (qs) {
         });
 };
 
-Blockly.FieldLookup = function (blocks) {
-    this._blocks = blocks;
-    this._width = 48;
-    this._height = 16;
+Blockly.FieldLookup = function (text, c) {
+    this._text = text;
+    this._c = c || '';
+    this.size_ = new goog.math.Size(0, Blockly.BlockSvg.MIN_BLOCK_Y);
 };
 goog.inherits(Blockly.FieldLookup, Blockly.Field);
 Blockly.FieldLookup.prototype.init = function () {
@@ -878,17 +916,35 @@ Blockly.FieldLookup.prototype.init = function () {
     }
     // Build the DOM.
     this._container = Blockly.utils.createSvgElement('g', {
-        class: 'blocklyEditableText'
+        class: 'blocklyLookupField ' + this._c
     }, null);
-    this._border = Blockly.utils.createSvgElement('rect', {
-        rx: 4,
-        ry: 4,
-        width: `${this._width + 4}px`,
-        height: `${this._height}px`
+    this._textEl = Blockly.utils.createSvgElement('text', {
+        transform: `translate(0, 12)`
     }, this._container);
+    this._textEl.appendChild(document.createTextNode(this._text));
     this.sourceBlock_.getSvgRoot().appendChild(this._container);
     Blockly.bindEvent_(this._container, 'mousedown', this, this._onMouseDown);
 };
+
+/**
+ * Draws the border with the correct width.
+ * Saves the computed width in a property.
+ * @private
+ */
+Blockly.FieldLookup.prototype.render_ = function() {
+  if (!this.visible_) {
+    this.size_.width = 0;
+    return;
+  }
+  // Replace the text.
+  goog.dom.removeChildren(/** @type {!Element} */ (this._textEl));
+  var textNode = document.createTextNode(this._text);
+  this._textEl.appendChild(textNode);
+
+  var width = Blockly.Field.getCachedWidth(this._textEl);
+  this.size_.width = width;
+};
+
 Blockly.FieldLookup.prototype._onMouseDown = function (e) {
     if (Blockly.WidgetDiv.isVisible()) {
         Blockly.WidgetDiv.hide();
@@ -900,19 +956,6 @@ Blockly.FieldLookup.prototype._onMouseDown = function (e) {
 };
 Blockly.FieldLookup.prototype.getSvgRoot = function () {
     return this._container;
-};
-Blockly.FieldLookup.prototype.getSize = function () {
-    return {
-        width: this._width + 4,
-        height: this._height,
-    };
-};
-Blockly.FieldLookup.prototype.getAbsoluteXY_ = function () {
-    return goog.style.getPageOffset(this._container);
-};
-Blockly.FieldLookup.prototype.getScaledBBox_ = function() {
-    let bbox = this._container.getBBox();
-    return new goog.math.Size(bbox.width * this.sourceBlock_.workspace.scale, bbox.height * this.sourceBlock_.workspace.scale)
 };
 Blockly.FieldLookup.prototype.showEditor_ = function () {
     var block = this.sourceBlock_;
@@ -972,18 +1015,25 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
 
 Blockly.Blocks.search_statement = {
     init: function () {
-        let searchField = new Blockly.FieldLookup();
+        let searchField = new Blockly.FieldLookup('Type: __________', 'blocklySearchStatement');
         this.setColour('#bdbdbd');
         this.appendDummyInput('SEARCH')
             .appendField(searchField, 'SEARCH');
         this.setPreviousStatement(true);
+        this.setPaddingY(0);
+        this.setPaddingX(0);
         this.setShadow(true);
+        this.workspace.addChangeListener(() => {
+            if (!this.previousConnection.targetConnection) {
+                this.dispose();
+            }
+        });
     }
 };
 
 Blockly.Blocks.search_output = {
     init: function () {
-        let searchField = new Blockly.FieldLookup();
+        let searchField = new Blockly.FieldLookup('+', 'blocklySearchOutput');
         this.setColour('#bdbdbd');
         this.appendDummyInput('SEARCH')
             .appendField(searchField, 'SEARCH');
