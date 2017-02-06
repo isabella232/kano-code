@@ -86,6 +86,9 @@ You can ssh/vnc into it and try things out. There's a cron job that keeps our ni
 builds of Make Apps up-to-date on it if you just want to check that `master` works.
 For testing features you're working on, see the workflow above.
 
+# I18N
+
+You can generate the `.pot` files to sync them with the pootle server by running `gulp pot`. The files will be generated in the `app/po` folder
 
 # Testing & Deployment
 
