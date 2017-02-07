@@ -176,3 +176,4 @@ require('./tasks/parts-api')(gulp, $);
 require('./tasks/build')(gulp, $);
 require('./tasks/test')(gulp, $);
 require('./tasks/doc')(gulp, $);
+require('./tasks/i18n')(gulp, $);
