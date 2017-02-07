@@ -721,12 +721,6 @@ Blockly.Workspace.prototype.openOmnibox = function () {
         svg.parentNode.appendChild(this._omniboxContainer);
         this._omnibox.style.position = 'fixed';
         this._omnibox.style.maxHeight = '345px';
-        this._omnibox.addEventListener('confirm', () => {
-            this.closeOmnibox(true);
-        });
-        this._omnibox.addEventListener('block-clicked', () => {
-            this.closeOmnibox(true);
-        });
     } else {
         this._omniboxContainer.style.display = 'block';
     }
@@ -839,6 +833,14 @@ Blockly.Block.prototype.matches = function (qs) {
     return score;
 };
 
+Blockly.Block.prototype.fromQuery = function (qs) {
+    this.inputList.forEach(input => {
+        input.fieldRow.forEach(field => {
+            field.fromQuery(qs);
+        });
+    });
+};
+
 Blockly.Field.prototype.getAPIText = function () {
     return this.getText();
 };
@@ -846,6 +848,8 @@ Blockly.Field.prototype.getAPIText = function () {
 Blockly.Field.prototype.matches = function (qs) {
     return qs.split(' ').some(piece => Blockly.stringMatch(this.text_, piece));
 };
+
+Blockly.Field.prototype.fromQuery = function () {};
 
 Blockly.FieldDropdown.prototype.getAPIText = function () {
     let options = this.getOptions_().map(options => options[0]);
@@ -860,31 +864,50 @@ Blockly.FieldDropdown.prototype.matches = function (qs) {
     });
 };
 
-Blockly.FieldNumber.prototype.getAPIText = function () {
-    return '<number>';
+Blockly.FieldDropdown.prototype.fromQuery = function (qs) {
+    let options = this.getOptions_();
+    // As soon as we find an option containing a piece of the query string
+    return options.some(option => {
+        return qs.split(' ').forEach(piece => {
+            if (Blockly.stringMatch(option[0], piece)) {
+                this.setValue(option[1]);
+            }
+        });
+    });
 };
 
-Blockly.FieldNumber.prototype.matches = function () {
-    return false;
+Blockly.FieldNumber.prototype.getAPIText = function (qs) {
+    return !isNaN(qs) ? `(${qs})` : '<number>';
 };
 
-Blockly.Input.prototype.toAPIString = function () {
+Blockly.FieldNumber.prototype.matches = function (s) {
+    return !isNaN(s) || 'number'.indexOf(s) !== -1;
+};
+
+Blockly.FieldNumber.prototype.fromQuery = function (qs) {
+    let n = parseInt(qs, 10);
+    if (!isNaN(n)) {
+        this.setValue(n);
+    }
+};
+
+Blockly.Input.prototype.toAPIString = function (qs) {
     let s = '';
+    s += this.fieldRow.map(field => {
+        return field.getAPIText(qs);
+    }).join(' ');
     // Deal with connection displays
     if (this.type === Blockly.INPUT_VALUE) {
-
+        s += ' [ ]';
     } else if (this.type === Blockly.NEXT_STATEMENT) {
-
+        s += ' ...';
     }
-    s += this.fieldRow.map(field => {
-        return field.getAPIText();
-    }).join(' ');
     return s;
 };
 
-Blockly.Block.prototype.toAPIString = function () {
+Blockly.Block.prototype.toAPIString = function (qs) {
     return this.inputList.map(input => {
-        return input.toAPIString();
+        return input.toAPIString(qs);
     }).join(' ');
 };
 
@@ -987,6 +1010,7 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
             type = e.detail.selected.type;
             if (type) {
                 let block = workspace.newBlock(type);
+                block.fromQuery(omnibox.query);
                 block.initSvg();
                 block.render();
                 if (targetConnection.type === Blockly.NEXT_STATEMENT) {
@@ -996,7 +1020,7 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
                 }
             }
         }
-        
+        workspace.closeOmnibox(true);
     };
     omnibox.addEventListener('confirm', onConfirm);
     omnibox.addEventListener('close', onConfirm);
