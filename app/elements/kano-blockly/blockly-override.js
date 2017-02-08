@@ -10,6 +10,36 @@ Blockly.Blocks.procedures.HUE = '#ffff00';
 
 Blockly.Scrollbar.scrollbarThickness = 5;
 
+const FIELD_COLORS = {
+    "black": "#000000",
+    "darkgrey": "#213542",
+    "steelgrey": "#596870",
+    "lightgrey": "#bdccd4",
+    "white": "#ffffff",
+    "red": "#f6412c",
+    "darkorange": "#ff5505",
+    "orange": "#ff6b00",
+    "lightorange": "#ff9800",
+    "darkyellow": "#ffc101",
+    "yellow": "#ffec14",
+    "ligthgreen": "#ccdd1e",
+    "green": "#88c440",
+    "forestgreen": "#46af4b",
+    "aquamarine": "#019687",
+    "cyan": "#01bbd5",
+    "blue": "#00a6f6",
+    "darkblue": "#3d4db7",
+    "darkpurple": "#6633b9",
+    "purple": "#9c1ab1",
+    "magenta": "#eb1360",
+    "pink": "#ff2c82"
+};
+
+Blockly.FieldColour.COLOUR_NAMES = Object.keys(FIELD_COLORS);
+Blockly.FieldColour.HEX_REGEXP = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+Blockly.FieldColour.COLOURS = Blockly.FieldColour.COLOUR_NAMES.map(key => FIELD_COLORS[key]);
+Blockly.FieldColour.COLUMNS = 7;
+
 // Reload the custom messages as Blockly overrides them
 if (window.CustomBlocklyMsg) {
     Object.assign(Blockly.Msg, window.CustomBlocklyMsg);
@@ -721,6 +751,7 @@ Blockly.Workspace.prototype.openOmnibox = function () {
         svg.parentNode.appendChild(this._omniboxContainer);
         this._omnibox.style.position = 'fixed';
         this._omnibox.style.maxHeight = '345px';
+        this._omnibox.style.boxShadow = 'initial';
     } else {
         this._omniboxContainer.style.display = 'block';
     }
@@ -820,23 +851,34 @@ Blockly.getDataBlock = function (type) {
 };
 
 Blockly.stringMatch = function (s, lookup) {
-    return (s.toLowerCase().indexOf(lookup.toLowerCase()) !== -1);
+    return s.toLowerCase().indexOf(lookup.toLowerCase()) !== -1;
 };
 
-Blockly.Block.prototype.matches = function (qs) {
+Blockly.stringMatchScore = function (s, lookup) {
+    let matches = s.toLowerCase().match(lookup.toLowerCase());
+    if (!matches) {
+        return 0;
+    }
+    return matches[0].length / matches.input.length;
+};
+
+Blockly.Block.prototype.matches = function (qs, workspace) {
     let score = 0;
     this.inputList.forEach(input => {
         input.fieldRow.forEach(field => {
-            score += field.matches(qs) ? 1 : 0;
+            score += (field.matches(qs, workspace) ? 1 : 0);
         });
     });
     return score;
 };
 
-Blockly.Block.prototype.fromQuery = function (qs) {
+Blockly.Block.prototype.fromQuery = function (qs, workspace) {
+    if (!qs) {
+        return;
+    }
     this.inputList.forEach(input => {
         input.fieldRow.forEach(field => {
-            field.fromQuery(qs);
+            field.fromQuery(qs, workspace);
         });
     });
 };
@@ -876,6 +918,41 @@ Blockly.FieldDropdown.prototype.fromQuery = function (qs) {
     });
 };
 
+Blockly.FieldVariable.prototype.getAPIText = function (qs, workspace) {
+    let variables = workspace.variableList.slice(0);
+    if (qs.split(' ').some(piece => Blockly.stringMatch('variable', piece))) {
+        return `<variable>`;
+    }
+    for (let i = 0; i < variables.length; i++) {
+        if (qs.split(' ').some(piece => Blockly.stringMatch(variables[i], piece))) {
+            return `(${variables[i]})`;
+        }
+    }
+    return `<variable>`;
+};
+
+Blockly.FieldVariable.prototype.matches = function (qs, workspace) {
+    let variables = workspace.variableList.slice(0);
+    if (qs.split(' ').some(piece => Blockly.stringMatch('variable', piece))) {
+        return `<variable>`;
+    }
+    // As soon as we find an option containing a piece of the query string
+    return variables.some(variable => {
+        return qs.split(' ').some(piece => Blockly.stringMatch(variable, piece));
+    });
+};
+
+Blockly.FieldVariable.prototype.fromQuery = function (qs, workspace) {
+    let variables = workspace.variableList.slice(0);
+    // As soon as we find an option containing a piece of the query string
+    for (let i = 0; i < variables.length; i++) {
+        if (qs.split(' ').some(piece => Blockly.stringMatch(variables[i], piece))) {
+            this.setValue(variables[i]);
+            return;
+        }
+    }
+};
+
 Blockly.FieldNumber.prototype.getAPIText = function (qs) {
     return !isNaN(qs) ? `(${qs})` : '<number>';
 };
@@ -891,10 +968,65 @@ Blockly.FieldNumber.prototype.fromQuery = function (qs) {
     }
 };
 
-Blockly.Input.prototype.toAPIString = function (qs) {
+Blockly.FieldColour.prototype.getAPIText = function (qs) {
+    let colors = Blockly.FieldColour.COLOUR_NAMES,
+        highestScore = 0,
+        highestColor,
+        score;
+    if (Blockly.FieldColour.HEX_REGEXP.test(qs)) {
+        return `Color: ${qs}`;
+    }
+    for (let i = 0; i < colors.length; i++) {
+        score = Blockly.stringMatchScore(colors[i], qs);
+        if (score > highestScore) {
+            highestScore = score;
+            highestColor = colors[i];
+        }
+    }
+    return highestColor ? highestColor : '<color>';
+};
+
+Blockly.FieldColour.prototype.matches = function (s) {
+    let colors = Blockly.FieldColour.COLOUR_NAMES,
+        highestScore = 0,
+        highestColor,
+        score;
+    if (Blockly.FieldColour.HEX_REGEXP.test(s)) {
+        return true;
+    }
+    for (let i = 0; i < colors.length; i++) {
+        score = Blockly.stringMatchScore(colors[i], s);
+        if (score > highestScore) {
+            highestScore = score;
+            highestColor = colors[i];
+        }
+    }
+    return !!highestColor || Blockly.stringMatch('color', s);
+};
+
+Blockly.FieldColour.prototype.fromQuery = function (qs) {
+    let colors = Blockly.FieldColour.COLOUR_NAMES,
+        highestScore = 0,
+        highestColor,
+        score;
+    if (Blockly.FieldColour.HEX_REGEXP.test(qs)) {
+        this.setValue(qs);
+        return;
+    }
+    for (let i = 0; i < colors.length; i++) {
+        score = Blockly.stringMatchScore(colors[i], qs);
+        if (score > highestScore) {
+            highestScore = score;
+            highestColor = colors[i];
+        }
+    }
+    this.setValue(FIELD_COLORS[highestColor]);
+};
+
+Blockly.Input.prototype.toAPIString = function (qs, workspace) {
     let s = '';
     s += this.fieldRow.map(field => {
-        return field.getAPIText(qs);
+        return field.getAPIText(qs, workspace);
     }).join(' ');
     // Deal with connection displays
     if (this.type === Blockly.INPUT_VALUE) {
@@ -905,9 +1037,23 @@ Blockly.Input.prototype.toAPIString = function (qs) {
     return s;
 };
 
-Blockly.Block.prototype.toAPIString = function (qs) {
+Blockly.Block.prototype.getFirstAvailableSearch = function () {
+    let input;
+    for (let i = 0; i < this.inputList.length; i++) {
+        input = this.inputList[i];
+        if (input.connection && input.connection.targetConnection) {
+            let block = input.connection.targetConnection.sourceBlock_;
+            if (input.connection.type === Blockly.INPUT_VALUE && block.type === 'search_output'
+                || input.connection.type === Blockly.NEXT_STATEMENT && block.type === 'search_statement') {
+                return block;
+            }
+        }
+    }
+};
+
+Blockly.Block.prototype.toAPIString = function (qs, workspace) {
     return this.inputList.map(input => {
-        return input.toAPIString(qs);
+        return input.toAPIString(qs, workspace);
     }).join(' ');
 };
 
@@ -922,7 +1068,7 @@ Blockly.Workspace.prototype.search = function (qs) {
     return blocks
         .map(Blockly.getDataBlock)
         .filter(block => {
-            return block.matches(qs) > 0;
+            return block.matches(qs, this) > 0;
         });
 };
 
@@ -1009,8 +1155,9 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
         if (e.detail && e.detail.selected) {
             type = e.detail.selected.type;
             if (type) {
-                let block = workspace.newBlock(type);
-                block.fromQuery(omnibox.query);
+                let block = workspace.newBlock(type),
+                    searchBlock;
+                block.fromQuery(omnibox.query, workspace);
                 block.initSvg();
                 block.render();
                 if (targetConnection.type === Blockly.NEXT_STATEMENT) {
@@ -1018,6 +1165,13 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
                 } else if (targetConnection.type === Blockly.INPUT_VALUE) {
                     targetConnection.connect(block.outputConnection);
                 }
+                setTimeout(() => {
+                    // Focus on the first available search block of the inserted block
+                    searchBlock = block.getFirstAvailableSearch();
+                    if (searchBlock) {
+                        searchBlock.getField('SEARCH').focus();
+                    }
+                });
             }
         }
         workspace.closeOmnibox(true);
@@ -1035,6 +1189,17 @@ Blockly.FieldLookup.prototype.showEditor_ = function () {
             easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
         });
     }
+};
+
+Blockly.FieldLookup.prototype.focus = function () {
+    let onKeyDown = (e) => {
+        window.removeEventListener('keydown', onKeyDown);
+        if (e.keyCode === 13) {
+            this.showEditor_();
+        }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    this._container.classList.add('selected');
 };
 
 Blockly.Blocks.search_statement = {

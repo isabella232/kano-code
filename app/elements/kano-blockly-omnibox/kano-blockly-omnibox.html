@@ -86,8 +86,8 @@
         <div class="results">
             <template is="dom-repeat" items="[[results]]" as="result">
                 <button class$="result [[_computeSelectedClass(index, selected)]]" on-tap="_onResultTapped">
-                    <div class="color" style$="[[_computeBlockStyle(result)]]"></div>
-                    <div class="label">[[_computeBlockLabel(result)]]</div>
+                    <div class="color" style$="[[_computeBlockStyle(result, qts)]]"></div>
+                    <div class="label">[[_computeBlockLabel(result, qts)]]</div>
                 </button>
             </template>
         </div>
@@ -130,7 +130,7 @@
                 this.set('hint', '');
                 this.debounce('updateResult', () => {
                     this.lookup();
-                }, 300);
+                }, 200);
             },
             lookup () {
                 let results = this.targetWorkspace.search(this.query || '');
@@ -139,9 +139,11 @@
                 }
                 this.set('selected', 0);
                 this.set('results', results);
+                // Update the query timestamp to force a computation on the labels if the results didn't change
+                this.set('qts', Date.now());
             },
             _computeBlockLabel (block) {
-                return block.toAPIString(this.query);
+                return block.toAPIString(this.query || '', this.targetWorkspace);
             },
             _computeBlockStyle (result) {
                 return `background: ${result.getColour()};`;
