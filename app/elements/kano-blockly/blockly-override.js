@@ -10,6 +10,10 @@ Blockly.Blocks.procedures.HUE = '#ffff00';
 
 Blockly.Scrollbar.scrollbarThickness = 5;
 
+if (location.search.match('lookup=true')) {
+    Blockly.SEARCH_PLUS_ENABLED = true;
+}
+
 const FIELD_COLORS = {
     "black": "#000000",
     "darkgrey": "#213542",
@@ -37,8 +41,10 @@ const FIELD_COLORS = {
 
 Blockly.FieldColour.COLOUR_NAMES = Object.keys(FIELD_COLORS);
 Blockly.FieldColour.HEX_REGEXP = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-Blockly.FieldColour.COLOURS = Blockly.FieldColour.COLOUR_NAMES.map(key => FIELD_COLORS[key]);
-Blockly.FieldColour.COLUMNS = 7;
+if (Blockly.SEARCH_PLUS_ENABLED) {
+    Blockly.FieldColour.COLOURS = Blockly.FieldColour.COLOUR_NAMES.map(key => FIELD_COLORS[key]);
+    Blockly.FieldColour.COLUMNS = 7;
+}
 
 // Reload the custom messages as Blockly overrides them
 if (window.CustomBlocklyMsg) {
