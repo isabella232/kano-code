@@ -61,16 +61,14 @@
     .palette-color.selected.draw::before {
         background-image: url(/assets/icons/pencil.svg);
     }
-    button.preview-control {
-        background: var(--color-green, green);
-        padding: 12px 20px;
-    }
     .add-color {
         background: transparent;
         color: grey;
-        font-size: 22px;
-        font-family: var(--font-body, Arial);
-        line-height: 20px;
+        font-size: 20px;
+        font-family: monospace;
+        line-height: 14px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
     }
     .add-color:focus {
         outline: none;
@@ -159,10 +157,6 @@
                 penType: {
                     type: String,
                     computed: '_computePenType(_penType, _isShiftPressed)'
-                },
-                speed: {
-                    type: Number,
-                    value: 15
                 }
             },
             observers: [
@@ -182,14 +176,8 @@
                 document.addEventListener('keyup', this._onKeyEvent);
                 this._penType = 'draw';
                 this._isShiftPressed = false;
-                this.previewButtonIconPaths = {
-                    stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
-                    running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
-                };
-                this.previewState = 'stopped';
                 this.DEFAULT_PALETTE = ['#000000', '#ce1124', '#fb823f', '#f7e548', '#81d139', '#4397f9', '#bb30dd',
                                 '#8f35f7', '#ffffff', '#f85653', '#fba239', '#fbfb4d', '#44fb42', '#3ffde0', '#f66af9'];
-                this.previewIndex = 0;
             },
             detached () {
                 document.removeEventListener('keydown', this._onKeyEvent);
