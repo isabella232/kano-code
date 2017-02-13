@@ -1,39 +1,27 @@
 <link rel="import" href="../../scripts/kano/make-apps/mode/normal.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/simple.html">
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
-<link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
 <dom-module id="kano-workspace-normal">
     <style>
         :host {
             display: block;
             width: 100%;
             height: 100%;
+            background: var(--canvas-background, #ffffff);
             border-radius: 5px;
-            @apply --layout-vertical;
         }
         :host ::slotted(*:not(.hole)) {
             position: absolute;
             top: 0px;
             left: 0px
         }
-        kano-default-workspace {
-            @apply --layout-flex;
-        }
         canvas {
             border-radius: 5px;
-            background: var(--canvas-background, #ffffff);
         }
     </style>
     <template>
-        <kano-default-workspace width="[[width]]"
-                                height="[[height]]"
-                                running="[[running]]"
-                                mouse-x="[[mousePositionX]]"
-                                mouse-y="[[mousePositionY]]"
-                                running="{{running}}">
-            <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-            <slot></slot>
-        </kano-default-workspace>
+        <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
+        <slot></slot>
     </template>
     <script>
         /* globals Polymer, Kano */
@@ -51,9 +39,6 @@
                     type: Number,
                     value: 250,
                     notify: true
-                },
-                running: {
-                    type: Boolean
                 }
             },
             ready () {
@@ -66,24 +51,16 @@
                 }
 
                 this.ctx = this.$.canvas;
-                this.canvasElement = Polymer.dom(this).parentNode;
-
-                this.canvasElement.addEventListener('mouseover', this._onMouseOver.bind(this));
-                this.ctx.addEventListener('mouseout', this._onMouseOut.bind(this));
-                this.canvasElement.addEventListener('mousemove', this._onMouseMove.bind(this));
-            },
-            getRestrictElement () {
-                return this.$.canvas;
             },
             setBackground (bg) {
                 this.customStyle['--canvas-background'] = bg;
                 this.updateStyles();
             },
             setBackgroundColor (color) {
-                this.$.canvas.style.backgroundColor = color;
+                this.style.backgroundColor = color;
             },
             getBackgroundColor () {
-                return this.$.canvas.style.backgroundColor;
+                return this.style.backgroundColor;
             },
             setTransparency (value) {
                 let alpha = Math.min(Math.max(0, value), 100) / 100;
@@ -108,23 +85,6 @@
                 image.src = this.$.canvas.toDataURL();
                 ctx.drawImage(image, 0, 0);
                 return Promise.resolve();
-            },
-            _onMouseOver (e) {
-                this._isMouseOver = true;
-            },
-            _onMouseOut (e) {
-                this._isMouseOver = false;
-                this.mousePositionX = 250;
-                this.mousePositionY = 250;
-            },
-            _onMouseMove (e) {
-                if (this._isMouseOver) {
-                    this.rectangle = this.canvasElement.getBoundingClientRect();
-                    let scalingFactor = this.rectangle.width / this.width;
-
-                    this.mousePositionX = parseInt(parseInt(e.x - this.rectangle.left) / scalingFactor);
-                    this.mousePositionY = parseInt(parseInt(e.y - this.rectangle.top) / scalingFactor);
-                }
             }
         });
     </script>

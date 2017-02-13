@@ -8,9 +8,9 @@
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 
 <dom-module id="kano-workspace">
-    <link rel="lazy-import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html" group="lightboard">
-    <link rel="lazy-import" href="../kano-workspace-camera/kano-workspace-camera.html" group="camera">
-    <link rel="lazy-import" href="../kano-workspace-normal/kano-workspace-normal.html" group="normal">
+    <link rel="lazy-import" href="../kano-editor-lightboard/kano-editor-lightboard.html" group="lightboard">
+    <link rel="lazy-import" href="../kano-editor-camera/kano-editor-camera.html" group="camera">
+    <link rel="lazy-import" href="../kano-editor-normal/kano-editor-normal.html" group="normal">
     <style>
     @keyframes fade-in {
         from { opacity: 0 },
@@ -22,16 +22,6 @@
         border: 0px;
         overflow: hidden;
     }
-    :host #content {
-        position: relative;
-        @apply(--layout-flex);
-        transition: background linear 150ms;
-    }
-    :host.running #content {
-        --kano-ui-viewport: {
-            border: none;
-        };
-    }
     :host ::slotted(#dropzone) {
         margin: auto;
         position: relative;
@@ -41,31 +31,6 @@
     }
     #workspace-placeholder>* {
         animation: fade-in 200ms linear;
-    }
-    :host kano-workspace-lightboard {
-        margin-top: -35px;
-    }
-    :host(.fullscreen) kano-workspace-lightboard {
-        margin-top: 0;
-    }
-    .pause-overlay {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-    }
-    .pause-overlay iron-image {
-        width: 40%;
-        height: 40%;
-        cursor: pointer;
-    }
-    .editable-layout {
-        opacity: 0.5;
-        pointer-events: none;
     }
     *[hidden] {
         display: none !important;
@@ -117,7 +82,8 @@
             editableLayout: {
                 type: Boolean,
                 value: false,
-                notify: true
+                notify: true,
+                observer: '_editableLayoutChanged'
             },
             selected: {
                 type: Object,
@@ -139,7 +105,8 @@
                 type: String
             },
             partsMenuOpen: {
-                type: Boolean
+                type: Boolean,
+                observer: '_partsMenuOpenChanged'
             },
             challengeState: {
                 type: Object
@@ -149,12 +116,18 @@
                 computed: 'isModeSimple(mode)'
             }
         },
+        _instanceProps: {
+            running: true,
+            editableLayout: true,
+            partsMenuOpen: true
+        },
         observers: [
             'partsChanged(parts.*)',
             'backgroundChanged(background)'
         ],
         listeners: {
-            'part-tapped': 'onPartTapped'
+            'part-tapped': 'onPartTapped',
+            'editable-layout-clicked': 'toggleEditableLayout'
         },
         isModeSimple (mode) {
             return mode.id === "simple";
@@ -171,23 +144,6 @@
             };
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
-
-            this._instanceProps = {
-                mode: true,
-                running: true
-            };
-        },
-        _forwardParentProp (prop, value) {
-            console.log(prop, value);
-        },
-        _forwardParentPath (path, value) {
-            console.log(path, value);
-        },
-        _forwardInstanceProp (inst, prop, value) {
-            console.log(prop, value);
-        },
-        _forwardInstancePath (inst, path, value) {
-            console.log(path, value);
         },
         attached () {
             this.target = document.body;
@@ -196,8 +152,15 @@
                 this.soundReady = true;
             }, 500);
         },
-        _editLayoutClicked () {
-            this.toggleEditableLayout();
+        _editableLayoutChanged () {
+            if (this.instance) {
+                this.instance.set('editableLayout', this.editableLayout);
+            }
+        },
+        _partsMenuOpenChanged () {
+            if (this.instance) {
+                this.instance.set('partsMenuOpen', this.partsMenuOpen);
+            }
         },
         _onAltT () {
             this.toggleEditableLayout();
@@ -275,14 +238,16 @@
             }
         },
         _getPartById (id) {
-            if (id === this.dropzone.getAttribute('id') || id === 'dropzone') {
-                return this.dropzone;
+            let dropzone = this.$$('.dropzone');
+            if (id === dropzone.getAttribute('id') || id === 'dropzone') {
+                return dropzone.getWorkspace();
             }
-            return this.dropzone.querySelector(`#${id}`);
+            return dropzone.querySelector(`#${id}`);
         },
         backgroundChanged (bg) {
-            if (this.dropzone && this.dropzone.setBackground) {
-                this.dropzone.setBackground(bg);
+            let dropzone = this.$$('.dropzone');
+            if (dropzone && dropzone.setBackground) {
+                dropzone.setBackground(bg);
             }
         },
         _modeChanged (mode) {
@@ -299,31 +264,29 @@
                 }
                 importPromise.then(() => {
                     let template,
-                        tagName,
-                        instance;
+                        tagName;
                     importedWorkspaces[modeId] = true;
                     if (mode && mode.workspace.component) {
                         tagName = mode.workspace.component;
                     } else {
-                        tagName = 'kano-workspace-normal';
+                        tagName = 'kano-editor-normal';
                     }
                     template = document.createElement('template');
                     template.innerHTML = `<${tagName} id$="[[mode.id]]"
                                                         class="dropzone"
                                                         width="[[mode.workspace.viewport.width]]"
                                                         height="[[mode.workspace.viewport.height]]"
-                                                        running="{{running}}"></${tagName}>`;
+                                                        running="[[running]]"
+                                                        editable-layout="[[editableLayout]]"
+                                                        parts-menu-open="[[partsMenuOpen]]"></${tagName}>`;
 
                     this.templatize(template);
 
-                    instance = this.stamp({
-                        mode: this.mode,
-                        running: this.running
+                    this.instance = this.stamp({
+                        mode: this.mode
                     });
 
-                    newDropzone = instance.root;
-
-                    this.showMousePosition = mode.id === 'normal';
+                    newDropzone = this.instance.root;
 
                     /* Remove old dropzone and add new one */
                     if (this.dropzone) {
@@ -489,9 +452,9 @@
                 acc[model.id] = this.elements[key];
                 return acc;
             }, {});
-            dict[this.mode.id] = this.dropzone;
+            dict[this.mode.id] = this.dropzone.getViewport();
             // Support legacy apps
-            dict['dropzone'] = this.dropzone;
+            dict['dropzone'] = this.dropzone.getViewport();
             return dict;
         },
         runningChanged () {
@@ -500,6 +463,9 @@
                 this.clearSelection();
             } else {
                 this.classList.remove('running');
+            }
+            if (this.instance) {
+                this.instance.set('running', this.running);
             }
         },
         getPartIndexById (id) {
@@ -511,10 +477,10 @@
             }
         },
         getViewport () {
-            return this.dropzone;
+            return this.$$('.dropzone').getViewport();
         },
         getViewportScale () {
-            return this.$.content.getScale();
+            return this.dropzone.getViewportScale();
         },
         generateCover () {
             return Kano.Behaviors.CoverGeneratorBehavior.generateCover(

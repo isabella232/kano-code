@@ -1,0 +1,87 @@
+<link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
+<link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
+<link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
+<dom-module id="kano-editor-lightboard">
+    <style>
+        :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            @apply --layout-vertical;
+        }
+        kano-ui-viewport {
+            width: auto;
+            height: 300px;
+        }
+        kano-workspace-lightboard {
+            @apply --layout-flex;
+        }
+        .controls {
+            @apply --layout-flex;
+        }
+        .top-controls {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+            padding: 12px;
+        }
+        button {
+            border-radius: 4px;
+            padding: 6px 12px;
+            background: #515151;
+            text-transform: uppercase;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-family: var(--font-body);
+            margin: 3px;
+        }
+    </style>
+    <template>
+        <kano-ui-viewport mode="scaled"
+                    view-width="[[width]]"
+                    view-height="[[height]]"
+                    id="wrapper">
+            <kano-workspace-lightboard id="workspace" width="[[width]]" height="[[height]]">
+                <slot></slot>
+            </kano-workspace-lightboard>
+        </kano-ui-viewport>
+        <div class="controls">
+            <div class="top-controls">
+                <button type="button" on-tap="_togglePartsMenu">Add parts</button>
+                <button type="button">Edit layout</button>
+                <button type="button">max</button>
+                <button type="button">restart</button>
+                <button type="button">p/p</button>
+            </div>
+        </div>
+    </template>
+    <script>
+        /* globals Polymer, Kano */
+        Polymer({
+            is: 'kano-editor-lightboard',
+            behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            properties: {
+                autoStart: Boolean,
+                running: {
+                    type: Boolean
+                }
+            },
+            getWorkspace () {
+                return this.$.workspace;
+            },
+            getRestrictElement () {
+                return this.$.workspace;
+            },
+            getViewport () {
+                return this.$.workspace;
+            },
+            getViewportScale () {
+                return this.$.wrapper.getScale();
+            },
+            _togglePartsMenu () {
+                this.fire('toggle-parts-menu');
+            }
+        });
+    </script>
+</dom-module>
