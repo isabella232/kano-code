@@ -84,6 +84,13 @@
                     list = fixture('addFrame');
                     list.bitmaps = createFrames(5);
                 });
+                test('addFrame selects the new frame', () => {
+                    let prevIndex = list.selectedIndex,
+                        newIndex;
+                    list.addFrame();
+                    newIndex = list.selectedIndex;
+                    assert(newIndex === prevIndex, 'When adding a frame, `selectedIndex` is not pointing to the newly created frame');
+                });
                 test('addFrame copies the previous frame', () => {
                     let prevFrame = list.selected.slice(0),
                         newFrame;
