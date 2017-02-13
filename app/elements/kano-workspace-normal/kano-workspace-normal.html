@@ -1,27 +1,39 @@
 <link rel="import" href="../../scripts/kano/make-apps/mode/normal.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/simple.html">
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
+<link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
 <dom-module id="kano-workspace-normal">
     <style>
         :host {
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--canvas-background, #ffffff);
             border-radius: 5px;
+            @apply --layout-vertical;
         }
         :host ::slotted(*:not(.hole)) {
             position: absolute;
             top: 0px;
             left: 0px
         }
+        kano-default-workspace {
+            @apply --layout-flex;
+        }
         canvas {
             border-radius: 5px;
+            background: var(--canvas-background, #ffffff);
         }
     </style>
     <template>
-        <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
-        <slot></slot>
+        <kano-default-workspace width="[[width]]"
+                                height="[[height]]"
+                                running="[[running]]"
+                                mouse-x="[[mousePositionX]]"
+                                mouse-y="[[mousePositionY]]"
+                                running="{{running}}">
+            <canvas id="canvas" width$="[[width]]" height$="[[height]]"></canvas>
+            <slot></slot>
+        </kano-default-workspace>
     </template>
     <script>
         /* globals Polymer, Kano */
@@ -39,6 +51,9 @@
                     type: Number,
                     value: 250,
                     notify: true
+                },
+                running: {
+                    type: Boolean
                 }
             },
             ready () {
@@ -65,10 +80,10 @@
                 this.updateStyles();
             },
             setBackgroundColor (color) {
-                this.style.backgroundColor = color;
+                this.$.canvas.style.backgroundColor = color;
             },
             getBackgroundColor () {
-                return this.style.backgroundColor;
+                return this.$.canvas.style.backgroundColor;
             },
             setTransparency (value) {
                 let alpha = Math.min(Math.max(0, value), 100) / 100;

@@ -5,8 +5,6 @@
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
-<link rel="import" href="../kano-workspace-head/kano-workspace-head.html">
-<link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 
 <dom-module id="kano-workspace">
@@ -34,15 +32,6 @@
             border: none;
         };
     }
-    :host(.fullscreen) #content {
-        position: fixed;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        background-color: rgba(0, 0, 0, 0.8);
-    }
     :host ::slotted(#dropzone) {
         margin: auto;
         position: relative;
@@ -52,33 +41,6 @@
     }
     #workspace-placeholder>* {
         animation: fade-in 200ms linear;
-    }
-    :host kano-workspace-head {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-    }
-    :host .fullscreen-close {
-        position: fixed;
-        top: 0px;
-        right: 0px;
-        color: white;
-        background-color: transparent;
-        z-index: 101;
-        border: none;
-        width: 56px;
-        height: 56px;
-        font-size: 50px;
-        outline: none;
-        cursor: pointer;
-    }
-    :host .fullscreen-close div {
-        transition: all 0.3s ease;
-        transform: translate(0, -7px);
-    }
-    :host .fullscreen-close div:hover {
-        transform: translate(0, -9px);
-        color: #eaeaea;
     }
     :host kano-workspace-lightboard {
         margin-top: -35px;
@@ -110,41 +72,9 @@
     }
     </style>
     <template>
-        <button class="fullscreen-close" hidden$="[[!fullscreen]]" on-tap="_toggleFullscreen">
-            <div>&times;</div>
-        </button>
-        <kano-ui-viewport mode="scaled"
-                    view-width="[[mode.workspace.viewport.width]]"
-                    view-height="[[mode.workspace.viewport.height]]"
-                    id="content"
-                    on-tap="onTap">
-            <!-- The variable workspace component will be inserted here -->
-            <div id="workspace-placeholder">
-
-            </div>
-            <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
-                <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
-            </div>
-            <kano-workspace-toolbar
-                id="toolbar"
-                show-mouse-position="{{showMousePosition}}"
-                mouse-x="[[mouseX]]"
-                mouse-y="[[mouseY]]"
-                running="[[running]]"
-                editable-layout="[[editableLayout]]"
-                parts-menu-open="[[partsMenuOpen]]"
-                on-pause-run-button-clicked="_runButtonClicked"
-                on-fullscreen-button-clicked="_toggleFullscreen"
-                on-reset-button-clicked="_resetAppState"
-                on-edit-layout-button-clicked="_editLayoutClicked"
-                no-player-bar="[[simpleMode]]"
-                no-part-controls="[[simpleMode]]"></kano-workspace-toolbar>
-        </kano-ui-viewport>
-        <kano-workspace-head challenge-state="[[challengeState]]"
-        no-save="[[simpleMode]]"
-        no-settings="[[simpleMode]]" highlight></kano-workspace-head>
+        <!-- The variable workspace component will be inserted here -->
+        <div id="workspace-placeholder" on-tap="onTap"></div>
         <array-selector id="selector" items="{{parts}}" selected="{{selected}}"></array-selector>
-        <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="alt+t" on-keys-pressed="_onAltT" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="esc" on-keys-pressed="_cancel" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="tab" on-keys-pressed="_selectNextPart" target="[[target]]"></iron-a11y-keys>
@@ -170,7 +100,8 @@
             Kano.Behaviors.CoverGeneratorBehavior,
             Kano.Behaviors.SoundPlayerBehavior,
             Kano.Behaviors.AppElementRegistryBehavior,
-            Polymer.LazyImportsBehavior
+            Polymer.LazyImportsBehavior,
+            Polymer.Templatizer
         ],
         properties: {
             parts: {
@@ -241,11 +172,22 @@
             this.devices = {};
             this.devices.get = this._getPartById.bind(this);
 
-            this.showMousePosition = false;
-            this.mouseX = 250;
-            this.mouseY = 250;
-
-            this.fullscreen = false;
+            this._instanceProps = {
+                mode: true,
+                running: true
+            };
+        },
+        _forwardParentProp (prop, value) {
+            console.log(prop, value);
+        },
+        _forwardParentPath (path, value) {
+            console.log(path, value);
+        },
+        _forwardInstanceProp (inst, prop, value) {
+            console.log(prop, value);
+        },
+        _forwardInstancePath (inst, path, value) {
+            console.log(path, value);
         },
         attached () {
             this.target = document.body;
@@ -259,14 +201,6 @@
         },
         _onAltT () {
             this.toggleEditableLayout();
-        },
-        _toggleFullscreen () {
-            this.toggleClass('fullscreen');
-            this.$.content.resizeView();
-            this.fullscreen = !this.fullscreen;
-        },
-        _isPauseOverlayHidden (running, editableLayout) {
-            return running || editableLayout;
         },
         _moveLeft (e) {
             this._movePart('left', e.detail.keyboardEvent.shiftKey);
@@ -352,8 +286,7 @@
             }
         },
         _modeChanged (mode) {
-            let oldDropzone = this.dropzone,
-                placeholder = this.$$('#workspace-placeholder'),
+            let placeholder = this.$$('#workspace-placeholder'),
                 newDropzone, modeId, importPromise;
 
             modeId = importsMap[mode.id] || mode.id;
@@ -365,50 +298,53 @@
                     importPromise = this.importLazyGroup(modeId);
                 }
                 importPromise.then(() => {
+                    let template,
+                        tagName,
+                        instance;
                     importedWorkspaces[modeId] = true;
                     if (mode && mode.workspace.component) {
-                        newDropzone = document.createElement(mode.workspace.component);
+                        tagName = mode.workspace.component;
                     } else {
-                        newDropzone = document.createElement('kano-workspace-normal');
+                        tagName = 'kano-workspace-normal';
                     }
+                    template = document.createElement('template');
+                    template.innerHTML = `<${tagName} id$="[[mode.id]]"
+                                                        class="dropzone"
+                                                        width="[[mode.workspace.viewport.width]]"
+                                                        height="[[mode.workspace.viewport.height]]"
+                                                        running="{{running}}"></${tagName}>`;
 
-                    newDropzone.setAttribute('id', this.mode.id);
-                    newDropzone.setAttribute('class', 'dropzone');
-                    newDropzone.setAttribute('width', this.mode.workspace.viewport.width);
-                    newDropzone.setAttribute('height', this.mode.workspace.viewport.height);
+                    this.templatize(template);
 
-                    newDropzone.addEventListener('mouse-position-x-changed', this.mouseXChanged.bind(this));
-                    newDropzone.addEventListener('mouse-position-y-changed', this.mouseYChanged.bind(this));
+                    instance = this.stamp({
+                        mode: this.mode,
+                        running: this.running
+                    });
+
+                    newDropzone = instance.root;
+
                     this.showMousePosition = mode.id === 'normal';
 
-                    if (newDropzone.setBackground) {
-                        newDropzone.setBackground(this.background);
-                    }
-
                     /* Remove old dropzone and add new one */
-                    if (oldDropzone) {
-                        placeholder.removeChild(oldDropzone);
+                    if (this.dropzone) {
+                        placeholder.removeChild(this.dropzone);
                     }
                     placeholder.appendChild(newDropzone);
 
                     /* Update dropzone reference */
-                    this.dropzone = newDropzone;
+                    this.dropzone = this.$$(`#${this.mode.id}`);
+
+                    if (this.dropzone.setBackground) {
+                        this.dropzone.setBackground(this.background);
+                    }
 
                     this.parts.forEach((model, index) => {
                         this.insertPart(`#${index}`);
                     });
-                    this.dropzone.setAttribute('width', this.mode.workspace.viewport.width);
-                    this.dropzone.setAttribute('height', this.mode.workspace.viewport.height);
-                    this.$.content.resizeView();
+                    //this.$.content.resizeView();
                     this.fire('mode-ready');
                 });
             });
-        },
-        mouseXChanged (e) {
-            this.mouseX = e.detail.value;
-        },
-        mouseYChanged (e) {
-            this.mouseY = e.detail.value;
         },
         onTap (e) {
             let target;
@@ -592,12 +528,6 @@
             if (this.dropzone) {
                 this.dropzone.clear();
             }
-        },
-        _runButtonClicked () {
-            this.fire('run-button-clicked');
-        },
-        _resetAppState () {
-            this.fire('reset-app-state');
         }
     });
 </script>
