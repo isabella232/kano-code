@@ -92,10 +92,6 @@ Polymer({
             type: Object,
             value: null
         },
-        banner: {
-            type: Object,
-            value: null
-        },
         hideLeaveAlert: {
             type: Boolean,
             value: false,

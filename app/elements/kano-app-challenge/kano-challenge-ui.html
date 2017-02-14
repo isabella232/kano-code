@@ -70,50 +70,11 @@ Example:
         @apply(--layout-vertical);
         @apply(--layout-center);
     }
-    :host .tooltip-content button,
-    :host .banner-content button {
+    :host .tooltip-content button {
         margin-top: 10px;
         background-color: white;
         color: #435055;
         text-shadow: none;
-    }
-    :host .banner-content {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-    }
-    :host .banner-content .banner-text {
-        flex: 1;
-    }
-    :host .banner-content button {
-        margin: auto 10px;
-    }
-    @keyframes button-hint-enter {
-        0% {
-          margin: 0 10px;
-          opacity: 1;
-          padding: 19px 22px 17px 22px;
-          transform: scale(0);
-        }
-        100% {
-          margin: 0 10px;
-          opacity: 1;
-          padding: 19px 22px 17px 22px;
-          transform: scale(1);
-        }
-    }
-    :host .banner-content button.button-hint {
-        opacity: 0;
-        margin: 0;
-        padding: 0;
-        animation-duration: 0.3s;
-        animation-delay: 6s;
-        animation-fill-mode: forwards;
-        background-color: #256883;
-        box-sizing: border-box;
-        color: white;
-    }
-    :host .banner-content button.button-hint-animation {
-        animation-name: button-hint-enter;
     }
     kano-tooltip {
         z-index: 101;
@@ -177,19 +138,6 @@ Example:
                 </div>
             </kano-tooltip>
         </template>
-        <template is="dom-if" if="{{banner}}">
-            <kano-tooltip position="float" target="{{blocksPanel}}" track-target>
-                <div class="banner-content">
-                    <div class="banner-text">
-                        <marked-element markdown="[[banner.text]]">
-                            <div class="markdown-html"></div>
-                        </marked-element>
-                    </div>
-                    <button id="hint-button" class="button-hint" type="button" hidden$="{{!banner.hint_button}}" on-tap="showHints">Hint</button>
-                    <button type="button" on-tap="_nextStep" hidden$="{{!banner.next_button}}">Next</button>
-                </div>
-            </kano-tooltip>
-        </template>
         <paper-dialog id="modal" modal>
             <div class="modal-content">
                 <div class="text">
@@ -225,16 +173,12 @@ Example:
                             enabled: true
                         }
                     };
-                }
-            },
-            banner: {
-                type: Object,
-                value: null
+                },
+                notify: true
             }
         },
         observers: [
-            'stepChanged(step, state.*)',
-            'animateHintButton(banner.*, banner.hint_button)'
+            'stepChanged(step, state.*)'
         ],
         listeners: {
             'change': '_editorChanged',
@@ -363,7 +307,6 @@ Example:
                     this.tooltips = [];
                     this.arrow = {};
                     this.modal.close();
-                    this.banner = null;
                     this.$.highlight.hide();
                     return;
                 }
@@ -392,7 +335,6 @@ Example:
                     return;
                 }
                 this.computeTooltips(step);
-                this.computeBanner(step);
                 this.computeArrow(step);
                 this.computeHighlight(step);
                 this.computePhantomBlock(step);
@@ -402,36 +344,6 @@ Example:
         computeSounds (step) {
             if (this.step.play_on_end) {
                 this.loadSound(`/assets/audio/sounds/${this.step.play_on_end}.wav`);
-            }
-        },
-        computeBanner (step) {
-            if (this.state.hints.enabled) {
-                if (step.banner) {
-                    this.banner = this.banner || {};
-                    this.set('banner.text', step.banner.text);
-                    this.set('banner.next_button', step.banner.next_button);
-                    this.set('banner.hint_button', false);
-                } else {
-                    this.banner = null;
-                }
-            } else {
-                let bannerProps = this.state.hints['disabled-banner'];
-                if (bannerProps) {
-                    this.banner = this.banner || {};
-                    this.set('banner.text', bannerProps.text);
-                    this.set('banner.hint_button', bannerProps.hint_button);
-                    this.set('banner.next_button', false);
-                } else {
-                    this.banner = null;
-                }
-            }
-        },
-        animateHintButton (banner, hintButton) {
-            if (hintButton) {
-                let buttonElement = this.$$('#hint-button');
-                this.toggleClass('button-hint-animation', false, buttonElement);
-                buttonElement.getBoundingClientRect();
-                this.toggleClass('button-hint-animation', true, buttonElement);
             }
         },
         computePhantomBlock (step) {
@@ -525,10 +437,6 @@ Example:
                 this.computeArrow(this.step);
                 this.$$('kano-arrow').updatePosition();
             }, 100);
-        },
-        showHints () {
-            this.set('state.hints', {enabled: true});
-            this.fire('hint-used');
         },
         getTargetBlock (selector) {
             let block = this.editor.getBlocklyWorkspace().getBlockById(selector.id);
