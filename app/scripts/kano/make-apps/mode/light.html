@@ -171,6 +171,38 @@
         },{
             block: () => {
                 return {
+                    id: 'light_random',
+                    message0: 'random light',
+                    output: 'Light',
+                };
+            },
+            javascript: () => {
+                return (block) => {
+                    if (block.parentBlock_) {
+                        return [`{
+                            type: 'single',
+                            x: Math.floor(Math.random() * 16),
+                            y: Math.floor(Math.random() * 8)
+                        }`];
+                    }
+                    return;
+                };
+            },
+            pseudo: () => {
+                return (block) => {
+                    if (block.parentBlock_) {
+                        return [`{
+                            type: 'single',
+                            x: Math.floor(Math.random() * 16),
+                            y: Math.floor(Math.random() * 8)
+                        }`];
+                    }
+                    return;
+                };
+            }
+        },{
+            block: () => {
+                return {
                     id: 'light_show_text',
                     message0: 'Lights: show text %1 color %2 background %3',
                     args0: [{
