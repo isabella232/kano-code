@@ -1,6 +1,8 @@
 <link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
 <link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
 <link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
+<link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <dom-module id="kano-editor-lightboard">
     <style>
         :host {
@@ -17,24 +19,48 @@
         kano-workspace-lightboard {
             @apply --layout-flex;
         }
+        :host(.fullscreen) kano-ui-viewport,
+        :host .overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: auto;
+            z-index: 99;
+        }
+        :host(.fullscreen) kano-ui-viewport {
+            z-index: 100;
+            top: 100px;
+            bottom: 100px;
+            right: 100px;
+            left: 100px;
+        }
+        :host .fullscreen-close {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            color: white;
+            background-color: transparent;
+            z-index: 101;
+            border: none;
+            width: 56px;
+            height: 56px;
+            font-size: 50px;
+            outline: none;
+            cursor: pointer;
+        }
+        kano-workspace-toolbar {
+            padding: 24px 8px;
+        }
         .controls {
             @apply --layout-flex;
         }
-        .top-controls {
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-            padding: 12px;
+        :host(:not(.fullscreen)) .overlay {
+            display: none;
         }
-        button {
-            border-radius: 4px;
-            padding: 6px 12px;
-            background: #515151;
-            text-transform: uppercase;
-            color: white;
-            cursor: pointer;
-            border: none;
-            font-family: var(--font-body);
-            margin: 3px;
+        .overlay {
+            background: rgba(0, 0, 0, 0.7);
         }
     </style>
     <template>
@@ -47,25 +73,53 @@
             </kano-workspace-lightboard>
         </kano-ui-viewport>
         <div class="controls">
-            <div class="top-controls">
-                <button type="button" on-tap="_togglePartsMenu">Add parts</button>
-                <button type="button">Edit layout</button>
-                <button type="button">max</button>
-                <button type="button">restart</button>
-                <button type="button">p/p</button>
-            </div>
+            <kano-workspace-toolbar editable-layout="[[editableLayout]]"
+                                    parts-menu-open="[[partsMenuOpen]]"
+                                    running="[[running]]"
+                                    on-pause-run-button-clicked="_runButtonClicked"
+                                    on-fullscreen-button-clicked="_toggleFullscreen"
+                                    on-reset-button-clicked="_resetAppState"
+                                    on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
+        </div>
+        <div class="overlay">
+            <button class="fullscreen-close" on-tap="_toggleFullscreen">
+                <div>&times;</div>
+            </button>
         </div>
     </template>
     <script>
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-editor-lightboard',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior],
+            behaviors: [
+                Kano.Behaviors.I18nBehavior
+            ],
             properties: {
                 autoStart: Boolean,
+                partsMenuOpen: {
+                    type: Boolean,
+                    value: false
+                },
+                editableLayout: {
+                    type: Boolean,
+                    value: false
+                },
                 running: {
-                    type: Boolean
+                    type: Boolean,
+                    value: false
                 }
+            },
+            attached () {
+                this.makeButtonIconPaths = {
+                    stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
+                    running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
+                };
+            },
+            _resetAppState () {
+                this.fire('reset-app-state');
+            },
+            _getRunningStatus (running) {
+                return running ? 'running' : 'stopped';
             },
             getWorkspace () {
                 return this.$.workspace;
@@ -79,8 +133,16 @@
             getViewportScale () {
                 return this.$.wrapper.getScale();
             },
-            _togglePartsMenu () {
-                this.fire('toggle-parts-menu');
+            _toggleFullscreen () {
+                this.toggleClass('fullscreen');
+                this.$.wrapper.resizeView();
+                this.fullscreen = !this.fullscreen;
+            },
+            _runButtonClicked () {
+                this.fire('run-button-clicked');
+            },
+            _editLayoutClicked () {
+                this.fire('editable-layout-clicked');
             }
         });
     </script>
