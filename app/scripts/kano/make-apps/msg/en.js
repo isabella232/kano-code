@@ -202,4 +202,7 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_TRY_LATER = "Please try again later.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_UNFORTUNATE = "This is unfortunate";
 
+    Kano.MakeApps.Msg.KANO_CHALLENGE_UI_NEXT = "Next";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_UI_HINT = "Hint";
+
 })(window.Kano = window.Kano || {});
