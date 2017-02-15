@@ -59,6 +59,8 @@
                 partsString = JSON.stringify(components);
 
                 template = template.join('\n');
+                //ensure 'background' css property will not carry double quotes
+                background = background ? background.replace(/"/ig, '\"') : null;
 
                 component = `
                     <dom-module id="kano-${componentName}">
