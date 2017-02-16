@@ -108,6 +108,7 @@ module.exports = (gulp, $) => {
             'shards',
             'split',
             ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n'],
+            'compress',
             'sw',
             'external-play-bundle', done);
     });
