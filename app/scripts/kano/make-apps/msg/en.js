@@ -204,5 +204,7 @@
 
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_HINT = "Hint";
+  
+    Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
 })(window.Kano = window.Kano || {});
