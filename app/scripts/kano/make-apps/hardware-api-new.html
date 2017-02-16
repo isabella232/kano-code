@@ -1,0 +1,176 @@
+<script src="../../../bower_components/socket.io-client/dist/socket.io.js"></script>
+<script>
+    (function (Kano) {
+
+        Kano.MakeApps = Kano.MakeApps || {};
+
+        function getDeviceUpdateHandler(self, hwapi) {
+            return (devices) => {
+                // Drop disconnected devices
+                self.devices = self.devices.filter((existingDevice) => {
+                    let exists = false;
+                    devices.forEach((deviceInfo) => {
+                        if (existingDevice.id === deviceInfo.id) {
+                            exists = true;
+                        }
+                    });
+
+                    if (!exists) {
+                        existingDevice.tearDown();
+                    }
+
+                    return exists;
+                });
+
+                devices.forEach((deviceInfo) => {
+                    let devInstance = null;
+
+                    self.devices.forEach((existingDevice) => {
+                        if (existingDevice.id === deviceInfo.id) {
+                            devInstance = existingDevice;
+                        }
+                    });
+
+                    if (devInstance)  {
+                        devInstance.update(deviceInfo);
+                    } else {
+                        let newDevice;
+
+                        if (deviceInfo.product === 'lightboard' ||
+                            deviceInfo.product === 'camera') {
+                            newDevice = new KitDevice(deviceInfo, hwapi);
+                        } else {
+                            newDevice = new PowerUpDevice(deviceInfo, self);
+                        }
+
+                        self.devices.push(newDevice);
+                    }
+                });
+
+                if (hwapi) {
+                    hwapi.emit('devices-updated', hwapi.getAllDevices());
+                }
+            };
+        }
+
+        class Device {
+            constructor (options) {
+                this.id = options.id;
+                this.product = options.product;
+                this.vendor = options.vendor;
+            }
+
+            update (options) {}
+            tearDown () {}
+        }
+
+        class PowerUpDevice extends Device {
+            constructor (options, master) {
+                super(options);
+
+                this.master = master;
+            }
+        }
+
+        class KitDevice extends Device {
+            constructor (options, hwapi) {
+                super(options);
+
+                this.update(options, hwapi);
+            }
+
+            update (options, hwapi) {
+                this.url = options.url || null;
+                this.devices = [];
+
+                if (this.url) {
+                    this.socket = io.connect(this.url);
+                    this.socket.on('device-update', getDeviceUpdateHandler(this, hwapi));
+                    this.emit('request-device-update');
+                }
+            }
+        }
+
+        /*
+         * This class comes from mircoevent.js
+         * https://github.com/jeromeetienne/microevent.js
+         */
+        class EventEmitter {
+            on (event, fct) {
+                this._events = this._events || {};
+                this._events[event] = this._events[event]	|| [];
+                this._events[event].push(fct);
+            }
+
+            addListener (event, fct) {
+                return this.on(event, fct);
+            }
+
+            removeListener (event, fct) {
+                this._events = this._events || {};
+                if (event in this._events === false) {
+                    return;
+                }
+                this._events[event].splice(this._events[event].indexOf(fct), 1);
+            }
+
+            emit (event /* , args... */) {
+                this._events = this._events || {};
+                if (event in this._events === false) {
+                    return;
+                }
+
+                for (let i = 0; i < this._events[event].length; i++) {
+                    this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+                }
+            }
+        }
+
+        // ----
+        class HardwareAPI extends EventEmitter {
+            constructor (config) {
+                this.devices = [];
+                this.url = this._getAPIUrl(config);
+
+                this.socket = io.connect(this.url);
+                this.socket.on('device-update', getDeviceUpdateHandler(this, this));
+                this.socket.emit('request-device-update');
+            }
+
+            getAllDevices () {
+                return this._doGetAllDevices(this.devices);
+            }
+
+            _doGetAllDevices (root) {
+                let result = [];
+
+                root.forEach((device) => {
+                    result.push(device);
+
+                    if (device instanceof KitDevice) {
+                        this._doGetAllDevices(device.devices).forEach((slave) => {
+                            result.push(slave);
+                        });
+                    }
+                });
+
+                return result;
+            }
+
+            _getAPIUrl (c) {
+                if (c.HOST) {
+                    let url = 'http://' + c.HOST;
+                    if (c.PORT) {
+                        url += ':' + c.PORT;
+                    }
+                    return url;
+                } else {
+                    return c.HARDWARE_API_URL;
+                }
+            }
+        }
+
+        Kano.MakeApps.HardwareAPI = HardwareAPI;
+
+    })(window.Kano = window.Kano || {});
+</script>
