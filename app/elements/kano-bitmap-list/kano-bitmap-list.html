@@ -115,7 +115,8 @@
                 }
             },
             observers: [
-                '_selectedChanged(selected.*)'
+                '_selectedChanged(selected.*)',
+                '_bitmapsChanged(bitmaps)'
             ],
             _selectedChanged (e) {
                 let index = this.selectedIndex,
@@ -128,12 +129,17 @@
                     });
                 } else if (e.path === 'selected' && e.value) {
                     this.select(e.value);
-                } else {
+                } else if (e.path === 'selected') {
                     if (this.bitmaps.length === 0) {
                         this.set('bitmaps', [[]]);
                     }
                     this.selected = this.bitmaps[0].slice(0);
                 }
+            },
+            _bitmapsChanged () {
+                let lastIndex = this.bitmaps.length -1;
+                this.selectedIndex = lastIndex;
+                this.selected = this.bitmaps[lastIndex].slice(0);
             },
             _sortStarted (e) {
                 if (e.detail) {
