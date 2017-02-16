@@ -2,6 +2,10 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
         <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
@@ -33,16 +37,12 @@
                         </template>
                     </div>
                     <kano-xp-modal id="modal"
-                                   initial-xp="[[initialXp]]"
-                                   gained-xp="[[gainedXp]]"
-                                   min="[[min]]"
-                                   max="[[max]]"
-                                   user="[[user]]"
+                                   status="[[state]]"
+                                   username="[[username]]"
                                    confirm-label="[[confirmLabel]]"
-                                   sub-label="[[subLabel]]"
+                                   second-label="[[secondLabel]]"
                                    on-confirm="onConfirm"
-                                   on-sub-action="onSubAction"
-                                   on-dismiss="onDismiss"></kano-xp-modal>
+                                   on-second-action="onSubAction"></kano-xp-modal>
                 </template>
             </template>
         </demo-snippet>
@@ -51,33 +51,74 @@
                 var bind = document.getElementById('bind'),
                     modal = document.getElementById('modal');
                 bind.events = [];
-                bind.confirmLabel = 'Next challenge';
+
+                function initStatus (user) {
+                    // bind.state = { 
+                    //     "data": {
+                    //         "update": {
+                    //             "levels": {
+                    //                 "progress": {
+                    //                     "level": 1
+                    //                 },
+                    //                 "changes": {
+                    //                     "total-xp": {
+                    //                         "oldValue": 66,
+                    //                         "newValue": 222
+                    //                     },
+                    //                     "complete": {
+                    //                         "oldValue": 0,
+                    //                         "newValue": 0.50
+                    //                     }
+                    //                 }
+                    //             }
+                    //         },
+                    //     }
+                    // };
+                    bind.state = {
+                        "data": {
+                            "update": {
+                                "levels": {
+                                    "progress": {
+                                        "xp": 50,
+                                        "level": 1,
+                                        "xp-offset": 50,
+                                        "next-threshold": 100,
+                                        "complete": 0.5
+                                    },
+                                    "changes": {
+                                        "level": {
+                                            "oldValue": 0,
+                                            "newValue": 1
+                                        },
+                                        "total-xp": {
+                                            "oldValue": 0,
+                                            "newValue": 100
+                                        }
+                                    }
+                                },
+                            },
+                        },
+                        "user": user
+                    };    
+                }
                 bind.openModalAnonym = () => {
-                    bind.user = null;
-                    bind.subLabel = bind.user ? null : 'Save Xp';
-                    bind.min = 100;
-                    bind.max = 200;
-                    bind.initialXp = 110;
-                    bind.gainedXp = 50;
-                    modal.open();
+                    initStatus();
+                    bind.secondLabel = bind.state.user ? null : 'Save Xp';
                 };
+            
                 bind.openModalUser = () => {
-                    bind.user = {name: "vikdoro"};
-                    bind.subLabel = bind.user ? null : 'Save Xp';
-                    bind.min = 50;
-                    bind.max = 200;
-                    bind.initialXp = 60;
-                    bind.gainedXp = 100;
-                    modal.open();
+                    initStatus({
+                        "username": "vikdoro"
+                    });
+                    bind.secondLabel = bind.state.user ? null : 'Save Xp';
                 };
                 bind.onConfirm = () => {
                     bind.push('events', 'confirm');
+                    modal.close();
                 }
                 bind.onSubAction = () => {
                     bind.push('events', 'sub-action');
-                }
-                bind.onDismiss = () => {
-                    bind.push('events', 'dismiss');
+                    modal.close();
                 }
             });
         </script>
