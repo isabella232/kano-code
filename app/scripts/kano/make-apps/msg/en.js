@@ -175,6 +175,9 @@
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_DONE = "Done";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_EDIT_LAYOUT = "Edit Layout";
 
+    Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
+    Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
+
     Kano.MakeApps.Msg.KANO_SIDE_MENU_LOGIN = "Login";
     Kano.MakeApps.Msg.KANO_SIDE_MENU_LEVEL = "Level";
     Kano.MakeApps.Msg.KANO_SIDE_MENU_RESET_WORKSPACE = "Reset Workspace";

@@ -11,7 +11,6 @@
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
-<link rel="import" href="../kano-editor-banner/kano-editor-banner.html">
 
 <!--
 
@@ -158,9 +157,7 @@ Example:
                     selected="{{partsPanelState}}"
                     drawer-width="{{drawerWidth}}">
                     <div main class="main">
-                        <template is="dom-if" if="{{banner}}">
-                            <kano-editor-banner head="{{banner.head}}" text="{{banner.text}}"></kano-editor-banner>
-                        </template>
+                        <slot name="above-code"></slot>
                         <kano-root-view
                             id="root-view"
                             parts="{{addedParts}}"
@@ -169,7 +166,6 @@ Example:
                             on-change="_proxyChange"
                             default-categories="{{defaultCategories}}"
                             loading$="[[!modeReady]]"></kano-root-view>
-                        <slot></slot>
                     </div>
                     <div class="drawer animatable" drawer id="drawer">
                         <iron-pages selected="{{drawerPage}}" attr-for-selected="id" class="drawer-content">
