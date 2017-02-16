@@ -6,7 +6,25 @@
                 this.modes[name] = mode;
             },
             setBlocks (name, blocks) {
-                this.modes[name].blocks = blocks;
+                let registeredMode = this.modes[name];
+                if (registeredMode) {
+                    registeredMode.categories = registeredMode.categories || [];
+                    registeredMode.categories.push({
+                        name: registeredMode.name,
+                        id: registeredMode.id,
+                        colour: registeredMode.colour,
+                        blocks
+                    });
+                }
+            },
+            setCategories (name, categories) {
+                let registeredMode = this.modes[name];
+                if (registeredMode) {
+                    categories.forEach(category => {
+                        category.colour = registeredMode.colour;
+                    });
+                    this.modes[name].categories = categories;
+                }
             },
             modes: {},
             experiments: {},

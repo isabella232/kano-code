@@ -356,18 +356,20 @@
         _computeMode () {
             let mode = this.mode;
             if (this.remix) {
-                if (mode.originalBlocks) {
-                    this.set('mode.blocks', mode.originalBlocks);
-                    delete mode.originalBlocks;
+                if (mode.originalCategories) {
+                    this.set('mode.categories', mode.originalCategories);
+                    delete mode.originalCategories;
                 }
             } else if (this.scene.filterBlocks) {
                 let whitelist = this.scene.filterBlocks[mode.id];
                 if (whitelist) {
-                    this.set('mode.originalBlocks', mode.blocks);
-                    this.set('mode.blocks', mode.blocks.filter(block => {
-                        let definition = block.block(mode);
-                        return whitelist.indexOf(definition.id) !== -1;
-                    }));
+                    this.set('mode.originalCategories', mode.categories);
+                    this.mode.categories.forEach((category, index) => {
+                        this.set(`mode.categories.${index}.blocks`, category.blocks.filter(block => {
+                            let definition = block.block(mode);
+                            return whitelist.indexOf(definition.id) !== -1;
+                        }));
+                    });
                 }
             }
         },
