@@ -8,7 +8,7 @@
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
         <link rel="import" href="../../../bower_components/web-components/kano-style/typography.html">
-        <link rel="import" href="../kano-part-badge.html">
+        <link rel="import" href="../kano-add-parts.html">
         <style is="custom-style" include="demo-pages-shared-styles">
             html, body {
                 margin: 0;
@@ -22,39 +22,45 @@
                 justify-content: center;
                 font-family: var(--font-body);
             }
-            .badges {
-                display: flex;
-            }
-            kano-part-badge {
-                margin: 6px;
-            }
-            .blued {
-                border: 1px solid #4BACEF;
-                background: #304759;
-            }
-            .blued-plus {
-                border: 1px solid #4BACEF;
-                background: #3E80AE;
-            }
             demo-snippet {
                 --demo-snippet-demo: {
                     background: #292F34;
+                    padding: 0px;
                 };
             }
         </style>
     </head>
     <body unresolved>
         <div class="vertical-section-container">
-            <h3>Simple badge</h3>
+            <h3>Parts menu</h3>
             <demo-snippet>
                 <template>
-                    <div class="badges">
-                        <kano-part-badge icon="box" label="Box"></kano-part-badge>
-                        <kano-part-badge label="RSS" value="12" class="blued">
-                            <div slot="icon">+</div>
-                        </kano-part-badge>
-                        <kano-part-badge icon="button" label="Button" value="78" class="blued-plus"></kano-part-badge>
-                    </div>
+                    <template is="dom-bind" id="bind">
+                        <kano-add-parts available-parts="[[availableParts]]"></kano-add-parts>
+                    </template>
+                    <script>
+                        document.addEventListener('WebComponentsReady', () => {
+                            let b = document.getElementById('bind');
+
+                            b.availableParts = [{
+                                partType: 'ui',
+                                type: 'button',
+                                label: 'Button'
+                            },{
+                                partType: 'ui',
+                                type: 'box',
+                                label: 'Box'
+                            },{
+                                partType: 'data',
+                                type: 'rss',
+                                label: 'RSS'
+                            },{
+                                partType: 'hardware',
+                                type: 'gesture-sensor',
+                                label: 'Gesture'
+                            }];
+                        });
+                    </script>
                 </template>
             </demo-snippet>
         </div>

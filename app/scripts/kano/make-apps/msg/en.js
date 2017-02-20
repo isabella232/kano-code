@@ -207,4 +207,8 @@
 
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
+    Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
+    Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD = "Add";
+    Kano.MakeApps.Msg.KANO_ADD_PARTS_CANCEL = "Cancel";
+
 })(window.Kano = window.Kano || {});

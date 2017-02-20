@@ -119,7 +119,8 @@
         _instanceProps: {
             running: true,
             editableLayout: true,
-            partsMenuOpen: true
+            partsMenuOpen: true,
+            parts: true
         },
         observers: [
             'partsChanged(parts.*)',
@@ -278,12 +279,14 @@
                                                         height="[[mode.workspace.viewport.height]]"
                                                         running="[[running]]"
                                                         editable-layout="[[editableLayout]]"
-                                                        parts-menu-open="[[partsMenuOpen]]"></${tagName}>`;
+                                                        parts-menu-open="[[partsMenuOpen]]"
+                                                        parts="[[parts]]"></${tagName}>`;
 
                     this.templatize(template);
 
                     this.instance = this.stamp({
-                        mode: this.mode
+                        mode: this.mode,
+                        parts: this.parts
                     });
 
                     newDropzone = this.instance.root;
@@ -359,6 +362,9 @@
                 return;
             }
             path = e.path;
+            if (this.dropzone) {
+                this.dropzone.set(path, e.value);
+            }
             if (path === 'parts.splices') {
                 let keySplices = e.value.keySplices,
                     indexSplices = e.value.indexSplices;

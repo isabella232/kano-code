@@ -107,7 +107,29 @@ Polymer({
         '_codeChanged(code.*)'
     ],
     listeners: {
-        'mode-ready': '_onModeReady'
+        'mode-ready': '_onModeReady',
+        'add-part': '_addPart'
+    },
+    _addPart (e) {
+        let viewport = this.$.workspace.getViewport(),
+            viewportRect = viewport.getBoundingClientRect(),
+            model, part;
+        for (let i = 0; i < Kano.MakeApps.Parts.list.length; i++) {
+            model = Kano.MakeApps.Parts.list[i];
+            if (model.type === e.detail) {
+                break;
+            }
+        }
+        model.position = {
+            x: viewportRect.width / 2,
+            y: viewportRect.height / 2
+        };
+        part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
+        this.push('addedParts', part);
+        this.fire('change', {
+            type: 'add-part',
+            part
+        });
     },
     _onModeReady () {
         this.modeReady = true;
