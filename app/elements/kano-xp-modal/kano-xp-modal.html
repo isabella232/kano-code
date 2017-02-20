@@ -17,6 +17,7 @@
     <style>
         :host {
             display: block;
+            /*TODO standardize colors using shared Kano Style*/
             --color-progress-bg: #e5e5e5;
             --color-dark-yellow: #996b00;
             --color-orange: #ff6b00;
@@ -35,24 +36,32 @@
         :host [hidden] {
             display: none !important;
         }
-        :host #content {
-            width: 285px;
-            padding: 50px 65px 40px;
-            background-color: #fff;
-            margin-top: 85px;
+        :host .content {
+            @apply --layout-vertical;
+            width: 430px;
+            height: 430px;
             font-family: 'Bariol', Helvetica, Arial, sans-serif;
         }
-        :host iron-pages {
+        :host #pager {
+            flex: 1;
+            background-color: #fff;
+            padding: 45px 60px 0;
+            margin-top: 85px;
         }
-        :host iron-pages[selected="levelup"] {
-            padding-top: 20px;
+        :host #pager[selected="levelup"] {
+            margin-top: 0;
         }
-        :host([second-label]) #content {
-            height: 240px;
-            width: 360px;
+        :host([second-label]) .content {
+            width: 445px;
+            height: 445px;
         }
-        :host([second-label]) iron-pages {
-            height: 60%;
+
+        @media screen and (max-width: 430px) {
+            :host .content,
+            :host([second-label]) .content {
+                max-width: none !important;
+                width: 100%;
+            }
         }
 
         /*New XP section*/
@@ -152,7 +161,7 @@
             height: 100%;
             width: 100%;
             position: relative;
-            margin: 35px 0 50px;
+            margin: 55px 0 45px;
         }
         :host .start-level,
         :host .end-level {
@@ -172,23 +181,24 @@
         /*Level up section*/
 
         :host #levelup {
-            height: 100%;
             position: relative;
             @apply --layout-vertical;
             @apply --layout-center;
         }
         :host .levelup-header {
-            margin: 0 0 20px;
+            color: var(--color-medium-grey);
+            margin: 0 0 10px;
             text-transform: uppercase;
             z-index: 2;
         }
         :host h1.levelup-heading {
             font-size: 32px;
-            margin: 10px 0 0;
+            margin: 5px 0 0;
             z-index: 2;
         }
         :host h1.levelup-heading ~ p {
             font-size: 16px;
+            margin: 15px 0 0;
             z-index: 2;
         }
         :host .newlevel-container {
@@ -203,6 +213,7 @@
             width: 100%;
             height: 100%;
             background: url("/assets/icons/new-level.svg") no-repeat center;
+            background-size: 150px;
             color: white;
             font-size: 50px;
             font-weight: bold;
@@ -230,6 +241,7 @@
             width: 380px;
             height: 380px;
             flex: 1 0 auto;
+            opacity: 0.5;
             animation: 25s linear infinite spin;
         }
         :host .radial-svg:before {
@@ -240,7 +252,7 @@
             z-index: -1;
             top: 0;
             left: 0;
-            background: radial-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, #fff 70%);
+            background: radial-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, #fff 80%);
         }
         :host .button {
             opacity: 0;
@@ -275,7 +287,7 @@
         .level-wrapper {
             position: relative;
             width: 100%;
-            height: 100%;
+            height: 175px;
         }
         /* Flip animation, credit to David Walsh https://davidwalsh.name/css-flip*/
         #flip-container {
@@ -320,13 +332,14 @@
         }
         /*Cta section*/
         :host .action {
+            flex: 1 0 auto;
+            margin-bottom: 5px;
+            background-color: #fff;
             @apply --layout-vertical;
             @apply --layout-center-justified;
-            min-height: 60px;
-            margin: 0;
         }
         :host .second-action {
-            margin-bottom: 13px;
+            margin-bottom: 10px;
         }
         :host .button .icon ~ .action-text,
         :host .button .action-text ~ .icon {
@@ -344,7 +357,7 @@
                     floatOut 200ms 1800ms ease-in-out forwards;
         }
         :host .float-in-label {
-            animation: floatIn 110ms 260ms linear forwards;
+            animation: floatIn 110ms 200ms linear forwards;
         }
         :host .float-in-button-first {
             animation: floatIn 150ms 200ms forwards;
@@ -369,8 +382,8 @@
     </style>
     <template>
         <kano-modal id="modal" opened="{{opened}}" assets-path="/assets">
-            <div id="content">
-                <iron-pages attr-for-selected="id" selected$="[[panel]]">
+            <div class="content">
+                <iron-pages id="pager" attr-for-selected="id" selected$="[[panel]]">
                     <div id="xp">
                         <p class="level float-in-level">Level [[progress.currentLevel]]</p>
                         <h1 class="username float-in-name">[[header]]</h1>
@@ -403,7 +416,7 @@
                             <p class="end-level">LV.{{progress.nextLevel}}</p>
                             <kano-progress-bar id="progress-bar"
                                                immediate-value="{{immediateValue}}"
-                                               with-display>
+                                               display-label>
                             <div id="progress-label" slot="label">
                                 <div class="progress-overlay float-in-label">
                                     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -441,9 +454,9 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="radial-background">
-                            <div class="radial-svg" preload sizing="cover"></div>
+                            <div class="radial-background">
+                                <div class="radial-svg" preload sizing="cover"></div>
+                            </div>
                         </div>
 
                         <h1 class="levelup-heading">Congratulations!</h1>
@@ -516,12 +529,21 @@
             this.async(() => this._launchProgress(progress), 2800);
         },
         _launchProgress (progress) {
+            let speed;
             this.panel = 'progress';
-            this.async(() => this.$['progress-bar'].addValue(progress.gainedXp), 1200);
-            this.async(() => this.$.modal.motif = '/assets/avatar/judoka-face.svg', 2000);
+            //slower animation on first level upgrade
+            if (progress.currentLevel === 1 && progress.gainedXp === 100) {
+                speed = 1300;
+            } else if (progress.gainedXp === 100) {
+                speed = 1000;
+            } else {
+                speed = 700;
+            }
+            this.async(() => this.$['progress-bar'].addValue(progress.gainedXp, speed), 1000);
+            this.async(() => this.$.modal.motif = '/assets/avatar/judoka-face.svg', speed + 1200);
 
             if (progress.levelup) {
-                this.async(() => this._launchLevelUp(), 2800);
+                this.async(() => this._launchLevelUp(), 3400);
             } else {
                 this.async(() => this.buttonsVisible = true, 2400);
             }
@@ -540,19 +562,17 @@
             this.fire('confirm');
             this.$.modal.close();
         },
-        _computeHeader (username) {
-            return username ? username : 'Nice work!';
-        },
         _reset () {
             this.panel = null;
             this.$.modal.motif = null;
+            this.buttonsVisible = false;
         },
         _computeProgress (data) {
             let currentState = data.update.levels.progress,
                 changes = data.update.levels.changes,
                 currentLevel = changes.level ? changes.level.oldValue : currentState.level;
             this._setupProgressBar(currentState, changes);
-            //Polymer convenient method to set private property
+            //Polymer method to set private property
             this._setProgress({
                 currentLevel: currentLevel,
                 nextLevel: currentLevel + 1,
@@ -575,7 +595,8 @@
                 return;
             }
             this._computeProgress(data);
-            this.header = user ? user.username : 'Nice work';
+            this.header = user ? user.username : 'Nice work!';
+            this.secondLabel = user ? null : 'Save your Xp';
             this.$.modal.open();
         },
         close () {

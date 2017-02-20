@@ -41,8 +41,7 @@
                             mode="[[mode]]"
                             on-share="_pauseAndShare"
                             challenge-state="[[challengeState]]"
-                            hide-leave-alert="[[alertDisabled]]">
-          </kano-app-editor>
+                            hide-leave-alert="[[alertDisabled]]"></kano-app-editor>
       </kano-app-challenge>
   </template>
 </dom-module>
@@ -76,7 +75,7 @@
             },
             progress: {
                 type: Number,
-                computed: "computeProgress(currentStep, scene)"
+                computed: 'computeProgress(currentStep, scene)'
             },
             extensions: {
                 type: Array
@@ -91,12 +90,12 @@
             ended: {
                 type: Boolean,
                 value: false,
-                observer: '_onendedChanged'
+                observer: '_onEndedChanged'
             }
         },
         observers: [
-            '_completedChanged(scene.completed)',
             '_sceneChanged(scene)',
+            '_completedChanged(scene.completed)',
             '_addedPartsChanged(addedParts.splices)'
         ],
         _pauseAndShare (e) {
@@ -306,11 +305,11 @@
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
         },
-        _onendedChanged (ended) {
+        _onEndedChanged (ended) {
             if (ended) {
                 this.remix = true;
             }
-            //don't alert user on leaveing if it's the last story
+            //don't alert user on leaving if it's the last story
             if (ended && !this.nextStory) {
                 this.alertDisabled = true;
             }
@@ -325,9 +324,6 @@
                 return;
             }
             Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
-        },
-        _openSignup () {
-            this.fire('signup');
         }
     });
 </script>

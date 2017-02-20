@@ -6,16 +6,21 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
 
-        <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+        <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+        <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
         <link rel="import" href="../kano-xp-modal.html">
         <style is="custom-style" include="demo-pages-shared-styles">
+            .wrapper {
+                @apply --layout-vertical;
+            }
             button {
                 background-color: #fff;
+                max-width: 250px;
                 padding: 15px 25px;
-                margin: 0 15px;
-                border: 2px solid;
+                margin: 5px;
+                border: 1px solid;
             }
             .events {
                 display: flex;
@@ -28,8 +33,13 @@
         <demo-snippet>
             <template>
                 <template is="dom-bind" id="bind">
-                    <button type="button" name="button" on-tap="openModalAnonym">Modal without user</button>
-                    <button type="button" name="button" on-tap="openModalUser">Modal with user</button>
+                    <div class="wrapper">
+                        <button type="button" name="button" on-tap="openModalAnonym">Modal no user</button>
+                        <button type="button" name="button" on-tap="openModalUser">Modal with user</button>
+                        <button type="button" name="button" on-tap="openModalAnonymLevelUp">Modal no user with levelup</button>
+                        <button type="button" name="button" on-tap="openModalUserLevelUp">Modal with user and levelup</button>
+                        <button type="button" name="button" on-tap="openModalUserTenXp">Modal, 10 xp gained with user</button>
+                    </div>
                     <div class="events">
                         <h2>Events</h2>
                         <template is="dom-repeat" items="[[events]]">
@@ -37,12 +47,8 @@
                         </template>
                     </div>
                     <kano-xp-modal id="modal"
-                                   status="[[state]]"
-                                   username="[[username]]"
-                                   confirm-label="[[confirmLabel]]"
-                                   second-label="[[secondLabel]]"
                                    on-confirm="onConfirm"
-                                   on-second-action="onSubAction"></kano-xp-modal>
+                                   on-second-action="onSecondAction"></kano-xp-modal>
                 </template>
             </template>
         </demo-snippet>
@@ -52,74 +58,110 @@
                     modal = document.getElementById('modal');
                 bind.events = [];
 
-                function initStatus (user) {
-                    // bind.state = { 
-                    //     "data": {
-                    //         "update": {
-                    //             "levels": {
-                    //                 "progress": {
-                    //                     "level": 1
-                    //                 },
-                    //                 "changes": {
-                    //                     "total-xp": {
-                    //                         "oldValue": 66,
-                    //                         "newValue": 222
-                    //                     },
-                    //                     "complete": {
-                    //                         "oldValue": 0,
-                    //                         "newValue": 0.50
-                    //                     }
-                    //                 }
-                    //             }
-                    //         },
-                    //     }
-                    // };
-                    bind.state = {
-                        "data": {
-                            "update": {
-                                "levels": {
-                                    "progress": {
-                                        "xp": 50,
-                                        "level": 1,
-                                        "xp-offset": 50,
-                                        "next-threshold": 100,
-                                        "complete": 0.5
-                                    },
-                                    "changes": {
-                                        "level": {
-                                            "oldValue": 0,
-                                            "newValue": 1
-                                        },
-                                        "total-xp": {
-                                            "oldValue": 0,
-                                            "newValue": 100
-                                        }
-                                    }
-                                },
+                gamificationData = {
+                    "update": {
+                        "levels": {
+                            "progress": {
+                                "xp": 510,
+                                "level": 4,
+                                "xp-offset": 120,
+                                "next-threshold": 580,
+                                "complete": 0.631578947368421
                             },
-                        },
-                        "user": user
-                    };    
-                }
-                bind.openModalAnonym = () => {
-                    initStatus();
-                    bind.secondLabel = bind.state.user ? null : 'Save Xp';
+                            "changes": {
+                                "xp-offset": {
+                                    "oldValue": 20,
+                                    "newValue": 120
+                                },
+                                "total-xp": {
+                                    "oldValue": 410,
+                                    "newValue": 510
+                                },
+                                "complete": {
+                                    "oldValue": 0.10526315789473684,
+                                    "newValue": 0.631578947368421
+                                }
+                            }
+                        }
+                    }
                 };
-            
+                gamificationDataWithLevelUp = {
+                    "update": {
+                        "levels": {
+                            "progress": {
+                                "level": 1
+                            },
+                            "changes": {
+                                "total-xp": {
+                                    "oldValue": 0,
+                                    "newValue": 100
+                                },
+                                "level": {
+                                    "oldValue": 1,
+                                    "newValue": 2
+                                },
+                                "xp-offset": {
+                                    "oldValue": 0,
+                                    "newValue": 100
+                                },
+                                "next-threshold": {
+                                    "oldValue": 100,
+                                    "newValue": 260,
+                                }
+                            }
+                        }
+                    }
+                };
+                gamificationDataTen = {
+                    "update": {
+                        "levels": {
+                            "progress": {
+                                "xp": 310,
+                                "level": 3,
+                                "xp-offset": 50,
+                                "next-threshold": 390,
+                                "complete": 0.38461538461538464
+                            },
+                            "changes": {
+                                "xp-offset": {
+                                    "oldValue": 40,
+                                    "newValue": 50
+                                },
+                                "total-xp": {
+                                    "oldValue": 300,
+                                    "newValue": 310
+                                },
+                                "complete": {
+                                    "oldValue": 0.3076923076923077,
+                                    "newValue": 0.38461538461538464
+                                }
+                            }
+                        }
+                    }
+                };
+                bind.openModalAnonym = () => {
+                    modal.open(gamificationData);
+                };
                 bind.openModalUser = () => {
-                    initStatus({
-                        "username": "vikdoro"
-                    });
-                    bind.secondLabel = bind.state.user ? null : 'Save Xp';
+                    modal.open(gamificationData, {username: "bob"});
+                };
+                bind.openModalAnonymLevelUp = () => {
+                    modal.open(gamificationDataWithLevelUp);
+                };
+                bind.openModalUserLevelUp = () => {
+                    modal.open(gamificationDataWithLevelUp, {username: "bob"});
+                };
+                bind.openModalUserTenXp = () => {
+                    modal.open(gamificationDataTen, {username: "bob"});
                 };
                 bind.onConfirm = () => {
                     bind.push('events', 'confirm');
                     modal.close();
-                }
-                bind.onSubAction = () => {
-                    bind.push('events', 'sub-action');
+                };
+                bind.onSecondAction = () => {
+                    bind.push('events', 'second-action');
                     modal.close();
-                }
+                };
             });
         </script>
     </body>
