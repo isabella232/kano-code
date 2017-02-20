@@ -205,4 +205,6 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_TRY_LATER = "Please try again later.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_UNFORTUNATE = "This is unfortunate";
 
+    Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
+
 })(window.Kano = window.Kano || {});
