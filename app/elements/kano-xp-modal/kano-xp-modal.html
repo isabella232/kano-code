@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/web-components/kano-progress-bar/kano-progress-bar.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
 <link rel="import" href="../../bower_components/web-components/kano-modal/kano-modal.html">
 <link rel="import" href="../kano-glint-animation/kano-glint-animation.html">
 
@@ -37,10 +38,10 @@
             display: none !important;
         }
         :host .content {
-            @apply --layout-vertical;
             width: 430px;
             height: 430px;
-            font-family: 'Bariol', Helvetica, Arial, sans-serif;
+            font-family: var(--font-body);
+            @apply --layout-vertical;
         }
         :host #pager {
             flex: 1;
@@ -67,36 +68,36 @@
         /*New XP section*/
 
         :host .level {
-            text-transform: uppercase;
-            font-weight: bold;
-            animation: 400ms ease-in forwards bounceIn;
             color: var(--color-medium-grey, #a7aeb2);
-            font-size: 16px;
             opacity: 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
             margin: 10px 0 5px;
+            animation: 400ms ease-in forwards bounceIn;
         }
         :host #progress .level, :host #progress h1 {
             opacity: 1;
         }
         :host h1.username {
             font-size: 24px;
-            margin: 10px 0 0;
             opacity: 0;
+            margin: 10px 0 0;
         }
         :host .xp {
             opacity: 0;
-            padding: 0 5px;
             text-align: center;
+            padding: 0 5px;
             margin-top: 30px;
         }
         :host .xp-prefix {
-            color: var(--color-gold);
             display: inline-block;
+            color: var(--color-gold);
             font-size: 35px;
             font-weight: bold;
             line-height: 1em;
-            margin-right: 6px;
             vertical-align: 15%;
+            margin-right: 6px;
         }
         :host .xp-value {
             display: inline-block;
@@ -122,30 +123,30 @@
         }
         :host .progress-overlay {
             position: relative;
-            opacity: 0;
+            float: right;
+            min-width: 45px;
             top: 12px;
             right: -29px;
             border-radius: 3px;
             background-color: #333333;
-            float: right;
+            opacity: 0;
             box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            min-width: 45px;
             padding: 6px 10px;
             @apply --layout-horizontal;
             @apply --layout-center;
             @apply --layout-justified;
         }
         :host .progress-overlay::before {
-            background-color: #333333;
-            content: '';
-            height: 10px;
-            left: 0;
-            margin: auto;
             position: absolute;
-            right: 0;
             top: -4px;
-            transform: rotate(45deg);
+            left: 0;
+            right: 0;
             width: 10px;
+            height: 10px;
+            content: '';
+            background-color: #333333;
+            margin: auto;
+            transform: rotate(45deg);
         }
         :host .overlay-xp {
             width: 20px;
@@ -158,9 +159,9 @@
             margin-left: 6px;
         }
         :host .slider-container {
-            height: 100%;
-            width: 100%;
             position: relative;
+            width: 100%;
+            height: 100%;
             margin: 55px 0 45px;
         }
         :host .start-level,
@@ -187,8 +188,8 @@
         }
         :host .levelup-header {
             color: var(--color-medium-grey);
-            margin: 0 0 10px;
             text-transform: uppercase;
+            margin: 0 0 10px;
             z-index: 2;
         }
         :host h1.levelup-heading {
@@ -217,8 +218,8 @@
             color: white;
             font-size: 50px;
             font-weight: bold;
-            z-index: 1;
             text-shadow: 2px 3px 2px rgba(0,0,0,0.3);
+            z-index: 1;
             @apply --layout-vertical;
             @apply --layout-center;
             @apply --layout-center-justified;
@@ -235,32 +236,32 @@
             @apply --layout-center-justified;
         }
         :host .radial-svg {
+            flex: 1 0 auto;
+            width: 380px;
+            height: 380px;
             background: url("/assets/icons/levelup-radial.svg") no-repeat center;
             background-size: 200%;
             border-radius: 50%;
-            width: 380px;
-            height: 380px;
-            flex: 1 0 auto;
             opacity: 0.5;
             animation: 25s linear infinite spin;
         }
         :host .radial-svg:before {
+            position: absolute;
+            top: 0;
+            left: 0;
             content: "";
             width: 100%;
             height: 100%;
-            position: absolute;
-            z-index: -1;
-            top: 0;
-            left: 0;
             background: radial-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, #fff 80%);
+            z-index: -1;
         }
         :host .button {
+            display: inline-block;
             opacity: 0;
             border: 0;
             border-radius: 3px;
             cursor: pointer;
-            display: inline-block;
-            font-family: 'Bariol', sans-serif;
+            font-family: var(--font-body);
             font-size: 14px;
             font-weight: bold;
             margin: 0;
@@ -318,10 +319,10 @@
             position: relative;
         }
         .front, .back {
-            backface-visibility: hidden;
             position: absolute;
             top: 0;
             left: 0;
+            backface-visibility: hidden;
         }
         .front {
             z-index: 2;
@@ -333,8 +334,8 @@
         /*Cta section*/
         :host .action {
             flex: 1 0 auto;
-            margin-bottom: 5px;
             background-color: #fff;
+            margin-bottom: 5px;
             @apply --layout-vertical;
             @apply --layout-center-justified;
         }
