@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../kano-icons/parts.html">
+<link rel="import" href="../inline-controls/kano-inline-controls.html">
 <dom-module id="kano-part-list-item">
     <template>
         <style>
@@ -16,17 +17,61 @@
             iron-icon {
                 --iron-icon-fill-color: #8F9195;
             }
+            .controls {
+                @apply --layout-flex;
+            }
+            .handle, .remove {
+                color: #3A4248;
+                font-size: 32px;
+            }
+            button {
+                background: inherit;
+                border: 0px;
+                cursor: pointer;
+            }
         </style>
-        <iron-icon icon="parts:[[type]]"></iron-icon>
-        <div class="label">[[label]]</div>
-        <div class="controls"></div>
+        <div class="handle">-</div>
+        <iron-icon icon="parts:[[model.type]]"></iron-icon>
+        <div class="label">[[model.name]]</div>
+        <div class="controls" id="controls"></div>
+        <button class="remove">&times;</button>
     </template>
     <script>
         Polymer({
             is:'kano-part-list-item',
+            behaviors: [Polymer.Templatizer],
             properties: {
-                label: String,
-                type: String
+                model: Object
+            },
+            observers: [
+                '_typeChanged(model.type)'
+            ],
+            _instanceProps: {
+                model: true
+            },
+            _forwardParentProp (prop, value) {
+
+            },
+            _forwardParentPath (path, value) {
+
+            },
+            _typeChanged (type) {
+                let template = document.createElement('template'),
+                    tagName = `kano-ic-${type}`;
+
+                template.innerHTML = `<${tagName} model="[[model]]"><${tagName}/>`;
+
+                this.templatize(template);
+
+                this.instance = this.stamp({
+                    model: this.model
+                });
+
+                while (this.$.controls.firstChild) {
+                    this.$.controls.removeChild(this.$.controls.firstChild);
+                }
+
+                this.$.controls.appendChild(this.instance.root);
             }
         });
     </script>
