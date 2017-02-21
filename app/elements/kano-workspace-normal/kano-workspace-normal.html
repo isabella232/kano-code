@@ -53,8 +53,7 @@
                 this.ctx = this.$.canvas;
             },
             setBackground (bg) {
-                this.customStyle['--canvas-background'] = bg;
-                this.updateStyles();
+                this.style.background = bg;
             },
             setBackgroundColor (color) {
                 this.style.backgroundColor = color;
@@ -72,12 +71,14 @@
             reset () {
                 this.ctx = this.$.canvas.getContext('2d');
                 this.ctx.globalAlpha = 1;
-                this.setBackgroundColor('#ffffff');
                 this.modules = new Kano.CanvasAPI({
                     ctx: this.ctx,
                     width: this.width,
                     height: this.height
                 });
+            },
+            clear () {
+                this.setBackground('#ffffff');
             },
             renderOnCanvas (ctx, util, scaleFactor) {
                 let image = new Image();
