@@ -44,16 +44,28 @@
                 model: Object
             },
             observers: [
-                '_typeChanged(model.type)'
+                '_typeChanged(model.type)',
+                '_modelChanged(model.*)'
             ],
             _instanceProps: {
                 model: true
             },
+            _parentProps: {
+                model: true
+            },
+            _forwardInstancePath (inst, path, value) {
+                console.log(path, value);
+            },
             _forwardParentProp (prop, value) {
-
+                console.log('parentprop');
             },
             _forwardParentPath (path, value) {
-
+                console.log('parentpath');
+            },
+            _modelChanged (e) {
+                if (this.instance) {
+                    //this.instance.set(e.path, e.value);
+                }
             },
             _typeChanged (type) {
                 let template = document.createElement('template'),
@@ -63,15 +75,15 @@
 
                 this.templatize(template);
 
-                this.instance = this.stamp({
-                    model: this.model
-                });
+                this.instance = this.stamp();
 
                 while (this.$.controls.firstChild) {
                     this.$.controls.removeChild(this.$.controls.firstChild);
                 }
 
                 this.$.controls.appendChild(this.instance.root);
+
+                console.log(this.instance);
             }
         });
     </script>

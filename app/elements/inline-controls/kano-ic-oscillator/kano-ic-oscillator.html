@@ -1,6 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../../scripts/kano/make-apps/parts-api/oscillator.html">
 <dom-module id="kano-ic-oscillator">
     <template>
         <style>
@@ -12,21 +11,14 @@
                 @apply --layout-flex;
             }
         </style>
-        <div class="visuals"></div>
-        <div class="data">[[model.volume]]</div>
+        <div class="visuals">[[model.name]]</div>
+        <div class="data">[[model.x]]</div>
     </template>
     <script>
         Polymer({
             is:'kano-ic-oscillator',
-            behaviors: [Kano.MakeApps.PartsAPI.oscillator],
             properties: {
                 model: Object
-            },
-            observers: [
-                'changed(x)'
-            ],
-            changed (x) {
-                console.log(x);
             }
         });
     </script>
