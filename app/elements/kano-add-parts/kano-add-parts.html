@@ -12,10 +12,11 @@
                 background: #2A2F35;
             }
             :host>* {
-                padding: 18px;
+                padding: 18px 0px;
             }
             .categories {
                 @apply --layout-horizontal;
+                padding-top: 0px;
             }
             .categories h2 {
                 font-weight: normal;
@@ -25,16 +26,18 @@
                 @apply --layout-vertical;
                 @apply --layout-start-justified;
                 @apply --layout-flex;
-                padding: 4px 6px;
+            }
+            .categories>*:not(:first-of-type) {
+                margin-left: 24px;
             }
             .categories .ui h2 {
-                color: #4B613C;
+                color: #88c440;
             }
             .categories .data h2 {
-                color: #DE8834;
+                color: #00d9c7;
             }
             .categories .hardware h2 {
-                color: #2789C0;
+                color: #00a6f6;
             }
             header {
                 @apply --layout-horizontal;
@@ -59,32 +62,28 @@
                 background: #7DC553;
             }
             kano-add-parts-item {
-                margin: 4px 0px;
+                border-bottom: 2px solid #252A30;
+            }
+            kano-add-parts-item:first-of-type {
+                border-top: 2px solid #252A30;
             }
             .ui kano-add-parts-item[selected] {
-                --iron-icon-fill-color: #8ABF51;
-                color: #8ABF51;
-                border-color: #8ABF51;
-                background: rgba(138, 191, 81, 0.2);
+                --iron-icon-fill-color: #88c440;
+                color: #88c440;
             }
             .data kano-add-parts-item[selected] {
-                --iron-icon-fill-color: #C97E32;
-                color: #C97E32;
-                border-color: #C97E32;
-                background: rgba(201, 126, 50, 0.2);
+                --iron-icon-fill-color: #00d9c7;
+                color: #00d9c7;
             }
             .hardware kano-add-parts-item[selected] {
-                --iron-icon-fill-color: #2AA8F0;
-                color: #2AA8F0;
-                border-color: #2AA8F0;
-                background: rgba(42, 168, 240, 0.2);
+                --iron-icon-fill-color: #00a6f6;
+                color: #00a6f6;
             }
         </style>
         <header>
-            <div class="button">+</div>
             <div class="label">[[localize('ADD_PARTS', 'Add Parts')]]</div>
             <button type="button" class="button" on-tap="_cancel">[[localize('CANCEL', 'Cancel')]]</button>
-            <button type="button" class="button add" on-tap="_confirm">[[localize('ADD', 'Add')]]</button>
+            <button type="button" class="button add" on-tap="_confirm">[[localize('DONE', 'Done')]]</button>
         </header>
         <div class="categories">
             <div class="ui">

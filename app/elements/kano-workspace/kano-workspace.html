@@ -158,6 +158,14 @@
             if (this.instance) {
                 this.instance.set('editableLayout', this.editableLayout);
             }
+            if (this.editableLayout) {
+                this.prevRunningState = this.running;
+                this.set('running', false);
+                this.fire('open-settings');
+            } else {
+                this.set('running', this.prevRunningState);
+                this.fire('close-settings');
+            }
         },
         _partsMenuOpenChanged () {
             if (this.instance) {
@@ -230,14 +238,6 @@
         },
         toggleEditableLayout (value) {
             this.set('editableLayout', typeof value !== 'boolean' ? !this.editableLayout : value);
-            if (this.editableLayout) {
-                this.prevRunningState = this.running;
-                this.set('running', false);
-                this.fire('open-settings');
-            } else {
-                this.set('running', this.prevRunningState);
-                this.fire('close-settings');
-            }
         },
         _getPartById (id) {
             let dropzone = this.$$('.dropzone');
@@ -301,6 +301,12 @@
                     /* Update dropzone reference */
                     this.dropzone = this.$$(`#${this.mode.id}`);
 
+                    this.dropzone.addEventListener('parts-changed', (e) => {
+                        if (e.detail.path === 'parts.splices') {
+                            this.set(e.detail.path, e.detail.value);
+                        }
+                    });
+
                     if (this.dropzone.setBackground) {
                         this.dropzone.setBackground(this.background);
                     }
@@ -317,7 +323,7 @@
             if (this.running) {
                 return;
             }
-            target = e.target;
+            target = e.path ? e.path[0] : e.target;
             if (target === this.dropzone) {
                 this.clearSelection();
             } else if (target === this.$.content) {
@@ -353,8 +359,12 @@
             if (this.selected && part.id === this.selected.id) {
                 this.fire('close-settings');
                 this.clearSelection();
+                this.set('editableLayout', false);
             } else {
+                let selectedPartElement = this.dropzone.querySelector('.selected');
+                this.toggleClass('selected', false, selectedPartElement);
                 this.$.selector.select(part);
+                this.set('editableLayout', true);
             }
         },
         _selectedChanged (part, oldPart) {

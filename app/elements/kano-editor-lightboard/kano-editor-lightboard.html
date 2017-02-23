@@ -47,8 +47,7 @@
             z-index: 100;
             top: 100px;
             bottom: 100px;
-            right: 100px;
-            left: 100px;
+            margin: 0 auto;
         }
         :host .fullscreen-close {
             position: fixed;
@@ -65,9 +64,11 @@
             cursor: pointer;
         }
         kano-workspace-toolbar {
-            padding: 24px 8px;
+            @apply --layout-self-end;
+            padding: 24px 0px;
         }
         .controls {
+            @apply --layout-vertical;
             @apply --layout-flex;
             padding: 0px 6px;
             box-sizing: border-box;
@@ -76,7 +77,7 @@
             display: none;
         }
         .overlay {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
         }
         .add-parts {
             border-top: 1px solid #202428;
@@ -166,7 +167,7 @@
             </div>
             <div class="part-list">
                 <sortable-js handle=".handle" animation="150">
-                    <template is="dom-repeat" items="[[parts]]" as="part">
+                    <template is="dom-repeat" items="{{parts}}" as="part">
                         <div class="part">
                             <iron-icon class="handle" icon="menu"></iron-icon>
                             <kano-part-list-item model="[[part]]" on-tap="_partItemTapped"></kano-part-list-item>
@@ -181,7 +182,7 @@
         </div>
         <div class="overlay">
             <button class="fullscreen-close" on-tap="_toggleFullscreen">
-                <div>&times;</div>
+                <iron-icon icon="close"></iron-icon>
             </button>
         </div>
         <paper-dialog id="parts-modal" entry-animation="from-big-animation" with-backdrop>
@@ -213,7 +214,8 @@
                     type: Array,
                     value: () => {
                         return [];
-                    }
+                    },
+                    notify: true
                 }
             },
             ready () {

@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../kano-icons/parts.html">
 <dom-module id="kano-add-parts-item">
     <template>
@@ -8,13 +9,10 @@
             :host {
                 display: block;
                 @apply --layout-vertical;
-                background: #40464B;
-                border-radius: 3px;
-                border: 1px solid transparent;
                 cursor: pointer;
                 color: white;
                 overflow: hidden;
-                transition: background 200ms linear;
+                --iron-icon-fill-color: #8F9195;
             }
             #label {
                 color: white;
@@ -24,7 +22,7 @@
                 @apply --layout-center;
                 background: inherit;
                 color: inherit;
-                padding: 4px 0px;
+                padding: 6px 0px;
                 border: 0px;
                 font-size: 14px;
                 font-family: var(--font-body);
@@ -42,7 +40,7 @@
             .bin {
                 @apply --layout-horizontal;
                 @apply --layout-center;
-                padding: 4px 18px;
+                padding: 4px;
             }
             .bin img {
                 width: 14px;
@@ -52,6 +50,10 @@
                 --iron-icon-width: 20px;
                 --iron-icon-height: 20px;
                 margin: 4px;
+            }
+            .clear {
+                --iron-icon-fill-color: #8F9195;
+                margin: 0px;
             }
             [hidden] {
                 display: none !important;
@@ -63,7 +65,9 @@
                 <iron-icon icon="parts:[[type]]"></iron-icon>
                 <div id="label">[[label]]</div>
             </div>
-            <div type="button" class="bin" on-tap="_binTapped" hidden$="[[_isCountZero(count)]]"><img src="/assets/icons/bin-icon.svg" alt=""></div>
+            <div type="button" class="bin" on-tap="_binTapped" hidden$="[[_isCountZero(count)]]">
+                <iron-icon icon="close" class="clear"></iron-icon>
+            </div>
         </button>
     </template>
     <script>

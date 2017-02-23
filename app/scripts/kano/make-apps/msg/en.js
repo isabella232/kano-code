@@ -45,6 +45,7 @@
     Kano.MakeApps.Msg.CONFIRM = "Confirm";
 
     Kano.MakeApps.Msg.CLOSE = "Close";
+    Kano.MakeApps.Msg.DONE = "Done";
 
     Kano.MakeApps.Msg.STROKE_SIZE = "Stroke Size";
     Kano.MakeApps.Msg.STROKE_COLOR = "Stroke Color";
@@ -209,7 +210,6 @@
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
-    Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD = "Add";
 
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ARE_YOU_SURE = "Are you sure";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_DELETE = "You are about to delete";
