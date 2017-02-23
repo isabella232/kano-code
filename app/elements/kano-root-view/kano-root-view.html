@@ -76,7 +76,7 @@
         },
         observers: [
             'computeToolbox(parts)',
-            'computeToolboxDebounced(parts.*)',
+            '_partsChanged(parts.*)',
             'computeToolboxDebounced(defaultCategories.*)',
             'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)'
@@ -300,6 +300,12 @@
             if (!this.toolboxReady) {
                 this.toolboxReady = true;
                 this.$['code-editor'].load(this.code.snapshot);
+            }
+        },
+        _partsChanged (e) {
+            // Only update if the splices changes (part added or removed) or if the name of the part changes
+            if (e.path === 'parts' || e.path === 'parts.splices' || e.path.indexOf('name') === e.path.length - 4) {
+                this.computeToolboxDebounced();
             }
         },
         computeToolboxDebounced () {

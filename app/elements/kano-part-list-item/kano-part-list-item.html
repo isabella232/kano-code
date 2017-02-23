@@ -16,25 +16,26 @@
             }
             iron-icon {
                 --iron-icon-fill-color: #8F9195;
+                --iron-icon-width: 20px;
+                --iron-icon-height: 20px;
+                margin: 4px;
             }
             .controls {
                 @apply --layout-flex;
             }
-            .handle, .remove {
-                color: #3A4248;
-                font-size: 32px;
-            }
-            button {
-                background: inherit;
-                border: 0px;
-                cursor: pointer;
-            }
         </style>
-        <div class="handle">-</div>
         <iron-icon icon="parts:[[model.type]]"></iron-icon>
         <div class="label">[[model.name]]</div>
         <div class="controls" id="controls"></div>
-        <button class="remove">&times;</button>
+        <template id="oscillator">
+            <kano-ic-oscillator model="[[model]]"></kano-ic-oscillator>
+        </template>
+        <template id="microphone">
+            <kano-ic-microphone model="[[model]]"></kano-ic-microphone>
+        </template>
+        <template id="clock">
+            <kano-ic-clock model="[[model]]"></kano-ic-clock>
+        </template>
     </template>
     <script>
         Polymer({
@@ -44,34 +45,24 @@
                 model: Object
             },
             observers: [
-                '_typeChanged(model.type)',
-                '_modelChanged(model.*)'
+                '_typeChanged(model.type)'
             ],
-            _instanceProps: {
-                model: true
-            },
-            _parentProps: {
-                model: true
-            },
-            _forwardInstancePath (inst, path, value) {
-                console.log(path, value);
-            },
             _forwardParentProp (prop, value) {
-                console.log('parentprop');
+                if (this.instance) {
+                    this.instance.__setProperty(prop, value);
+                }
             },
             _forwardParentPath (path, value) {
-                console.log('parentpath');
-            },
-            _modelChanged (e) {
                 if (this.instance) {
-                    //this.instance.set(e.path, e.value);
+                    this.instance._notifyPath(path, value, true);
                 }
             },
             _typeChanged (type) {
-                let template = document.createElement('template'),
-                    tagName = `kano-ic-${type}`;
+                let template = this.$[type];
 
-                template.innerHTML = `<${tagName} model="[[model]]"><${tagName}/>`;
+                if (!template) {
+                    return;
+                }
 
                 this.templatize(template);
 
@@ -82,8 +73,6 @@
                 }
 
                 this.$.controls.appendChild(this.instance.root);
-
-                console.log(this.instance);
             }
         });
     </script>

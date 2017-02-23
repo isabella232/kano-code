@@ -41,6 +41,8 @@
     Kano.MakeApps.Msg.Groups['wrong-category-opened'] = ['wrong-category-opened-1'];
     Kano.MakeApps.Msg.Groups['wrong-block-connection'] = ['wrong-block-connection-1'];
 
+    Kano.MakeApps.Msg.CANCEL = "Cancel";
+    Kano.MakeApps.Msg.CONFIRM = "Confirm";
 
     Kano.MakeApps.Msg.CLOSE = "Close";
 
@@ -191,7 +193,6 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Recording your gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin recording your gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start recording your animated gif";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_CLOSE = Kano.MakeApps.Msg.CLOSE;
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_MAKE_ANOTHER = "Make another gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_ON_WORLD = "Share on Kano World";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_COPY = "copy";
@@ -209,6 +210,12 @@
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD = "Add";
-    Kano.MakeApps.Msg.KANO_ADD_PARTS_CANCEL = "Cancel";
+
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_ARE_YOU_SURE = "Are you sure";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_DELETE = "You are about to delete";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_WANT_TO_DO_THIS = "Are you sure you want to do this?";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_OH_OH = "Oh oh";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_CANT_DELETE = "You can't delete";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_USED_IN_CODE = "because it is used in the code";
 
 })(window.Kano = window.Kano || {});

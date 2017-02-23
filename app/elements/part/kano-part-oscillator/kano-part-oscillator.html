@@ -77,8 +77,11 @@
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
                 this.model.x = 0;
-                this._updateValue();
+                this._startOscillating();
                 this._render();
+            },
+            _startOscillating () {
+                this._updateValue();
             },
             detached () {
                 cancelAnimationFrame(this._nextFrameId);

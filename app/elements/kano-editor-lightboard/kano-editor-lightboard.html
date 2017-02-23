@@ -1,5 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
 <link rel="import" href="../kano-animation/animations/from-big-animation.html">
 <link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
 <link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
@@ -16,13 +19,19 @@
             height: 100%;
             border-radius: 5px;
             @apply --layout-vertical;
+            @apply --layout-center;
         }
         kano-ui-viewport {
             width: auto;
-            height: 300px;
+            height: 322px;
+            min-height: 322px;
         }
         kano-workspace-lightboard {
             @apply --layout-flex;
+        }
+        kano-ui-viewport,
+        .controls {
+            width: 466px;
         }
         :host(.fullscreen) kano-ui-viewport,
         :host .overlay {
@@ -60,6 +69,8 @@
         }
         .controls {
             @apply --layout-flex;
+            padding: 0px 6px;
+            box-sizing: border-box;
         }
         :host(:not(.fullscreen)) .overlay {
             display: none;
@@ -99,11 +110,39 @@
             font-family: var(--font-body);
         }
         .part-list {
+            @apply --layout-flex;
             @apply --layout-vertical;
             overflow: auto;
         }
-        kano-part-list-item {
+        .part {
+            @apply --layout-horizontal;
+            @apply --layout-center;
             border-bottom: 1px solid #202428;
+        }
+        .part.sortable-ghost {
+            opacity: 0.1;
+        }
+        kano-part-list-item {
+            @apply --layout-flex;
+            cursor: pointer;
+        }
+        .handle {
+            cursor: move;
+        }
+        .remove-part, .handle {
+            color: #3A4248;
+            font-size: 32px;
+        }
+        .remove-part {
+            background: inherit;
+            border: 0px;
+            cursor: pointer;
+        }
+        ::slotted(kano-part-microphone),
+        ::slotted(kano-part-oscillator),
+        ::slotted(kano-part-clock),
+        ::slotted(kano-part-speaker) {
+            display: none;
         }
     </style>
     <template>
@@ -116,21 +155,28 @@
             </kano-workspace-lightboard>
         </kano-ui-viewport>
         <div class="controls">
-            <kano-workspace-toolbar editable-layout="[[editableLayout]]"
-                                    parts-menu-open="[[partsMenuOpen]]"
-                                    running="[[running]]"
+            <kano-workspace-toolbar running="[[running]]"
+                                    no-part-controls
                                     on-pause-run-button-clicked="_runButtonClicked"
                                     on-fullscreen-button-clicked="_toggleFullscreen"
-                                    on-reset-button-clicked="_resetAppState"
-                                    on-edit-layout-button-clicked="_editLayoutClicked"></kano-workspace-toolbar>
+                                    on-reset-button-clicked="_resetAppState"></kano-workspace-toolbar>
             <div class="add-parts">
                 <div class="label">Parts</div>
                 <button type="button" on-tap="_addPartsTapped">+</button>
             </div>
             <div class="part-list">
-                <template is="dom-repeat" items="[[parts]]" as="part">
-                    <kano-part-list-item model="[[part]]"></kano-part-list-item>
-                </template>
+                <sortable-js handle=".handle" animation="150">
+                    <template is="dom-repeat" items="[[parts]]" as="part">
+                        <div class="part">
+                            <iron-icon class="handle" icon="menu"></iron-icon>
+                            <kano-part-list-item model="[[part]]" on-tap="_partItemTapped"></kano-part-list-item>
+                            <button type="button" class="remove-part" on-tap="_removePart">
+                                <iron-icon icon="close"></iron-icon>
+                            </button>
+                        </div>
+                    </template>
+                </sortable-js>
+                
             </div>
         </div>
         <div class="overlay">
@@ -202,12 +248,6 @@
                 this.$.wrapper.resizeView();
                 this.fullscreen = !this.fullscreen;
             },
-            _runButtonClicked () {
-                this.fire('run-button-clicked');
-            },
-            _editLayoutClicked () {
-                this.fire('editable-layout-clicked');
-            },
             _addPartsTapped () {
                 this._openPartsModal();
             },
@@ -225,6 +265,14 @@
                         this.fire('add-part', type);
                     }
                 });
+            },
+            _removePart (e) {
+                let part = e.model.get('part');
+                this.fire('remove-part', part);
+            },
+            _partItemTapped (e) {
+                let part = e.model.get('part');
+                this.fire('part-selected', part);
             }
         });
     </script>

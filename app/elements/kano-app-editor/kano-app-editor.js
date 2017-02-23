@@ -1,4 +1,4 @@
-/* globals Polymer, Kano, interact, Part */
+/* globals Polymer, Kano, interact */
 
 function getDefaultBackground() {
     return {
@@ -11,7 +11,11 @@ function getDefaultBackground() {
 
 Polymer({
     is: 'kano-app-editor',
-    behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.AppElementRegistryBehavior],
+    behaviors: [
+        Kano.Behaviors.AppEditorBehavior,
+        Kano.Behaviors.AppElementRegistryBehavior,
+        Kano.Behaviors.I18nBehavior
+    ],
     properties: {
         parts: {
             type: Array
@@ -108,7 +112,8 @@ Polymer({
     ],
     listeners: {
         'mode-ready': '_onModeReady',
-        'add-part': '_addPart'
+        'add-part': '_addPart',
+        'remove-part': '_removePartReceived'
     },
     _addPart (e) {
         let viewport = this.$.workspace.getViewport(),
@@ -159,15 +164,24 @@ Polymer({
         this.fire('change', e.detail);
     },
     deletePartClicked () {
-        if (this.checkBlockDependency(this.selected)) {
+        this._removePartInitiated(this.selected);
+    },
+    _removePartInitiated (part) {
+        this.toBeRemoved = part;
+        if (this.checkBlockDependency(part)) {
             return this.$['external-use-warning'].open();
         } else {
             this.$['confirm-delete'].open();
         }
     },
+    _removePartReceived (e) {
+        let part = e.detail;
+        this._removePartInitiated(part);
+    },
     modalClosed (e) {
         if (e.detail.confirmed) {
             this._deletePart(this.selected);
+            this.closeDrawer();
         }
     },
     checkBlockDependency (part) {
@@ -420,9 +434,6 @@ Polymer({
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
-        part.blockIds.forEach(id => {
-            Kano.MakeApps.Blockly.removeLookupString(id);
-        });
         this.splice('addedParts', index, 1);
         this.$.workspace.clearSelection();
     },

@@ -8,7 +8,7 @@
         <link rel="import" href="../../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
         <link rel="import" href="../../../../bower_components/web-components/kano-style/typography.html">
-        <link rel="import" href="../kano-ic-oscillator.html">
+        <link rel="import" href="../kano-ic-clock.html">
         <style is="custom-style" include="demo-pages-shared-styles">
             html, body {
                 margin: 0;
@@ -31,27 +31,20 @@
     </head>
     <body unresolved>
         <div class="vertical-section-container">
-            <h3>Inline controls of the oscillator</h3>
+            <h3>Inline controls of the clock</h3>
             <demo-snippet>
                 <template>
                     <template is="dom-bind" id="bind">
-                        <kano-ic-oscillator id="el" model="[[model]]"></kano-ic-oscillator>
+                        <kano-ic-clock model="[[model]]"></kano-ic-clock>
                     </template>
                     <script>
                         document.addEventListener('WebComponentsReady', () => {
                             let b = document.getElementById('bind');
 
                             b.model = {
-                                name: 'Oscillator',
-                                type: 'oscillator',
-                                x: 0,
-                                userProperties: {
-                                    speed: 50,
-                                    delay: 0,
-                                    wave: 'sin'
-                                }
+                                name: 'Clock',
+                                type: 'clock'
                             };
-                            b.$.el._updateValue();
                         });
                     </script>
                 </template>

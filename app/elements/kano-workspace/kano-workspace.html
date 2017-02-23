@@ -128,7 +128,8 @@
         ],
         listeners: {
             'part-tapped': 'onPartTapped',
-            'editable-layout-clicked': 'toggleEditableLayout'
+            'editable-layout-clicked': 'toggleEditableLayout',
+            'part-selected': '_partSelected'
         },
         isModeSimple (mode) {
             return mode.id === "simple";
@@ -347,7 +348,16 @@
             this.clearSelection();
             this.$.selector.select(e.detail.model);
         },
-        _selectedChanged (part) {
+        _partSelected (e) {
+            let part = e.detail;
+            if (this.selected && part.id === this.selected.id) {
+                this.fire('close-settings');
+                this.clearSelection();
+            } else {
+                this.$.selector.select(part);
+            }
+        },
+        _selectedChanged (part, oldPart) {
             let partElement;
             if (!this.dropzone || !part) {
                 return;
