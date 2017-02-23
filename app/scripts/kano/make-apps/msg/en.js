@@ -207,6 +207,9 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_TRY_LATER = "Please try again later.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_UNFORTUNATE = "This is unfortunate";
 
+    Kano.MakeApps.Msg.KANO_CHALLENGE_UI_NEXT = "Next";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_UI_HINT = "Hint";
+  
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
