@@ -177,7 +177,6 @@
                         </div>
                     </template>
                 </sortable-js>
-                
             </div>
         </div>
         <div class="overlay">
@@ -219,7 +218,11 @@
                 }
             },
             ready () {
-                this.availableParts = Kano.MakeApps.Parts.list;
+                // Temporary. Duplicate of code in `kano-view-editor` will be removed
+                // when this add-parts modal is moved to the `kano-app-editor` component
+                this.availableParts = Kano.MakeApps.Parts.list.filter((part) => {
+                    return Kano.MakeApps.Mode.modes.lightboard.parts.indexOf(part.type) !== -1;
+                });
             },
             attached () {
                 this.makeButtonIconPaths = {
