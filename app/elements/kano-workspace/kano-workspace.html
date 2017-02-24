@@ -119,7 +119,8 @@
         _instanceProps: {
             running: true,
             editableLayout: true,
-            partsMenuOpen: true
+            partsMenuOpen: true,
+            parts: true
         },
         observers: [
             'partsChanged(parts.*)',
@@ -127,7 +128,8 @@
         ],
         listeners: {
             'part-tapped': 'onPartTapped',
-            'editable-layout-clicked': 'toggleEditableLayout'
+            'editable-layout-clicked': 'toggleEditableLayout',
+            'part-selected': '_partSelected'
         },
         isModeSimple (mode) {
             return mode.id === "simple";
@@ -155,6 +157,14 @@
         _editableLayoutChanged () {
             if (this.instance) {
                 this.instance.set('editableLayout', this.editableLayout);
+            }
+            if (this.editableLayout) {
+                this.prevRunningState = this.running;
+                this.set('running', false);
+                this.fire('open-settings');
+            } else {
+                this.set('running', this.prevRunningState);
+                this.fire('close-settings');
             }
         },
         _partsMenuOpenChanged () {
@@ -228,14 +238,6 @@
         },
         toggleEditableLayout (value) {
             this.set('editableLayout', typeof value !== 'boolean' ? !this.editableLayout : value);
-            if (this.editableLayout) {
-                this.prevRunningState = this.running;
-                this.set('running', false);
-                this.fire('open-settings');
-            } else {
-                this.set('running', this.prevRunningState);
-                this.fire('close-settings');
-            }
         },
         _getPartById (id) {
             let dropzone = this.$$('.dropzone');
@@ -278,12 +280,14 @@
                                                         height="[[mode.workspace.viewport.height]]"
                                                         running="[[running]]"
                                                         editable-layout="[[editableLayout]]"
-                                                        parts-menu-open="[[partsMenuOpen]]"></${tagName}>`;
+                                                        parts-menu-open="[[partsMenuOpen]]"
+                                                        parts="[[parts]]"></${tagName}>`;
 
                     this.templatize(template);
 
                     this.instance = this.stamp({
-                        mode: this.mode
+                        mode: this.mode,
+                        parts: this.parts
                     });
 
                     newDropzone = this.instance.root;
@@ -296,6 +300,12 @@
 
                     /* Update dropzone reference */
                     this.dropzone = this.$$(`#${this.mode.id}`);
+
+                    this.dropzone.addEventListener('parts-changed', (e) => {
+                        if (e.detail.path === 'parts.splices') {
+                            this.set(e.detail.path, e.detail.value);
+                        }
+                    });
 
                     if (this.dropzone.setBackground) {
                         this.dropzone.setBackground(this.background);
@@ -313,7 +323,7 @@
             if (this.running) {
                 return;
             }
-            target = e.target;
+            target = e.path ? e.path[0] : e.target;
             if (target === this.dropzone) {
                 this.clearSelection();
             } else if (target === this.$.content) {
@@ -344,7 +354,20 @@
             this.clearSelection();
             this.$.selector.select(e.detail.model);
         },
-        _selectedChanged (part) {
+        _partSelected (e) {
+            let part = e.detail;
+            if (this.selected && part.id === this.selected.id) {
+                this.fire('close-settings');
+                this.clearSelection();
+                this.set('editableLayout', false);
+            } else {
+                let selectedPartElement = this.dropzone.querySelector('.selected');
+                this.toggleClass('selected', false, selectedPartElement);
+                this.$.selector.select(part);
+                this.set('editableLayout', true);
+            }
+        },
+        _selectedChanged (part, oldPart) {
             let partElement;
             if (!this.dropzone || !part) {
                 return;
@@ -359,6 +382,9 @@
                 return;
             }
             path = e.path;
+            if (this.dropzone) {
+                this.dropzone.set(path, e.value);
+            }
             if (path === 'parts.splices') {
                 let keySplices = e.value.keySplices,
                     indexSplices = e.value.indexSplices;
