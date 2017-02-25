@@ -44,8 +44,16 @@
     Kano.MakeApps.Msg.CANCEL = "Cancel";
     Kano.MakeApps.Msg.CONFIRM = "Confirm";
 
+    Kano.MakeApps.Msg.EXIT = "Exit";
     Kano.MakeApps.Msg.CLOSE = "Close";
     Kano.MakeApps.Msg.DONE = "Done";
+    Kano.MakeApps.Msg.LOGIN = "Login";
+    Kano.MakeApps.Msg.LOG_OUT = "Logout";
+
+    Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
+    Kano.MakeApps.Msg.EXPORT = "Export";
+    Kano.MakeApps.Msg.IMPORT = "Import";
+    Kano.MakeApps.Msg.GIVE_FEEDBACK = "Give Feedback";
 
     Kano.MakeApps.Msg.STROKE_SIZE = "Stroke Size";
     Kano.MakeApps.Msg.STROKE_COLOR = "Stroke Color";
@@ -181,15 +189,7 @@
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
 
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOGIN = "Login";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LEVEL = "Level";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_RESET_WORKSPACE = "Reset Workspace";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXPORT = "Export";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_IMPORT = "Import";
     Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Back to Projects";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_GIVE_FEEDBACK = "Give Feedback";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_EXIT = "Exit";
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_LOG_OUT = "Log Out";
 
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Recording your gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin recording your gif";
@@ -209,7 +209,7 @@
 
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_HINT = "Hint";
-  
+
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
@@ -220,5 +220,7 @@
     Kano.MakeApps.Msg.KANO_APP_EDITOR_OH_OH = "Oh oh";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_CANT_DELETE = "You can't delete";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_USED_IN_CODE = "because it is used in the code";
+
+    Kano.MakeApps.Msg.KANO_EDITOR_LIGHTBOARD_ADD_PART = "Add Part";
 
 })(window.Kano = window.Kano || {});

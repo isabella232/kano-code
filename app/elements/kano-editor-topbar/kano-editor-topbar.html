@@ -1,0 +1,199 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<dom-module id="kano-editor-topbar">
+    <template>
+        <style>
+            :host {
+                @apply --layout-horizontal;
+                @apply --layout-justified;
+                background: #394148;
+                color: rgba(255, 255, 255, 0.5);
+                height: 32px;
+                padding: 0px 4px;
+            }
+            .title {
+                height: 100%;
+                width: 44px;
+            }
+            .back {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                text-transform: uppercase;
+                text-decoration: none;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .user-profile {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+            }
+            .user-profile button {
+                background: transparent;
+                border: 0px;
+                cursor: pointer;
+                color: rgba(255, 255, 255, 0.5);
+                font-family: var(--font-body);
+                padding: 0px;
+            }
+            .user-profile button iron-image {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                box-sizing: border-box;
+                border: 1px solid transparent;
+            }
+            .user-profile button:focus {
+                outline: none;
+            }
+            .user-profile button:focus iron-image {
+                border-color: rgba(255, 255, 255, 0.6);
+            }
+            .login {
+                text-transform: uppercase;
+            }
+            kano-tooltip {
+                box-sizing: border-box;
+            }
+            ul {
+                margin: 0px;
+                padding-left: 0px;
+                padding-bottom: 16px;
+                color: black;
+                min-width: 200px;
+            }
+            li {
+                @apply --layout-vertical;
+                @apply --layout-stretch;
+            }
+            li.user {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                padding: 16px 12px;
+            }
+            li.user iron-image {
+                width: 30px;
+                height: 30px;
+            }
+            li.user .info {
+                @apply --layout-vertical;
+                @apply --layout-start;
+                margin-left: 12px;
+            }
+            li.user .info .name {
+                font-size: 14px;
+                font-weight: bold;
+            }
+            li.user .info .level {
+                font-size: 12px;
+                opacity: 0.6;
+            }
+            .inline {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                padding: 8px 12px;
+                cursor: pointer;
+                opacity: 0.6;
+            }
+            .inline:hover {
+                opacity: 0.8;
+                background: rgba(0, 0, 0, 0.2);
+            }
+            .inline iron-icon {
+                --iron-icon-width: 18px;
+                --iron-icon-height: 18px;
+                margin-right: 12px;
+            }
+            [hidden] {
+                display: none !important;
+            }
+        </style>
+        <a href$="[[exitUrl]]" class="back">
+            <span>[[localize('EXIT', 'Exit')]]</span>
+        </a>
+        <iron-image class="title" src="/assets/kano-logo-simple.svg" sizing="contain"></iron-image>
+        <div class="user-profile">
+            <button id="user-button" type="button" on-tap="_userOptionsTapped">
+                <iron-image src="[[user.avatar.urls.circle]]" sizing="contain" hidden$="[[!user]]"></iron-image>
+                <div class="login" hidden$="[[user]]">[[localize('LOGIN', 'login')]]</div>
+            </button>
+            <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom">
+                <ul>
+                    <li class="user">
+                        <iron-image src="[[user.avatar.urls.circle]]" preload fade sizing="contain"></iron-image>
+                        <div class="info">
+                            <div class="name">[[user.username]]</div>
+                            <div class="level">[[localize('LEVEL', 'Level')]] [[profile.level]]</div>
+                        </div>
+                    </li>
+                    <li>
+                        <a on-tap="_logoutTapped" class="inline">
+                            <iron-icon src="/assets/icons/logout@2x.png"></iron-icon>
+                            <div class="label">[[localize('LOGOUT', 'Log Out')]]</div>
+                        </a>
+                    </li>
+                </ul>
+            </kano-tooltip>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is:'kano-editor-topbar',
+            behaviors: [Kano.Behaviors.I18nBehavior],
+            properties: {
+                exitUrl: String,
+                user: {
+                    type: Object,
+                    value: null
+                },
+                profile: Object,
+                tooltipOpened: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_tooltipOpenStateChanged'
+                }
+            },
+            attached () {
+                document.addEventListener('mousedown', (e) => {
+                    if (this.tooltipOpened) {
+                        if (e.path && e.path.indexOf(this.$.tooltip) === -1) {
+                            this._closeTooltip();
+                        } else {
+                            let cursor = e.target;
+                            while (cursor.parentNode) {
+                                if (cursor === this.$.tooltip) {
+                                    return;
+                                }
+                                cursor = cursor.parentNode;
+                            }
+                            this._closeTooltip();
+                        }
+                    }
+                });
+            },
+            _tooltipOpenStateChanged (openState) {
+                openState ? this.$.tooltip.open() : this.$.tooltip.close();
+            },
+            _toggleTooltip () {
+                this.tooltipTarget = this.$['user-button'];
+                this.tooltipOpened = !this.tooltipOpened;
+            },
+            _closeTooltip () {
+                this.tooltipOpened = false;
+            },
+            _userOptionsTapped () {
+                if (!!this.user) {
+                    this._toggleTooltip();
+                } else {
+                    this.fire('login');
+                }
+            },
+            _logoutTapped () {
+                this.fire('logout');
+                this._closeTooltip();
+            }
+        });
+    </script>
+</dom-module>

@@ -9,6 +9,7 @@
 
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
+<link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
 
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
@@ -82,8 +83,10 @@
             on-share="_pauseAndShare"
             mode="[[mode]]"
             remix-mode="[[remixMode]]"
-            show-share-button></kano-app-editor>
-        <paper-dialog id='error-dialog' with-backdrop>
+            show-share-button>
+            <kano-editor-topbar exit-url="[[exitUrl]]" user="[[user]]" profile="[[profile]]" slot="above-code"></kano-editor-topbar>
+        </kano-app-editor>
+        <paper-dialog id="error-dialog" with-backdrop>
             <h2 class="title">{{error.title}}</h2>
             <p class="description">{{error.description}}</p>
         </paper-dialog>
@@ -105,7 +108,10 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-view-editor',
-        behaviors: [Kano.Behaviors.SharingBehavior, Kano.Behaviors.EditorViewBehavior],
+        behaviors: [
+            Kano.Behaviors.SharingBehavior,
+            Kano.Behaviors.EditorViewBehavior
+        ],
         properties: {
             context: Object,
             addedParts: {

@@ -153,8 +153,10 @@ Polymer({
         if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
             return;
         }
-        this.toggleRunning(false);
-        this.toggleRunning(true);
+        if (!this.editableLayout) {
+            this.toggleRunning(false);
+            this.toggleRunning(true);
+        }
         this.prevCode = this.code.snapshot.javascript;
     },
     _proxyChange (e) {
