@@ -4,47 +4,44 @@
     <style>
         @keyframes button-enter {
             0% {
-                margin: 0 10px;
                 opacity: 1;
-                padding: 19px 22px 17px 22px;
                 transform: scale(0);
             }
             100% {
-                margin: 0 10px;
                 opacity: 1;
-                padding: 19px 22px 17px 22px;
                 transform: scale(1);
             }
         }
         :host {
-            margin: 35px;
             flex-direction: row;
             @apply --layout-horizontal;
+            @apply --layout-center;
         }
         :host .content {
             @apply --layout-flex;
             @apply --layout-horizontal;
+            @apply --layout-center;
         }
         :host .content .head {
             color: #888;
             font-size: 0.8em;
             margin-bottom: 5px;
         }
-        :host .content .text {
+        :host .content .body {
             font-weight: bold;
+            @apply --layout-flex;
         }
-        :host .avatar iron-image {
-            margin-top: 5px;
-            margin-right: 20px;
-            height: 40px;
-            width: 40px;
+        :host iron-image {
+            margin: 5px 20px;
+            height: 60px;
+            width: 60px;
         }
         :host .text {
             @apply --layout-vertical;
             @apply --layout-flex;
         }
-        :host button {
-            @apply(--kano-button);
+        :host #button {
+            @apply --kano-button;
             background-color: var(--color-green, green);
             margin-left: 10px;
             opacity: 0;
@@ -52,29 +49,33 @@
             padding: 0;
             animation-duration: 0.3s;
             animation-fill-mode: forwards;
-            background-color: #256883;
+            background-color: #50565A;
             box-sizing: border-box;
             color: white;
+            text-shadow: none;
+            padding: 12px 22px;
+            margin-right: 20px;
         }
         :host button.animate {
             animation-name: button-enter;
+        }
+        .markdown-html p {
+            margin: 0px;
         }
         [hidden] {
             display: none !important;
         }
     </style>
     <template>
-        <div class="avatar">
-            <iron-image src="[[imgSrc]]" alt="Judoka in a speech bubble" sizing="contain"></iron-image>
-        </div>
+        <iron-image src="[[imgSrc]]" alt="Judoka in a speech bubble" sizing="contain"></iron-image>
         <div class="content">
             <div class="text">
-                <div class="head">
+                <div class="head" hidden$="[[!head]]">
                     <marked-element markdown="[[head]]">
                         <div class="markdown-html"></div>
                     </marked-element>
                 </div>
-                <div class="text">
+                <div class="body">
                     <marked-element markdown="[[text]]">
                         <div class="markdown-html"></div>
                     </marked-element>
@@ -92,10 +93,12 @@
         is: 'kano-editor-banner',
         properties: {
             head: {
-                type: String
+                type: String,
+                value: null
             },
             text: {
-                type: String
+                type: String,
+                value: null
             },
             imgSrc: {
                 type: String,

@@ -115,7 +115,7 @@
             @apply --layout-horizontal;
             @apply --layout-center;
             @apply --layout-start-justified;
-            padding: 8px 12px;
+            padding: 8px 14px;
             cursor: pointer;
             opacity: 0.6;
             background: transparent;
@@ -129,14 +129,14 @@
             border-radius: 0px;
         }
         ul li .inline:hover {
-            opacity: 0.8;
+            opacity: 0.9;
             background: rgba(0, 0, 0, 0.2);
         }
         ul li .inline iron-icon {
-            --iron-icon-width: 18px;
-            --iron-icon-height: 18px;
+            --iron-icon-width: 14px;
+            --iron-icon-height: 14px;
             --iron-icon-fill-color: black;
-            margin-right: 12px;
+            margin-right: 14px;
         }
     </style>
     <template>
@@ -171,26 +171,32 @@
         <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
             <ul>
                 <li>
+                    <button type="button" class="inline" on-tap="_save">
+                        <iron-icon src="/assets/icons/save.svg"></iron-icon>
+                        <div>[[localize('SAVE', 'Save')]]</div>
+                    </button>
+                </li>
+                <li>
                     <button type="button" class="inline" on-tap="_reset">
-                        <iron-icon src="/assets/icons/reset.png"></iron-icon>
+                        <iron-icon src="/assets/icons/reset.svg"></iron-icon>
                         <div>[[localize('RESET_WORKSPACE', 'Reset Workspace')]]</div>
                     </button>
                 </li>
                 <li>
                     <button type="button" class="inline" on-tap="_export">
-                        <iron-icon src="/assets/icons/export.png"></iron-icon>
+                        <iron-icon src="/assets/icons/export.svg"></iron-icon>
                         <div>[[localize('EXPORT', 'Export')]]</div>
                     </button>
                 </li>
                 <li>
                     <button type="button" class="inline" on-tap="_import">
-                        <iron-icon src="/assets/icons/import.png"></iron-icon>
+                        <iron-icon src="/assets/icons/import.svg"></iron-icon>
                         <div>[[localize('IMPORT', 'Import')]]</div>
                     </button>
                 </li>
                 <li>
                     <a href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank" class="inline">
-                        <iron-icon src="/assets/icons/feedback.png"></iron-icon>
+                        <iron-icon src="/assets/icons/feedback.svg"></iron-icon>
                         <div>[[localize('GIVE_FEEDBACK', 'Give Feedback')]]</div>
                     </a>
                 </li>
@@ -300,6 +306,9 @@
         },
         _import () {
             this.fire('iron-signal', { name: 'import-app' });
+        },
+        _save () {
+            this.fire('save-button-clicked');
         }
     });
 </script>

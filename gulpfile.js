@@ -134,8 +134,9 @@ $.startServer = (lr) => {
     if (lr) {
         server = server.use(require('connect-livereload')());
     }
-    return server.use($.serveStatic(__dirname + '/app'))
+    return server
         .use($.history())
+        .use($.serveStatic(__dirname + '/app'))
         .listen(4000);
 }
 

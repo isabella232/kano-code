@@ -11,6 +11,7 @@
     <link rel="lazy-import" href="../kano-editor-lightboard/kano-editor-lightboard.html" group="lightboard">
     <link rel="lazy-import" href="../kano-editor-camera/kano-editor-camera.html" group="camera">
     <link rel="lazy-import" href="../kano-editor-normal/kano-editor-normal.html" group="normal">
+    <link rel="lazy-import" href="../kano-editor-simple/kano-editor-simple.html" group="simple">
     <style>
     @keyframes fade-in {
         from { opacity: 0 },
@@ -53,9 +54,6 @@
 </dom-module>
 
 <script type="text/javascript">
-    const importsMap = {
-        'simple': 'normal'
-    };
     const importedWorkspaces = {};
     /* globals Polymer, Kano */
     Polymer({
@@ -256,7 +254,7 @@
             let placeholder = this.$$('#workspace-placeholder'),
                 newDropzone, modeId, importPromise;
 
-            modeId = importsMap[mode.id] || mode.id;
+            modeId = mode.id;
 
             this.async(() => {
                 if (importedWorkspaces[modeId]) {
@@ -268,11 +266,7 @@
                     let template,
                         tagName;
                     importedWorkspaces[modeId] = true;
-                    if (mode && mode.workspace.component) {
-                        tagName = mode.workspace.component;
-                    } else {
-                        tagName = 'kano-editor-normal';
-                    }
+                    tagName = `kano-editor-${modeId}`;
                     template = document.createElement('template');
                     template.innerHTML = `<${tagName} id$="[[mode.id]]"
                                                         class="dropzone"

@@ -49,6 +49,7 @@
     Kano.MakeApps.Msg.DONE = "Done";
     Kano.MakeApps.Msg.LOGIN = "Login";
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
+    Kano.MakeApps.Msg.SAVE = "Save";
 
     Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
     Kano.MakeApps.Msg.EXPORT = "Export";
@@ -178,8 +179,6 @@
 
     Kano.MakeApps.Msg.PART_MOTION_SENSOR_START = "movement starts";
     Kano.MakeApps.Msg.PART_MOTION_SENSOR_END = "movement ends";
-
-    Kano.MakeApps.Msg.KANO_WORKSPACE_HEAD_SAVE = "Save";
 
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_CLOSE = "close";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_ADD_PARTS = "add parts";
