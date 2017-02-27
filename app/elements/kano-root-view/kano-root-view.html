@@ -303,10 +303,32 @@
             }
         },
         _partsChanged (e) {
-            // Only update if the splices changes (part added or removed) or if the name of the part changes
-            if (e.path === 'parts' || e.path === 'parts.splices' || e.path.indexOf('name') === e.path.length - 4) {
-                this.computeToolboxDebounced();
+            let idChanged = e.path.indexOf('id') === e.path.length - 2;
+            if (e.path === 'parts' || e.path === 'parts.splices') {
+                // Update the id registry when the parts array is changed or if any item is added/removed
+                this._updateIdRegistry();
             }
+            // Only update if the splices changes (part added or removed) or if the name of the part changes
+            if (e.path === 'parts' || e.path === 'parts.splices' || idChanged) {
+                this.computeToolboxDebounced();
+                // If the id changed, we nee to upgrade the blocks already added
+                if (idChanged) {
+                    this.debounce('reloadAfterIdChanged', () => {
+                        let key = e.path.replace('parts.#', '').split('.').shift(),
+                            oldId = this._idRegistry[key],
+                            blocks = this.$['code-editor'].getBlocks(),
+                            replaceRegexp = new RegExp(`type="${oldId}#`, 'g');
+
+                        blocks = blocks.replace(replaceRegexp, `type="${e.value}#`);
+                        // Reflect the id change by updating the id registry
+                        this._updateIdRegistry();
+                    }, 200);
+                }
+            }
+        },
+        _updateIdRegistry () {
+            // Keeps a record of all the ids. If one changes, we can get the old value from here
+            this._idRegistry = this.parts.map(part => part.id);
         },
         computeToolboxDebounced () {
             this.debounce('computeToolbox', () => this.computeToolbox(), 200);

@@ -155,6 +155,10 @@
             if (this.instance) {
                 this.instance.set(e.path, e.value);
             }
+            // Let know the bindings that the `id` changed together with the name
+            if (e.path === 'selected.name') {
+                this.notifyPath('selected.id', this.selected.id);
+            }
         },
         _deletePart () {
             this.fire('delete-part', this.selected);

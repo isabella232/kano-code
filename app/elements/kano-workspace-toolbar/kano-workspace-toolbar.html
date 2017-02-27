@@ -1,6 +1,11 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/button.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 
@@ -9,7 +14,11 @@
         :host {
             display: block;
             @apply --layout-horizontal;
+            @apply --layout-center;
             @apply --layout-center-justified;
+        }
+        :host([show-settings]) {
+            @apply --layout-end-justified;
         }
         :host>div {
             @apply --layout-horizontal;
@@ -21,18 +30,19 @@
         .pause {
             border-right: 2px solid #eee;
         }
-        .mouse-position,
-        .icon img,
-        .panel kano-animated-svg {
-            margin: 8px 16px;
-        }
         .mouse-position {
             color: white;
             width: 100px;
         }
+        .spacer {
+            @apply --layout-flex;
+        }
+        #settings-button {
+            margin: 0px;
+        }
         kano-animated-svg {
-            width: 17px;
-            height: 17px;
+            min-width: 17px;
+            min-height: 17px;
 
             --kano-animated-path: {
                 fill: white;
@@ -50,15 +60,18 @@
         }
         .icon {
             display: flex;
-
+            padding: 0px;
             align-items: center;
             justify-content: center;
             transition: background-color .3s ease;
         }
-        .spacer {
-            flex: 1;
+        kano-tooltip {
+            box-sizing: border-box;
         }
         button {
+            @apply --layout-horizontal;
+            @apply --layout-center;
+            @apply --layout-center-justified;
             @apply --kano-button;
             background-color: #515151;
             padding: 8px 16px;
@@ -67,6 +80,8 @@
             transition: background-color .3s ease;
             font-size: 12px;
             border-radius: 2px;
+            text-shadow: none;
+            font-family: var(--font-body);
         }
         button span.x {
             display: none;
@@ -75,11 +90,60 @@
             display: inline-block;
             transform: translate(0px, -2px);
         }
+        .icon {
+            width: 33px;
+            height: 33px;
+        }
         #play-pause-button {
             background: #7CC74C;
         }
+        iron-icon {
+            --iron-icon-width: 21px;
+            --iron-icon-height: 21px;
+        }
+        ul {
+            margin: 0px;
+            padding: 16px 0px;
+            color: black;
+            min-width: 200px;
+        }
+        li {
+            @apply --layout-vertical;
+            @apply --layout-stretch;
+        }
+        .inline {
+            @apply --layout-horizontal;
+            @apply --layout-center;
+            @apply --layout-start-justified;
+            padding: 8px 14px;
+            cursor: pointer;
+            opacity: 0.6;
+            background: transparent;
+            color: black;
+            text-transform: initial;
+            margin-left: 0px;
+            font-size: 16px;
+            font-family: var(--font-body);
+            transition: none;
+            text-decoration: none;
+            border-radius: 0px;
+        }
+        ul li .inline:hover {
+            opacity: 0.9;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ul li .inline iron-icon {
+            --iron-icon-width: 14px;
+            --iron-icon-height: 14px;
+            --iron-icon-fill-color: black;
+            margin-right: 14px;
+        }
     </style>
     <template>
+        <button id="settings-button" type="button" class="icon settings" hidden$="[[!showSettings]]" on-tap="_settingsTapped">
+            <iron-icon icon="settings"></iron-icon>
+        </button>
+        <div class="spacer" hidden$="[[!showSettings]]"></div>
         <div class="mouse-position" hidden$="[[mousePositionHidden(showMousePosition)]]">
             x: {{mouseX}}, y: {{mouseY}}
         </div>
@@ -94,16 +158,50 @@
             </button>
         </div>
         <div class="player-bar" hidden$="[[noPlayerBar]]">
-            <button type="button" on-tap="fullscreenClicked">
+            <button class="icon" type="button" on-tap="fullscreenClicked">
                 <img src="/assets/icons/fullscreen-icon.svg" alt="Fullscreen mode" />
             </button>
-            <button type="button" on-tap="resetClicked">
+            <button class="icon" type="button" on-tap="resetClicked">
                 <img src="/assets/icons/reset-icon.svg" alt="Reset app" />
             </button>
-            <button id="play-pause-button" type="button" on-tap="_runButtonClicked">
+            <button class="icon" id="play-pause-button" type="button" on-tap="_runButtonClicked">
                 <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}"></kano-animated-svg>
             </button>
         </div>
+        <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
+            <ul>
+                <li>
+                    <button type="button" class="inline" on-tap="_save">
+                        <iron-icon src="/assets/icons/save.svg"></iron-icon>
+                        <div>[[localize('SAVE', 'Save')]]</div>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="inline" on-tap="_reset">
+                        <iron-icon src="/assets/icons/reset.svg"></iron-icon>
+                        <div>[[localize('RESET_WORKSPACE', 'Reset Workspace')]]</div>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="inline" on-tap="_export">
+                        <iron-icon src="/assets/icons/export.svg"></iron-icon>
+                        <div>[[localize('EXPORT', 'Export')]]</div>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="inline" on-tap="_import">
+                        <iron-icon src="/assets/icons/import.svg"></iron-icon>
+                        <div>[[localize('IMPORT', 'Import')]]</div>
+                    </button>
+                </li>
+                <li>
+                    <a href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank" class="inline">
+                        <iron-icon src="/assets/icons/feedback.svg"></iron-icon>
+                        <div>[[localize('GIVE_FEEDBACK', 'Give Feedback')]]</div>
+                    </a>
+                </li>
+            </ul>
+        </kano-tooltip>
     </template>
 </dom-module>
 
@@ -120,16 +218,20 @@
                 type: Number
             },
             showMousePosition: {
-                type: Boolean
+                type: Boolean,
+                value: false
             },
             running: {
-                type: Boolean
+                type: Boolean,
+                value: false
             },
             editableLayout: {
-                type: Boolean
+                type: Boolean,
+                value: false
             },
             partsMenuOpen: {
-                type: Boolean
+                type: Boolean,
+                value: false
             },
             noPlayerBar: {
                 type: Boolean,
@@ -138,16 +240,17 @@
             noPartControls: {
                 type: Boolean,
                 value: false
+            },
+            showSettings: {
+                type: Boolean,
+                value: false
             }
         },
         ready () {
-            this.showMousePosition = false;
-
             this.makeButtonIconPaths = {
                 stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
                 running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
             };
-
         },
         attached () {
             this._registerElement('fullscreen-button', this.$['fullscreen-button']);
@@ -182,6 +285,30 @@
         },
         _applyButtonClass (open) {
             return open ? 'open' : '';
+        },
+        _settingsTapped () {
+            if (!this.$.tooltip.opened) {
+                this._openTooltip();
+            }
+        },
+        _openTooltip () {
+            this.tooltipTarget = this.$['settings-button'];
+            this.$.tooltip.open();
+        },
+        _closeTooltip () {
+            this.$.tooltip.close();
+        },
+        _reset () {
+            this.fire('iron-signal', { name: 'reset-workspace' });
+        },
+        _export () {
+            this.fire('iron-signal', { name: 'export-app' });
+        },
+        _import () {
+            this.fire('iron-signal', { name: 'import-app' });
+        },
+        _save () {
+            this.fire('save-button-clicked');
         }
     });
 </script>

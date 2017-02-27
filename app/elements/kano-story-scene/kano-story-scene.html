@@ -36,7 +36,7 @@
     <template>
         <iron-lazy-pages class="scene" attr-for-selected="name" selected="[[name]]" restamp>
             <template is="iron-lazy-page" name="editor">
-                <kano-scene-editor store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneFinished" next-story="{{nextStory}}"></kano-scene-editor>
+                <kano-scene-editor user="[[user]]" store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneFinished" next-story="{{nextStory}}"></kano-scene-editor>
             </template>
             <template is="iron-lazy-page" name="empty"></template>
         </iron-lazy-pages>
@@ -75,7 +75,8 @@
             },
             extensions: {
                 type: Array
-            }
+            },
+            user: Object
         },
         observers: [
             'componentChanged(scene.component)'

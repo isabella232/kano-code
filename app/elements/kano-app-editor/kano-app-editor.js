@@ -153,8 +153,10 @@ Polymer({
         if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
             return;
         }
-        this.toggleRunning(false);
-        this.toggleRunning(true);
+        if (!this.editableLayout) {
+            this.toggleRunning(false);
+            this.toggleRunning(true);
+        }
         this.prevCode = this.code.snapshot.javascript;
     },
     _proxyChange (e) {
@@ -180,7 +182,7 @@ Polymer({
     },
     modalClosed (e) {
         if (e.detail.confirmed) {
-            this._deletePart(this.selected);
+            this._deletePart(this.toBeRemoved);
             this.closeDrawer();
         }
     },

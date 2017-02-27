@@ -69,11 +69,14 @@ Example:
         @apply(--layout-flex);
     }
     :host #resize {
-        position: relative;
+        position: absolute;
         width: 8px;
+        top: 0px;
+        bottom: 0px;
+        right: -4px;
         cursor: ew-resize;
-        background-color: var(--kano-blockly-background, #f2f2f2);
-        border-left: 1px solid var(--kano-app-editor-workspace-border, #6f6f6f);
+        background-color: transparent;
+        z-index: 1;
     }
     :host .drawer {
         position: relative;
@@ -167,6 +170,9 @@ Example:
             box-shadow: none !important;
         };
     }
+    .editor {
+        position: relative;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
@@ -192,8 +198,8 @@ Example:
                                 on-settings-button-clicked="toggleMenu"
                                 on-save-button-clicked="share"></kano-workspace>
             </div>
-            <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
             <div name="code" class="editor" id="blocks-panel">
+                <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
                 <paper-drawer-panel
                     id="partsPanel"
                     force-narrow
@@ -212,6 +218,7 @@ Example:
                             on-change="_proxyChange"
                             default-categories="{{defaultCategories}}"
                             loading$="[[!modeReady]]"></kano-root-view>
+                        <slot name="under-code"></slot>
                     </div>
                     <div class="drawer animatable" drawer id="drawer">
                         <iron-pages selected="{{drawerPage}}" attr-for-selected="id" class="drawer-content">

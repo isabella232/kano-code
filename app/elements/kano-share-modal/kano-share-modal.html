@@ -380,18 +380,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <template is="dom-if" if="[[isKitAvailable(shareInfo.mode.id)]]">
-                        <paper-card class="kit-card">
-                            <iron-image src="/assets/campaign/[[shareInfo.mode.id]].jpg" sizing="contain">
-                            </iron-image>
-                            <div class="card-content">
-                                <h2>[[localize('BRING_TO_LIFE', 'Bring your own creation to life')]] -<br>[[localize('BUILD_YOUR_OWN', 'build your own')]] [[shareInfo.mode.id]]</h2>
-                                <a href="https://kano.me/kickstarter"><button type="button"></button></a>
-                           </div>
-                       </paper-card>
-                    </template>
-
                 </form>
             </div>
             <div id='publish-process' name="publishing">[[localize('PUBLISHING', 'Publishing')]] ...</div>
@@ -658,11 +646,6 @@
 
             this.popup = window.open("", 'sharer', `top=${winTop},left=${winLeft},toolbar=0,status=0,width=${socialConfig.width},height=${socialConfig.height}`);
             this.popup.document.write("<p>Fetching your link...</p>")
-        },
-        isKitAvailable () {
-            if (this.shareInfo.mode) {
-                return this.shareInfo.mode.id === 'lightboard' || this.shareInfo.mode.id === 'camera'
-            }
         }
     });
 </script>
