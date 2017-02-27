@@ -114,12 +114,12 @@
             <span>[[localize('EXIT', 'Exit')]]</span>
         </a>
         <iron-image class="title" src="/assets/kano-logo-simple.svg" sizing="contain"></iron-image>
-        <div class="user-profile">
+        <div class="user-profile" id="profile-container">
             <button id="user-button" type="button" on-tap="_userOptionsTapped">
                 <iron-image src="[[user.avatar.urls.circle]]" sizing="contain" hidden$="[[!user]]"></iron-image>
                 <div class="login" hidden$="[[user]]">[[localize('LOGIN', 'login')]]</div>
             </button>
-            <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom">
+            <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
                 <ul>
                     <li class="user">
                         <iron-image src="[[user.avatar.urls.circle]]" preload fade sizing="contain"></iron-image>
@@ -148,44 +148,20 @@
                     type: Object,
                     value: null
                 },
-                profile: Object,
-                tooltipOpened: {
-                    type: Boolean,
-                    value: false,
-                    observer: '_tooltipOpenStateChanged'
-                }
-            },
-            attached () {
-                document.addEventListener('mousedown', (e) => {
-                    if (this.tooltipOpened) {
-                        if (e.path && e.path.indexOf(this.$.tooltip) === -1) {
-                            this._closeTooltip();
-                        } else {
-                            let cursor = e.target;
-                            while (cursor.parentNode) {
-                                if (cursor === this.$.tooltip) {
-                                    return;
-                                }
-                                cursor = cursor.parentNode;
-                            }
-                            this._closeTooltip();
-                        }
-                    }
-                });
-            },
-            _tooltipOpenStateChanged (openState) {
-                openState ? this.$.tooltip.open() : this.$.tooltip.close();
-            },
-            _toggleTooltip () {
-                this.tooltipTarget = this.$['user-button'];
-                this.tooltipOpened = !this.tooltipOpened;
+                profile: Object
             },
             _closeTooltip () {
-                this.tooltipOpened = false;
+                this.$.tooltip.close();
+            },
+            _openTooltip () {
+                this.tooltipTarget = this.$['user-button'];
+                this.$.tooltip.open();
             },
             _userOptionsTapped () {
                 if (!!this.user) {
-                    this._toggleTooltip();
+                    if (!this.$.tooltip.opened) {
+                        this._openTooltip();
+                    }
                 } else {
                     this.fire('login');
                 }

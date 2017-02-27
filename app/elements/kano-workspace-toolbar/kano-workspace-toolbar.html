@@ -67,9 +67,6 @@
         }
         kano-tooltip {
             box-sizing: border-box;
-            --kano-tooltip: {
-                overflow: hidden;
-            };
         }
         button {
             @apply --layout-horizontal;
@@ -129,6 +126,7 @@
             font-family: var(--font-body);
             transition: none;
             text-decoration: none;
+            border-radius: 0px;
         }
         ul li .inline:hover {
             opacity: 0.8;
@@ -170,7 +168,7 @@
                 <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}"></kano-animated-svg>
             </button>
         </div>
-        <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom">
+        <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
             <ul>
                 <li>
                     <button type="button" class="inline" on-tap="_reset">
@@ -240,11 +238,6 @@
             showSettings: {
                 type: Boolean,
                 value: false
-            },
-            tooltipOpened: {
-                type: Boolean,
-                value: false,
-                observer: '_tooltipOpenStateChanged'
             }
         },
         ready () {
@@ -252,22 +245,6 @@
                 stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
                 running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
             };
-            document.addEventListener('mousedown', (e) => {
-                if (this.tooltipOpened) {
-                    if (e.path && e.path.indexOf(this.$.tooltip) === -1) {
-                        this._closeTooltip();
-                    } else {
-                        let cursor = e.target;
-                        while (cursor.parentNode) {
-                            if (cursor === this.$.tooltip) {
-                                return;
-                            }
-                            cursor = cursor.parentNode;
-                        }
-                        this._closeTooltip();
-                    }
-                }
-            });
         },
         attached () {
             this._registerElement('fullscreen-button', this.$['fullscreen-button']);
@@ -304,17 +281,16 @@
             return open ? 'open' : '';
         },
         _settingsTapped () {
-            this._toggleTooltip();
+            if (!this.$.tooltip.opened) {
+                this._openTooltip();
+            }
         },
-        _tooltipOpenStateChanged (openState) {
-            openState ? this.$.tooltip.open() : this.$.tooltip.close();
-        },
-        _toggleTooltip () {
+        _openTooltip () {
             this.tooltipTarget = this.$['settings-button'];
-            this.tooltipOpened = !this.tooltipOpened;
+            this.$.tooltip.open();
         },
         _closeTooltip () {
-            this.tooltipOpened = false;
+            this.$.tooltip.close();
         },
         _reset () {
             this.fire('iron-signal', { name: 'reset-workspace' });

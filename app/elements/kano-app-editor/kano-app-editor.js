@@ -182,7 +182,7 @@ Polymer({
     },
     modalClosed (e) {
         if (e.detail.confirmed) {
-            this._deletePart(this.selected);
+            this._deletePart(this.toBeRemoved);
             this.closeDrawer();
         }
     },
