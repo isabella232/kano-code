@@ -115,19 +115,28 @@ Example:
     }
     paper-dialog {
         @apply --layout-horizontal;
-        @apply --layout-start;
         border-radius: 6px;
         padding: 20px;
+    }
+    paper-dialog#dialog>iron-pages {
+        @apply --layout-horizontal;
+        @apply --layout-flex;
+        margin: 0px;
+        padding: 0px;
+    }
+    paper-dialog>iron-pages>div {
+        @apply --layout-horizontal;
+        @apply --layout-start;
+        @apply --layout-flex;
         font-family: var(--font-body);
         color: #464646;
     }
     paper-dialog #modal-content {
         @apply --layout-flex;
-        margin: 0px;
     }
     paper-dialog #badge {
         padding: 12px;
-        margin: 6px 4px;
+        margin: 6px 24px 6px 4px;
         box-sizing: border-box;
         border-radius: 50%;
         background: #EA0923;
@@ -137,15 +146,15 @@ Example:
         --iron-icon-width: 24px;
         --iron-icon-height: 24px;
     }
-    paper-dialog#confirm-delete h2,
-    paper-dialog#external-use-warning h2 {
+    paper-dialog#dialog h2,
+    paper-dialog#dialog h2 {
         font-family: var(--font-body);
         margin: 0px;
         font-weight: bold;
         color: black;
     }
     paper-dialog div#buttons {
-        padding: 18px 0px;
+        padding: 18px 0px 0px;
         @apply --layout-start-justified;
     }
     paper-dialog .buttons button {
@@ -246,31 +255,48 @@ Example:
                 </paper-drawer-panel>
             </div>
         </section>
-        <paper-dialog id="confirm-delete" entry-animation="from-big-animation" with-backdrop on-iron-overlay-closed="modalClosed">
-            <div id="badge">
-                <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-            </div>
-            <div id="modal-content">
-                <h2>[[localize('ARE_YOU_SURE', 'Are you sure')]]</h2>
-                <div>[[localize('ABOUT_TO_DELETE', 'You are about to delete')]] '[[toBeRemoved.name]]'</div>
-                <div>[[localize('WANT_TO_DO_THIS', 'Are you sure you want to do this?')]]</div>
-                <div class="buttons" id="buttons">
-                    <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
-                    <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
+        <paper-dialog id="dialog" entry-animation="from-big-animation" with-backdrop on-iron-overlay-closed="_modalClosed">
+            <iron-pages attr-for-selected="name" selected="[[dialogPage]]">
+                <div name="confirm-delete">
+                    <div id="badge">
+                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
+                    </div>
+                    <div id="modal-content">
+                        <h2>[[localize('ARE_YOU_SURE', 'Are you sure')]]</h2>
+                        <div>[[localize('ABOUT_TO_DELETE', 'You are about to delete')]] '[[toBeRemoved.name]]'</div>
+                        <div>[[localize('WANT_TO_DO_THIS', 'Are you sure you want to do this?')]]</div>
+                        <div class="buttons" id="buttons">
+                            <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
+                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </paper-dialog>
-        <paper-dialog id="external-use-warning"  entry-animation="from-big-animation" with-backdrop>
-            <div id="badge">
-                <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-            </div>
-            <div id="modal-content">
-                <h2>[[localize('OH_OH', 'Oh oh')]]&hellip;</h2>
-                <div>[[localize('CANT_DELETE', 'You can\'t delete')]] '[[toBeRemoved.name]]' [[localize('USED_IN_CODE', 'because it is used in the code')]]</div>
-                <div class="buttons" id="buttons">
-                    <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
+                <div name="external-use-warning">
+                    <div id="badge">
+                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
+                    </div>
+                    <div id="modal-content">
+                        <h2>[[localize('OH_OH', 'Oh oh')]]&hellip;</h2>
+                        <div>[[localize('CANT_DELETE', 'You can\'t delete')]] '[[toBeRemoved.name]]' [[localize('USED_IN_CODE', 'because it is used in the code')]]</div>
+                        <div class="buttons" id="buttons">
+                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div name="reset-warning">
+                    <div id="badge">
+                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
+                    </div>
+                    <div id="modal-content">
+                        <h2>[[localize('ARE_YOU_SURE', 'Are you sure')]]</h2>
+                        <div>[[localize('ABOUT_TO_RESET', 'Resetting will make you loose the work you didn\'t share')]]</div>
+                        <div class="buttons" id="buttons">
+                            <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
+                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
+                        </div>
+                    </div>
+                </div>
+            </iron-pages>
         </paper-dialog>
         <iron-signals on-iron-signal-export-app="_exportApp">
         <iron-signals on-iron-signal-import-app="_importApp">

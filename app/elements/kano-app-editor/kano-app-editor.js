@@ -168,22 +168,48 @@ Polymer({
     deletePartClicked () {
         this._removePartInitiated(this.selected);
     },
+    _openDialog (page) {
+        this.dialogPage = page;
+        this.$.dialog.open();
+    },
     _removePartInitiated (part) {
         this.toBeRemoved = part;
         if (this.checkBlockDependency(part)) {
-            return this.$['external-use-warning'].open();
+            return this._openDialog('external-use-warning');
         } else {
-            this.$['confirm-delete'].open();
+            this._openDialog('confirm-delete');
         }
     },
     _removePartReceived (e) {
         let part = e.detail;
         this._removePartInitiated(part);
     },
-    modalClosed (e) {
+    _modalClosed (e) {
         if (e.detail.confirmed) {
-            this._deletePart(this.toBeRemoved);
-            this.closeDrawer();
+            switch (this.dialogPage) {
+                case 'confirm-delete': {
+                    this._dialogConfirmedDelete();
+                    break;
+                }
+                case 'reset-warning': {
+                    this._dialogConfirmedReset();
+                    break;
+                }
+            }
+        }
+    },
+    _dialogConfirmedDelete () {
+        this._deletePart(this.toBeRemoved);
+        this.closeDrawer();
+    },
+    _dialogConfirmedReset () {
+        this.set('addedParts', []);
+        this.set('code', this._formatCode({}));
+        this.set('background', getDefaultBackground());
+        this.save();
+        this.$.workspace.reset();
+        if (!this.remixMode) {
+            localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
     },
     checkBlockDependency (part) {
@@ -360,14 +386,7 @@ Polymer({
         return code;
     },
     reset () {
-        this.set('addedParts', []);
-        this.set('code', this._formatCode({}));
-        this.set('background', getDefaultBackground());
-        this.save();
-        this.$.workspace.reset();
-        if (!this.remixMode) {
-            localStorage.removeItem(`savedApp-${this.mode.id}`);
-        }
+        this._openDialog('reset-warning');
     },
     closeDrawer () {
         this.$.partsPanel.closeDrawer();
