@@ -64,6 +64,7 @@ Example:
     :host [main] {
         @apply(--layout-vertical);
         @apply(--layout-flex);
+        position: relative;
     }
     kano-root-view {
         @apply(--layout-flex);
@@ -173,6 +174,22 @@ Example:
     .editor {
         position: relative;
     }
+    #edit-part-dialog {
+        @apply --layout-vertical;
+    }
+    #edit-part-dialog kano-part-editor {
+        flex: 1 0 auto;
+        min-width: 420px;
+    }
+    .code-overlay {
+        @apply --layout-fit;
+        background: rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        transition: opacity 200ms linear;
+    }
+    .code-overlay.open {
+        opacity: 1;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
@@ -219,6 +236,7 @@ Example:
                             default-categories="{{defaultCategories}}"
                             loading$="[[!modeReady]]"></kano-root-view>
                         <slot name="under-code"></slot>
+                        <div id="code-overlay" class="code-overlay"></div>
                     </div>
                     <div class="drawer animatable" drawer id="drawer">
                         <iron-pages selected="{{drawerPage}}" attr-for-selected="id" class="drawer-content">
@@ -260,7 +278,7 @@ Example:
                 </div>
             </div>
         </paper-dialog>
-        <paper-dialog id="external-use-warning"  entry-animation="from-big-animation" with-backdrop>
+        <paper-dialog id="external-use-warning" entry-animation="from-big-animation" with-backdrop>
             <div id="badge">
                 <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
             </div>
@@ -271,6 +289,14 @@ Example:
                     <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
                 </div>
             </div>
+        </paper-dialog>
+        <paper-dialog id="edit-part-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
+            <kano-part-editor
+                selected="{{selected}}"
+                mode="[[mode]]"
+                class="tooltip-content"
+                on-delete-part="deletePartClicked"
+                id="part-editor"></kano-part-editor>
         </paper-dialog>
         <iron-signals on-iron-signal-export-app="_exportApp">
         <iron-signals on-iron-signal-import-app="_importApp">

@@ -3,13 +3,12 @@
 <dom-module id="kano-part-editor">
     <style>
     :host {
-        display: block;
+        display: flex;
+        flex-direction: column;
         position: relative;
         min-width: 85%;
         text-align: center;
         border-radius: 6px;
-        @apply(--layout-vertical);
-        @apply(--layout-center);
     }
     :host(.is-scrolled) #config-panel-container::before {
         content: '';
@@ -30,27 +29,24 @@
         background: lightgrey;
     }
     #config-panel-container {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        width: 100%;
+        flex: 1 0 auto;
+        display: flex;
         position: relative;
         margin-bottom: 24px;
+        box-sizing: border-box;
     }
     kano-light-animation-editor {
         overflow-x: hidden;
     }
     #config-panel-container>* {
         overflow-y: auto;
-        height: 100%;
-        @apply(--layout-flex);
+        flex: 1 0 auto;
     }
     :host .title-bar {
-        width: 90%;
-        max-width: 340px;
         text-align: left;
         padding-bottom: 5px;
-        @apply(--layout-horizontal);
-        @apply(--layout-justified);
+        @apply --layout-horizontal;
+        @apply --layout-justified;
     }
     :host #element-name-editor {
         @apply(--kano-light-input);
@@ -115,7 +111,8 @@
                 container = Polymer.dom(this.$['config-panel-container']),
                 template = document.createElement('template');
 
-            template.innerHTML = `<${tagName} id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}"></${tagName}>`
+            // Add `kano-part-editor` class to simulate CSS processing of ShadyDOM
+            template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}"></${tagName}>`
 
             this.templatize(template);
             this.instance = this.stamp({
