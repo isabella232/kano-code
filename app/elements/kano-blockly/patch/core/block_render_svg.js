@@ -600,7 +600,7 @@ Blockly.BlockSvg.prototype.renderDrawRight_ = function(steps, highlightSteps,
       }
       var nextRow = inputRows[y + 1];
       if (nextRow && nextRow.type === Blockly.NEXT_STATEMENT) {
-          v -= Blockly.BlockSvg.CORNER_RADIUS * 2;
+          v -= Blockly.BlockSvg.CORNER_RADIUS;
       }
       steps.push('v', v);
       if (this.RTL) {
