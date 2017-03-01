@@ -1,5 +1,7 @@
 <script src="../../bower_components/interact/interact.js"></script>
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
@@ -64,6 +66,7 @@ Example:
     :host [main] {
         @apply(--layout-vertical);
         @apply(--layout-flex);
+        position: relative;
     }
     kano-root-view {
         @apply(--layout-flex);
@@ -182,6 +185,33 @@ Example:
     .editor {
         position: relative;
     }
+    #edit-part-dialog {
+        @apply --layout-vertical;
+    }
+    #edit-part-dialog kano-part-editor {
+        flex: 1 0 auto;
+        min-width: 420px;
+    }
+    #edit-part-dialog .icon-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .code-overlay {
+        @apply --layout-fit;
+        background: rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        transition: opacity 200ms linear;
+        pointer-events: none;
+    }
+    .code-overlay.open {
+        opacity: 1;
+    }
+    .icon-button {
+        background: transparent;
+        border: 0px;
+        cursor: pointer;
+    }
     </style>
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
@@ -228,6 +258,7 @@ Example:
                             default-categories="{{defaultCategories}}"
                             loading$="[[!modeReady]]"></kano-root-view>
                         <slot name="under-code"></slot>
+                        <div id="code-overlay" class="code-overlay"></div>
                     </div>
                     <div class="drawer animatable" drawer id="drawer">
                         <iron-pages selected="{{drawerPage}}" attr-for-selected="id" class="drawer-content">
@@ -297,6 +328,18 @@ Example:
                     </div>
                 </div>
             </iron-pages>
+        </paper-dialog>
+        <paper-dialog id="edit-part-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
+            <button class="icon-button" type="button" dialog-dismiss>
+                <iron-icon icon="close"></iron-icon>
+            </button>
+            <kano-part-editor
+                selected="{{selected}}"
+                mode="[[mode]]"
+                class="tooltip-content"
+                on-delete-part="deletePartClicked"
+                hide-delete-button
+                id="part-editor"></kano-part-editor>
         </paper-dialog>
         <iron-signals on-iron-signal-export-app="_exportApp">
         <iron-signals on-iron-signal-import-app="_importApp">

@@ -139,6 +139,13 @@ Polymer({
     _onModeReady () {
         this.modeReady = true;
     },
+    _partEditorDialogClosed (e) {
+        let target = e.path ? e.path[0] : e.target;
+        if (target === this.$['edit-part-dialog']) {
+            this.toggleClass('open', false, this.$['code-overlay']);
+            this.editableLayout = false;
+        }
+    },
     _partsPanelStateChanged (state) {
         if (this.editableLayout && state === 'main') {
             this.$.workspace.toggleEditableLayout();
@@ -442,9 +449,14 @@ Polymer({
                 this._openDrawer();
             }
         } else {
-            this.drawerPage = 'part-editor';
-            this.drawerWidth = '60%';
-            this._openDrawer();
+            if (true && this.mode.id === 'lightboard') {
+                this.toggleClass('open', true, this.$['code-overlay']);
+                this.$['edit-part-dialog'].open();
+            } else {
+                this.drawerPage = 'part-editor';
+                this.drawerWidth = '60%';
+                this._openDrawer();
+            }
             this.notifyChange('open-part-settings', { part: this.selected });
         }
     },
@@ -544,6 +556,7 @@ Polymer({
     },
     attached () {
         this.target = document.body;
+        this.codeEditor = this.$['root-view'];
 
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
