@@ -51,8 +51,10 @@
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
     Kano.MakeApps.Msg.SAVE = "Save";
 
-    Kano.MakeApps.Msg.DELETE = "delete";
 
+    Kano.MakeApps.Msg.RESET = "Reset";
+    Kano.MakeApps.Msg.DELETE = "delete";
+  
     Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
     Kano.MakeApps.Msg.EXPORT = "Export";
     Kano.MakeApps.Msg.IMPORT = "Import";
@@ -218,6 +220,7 @@
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
 
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ARE_YOU_SURE = "Are you sure";
+    Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_RESET = "You'll lose any unsaved changes";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_DELETE = "You are about to delete";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_WANT_TO_DO_THIS = "Are you sure you want to do this?";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_OH_OH = "Oh oh";
