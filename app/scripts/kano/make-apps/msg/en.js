@@ -215,6 +215,12 @@
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_CHALLENGE_UI_HINT = "Hint";
 
+    Kano.MakeApps.Msg.KANO_CHALLENGE_COMPLETED_MODAL_CHALLENGE_COMPLETED = "Challenge Completed";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_COMPLETED_MODAL_XP_EARNED = "You've just earned";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_COMPLETED_MODAL_XP = "XP";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_COMPLETED_MODAL_GOT_IT = "GOT IT";
+    Kano.MakeApps.Msg.KANO_CHALLENGE_COMPLETED_MODAL_COMPLIMENT = "Nice work!";
+
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
