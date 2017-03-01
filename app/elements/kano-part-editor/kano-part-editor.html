@@ -1,5 +1,9 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <dom-module id="kano-part-editor">
     <style>
     :host {
@@ -49,13 +53,8 @@
         @apply --layout-justified;
     }
     :host #element-name-editor {
-        @apply(--kano-light-input);
+        --paper-input-container-focus-color: var(--color-orange, orange);
         margin-left: 15px;
-        border-bottom: 1px dotted var(--color-black, black);
-    }
-    :host #element-name-editor:focus {
-        outline: none;
-        border-bottom-color: var(--color-orange, orange);
     }
     :host .icon {
         cursor: pointer;
@@ -71,14 +70,11 @@
     <template>
         <div class="title-bar">
             <div class="element-name-editor">
-                <input id="element-name-editor" type="text" value="{{selected.name::keyup}}"
-                on-keydown="enterQuitsInput">
-            <label class="icon" for="element-name-editor">
-                <iron-icon id="edit-icon" src="/assets/icons/layout-edit-icon.png"></iron-icon>
-            </label>
+                <paper-input id="element-name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput"></paper-input>
             </div>
 
-            <label class="icon delete-button" on-tap="_deletePart">delete
+            <label class="icon delete-button" on-tap="_deletePart" hidden$="[[hideDeleteButton]]">
+                <span>[[localize('DELETE', 'delete')]]</span>
                 <iron-icon  src="/assets/icons/layout-bin-icon.png"></iron-icon>
             </label>
         </div>
@@ -89,7 +85,10 @@
     /* globals Polymer */
     Polymer({
         is: 'kano-part-editor',
-        behaviors: [Polymer.Templatizer],
+        behaviors: [
+            Polymer.Templatizer,
+            Kano.Behaviors.I18nBehavior
+        ],
         properties: {
             selected: {
                 type: Object,
@@ -97,6 +96,10 @@
             },
             mode: {
                 type: Object
+            },
+            hideDeleteButton: {
+                type: Boolean,
+                value: false
             }
         },
         _instanceProps: {
