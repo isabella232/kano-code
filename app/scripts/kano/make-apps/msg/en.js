@@ -51,6 +51,8 @@
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
     Kano.MakeApps.Msg.SAVE = "Save";
 
+    Kano.MakeApps.Msg.DELETE = "delete";
+
     Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
     Kano.MakeApps.Msg.EXPORT = "Export";
     Kano.MakeApps.Msg.IMPORT = "Import";
