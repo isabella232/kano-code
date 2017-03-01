@@ -28,13 +28,13 @@
         <div class="label">[[model.name]]</div>
         <div class="controls" id="controls"></div>
         <template id="oscillator">
-            <kano-ic-oscillator model="[[model]]"></kano-ic-oscillator>
+            <kano-ic-oscillator id="inline-controls" model="[[model]]"></kano-ic-oscillator>
         </template>
         <template id="microphone">
-            <kano-ic-microphone model="[[model]]"></kano-ic-microphone>
+            <kano-ic-microphone id="inline-controls" model="[[model]]"></kano-ic-microphone>
         </template>
         <template id="clock">
-            <kano-ic-clock model="[[model]]"></kano-ic-clock>
+            <kano-ic-clock id="inline-controls" model="[[model]]"></kano-ic-clock>
         </template>
     </template>
     <script>
@@ -73,6 +73,12 @@
                 }
 
                 this.$.controls.appendChild(this.instance.root);
+            },
+            getInlineControlsElement () {
+                if (this.instance) {
+                    return this.$$('#inline-controls');
+                }
+                return null;
             }
         });
     </script>

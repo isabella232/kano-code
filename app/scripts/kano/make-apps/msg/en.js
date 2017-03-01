@@ -58,6 +58,8 @@
     Kano.MakeApps.Msg.IMPORT = "Import";
     Kano.MakeApps.Msg.GIVE_FEEDBACK = "Give Feedback";
 
+    Kano.MakeApps.Msg.PARTS = "Parts";
+
     Kano.MakeApps.Msg.STROKE_SIZE = "Stroke Size";
     Kano.MakeApps.Msg.STROKE_COLOR = "Stroke Color";
     Kano.MakeApps.Msg.WIDTH = "Width";
