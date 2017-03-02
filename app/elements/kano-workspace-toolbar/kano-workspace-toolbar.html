@@ -254,7 +254,9 @@
         },
         attached () {
             this._registerElement('fullscreen-button', this.$['fullscreen-button']);
-            this._registerElement('add-part-button', this.$['add-part-button']);
+            if (!this.noPartControls) {
+                this._registerElement('add-part-button', this.$['add-part-button']);
+            }
         },
         mousePositionHidden (show) {
             return !show;
