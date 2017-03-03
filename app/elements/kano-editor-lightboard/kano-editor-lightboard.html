@@ -48,23 +48,43 @@
         }
         :host(.fullscreen) kano-ui-viewport {
             z-index: 100;
-            top: 100px;
             bottom: 100px;
             margin: 0 auto;
         }
-        :host .fullscreen-close {
-            position: fixed;
-            top: 0px;
-            right: 0px;
+        .fullscreen-close {
+            position: absolute;
+            top: 35px;
+            right: 35px;
             color: white;
             background-color: transparent;
             z-index: 101;
             border: none;
-            width: 56px;
-            height: 56px;
-            font-size: 50px;
-            outline: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 3px;
+            padding: 0px;
             cursor: pointer;
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .fullscreen-close:hover,
+        .fullscreen-close:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .fullscreen-close iron-icon {
+            --iron-icon-width: 14px;
+            --iron-icon-height: 14px;
+            opacity: 0.75;
+        }
+        .fullscreen-close:hover iron-icon,
+        .fullscreen-close:focus iron-icon {
+            opacity: 1;
+        }
+        .overlay kano-workspace-toolbar {
+            position: absolute;
+            bottom: 35px;
+            left: 0px;
+            right: 0px;
         }
         kano-workspace-toolbar {
             padding: 24px 0px;
@@ -80,7 +100,7 @@
             display: none;
         }
         .overlay {
-            background: rgba(0, 0, 0, 0.8);
+            background: var(--kano-app-editor-workspace-background, #f2f2f2);
         }
         .add-parts {
             border-top: 1px solid #202428;
@@ -207,6 +227,11 @@
             <button class="fullscreen-close" on-tap="_toggleFullscreen">
                 <iron-icon icon="close"></iron-icon>
             </button>
+            <kano-workspace-toolbar running="[[running]]"
+                                    no-part-controls
+                                    on-pause-run-button-clicked="_runButtonClicked"
+                                    on-fullscreen-button-clicked="_toggleFullscreen"
+                                    on-reset-button-clicked="_resetAppState"></kano-workspace-toolbar>
         </div>
         <paper-dialog id="parts-modal" entry-animation="from-big-animation" on-iron-overlay-closed="_dialogClosed" with-backdrop>
             <kano-add-parts id="add-parts" available-parts="[[availableParts]]" on-cancel="_closePartsModal" on-confirm="_addParts"></kano-add-parts>
