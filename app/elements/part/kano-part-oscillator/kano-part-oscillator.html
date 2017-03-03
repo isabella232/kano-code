@@ -81,10 +81,13 @@
                 this._render();
             },
             _startOscillating () {
-                this._updateValue();
+                if (!this.timeout) {
+                    this._updateValue();
+                }
             },
             detached () {
                 cancelAnimationFrame(this._nextFrameId);
+                this._stopOscillating();
             },
             start () {
                 Kano.MakeApps.PartsAPI.oscillator.start.apply(this);

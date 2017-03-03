@@ -34,10 +34,38 @@ Example:
 -->
 <dom-module id="kano-challenge-ui">
     <style>
+        @keyframes pulse {
+            0% {
+                transform: scale(1, 1);
+            }
+            10% {
+                transform: scale(1.3, 1.3);
+            }
+            100% {
+                transform: scale(1, 1);
+            }
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            75% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            85% {
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1.5, 1.5);
+                opacity: 0;
+            }
+        }
     :host {
         @apply(--layout-vertical);
         flex: 1;
-        --tooltip-color: #21596F;
+        --tooltip-color: white;
     }
     :host .instruction-overlay {
         @apply(--layout-horizontal);
@@ -78,11 +106,11 @@ Example:
         text-shadow: none;
     }
     kano-tooltip {
-        z-index: 101;
+        z-index: 201;
         --kano-tooltip-background-color: var(--tooltip-color);
         --kano-tooltip-border-color: white;
         --kano-tooltip-border-width: 1px;
-        color: white;
+        color: black;
         font-family: var(--font-body);
         --kano-tooltip: {
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
@@ -110,12 +138,16 @@ Example:
             box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.25);
         };
     }
+    kano-arrow {
+        z-index: 201;
+    }
     .tooltip-text kano-blockly-block {
         line-height: 0px;
         vertical-align: middle;
         display: inline-block;
     }
     .beacon-wrapper {
+        position: relative;
         @apply --layout-vertical;
         @apply --layout-center;
         @apply --layout-center-justified;
@@ -129,11 +161,30 @@ Example:
         @apply --layout-center;
         @apply --layout-center-justified;
     }
+    .beacon.animate {
+        animation: 1s ease-out infinite pulse;
+    }
     .beacon .core {
         width: 12px;
         height: 12px;
         border-radius: 50%;
         background-color: #fde23d;
+    }
+    .beacon-wrapper .ring {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        border: 10px solid #fde23d;
+        transform: scale(0, 0);
+    }
+    .beacon-wrapper .ring.animate {
+        animation: 5s ease-out ripple;
+        animation-delay: 400ms;
+        animation-iteration-count: infinite;
+    }
+    .markdown-html p {
+        margin: 0px;
     }
     </style>
     <template>
@@ -142,8 +193,9 @@ Example:
         <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
             <iron-image slot="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
-        <kano-arrow target="[[beacon]]" bounce="0">
+        <kano-arrow target="[[beacon.target]]" bounce="0" angle="[[beacon.angle]]" offset="[[beacon.offset]]">
             <div class="beacon-wrapper" slot="arrow-image">
+                <div class="ring" id="ring" on-animationiteration="_ringAnimationIterated" on-animationstart="_ringAnimationIterated"></div>
                 <div class="beacon" id="beacon">
                     <div class="core"></div>
                 </div>
@@ -185,7 +237,7 @@ Example:
         behaviors: [
             Kano.Behaviors.AppElementRegistryBehavior,
             Kano.Behaviors.SoundPlayerBehavior,
-            Kano.Behaviors.I18nBehavior,
+            Kano.Behaviors.I18nBehavior
         ],
         properties: {
             tooltips: {
@@ -237,6 +289,7 @@ Example:
         ready () {
             this.modal = this.$.modal;
             this.highlight = {};
+            this.loadSound('/assets/audio/sounds/ding.mp3');
         },
         attached () {
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
@@ -332,7 +385,7 @@ Example:
             }, 300);
         },
         computeBeacon (step) {
-            let target;
+            let target, angle;
 
             this.$.beacon.animate({
                 opacity: [1, 0]
@@ -340,7 +393,11 @@ Example:
                 duration: 200,
                 fill: 'forwards'
             });
-            clearInterval(this.beaconPulseInterval);
+
+            clearTimeout(this._ringSoundTimeout);
+
+            this.toggleClass('animate', false, this.$.beacon);
+            this.toggleClass('animate', false, this.$.ring);
 
             if (!step.beacon) {
                 return;
@@ -348,10 +405,16 @@ Example:
 
             this.async(() => {
                 target = this._getTargetElement(step.beacon.target);
+                angle = step.beacon.angle || 0;
+                offset = step.beacon.offset || 10;
                 if (target && ('getBoundingClientRect' in target)) {
                     target = target.getBoundingClientRect();
                 }
-                this.set('beacon', target);
+                this.set('beacon', {
+                    target,
+                    angle,
+                    offset
+                });
                 this.$.beacon.animate({
                     opacity: [0, 1]
                 }, {
@@ -359,22 +422,14 @@ Example:
                     delay: 10,
                     fill: 'forwards'
                 });
-                this.beaconPulseInterval = setInterval(() => {
-                    this.$.beacon.animate([{
-                        transform: 'scale(1, 1)',
-                        offset: 0
-                    },{
-                        transform: 'scale(1.3, 1.3)',
-                        offset: 0.2
-                    },{
-                        transform: 'scale(1, 1)',
-                        offset: 1
-                    }], {
-                        duration: 300,
-                        easing: 'ease-out'
-                    });
-                }, 3000);
+                this.toggleClass('animate', true, this.$.beacon);
+                this.toggleClass('animate', true, this.$.ring);
             }, 300);
+        },
+        _ringAnimationIterated (e) {
+            this._ringSoundTimeout = setTimeout(() => {
+                this.playSound('/assets/audio/sounds/ding.mp3');
+            }, 4600 * 0.75);
         },
         stepChanged () {
             let step;

@@ -26,7 +26,7 @@
         background: #394148;
         color: white;
         border-bottom: 1px solid #282E34;
-        height: 120px;
+        height: 82px;
     }
     .bolt {
         background: black;
@@ -49,7 +49,8 @@
         left: 0;
         height: 100%;
         width: 100%;
-        background: #61686D;
+        background: #e4e6e7;
+        opacity: 0.4;
         transition: transform 200ms ease-out;
     }
     .progress .bar-content {
@@ -57,8 +58,10 @@
         @apply --layout-horizontal;
     }
     .progress .story-name {
+        font-size: 14px;
+        font-weight: bold;
         text-transform: uppercase;
-        margin-top: 1px;
+        margin-top: 2px;
     }
   </style>
   <template>
@@ -88,6 +91,7 @@
                     <kano-editor-banner head="[[banner.head]]"
                                         text="[[banner.text]]"
                                         img-src="[[banner.icon]]"
+                                        img-page="[[banner.imgPage]]"
                                         button-label="[[banner.buttonLabel]]"
                                         show-button="[[banner.showButton]]"
                                         on-button-tapped="_bannerButtonTapped"></kano-editor-banner>
@@ -186,6 +190,12 @@
         },
         _progressChanged (progress) {
             this.transform(`translateX(-${100 - progress * 100}%)`, this.$.bar);
+            this.$.bar.animate({
+                opacity: [0.4, 1, 0.4]
+            }, {
+                duration: 1200,
+                easing: 'ease-in-out'
+            });
         },
         computeBanner (step) {
             let iconId;
@@ -198,7 +208,7 @@
                         this.set('banner.head', step.banner.head);
                         this.set('banner.text', step.banner.text);
                         this.set('banner.buttonLabel', step.banner.next_button ? this.localize('NEXT', 'Next') : null);
-                        this.set('banner.showButton', true);
+                        this.set('banner.showButton', !!this.banner.buttonLabel);
                     } else {
                         this.banner = null;
                     }
@@ -217,8 +227,20 @@
                     }
                 }
                 if (this.banner) {
-                    iconId = (step.banner && step.banner.icon) || 'default';
-                    this.set('banner.icon', BANNER_ICONS[iconId]);
+                    if (step.banner) {
+                        if (step.banner.animation) {
+                            this.set('banner.imgPage', animation);
+                            this.set('banner.icon', null);
+
+                        } else if (step.banner.icon) {
+                            iconId = step.banner.icon;
+                            this.set('banner.icon', BANNER_ICONS[iconId]);
+                            this.set('banner.imgPage', null);
+                        } else {
+                            this.set('banner.icon', null);
+                            this.set('banner.imgPage', 'judoka');
+                        }
+                    }
                 }
             }, 200);
         },

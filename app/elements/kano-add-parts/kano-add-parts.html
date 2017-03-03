@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="./kano-add-parts-item.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/button.html">
 <dom-module id="kano-add-parts">
@@ -88,27 +89,27 @@
         <div class="categories">
             <div class="ui">
                 <h2>Interface</h2>
-                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('ui')]]" as="part">
-                    <kano-add-parts-item label="[[part.label]]"
+                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('ui')]]" as="part" on-dom-change="_repeaterChanged">
+                    <kano-add-parts-item id$="[[part.type]]"
+                                            label="[[part.label]]"
                                             type="[[part.type]]"
-                                            count="[[_getSelectedNumber(part.type, selection.*)]]"
-                                            selected$="[[_isInSelection(part.type, selection.*)]]"
-                                            on-part-tap="_addPart"
-                                            on-bin-tap="_removePart"></kano-add-parts-item>
+                                            on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
             </div>
             <div class="data">
                 <h2>Data</h2>
-                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('data')]]" as="part">
-                    <kano-add-parts-item label="[[part.label]]"
+                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('data')]]" as="part" on-dom-change="_repeaterChanged">
+                    <kano-add-parts-item id$="[[part.type]]"
+                                            label="[[part.label]]"
                                             type="[[part.type]]"
                                             on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
             </div>
             <div class="hardware">
                 <h2>Hardware</h2>
-                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('hardware')]]" as="part">
-                    <kano-add-parts-item label="[[part.label]]"
+                <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('hardware')]]" as="part" on-dom-change="_repeaterChanged">
+                    <kano-add-parts-item id$="[[part.type]]"
+                                            label="[[part.label]]"
                                             type="[[part.type]]"
                                             on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
@@ -118,7 +119,10 @@
     <script>
         Polymer({
             is:'kano-add-parts',
-            behaviors: [Kano.Behaviors.I18nBehavior],
+            behaviors: [
+                Kano.Behaviors.I18nBehavior,
+                Kano.Behaviors.AppElementRegistryBehavior
+            ],
             properties: {
                 availableParts: Array
             },
@@ -156,6 +160,16 @@
             },
             reset () {
                 this.selection = {};
+            },
+            _repeaterChanged (e) {
+                let target = e.path ? e.path[0] : e.target,
+                    partEls = Polymer.dom(target.parentNode).querySelectorAll('kano-add-parts-item'),
+                    partEl;
+
+                for (let i = 0; i < partEls.length; i++) {
+                    partEl = partEls[i];
+                    this._registerElement(`parts-panel-${partEl.getAttribute('id')}`, partEl);
+                }
             }
         });
     </script>

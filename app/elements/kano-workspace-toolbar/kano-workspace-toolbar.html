@@ -53,17 +53,12 @@
                 transition: all ease-in-out 200ms;
             }
         }
-        .icon:hover {
-            transition: opacity .3s ease;
-            opacity: 0.8;
-            cursor: pointer;
-        }
         .icon {
             display: flex;
             padding: 0px;
             align-items: center;
             justify-content: center;
-            transition: background-color .3s ease;
+            cursor: pointer;
         }
         kano-tooltip {
             box-sizing: border-box;
@@ -73,15 +68,20 @@
             @apply --layout-center;
             @apply --layout-center-justified;
             @apply --kano-button;
-            background-color: #515151;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 3px;
             padding: 8px 16px;
             cursor: pointer;
             margin-left: 9px;
-            transition: background-color .3s ease;
             font-size: 12px;
             border-radius: 2px;
             text-shadow: none;
             font-family: var(--font-body);
+        }
+        button:hover,
+        button:focus {
+            background-color: rgba(255, 255, 255, 0.5);
+            outline: none;
         }
         button span.x {
             display: none;
@@ -91,15 +91,20 @@
             transform: translate(0px, -2px);
         }
         .icon {
-            width: 33px;
-            height: 33px;
+            width: 32px;
+            height: 32px;
         }
         #play-pause-button {
             background: #7CC74C;
         }
         iron-icon {
-            --iron-icon-width: 21px;
-            --iron-icon-height: 21px;
+            --iron-icon-width: 20px;
+            --iron-icon-height: 20px;
+            opacity: 0.75;
+        }
+        button:hover iron-icon,
+        button:focus iron-icon {
+            opacity: 1;
         }
         ul {
             margin: 0px;
@@ -254,7 +259,9 @@
         },
         attached () {
             this._registerElement('fullscreen-button', this.$['fullscreen-button']);
-            this._registerElement('add-part-button', this.$['add-part-button']);
+            if (!this.noPartControls) {
+                this._registerElement('add-part-button', this.$['add-part-button']);
+            }
         },
         mousePositionHidden (show) {
             return !show;

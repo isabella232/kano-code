@@ -39,6 +39,10 @@
                 type: Number,
                 value: 0
             },
+            offset: {
+                type: Number,
+                value: 0
+            },
             bounce: {
                 type: Number,
                 value: 40
@@ -98,7 +102,7 @@
 
             angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
 
-            dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) + this.offset;
 
             offsetX = Math.cos(angle) * (dist * 0.2);
             offsetY = Math.sin(angle) * (dist * 0.2);
@@ -129,25 +133,29 @@
                 arrowStyle = this.arrowImage.style,
                 arrowRect = this.arrowImage.getBoundingClientRect(),
                 a = (this.angle / 180) * Math.PI,
-                h = target.height,
-                w = target.width,
+                h = target.height - this.offset * 2,
+                w = target.width - this.offset * 2,
+                t = target.top + this.offset,
+                l = target.left + this.offset,
                 r = Math.sqrt(Math.pow(h / 2, 2) + Math.pow(w / 2, 2)),
+                vx = Math.cos(a) * r,
+                vy = Math.sin(a) * r,
                 x, y, offsetX, offsetY;
 
-            x = Math.min(Math.cos(a) * r, w / 2);
-            y = Math.min(Math.sin(a) * r, h / 2);
+            x = Math.min(vx * r, w / 2);
+            y = Math.min(vy * r, h / 2);
 
 
-            x += target.left;
-            y += target.top;
+            x += l;
+            y += t;
 
-            x += target.width / 2;
-            y += target.height / 2;
+            x += w / 2;
+            y += h / 2;
 
             y -= this.arrowImage.offsetHeight / 2;
 
-            y = Math.max(y, target.top - arrowRect.height / 2);
-            x = Math.max(x, target.left - arrowRect.width / 2);
+            y = Math.max(y, t - arrowRect.height / 2);
+            x = Math.max(x, l - arrowRect.width / 2);
 
             offsetX = Math.cos(a) * this.bounce;
             offsetY = Math.sin(a) * this.bounce;
