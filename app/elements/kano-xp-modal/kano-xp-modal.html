@@ -382,7 +382,7 @@
         }
     </style>
     <template>
-        <kano-modal id="modal" opened="{{opened}}" assets-path="/assets">
+        <kano-modal id="modal" opened="{{opened}}" assets-path="/assets" on-dismiss="_onDialogClosed">
             <div class="content">
                 <iron-pages id="pager" attr-for-selected="id" selected$="[[panel]]">
                     <div id="xp">
@@ -602,6 +602,9 @@
         },
         close () {
             this.$.modal.close();
+        },
+        _onDialogClosed () {
+            this.fire('close');
         }
     });
 </script>
