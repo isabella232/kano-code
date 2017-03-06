@@ -153,7 +153,8 @@
         _displayUserReward () {
             let headers = new Headers(),
                 flags = Kano.MakeApps.config.getFlags(),
-                gamificationEnabled = flags.experiments.indexOf('gamification_modal') !== -1,
+                //FIXME for demo we turn the gamification enabled always true on this branch
+                gamificationEnabled = true || flags.experiments.indexOf('gamification_modal') !== -1,
                 payload,
                 tempGamificationData;
             if (Kano.MakeApps.sdk.auth.getToken()) {
