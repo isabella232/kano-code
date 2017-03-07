@@ -41,6 +41,7 @@ var SharingBehavior = {
         // Generates the standalone component
         let savedApp,
         attachment,
+        appName = 'make-apps',
         cover = this.shareInfo.coverBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
 
@@ -49,9 +50,15 @@ var SharingBehavior = {
 
         this.set('shareInfo.loading', true);
 
+        /* For filtering reasons, lightboard shares use different app name
+           from regular Make Apps shares. */
+        if (this.shareInfo.mode.id === 'lightboard') {
+            appName = 'lightboard';
+        }
+
         //Share by calling the API
         return Kano.MakeApps.sdk.api.share.post({
-            app: 'make-apps',
+            app: appName,
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: {
