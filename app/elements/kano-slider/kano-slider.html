@@ -412,7 +412,11 @@ Custom property | Description | Default
         this.setAttribute('aria-valuemax', max);
         this.setAttribute('aria-valuenow', value);
 
-        this._positionKnob(this._calcRatio(value));
+        // WORKAROUND: When min and max are the same, IronRangeBehavior will
+        //             calculate the ratio to be NaN. This prevents it from
+        //             propagating the incorrect value elsewhere.
+        let ratio = this._calcRatio(value);
+        this._positionKnob(isNaN(ratio) ? 0 : ratio);
       },
 
       _valueChanged: function() {
