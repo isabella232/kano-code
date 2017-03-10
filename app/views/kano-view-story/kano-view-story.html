@@ -13,7 +13,7 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
 <link rel="import" href="../../elements/kano-challenge-completed-modal/kano-challenge-completed-modal.html">
-<link rel="import" href="../../elements/kano-xp-modal/kano-xp-modal.html">
+<link rel="import" href="../../elements/kano-reward-modal/kano-reward-modal.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
 
@@ -61,10 +61,10 @@
        </paper-dialog>
        <kano-challenge-completed-modal id="challenge-completed"
                                        on-close="_setStoryEnded"></kano-challenge-completed-modal>
-        <kano-xp-modal id="xp-modal"
+        <kano-reward-modal id="reward-modal"
                        on-confirm="_setStoryEnded"
                        on-second-action="_openSignup"
-                       on-close="_setStoryEnded"></kano-xp-modal>
+                       on-close="_setStoryEnded"></kano-reward-modal>
     </template>
 </dom-module>
 
@@ -174,7 +174,7 @@
                 }).then(r => r.json())
                 .then(res => {
                     if (gamificationEnabled) {
-                        this.$['xp-modal'].open(res, this.user);
+                        this.$['reward-modal'].open(res, this.user);
                     } else {
                         this.$['challenge-completed'].open();
                     }
@@ -211,7 +211,7 @@
                     }
                 };
                 if (gamificationEnabled) {
-                    this.$['xp-modal'].open(tempGamificationData);
+                    this.$['reward-modal'].open(tempGamificationData);
                 } else {
                     this.$['challenge-completed'].open();
                 }
