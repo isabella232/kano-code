@@ -113,7 +113,8 @@ Polymer({
     listeners: {
         'mode-ready': '_onModeReady',
         'add-part': '_addPart',
-        'remove-part': '_removePartReceived'
+        'remove-part': '_removePartReceived',
+        'save-button-clicked': 'share'
     },
     _addPart (e) {
         let viewport = this.$.workspace.getViewport(),

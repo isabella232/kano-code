@@ -157,7 +157,7 @@
                 //FIXME for demo we turn the gamification enabled always true on this branch
                 gamificationEnabled = true || flags.experiments.indexOf('gamification_modal') !== -1,
                 payload,
-                tempGamificationData;
+                fakeGamificationData;
             if (Kano.MakeApps.sdk.auth.getToken()) {
                 headers.append('Content-Type', 'application/json');
                 headers.append('Authorization', Kano.MakeApps.sdk.auth.getToken());
@@ -181,9 +181,9 @@
                     this.playSound('/assets/audio/samples/challenge_complete.wav');
                 })
             } else {
-                //send temp progress data if there's no registered user
-                //TODO -- change this when specs are ready for this scenario
-                tempGamificationData = {
+                //send fake progress data if there's no registered user
+                //TODO -- change this when specs are ready
+                fakeGamificationData = {
                     "update": {
                         "levels": {
                             "progress": {
@@ -211,7 +211,7 @@
                     }
                 };
                 if (gamificationEnabled) {
-                    this.$['reward-modal'].open(tempGamificationData);
+                    this.$['reward-modal'].open(fakeGamificationData);
                 } else {
                     this.$['challenge-completed'].open();
                 }

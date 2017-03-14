@@ -43,11 +43,16 @@
             if (!selectedStep) {
                 return null;
             }
+            // We arrived at the last step of the challenge, which acknowledges the completion.
+            if (this.step === this.steps.length - 1) {
+                selectedStep.isLast = true;
+                this.fire('scene-done');
+            }
 
             // Deep clone the step to not change the original step when updating the ids
             selectedStep = JSON.parse(JSON.stringify(selectedStep));
 
-            // update stats if step includes optional hint
+            // Update stats if step includes optional hint
             if (selectedStep['set-state'] && selectedStep['set-state'].hints && selectedStep['set-state'].hints.enabled === false) {
                 this.set('hintStats.total', this.hintStats.total + 1);
             }
@@ -141,12 +146,7 @@
                 // Use `_goToStep` to force a refresh of the current step 
                 this._goToStep(this.step);
             } else {
-                if (this.step < this.steps.length - 1) {
-                    this.step++;
-                } else {
-                    this.set('done', true);
-                    this.fire('scene-done');
-                }
+                this.step++;
             }
         },
         stepChanged () {
