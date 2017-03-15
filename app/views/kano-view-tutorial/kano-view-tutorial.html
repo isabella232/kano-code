@@ -1,14 +1,18 @@
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
-<link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/make-apps/challenge.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
-<link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-modal-animator-behavior.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
 
@@ -17,11 +21,11 @@
         :host {
             display: block;
             position: relative;
-            @apply(--layout-vertical);
+            @apply --layout-vertical;
             font-family: Bariol;
         }
         :host kano-story-scene {
-            @apply(--layout-flex);
+            @apply --layout-flex;
         }
         :host paper-dialog {
             border-radius: 5px;
@@ -30,7 +34,7 @@
             height: 100%;
         }
         :host button {
-            @apply(--kano-button);
+            @apply --kano-button;
             background-color: var(--color-green);
         }
         :host button[disabled] {
@@ -42,14 +46,14 @@
         }
         :host .start-overlay {
             position: fixed;
-            top: 0px;
-            left: 0px;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
 
             background: rgba(0, 0, 0, 0.5);
 
-            display: flex;
+            @apply --layout-vertical;
         }
         :host .start-overlay.hidden {
             display: none;
@@ -59,8 +63,8 @@
             border-radius: 5px;
             background: #ffffff;
             padding: 20px;
-            align-items: center;
-            justify-content: center;
+            @apply --layout-center-justified;
+            @apply --layout-center;
         }
         :host #drop-target {
             background-color: #ccc;
@@ -68,9 +72,9 @@
             height: 100px;
             text-align: center;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @apply --layout-center-justified;
+            @apply --layout-center;
+            @apply --layout-vertical;
         }
         :host #drop-target.active {
             background-color: #888;
@@ -97,8 +101,8 @@
                     {{fileName}}
                 </div>
                 <div class="buttons">
-                    <button class="test-button" on-tap="_startChallenge" disabled="{{!file}}">Test Challenge</button>
-                    <button class="download-button" on-tap="_downloadSteps" disabled="{{!file}}">Download steps.json</button>
+                    <button class="test-button" on-tap="_startChallenge" disabled$="{{!file}}">Test Challenge</button>
+                    <button class="download-button" on-tap="_downloadSteps" disabled$="{{!file}}">Download steps.json</button>
                 </div>
             </div>
         </div>
@@ -161,9 +165,6 @@
             window.dumpChallenge = () => {
                 return this.dumpChallenge();
             };
-
-            let cb = this._onKeyPress.bind(this);
-            window.addEventListener('keypress', cb);
         },
         dumpChallenge () {
             return JSON.stringify(this.challenge, null, '    ');
