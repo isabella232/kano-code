@@ -78,6 +78,9 @@
                 // Generate a bitmap combining background color, shapes and lights
                 Object.keys(this.shapes).forEach((key) => {
                     shape = this.shapes[key];
+                    if (!shape.visible) {
+                        return;
+                    }
                     if (shape.type === 'rectangle') {
                         for (let x = shape.x; x < shape.x + shape.width; x++) {
                             for (let y = shape.y; y < shape.y + shape.height; y++) {
