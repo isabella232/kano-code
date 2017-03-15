@@ -37,19 +37,27 @@
             cursor: pointer;
             background-color: #f64646;
         }
+        .btn:hover,
+        .btn.simulate-press {
+            background-color: #ff6060;
+        }
         .btn:focus {
             outline: none;
             @apply(--shadow-elevation-2dp);
         }
-        .btn.a {
+        .btn:active,
+        .btn.simulate-press {
+            transform: scale(0.97);
+        }
+        #btn-a {
             top: 266px;
             left: 365px;
         }
-        .btn.b {
+        #btn-b {
             top: 266px;
             left: 411px;
         }
-        .joystick {
+        #joystick {
             position: absolute;
             width: 34px;
             height: 34px;
@@ -65,14 +73,17 @@
             transform: rotate(45deg);
             opacity: 0;
         }
-        .joystick:hover {
+        #joystick:hover,
+        #joystick.simulate-press {
             transform: rotate(45deg) scale(2);
             opacity: 1;
         }
-        .joystick:not(:hover) .js-dir {
+        #joystick:not(:hover) .js-dir
+        #joystick:not(.simulate-press) .js-dir {
             opacity: 0 !important;
         }
-        .joystick:hover .js-dir {
+        #joystick:hover .js-dir,
+        #joystick.simulate-press .js-dir {
             opacity: 1;
         }
         .js-dir {
@@ -92,17 +103,20 @@
             text-transform: none;
             font-size: auto;
             margin: 0;
-
         }
-        .joystick button.js-dir:focus, .joystick button.js-dir:hover {
+        #joystick button.js-dir:hover,
+        #joystick button.js-dir.simulate-press {
             outline: none;
             background-color: #45474c;
         }
-        .js-dir.up, .js-dir.left {
+        #joystick button.js-dir:focus {
+            outline: none;
+        }
+        #js-up, #js-left {
             margin-right: 1px;
             width: calc(50% - 1px);
         }
-        .js-dir.up, .js-dir.right {
+        #js-up, #js-right {
             margin-bottom: 1px;
             height: calc(50% - 1px);
         }
@@ -114,42 +128,49 @@
             border-style: solid;
             border-width: 0px;
         }
-        .js-dir.up .arrow-icon {
+        #js-up .arrow-icon {
             border-top-width: 1px;
             border-left-width: 1px;
         }
-        .js-dir.right .arrow-icon {
+        #js-right .arrow-icon {
             border-top-width: 1px;
             border-right-width: 1px;
         }
-        .js-dir.down .arrow-icon {
-            border-bottom-width: 1px;
-            border-right-width: 1px;
-        }
-        .js-dir.left .arrow-icon {
+        #js-left .arrow-icon {
             border-bottom-width: 1px;
             border-left-width: 1px;
         }
-        .joystick button.js-dir:focus .arrow-icon, .joystick button.js-dir:hover .arrow-icon {
+        #js-down .arrow-icon {
+            border-bottom-width: 1px;
+            border-right-width: 1px;
+        }
+        #joystick button.js-dir:hover .arrow-icon,
+        #joystick button.js-dir.simulate-press .arrow-icon {
             border-color: white;
+        }
+        #joystick button.js-dir:focus .arrow-icon {
+            outline: none;
+        }
+        #joystick button.js-dir:active .arrow-icon {
+            transform: scale(0.95);
         }
     </style>
     <template>
         <iron-image src="/assets/mode/lightboard/body.svg" sizing="contain" width="[[width]]" height="[[height]]"></iron-image>
-        <button class="btn a" on-tap="_buttonATapped"></button>
-        <button class="btn b" on-tap="_buttonBTapped"></button>
+        <button id="btn-a" class="btn" on-tap="_buttonATapped"></button>
+        <button id="btn-b" class="btn" on-tap="_buttonBTapped"></button>
         <kano-bitmap-renderer id="led-matrix" bitmap="[[bitmap]]" width="16" height="8" pixel-size="21" spacing="3"></kano-bitmap-renderer>
-        <div class="joystick">
-            <button class="js-dir up" on-tap="_joystickUpTapped">
+        <div id="joystick">
+            <button id="js-up" class="js-dir" on-tap="_joystickUpTapped">
                 <div class="arrow-icon"></div>
             </button>
-            <button class="js-dir right" on-tap="_joystickRightTapped">
+            <button id="js-right" class="js-dir" on-tap="_joystickRightTapped">
                 <div class="arrow-icon"></div>
             </button>
-            <button class="js-dir left" on-tap="_joystickLeftTapped">
+            <button id="js-left" class="js-dir" on-tap="_joystickLeftTapped">
                 <div class="arrow-icon"></div>
             </button>
-            <button class="js-dir down" on-tap="_joystickDownTapped">
+            <button id="js-down" class="js-dir" on-tap="_joystickDownTapped">
                 <div class="arrow-icon"></div>
             </button>
         </div>
@@ -163,6 +184,14 @@
             listeners: {
                 'update-shape': '_updateShape'
             },
+            properties: {
+                pressedKeys: {
+                    type: Object,
+                    value: () =>  {
+                        return {};
+                    }
+                }
+            },
             ready () {
                 this.set('bitmap', new Array(128));
             },
@@ -170,6 +199,14 @@
                 Kano.AppModules.getModule('lightboard').connect({
                     name: 'Make Apps'
                 });
+                this._onKeyDown = this._onKeyDown.bind(this);
+                this._onKeyUp = this._onKeyUp.bind(this);
+                document.body.addEventListener('keydown', this._onKeyDown);
+                document.body.addEventListener('keyup', this._onKeyUp);
+            },
+            detached () {
+                document.body.removeEventListener('keydown', this._onKeyDown);
+                document.body.removeEventListener('keyup', this._onKeyUp);
             },
             render (bitmap) {
                 this.bitmap = bitmap;
@@ -191,6 +228,68 @@
             },
             _joystickDownTapped () {
                 this.fire('lightboard-js-down');
+            },
+            _simulatePressed (element, keyCode) {
+                element.classList.add('simulate-press');
+                //We add the element to the mapped array so we can later remove the class
+                this.pressedKeys[keyCode] = this.pressedKeys[keyCode] || [];
+                this.pressedKeys[keyCode].push(element);
+            },
+            _onKeyDown (e) {
+                let keyCode = e.keyCode;
+
+                if (this.pressedKeys[keyCode]) {
+                    return;
+                }
+
+                switch (keyCode) {
+                    //four arrow keys
+                    case 37: {
+                        [this.$['joystick'], this.$['js-left']].forEach((el) => this._simulatePressed(el, keyCode));
+                        this.fire('lightboard-js-left');
+                        break;
+                    }
+                    case 38: {
+                        [this.$['joystick'], this.$['js-up']].forEach((el) => this._simulatePressed(el, keyCode));
+                        this.fire('lightboard-js-up');
+                        break;
+                    }
+                    case 39: {
+                        [this.$['joystick'], this.$['js-right']].forEach((el) => this._simulatePressed(el, keyCode));
+                        this.fire('lightboard-js-right');
+                        break;
+                    }
+                    case 40: {
+                        [this.$['joystick'], this.$['js-down']].forEach((el) => this._simulatePressed(el, keyCode));
+                        this.fire('lightboard-js-down');
+                        break;
+                    }
+                    //letter A
+                    case 65: {
+                        this._simulatePressed(this.$['btn-a'], keyCode);
+                        this.fire('lightboard-btn-A');
+                        break;
+                    }
+                    //letter B
+                    case 66: {
+                        this._simulatePressed(this.$['btn-b'], keyCode);
+                        this.fire('lightboard-btn-B');
+                        break;
+                    }
+                    //letter S
+                    case 83: {
+                        this._simulatePressed(this.$['btn-b'], keyCode);
+                        this.fire('lightboard-btn-B');
+                        break;
+                    }
+                }
+            },
+            _onKeyUp (e) {
+                let targetElements;
+                if (targetElements = this.pressedKeys[e.keyCode]) {
+                    targetElements.forEach((el) => el.classList.remove('simulate-press'));
+                    this.pressedKeys[e.keyCode] = null;
+                }
             },
             stop () {
                 Kano.MakeApps.PartsAPI.lightboard.stop.apply(this);
