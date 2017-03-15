@@ -229,66 +229,62 @@
             _joystickDownTapped () {
                 this.fire('lightboard-js-down');
             },
-            _simulatePressed (element, keyCode) {
+            _simulatePressed (element, key) {
                 element.classList.add('simulate-press');
                 //We add the element to the mapped array so we can later remove the class
-                this.pressedKeys[keyCode] = this.pressedKeys[keyCode] || [];
-                this.pressedKeys[keyCode].push(element);
+                this.pressedKeys[key] = this.pressedKeys[key] || [];
+                this.pressedKeys[key].push(element);
             },
             _onKeyDown (e) {
-                let keyCode = e.keyCode;
+                let key = e.key,
+                map;
 
-                if (this.pressedKeys[keyCode]) {
+                if (this.pressedKeys[key]) {
                     return;
                 }
 
-                switch (keyCode) {
-                    //four arrow keys
-                    case 37: {
-                        [this.$['joystick'], this.$['js-left']].forEach((el) => this._simulatePressed(el, keyCode));
-                        this.fire('lightboard-js-left');
-                        break;
-                    }
-                    case 38: {
-                        [this.$['joystick'], this.$['js-up']].forEach((el) => this._simulatePressed(el, keyCode));
-                        this.fire('lightboard-js-up');
-                        break;
-                    }
-                    case 39: {
-                        [this.$['joystick'], this.$['js-right']].forEach((el) => this._simulatePressed(el, keyCode));
-                        this.fire('lightboard-js-right');
-                        break;
-                    }
-                    case 40: {
-                        [this.$['joystick'], this.$['js-down']].forEach((el) => this._simulatePressed(el, keyCode));
-                        this.fire('lightboard-js-down');
-                        break;
-                    }
-                    //letter A
-                    case 65: {
-                        this._simulatePressed(this.$['btn-a'], keyCode);
-                        this.fire('lightboard-btn-A');
-                        break;
-                    }
-                    //letter B
-                    case 66: {
-                        this._simulatePressed(this.$['btn-b'], keyCode);
-                        this.fire('lightboard-btn-B');
-                        break;
-                    }
-                    //letter S
-                    case 83: {
-                        this._simulatePressed(this.$['btn-b'], keyCode);
-                        this.fire('lightboard-btn-B');
-                        break;
-                    }
+                map = {
+                  'ArrowLeft': {
+                    event: 'lightboard-js-left',
+                    elements: [this.$.joystick, this.$['js-left']]
+                  },
+                  'ArrowUp': {
+                    event: 'lightboard-js-up',
+                    elements: [this.$.joystick, this.$['js-up']]
+                  },
+                  'ArrowRight': {
+                    event: 'lightboard-js-right',
+                    elements: [this.$.joystick, this.$['js-right']]
+                  },
+                  'ArrowDown': {
+                    event: 'lightboard-js-down',
+                    elements: [this.$.joystick, this.$['js-down']]
+                  },
+                  'a': {
+                    event: 'lightboard-btn-A',
+                    elements: [this.$['btn-a']]
+                  },
+                  'b': {
+                    event: 'lightboard-btn-B',
+                    elements: [this.$['btn-b']]
+                  },
+                  //'s' to also act as button b for convenience
+                  's': {
+                    event: 'lightboard-btn-B',
+                    elements: [this.$['btn-b']]
+                  }
+                };
+
+                if (map[key]) {
+                    map[key].elements.forEach((el) => this._simulatePressed(el, key));
+                    this.fire(map[key].event);
                 }
             },
             _onKeyUp (e) {
                 let targetElements;
-                if (targetElements = this.pressedKeys[e.keyCode]) {
+                if (targetElements = this.pressedKeys[e.key]) {
                     targetElements.forEach((el) => el.classList.remove('simulate-press'));
-                    this.pressedKeys[e.keyCode] = null;
+                    this.pressedKeys[e.key] = null;
                 }
             },
             stop () {
