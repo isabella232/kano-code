@@ -246,37 +246,37 @@
                 map = {
                   'ArrowLeft': {
                     event: 'lightboard-js-left',
-                    elements: [this.$.joystick, this.$['js-left']]
+                    elements: ['joystick', 'js-left']
                   },
                   'ArrowUp': {
                     event: 'lightboard-js-up',
-                    elements: [this.$.joystick, this.$['js-up']]
+                    elements: ['joystick', 'js-up']
                   },
                   'ArrowRight': {
                     event: 'lightboard-js-right',
-                    elements: [this.$.joystick, this.$['js-right']]
+                    elements: ['joystick', 'js-right']
                   },
                   'ArrowDown': {
                     event: 'lightboard-js-down',
-                    elements: [this.$.joystick, this.$['js-down']]
+                    elements: ['joystick', 'js-down']
                   },
                   'a': {
                     event: 'lightboard-btn-A',
-                    elements: [this.$['btn-a']]
+                    elements: ['btn-a']
                   },
                   'b': {
                     event: 'lightboard-btn-B',
-                    elements: [this.$['btn-b']]
+                    elements: ['btn-b']
                   },
                   //'s' to also act as button b for convenience
                   's': {
                     event: 'lightboard-btn-B',
-                    elements: [this.$['btn-b']]
+                    elements: ['btn-b']
                   }
                 };
 
                 if (map[key]) {
-                    map[key].elements.forEach((el) => this._simulatePressed(el, key));
+                    map[key].elements.forEach((id) => this._simulatePressed(this.$[id], key));
                     this.fire(map[key].event);
                 }
             },
