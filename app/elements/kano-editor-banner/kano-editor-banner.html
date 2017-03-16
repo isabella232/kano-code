@@ -115,7 +115,7 @@
 </dom-module>
 
 <script type="text/javascript">
-    /* globals Polymer */
+    /* globals Polymer, Kano */
 
     Polymer({
         is: 'kano-editor-banner',
@@ -144,6 +144,12 @@
                 value: false,
                 observer: '_showButtonChanged'
             }
+        },
+        behaviors: [
+            Kano.Behaviors.AppElementRegistryBehavior
+        ],
+        attached () {
+            this._registerElement('banner-button', this.$.button);
         },
         _buttonTapped () {
             this.fire('button-tapped');
