@@ -94,6 +94,7 @@
                                         img-page="[[banner.imgPage]]"
                                         button-label="[[banner.buttonLabel]]"
                                         show-button="[[banner.showButton]]"
+                                        is-last="[[banner.isLast]]"
                                         on-button-tapped="_bannerButtonTapped"></kano-editor-banner>
                 </div>
                 <div class="progress" slot="under-code">
@@ -228,10 +229,14 @@
                 }
                 if (this.banner) {
                     if (step.banner) {
-                        if (step.banner.animation) {
+                        if (step.isLast) {
+                            this.set('banner.icon', null);
+                            this.set('banner.imgPage', 'star');
+                            this.set('banner.buttonLabel', this.localize('NEXT_CHALLANGE', 'Next Challenge'));
+                            this.set('banner.isLast', true);
+                        } else if (step.banner.animation) {
                             this.set('banner.imgPage', animation);
                             this.set('banner.icon', null);
-
                         } else if (step.banner.icon) {
                             iconId = step.banner.icon;
                             this.set('banner.icon', BANNER_ICONS[iconId]);
@@ -249,7 +254,10 @@
             }, 200);
         },
         _bannerButtonTapped () {
-            if (this.state.hints && this.state.hints.enabled) {
+            //progress to next story
+            if (this.selectedStep.isLast) {
+                this.fire('next-story');
+            } else if (this.state.hints && this.state.hints.enabled) {
                 this.$.challenge.nextStep();
             } else {
                 this.showHints();

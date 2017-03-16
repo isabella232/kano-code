@@ -193,6 +193,7 @@
 
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
+    Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT_CHALLENGE = "Next Challenge";
 
     Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Back to Projects";
 
