@@ -21,18 +21,16 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('serve-doc', () => {
-        return $.connect.server({
-            root: 'app',
-            port: process.env.PORT || 5000
-        });
+        return $.connect()
+            .use($.serveStatic(__dirname + '/../app'))
+            .listen(process.env.PORT || 5000);
     });
 
     gulp.task('serve-prod', () => {
-        return $.connect.server({
-            root: 'www',
-            port: process.env.PORT,
-            fallback: './www/index.html'
-        });
+        return $.connect()
+            .use($.history())
+            .use($.serveStatic(__dirname + '/../www'))
+            .listen(process.env.PORT || 4000);
     });
 
     function notBowerComponent(file) {

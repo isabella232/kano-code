@@ -138,7 +138,7 @@ $.startServer = (lr) => {
         .use($.history())
         .use($.serveStatic(__dirname + '/app'))
         .listen(4000);
-}
+};
 
 gulp.task('serve', () => {
     return $.startServer();
