@@ -1,10 +1,11 @@
+<script src="../../bower_components/js-beautify/js/lib/beautify.js"></script>
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/prism-element/prism-highlighter.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="./kano-prism-theme.html">
 
-<dom-module id="kano-code-view">
+<dom-module id="kano-code-display">
 	<template>
 		<style include="kano-prism-theme">
 			:host {
@@ -51,9 +52,9 @@
 
 	<script>
 		/* globals Polymer, Kano */
-		const CODE_VIEW_LINE_HEIGHT = 20;
+		const CODE_DISPLAY_LINE_HEIGHT = 20;
 		Polymer({
-		    is: 'kano-code-view',
+		    is: 'kano-code-display',
 		    behaviors: [Polymer.IronResizableBehavior],
 		    properties: {
 				code: {
@@ -75,16 +76,17 @@
 				if (!code) {
 					return;
 				}
+				console.log('RENDERING CODE');
 				this.$.output.innerHTML = this._highlight(this.code, this.lang);
-				this._refreshLineNumbers();
+				this._computeLineNumbers();
 			},
 			_highlight (code, lang) {
-				//prism-highlighter adds an event listener to its parent (i.e. kano-code-view) for 'syntax-highlight'
+				//prism-highlighter adds an event listener to its parent (i.e. kano-code-display) for 'syntax-highlight'
 				return this.fire('syntax-highlight', { code: code, lang: lang }).detail.code;
 			},
 			_computeLineNumbers () {
 			    let codeSpaceHeight = this.$.output.scrollHeight,
-			    	lines = Math.round(codeSpaceHeight / CODE_VIEW_LINE_HEIGHT);
+			    	lines = Math.round(codeSpaceHeight / CODE_DISPLAY_LINE_HEIGHT);
 			    this.set('lines', new Array(lines));
 			}
 		});

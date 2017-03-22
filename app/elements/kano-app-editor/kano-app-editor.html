@@ -16,7 +16,7 @@
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
-<link rel="import" href="../kano-code-view/kano-code-view.html">
+<link rel="import" href="../kano-code-display/kano-code-display.html">
 
 <!--
 `kano-app-editor`
@@ -91,7 +91,7 @@ Example:
         @apply(--layout-flex);
         padding: 20px;
     }
-    :host kano-code-view {
+    :host kano-code-display {
         width: 466px;
         margin: 20px;
     }
@@ -252,12 +252,12 @@ Example:
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">
-                    <paper-tabs class="tab-selector" selected="{{selectedTab}}" autoselect>
-                        <paper-tab class="tab">Canvas</paper-tab>
-                        <paper-tab class="tab">JavaScript</paper-tab>
+                    <paper-tabs class="tab-selector" attr-for-selected="id" selected="{{workspaceTab}}" autoselect>
+                        <paper-tab id="workspace" class="tab">Canvas</paper-tab>
+                        <paper-tab id="code-display" class="tab">JavaScript</paper-tab>
                     </paper-tabs>
                 </template>
-                <iron-pages selected="{{selectedTab}}">
+                <iron-pages attr-for-selected="id" selected="{{workspaceTab}}">
                     <kano-workspace id="workspace"
                                     class="visible-when-running"
                                     parts="{{addedParts}}"
@@ -277,9 +277,7 @@ Example:
                                     on-reset-app-state="_resetAppState"
                                     on-toggle-parts-menu="toggleParts"
                                     on-settings-button-clicked="toggleMenu"></kano-workspace>
-                    <div class="code-view">
-                        <kano-code-view code="[[code.snapshot.javascript]]" lang="javascript"></kano-code-view>
-                    </div>
+                    <kano-code-display id="code-display" code="[[_setCodeDisplay(code.snapshot.javascript, workspaceTab)]]" lang="javascript"></kano-code-display>
                 </iron-pages>
             </div>
             <div name="code" class="editor" id="blocks-panel">
