@@ -128,13 +128,13 @@
         <iron-image class="title" src="/assets/kano-logo-simple.svg" sizing="contain"></iron-image>
         <div class="user-profile" id="profile-container">
             <button id="user-button" type="button" on-tap="_userOptionsTapped">
-                <iron-image src="[[user.avatar.urls.circle]]" sizing="contain" hidden$="[[!user]]"></iron-image>
+                <iron-image src="[[avatar]]" sizing="contain" hidden$="[[!user]]"></iron-image>
                 <div class="login" hidden$="[[user]]">[[localize('LOGIN', 'login')]]</div>
             </button>
             <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
                 <ul>
                     <li class="user">
-                        <iron-image src="[[user.avatar.urls.circle]]" preload fade sizing="contain"></iron-image>
+                        <iron-image src="[[avatar]]" sizing="contain" hidden$="[[!user]]"></iron-image>
                         <div class="info">
                             <div class="name">[[user.username]]</div>
                             <div class="level">[[localize('LEVEL', 'Level')]] [[profile.level]]</div>
@@ -156,18 +156,32 @@
             behaviors: [Kano.Behaviors.I18nBehavior],
             properties: {
                 exitUrl: String,
+                exitButtonLabel: String,
+                profile: Object,
                 user: {
                     type: Object,
                     value: null
                 },
-                exitButtonLabel: String,
-                profile: Object
+                avatar: {
+                    type: String,
+                    computed: '_computeAvatar(user, defaultAvatar)'
+                }
+                defaultAvatar: {
+                    type: String,
+                    value: 'https://s3-eu-west-1.amazonaws.com/world.kano.me/users/avatars/563890fec4d6960800c721f7/avatar-circle.png'
+                },
             },
             attached () {
                 this.exitButtonLabel = this._runningOnElectron() ? this.localize('BACK', 'Back') : this.localize('EXIT', 'Exit');
             },
             _runningOnElectron () {
                 return navigator.userAgent.indexOf("Electron") > -1;
+            },
+            _computeAvatar(user, defaultAvatar) {
+                if (user && user.avatar && user.avatar.urls) {
+                    return user.avatar.urls.circle || defaultAvatar;
+                }
+                return defaultAvatar;
             },
             _exitButtonTapped () {
                 if (this._runningOnElectron()) {
