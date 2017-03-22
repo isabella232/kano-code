@@ -38,6 +38,10 @@ Polymer({
                 };
             }
         },
+        selectedTab: {
+            type: Number,
+            value: 0
+        },
         remixMode: {
             type: Boolean,
             value: false
