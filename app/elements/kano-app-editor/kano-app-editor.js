@@ -38,6 +38,10 @@ Polymer({
                 };
             }
         },
+        workspaceTab: {
+            type: String,
+            value: 'workspace'
+        },
         remixMode: {
             type: Boolean,
             value: false
@@ -637,6 +641,12 @@ Polymer({
         });
         document.body.appendChild(this.fileInput);
         this.fileInput.click();
+    },
+    _setCodeDisplay(code, workspaceTab) {
+        if (workspaceTab === 'workspace') {
+            return;
+        }
+        return js_beautify(code);
     },
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);

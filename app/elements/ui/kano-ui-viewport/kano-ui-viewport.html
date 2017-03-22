@@ -1,3 +1,5 @@
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
 <!--
 
 ## kano-ui-viewport component usage
@@ -81,6 +83,7 @@ the content out of proportions to make it fit inside the available space.
 
     Polymer({
         is: 'kano-ui-viewport',
+        behaviors: [Polymer.IronResizableBehavior],
         properties: {
             viewWidth: {
                 type: Number,
@@ -108,6 +111,9 @@ the content out of proportions to make it fit inside the available space.
         observers: [
             'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
         ],
+        listeners: {
+            'iron-resize': 'resizeView'
+        },
         resizeView () {
             requestAnimationFrame(() => {
                 switch (this.mode) {

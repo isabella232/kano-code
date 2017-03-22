@@ -1,9 +1,11 @@
 <script src="../../bower_components/interact/interact.js"></script>
+<script src="../../bower_components/js-beautify/js/lib/beautify.js"></script>
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
@@ -15,19 +17,15 @@
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
+<link rel="import" href="../kano-code-display/kano-code-display.html">
 
 <!--
-
 `kano-app-editor`
-
 Example:
     <kano-app-editor></kano-app-editor>
-
  The following custom properties and mixins are also available for styling:
-
  Custom property | Description | Default
  ----------------|-------------|----------
-
 @group Kano Elements
 @hero hero.svg
 @demo ./demo/index.html
@@ -57,11 +55,46 @@ Example:
         @apply(--layout-vertical);
         min-width: 38%;
         max-width: 62%;
+        overflow: scroll;
         background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
+    }
+    .tab-selector {
+        --paper-tabs: {
+            height: 32px;
+            font-family: var(--font-body);
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+            background-color: var(--color-dark);
+        }
+        --paper-tabs-selection-bar: {
+            border-bottom: none;
+        }
+    }
+    .tab-selector .tab {
+        --paper-tab: {
+            width: 50%;
+            padding: 0;
+            border-top: 1px solid var(--color-dark);
+            border-left: 1px solid var(--color-dark);
+        }
+        --paper-tab-content-unselected: {
+            color: rgba(255, 255, 255, 0.5);
+            background-color: var(--color-abbey);
+        }
+        --paper-tab-ink: var(--color-dark);
+    }
+    :host iron-pages {
+        @apply --layout-vertical;
+        @apply --layout-flex;
     }
     :host #workspace-panel kano-workspace {
         @apply(--layout-flex);
-        padding: 10px 20px;
+        padding: 20px;
+    }
+    :host kano-code-display {
+        width: 466px;
+        margin: 20px;
     }
     :host [main] {
         @apply(--layout-vertical);
@@ -179,7 +212,6 @@ Example:
         background: #EA0923;
         color: white;
     }
-
     #partsPanel {
         --paper-drawer-panel-drawer-container: {
             box-shadow: none !important;
@@ -220,25 +252,34 @@ Example:
     <template>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
-                <kano-workspace id="workspace"
-                                class="visible-when-running"
-                                parts="{{addedParts}}"
-                                selected="{{selected}}"
-                                running="{{running}}"
-                                editable-layout="{{editableLayout}}"
-                                code="[[code]]"
-                                mode="[[mode]]"
-                                background="[[background.userStyle.background]]"
-                                parts-menu-open="[[partsMenuOpen]]"
-                                challenge-state="{{challengeState}}"
-                                on-ui-ready="workspaceUiReady"
-                                on-open-settings="onPartSettings"
-                                on-close-settings="closeSettings"
-                                on-change="_proxyChange"
-                                on-run-button-clicked="_runButtonClicked"
-                                on-reset-app-state="_resetAppState"
-                                on-toggle-parts-menu="toggleParts"
-                                on-settings-button-clicked="toggleMenu"></kano-workspace>
+                <template is="dom-if" if="[[modeReady]]">
+                    <paper-tabs class="tab-selector" attr-for-selected="id" selected="{{workspaceTab}}" autoselect>
+                        <paper-tab id="workspace" class="tab">Canvas</paper-tab>
+                        <paper-tab id="code-display" class="tab">JavaScript</paper-tab>
+                    </paper-tabs>
+                </template>
+                <iron-pages attr-for-selected="id" selected="{{workspaceTab}}">
+                    <kano-workspace id="workspace"
+                                    class="visible-when-running"
+                                    parts="{{addedParts}}"
+                                    selected="{{selected}}"
+                                    running="{{running}}"
+                                    editable-layout="{{editableLayout}}"
+                                    code="[[code]]"
+                                    mode="[[mode]]"
+                                    background="[[background.userStyle.background]]"
+                                    parts-menu-open="[[partsMenuOpen]]"
+                                    challenge-state="{{challengeState}}"
+                                    on-ui-ready="workspaceUiReady"
+                                    on-open-settings="onPartSettings"
+                                    on-close-settings="closeSettings"
+                                    on-change="_proxyChange"
+                                    on-run-button-clicked="_runButtonClicked"
+                                    on-reset-app-state="_resetAppState"
+                                    on-toggle-parts-menu="toggleParts"
+                                    on-settings-button-clicked="toggleMenu"></kano-workspace>
+                    <kano-code-display id="code-display" code="[[_setCodeDisplay(code.snapshot.javascript, workspaceTab)]]" lang="javascript"></kano-code-display>
+                </iron-pages>
             </div>
             <div name="code" class="editor" id="blocks-panel">
                 <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
