@@ -53,12 +53,11 @@
             };
         }
         :host([force-cta]) {
-            z-index: 99;
+            z-index: 1;
         }
         :host .content {
             @apply --layout-flex;
             @apply --layout-horizontal;
-            z-index: 10;
             height: 100%;
             box-sizing: border-box;
             padding: 24px 0 8px;
@@ -145,6 +144,7 @@
         }
     </style>
     <template>
+        <iron-overlay-backdrop id="backdrop" on-click="_animateCta"></iron-overlay-backdrop>
         <iron-image src="[[imgSrc]]" alt="Judoka in a speech bubble" sizing="contain" hidden$="[[imgPage]]"></iron-image>
         <iron-pages class="animations-pager" attr-for-selected="name" selected="[[imgPage]]" hidden$="[[!imgPage]]">
             <div name="judoka">
@@ -215,7 +215,6 @@
                 <button id="primary-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped">[[buttonLabel]]</button>
             </kano-glint-animation>
         </div>
-        <iron-overlay-backdrop id="backdrop" on-click="_animateCta"></iron-overlay-backdrop>
     </template>
 </dom-module>
 
