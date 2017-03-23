@@ -646,7 +646,7 @@ Polymer({
         if (workspaceTab === 'workspace') {
             return;
         }
-        return js_beautify(code);
+        return js_beautify(code, { 'indent_size': 2 });
     },
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);
