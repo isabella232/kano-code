@@ -38,67 +38,68 @@ Example:
         @apply --layout-vertical;
     }
     :host section {
-        @apply(--layout-horizontal-reverse);
-        @apply(--layout-flex);
+        @apply --layout-horizontal-reverse;
+        @apply --layout-flex;
     }
     :host section #blocks-panel {
         position: relative;
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        @apply(--kano-inset-box-shadow)
         min-width: 38%;
         max-width: 62%;
         width: 55%;
+        @apply --layout-flex;
+        @apply --layout-vertical;
+        @apply --kano-inset-box-shadow;
     }
     :host section #workspace-panel {
         position: relative;
-        @apply(--layout-vertical);
         min-width: 38%;
         max-width: 62%;
-        overflow: scroll;
         background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
+        @apply --layout-vertical;
     }
     .tab-selector {
         --paper-tabs: {
             height: 32px;
-            font-family: var(--font-body);
-            font-weight: bold;
-            color: #fff;
-            text-transform: uppercase;
             background-color: var(--color-dark);
-        }
+        };
         --paper-tabs-selection-bar: {
             border-bottom: none;
-        }
+        };
     }
     .tab-selector .tab {
         --paper-tab: {
             width: 50%;
+            color: #fff;
+            font-family: var(--font-body);
+            font-weight: bold;
+            text-transform: uppercase;
             padding: 0;
             border-top: 1px solid var(--color-dark);
             border-left: 1px solid var(--color-dark);
-        }
+        };
         --paper-tab-content-unselected: {
             color: rgba(255, 255, 255, 0.5);
             background-color: var(--color-abbey);
-        }
+        };
         --paper-tab-ink: var(--color-dark);
     }
-    :host iron-pages {
+    :host iron-pages.workspace-pages {
+        overflow-y: auto;
         @apply --layout-vertical;
         @apply --layout-flex;
     }
     :host #workspace-panel kano-workspace {
-        @apply(--layout-flex);
-        padding: 20px;
+        @apply --layout-flex;
+        margin: 16px;
     }
     :host kano-code-display {
         width: 466px;
-        margin: 20px;
+        flex: 1 0 auto;
+        margin: 16px;
     }
     :host [main] {
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
+        @apply --layout-vertical;
+        @apply --layout-flex;
         position: relative;
     }
     kano-root-view {
@@ -119,9 +120,9 @@ Example:
         @apply(--layout-vertical);
     }
     :host .drawer-content {
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
-        @apply(--layout-center-justified);
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        @apply --layout-center-justified;
     };
     :host .drawer-content > * {
         margin-top: 8%;
@@ -135,10 +136,10 @@ Example:
         top: 12px;
         right: 20px;
         background-color: var(--color-green, green);
-        @apply(--kano-button);
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
+        @apply --kano-button;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        @apply --layout-center-justified;
     }
     :host .close-drawer .times {
         font-size: 25px;
@@ -258,7 +259,7 @@ Example:
                         <paper-tab id="code-display" class="tab">JavaScript</paper-tab>
                     </paper-tabs>
                 </template>
-                <iron-pages attr-for-selected="id" selected="{{workspaceTab}}">
+                <iron-pages class="workspace-pages" attr-for-selected="id" selected="[[workspaceTab]]">
                     <kano-workspace id="workspace"
                                     class="visible-when-running"
                                     parts="{{addedParts}}"
