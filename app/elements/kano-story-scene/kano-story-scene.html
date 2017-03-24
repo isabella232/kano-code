@@ -36,7 +36,15 @@
     <template>
         <iron-lazy-pages class="scene" attr-for-selected="name" selected="[[name]]" restamp>
             <template is="iron-lazy-page" name="editor">
-                <kano-scene-editor user="[[user]]" store="{{store}}" story-name="[[storyName]]" scene="[[sceneData]]" extensions="{{extensions}}" on-scene-done="sceneCompleted" next-story="{{nextStory}}" ended="[[scene.ended]]"></kano-scene-editor>
+                <kano-scene-editor user="[[user]]"
+                                   store="{{store}}"
+                                   story-name="[[storyName]]"
+                                   scene="[[sceneData]]"
+                                   extensions="{{extensions}}"
+                                   on-scene-done="sceneCompleted"
+                                   next-story="{{nextStory}}"
+                                   ended="[[scene.ended]]"
+                                   added-parts="{{addedParts}}"></kano-scene-editor>
             </template>
             <template is="iron-lazy-page" name="empty"></template>
         </iron-lazy-pages>
@@ -76,7 +84,11 @@
             extensions: {
                 type: Array
             },
-            user: Object
+            user: Object,
+            addedParts: { /* This property is used by HardwareAPI in the view */
+                type: Array,
+                notify: true
+            }
         },
         observers: [
             'componentChanged(scene.component)'

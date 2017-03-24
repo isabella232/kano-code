@@ -397,16 +397,18 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
-            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
+            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+
+            let hardwareAPI = new Kano.MakeApps.HardwareAPI(
+                    Kano.MakeApps.config,
+                    this.addedParts
+                );
+
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
-
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-
-            hardwareAPI.config(Kano.MakeApps.config);
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);

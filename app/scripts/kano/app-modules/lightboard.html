@@ -51,8 +51,21 @@
                 };
             }
 
+            /* The UI doesn't allow more than lightboard at the minute so
+             * get all connected lightboards and do the action on all of them.
+             */
+            _getAllLightboards () {
+                return this.api.getAllDevices().filter((dev) => {
+                    return dev.product === 'lightboard';
+                });
+            }
+
             drawLights () {
-                return this.api.light.on(this.bitmap.slice(0));
+                let bitmap = this.bitmap.slice(0);
+
+                this._getAllLightboards().map((lightboard) => {
+                    lightboard.drawBitmap(bitmap);
+                });
             }
 
             updateAndSync (force, cb) {
@@ -202,27 +215,20 @@
                 this._animateText(animationFrames, this.currentAnimation, speed, callback);
             }
 
-            _on () {
-                this.api.on.apply(this.api, arguments);
+            _on (name, callback) {
+                this._getAllLightboards().map((lightboard) => {
+                    lightboard.on(name, callback);
+                });
             }
 
-            _removeListener () {
-                this.api.removeListener.apply(this.api, arguments);
-            }
-
-            /**
-             * This method will only be called by Kano Code in a remote context to connect to the socket.io server
-             * But anyways, the abstract version of the Hardware API implements stub methods to fail silently
-             */
-            _connect (info) {
-                this.api.connect();
-                this.api.on('connect', () => {
-                    this.api.emit('lightboard:init', info);
+            _removeListener (name, callback) {
+                this._getAllLightboards().map((lightboard) => {
+                    lightboard.removeListener(name, callback);
                 });
             }
         }
 
-        Kano.AppModules.modules['lightboard'] = new LightboardModule();
+        Kano.AppModules.modules.lightboard = new LightboardModule();
 
     })(window.Kano = window.Kano || {});
 </script>
