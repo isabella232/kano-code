@@ -143,6 +143,7 @@ Polymer({
     },
     _onModeReady () {
         this.modeReady = true;
+        this.triggerResize();
     },
     _partEditorDialogClosed (e) {
         let target = e.path ? e.path[0] : e.target;
