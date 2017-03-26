@@ -28,6 +28,10 @@
             top: 0px;
             left: 0px;
         }
+        :host([joystick-mouse-off]) #joystick,
+        :host([joystick-mouse-off]) #joystick button.js-dir {
+            pointer-events: none;
+        }
         .btn {
             position: absolute;
             width: 32px;
@@ -47,7 +51,7 @@
         }
         .btn:focus {
             outline: none;
-            @apply(--shadow-elevation-2dp);
+            @apply --shadow-elevation-2dp;
         }
         .btn.pressed {
             transform: scale(0.97);
@@ -69,12 +73,12 @@
             top: 264px;
             left: 26px;
             background-color: #4c4f55;
-            transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 150ms, opacity cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
-            @apply(--layout-horizontal);
-            @apply(--layout-wrap);
+            transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 100ms, opacity cubic-bezier(0.2, 0, 0.13, 1.5) 100ms;
             overflow: hidden;
             transform: rotate(45deg);
             opacity: 0;
+            @apply --layout-horizontal;
+            @apply --layout-wrap;
         }
         #joystick:hover,
         #joystick.pressed {
@@ -94,7 +98,7 @@
             width: 50%;
             height: 50%;
             box-sizing: border-box;
-            transition: opacity cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
+            transition: opacity cubic-bezier(0.2, 0, 0.13, 1.5) 100ms;
             background-color: #3c3d3f;
             border: 0px;
             cursor: pointer;
@@ -220,6 +224,9 @@
         Polymer({
             is: 'kano-workspace-lightboard',
             behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.PartsAPI.lightboard],
+            observers: [
+                '_disableJoystickMouse(joystickQueue.length)'
+            ],
             listeners: {
                 'update-shape': '_updateShape'
             },
@@ -230,12 +237,35 @@
                         return {};
                     }
                 },
-                fireIntervals: {
+                firingEvents: {
                     type: Object,
                     value: () =>  {
                         return {};
                     }
-                }
+                },
+                joystickQueue: {
+                    type: Array,
+                    value: () => []
+                },
+                joystickMouseOff: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                },
+                keyMap: {
+                    type: Object,
+                    value: () => {
+                        return {
+                            'ArrowLeft': 'lightboard-js-left',
+                            'ArrowUp': 'lightboard-js-up',
+                            'ArrowRight': 'lightboard-js-right',
+                            'ArrowDown': 'lightboard-js-down',
+                            'a': 'lightboard-btn-A',
+                            'b': 'lightboard-btn-B',
+                            's': 'lightboard-btn-B'
+                        };
+                    }
+                },
+
             },
             ready () {
                 this.set('bitmap', new Array(128));
@@ -262,79 +292,116 @@
                 this.bitmap = bitmap;
             },
             _mouseDown (e) {
-                let target = e.path ? e.path[0].id : e.target.id;
+                if (e.type === 'touchstart') {
+                    e.stopPropagation();
+                }
+                let target = e.currentTarget.id;
                 if (this._isJoystick(target)) {
-                    //Don't allow simultaneous joystick direction
-                    if (this.isJoystickPressed) {
+                    //Don't allow simultaneous joystick action
+                    if (this.JoystickPressed) {
                         return;
                     }
-                    this.isJoystickPressed = true;
+                    this.joystickPressed = target;
                 }
+                this.isMouseUsed = true;
                 this.$[target].classList.add('pressed');
-                this.fireIntervals[target] = setInterval(() => this.fire(target), 100);
+                this.firingEvents[target] = setInterval(() => this.fire(target), 100);
             },
             _mouseUp (e) {
-                let target = e.path ? e.path[0].id : e.target.id;
-                if (this._isJoystick(target)) {
-                    this.isJoystickPressed = false;
+                if (e.type === 'touchend') {
+                    e.stopPropagation();
                 }
-                this.$[target].classList.remove('pressed');
-                clearInterval(this.fireIntervals[target]);
-            },
-            _onKeyDown (e) {
-                let map,
-                    target;
-
-                if (this.pressedKeys[e.key]) {
+                let target = e.currentTarget.id;
+                //Check if function wasn't called by mouseleave event without click
+                if (!this.isMouseUsed) {
                     return;
                 }
-                map = {
-                    'ArrowLeft': 'lightboard-js-left',
-                    'ArrowUp': 'lightboard-js-up',
-                    'ArrowRight': 'lightboard-js-right',
-                    'ArrowDown': 'lightboard-js-down',
-                    'a': 'lightboard-btn-A',
-                    'b': 'lightboard-btn-B',
-                    's': 'lightboard-btn-B'
+                //Check if mouseup is on the joystick being pressed
+                if (this.joystickPressed === target) {
+                    this.joystickPressed = null;
                 }
-                target = map[e.key];
+                //Set false if no other joystick is being held
+                if (!this.joystickPressed) {
+                    this.isMouseUsed = false;
+                }
+                this.$[target].classList.remove('pressed');
+                clearInterval(this.firingEvents[target]);
+            },
+            _onKeyDown (e) {
+                let target = this.keyMap[e.key];
 
-                //Don't allow simultaneous joystick direction
-                if (target && !(this.isJoystickPressed && this._isJoystick(target))) {
-                    this._simulatePressed(target, e.key);
+                if (!target || this.pressedKeys[e.key]) {
+                    return;
                 }
+                this.pressedKeys[e.key] = true;
+
+                if (this._isJoystick(target)) {
+                    //Don't trigger action if mouse or touch controls joystick
+                    if (this.joystickPressed) {
+                        return;
+                    }
+                    //We use a queue of joystick keys to allow smoother transition
+                    if (this.joystickQueue.indexOf(target) === -1) {
+                        this.push('joystickQueue', target);
+                    }
+                    //Don't trigger action if there are keys in queue
+                    if (this.joystickQueue.length > 1) {
+                        return;
+                    }
+                }
+                this._simulatePressed(target, e.key);
             },
             _onKeyUp (e) {
-                let target = this.pressedKeys[e.key];
-                if (target) {
+                let target = this.keyMap[e.key],
+                    releasedIndex;
+
+                if (this.pressedKeys[e.key]) {
                     this.$[target].classList.remove('pressed');
+
                     if (this._isJoystick(target)) {
+                        //Splice released key from queue and simulate next event if there's any
+                        releasedIndex = this.joystickQueue.indexOf(target);
+                        this.splice('joystickQueue', releasedIndex, 1);
+                        if (releasedIndex === 0 && this.joystickQueue.length) {
+                            this._simulatePressed(this.joystickQueue[0]);
+                        }
                         // We keep the joystick simulation and only remove if no other arrow keys are pressed
                         this.async(()=> {
-                            if (!this.isJoystickPressed) {
+                            if (this.joystickQueue.length === 0) {
                                 this.$.joystick.classList.remove('pressed');
                             }
                         }, 300);
-                        this.isJoystickPressed = false;
                     }
-                    this.pressedKeys[e.key] = null;
-                    clearInterval(this.fireIntervals[e.key]);
+                    delete this.pressedKeys[e.key];
+                    clearInterval(this.firingEvents[target]);
                 }
             },
-            _simulatePressed (target, key) {
+            _simulatePressed (target) {
                 this.$[target].classList.add('pressed');
                 if (this._isJoystick(target)) {
                     this.$.joystick.classList.add('pressed');
-                    this.isJoystickPressed = true;
                 }
-                this.pressedKeys[key] = target;
-                this.fireIntervals[key] = setInterval(() => this.fire(target), 100);
+                this.firingEvents[target] = setInterval(() => this.fire(target), 100);
             },
             _isJoystick (target) {
                 return target.search(/js/) !== -1;
             },
+            _disableJoystickMouse (keyQueueLength) {
+                //We disable pointer events if keys control joystick
+                if (keyQueueLength > 1) {
+                    this.cancelAsync(this.pendingDisable);
+                    this.joystickMouseOff = true;
+                } else if (keyQueueLength) {
+                    //We delay the disabling to minimise DOM interaction
+                    this.pendingDisable = this.async(() => this.joystickMouseOff = true, 800);
+                } else {
+                    this.cancelAsync(this.pendingDisable);
+                    this.joystickMouseOff = false;
+                }
+            },
             _stopSimulation () {
-                Object.keys(this.fireIntervals).forEach(key => clearInterval(this.fireIntervals[key]));
+                Object.keys(this.firingEvents).forEach(target => clearInterval(this.firingEvents[target]));
+                this.cancelAsync(this.pendingDisable);
                 this.$.joystick.classList.remove('pressed');
                 this.pressedKeys = {};
             },
