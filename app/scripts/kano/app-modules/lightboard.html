@@ -8,6 +8,8 @@
                 this.backgroundColor = '#000000';
                 this.lights = new Array(128);
                 this.shapes = {};
+                this.scrolling = false;
+                this.scrollStack = [];
                 this.debounceId = null;
                 this.bitmap = new Array(128);
 
@@ -34,7 +36,10 @@
                 this.lights = new Array(128);
                 this.bitmap = new Array(128);
                 this.shapes = {};
-                this.currentAnimation = null;
+                this.scrollStack = [];
+                this.scrolling = false;
+                clearTimeout(this.scrollNextTimeout);
+                clearTimeout(this.animateFrameTimeout);
             }
             static getIndex (x, y) {
                 return LightboardModule.coordToIndex(x, y, 16);
@@ -176,13 +181,13 @@
                 this.updateAndSync(false, cb);
             }
 
-            _animateText (animationFrames, animationTime, speed, callback) {
-                if (animationFrames.length && this.currentAnimation === animationTime){
+            _animateText (animationFrames, speed, callback) {
+                if (animationFrames.length) {
                     this.bitmap = animationFrames.shift();
                     this.drawLights();
-                    setTimeout(() => {
+                    this.animateFrameTimeout = setTimeout(() => {
                         callback(this.bitmap);
-                        this._animateText(animationFrames, animationTime, speed, callback);
+                        this._animateText(animationFrames, speed, callback);
                     }, speed);
                 }
 
@@ -195,11 +200,33 @@
             }
 
             _scroll (text, color, backgroundColor, speed, callback) {
-                speed = (100 / speed) * 250;
-                let animationFrames = Kano.PixelFont.generateAnimation(text, color, backgroundColor);
+                let scrollItem = {
+                    text: text,
+                    color: color,
+                    backgroundColor: backgroundColor,
+                    speed: speed,
+                    callback: callback
+                }
+                this.scrollStack.push(scrollItem);
+                if (!this.scrolling) {
+                    this._scrollNext();
+                }
+            }
 
-                this.currentAnimation = Date.now();
-                this._animateText(animationFrames, this.currentAnimation, speed, callback);
+            _scrollNext () {
+                let item = this.scrollStack.shift();
+                if (!item) {
+                    this.scrolling = false;
+                    return;
+                }
+                this.scrolling = true;
+                item.speed = (100 / item.speed) * 250;
+                let animationFrames = Kano.PixelFont.generateAnimation(item.text, item.color, item.backgroundColor);
+                this._animateText(animationFrames, item.speed, item.callback);
+
+                this.scrollNextTimeout = setTimeout(() => {
+                    this._scrollNext();
+                }, item.speed * animationFrames.length);
             }
 
             _on () {
