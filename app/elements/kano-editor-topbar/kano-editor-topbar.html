@@ -164,12 +164,8 @@
                 },
                 avatar: {
                     type: String,
-                    computed: '_computeAvatar(user, defaultAvatar)'
+                    computed: '_computeAvatar(user)'
                 }
-                defaultAvatar: {
-                    type: String,
-                    value: 'https://s3-eu-west-1.amazonaws.com/world.kano.me/users/avatars/563890fec4d6960800c721f7/avatar-circle.png'
-                },
             },
             attached () {
                 this.exitButtonLabel = this._runningOnElectron() ? this.localize('BACK', 'Back') : this.localize('EXIT', 'Exit');
@@ -177,11 +173,11 @@
             _runningOnElectron () {
                 return navigator.userAgent.indexOf("Electron") > -1;
             },
-            _computeAvatar(user, defaultAvatar) {
+            _computeAvatar(user) {
                 if (user && user.avatar && user.avatar.urls) {
-                    return user.avatar.urls.circle || defaultAvatar;
+                    return user.avatar.urls.circle || '/assets/avatar/judoka-face.svg';
                 }
-                return defaultAvatar;
+                return '/assets/avatar/judoka-face.svg';
             },
             _exitButtonTapped () {
                 if (this._runningOnElectron()) {
