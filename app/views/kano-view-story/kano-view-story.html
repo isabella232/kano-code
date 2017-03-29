@@ -95,10 +95,7 @@
             }
         },
         ready () {
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(
-                Kano.MakeApps.config,
-                this.addedParts
-            );
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
 
             this.modal = this.$['share-modal'];
 
@@ -130,7 +127,7 @@
                 .then((progress) => this.updateExtensions(progress));
         },
         _addedPartsChanged () {
-            this.hardwareAPI.emit('parts-changed', this.addedParts);
+            this.hardwareAPI.setParts(this.addedParts);
         },
         updateExtensions (progress) {
             let story = this.story,

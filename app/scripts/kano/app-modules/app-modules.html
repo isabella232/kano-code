@@ -106,10 +106,8 @@
                                     }
                                 },
                                 attached () {
-                                    var hwAPI = new Kano.MakeApps.HardwareAPI(
-                                            Kano.MakeApps.config,
-                                            Object.keys(this.parts).map(id => this.parts[id])
-                                        );
+                                    var hwAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+                                    hwAPI.setParts(Object.keys(this.parts).map(id => this.parts[id]));
 
                                     this.workspace = this.$['${mode.id}'];
                                     this.appModules = Kano.AppModules.createStandalone();

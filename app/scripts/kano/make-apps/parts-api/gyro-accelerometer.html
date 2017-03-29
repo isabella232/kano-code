@@ -18,14 +18,41 @@
                     this.lastAccelVector = e;
                 };
 
-                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
-                Kano.AppModules.getModule('gyroAccelerometer').on('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+                this.mappingChangedEventListener = (e) => {
+                    if (this.isRunning) {
+                        this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
+                    } else {
+                        if (this.model.connected !== !!e.detail.newDevice) {
+                            this.model.connected = !!e.detail.newDevice;
+                            this.notifyPath('model.connected');
+                        }
+                    }
+                };
+
+                this.remapListeners(null, Kano.AppModules.getModule('gyroAccelerometer').getDeviceForPart(this.id), true);
+                Kano.AppModules.getModule('gyroAccelerometer').on(this.id + '-mapping-changed', this.mappingChangedEventListener);
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
 
-                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:gyro-data', this.gyroEventListener);
-                Kano.AppModules.getModule('gyroAccelerometer').removeListener('gyro-accelerometer:0:accelerometer-data', this.accelEventListener);
+                Kano.AppModules.getModule('gyroAccelerometer').removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
+                this.remapListeners(Kano.AppModules.getModule('gyroAccelerometer').getDeviceForPart(this.id), null);
+            },
+            remapListeners (oldDevice, newDevice, notify) {
+                if (oldDevice) {
+                    oldDevice.removeListener('gyro-data', this.gyroEventListener);
+                    oldDevice.removeListener('accelerometer-data', this.accelEventListener);
+                }
+
+                if (newDevice) {
+                    newDevice.on('gyro-data', this.gyroEventListener);
+                    newDevice.on('accelerometer-data', this.accelEventListener);
+                }
+
+                if (notify && this.model.connected !== !!newDevice) {
+                    this.model.connected = !!newDevice;
+                    this.notifyPath('model.connected');
+                }
             },
             getGyroData (axis) {
                 return this.lastGyroVector[axis];

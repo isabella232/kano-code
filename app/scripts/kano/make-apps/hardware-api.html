@@ -6,8 +6,6 @@
 
         function getDeviceUpdateHandler(self, hwapi) {
             return (devices) => {
-                console.log("Received device-update", devices);
-
                 // Drop disconnected devices
                 self.devices = self.devices.filter((existingDevice) => {
                     let exists = false;
@@ -42,6 +40,8 @@
                             newDevice = new Lightboard(deviceInfo, hwapi);
                         } else if (deviceInfo.product === 'camera') {
                             newDevice = new Camera(deviceInfo, hwapi);
+                        } else if (deviceInfo.product === 'gyro-accelerometer') {
+                            newDevice = new TiltSensor(deviceInfo, self);
                         } else {
                             newDevice = new PowerUpDevice(deviceInfo, self);
                         }
@@ -73,12 +73,44 @@
                 super(options);
 
                 this.master = master;
+                this.emitter = new EventEmitter();
             }
 
-            on (name, cb) {
+            _socketOn (name, cb) {
                 if (this.master.socket) {
                     this.master.socket.on(name, cb);
                 }
+            }
+
+            _socketRemoveListener (name, cb) {
+                if (this.master.socket) {
+                    this.master.socket.removeListener(name, cb);
+                }
+            }
+
+            on () {
+                this.emitter.on.apply(this.emitter, arguments);
+            }
+
+            removeListener () {
+                this.emitter.removeListener.apply(this.emitter, arguments);
+            }
+        }
+
+        class TiltSensor extends PowerUpDevice {
+            constructor (options, master) {
+                super(options, master);
+
+                let tokens = this.id.split('-');
+
+                this.number = tokens[tokens.length - 1];
+
+                this._socketOn(`gyro-accelerometer:${this.number}:gyro-data`, (value) => {
+                    this.emitter.emit('gyro-data', value);
+                });
+                this._socketOn(`gyro-accelerometer:${this.number}:accelerometer-data`, (value) => {
+                    this.emitter.emit('accelerometer-data', value);
+                });
             }
         }
 
@@ -209,11 +241,11 @@
 
         // ----
         class HardwareAPI extends EventEmitter {
-            constructor (config, addedParts) {
+            constructor (config) {
                 super();
 
                 if (config) {
-                    this.config(config, addedParts);
+                    this.config(config);
                 }
             }
 
@@ -221,13 +253,12 @@
              * This is here purely for backwards-comparibility with old
              * exported apps.
              */
-            config (config, addedParts) {
+            config (config) {
                 this.devices = [];
                 this.url = this._getAPIUrl(config);
                 this.partsToDevicesMap = {};
 
-                this.parts = addedParts || [];
-                this.on('parts-changed', this.reassignDevices.bind(this));
+                this.parts = [];
                 this.reassignDevices();
 
                 this.socket = io.connect(this.url);
@@ -236,6 +267,11 @@
 
                 this.socket.on('device-update', getDeviceUpdateHandler(this, this));
                 this.socket.emit('request-device-update');
+            }
+
+            setParts (parts) {
+                this.parts = parts;
+                this.reassignDevices();
             }
 
             getAllDevices () {
@@ -251,7 +287,16 @@
 
                     if (existingPartsIds.indexOf(partId) < 0 ||
                         existingDevicesIds.indexOf(dev.id) < 0) {
+
+                        this.emit(`${partId}-mapping-changed`, {
+                            detail: {
+                                oldDevice: this.partsToDevicesMap[partId],
+                                newDevice: null
+                            }
+                        });
                         delete this.partsToDevicesMap[partId];
+
+                        let part = this._getPartById(partId);
                     }
                 });
             }
@@ -275,29 +320,41 @@
             }
 
             reassignDevices () {
-                this._cleanupDeviceMap();
+                setTimeout(() => {
+                    this._cleanupDeviceMap();
 
-                this.devices.forEach((dev) => {
-                    if (!this.getPartForDevice(dev.id)) {
-                        let part = this._findFreeMatchingPartForDevice(dev);
+                    this.devices.forEach((dev) => {
+                        if (!this.getPartForDevice(dev.id)) {
+                            let part = this._findFreeMatchingPartForDevice(dev);
 
-                        if (part) {
-                            this.partsToDevicesMap[part.id] = dev;
-                        } else {
-                            /* TODO: no matching part exists, emit an event to
-                                     request one being added. */
-                            undefined;
+                            if (part) {
+                                this.partsToDevicesMap[part.id] = dev;
+                                this.emit(`${part.id}-mapping-changed`, {
+                                    detail: {
+                                        oldDevice: null,
+                                        newDevice: this.partsToDevicesMap[part.id]
+                                    }
+                                });
+                            } else {
+                                /* Request a new part to be added */
+                                setTimeout(() => {
+                                    this.emit('new-part-request', { detail: dev });
+                                }, 0);
+                            }
                         }
-                    }
-                });
+                    });
+                }, 0);
             }
 
             getPartForDevice (deviceId) {
-                for (let partId in this.partsToDevicesMap) {
-                    let dev = this.partsToDevicesMap[partId];
+                let partIds = Object.keys(this.partsToDevicesMap);
 
-                    if (deviceId === dev.id) {
-                        return this.parts[partId];
+                for (let i = 0; i < partIds.length; i++) {
+                    let partId = partIds[i],
+                        dev = this.partsToDevicesMap[partId];
+
+                    if (dev.id === deviceId) {
+                        return this._getPartById(partId);
                     }
                 }
 
@@ -306,6 +363,16 @@
 
             getDeviceForPart (partId) {
                 return this.partsToDevicesMap[partId];
+            }
+
+            _getPartById (partId) {
+                for (let i = 0; i < this.parts.length; i++) {
+                    if (this.parts[i].id === partId) {
+                        return this.parts[i];
+                    }
+                }
+
+                return null;
             }
 
             _doGetAllDevices (root) {
