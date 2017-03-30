@@ -73,6 +73,10 @@
                 super(options);
 
                 this.master = master;
+                if (!(master instanceof HardwareAPI)) {
+                    this.id = `${master.id}-${this.id}`;
+                }
+
                 this.emitter = new EventEmitter();
             }
 
