@@ -92,8 +92,9 @@
                                         text="[[banner.text]]"
                                         img-src="[[banner.icon]]"
                                         img-page="[[banner.imgPage]]"
-                                        button-label="[[banner.buttonLabel]]"
                                         show-button="[[banner.showButton]]"
+                                        button-label="[[banner.buttonLabel]]"
+                                        force-cta="[[banner.forceCta]]"
                                         is-last="[[banner.isLast]]"
                                         on-button-tapped="_bannerButtonTapped"></kano-editor-banner>
                 </div>
@@ -211,6 +212,7 @@
                         this.set('banner.text', step.banner.text);
                         this.set('banner.buttonLabel', step.banner.next_button ? this.localize('NEXT', 'Next') : null);
                         this.set('banner.showButton', !!this.banner.buttonLabel);
+                        this.set('banner.forceCta', !!this.banner.buttonLabel);
                     } else {
                         this.banner = null;
                     }
@@ -238,18 +240,22 @@
                         } else if (step.banner.animation) {
                             this.set('banner.imgPage', animation);
                             this.set('banner.icon', null);
+                            this.set('banner.isLast', false);
                         } else if (step.banner.icon) {
                             iconId = step.banner.icon;
                             this.set('banner.icon', BANNER_ICONS[iconId]);
                             this.set('banner.imgPage', null);
+                            this.set('banner.isLast', false);
                         } else {
                             this.set('banner.icon', null);
                             this.set('banner.imgPage', 'judoka');
+                            this.set('banner.isLast', false);
                         }
                     } else {
                         //TODO quickfix for demo. Needs to be removed.
                         this.set('banner.icon', null);
                         this.set('banner.imgPage', 'judoka');
+                        this.set('banner.isLast', false);
                     }
                 }
             }, 200);

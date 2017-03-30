@@ -143,6 +143,7 @@ Polymer({
     },
     _onModeReady () {
         this.modeReady = true;
+        this.triggerResize();
     },
     _partEditorDialogClosed (e) {
         let target = e.path ? e.path[0] : e.target;
@@ -646,7 +647,7 @@ Polymer({
         if (workspaceTab === 'workspace') {
             return;
         }
-        return js_beautify(code);
+        return js_beautify(code, { 'indent_size': 2 });
     },
     updateWorkspaceRect (e) {
         this.set('workspaceRect', e.detail);

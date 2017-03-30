@@ -9,10 +9,11 @@
 		<style include="kano-prism-theme">
 			:host {
 				box-sizing: border-box;
-				padding: 8px;
+				padding: 8px 8px 0;
 				@apply --layout-horizontal;
 			}
 			:host pre {
+				width: 100%;
 				color: #fff;
 				white-space: pre-wrap;
 				padding: 0;
@@ -44,9 +45,7 @@
 				<span class="line-number"></span>
 			</template>
 		</div>
-		<div class="code-display">
-			<pre id="output"></pre>
-		</div>
+		<pre id="output"></pre>
 	</template>
 
 	<script>
@@ -75,7 +74,6 @@
 				if (!code) {
 					return;
 				}
-				console.log('RENDERING CODE');
 				this.$.output.innerHTML = this._highlight(this.code, this.lang);
 				this._computeLineNumbers();
 			},

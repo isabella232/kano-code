@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/web-components/kano-glint-animation/kano-glint-animation.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
@@ -39,12 +40,20 @@
             animation: 10s ease-in-out infinite eye-movement;
         }
         :host {
+            position: relative;
             flex-direction: row;
             @apply --layout-horizontal;
             @apply --layout-center;
             @apply --layout-center-justified;
             --iron-icon-width: 14px;
             --iron-icon-height: 14px;
+            --iron-overlay-backdrop-opened: {
+                background: transparent;
+                pointer-events: auto;
+            };
+        }
+        :host([force-cta]) {
+            z-index: 1;
         }
         :host .content {
             @apply --layout-flex;
@@ -117,10 +126,14 @@
         :host button.animate {
             animation-name: button-enter;
         }
-        :host([is-last]) #primary-button {
+        :host([is-last]) #primary-button,
+        :host([force-cta]) #primary-button {
             background-color: var(--color-grassland);
+            backface-visibility: hidden;
+            perspective: 1000px;
         }
-        :host([is-last]) #primary-button:hover {
+        :host([is-last]) #primary-button:hover,
+        :host([force-cta]) #primary-button:hover {
             background-color: var(--color-apple);
         }
         .markdown-html p {
@@ -131,6 +144,7 @@
         }
     </style>
     <template>
+        <iron-overlay-backdrop id="backdrop" on-click="_animateCta"></iron-overlay-backdrop>
         <iron-image src="[[imgSrc]]" alt="Judoka in a speech bubble" sizing="contain" hidden$="[[imgPage]]"></iron-image>
         <iron-pages class="animations-pager" attr-for-selected="name" selected="[[imgPage]]" hidden$="[[!imgPage]]">
             <div name="judoka">
@@ -197,7 +211,7 @@
                 <iron-icon class="save-icon" src="/assets/icons/save.svg"></iron-icon>
                 <div>[[localize('SAVE', 'Save')]]</div>
             </button>
-            <kano-glint-animation running="[[isLast]]">
+            <kano-glint-animation id="primary-button-container" running="[[_computeGlint(forceCta, isLast)]]">
                 <button id="primary-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped">[[buttonLabel]]</button>
             </kano-glint-animation>
         </div>
@@ -209,7 +223,7 @@
 
     Polymer({
         is: 'kano-editor-banner',
-        behaviors: [Kano.Behaviors.I18nBehavior],
+        behaviors: [Kano.Behaviors.AppElementRegistryBehavior, Kano.Behaviors.I18nBehavior],
         properties: {
             head: {
                 type: String,
@@ -235,6 +249,12 @@
                 value: false,
                 observer: '_showButtonChanged'
             },
+            forceCta: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true,
+                observer: '_forceCta'
+            },
             isLast: {
                 type: Boolean,
                 value: false,
@@ -242,9 +262,48 @@
                 observer: '_isLastChanged'
             }
         },
-        behaviors: [
-            Kano.Behaviors.AppElementRegistryBehavior
-        ],
+        _animateCta () {
+            this.$['primary-button-container'].animate([{
+                    offset: 0.0,
+                    transform: 'translate3d(0, 0, 0)'
+                },{
+                    offset: 0.1,
+                    transform: 'translate3d(-1px, 0, 0)'
+                }, {
+                    offset: 0.2,
+                    transform: 'translate3d(2px, 0, 0)'
+                }, {
+                    offset: 0.3,
+                    transform: 'translate3d(-3px, 0, 0)'
+                }, {
+                    offset: 0.4,
+                    transform: 'translate3d(3px, 0, 0)'
+                }, {
+                    offset: 0.5,
+                    transform: 'translate3d(-3px, 0, 0)'
+                }, {
+                    offset: 0.6,
+                    transform: 'translate3d(3px, 0, 0)'
+                }, {
+                    offset: 0.7,
+                    transform: 'translate3d(-3px, 0, 0)'
+                }, {
+                    offset: 0.8,
+                    transform: 'translate3d(2px, 0, 0)'
+                }, {
+                    offset: 0.9,
+                    transform: 'translate3d(-1px, 0, 0)'
+                }, {
+                    offset: 1,
+                    transform: 'translate3d(0, 0, 0)'
+                }
+            ], {
+                duration: 1200,
+                easing: 'cubic-bezier(0.36, 0.07, 0.19, 0.97)',
+                fill: 'both',
+                iterations: 1
+            });
+        },
         attached () {
             this._registerElement('banner-button', this.$.button);
         },
@@ -260,11 +319,22 @@
                 this._triggerAnimation(buttonElement);
             }
         },
+        _forceCta (value) {
+            //We block pointer events outside the banner with a transparent backdrop
+            if (value) {
+                this.$.backdrop.open();
+            } else {
+                this.$.backdrop.close();
+            }
+        },
         _isLastChanged (last) {
             if (last) {
                 let saveButtonElement = this.$['save-button'];
                 this._triggerAnimation(saveButtonElement);
             }
+        },
+        _computeGlint (isLast, forceCta) {
+            return (isLast || forceCta);
         },
         _triggerAnimation (element) {
             this.toggleClass('animate', false, element);
