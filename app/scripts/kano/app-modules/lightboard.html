@@ -63,7 +63,7 @@
             drawLights () {
                 let bitmap = this.bitmap.slice(0);
 
-                this._getAllLightboards().map((lightboard) => {
+                this._getAllLightboards().forEach((lightboard) => {
                     lightboard.drawBitmap(bitmap);
                 });
             }
@@ -216,13 +216,13 @@
             }
 
             _on (name, callback) {
-                this._getAllLightboards().map((lightboard) => {
+                this._getAllLightboards().forEach((lightboard) => {
                     lightboard.on(name, callback);
                 });
             }
 
             _removeListener (name, callback) {
-                this._getAllLightboards().map((lightboard) => {
+                this._getAllLightboards().forEach((lightboard) => {
                     lightboard.removeListener(name, callback);
                 });
             }
