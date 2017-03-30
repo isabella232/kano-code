@@ -51,7 +51,8 @@
                             extensions="[[story.extensions]]"
                             on-extend-story="extendStory"
                             on-next-story="nextStory"
-                            on-share="share"></kano-story-scene>
+                            on-share="share"
+                            added-parts="{{addedParts}}"></kano-story-scene>
         <paper-dialog id="share-modal" with-backdrop>
             <kano-share-modal on-confirm="confirmShare"
                               on-dismiss="dismissShare"
@@ -87,15 +88,18 @@
             story: {
                 type: Object,
                 observer: 'selectedChanged'
+            },
+            addedParts: {
+                type: Array,
+                observer: '_addedPartsChanged'
             }
         },
         ready () {
-            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+
             this.modal = this.$['share-modal'];
 
-            hardwareAPI.config(Kano.MakeApps.config);
-
-            Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
+            Kano.AppModules.init(Object.assign({ this.hardwareAPI }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
         },
@@ -121,6 +125,9 @@
                     }
                 })
                 .then((progress) => this.updateExtensions(progress));
+        },
+        _addedPartsChanged () {
+            this.hardwareAPI.setParts(this.addedParts);
         },
         updateExtensions (progress) {
             let story = this.story,

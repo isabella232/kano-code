@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../kano-icons/parts.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/color.html">
 <link rel="import" href="../inline-controls/kano-inline-controls.html">
 <dom-module id="kano-part-list-item">
     <template>
@@ -23,9 +24,12 @@
             .controls {
                 @apply --layout-flex;
             }
+            .disconnected {
+                color: var(--color-rhubarb);
+            }
         </style>
         <iron-icon icon="parts:[[model.type]]" class="icon"></iron-icon>
-        <div class="label">[[model.name]]</div>
+        <div class$="label {{_computeLabelClass(model.connected)}}">[[model.name]] {{_computeLabel(model.connected)}}</div>
         <div class="controls" id="controls"></div>
         <template id="oscillator">
             <kano-ic-oscillator id="inline-controls" model="[[model]]"></kano-ic-oscillator>
@@ -56,6 +60,12 @@
                 if (this.instance) {
                     this.instance._notifyPath(path, value, true);
                 }
+            },
+            _computeLabelClass (connected) {
+                return connected === false ? 'disconnected' : '';
+            },
+            _computeLabel (connected) {
+                return connected === false ? '(disconnected)' : '';
             },
             _typeChanged (type) {
                 let template = this.$[type];

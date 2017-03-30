@@ -87,7 +87,8 @@
             <kano-scene-editor id="editor"
                                scene="[[scene]]"
                                story-name="[[fileName]]"
-                               on-scene-done="_showEndModal"></kano-scene-editor>
+                               on-scene-done="_showEndModal"
+                               added-parts="{{addedParts}}"></kano-scene-editor>
         </template>
         <div class$="start-overlay {{_computeOverlayClass(testing)}}">
             <div class="wrapper">
@@ -142,12 +143,14 @@
             testing: {
                 type: Boolean,
                 value: false
+            },
+            addedParts: {
+                type: Array,
+                observer: '_addedPartsChanged'
             }
         },
         ready () {
-            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
-
-            hardwareAPI.config(Kano.MakeApps.config);
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
 
             Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
 
@@ -164,6 +167,9 @@
             window.dumpChallenge = () => {
                 return this.dumpChallenge();
             };
+        },
+        _addedPartsChanged () {
+            this.hardwareAPI.setParts(this.addedParts);
         },
         dumpChallenge () {
             return JSON.stringify(this.challenge, null, '    ');

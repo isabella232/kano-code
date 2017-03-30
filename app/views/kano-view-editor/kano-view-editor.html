@@ -152,6 +152,9 @@
                 notify: true
             }
         },
+        observers: [
+            '_onAddedPartsChanged(addedParts.splices)'
+        ],
         attached () {
             this._onDragover = this._onDragover.bind(this);
             this._onDrop = this._onDrop.bind(this);
@@ -397,22 +400,35 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
-            let hardwareAPI = new Kano.MakeApps.HardwareAPI();
+            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('change', this.save.bind(this));
             this.modal = this.$['share-modal'];
 
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-
-            hardwareAPI.config(Kano.MakeApps.config);
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+            this.hardwareAPI.on('new-part-request', (e) => {
+                for (let i = 0; i < Kano.MakeApps.Parts.list.length; i++) {
+                    model = Kano.MakeApps.Parts.list[i];
+                    if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
+                        this.fire('add-part', model.type, { node: this.editor });
+                        break;
+                    }
+                }
+            });
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Object.assign({ hardwareAPI }, Kano.MakeApps.config));
+            Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
+        },
+        _onAddedPartsChanged () {
+            if (this.hardwareAPI) {
+                this.hardwareAPI.setParts(this.addedParts);
+            }
         },
         save () {
             let modeId = this.mode.id;

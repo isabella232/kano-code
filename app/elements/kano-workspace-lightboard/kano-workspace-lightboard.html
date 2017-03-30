@@ -271,10 +271,6 @@
                 this.set('bitmap', new Array(128));
             },
             attached () {
-                Kano.AppModules.getModule('lightboard').connect({
-                    name: 'Make Apps'
-                });
-
                 this._onKeyDown = this._onKeyDown.bind(this);
                 this._onKeyUp = this._onKeyUp.bind(this);
                 this._stopSimulation = this._stopSimulation.bind(this);
@@ -416,7 +412,7 @@
                 return this.$['led-matrix'];
             },
             renderOnCanvas (ctx, util, scaleFactor) {
-                let bitmap = this.appModules.getModule('lightboard').getBitmap(),
+                let bitmap = Kano.MakeApps.PartsAPI.lightboard.getBitmap(),
                     pxSize = 21,
                     paintLeds, hsl, x, y;
 
