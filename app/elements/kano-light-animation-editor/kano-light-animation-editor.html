@@ -1,180 +1,309 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
+<link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
-<link rel="import" href="../kano-pixel-animation-editor/kano-pixel-animation-editor.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/button.html">
-
+<link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+<link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
+<link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
+<link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
+<link rel="import" href="../kano-palette/kano-palette.html">
 <dom-module id="kano-light-animation-editor">
     <style>
     :host {
-        display: block;
-        @apply(--layout-vertical);
-        position: relative;
+        width: 80vw;
+        max-width: 960px;
+        @apply --layout-vertical;
+        @apply --layout-center-justified;
     }
-    .content {
-        @apply(--layout-vertical);
-        @apply(--layout-center);
+    :host button {
+        @apply --kano-button;
+        @apply --layout-horizontal;
+        @apply --layout-center-justified;
+        background-color: var(--color-chateau);
+        width: 48px;
+        height: 48px;
     }
-    .content>* {
-        margin-top: 32px;
+    kano-palette {
+        margin-right: 24px;
     }
-    kano-input-range {
-        width: 100%;
+    .main {
+        padding: 32px 48px;
+        @apply --layout-horizontal;
+        @apply --layout-start-justified;
     }
-    .fullscreen-config {
-        background: white;
-        display: none;
-        position: fixed;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        margin-top: 0px;
-        transform-origin: 0 0;
+    .control-container {
+        margin-left: 24px;
+        flex: 1 0 auto;
+        @apply --layout-vertical;
     }
-    .fullscreen-config.open {
-        display: block;
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
+    :host label {
+        display: inline-block;
+        font-family: var(--font-body);
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 24px;
+        @apply --layout-self-start;
     }
-    #config-content {
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
+    .control-content {
+        @apply --layout-flex;
+        @apply --layout-vertical;
+        @apply --layout-justified;
     }
-    .divider {
-        width: 2px;
-        background: grey;
+    :host .name-container {
+        @apply --layout-horizontal;
     }
-    .properties, .paint-space {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        padding-top: 32px;
-        position: relative;
+    :host .name-container label.name {
+        @apply --layout-self-center;
+        width: 80px;
+        margin-bottom: 0;
     }
-    .close-button {
-        @apply(--kano-button);
-        background-color: var(--color-green, green);
-        position: absolute;
-        top: 24px;
-        right: 24px;
+    .name-editor {
+        @apply --layout-flex;
+        --paper-input-container-input: {
+            color: #fff;
+            font-family: var(--font-body);
+            font-weight: bold;
+            padding-top: 4px;
+        };
+        --paper-input-container-underline: {
+            border: none;
+        };
+        --paper-input-container-underline-focus: {
+            border: none;
+        };
+        --paper-input-container: {
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            background-color: var(--color-chateau);
+            font-size: 18px;
+            padding: 3px 0;
+        };
+        --paper-input-container-label: {
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 18px;
+        };
     }
-    .paint-space .editor {
-        background-color: #dfdfdf;
-        border-radius: 3px;
-        box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
+    :host .row {
+        margin-bottom: 16px;
     }
-    button {
-        @apply(--kano-button);
+    :host .row:last-child {
+        margin-bottom: 0;
+    }
+    .slider {
+        --kano-settings-label: {
+            width: 80px;
+        };
+    }
+    .framelist-container {
+        height: 98px;
+        border-top: 1px solid #202428;
+        padding: 24px 48px 0;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+    }
+    .framelist-container button {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        font-size: 32px;
+        font-family: monospace;
+        padding: 0;
+        
+    }
+    .framelist-button-container {
+        margin-right: 16px;
+    }
+    #frames {
+        overflow: hidden;
+        @apply --layout-flex;
+    }
+    button.add-frame:disabled {
+        opacity: 0.3;
+    }
+    .canvas-container {
+        @apply --layout-flex-none;
+        @apply --layout-vertical;
+        width: 400px;
+        height: 244px;
+        margin: 0 24px;
+    }
+    .canvas-container iron-pages {
+        @apply --layout-horizontal;
+        @apply --layout-center-justified;
+    }
+    kano-pixel-canvas {
+        cursor: none;
+        --kano-pixel-editor-background: var(--color-dark);
+    }
+    .preview-renderer {
+        /*margin: 4px;*/
+    }
+    kano-animated-svg {
+        @apply --layout-flex;
+        width: 18px;
+        height: 18px;
+        -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+        --kano-animated-path: {
+            fill: white;
+            stroke: white;
+            stroke-width: 3px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all ease-in-out 200ms;
+        }
     }
     </style>
     <template>
-        <div class="content">
-            <div class="preview">
-                <kano-bitmap-renderer width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" pixel-size="24" bitmap="[[preview]]"></kano-bitmap-renderer>
+        <div class="header"></div>
+        <div class="main">
+            <kano-palette id="palette" bitmaps="[[bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
+            <div class="canvas-container">
+                <label>Canvas</label>
+                <iron-pages selected="[[previewState]]" attr-for-selected="name">
+                    <kano-pixel-canvas id="canvas" name="stopped" bitmap="{{selectedFrame}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
+                    <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21"></kano-bitmap-renderer>
+                </iron-pages>
             </div>
-            <button type="button" on-tap="_openConfig">Change Animation</button>
-            <div class="fullscreen-config" id="config">
-                <div id="config-content">
-                    <div class="properties">
-                        <kano-input-range value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
-                        <kano-input-range value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
-                        <kano-input-range value="{{selected.userProperties.speed}}" label="Frame rate" min="1" max="30" symbol="fps"></kano-input-range>
+            <div class="control-container">
+                <label>Controls</label>
+                <div class="control-content">
+                    <div class="name-container row">
+                        <label class="name">Name</label>
+                        <paper-input class="name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput" no-label-float></paper-input>
                     </div>
-                    <div class="divider"></div>
-                    <div class="paint-space">
-                        <button on-tap="_closeConfig" class="close-button">Close</button>
-                        <div class="editor">
-                            <kano-pixel-animation-editor width="[[selected.userProperties.width]]"
-                                                height="[[selected.userProperties.height]]"
-                                                speed="[[selected.userProperties.speed]]"
-                                                bitmaps="{{selected.userProperties.bitmaps}}"></kano-pixel-animation-editor>
-                        </div>
-                    </div>
+                    <kano-input-range class="slider row" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+                    <kano-input-range class="slider row" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+                    <kano-input-range class="slider row" value="{{selected.userProperties.speed}}" label="Frame rate" min="1" max="30" symbol="fps"></kano-input-range>
                 </div>
             </div>
         </div>
+        <div class="framelist-container">
+            <div class="framelist-button-container">
+                <button type="button" name="button" class="preview-control" on-tap="_togglePreviewState">
+                    <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+                </button>
+            </div>
+            <div class="framelist-button-container">
+                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><span><iron-icon icon="kano-icons:plus"></iron-icon></span></button>
+            </div>
+            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" width="[[width]]" height="[[height]]" class="frame-list" id="frames"></kano-bitmap-list>
+        </div>
     </template>
-</dom-module>
-<script type="text/javascript">
-    /* globals Polymer, Kano */
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-light-animation-editor',
+            behaviors: [PolymerFilters.FilterBehavior],
+            properties: {
+                selected: {
+                    type: Object,
+                    notify: true
+                },
+                bitmaps: {
+                    type: Array,
+                    value: () => {
+                        return [['#000000']];
+                    },
+                    notify: true
+                },
+                width: {
+                    type: Number,
+                    value: 1
+                },
+                height: {
+                    type: Number,
+                    value: 1
+                },
+                speed: {
+                    type: Number,
+                    value: 15
+                }
+            },
+            observers: [
+                '_bitmapChanged(selectedFrame, width, height)',
+                '_onSelectedChanged(selected.*)',
+                '_selectedFrameChanged(selectedFrame)'
+            ],
+            attached () {
+                this.previewButtonIconPaths = {
+                    stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
+                    running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+                };
+                this.previewState = 'stopped';
+                this.previewIndex = 0;
+            },
+            _onSelectedChanged (e) {
 
-    Polymer({
-        is: 'kano-light-animation-editor',
-        behaviors: [Kano.Behaviors.AppEditorBehavior],
-        properties: {
-            selected: {
-                type: Object,
-                notify: true
-            }
-        },
-        attached () {
-            this.previewIndex = 0;
-            this._updatePreview();
-        },
-        _updatePreview () {
-            let bitmaps = this.get('selected.userProperties.bitmaps'),
-                speed = this.get('selected.userProperties.speed');
-            if (bitmaps) {
-                this.preview = bitmaps[this.previewIndex];
-                this.previewIndex++;
-                if (this.previewIndex > bitmaps.length - 1) {
-                    this.previewIndex = 0;
+                this.width = this.selected.userProperties.width;
+                this.height = this.selected.userProperties.height;
+                this.speed = this.selected.userProperties.speed;
+                this.bitmaps = this.selected.userProperties.bitmaps;
+                if (e.path = "selected") {
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selected.userProperties.bitmaps.length - 1];
+                }
+            },
+            _togglePreviewState () {
+                this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
+                if (this.previewState === 'running') {
+                    this._updatePreview();
+                } else {
+                    clearTimeout(this.timeoutId);
+                }
+            },
+            _updatePreview () {
+                if (this.bitmaps) {
+                    this.frame = this.bitmaps[this.previewIndex];
+                    this.previewIndex++;
+                    if (this.previewIndex > this.bitmaps.length - 1) {
+                        this.previewIndex = 0;
+                    }
+                }
+                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.speed);
+            },
+            _selectedFrameChanged () {
+                
+                this.$.palette._computePalette();
+            },
+            _generateEmptyBitmap (name, width, height, color='#000000') {
+                let length = width * height;
+                for (let i = 0; i < length; i++) {
+                    this.push(name, color);
+                }
+            },
+            _bitmapChanged () {
+                
+                if (!this.selectedFrame) {
+                    return;
+                }
+                if (this.selectedFrame.length === 0) {
+                    this._generateEmptyBitmap('selectedFrame', this.width, this.height);
+                }
+            },
+            _addFrame () {
+                this.$.frames.addFrame();
+            },
+            _isNewFrameDisabled (previewState) {
+                return (previewState === 'running');
+            },
+            enterQuitsInput () {
+                if (event.keyCode == 13) {
+                    this.blur();
+                    return false;
                 }
             }
-            this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / speed);
-        },
-        _openConfig () {
-            let originalRect = this.getBoundingClientRect(),
-                content = this.$['config-content'],
-                scaleX, tx;
-            this.toggleClass('open', true, this.$.config);
-            scaleX = originalRect.width / window.innerWidth;
-            tx = originalRect.left;
-
-            this.$.config.animate([{
-                transform: `translate(${tx}px, 0px) scale(${scaleX}, 1)`
-            },{
-                transform: 'translate(0px, 0px) scale(1, 1)'
-            }], {
-                duration: 200,
-                easing: 'ease-in-out'
-            });
-            content.animate([{
-                opacity: 0
-            }, {
-                opacity: 1
-            }], {
-                duration: 150
-            });
-        },
-        _closeConfig () {
-            let originalRect = this.getBoundingClientRect(),
-                content = this.$['config-content'],
-                scaleX, tx;
-            scaleX = originalRect.width / window.innerWidth;
-            tx = originalRect.left;
-
-            this.$.config.animate([{
-                transform: 'translate(0px, 0px) scale(1, 1)'
-            },{
-                transform: `translate(${tx}px, 0px) scale(${scaleX}, 1)`
-            }], {
-                duration: 200,
-                easing: 'ease-in-out'
-            }).onfinish = () => {
-                this.toggleClass('open', false, this.$.config);
-            };
-            content.animate([{
-                opacity: 1
-            }, {
-                opacity: 0
-            }], {
-                duration: 150,
-                delay: 50
-            });
-        }
-    });
-</script>
+        });
+    </script>
+</dom-module>

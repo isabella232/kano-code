@@ -1,44 +1,63 @@
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-slider/kano-slider.html">
-<link rel="import" href="../../../bower_components/web-components/kano-style/input.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
 
 <dom-module id="kano-input-range">
     <style is="custom-style" include="input-range"></style>
     <style>
         :host {
-            display: block;
+            @apply --layout-horizontal;
+            @apply --layout-center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            font-family: var(--font-body);
+            font-weight: bold;
         }
         :host label {
-            @apply(--kano-settings-label);
-            bottom: 11px;
+            text-align: left;
+            white-space: nowrap;
+            margin-bottom: 1px;
+            @apply --kano-settings-label;
         }
         :host .inputs {
             @apply(--kano-settings-container);
         }
+        :host .display {
+            @apply --kano-button;
+            @apply --layout-horiztonal;
+            @apply --layout-center-justified;
+            background-color: var(--color-chateau);
+            text-shadow: none;
+            width: 48px;
+            padding: 9px 0 7px;
+            margin-left: 16px;
+        }
+        :host .display span.symbol {
+            font-size: 12px;
+            text-transform: none;
+        }
         kano-slider {
-            width: 95%;
+            @apply --layout-flex;
             --paper-slider-height: 3px;
+            --paper-slider-container-color: #435055;
             --paper-progress-active-color: #435055;
+            --paper-progress-secondary-color: #435055;
             --paper-slider-knob-color: #435055;
             --paper-slider-pin-color: #435055;
             --paper-slider-knob-start-color: #435055;
         }
+
     </style>
     <template>
         <label>{{label}}</label>
-        <div class="inputs">
-              <kano-slider
-                      min="{{min}}"
-                      max="{{max}}"
-                      value="[[value]]"
-                      immediate-value="{{value}}"
-                      symbol="{{symbol}}"
-                      step="{{step}}"
-                      on-change="expandKnob"
-                      on-click="expandKnob"
-                      pin>
-              <kano-slider>
-        </div>
+        <kano-slider
+              min="{{min}}"
+              max="{{max}}"
+              value="[[value]]"
+              immediate-value="{{value}}"
+              step="{{step}}"></kano-slider>
+        <div class="display">[[value]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -47,11 +66,5 @@
     Polymer({
         is: 'kano-input-range',
         behaviors: [Kano.Behaviors.Input],
-        attached () {
-            this.expandKnob();
-        },
-        expandKnob () {
-            this.$$('kano-slider')._expandKnob();
-        }
     });
 </script>

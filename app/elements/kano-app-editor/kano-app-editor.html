@@ -120,14 +120,13 @@ Example:
     }
     paper-dialog {
         @apply --layout-horizontal;
-        border-radius: 6px;
-        padding: 24px 40px 24px 24px;
+        border-radius: 3px;
     }
     paper-dialog#dialog>iron-pages {
         @apply --layout-horizontal;
         @apply --layout-flex;
         margin: 0px;
-        padding: 0px;
+        padding: 12px 8px 4px;
     }
     paper-dialog>iron-pages>div {
         @apply --layout-horizontal;
@@ -186,15 +185,7 @@ Example:
     }
     #edit-part-dialog {
         overflow: auto;
-    }
-    #edit-part-dialog kano-part-editor {
-        flex: 1 0 auto;
-        min-width: 420px;
-    }
-    #edit-part-dialog .icon-button {
-        position: absolute;
-        right: 0;
-        top: 0;
+        background-color: var(--color-dark);
     }
     .code-overlay {
         @apply --layout-fit;
@@ -313,13 +304,10 @@ Example:
             </iron-pages>
         </paper-dialog>
         <paper-dialog id="edit-part-dialog" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
-            <button class="icon-button" type="button" dialog-dismiss>
-                <iron-icon icon="close"></iron-icon>
-            </button>
             <kano-part-editor
                 selected="{{selected}}"
                 mode="[[mode]]"
-                class="tooltip-content"
+                class="tooltip-content no-padding"
                 on-delete-part="deletePartClicked"
                 hide-delete-button
                 id="part-editor"></kano-part-editor>

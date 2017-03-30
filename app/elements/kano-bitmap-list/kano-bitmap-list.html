@@ -1,7 +1,8 @@
-<link rel="import" type="" href="../../bower_components/polymer/polymer.html">
-<link rel="import" type="" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" type="" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
-<link rel="import" type="" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
+<link rel="import" href="../../bower_components/x-carousel/x-carousel.html">
+<link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <!--
 
 @group Kano Elements
@@ -16,11 +17,17 @@
                 position: relative;
             }
             .frames {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                height: 100%;
                 overflow-x: auto;
+                padding: 0;
+                float: right;
+                position: relative;
             }
             sortable-js {
                 @apply(--layout-horizontal);
-                @apply(--layout-center);
+                @apply(--layout-end);
                 padding: 11px 4px;
                 overflow-x: auto;
                 max-width: 100%;
@@ -28,11 +35,8 @@
             }
             kano-bitmap-renderer {
                 cursor: pointer;
-                border: 1px solid white;
+                border: 4px solid transparent;
                 border-radius: 3px;
-                background: grey;
-                margin-left: -2px;
-                @apply(--shadow-elevation-2dp);
                 --kano-bitmap-renderer-canvas: {
                     border-radius: 3px;
                 };
@@ -40,14 +44,8 @@
             .sortable-item.sortable-ghost {
                 opacity: 0.45;
             }
-            .sortable-item:nth-child(odd) kano-bitmap-renderer {
-                transform: rotate(-1deg);
-            }
-            .sortable-item:nth-child(even) kano-bitmap-renderer {
-                transform: rotate(1deg);
-            }
             kano-bitmap-renderer.selected {
-                border-color: var(--color-orange, orange);
+                border-color: var(--color-chateau);
             }
             .bin {
                 position: absolute;
@@ -70,21 +68,44 @@
                 width: 100%;
                 height: 100%;
             }
+            button {
+                background-color: transparent;
+                color: rgba(255,255,255,0.5);
+                border: 0;
+                cursor: pointer;
+                font-size: 24px;
+                margin: 27px 14px;
+            }
+            button:focus {
+                outline: none;
+            }
+            x-carousel {
+                position: relative;
+                height: 120px;
+                @apply --layout-horizontal;
+                @apply --layout-center;
+            }
         </style>
-        <sortable-js group="frames" animation="150" class="bin" id="bin"></sortable-js>
-        <sortable-js class="frames" group="frames" animation="150" on-start="_sortStarted" on-end="_sortEnd" on-remove="_sortRemove">
-            <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat">
-                <div class="sortable-item">
-                    <kano-bitmap-renderer width="[[width]]"
-                                        height="[[height]]"
-                                        spacing="1"
-                                        pixel-size="5"
-                                        bitmap="[[bm]]"
-                                        on-tap="_selectFrame"
-                                        class$="[[_computeFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
+        <x-carousel id="carousel">
+            <button type="button" slot="left-button" carousel-control-left>&lt;</button>
+                <div slot="content">
+                    <sortable-js group="frames" animation="150" class="bin" id="bin"></sortable-js>
+                    <sortable-js class="frames" group="frames" animation="150" on-start="_sortStarted" on-end="_sortEnd" on-remove="_sortRemove">
+                            <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
+                                <div class="sortable-item">
+                                    <kano-bitmap-renderer width="[[width]]"
+                                                        height="[[height]]"
+                                                        spacing="1"
+                                                        pixel-size="4"
+                                                        bitmap="[[bm]]"
+                                                        on-tap="_selectFrame"
+                                                        class$="[[_computeFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
+                                </div>
+                            </template>
+                    </sortable-js>
                 </div>
-            </template>
-        </sortable-js>
+            <button type="button" slot="right-button" carousel-control-right>&gt;</button>
+        </x-carousel>
     </template>
     <script>
         Polymer({
@@ -119,27 +140,30 @@
                 '_bitmapsChanged(bitmaps)'
             ],
             _selectedChanged (e) {
+                if (this.bitmaps.length > 6) {
+                    this.async(() => {
+                    let target = Polymer.dom(this.root).querySelector('.selected');
+
+                    this.$.carousel.moveTo(target.offsetLeft + target.offsetWidth / 2);
+                    }, 100);
+                }
+
                 let index = this.selectedIndex,
                     splices;
 
+                //Values of the 'selected' pixel array changed, update the bitmaps array
                 if (e.path === 'selected.splices') {
                     splices = e.value;
                     splices.indexSplices.forEach(splice => {
                         this.splice(`bitmaps.${index}`, splice.index, 1, this.selected[splice.index]);
                     });
-                } else if (e.path === 'selected' && e.value) {
-                    this.select(e.value);
-                } else if (e.path === 'selected') {
-                    if (this.bitmaps.length === 0) {
-                        this.set('bitmaps', [[]]);
-                    }
-                    this.selected = this.bitmaps[0].slice(0);
                 }
             },
             _bitmapsChanged () {
                 let lastIndex = this.bitmaps.length -1;
                 this.selectedIndex = lastIndex;
                 this.selected = this.bitmaps[lastIndex].slice(0);
+                this.async(() => this.$.carousel.scrollToEnd(), 100);
             },
             _sortStarted (e) {
                 if (e.detail) {
@@ -212,6 +236,9 @@
                     this.splice('bitmaps', this.selectedIndex, 0, copy);
                     this.selectedIndex = this.selectedIndex + 1;
                     this.set('selected', copy.slice(0));
+                }
+                if (this.selectedIndex === (this.bitmaps.length - 1)) {
+                    this.async(() => this.$.carousel.scrollToEnd(), 100);
                 }
             },
             createEmptyFrame () {

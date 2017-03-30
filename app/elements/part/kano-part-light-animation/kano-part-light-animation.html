@@ -28,45 +28,52 @@
             is: 'kano-part-light-animation',
             behaviors: [Kano.MakeApps.PartsAPI['light-animation'], Kano.Behaviors.LightShapeBehavior],
             observers: [
-                '_sizeChanged(model.userProperties.width, model.userProperties.height)'
+                '_sizeChanged(model.userProperties.width, model.userProperties.height)',
+                '_onBitmapsChanged(model.userProperties.bitmaps.*)'
             ],
+            _onBitmapsChanged (e) {
+                //Skip function if bitmaps were newly set. We only want to store while individual frames are being edited.
+                if (e.path === 'model.userProperties.bitmaps') {
+                    return;
+                }
+                this.storedBitmaps = this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
+            },
             ready () {
                 this.frameIndex = 0;
             },
             _sizeChanged () {
-                let newBitmaps = this.model.userProperties.bitmaps || [],
+                let bitmaps = this.model.userProperties.bitmaps || [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
 
-                if (this.prevSize) {
-                    newBitmaps = this.model.userProperties.bitmaps.map(this._updateBitmapSize.bind(this));
-                }
-
-                this.prevSize = {
-                    width: width,
-                    height: height
-                };
-
-                this.set('model.userProperties.bitmaps', newBitmaps);
-            },
-            _updateBitmapSize (bitmap) {
-                let newBitmap = [],
-                    width = this.model.userProperties.width,
-                    height = this.model.userProperties.height;
-                for (let i = 0; i < height * width; i++) {
-                    newBitmap.push('#000000');
-                }
-
-                bitmap.forEach((color, i) => {
-                    let y = Math.floor(i / this.prevSize.width),
-                        x = i % this.prevSize.width,
-                        newPos = x + y * width;
-                    if (newPos < newBitmap.length) {
-                        newBitmap[newPos] = color;
+                if (!this.storedBitmaps) {
+                    let firstBitmap = [];
+                    for (let i = 0; i < height * width; i++) {
+                        firstBitmap.push('#000000');
                     }
-                });
-
-                return newBitmap;
+                    this.set('model.userProperties.bitmaps', [firstBitmap]);
+                    return;
+                }
+                bitmaps = this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this));
+                this.set('model.userProperties.bitmaps', bitmaps);
+            },
+            _adjustBitmapForStorage (bitmap) {
+                let unfilledPixels = 128 - bitmap.length,
+                    clone = bitmap.slice(0);
+                
+                //Fill out bitmap with #000 pixels to have everything stored in 16 x 8
+                if (unfilledPixels) {
+                    for (let i = 0; i < unfilledPixels; i++) {
+                        clone.push('#000');
+                    }
+                }
+                return clone;
+            },
+            _adjustBitmapForDisplay (bitmap) {
+                //Filter unnecessary pixels from 16 x 8 stored bitmap
+                let maxIndex = this.model.userProperties.width * this.model.userProperties.height;
+                    adjustedBitmap = bitmap.filter((color, index) => index < maxIndex);
+                return adjustedBitmap;
             }
         });
     </script>

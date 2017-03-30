@@ -1,19 +1,20 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <dom-module id="kano-part-editor">
     <style>
     :host {
-        display: flex;
-        flex-direction: column;
         position: relative;
         text-align: center;
         border-radius: 6px;
         min-width: 420px;
-        background-color: #fff;
+        flex: 1 0 auto;
+        background-color: var(--color-dark);
+        @apply --layout-vertical;
     }
     :host(.is-scrolled) #config-panel-container::before {
         content: '';
@@ -37,7 +38,6 @@
         flex: 1 0 auto;
         display: flex;
         position: relative;
-        margin-bottom: 24px;
         box-sizing: border-box;
     }
     kano-light-animation-editor {
@@ -47,21 +47,60 @@
         overflow-y: auto;
         flex: 1 0 auto;
     }
-    :host .title-bar {
-        text-align: left;
-        padding-bottom: 5px;
+    :host .button-container {
+        @apply --layout-flex;
         @apply --layout-horizontal;
-        @apply --layout-justified;
+        @apply --layout-end-justified;
     }
-    :host #element-name-editor {
-        --paper-input-container-focus-color: var(--color-orange, orange);
-        margin-left: 15px;
+    :host .type-display {
+        width: 80px;
+        margin-right: 8px;
     }
-    :host .icon {
-        cursor: pointer;
+    :host .title-bar {
+        @apply --layout-horizontal;
+        @apply --layout-start-justified;
+        @apply --layout-center;
+        text-align: left;
+        font-family: var(--font-body);
+        font-weight: bold;
+        font-size: 18px;
+        color: rgba(255,255,255,0.5);
+        border-bottom: 1px solid #202428;
+        padding: 0 48px 24px;
+    }
+    :host button {
+        @apply --kano-button;
+        @apply --layout-self-center;
+        text-shadow: none;
+        font-weight: bold;
+    }
+    :host .done-button {
+        background-color: var(--color-grassland);
+    }
+    :host .done-button:hover {
+        background-color: var(--color-apple);
     }
     :host .delete-button {
-        color: #de0f30;
+        background-color: var(--color-chateau);
+        padding: 14px 16px 12px;
+        margin-right: 24px;
+    }
+    :host .delete-button:hover {
+        background-color: var(--color-abbey);   
+    }
+/*    #element-name-editor {
+        width: 400px;
+        margin: 0 32px;
+        --paper-input-container-focus-color: var(--color-orange, orange);
+        --paper-input-container-color: rgba(255,255,255,0.5);
+        --paper-input-container-input-color: rgba(255,255,255,0.5);
+        --paper-input-container: {
+            font-size: 18px;
+            padding: 0;
+        };
+    }*/
+    :host .icon {
+        cursor: pointer;
     }
     :host #edit-icon {
         width: 20px;
@@ -70,14 +109,12 @@
     </style>
     <template>
         <div class="title-bar">
-            <div class="element-name-editor">
-                <paper-input id="element-name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput"></paper-input>
+            <div class="type-display">[[selected.label]]</div>
+            <!-- <paper-input id="element-name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput"></paper-input> -->
+            <div class="button-container">
+                <button class="delete-button" type="button" on-tap="_deletePart" dialog-dismiss>Delete</button>
+                <button class="done-button" type="button" dialog-dismiss>Done</button>
             </div>
-
-            <label class="icon delete-button" on-tap="_deletePart" hidden$="[[hideDeleteButton]]">
-                <span>[[localize('DELETE', 'delete')]]</span>
-                <iron-icon  src="/assets/icons/layout-bin-icon.png"></iron-icon>
-            </label>
         </div>
         <div id="config-panel-container"></div>
     </template>
@@ -97,10 +134,6 @@
             },
             mode: {
                 type: Object
-            },
-            hideDeleteButton: {
-                type: Boolean,
-                value: false
             }
         },
         _instanceProps: {
