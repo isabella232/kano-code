@@ -41,7 +41,7 @@
     :host .data-browser {
         @apply(--layout-flex);
         position: relative;
-        padding-top: 15px;
+        padding: 16px 0 8px;
     }
     :host .loading-overlay {
         position: absolute;
@@ -127,17 +127,14 @@
     </template>
 </dom-module>
 <script type="text/javascript">
-
     /* globals Polymer, Kano */
-
     Polymer({
         is: 'kano-data-editor',
         behaviors: [Kano.Behaviors.AppEditorBehavior],
         properties: {
             selected: {
                 type: Object,
-                notify: true,
-                observer: 'computeDataArray'
+                notify: true
             },
             loading: {
                 type: Boolean,
@@ -146,7 +143,7 @@
             }
         },
         observers: [
-            'computeDataArray(selected.data.*)',
+            'computeDataArray(selected, selected.data.*)',
             'refreshEnabledChanged(selected.refreshEnabled)'
         ],
         attached () {
@@ -171,10 +168,10 @@
                 return;
             }
             if (!this.selected.data) {
-                this.dataArray = new Array(this.selected.dataLength);
+                this.set('dataArray', new Array(this.selected.dataLength));
                 return;
             }
-            this.dataArray = Array.isArray(this.selected.data) ? this.selected.data : [this.selected.data];
+            this.set('dataArray', Array.isArray(this.selected.data) ? this.selected.data : [this.selected.data]);
         },
         loadingChanged () {
             this.toggleClass('loading', this.loading);
