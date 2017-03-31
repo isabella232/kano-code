@@ -13,6 +13,11 @@
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
                 this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+
+                this.iterator = {
+                    currentColumn: 1,
+                    currentRow: 1
+                };
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
@@ -38,6 +43,21 @@
             },
             scroll (text, color, backgroundColor, speed) {
                 return this.appModules.getModule('lightboard').scroll(text.toString(), color, backgroundColor, speed, this.render.bind(this));
+            },
+            forEach (direction, callback) {
+                if (direction === 'column') {
+                    for (this.iterator.currentColumn = 1;
+                         this.iterator.currentColumn <= 16;
+                         this.iterator.currentColumn++) {
+                        callback();
+                    }
+                } else {
+                    for (this.iterator.currentRow = 1;
+                         this.iterator.currentRow <= 8;
+                         this.iterator.currentRow++) {
+                        callback();
+                    }
+                }
             },
             _propagateButtonEvent (data) {
                 this.fire("lightboard-" + data['button-id']);

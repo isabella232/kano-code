@@ -201,8 +201,78 @@
                     return;
                 };
             }
+        },{
+            block: () => {
+                return {
+                    id: 'light_foreach',
+                    message0: 'Lights: forEach %1',
+                    args0: [{
+                        type: 'field_dropdown',
+                        name: 'DIRECTION',
+                        options: [
+                            ['column', 'column'],
+                            ['row', 'row']
+                        ]
+                    }],
+                    message1: `${Blockly.Msg.CONTROLS_REPEAT_INPUT_DO} %1`,
+                    args1: [{
+                        type: "input_statement",
+                        name: "DO"
+                    }],
+                    inputsInline: false,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (part) => {
+                return (block) => {
+                    let direction = block.getFieldValue('DIRECTION'),
+                        statement = Blockly.JavaScript.statementToCode(block, 'DO');
+
+                    return `devices.get('${part.id}').forEach('${direction}', function () { ${statement} });`;
+                };
+            },
+            pseudo: (part) => {
+                return (block) => {
+                    let direction = block.getFieldValue('DIRECTION'),
+                        statement = Blockly.JavaScript.statementToCode(block, 'DO');
+
+                    return `devices.get('${part.id}').forEach('${direction}', function () { ${statement} });`;
+                };
+            }
+        },{
+            block: () => {
+                return {
+                    id: 'light_foreach_index',
+                    message0: '%1',
+                    args0: [{
+                        type: 'field_dropdown',
+                        name: 'DIRECTION',
+                        options: [
+                            ['currentColumn', 'currentColumn'],
+                            ['currentRow', 'currentRow']
+                        ]
+                    }],
+                    inputsInline: true,
+                    output: "Number"
+                };
+            },
+            javascript: (part) => {
+                return (block) => {
+                    let varName = block.getFieldValue('DIRECTION'),
+                        code = `devices.get('${part.id}').iterator.${varName}`;
+                    return [code];
+                };
+            },
+            pseudo: (part) => {
+                return (block) => {
+                    let varName = block.getFieldValue('DIRECTION'),
+                        code = `devices.get('${part.id}').iterator.${varName}`;
+                    return [code];
+                };
+            }
         }];
-        
+
         textBlocks = [{
             block: () => {
                 return {
