@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
 <link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
 <dom-module id="kano-editor-normal">
@@ -6,7 +7,6 @@
             display: block;
             width: 100%;
             height: 100%;
-            border-radius: 5px;
             @apply --layout-vertical;
         }
         kano-default-workspace {
@@ -15,6 +15,25 @@
         }
         kano-workspace-normal {
             @apply --layout-flex;
+        }
+        ::slotted(.data),
+        ::slotted(.hardware),
+        ::slotted(kano-part-oscillator) {
+            display: none;
+        }
+        .part {
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .part .background-icon {
+            --iron-icon-fill-color: #8F9195;
+            --iron-icon-width: 20px;
+            --iron-icon-height: 20px;
+            margin: 4px;
+            margin-left: 28px;
+        }
+        .part .handle {
+            color: #3A4248;
         }
     </style>
     <template>
@@ -27,10 +46,15 @@
                                 running="{{running}}"
                                 editable-layout="[[editableLayout]]"
                                 parts-menu-open="[[partsMenuOpen]]"
+                                parts="[[parts]]"
                                 show-mouse-position>
-            <kano-workspace-normal id="workspace" width="[[width]]" height="[[height]]">
+            <kano-workspace-normal id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot></slot>
             </kano-workspace-normal>
+            <div class="part" id$="background" slot="extra-parts" on-tap="_editBackground">
+                <iron-icon class="background-icon" icon="aspect-ratio"></iron-icon>
+                <div>Background</div>
+            </div>
         </kano-default-workspace>
     </template>
     <script>
@@ -91,6 +115,12 @@
             },
             getViewportScale () {
                 return this.$.wrapper.getViewportScale();
+            },
+            _editBackground () {
+                this.fire('edit-background');
+            },
+            setBackground (value) {
+                this.$.workspace.setBackground(value);
             }
         });
     </script>

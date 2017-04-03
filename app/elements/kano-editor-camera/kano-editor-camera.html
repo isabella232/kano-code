@@ -16,16 +16,22 @@
         kano-workspace-camera {
             @apply --layout-flex;
         }
+        ::slotted(.data),
+        ::slotted(.hardware),
+        ::slotted(kano-part-oscillator) {
+            display: none;
+        }
     </style>
     <template>
         <kano-default-workspace id="wrapper"
                                 width="[[width]]"
-                                height="[[height]]"
+                                height="[[_computeHeight(height)]]"
                                 running="[[running]]"
                                 running="{{running}}"
                                 editable-layout="[[editableLayout]]"
-                                parts-menu-open="[[partsMenuOpen]]">
-            <kano-workspace-camera id="workspace" width="[[width]]" height="[[height]]">
+                                parts-menu-open="[[partsMenuOpen]]"
+                                parts="[[parts]]">
+            <kano-workspace-camera id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot></slot>
             </kano-workspace-camera>
         </kano-default-workspace>
@@ -53,6 +59,9 @@
             },
             getViewportScale () {
                 return this.$.wrapper.getViewportScale();
+            },
+            _computeHeight (height) {
+                return height + 61;
             }
         });
     </script>
