@@ -3,7 +3,6 @@
 <link rel="import" href="../../scripts/config/config.html">
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
@@ -13,7 +12,6 @@
 
 <link rel="import" href="../kano-routing/kano-routing.html">
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
-<link rel="import" href="../kano-side-menu/kano-side-menu.html">
 <link rel="import" href="../behaviors/kano-modal-animator-behavior.html">
 <link rel="import" href="../behaviors/kano-view-behavior.html">
 <link rel="import" href="../behaviors/kano-tracking-behavior.html">
@@ -37,17 +35,6 @@ Example:
     }
     :host button {
         font-family: Bariol;
-    }
-    #drawer {
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
-        --paper-drawer-panel-main-container: {
-            @apply(--layout-flex);
-        };
-        --paper-drawer-panel-drawer-container: {
-            box-shadow: none !important;
-        };
-        overflow-y: scroll;
     }
     :host kano-routing {
         @apply(--layout-vertical);
@@ -236,7 +223,6 @@ Example:
             e.preventDefault();
             Kano.MakeApps.sdk.auth.logout(false);
             this.user = null;
-            this.$.drawer.closeDrawer();
             this.$.auth.reset();
             Kano.MakeApps.Progress.reset();
             clearInterval(this._pollingIntervalId);

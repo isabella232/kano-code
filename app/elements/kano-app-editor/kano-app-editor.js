@@ -48,8 +48,7 @@ Polymer({
         },
         selected: {
             type: Object,
-            value: null,
-            observer: 'selectedChanged'
+            value: null
         },
         running: {
             type: Boolean,
@@ -81,8 +80,7 @@ Polymer({
         },
         partsMenuOpen: {
             type: Boolean,
-            value: false,
-            computed: 'isPartsMenuOpen(partsPanelState, drawerPage)'
+            value: false
         },
         challengeState: {
             type: Object,
@@ -123,6 +121,7 @@ Polymer({
     },
     _openPartsModal () {
         this.$['parts-modal'].open();
+        this.partsMenuOpen = true;
         this.async(() => {
             this.notifyChange('open-parts');
         }, 500);
@@ -133,6 +132,7 @@ Polymer({
     },
     _partsModalClosed () {
         this.notifyChange('close-parts');
+        this.partsMenuOpen = false;
     },
     _addParts (e) {
         this._closePartsModal();
@@ -172,11 +172,6 @@ Polymer({
         if (target === this.$['edit-part-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
             this.editableLayout = false;
-        }
-    },
-    _partsPanelStateChanged (state) {
-        if (this.editableLayout && state === 'main') {
-            this.$.workspace.toggleEditableLayout();
         }
     },
     _isPauseOverlayHidden (running, editableLayout) {
@@ -411,12 +406,6 @@ Polymer({
     },
     reset () {
         this._openDialog('reset-warning');
-    },
-    selectedChanged (newValue) {
-        // The selection is cleared
-        if (!newValue) {
-            this.drawerPage = 'background-editor';
-        }
     },
     onPartSettings () {
         // No part selected, show the background editor
@@ -760,9 +749,6 @@ Polymer({
     },
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
-    },
-    isPartsMenuOpen () {
-        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar';
     },
     getWorkspace () {
         return this.$.workspace;
