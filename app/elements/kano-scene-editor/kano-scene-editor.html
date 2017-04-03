@@ -449,8 +449,12 @@
             } else if (this.scene.filterBlocks) {
                 let whitelist = this.scene.filterBlocks[mode.id];
                 if (whitelist) {
-                    this.set('mode.originalCategories', mode.categories);
+                    this.set('mode.originalCategories', mode.categories.slice(0));
                     this.mode.categories.forEach((category, index) => {
+                        /* Poor man's way of deep-copying categories into originalCategories */
+                        this.set(`mode.originalCategories.${index}`, Object.assign({}, category));
+                        this.set(`mode.originalCategories.${index}.blocks`, category.blocks.slice(0));
+
                         this.set(`mode.categories.${index}.blocks`, category.blocks.filter(block => {
                             let definition = block.block(mode);
                             return whitelist.indexOf(definition.id) !== -1;
