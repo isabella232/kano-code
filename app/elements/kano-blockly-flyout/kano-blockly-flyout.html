@@ -26,7 +26,7 @@
                 cursor: pointer;
             }
         </style>
-        <div>
+        <div class="injectionDiv">
             <svg id="svg"></svg>
         </div>
     </template>
@@ -130,6 +130,8 @@
 
                 this.$.svg.style.width = '500px';
                 this.$.svg.style.height = '2000px';
+
+                this.ws.scale = this.targetWorkspace.scale;
 
                 this.blocks = [];
                 for (let i = 0; i < this.xmlList.length; i++) {
@@ -306,22 +308,44 @@
             },
             _placeNewBlock (originBlock) {
                 var targetWorkspace = this.targetWorkspace;
+
+                var targetWorkspaceRoot = targetWorkspace.svgGroup_;
+                var targetWorkspaceRect = targetWorkspaceRoot.getBoundingClientRect();
+
+                var workspaceRoot = this.ws.svgGroup_;
+                var workspaceRect = workspaceRoot.getBoundingClientRect();
+
+                var offset = {
+                    x: workspaceRect.left - targetWorkspaceRect.left,
+                    y: workspaceRect.top - targetWorkspaceRect.top
+                };
+
                 var svgRootOld = originBlock.getSvgRoot();
                 if (!svgRootOld) {
                     throw 'originBlock is not rendered.';
                 }
                 // Figure out where the original block is on the screen, relative to the upper
                 // left corner of the main workspace.
-                var xyOld = Blockly.getSvgXY_(svgRootOld, this.ws);
+                if (targetWorkspace.isMutator) {
+                    var xyOld = this.ws.getSvgXY(/** @type {!Element} */ (svgRootOld));
+                } else {
+                    var xyOld = Blockly.utils.getInjectionDivXY_(svgRootOld);
+                }
+                // Take into account that the flyout might have been scrolled horizontally
+                // (separately from the main workspace).
+                // Generally a no-op in vertical mode but likely to happen in horizontal
+                // mode.
+                var scrollX = this.ws.scrollX;
+                var scale = this.ws.scale;
+                xyOld.x += scrollX / scale - scrollX;
 
-                var wsRect = this.ws.getParentSvg().getBoundingClientRect(),
-                    targetWsRect = targetWorkspace.getParentSvg().getBoundingClientRect();
-
-                var x = wsRect.left - targetWsRect.left;
-                var y = wsRect.top - targetWsRect.top;
-
-                xyOld.x += x * targetWorkspace.scale;
-                xyOld.y += y * targetWorkspace.scale;
+                // Take into account that the flyout might have been scrolled vertically
+                // (separately from the main workspace).
+                // Generally a no-op in horizontal mode but likely to happen in vertical
+                // mode.
+                var scrollY = this.ws.scrollY;
+                scale = this.ws.scale;
+                xyOld.y += scrollY / scale - scrollY;
 
                 // Create the new block by cloning the block in the flyout (via XML).
                 var xml = Blockly.Xml.blockToDom(originBlock);
@@ -334,10 +358,25 @@
                 // upper left corner of the workspace.  This may not be the same as the
                 // original block because the flyout's origin may not be the same as the
                 // main workspace's origin.
-                var xyNew = Blockly.getSvgXY_(svgRootNew, targetWorkspace);
+                if (targetWorkspace.isMutator) {
+                    var xyNew = targetWorkspace.getSvgXY(/* @type {!Element} */(svgRootNew));
+                } else {
+                    var xyNew = Blockly.utils.getInjectionDivXY_(svgRootNew);
+                }
+
                 // Scale the scroll (getSvgXY_ did not do this).
-                xyNew.x += targetWorkspace.scrollX / targetWorkspace.scale - targetWorkspace.scrollX;
-                xyNew.y += targetWorkspace.scrollY / targetWorkspace.scale - targetWorkspace.scrollY;
+                xyNew.x +=
+                    targetWorkspace.scrollX / targetWorkspace.scale - targetWorkspace.scrollX;
+                xyNew.y +=
+                    targetWorkspace.scrollY / targetWorkspace.scale - targetWorkspace.scrollY;
+                // If the flyout is collapsible and the workspace can't be scrolled.
+                if (targetWorkspace.toolbox_ && !targetWorkspace.scrollbar) {
+                    xyNew.x += targetWorkspace.toolbox_.getWidth() / targetWorkspace.scale;
+                    xyNew.y += targetWorkspace.toolbox_.getHeight() / targetWorkspace.scale;
+                }
+
+                xyOld.x += offset.x;
+                xyOld.y += offset.y;
 
                 // Move the new block to where the old block is.
                 block.moveBy(xyOld.x - xyNew.x, xyOld.y - xyNew.y);
