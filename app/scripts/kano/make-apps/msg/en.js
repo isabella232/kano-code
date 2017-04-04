@@ -140,8 +140,8 @@
     Kano.MakeApps.Msg.PART_DATA_WEATHER_LOCATION_DEFAULT = "London, U.K.";
     Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_TITLE = "Units";
     Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_DESC = "The metric system will display the temperature in ºC while the imperial one will display it in ºF";
-    Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_METRIC = "Metric system";
-    Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_IMPERIAL = "Imperial system";
+    Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_METRIC = "Celsius";
+    Kano.MakeApps.Msg.PART_DATA_WEATHER_UNITS_IMPERIAL = "Fahrenheit";
     Kano.MakeApps.Msg.PART_DATA_WEATHER_TEMPERATURE_TITLE = "Temperature";
     Kano.MakeApps.Msg.PART_DATA_WEATHER_TEMPERATURE_DESC = "The current temperature at the location";
     Kano.MakeApps.Msg.PART_DATA_WEATHER_SPEED_TITLE = "Wind speed";

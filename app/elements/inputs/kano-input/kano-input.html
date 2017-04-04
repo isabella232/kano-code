@@ -12,14 +12,80 @@
 <link rel="import" href="../kano-input-font-family/kano-input-font-family.html">
 <link rel="import" href="../kano-input-light-animation/kano-input-light-animation.html">
 <link rel="import" href="../kano-input-wave/kano-input-wave.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 
 <dom-module id="kano-input">
     <style>
         :host {
+            @apply --layout-horizontal;
+            @apply --layout-center;
+            @apply --layout-center-justified;
+        }
+        :host label {
+            text-align: left;
+            width: var(--kano-part-settings-label-width);
+        }
+        :host #input-container {
+            @apply --layout-flex;
+        }
+        :host .info-cue {
+            position: relative;
+            width: 64px;
+            text-align: center;
+        }
+        :host .info-wrapper {
+            display: none;
+            position: absolute;
+            top: -10px;
+            left: 56px;
+            width: 168px;
+            transform: translateY(-33%);
+        }
+        .info {
+            position: relative;
+            background-color: var(--color-dark);
+            border: 3px solid var(--color-stone);
+            font-family: var(--font-body);
+            border-radius: 6px;
+            padding: 8px;
+        }
+        .info:after, .info:before {
+            right: 100%;
+            top: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .info:after {
+            border-color: rgba(136, 183, 213, 0);
+            border-right-color: var(--color-dark);
+            border-width: 16px;
+            margin-top: -16px;
+        }
+        .info:before {
+            border-color: rgba(194, 225, 245, 0);
+            border-right-color: var(--color-stone);
+            border-width: 20px;
+            margin-top: -20px;
+        }
+        :host .info-cue:hover .info-wrapper {
             display: block;
         }
     </style>
-    <template></template>
+    <template>
+        <label>[[label]]</label>
+        <div id="input-container"></div>       
+<!--         <div class="info-cue" hidden$="[[!description]]">i
+            <div class="info-wrapper">
+                <div class="info">[[description]]</div>
+            </div>
+        </div> -->
+        
+    </template>
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer, Kano */
@@ -38,7 +104,7 @@
             let inputTagName = this._getTagName(),
                 root = Polymer.dom(this.root);
             let template = document.createElement('template');
-            template.innerHTML = `<${inputTagName} class="kano-input" value="{{value}}" label="[[label]]" symbol="[[symbol]]" min="[[min]]" max="[[max]]" options="[[options]]"></${inputTagName}>`;
+            template.innerHTML = `<${inputTagName} class="kano-input" value="{{value}}" symbol="[[symbol]]" min="[[min]]" max="[[max]]" options="[[options]]"></${inputTagName}>`;
 
             this.templatize(template);
 
@@ -50,7 +116,7 @@
                 options: this.options
             });
 
-            Polymer.dom(this.root).appendChild(this.instance.root);
+            this.$['input-container'].appendChild(this.instance.root);
         },
         _forwardInstanceProp (inst, prop, value) {
             this.set(prop, value);
