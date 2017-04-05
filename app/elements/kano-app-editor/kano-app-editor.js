@@ -48,8 +48,7 @@ Polymer({
         },
         selected: {
             type: Object,
-            value: null,
-            observer: 'selectedChanged'
+            value: null
         },
         running: {
             type: Boolean,
@@ -73,28 +72,15 @@ Polymer({
             type: Boolean,
             value: false
         },
-        partsPanelState: {
-            type: String,
-            observer: '_partsPanelStateChanged'
-        },
         selectedParts: {
             type: Array
-        },
-        drawerPage: {
-            type: String,
-            value: 'sidebar'
-        },
-        drawerWidth: {
-            type: String,
-            value: '80%'
         },
         mode: {
             type: Object
         },
         partsMenuOpen: {
             type: Boolean,
-            value: false,
-            computed: 'isPartsMenuOpen(partsPanelState, drawerPage)'
+            value: false
         },
         challengeState: {
             type: Object,
@@ -118,7 +104,43 @@ Polymer({
         'mode-ready': '_onModeReady',
         'add-part': '_addPart',
         'remove-part': '_removePartReceived',
-        'save-button-clicked': 'share'
+        'save-button-clicked': 'share',
+        'open-parts-modal': '_openPartsModal',
+        'edit-background': '_openBackgroundDialog'
+    },
+    _openBackgroundDialog () {
+        this.$['edit-background-dialog'].open();
+        this.toggleClass('open', true, this.$['code-overlay']);
+    },
+    _backgroundEditorDialogClosed (e) {
+        let target = e.path ? e.path[0] : e.target;
+        if (target === this.$['edit-background-dialog']) {
+            this.toggleClass('open', false, this.$['code-overlay']);
+            this.editableLayout = false;
+        }
+    },
+    _openPartsModal () {
+        this.$['parts-modal'].open();
+        this.partsMenuOpen = true;
+        this.async(() => {
+            this.notifyChange('open-parts');
+        }, 500);
+    },
+    _closePartsModal () {
+        this.$['parts-modal'].close();
+        this.$['add-parts'].reset();
+    },
+    _partsModalClosed () {
+        this.notifyChange('close-parts');
+        this.partsMenuOpen = false;
+    },
+    _addParts (e) {
+        this._closePartsModal();
+        Object.keys(e.detail).forEach(type => {
+            for (let i = 0; i < e.detail[type]; i++) {
+                this._addPart({ detail: type });
+            }
+        });
     },
     _addPart (e) {
         let viewport = this.$.workspace.getViewport(),
@@ -150,11 +172,6 @@ Polymer({
         if (target === this.$['edit-part-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
             this.editableLayout = false;
-        }
-    },
-    _partsPanelStateChanged (state) {
-        if (this.editableLayout && state === 'main') {
-            this.$.workspace.toggleEditableLayout();
         }
     },
     _isPauseOverlayHidden (running, editableLayout) {
@@ -213,7 +230,6 @@ Polymer({
     },
     _dialogConfirmedDelete () {
         this._deletePart(this.toBeRemoved);
-        this.closeDrawer();
     },
     _dialogConfirmedReset () {
         this.set('addedParts', []);
@@ -244,9 +260,6 @@ Polymer({
             }
         }
         return false;
-    },
-    toggleMenu () {
-        this.fire('toggle-menu');
     },
     setColorRange (hs, range, items = []) {
         // Set the increment value, which will decide how much to change the lightness between all colors
@@ -318,13 +331,6 @@ Polymer({
             acc += `${property}:${style[property]};`;
             return acc;
         }, '');
-    },
-    previous () {
-        if (this.leftPanelView === 'background') {
-            this.set('leftViewOpened', false);
-        } else {
-            this.set('leftPanelView', 'background');
-        }
     },
     /**
      * Save the current work in the local storage
@@ -401,74 +407,15 @@ Polymer({
     reset () {
         this._openDialog('reset-warning');
     },
-    closeDrawer () {
-        this.$.partsPanel.closeDrawer();
-    },
-    selectedChanged (newValue) {
-        // The selection is cleared
-        if (!newValue) {
-            this.drawerPage = 'background-editor';
-        }
-    },
-    panelStateChanged () {
-        let isClosing = this.partsPanelState !== 'drawer',
-            eventName,
-            eventData;
-        if (this.drawerPage === 'sidebar') {
-            eventName = isClosing ? 'close-parts' : 'open-parts';
-        } else if (this.drawerPage === 'part-editor') {
-            if (!isClosing) {
-                eventData = { part: this.selected };
-            }
-            eventName = isClosing ? 'close-part-settings' : 'open-part-settings';
-        } else if (this.drawerPage === 'background-editor') {
-            eventName = isClosing ? 'close-background-settings' : 'open-background-settings';
-        }
-        this.debounce('notifyPanelState', () => {
-            this.notifyChange(eventName, eventData);
-        }, 10);
-    },
-    toggleParts () {
-        if (this.drawerPage === 'sidebar' && this.partsPanelState === 'drawer') {
-            this.$.partsPanel.closeDrawer();
-        } else {
-            this.drawerPage = 'sidebar';
-            this.drawerWidth = '80%';
-            this._openDrawer();
-        }
-    },
-    _openDrawer () {
-        // HACK. Removes the will-change transform from the drawer inside the paper-drawer-panel shadow dom because
-        // it creates a new stacking context and prevent children using position: fixed to refer to the viewport
-        let drawer = Polymer.dom(this.$.partsPanel.root).querySelector('#drawer');
-        this.$.partsPanel.openDrawer();
-        drawer.style.willChange = 'initial';
-    },
     onPartSettings () {
         // No part selected, show the background editor
         if (!this.selected) {
-            if (this.partsPanelState === 'drawer' && this.drawerPage === 'background-editor') {
-                this.$.partsPanel.closeDrawer();
-            } else {
-                this.drawerPage = 'background-editor';
-                this.drawerWidth = '60%';
-                this._openDrawer();
-            }
+            this._openBackgroundDialog();
+            this.notifyChange('open-background-settings');
         } else {
-            if (true && this.mode.id === 'lightboard') {
-                this.toggleClass('open', true, this.$['code-overlay']);
-                this.$['edit-part-dialog'].open();
-            } else {
-                this.drawerPage = 'part-editor';
-                this.drawerWidth = '60%';
-                this._openDrawer();
-            }
+            this.toggleClass('open', true, this.$['code-overlay']);
+            this.$['edit-part-dialog'].open();
             this.notifyChange('open-part-settings', { part: this.selected });
-        }
-    },
-    closeSettings () {
-        if (this.drawerPage === 'background-editor' || this.drawerPage === 'part-editor') {
-            this.$.partsPanel.closeDrawer();
         }
     },
     _deletePart (part) {
@@ -534,25 +481,12 @@ Polymer({
         window.dispatchEvent(new Event('resize'));
     },
     bindEvents () {
-        let sidebar = this.$.drawer;
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
-        this.panelStateChanged = this.panelStateChanged.bind(this);
 
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
-        if (sidebar.classList.contains('animatable')) {
-            sidebar.addEventListener('transitionend', this.panelStateChanged);
-        } else {
-            this.$.partsPanel.addEventListener('selected-changed', this.panelStateChanged);
-        }
     },
     detachEvents () {
-        let sidebar = this.$.drawer;
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
-        if (sidebar.classList.contains('animatable')) {
-            sidebar.removeEventListener('transitionend', this.panelStateChanged);
-        } else {
-            this.$.partsPanel.removeEventListener('selected-changed', this.panelStateChanged);
-        }
     },
     ready () {
         this.reset = this.reset.bind(this);
@@ -567,31 +501,10 @@ Polymer({
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
 
-        interact(this.$['workspace-panel']).dropzone({
-            // TODO rename to kano-part-item
-            accept: 'kano-ui-item:not([instance])',
-            ondrop: (e) => {
-                let model = e.relatedTarget.model,
-                    part,
-                    viewport = this.$.workspace.getViewport(),
-                    viewportRect = viewport.getBoundingClientRect(),
-                    viewportScale = this.$.workspace.getViewportScale(),
-                    targetRect = e.relatedTarget.getBoundingClientRect();
-                model.position = {
-                    x: (targetRect.left - viewportRect.left) / viewportScale.x,
-                    y: (targetRect.top - viewportRect.top) / viewportScale.y
-                };
-                part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
-                this.push('addedParts', part);
-                this.fire('change', {
-                    type: 'add-part',
-                    part
-                });
-            }
-        });
         this.bindEvents();
         this._registerElement('workspace-panel', this.$['workspace-panel']);
         this._registerElement('blocks-panel', this.$['blocks-panel']);
+        this._registerElement('parts-panel', this.$['parts-modal']);
     },
     detached () {
         Kano.MakeApps.Parts.clear();
@@ -748,7 +661,6 @@ Polymer({
         e.preventDefault();
         e.stopPropagation();
     },
-
     getMakeButtonClass (running, editableLayout) {
         let classes = [];
         if (running) {
@@ -761,7 +673,6 @@ Polymer({
         }
         return classes.join(' ');
     },
-
     applyHiddenClass () {
         return this.running ? '' : 'hidden';
     },
@@ -775,7 +686,6 @@ Polymer({
 
         return 'Make';
     },
-
     /**
      * Resize the workspace
      */
@@ -783,7 +693,6 @@ Polymer({
         this.pauseEvent(e);
         this.isResizing = true;
     },
-
     /**
      * Completed the resize action
      */
@@ -804,7 +713,6 @@ Polymer({
         e.returnValue = false;
         return false;
     },
-
     /**
      * Mouse moved handler
      */
@@ -834,7 +742,6 @@ Polymer({
             // Disable drag when starts
             this._disableDrag();
             this.set('editableLayout', false);
-            this.closeDrawer();
         }
     },
     getBlockly () {
@@ -842,9 +749,6 @@ Polymer({
     },
     getBlocklyWorkspace () {
         return this.$['root-view'].getBlocklyWorkspace();
-    },
-    isPartsMenuOpen () {
-        return this.partsPanelState === 'drawer' && this.drawerPage === 'sidebar';
     },
     getWorkspace () {
         return this.$.workspace;

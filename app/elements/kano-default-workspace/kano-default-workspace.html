@@ -2,7 +2,12 @@
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
 <link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
-<link rel="import" href="../kano-workspace-head/kano-workspace-head.html">
+<link rel="import" href="../kano-add-parts/kano-add-parts.html">
+<link rel="import" href="../kano-part-list-item/kano-part-list-item.html">
+<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
+<link rel="import" href="../behaviors/kano-i18n-behavior.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <dom-module id="kano-default-workspace">
     <template>
         <style>
@@ -38,16 +43,17 @@
             }
             :host(.fullscreen) #content {
                 position: fixed;
-                top: 0px;
+                top: 200px;
                 left: 0px;
                 width: 100%;
-                height: 100%;
-                z-index: 100;
-                background-color: rgba(0, 0, 0, 0.8);
+                height: calc(100% - 400px);
+                z-index: 101;
             }
             :host #content {
                 position: relative;
-                @apply(--layout-flex);
+                width: auto;
+                height: 322px;
+                min-height: 322px;
                 transition: background linear 150ms;
             }
             :host.running #content {
@@ -79,46 +85,174 @@
             kano-workspace-toolbar {
                 padding: 24px 8px;
             }
+            .controls {
+                @apply --layout-vertical;
+                @apply --layout-justified;
+                @apply --layout-flex;
+                padding: 0px 6px;
+                box-sizing: border-box;
+            }
+            :host(:not(.fullscreen)) .overlay {
+                display: none;
+            }
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 100;
+                background: var(--kano-app-editor-workspace-background, #f2f2f2);
+            }
+            .overlay kano-workspace-toolbar {
+                position: absolute;
+                bottom: 0px;
+                width: 100%;
+            }
+            .add-parts {
+                border-top: 1px solid #202428;
+                border-bottom: 1px solid #202428;
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                padding: 10px 1px;
+            }
+            .add-parts .label {
+                text-transform: uppercase;
+                @apply --layout-flex;
+                color: white;
+                font-size: 12px;
+                letter-spacing: 0.03em;
+            }
+            .add-parts .action {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+            }
+            .add-parts .action label {
+                margin-right: 15px;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .add-parts button {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+                @apply --layout-self-end;
+                @apply --kano-button;
+                text-shadow: none;
+                padding: 0px;
+                font-size: 18px;
+                font-family: monospace;
+                font-weight: bold;
+                width: 24px;
+                height: 24px;
+                background: rgba(255, 255, 255, 0.2);
+                color: rgba(255, 255, 255, 0.75);
+            }
+            paper-dialog {
+                background: transparent;
+            }
+            kano-add-parts#add-parts {
+                margin: 0px;
+                max-width: 680px;
+                width: 680px;
+                border-radius: 3px;
+                font-family: var(--font-body);
+            }
+            .part-list {
+                @apply --layout-flex;
+                @apply --layout-vertical;
+                overflow: auto;
+            }
+            .part, ::slotted(.part) {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                border-bottom: 1px solid #202428;
+                height: 43px;
+                color: white;
+            }
+            .part.sortable-ghost {
+                opacity: 0.1;
+            }
+            kano-part-list-item {
+                @apply --layout-flex;
+                cursor: pointer;
+            }
+            .handle {
+                cursor: move;
+            }
+            .remove-part, .handle {
+                color: #3A4248;
+                font-size: 32px;
+            }
+            .remove-part {
+                background: inherit;
+                border: 0px;
+                cursor: pointer;
+            }
             [hidden] {
                 display: none !important;
             }
         </style>
-        <button class="fullscreen-close" hidden$="[[!fullscreen]]" on-tap="_toggleFullscreen">
-            <div>&times;</div>
-        </button>
         <kano-ui-viewport mode="scaled"
                     view-width="[[width]]"
                     view-height="[[height]]"
                     id="content">
             <div id="workspace-placeholder">
-                <slot></slot>
+                <slot name="workspace"></slot>
             </div>
-            <div class="pause-overlay" hidden$="[[_isPauseOverlayHidden(running, editableLayout)]]">
-                <iron-image src="/assets/icons/play-btn-overlay.svg" sizing="contain" on-tap="_runButtonClicked"></iron-image>
-            </div>
-            <kano-workspace-toolbar
-                id="toolbar"
-                show-mouse-position="{{showMousePosition}}"
-                mouse-x="[[mouseX]]"
-                mouse-y="[[mouseY]]"
-                running="[[running]]"
-                editable-layout="[[editableLayout]]"
-                parts-menu-open="[[partsMenuOpen]]"
-                on-pause-run-button-clicked="_runButtonClicked"
-                on-fullscreen-button-clicked="_toggleFullscreen"
-                on-reset-button-clicked="_resetAppState"
-                on-edit-layout-button-clicked="_editLayoutClicked"
-                no-player-bar="[[simpleMode]]"
-                no-part-controls="[[simpleMode]]"></kano-workspace-toolbar>
         </kano-ui-viewport>
-        <kano-workspace-head challenge-state="[[challengeState]]"
-            no-save="[[simpleMode]]"
-            no-settings="[[simpleMode]]" highlight></kano-workspace-head>
+        <div class="controls">
+            <kano-workspace-toolbar running="[[running]]"
+                                    no-part-controls
+                                    show-settings
+                                    on-pause-run-button-clicked="_runButtonClicked"
+                                    on-fullscreen-button-clicked="_toggleFullscreen"
+                                    on-reset-button-clicked="_resetAppState"
+                                    show-mouse-position="[[showMousePosition]]"
+                                    mouse-x="[[mouseX]]"
+                                    mouse-y="[[mouseY]]"></kano-workspace-toolbar>
+            <div class="add-parts">
+                <div class="label">[[localize('PARTS', 'Parts')]]</div>
+                <div class="action">
+                    <label for="add-part-button">[[localize('ADD_PART', 'Add Part')]]</label>
+                    <button id="add-part-button" type="button" on-tap="_addPartsTapped">+</button>
+                </div>
+            </div>
+            <div class="part-list">
+                <sortable-js handle=".handle" animation="150">
+                    <slot name="extra-parts"></slot>
+                    <template is="dom-repeat" items="{{parts}}" as="part" on-dom-change="_partsElementsRepeaterChanged">
+                        <div class="part" id$="part-[[part.id]]">
+                            <iron-icon class="handle" icon="menu"></iron-icon>
+                            <kano-part-list-item model="[[part]]" on-tap="_partItemTapped"></kano-part-list-item>
+                            <button type="button" class="remove-part" on-tap="_removePart">
+                                <iron-icon icon="close"></iron-icon>
+                            </button>
+                        </div>
+                    </template>
+                </sortable-js>
+            </div>
+        </div>
+        <div class="overlay">
+            <button class="fullscreen-close" on-tap="_toggleFullscreen">
+                <iron-icon icon="close"></iron-icon>
+            </button>
+            <kano-workspace-toolbar running="[[running]]"
+                                    no-part-controls
+                                    on-pause-run-button-clicked="_runButtonClicked"
+                                    on-fullscreen-button-clicked="_toggleFullscreen"
+                                    on-reset-button-clicked="_resetAppState"></kano-workspace-toolbar>
+        </div>
         <iron-a11y-keys keys="alt+shift+f" on-keys-pressed="_toggleFullscreen" target="[[target]]"></iron-a11y-keys>
     </template>
     <script>
         Polymer({
             is:'kano-default-workspace',
+            behaviors: [
+                Kano.Behaviors.I18nBehavior,
+                Kano.Behaviors.AppEditorBehavior,
+                Kano.Behaviors.AppElementRegistryBehavior
+            ],
             properties: {
                 running: {
                     type: Boolean,
@@ -165,11 +299,73 @@
                 },
                 challengeState: {
                     type: Object
+                },
+                parts: {
+                    type: Array,
+                    value: () => {
+                        return [];
+                    },
+                    notify: true
                 }
+            },
+            observers: [
+                '_partsAddedOrRemoved(parts.splices)'
+            ],
+            _partsAddedOrRemoved (changeRecord) {
+                if (changeRecord && changeRecord.keySplices) {
+                    changeRecord.keySplices.forEach(splice => {
+                        let added = splice.added;
+                        added.forEach(key => {
+                            let part = this.get(`parts.${key}`),
+                                partEl;
+                            if (!part) {
+                                return;
+                            }
+                            partEl = this.$$(`#part-${part.id}`);
+                            this._partsToAnimateIn.push(part);
+                        });
+                    });
+                }
+            },
+            _partsElementsRepeaterChanged () {
+                this._partsToAnimateIn.forEach(part => {
+                    let partEl = this.$$(`#part-${part.id}`),
+                        listItemEl,
+                        partInlineControlsEl;
+                    if (!partEl) {
+                        return;
+                    }
+                    listItemEl = partEl.querySelector('kano-part-list-item');
+                    partInlineControlsEl = listItemEl.getInlineControlsElement();
+                    partEl.animate({
+                        transform: ['translateX(30%)', 'translateX(0%)'],
+                        opacity: [0, 1]
+                    }, {
+                        duration: 500,
+                        easing: 'ease-out',
+                        delay: 300,
+                        fill: 'backwards'
+                    });
+                    if (partInlineControlsEl) {
+                        partInlineControlsEl.animate({
+                            opacity: [0, 1]
+                        }, {
+                            duration: 600,
+                            delay: 800,
+                            fill: 'backwards',
+                            easing: 'ease-out'
+                        });
+                    }
+                });
+                this._partsToAnimateIn = [];
+            },
+            ready () {
+                this._partsToAnimateIn = [];
             },
             attached () {
                 this.target = document.body;
                 this.$.content.resizeView();
+                this._registerElement('add-part-button', this.$['add-part-button']);
             },
             _toggleFullscreen () {
                 this.toggleClass('fullscreen');
@@ -190,6 +386,20 @@
             },
             _editLayoutClicked () {
                 this.fire('editable-layout-clicked');
+            },
+            _addPartsTapped () {
+                this._openPartsModal();
+            },
+            _openPartsModal () {
+                this.fire('open-parts-modal');
+            },
+            _removePart (e) {
+                let part = e.model.get('part');
+                this.fire('remove-part', part);
+            },
+            _partItemTapped (e) {
+                let part = e.model.get('part');
+                this.fire('part-selected', part);
             }
         });
     </script>
