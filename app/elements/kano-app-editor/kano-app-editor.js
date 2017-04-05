@@ -90,6 +90,10 @@ Polymer({
             type: Boolean,
             value: false,
             observer: 'onHideLeaveAlertChanged'
+        },
+        smallScreen: {
+            type: Boolean,
+            reflectToAttribute: true
         }
     },
     observers: [
@@ -116,7 +120,6 @@ Polymer({
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-background-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
-            this.editableLayout = false;
         }
     },
     _openPartsModal () {
@@ -411,12 +414,21 @@ Polymer({
         // No part selected, show the background editor
         if (!this.selected) {
             this._openBackgroundDialog();
+            this.$['edit-part-dialog'].fitInto = this.$['root-view'];
+            this.$['edit-part-dialog'].withBackdrop = false;
             this.notifyChange('open-background-settings');
         } else {
-            this.toggleClass('open', true, this.$['code-overlay']);
+            this._toggleFullscreenPreference(this.selected.fullscreenEdit);
             this.$['edit-part-dialog'].open();
+            this.toggleClass('open', true, this.$['code-overlay']);
             this.notifyChange('open-part-settings', { part: this.selected });
         }
+    },
+    _toggleFullscreenPreference (isFullScreen) {
+        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
+        this.$['edit-part-dialog'].withBackdrop = isFullScreen;
+        //if not fullscreen, use custom code-overlay
+        this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
@@ -498,6 +510,7 @@ Polymer({
         this.target = document.body;
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
+        this.codeEditor = this.$['root-view'];
 
         this.bindEvents();
         this._registerElement('workspace-panel', this.$['workspace-panel']);

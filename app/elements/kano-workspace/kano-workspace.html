@@ -152,7 +152,7 @@
                 this.soundReady = true;
             }, 500);
         },
-        _editableLayoutChanged () {
+        _editableLayoutChanged (e, f, g) {
             if (this.instance) {
                 this.instance.set('editableLayout', this.editableLayout);
             }
@@ -361,7 +361,7 @@
                 this.set('editableLayout', true);
             }
         },
-        _selectedChanged (part, oldPart) {
+        _selectedChanged (part) {
             let partElement;
             if (!this.dropzone || !part) {
                 return;
@@ -477,7 +477,7 @@
             dict['dropzone'] = this.dropzone.getViewport();
             return dict;
         },
-        runningChanged () {
+        runningChanged (newValue, oldValue) {
             if (this.running) {
                 this.classList.add('running');
                 this.clearSelection();

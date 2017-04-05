@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
@@ -120,6 +121,7 @@ Example:
     }
     paper-dialog {
         @apply --layout-horizontal;
+        background-color: var(--color-dark);
         border-radius: 3px;
         overflow-y: auto;
     }
@@ -185,16 +187,17 @@ Example:
         position: relative;
     }
     #edit-part-dialog {
-        flex: 1 0 auto;
         overflow-y: auto;
         @apply --layout-vertical;
-        background-color: var(--color-dark);
         color: #fff;
         font-weight: bold;
-        width: 70%;
+        width: 720px;
         min-width: 380px;
         max-height: 100vh !important;
     }
+/*    :host([small-screen]) #edit-part-dialog {
+        max-width: none;
+    }*/
     .code-overlay {
         @apply --layout-fit;
         background: #414a51;
@@ -222,6 +225,7 @@ Example:
     }
     </style>
     <template>
+        <iron-media-query query="(max-width: 980px)" query-matches="{{smallScreen}}"></iron-media-query>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">
@@ -313,19 +317,16 @@ Example:
         </paper-dialog>
         <paper-dialog id="edit-part-dialog" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
             <kano-part-editor
-                selected="{{selected}}"
+                selected="[[selected]]"
                 mode="[[mode]]"
-                class="tooltip-content no-padding"
+                class="no-padding"
                 on-delete-part="deletePartClicked"
                 hide-delete-button
                 id="part-editor"></kano-part-editor>
         </paper-dialog>
         <paper-dialog id="edit-background-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_backgroundEditorDialogClosed">
-            <button class="icon-button" type="button" dialog-dismiss>
-                <iron-icon icon="close"></iron-icon>
-            </button>
             <kano-background-editor
-                class="tooltip-content"
+                class="no-padding"
                 id="background-editor"
                 mode="[[mode.id]]"
                 background="{{background}}"

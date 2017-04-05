@@ -14,22 +14,8 @@ Example:
 -->
 <dom-module id="kano-input-color">
     <style>
-    :host {
-        display: block;
-        padding: 10px 0px;
-        @apply(--layout-vertical);
-    }
-    :host .selectedColor {
-        width: 60px;
-        height: 60px;
-        border-radius: 2px;
-        margin: 3px;
-    }
-    :host .colors {
-        @apply --layout-horizontal;
-        @apply --layout-center-justified;
-    }
     :host .color {
+        display: inline-block;
         width: 30px;
         height: 30px;
         margin: 2px;
@@ -40,7 +26,6 @@ Example:
     }
     </style>
     <template>
-        <label>{{label}}</label>
         <div class="colors">
             <template is="dom-repeat" items="{{colors}}" as="color">
                 <div class="color" style$="[[_computeColor(color, value)]]" on-tap="_selectColor"></div>
