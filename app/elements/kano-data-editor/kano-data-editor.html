@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
@@ -13,12 +14,12 @@
     @keyframes spin { 100% { transform: rotate(-360deg); } }
     :host {
         display: block;
-        @apply(--layout-vertical);
+        @apply --layout-vertical;
         color: #fff;
         --kano-part-settings-label-width: 16%;
     }
     :host .content {
-        @apply(--layout-flex);
+        @apply --layout-vertical;
     }
     :host .config {
         padding: 15px 48px;
@@ -43,7 +44,8 @@
         @apply --layout-center;
         @apply --layout-center-justified;
         @apply --kano-icon-button;
-        margin: 16px 8px 16px 4px;
+        margin: 16px 8px 16px 0px;
+        padding: 0;
     }
     #refresh-frequency paper-dropdown-menu {
         @apply --layout-flex;
@@ -127,10 +129,16 @@
             color: #fff;
         };
     }
+    paper-dialog-scrollable {
+        min-height: 360px;
+        --paper-dialog-scrollable: {
+            margin: 16px 0;
+            padding: 0 48px;
+        };
+        --divider-color: #202428;;
+    }
     :host .data-browser {
-        @apply(--layout-flex);
         position: relative;
-        padding: 15px 48px;
     }
     :host .data-header {
         @apply --layout-horizontal;
@@ -152,9 +160,8 @@
     }
     :host .data-browser {
         position: relative;
-        @apply(--layout-vertical);
+        @apply --layout-vertical;
         background-color: #263238;
-        box-shadow: inset 0px 2px 6px 0px rgba(0,0,0,0.5);
     }
     :host .param-description {
         font-family: var(--font-body);
@@ -211,22 +218,24 @@
                     </paper-dropdown-menu>
                 </div>
             </div>
-            <div class="data-browser" id="data-browser">
-                <div class="data-header">
-                    <button type="button" class="refresh-button" on-tap="refresh" id="refresh-button">
-                        <iron-image src="/assets/icons/refresh-icon.svg" width="24" height="24" sizing="contain"></iron-image>
-                    </button>
-                    <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
+            <paper-dialog-scrollable>
+                <div class="data-browser" id="data-browser">
+                    <div class="data-header">
+                        <button type="button" class="refresh-button" on-tap="refresh" id="refresh-button">
+                            <iron-image src="/assets/icons/refresh-icon.svg" width="24" height="24" sizing="contain"></iron-image>
+                        </button>
+                        <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
+                    </div>
+                    <template is="dom-repeat" items="[[dataArray]]" as="value">
+                        <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[value]]" trailing-comma="[[!isLastItem(dataArray, index)]]"></kano-data-display>
+                    </template>
+                    <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
+                    <kano-what-is-json id="what-is-json"></kano-what-is-json>
+                    <div class="loading-overlay" hidden$="[[!loading]]">
+                        <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
+                    </div>
                 </div>
-                <template is="dom-repeat" items="[[dataArray]]" as="value">
-                    <kano-data-display data-definition="[[selected.dataKeys]]" data-values="[[value]]" trailing-comma="[[!isLastItem(dataArray, index)]]"></kano-data-display>
-                </template>
-                <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
-                <kano-what-is-json id="what-is-json"></kano-what-is-json>
-                <div class="loading-overlay" hidden$="[[!loading]]">
-                    <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
-                </div>
-            </div>
+            </paper-dialog-scrollable>
         </div>
 
     </template>
