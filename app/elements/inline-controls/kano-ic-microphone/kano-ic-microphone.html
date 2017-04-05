@@ -45,16 +45,21 @@
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
                 this.values = [];
-                this._update();
-                this._render();
+                Kano.Microphone.start().then(() => {
+                    this._update();
+                    this._render();
+                }).catch(error => {
+                    this.disabled = true;
+                });
             },
             _update () {
                 this._updateInterval = setInterval(() => {
-                    this.values.push(this.model.volume);
+                    let volume = Kano.Microphone.getVolume();
+                    this.values.push(volume);
                     if (this.values.length > 30) {
                         this.values.shift();
                     }
-                    this.set('value', Math.round(this.model.volume));
+                    this.set('value', Math.round(volume));
                 }, 100);
             },
             _render () {

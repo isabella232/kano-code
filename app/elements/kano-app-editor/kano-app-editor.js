@@ -93,7 +93,7 @@ Polymer({
         }
     },
     observers: [
-        'addedPartsChanged(addedParts.*)',
+        //'addedPartsChanged(addedParts.*)',
         'selectedPartChanged(selected.*)',
         'backgroundChanged(background.*)',
         'updateColors(addedParts.splices)',
