@@ -93,7 +93,6 @@ Polymer({
         }
     },
     observers: [
-        //'addedPartsChanged(addedParts.*)',
         'selectedPartChanged(selected.*)',
         'backgroundChanged(background.*)',
         'updateColors(addedParts.splices)',
@@ -321,9 +320,6 @@ Polymer({
             property,
             value: e.value
         });
-    },
-    addedPartsChanged () {
-        this.fire('change');
     },
     computeBackground () {
         let style = this.background.userStyle;
