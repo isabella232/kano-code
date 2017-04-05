@@ -587,6 +587,11 @@ Example:
                 pos;
 
             if (selector.inputName) {
+                // The input targeted might be a field. If a field exists with this name, return the rect matching
+                let field = block.getField(selector.inputName);
+                if (field) {
+                    return field.fieldGroup_.getBoundingClientRect();
+                }
                 connection = block.getInput(selector.inputName).connection;
             } else {
                 connection = block.nextConnection;

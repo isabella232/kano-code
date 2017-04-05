@@ -92,5 +92,28 @@
                 });
         };
 
+        /**
+         * Displays all the fields and input names for each blockly block registered.
+         * Useful for content creator that needs this information when writing challenges.
+         */
+        Utils.displayBlockInputs = function () {
+            Object.keys(Blockly.Blocks).forEach(type => {
+                let block = Blockly.getDataBlock(type),
+                    inputs = [];
+                console.log(type);
+                block.inputList.forEach(input => {
+                    if (input.name) {
+                    inputs.push(input.name);   
+                    }
+                    input.fieldRow.forEach(field => {
+                        if (field.name) {
+                            inputs.push(field.name);   
+                        }
+                    });
+                });
+                console.log(inputs);
+            });
+        };
+
     })(window.Kano = window.Kano || {});
 </script>
