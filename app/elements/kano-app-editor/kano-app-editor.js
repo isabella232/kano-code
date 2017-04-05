@@ -496,8 +496,6 @@ Polymer({
     },
     attached () {
         this.target = document.body;
-        this.codeEditor = this.$['root-view'];
-
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
 
