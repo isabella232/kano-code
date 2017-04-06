@@ -1,0 +1,43 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<script type="text/javascript">
+
+    window.Kano = window.Kano || {};
+
+    window.Kano.Behaviors = window.Kano.Behaviors || {};
+
+    // @polymerBehavior
+    Kano.Behaviors.MediaQueryBehaviorImpl = {
+        properties: {
+            smallScreen: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            }
+        },
+        // _instanceProps: {
+        //     smallScreen: true
+        // },
+        attached () {
+            console.log('ATTACHED');
+            this._instanceProps = this._instanceProps = {};
+            this._instanceProps.smallScreen = true;
+            let root = Polymer.dom(this.root);
+            let template = document.createElement('template');
+            template.innerHTML = 
+            `<iron-media-query query="(max-width: 980px)" id$={{id}} query-matches="{{smallScreen}}"></iron-media-query>`;
+
+            this.templatize(template);
+            this.instance = this.stamp({
+                smallScreen: this.smallScreen
+            });
+
+            Polymer.dom(this.root).appendChild(this.instance.root);
+        },
+        _forwardInstanceProp (inst, prop, value) {
+            this.set(prop, value);
+        }
+    };
+    Kano.Behaviors.MediaQueryBehavior = [Polymer.Templatizer, Kano.Behaviors.MediaQueryBehaviorImpl];
+
+</script>

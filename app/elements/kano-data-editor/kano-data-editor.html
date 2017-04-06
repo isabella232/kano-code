@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../kano-data-display/kano-data-display.html">
 <link rel="import" href="./kano-what-is-json.html">
@@ -16,18 +17,14 @@
         display: block;
         @apply --layout-vertical;
         color: #fff;
-        --kano-part-settings-label-width: 16%;
     }
     :host .content {
         @apply --layout-vertical;
     }
     :host .config {
-        padding: 24px 0;
+        padding: 24px 0 36px;
+        flex: 1 0 auto;
         @apply --layout-vertical;
-    }
-    :host .input-container {
-        @apply --layout-vertical;
-        padding: 16px 0;
     }
     :host .line {
         @apply --layout-horizontal;
@@ -46,6 +43,15 @@
         @apply --kano-icon-button;
         margin: 16px 8px 16px 0px;
         padding: 0;
+    }
+    :host([loading]) kano-data-display {
+        opacity: 0.2;
+    }
+    paper-spinner-lite {
+        position: absolute;
+        top: 164px;
+        left: 50%;
+        --paper-spinner-color: #fff;
     }
     #refresh-frequency paper-dropdown-menu {
         @apply --layout-flex;
@@ -83,11 +89,15 @@
             border: none;
         }; 
     }
-    #refresh-frequency paper-menu {
-
-    }
     :host .line label {
+        width: 80px;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: left;
         width: var(--kano-part-settings-label-width);
+        font-size: 16px;
+        font-family: var(--font-body);
+        font-weight: bold;
+        margin-right: 40px;
     }
     :host.loading .refresh-button iron-image {
         transform-origin: 46% 50%;
@@ -156,9 +166,6 @@
         @apply(--layout-center-justified);
         background-color: rgba(255, 255, 255, 0.4);
     }
-    :host paper-spinner-lite {
-        --paper-spinner-color: var(--primary-color, orange);
-    }
     :host .data-browser {
         position: relative;
         @apply --layout-vertical;
@@ -191,8 +198,8 @@
     <template>
         <div class="content">
             <div class="config">
+                <kano-input type="text" label="Name" value="{{selected.name}}"></kano-input>
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
-                        <div class="input-container">
                             <kano-input id="[[param.key]]"
                                         type="[[param.type]]"
                                         label="[[param.label]]"
@@ -200,12 +207,7 @@
                                         value="[[_computeInputValue(param.key, param.value, selected.config)]]"
                                         on-change="paramChanged"
                                         description="[[param.description]]"></kano-input>
-                            <!-- <span class="param-description">[[param.description]]</span> -->
-                        </div>
                 </template>
-<!--                 <div id="refresh-toggle" class="line">
-                    <paper-toggle-button checked="{{selected.refreshEnabled}}">Refresh</paper-toggle-button>
-                </div> -->
                 <div class="line" id="refresh-frequency">
                     <label>Refresh</label>
                     <paper-dropdown-menu id="dropdown-menu" horizontal-align="left" no-label-float no-animations on-tap="_computeDropdownStyle">
@@ -232,13 +234,11 @@
                     </template>
                     <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
                     <kano-what-is-json id="what-is-json"></kano-what-is-json>
-                    <div class="loading-overlay" hidden$="[[!loading]]">
-                        <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
-                    </div>
+                    
+                    <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                 </div>
             </paper-dialog-scrollable>
         </div>
-
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -254,13 +254,12 @@
             loading: {
                 type: Boolean,
                 value: false,
-                observer: 'loadingChanged'
+                reflectToAttribute: true
             }
         },
         observers: [
             'computeDataArray(selected.data.*)',
             'computeRefreshEnabled(selected.refreshFreq)',
-
         ],
         attached () {
             this.jsonInfo = this.$['what-is-json'];
@@ -294,9 +293,6 @@
                 return;
             }
             this.set('dataArray', Array.isArray(this.selected.data) ? this.selected.data : [this.selected.data]);
-        },
-        loadingChanged () {
-            this.toggleClass('loading', this.loading);
         },
         refresh () {
             this.loading = true;

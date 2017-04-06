@@ -14,6 +14,7 @@ Polymer({
     behaviors: [
         Kano.Behaviors.AppEditorBehavior,
         Kano.Behaviors.AppElementRegistryBehavior,
+        Kano.Behaviors.MediaQueryBehavior,
         Kano.Behaviors.I18nBehavior
     ],
     properties: {
@@ -90,10 +91,6 @@ Polymer({
             type: Boolean,
             value: false,
             observer: 'onHideLeaveAlertChanged'
-        },
-        smallScreen: {
-            type: Boolean,
-            reflectToAttribute: true
         }
     },
     observers: [
@@ -418,6 +415,7 @@ Polymer({
             this.$['edit-part-dialog'].withBackdrop = false;
             this.notifyChange('open-background-settings');
         } else {
+            console.log('customizable', this.selected)
             this._toggleFullscreenPreference(this.selected.fullscreenEdit);
             this.$['edit-part-dialog'].open();
             this.toggleClass('open', true, this.$['code-overlay']);

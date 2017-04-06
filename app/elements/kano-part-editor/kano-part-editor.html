@@ -1,11 +1,11 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
+<link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <dom-module id="kano-part-editor">
     <style include="kano-code-shared-styles">
@@ -17,14 +17,15 @@
         @apply --layout-vertical;
     }
     :host #config-panel-container {
-        flex: 1 1 auto;
         @apply --layout-vertical;
+        flex: 1 1 auto;
+        overflow: auto;
         position: relative;
         box-sizing: border-box;
-        padding: var(--kano-modal-padding-large);
+        padding: var(--kano-modal-content-padding-large);
     }
     :host([small-screen]) #config-panel-container {
-        padding: var(--kano-modal-padding-small);
+        padding: var(--kano-modal-content-padding-small);
     }
     kano-light-animation-editor {
         /*overflow-x: hidden;*/
@@ -52,10 +53,10 @@
         font-size: 18px;
         color: rgba(255,255,255,0.5);
         border-bottom: 1px solid #202428;
-        padding: 0 48px 24px;
+        padding: var(--kano-modal-header-padding-large);
     }
     :host([small-screen]) .title-bar {
-        padding: 0 32px 16px;
+        padding: var(--kano-modal-header-padding-small);
     }
     :host button {
         @apply --kano-button;
@@ -97,7 +98,6 @@
     }
     </style>
     <template>
-        <iron-media-query query="(max-width: 980px)" query-matches="{{smallScreen}}"></iron-media-query>
         <div class="title-bar">
             <div class="type-display">[[selected.label]]</div>
             <!-- <paper-input id="element-name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput"></paper-input> -->
@@ -115,6 +115,7 @@
         is: 'kano-part-editor',
         behaviors: [
             Polymer.Templatizer,
+            Kano.Behaviors.MediaQueryBehavior,
             Kano.Behaviors.I18nBehavior
         ],
         properties: {
@@ -124,10 +125,6 @@
             },
             mode: {
                 type: Object
-            },
-            smallScreen: {
-                type: Boolean,
-                reflectToAttribute: true
             }
         },
         _instanceProps: {
@@ -138,10 +135,6 @@
             '_selectedChanged(selected.*)'
         ],
         _configPanelChanged (panel) {
-            // console.log('panel', panel)
-            if (!panel) {
-                return;
-            }
             let tagName = panel || 'div',
                 container = Polymer.dom(this.$['config-panel-container']),
                 template = document.createElement('template');
@@ -184,7 +177,6 @@
             this.set(prop, value);
         },
         _selectedChanged (e) {
-            console.log('this selected change', e);
             if (this.instance) {
                 this.instance.set(e.path, e.value);
             }

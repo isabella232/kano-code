@@ -5,8 +5,8 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../kano-animation/animations/from-big-animation.html">
@@ -186,18 +186,17 @@ Example:
     .editor {
         position: relative;
     }
-    #edit-part-dialog {
-        overflow-y: auto;
-        @apply --layout-vertical;
-        color: #fff;
-        font-weight: bold;
-        width: 720px;
+    #edit-part-dialog,
+    #edit-background-dialog {
         min-width: 380px;
+    }
+    #edit-part-dialog {
+        @apply --layout-vertical;
+        font-weight: bold;
+        color: #fff;
+        width: 720px;
         max-height: 100vh !important;
     }
-/*    :host([small-screen]) #edit-part-dialog {
-        max-width: none;
-    }*/
     .code-overlay {
         @apply --layout-fit;
         background: #414a51;
@@ -225,7 +224,6 @@ Example:
     }
     </style>
     <template>
-        <iron-media-query query="(max-width: 980px)" query-matches="{{smallScreen}}"></iron-media-query>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">
@@ -317,7 +315,7 @@ Example:
         </paper-dialog>
         <paper-dialog id="edit-part-dialog" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
             <kano-part-editor
-                selected="[[selected]]"
+                selected="{{selected}}"
                 mode="[[mode]]"
                 class="no-padding"
                 on-delete-part="deletePartClicked"
