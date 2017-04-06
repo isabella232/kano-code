@@ -9,93 +9,84 @@
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <dom-module id="kano-part-editor">
     <style include="kano-code-shared-styles">
-    :host {
-        position: relative;
-        text-align: center;
-        border-radius: 6px;
-        background-color: var(--color-dark);
-        @apply --layout-vertical;
-    }
-    :host #config-panel-container {
-        @apply --layout-vertical;
-        flex: 1 1 auto;
-        overflow: auto;
-        position: relative;
-        box-sizing: border-box;
-        padding: var(--kano-modal-content-padding-large);
-    }
-    :host([small-screen]) #config-panel-container {
-        padding: var(--kano-modal-content-padding-small);
-    }
-    kano-light-animation-editor {
-        /*overflow-x: hidden;*/
-    }
-    #config-panel-container > * {
-        @apply --layout-vertical;
-        flex: 1 1 auto;
-    }
-    :host .button-container {
-        @apply --layout-flex;
-        @apply --layout-horizontal;
-        @apply --layout-end-justified;
-    }
-    :host .type-display {
-        width: 80px;
-        margin-right: 8px;
-    }
-    :host .title-bar {
-        @apply --layout-horizontal;
-        @apply --layout-start-justified;
-        @apply --layout-center;
-        text-align: left;
-        font-family: var(--font-body);
-        font-weight: bold;
-        font-size: 18px;
-        color: rgba(255,255,255,0.5);
-        border-bottom: 1px solid #202428;
-        padding: var(--kano-modal-header-padding-large);
-    }
-    :host([small-screen]) .title-bar {
-        padding: var(--kano-modal-header-padding-small);
-    }
-    :host button {
-        @apply --kano-button;
-        @apply --layout-self-center;
-        text-shadow: none;
-        font-weight: bold;
-    }
-    :host .done-button {
-        background-color: var(--color-grassland);
-    }
-    :host .done-button:hover {
-        background-color: var(--color-apple);
-    }
-    :host .delete-button {
-        background-color: var(--color-chateau);
-        padding: 14px 16px 12px;
-        margin-right: 24px;
-    }
-    :host .delete-button:hover {
-        background-color: var(--color-abbey);   
-    }
-/*    #element-name-editor {
-        width: 400px;
-        margin: 0 32px;
-        --paper-input-container-focus-color: var(--color-orange, orange);
-        --paper-input-container-color: rgba(255,255,255,0.5);
-        --paper-input-container-input-color: rgba(255,255,255,0.5);
-        --paper-input-container: {
+        :host {
+            position: relative;
+            text-align: center;
+            border-radius: 6px;
+            background-color: var(--color-dark);
+            @apply --layout-vertical;
+        }
+        :host #config-panel-container {
+            @apply --layout-vertical;
+            flex: 1 1 auto;
+            overflow: auto;
+            position: relative;
+            box-sizing: border-box;
+        }
+        :host(:not(.large)) #config-panel-container {
+            padding: var(--kano-modal-content-padding-large);
+        }
+        :host([small-screen]:not(.large)) #config-panel-container {
+            padding: var(--kano-modal-content-padding-small);
+        }
+        kano-light-animation-editor {
+            /*overflow-x: hidden;*/
+        }
+        #config-panel-container > * {
+            @apply --layout-vertical;
+            flex: 1 1 auto;
+        }
+        :host .button-container {
+            @apply --layout-flex;
+            @apply --layout-horizontal;
+            @apply --layout-end-justified;
+        }
+        :host .type-display {
+            width: 80px;
+            margin-right: 8px;
+        }
+        :host .title-bar {
+            @apply --layout-horizontal;
+            @apply --layout-start-justified;
+            @apply --layout-center;
+            text-align: left;
+            font-family: var(--font-body);
+            font-weight: bold;
             font-size: 18px;
-            padding: 0;
-        };
-    }*/
-    :host .icon {
-        cursor: pointer;
-    }
-    :host #edit-icon {
-        width: 20px;
-        height: 20px;
-    }
+            color: rgba(255,255,255,0.5);
+            border-bottom: 1px solid #202428;
+            padding: var(--kano-modal-header-padding-large);
+        }
+        :host([small-screen]) .title-bar {
+            padding: var(--kano-modal-header-padding-small);
+        }
+        :host button {
+            @apply --kano-button;
+            @apply --layout-self-center;
+            text-shadow: none;
+            font-weight: bold;
+        }
+        :host .done-button {
+            background-color: var(--color-grassland);
+        }
+        :host .done-button:hover {
+            background-color: var(--color-apple);
+        }
+        :host .delete-button {
+            background-color: var(--color-chateau);
+            padding: 14px 16px 12px;
+            margin-right: 24px;
+        }
+        :host .delete-button:hover {
+            background-color: var(--color-abbey);   
+        }
+        :host .icon {
+            cursor: pointer;
+        }
+        :host #edit-icon {
+            width: 20px;
+            height: 20px;
+        }
     </style>
     <template>
         <div class="title-bar">

@@ -410,22 +410,23 @@ Polymer({
     onPartSettings () {
         // No part selected, show the background editor
         if (!this.selected) {
+            this._toggleFullscreenModal(false);
             this._openBackgroundDialog();
-            this.$['edit-part-dialog'].fitInto = this.$['root-view'];
-            this.$['edit-part-dialog'].withBackdrop = false;
             this.notifyChange('open-background-settings');
         } else {
-            console.log('customizable', this.selected)
-            this._toggleFullscreenPreference(this.selected.fullscreenEdit);
+            this._toggleFullscreenModal(this.selected.fullscreenEdit);
             this.$['edit-part-dialog'].open();
-            this.toggleClass('open', true, this.$['code-overlay']);
             this.notifyChange('open-part-settings', { part: this.selected });
         }
     },
-    _toggleFullscreenPreference (isFullScreen) {
-        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
-        this.$['edit-part-dialog'].withBackdrop = isFullScreen;
-        //if not fullscreen, use custom code-overlay
+    _toggleFullscreenModal (isFullScreen) {
+        let editModal = this.$['edit-part-dialog'];
+        editModal.fitInto = isFullScreen ? window : this.$['root-view'];
+        this.toggleClass('large', isFullScreen, this.$['edit-part-dialog-content']);
+        // editModal.style.width = isFullScreen ? 'auto' : '720px';
+        this.toggleClass('small-width', !isFullScreen, this.$['code-overlay']);
+        editModal.withBackdrop = isFullScreen;
+        //If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
     },
     _deletePart (part) {

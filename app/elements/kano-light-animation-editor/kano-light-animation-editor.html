@@ -16,180 +16,196 @@
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-palette/kano-palette.html">
+<link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <dom-module id="kano-light-animation-editor">
-    <style>
-    :host {
-        width: 80vw;
-        max-width: 960px;
-        @apply --layout-vertical;
-        @apply --layout-center-justified;
-    }
-    :host button {
-        @apply --kano-button;
-        @apply --layout-horizontal;
-        @apply --layout-center-justified;
-        background-color: var(--color-chateau);
-        width: 48px;
-        height: 48px;
-    }
-    kano-palette {
-        margin-right: 24px;
-    }
-    .main {
-        @apply --layout-horizontal;
-        @apply --layout-start-justified;
-    }
-    .control-container {
-        margin-left: 24px;
-        flex: 1 0 auto;
-        @apply --layout-vertical;
-    }
-    :host label {
-        display: inline-block;
-        font-family: var(--font-body);
-        font-size: 16px;
-        font-weight: bold;
-        text-align: left;
-        color: rgba(255,255,255,0.5);
-        margin-bottom: 24px;
-        @apply --layout-self-start;
-    }
-    .control-content {
-        @apply --layout-flex;
-        @apply --layout-vertical;
-        @apply --layout-justified;
-    }
-    :host .name-container {
-        @apply --layout-horizontal;
-    }
-    :host .name-container label.name {
-        @apply --layout-self-center;
-        width: 80px;
-        margin-bottom: 0;
-    }
-    .name-editor {
-        @apply --layout-flex;
-        --paper-input-container-input: {
-            color: #fff;
-            font-family: var(--font-body);
-            font-weight: bold;
-            padding-top: 4px;
-        };
-        --paper-input-container-underline: {
-            border: none;
-        };
-        --paper-input-container-underline-focus: {
-            border: none;
-        };
-        --paper-input-container: {
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            background-color: var(--color-chateau);
-            font-size: 18px;
-            padding: 3px 0;
-        };
-        --paper-input-container-label: {
-            color: #fff;
-            font-family: var(--font-body);
-            font-size: 18px;
-        };
-    }
-    :host .row {
-        margin-bottom: 16px;
-    }
-    :host .row:last-child {
-        margin-bottom: 0;
-    }
-    .slider {
-        --kano-settings-label: {
-            width: 80px;
-        };
-    }
-    .framelist-container {
-        height: 98px;
-        border-top: 1px solid #202428;
-        padding: 24px 48px 0;
-        @apply --layout-horizontal;
-        @apply --layout-center;
-    }
-    .framelist-container button {
-        width: 40px;
-        height: 40px;
-        flex-shrink: 0;
-        font-size: 32px;
-        font-family: monospace;
-        padding: 0;
-        
-    }
-    .framelist-button-container {
-        margin-right: 16px;
-    }
-    #frames {
-        overflow: hidden;
-        @apply --layout-flex;
-    }
-    button.add-frame:disabled {
-        opacity: 0.3;
-    }
-    .canvas-container {
-        @apply --layout-flex-none;
-        @apply --layout-vertical;
-        width: 400px;
-        height: 244px;
-        margin: 0 24px;
-    }
-    .canvas-container iron-pages {
-        @apply --layout-horizontal;
-        @apply --layout-center-justified;
-    }
-    kano-pixel-canvas {
-        cursor: none;
-        --kano-pixel-editor-background: var(--color-dark);
-    }
-    .preview-renderer {
-        /*margin: 4px;*/
-    }
-    kano-animated-svg {
-        @apply --layout-flex;
-        width: 18px;
-        height: 18px;
-        -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-        filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-        --kano-animated-path: {
-            fill: white;
-            stroke: white;
-            stroke-width: 3px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: all ease-in-out 200ms;
+    <style include="kano-code-shared-styles">
+        :host {
+            @apply --layout-vertical;
+            @apply --layout-center-justified;
+            min-width: 680px;
         }
-    }
+        :host button {
+            @apply --kano-button;
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+            background-color: var(--color-chateau);
+            width: 48px;
+            height: 48px;
+        }
+        .main {
+            @apply --layout-horizontal;
+            @apply --layout-start-justified;
+            padding: 32px 48px;
+        }
+        :host([small-screen]) .main {
+            @apply --layout-vertical;
+        }
+        .canvas-editor {
+            @apply --layout-horizontal;
+        }
+        .control-container {
+            flex: 1 1 auto;
+            min-height: 260px;
+            @apply --layout-vertical;
+        }
+        :host([small-screen]) .control-container label {
+            margin-top: 16px;
+        }
+        :host label {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: bold;
+            text-align: left;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 24px;
+            @apply --layout-self-start;
+        }
+        .control-content {
+            @apply --layout-flex;
+            @apply --layout-vertical;
+        }
+        .control-content kano-input:first-of-type {
+            min-height: 33px;
+            margin-bottom: 16px;
+        }
+        :host .name-container {
+            @apply --layout-horizontal;
+        }
+        :host .name-container label.name {
+            @apply --layout-self-center;
+            width: 80px;
+            margin-bottom: 0;
+        }
+        .name-editor {
+            @apply --layout-flex;
+            --paper-input-container-input: {
+                color: #fff;
+                font-family: var(--font-body);
+                font-weight: bold;
+                padding-top: 4px;
+            };
+            --paper-input-container-underline: {
+                border: none;
+            };
+            --paper-input-container-underline-focus: {
+                border: none;
+            };
+            --paper-input-container: {
+                border-radius: 3px;
+                white-space: nowrap;
+                overflow: hidden;
+                background-color: var(--color-chateau);
+                font-size: 18px;
+                padding: 3px 0;
+            };
+            --paper-input-container-label: {
+                color: #fff;
+                font-family: var(--font-body);
+                font-size: 18px;
+            };
+        }
+        :host .row {
+            margin-bottom: 16px;
+        }
+        :host .row:last-child {
+            margin-bottom: 0;
+        }
+        .slider {
+            --kano-settings-label: {
+                width: 80px;
+            };
+        }
+        .framelist-container {
+            height: 98px;
+            border-top: 1px solid #202428;
+            padding: 24px 48px 0;
+            @apply --layout-horizontal;
+            @apply --layout-center;
+        }
+        .framelist-container button {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            font-size: 32px;
+            font-family: monospace;
+            padding: 0;
+        }
+        .framelist-button-container {
+            margin-right: 16px;
+        }
+        #frames {
+            overflow: hidden;
+            @apply --layout-flex;
+        }
+        button.add-frame:disabled {
+            opacity: 0.3;
+        }
+        .canvas-container {
+            @apply --layout-flex-none;
+            @apply --layout-vertical;
+            width: 400px;
+            height: 244px;
+            margin: 0 36px;
+        }
+        .canvas-container iron-pages {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+        }
+        kano-pixel-canvas {
+            cursor: none;
+            --kano-pixel-editor-background: var(--color-dark);
+        }
+        kano-animated-svg {
+            @apply --layout-flex;
+            width: 18px;
+            height: 18px;
+            -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+            filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+            --kano-animated-path: {
+                fill: white;
+                stroke: white;
+                stroke-width: 3px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                transition: all ease-in-out 200ms;
+            }
+        }
     </style>
     <template>
         <div class="header"></div>
         <div class="main">
-            <kano-palette id="palette" bitmaps="[[bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
-            <div class="canvas-container">
-                <label>Canvas</label>
-                <iron-pages selected="[[previewState]]" attr-for-selected="name">
-                    <kano-pixel-canvas id="canvas" name="stopped" bitmap="{{selectedFrame}}" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21" palette="[[palette]]" pen-color="[[penColor]]" pen-type="[[penType]]"></kano-pixel-canvas>
-                    <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21"></kano-bitmap-renderer>
-                </iron-pages>
+            <div class="canvas-editor">
+                <kano-palette id="palette" bitmaps="[[bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
+                <div class="canvas-container">
+                    <label>Canvas</label>
+                    <iron-pages selected="[[previewState]]" attr-for-selected="name">
+                        <kano-pixel-canvas id="canvas"
+                                            name="stopped"
+                                            bitmap="{{selectedFrame}}"
+                                            spacing="2"
+                                            width="[[width]]"
+                                            height="[[height]]"
+                                            pixel-size="21"
+                                            palette="[[palette]]"
+                                            pen-color="[[penColor]]"
+                                            pen-type="[[penType]]"></kano-pixel-canvas>
+                        <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21"></kano-bitmap-renderer>
+                    </iron-pages>
+                </div>
             </div>
             <div class="control-container">
                 <label>Controls</label>
                 <div class="control-content">
-                    <div class="name-container row">
-                        <label class="name">Name</label>
-                        <paper-input class="name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput" no-label-float></paper-input>
-                    </div>
+                    <kano-input type="text" label="Name" value="{{element.name}}"></kano-input>
                     <kano-input-range class="slider row" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
                     <kano-input-range class="slider row" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
                     <kano-input-range class="slider row" value="{{selected.userProperties.speed}}" label="Frame rate" min="1" max="30" symbol="fps"></kano-input-range>
                 </div>
             </div>
         </div>
+        <div class="divider"></div>
         <div class="framelist-container">
             <div class="framelist-button-container">
                 <button type="button" name="button" class="preview-control" on-tap="_togglePreviewState">
@@ -205,7 +221,7 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-light-animation-editor',
-            behaviors: [PolymerFilters.FilterBehavior],
+            behaviors: [PolymerFilters.FilterBehavior, Kano.Behaviors.MediaQueryBehavior],
             properties: {
                 selected: {
                     type: Object,
