@@ -126,14 +126,12 @@
         :host button.animate {
             animation-name: button-enter;
         }
-        :host([is-last]) #primary-button,
-        :host([force-cta]) #primary-button {
+        :host(.green-cta) #primary-button {
             background-color: var(--color-grassland);
             backface-visibility: hidden;
             perspective: 1000px;
         }
-        :host([is-last]) #primary-button:hover,
-        :host([force-cta]) #primary-button:hover {
+        :host(.green-cta) #primary-button:hover {
             background-color: var(--color-apple);
         }
         .markdown-html p {
@@ -211,7 +209,7 @@
                 <iron-icon class="save-icon" src="/assets/icons/save.svg"></iron-icon>
                 <div>[[localize('SAVE', 'Save')]]</div>
             </button>
-            <kano-glint-animation id="primary-button-container" running="[[_computeGlint(forceCta, isLast)]]">
+            <kano-glint-animation id="primary-button-container" running="[[glint]]">
                 <button id="primary-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped">[[buttonLabel]]</button>
             </kano-glint-animation>
         </div>
@@ -242,7 +240,8 @@
                 value: 'judoka'
             },
             buttonLabel: {
-                type: String
+                type: String,
+                observer: '_onButtonLabelChanged'
             },
             showButton: {
                 type: Boolean,
@@ -333,8 +332,11 @@
                 this._triggerAnimation(saveButtonElement);
             }
         },
-        _computeGlint (isLast, forceCta) {
-            return (isLast || forceCta);
+        _onButtonLabelChanged (label) {
+            let isNext = label === 'Next',
+                extraCta = isNext || this.forceCta || this.isLast;
+            this.glint = extraCta || label === 'Hints' || label ==='Next Challenge';
+            this.toggleClass('green-cta', extraCta);
         },
         _triggerAnimation (element) {
             this.toggleClass('animate', false, element);
