@@ -30,37 +30,43 @@
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)',
                 '_onBitmapsChanged(model.userProperties.bitmaps.*)'
             ],
+            properties: {
+                storedBitmaps: {
+                    type: Array
+                }
+            },
             _onBitmapsChanged (e) {
-                console.log('changed mofo', e)
                 if (this.lock) {
                     return;
                 }
                 this.lock = true;
-                // console.log(e);
-                console.log(e.path);
                 //Skip function if bitmaps were newly set. We only want to store while individual frames are being edited.
-                console.log('AFTER CHECK')
                 this.async(() => this.lock = false);
-                if (e.path === 'model.userProperties.bitmaps') {
-                    return;
+    
+                if (e.path.search(/splices/) !== -1) {
+                    console.log('REGEX PASSED');
+                    this._setBitmap();
                 }
-                this._setBitmap();
                 
             },
             _setBitmap () {
                 console.log('setting bitmap baby')
-                this.storedBitmaps = this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
-                let bitmaps = this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this));
-                this.set('model.userProperties.bitmaps', bitmaps);
+                this.set('storedBitmaps', this.storeBitmaps());
+                this.set('model.userProperties.bitmaps',
+                    this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
             },
             ready () {
                 this.frameIndex = 0;
             },
+            storeBitmaps () {
+                return this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
+            },
             _sizeChanged () {
+                console.log('size changed')
                 let bitmaps = this.model.userProperties.bitmaps || [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
-                if (!this.storedBitmaps) {
+                if (this.model.userProperties.bitmaps.length === 0) {
                     let firstBitmap = [];
                     for (let i = 0; i < height * width; i++) {
                         firstBitmap.push('#000000');
@@ -68,20 +74,27 @@
                     this.set('model.userProperties.bitmaps', [firstBitmap]);
                     return;
                 }
+                this.storedBitmaps = this.storedBitmaps || this.storeBitmaps(); 
                 bitmaps = this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this));
                 this.set('model.userProperties.bitmaps', bitmaps);
             },
             _adjustBitmapForStorage (bitmap) {
-                let unfilledPixels = 128 - bitmap.length,
-                    clone = bitmap.slice(0);
-                
-                //Fill out bitmap with #000 pixels to have everything stored in 16 x 8
-                if (unfilledPixels) {
-                    for (let i = 0; i < unfilledPixels; i++) {
-                        clone.push('#000');
-                    }
+                let newBitmap = [],
+                    width = this.model.userProperties.width,
+                    height = this.model.userProperties.height;
+                for (let i = 0; i < 128; i++) {
+                    newBitmap.push('#000000');
                 }
-                return clone;
+
+                bitmap.forEach((color, i) => {
+                    let x = i % width,
+                        y = Math.floor(i / width),
+                        realPos = x + y * 16;
+                    if (realPos < 128) {
+                        newBitmap[realPos] = color;
+                    }
+                });
+                return newBitmap;
             },
             _adjustBitmapForDisplay (bitmap) {
                 let newBitmap = [],
@@ -101,28 +114,6 @@
                 });
                 return newBitmap;
             }
-            // _adjustBitmapForDisplay (bitmap) {
-            //     //Filter unnecessary pixels from 16 x 8 stored bitmap
-            //     let width = this.model.userProperties.width,
-            //         height = this.model.userProperties.height,
-            //         maxIndex = width * height,
-            //         breakpoint = width,
-            //         lengthToEnd = 16 - breakpoint,
-            //         adjustedBitmap = bitmap.slice(0);
-            //     for (let row = 0; row < height; row++) {
-            //         console.log(breakpoint)
-            //         console.log(lengthToEnd)
-            //         console.log('row', row)
-            //         if (row === height - 1) {
-            //             console.log('utolso')
-            //             adjustedBitmap.splice(breakpoint + (16 * row), lengthToEnd + 1)
-            //         } else {
-            //             adjustedBitmap.splice(breakpoint + (16 * row), lengthToEnd);
-            //         } 
-            //     }
-            //     // adjustedBitmap = adjustedBitmap.filter((color, index) => index < maxIndex);
-            //     return adjustedBitmap;
-            // }
         });
     </script>
 </dom-module>

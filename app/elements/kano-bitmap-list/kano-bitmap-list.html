@@ -116,8 +116,7 @@
                     value: () => {
                         return [[]];
                     },
-                    notify: true,
-                    observer: 'test'
+                    notify: true
                 },
                 selected: {
                     type: Array,
@@ -140,9 +139,6 @@
                 '_selectedChanged(selected.*)',
                 '_bitmapsChanged(bitmaps)'
             ],
-            test () {
-                console.log('bitmaps changed in list')
-            },
             _selectedChanged (e) {
                 if (this.sorting) {
                     return;
@@ -159,7 +155,6 @@
 
                 //Values of the 'selected' pixel array changed, update the bitmaps array
                 if (e.path === 'selected.splices') {
-                    console.log('should update')
                     splices = e.value;
                     splices.indexSplices.forEach(splice => {
                         this.splice(`bitmaps.${index}`, splice.index, 1, this.selected[splice.index]);
