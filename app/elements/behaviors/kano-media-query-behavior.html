@@ -13,25 +13,41 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
-            }
+            },
+            mediumScreen: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            largeScreen: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            }       
         },
-        // _instanceProps: {
-        //     smallScreen: true
-        // },
         attached () {
-            console.log('ATTACHED');
             this._instanceProps = this._instanceProps = {};
             this._instanceProps.smallScreen = true;
+            this._instanceProps.mediumScreen = true;
+            this._instanceProps.largeScreen = true;
+
             let root = Polymer.dom(this.root);
             let template = document.createElement('template');
+
             template.innerHTML = 
-            `<iron-media-query query="(max-width: 980px)" id$={{id}} query-matches="{{smallScreen}}"></iron-media-query>`;
+            '<iron-media-query query="(max-width: 700px)" id$={{id}} query-matches="{{smallScreen}}">' +
+            '</iron-media-query>' +
+            '<iron-media-query query="(min-width: 700px) and (max-width: 980px)" id$={{id}} query-matches="{{mediumScreen}}">' +
+            '</iron-media-query>' +
+            '<iron-media-query query="(min-width: 980px) and (max-width: 1280px)" id$={{id}} query-matches="{{largeScreen}}">' +
+            '</iron-media-query>'
 
             this.templatize(template);
             this.instance = this.stamp({
-                smallScreen: this.smallScreen
+                smallScreen: this.smallScreen,
+                mediumScreen: this.mediumScreen,
+                largeScreen: this.largeScreen
             });
-
             Polymer.dom(this.root).appendChild(this.instance.root);
         },
         _forwardInstanceProp (inst, prop, value) {

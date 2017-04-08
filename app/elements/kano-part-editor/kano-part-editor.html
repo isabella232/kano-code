@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
@@ -10,6 +9,7 @@
 <dom-module id="kano-part-editor">
     <style include="kano-code-shared-styles">
         :host {
+            flex: 1 0 auto;
             position: relative;
             text-align: center;
             border-radius: 6px;
@@ -18,19 +18,22 @@
         }
         :host #config-panel-container {
             @apply --layout-vertical;
-            flex: 1 1 auto;
+            flex: 1 0 auto;
             overflow: auto;
             position: relative;
             box-sizing: border-box;
         }
         :host(:not(.large)) #config-panel-container {
+            width: 720px;
             padding: var(--kano-modal-content-padding-large);
         }
+        :host([large-screen]:not(.large)) #config-panel-container {
+            width: 540px;
+        }
+        :host([medium-screen]:not(.large)) #config-panel-container,
         :host([small-screen]:not(.large)) #config-panel-container {
             padding: var(--kano-modal-content-padding-small);
-        }
-        kano-light-animation-editor {
-            /*overflow-x: hidden;*/
+            width: 380px;
         }
         #config-panel-container > * {
             @apply --layout-vertical;
@@ -46,6 +49,7 @@
             margin-right: 8px;
         }
         :host .title-bar {
+            flex: 1 0 auto;
             @apply --layout-horizontal;
             @apply --layout-start-justified;
             @apply --layout-center;
@@ -57,7 +61,7 @@
             border-bottom: 1px solid #202428;
             padding: var(--kano-modal-header-padding-large);
         }
-        :host([small-screen]) .title-bar {
+        :host([medium-screen]) .title-bar {
             padding: var(--kano-modal-header-padding-small);
         }
         :host button {
@@ -78,7 +82,7 @@
             margin-right: 24px;
         }
         :host .delete-button:hover {
-            background-color: var(--color-abbey);   
+            background-color: var(--color-abbey);
         }
         :host .icon {
             cursor: pointer;
@@ -91,7 +95,6 @@
     <template>
         <div class="title-bar">
             <div class="type-display">[[selected.label]]</div>
-            <!-- <paper-input id="element-name-editor" value="{{selected.name}}" on-keydown="enterQuitsInput"></paper-input> -->
             <div class="button-container">
                 <button class="delete-button" type="button" on-tap="_deletePart" dialog-dismiss>Delete</button>
                 <button class="done-button" type="button" dialog-dismiss>Done</button>

@@ -23,7 +23,11 @@
         :host {
             @apply --layout-vertical;
             @apply --layout-center-justified;
-            min-width: 680px;
+        }
+        :host([medium-screen]),
+        :host([small-screen]) {
+            max-width: 665px;
+            @apply --layout-vertical;
         }
         :host button {
             @apply --kano-button;
@@ -38,17 +42,34 @@
             @apply --layout-start-justified;
             padding: 32px 48px;
         }
+        :host([medium-screen]) .main,
         :host([small-screen]) .main {
             @apply --layout-vertical;
         }
         .canvas-editor {
             @apply --layout-horizontal;
         }
+        .canvas-container {
+            @apply --layout-flex-none;
+            @apply --layout-vertical;
+            width: 400px;
+            height: 244px;
+            margin: 0 36px;
+        }
+        .canvas-container iron-pages {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+        }
+        kano-pixel-canvas {
+            cursor: none;
+            --kano-pixel-editor-background: var(--color-dark);
+        }
         .control-container {
             flex: 1 1 auto;
             min-height: 260px;
             @apply --layout-vertical;
         }
+        :host([medium-screen]) .control-container label,
         :host([small-screen]) .control-container label {
             margin-top: 16px;
         }
@@ -66,44 +87,18 @@
             @apply --layout-flex;
             @apply --layout-vertical;
         }
-        .control-content kano-input:first-of-type {
+        .control-content kano-input {
             min-height: 33px;
             margin-bottom: 16px;
+            --kano-input-label: {
+                width: 70px;
+                margin-right: 30px;
+            };
         }
-        :host .name-container {
-            @apply --layout-horizontal;
-        }
-        :host .name-container label.name {
-            @apply --layout-self-center;
-            width: 80px;
-            margin-bottom: 0;
-        }
-        .name-editor {
-            @apply --layout-flex;
-            --paper-input-container-input: {
-                color: #fff;
-                font-family: var(--font-body);
-                font-weight: bold;
-                padding-top: 4px;
-            };
-            --paper-input-container-underline: {
-                border: none;
-            };
-            --paper-input-container-underline-focus: {
-                border: none;
-            };
-            --paper-input-container: {
-                border-radius: 3px;
-                white-space: nowrap;
-                overflow: hidden;
-                background-color: var(--color-chateau);
-                font-size: 18px;
-                padding: 3px 0;
-            };
-            --paper-input-container-label: {
-                color: #fff;
-                font-family: var(--font-body);
-                font-size: 18px;
+        .control-content kano-input-range {
+            --kano-input-range-label: {
+                width: 70px;
+                margin-right: 30px;
             };
         }
         :host .row {
@@ -142,21 +137,6 @@
         button.add-frame:disabled {
             opacity: 0.3;
         }
-        .canvas-container {
-            @apply --layout-flex-none;
-            @apply --layout-vertical;
-            width: 400px;
-            height: 244px;
-            margin: 0 36px;
-        }
-        .canvas-container iron-pages {
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-        }
-        kano-pixel-canvas {
-            cursor: none;
-            --kano-pixel-editor-background: var(--color-dark);
-        }
         kano-animated-svg {
             @apply --layout-flex;
             width: 18px;
@@ -177,7 +157,7 @@
         <div class="header"></div>
         <div class="main">
             <div class="canvas-editor">
-                <kano-palette id="palette" bitmaps="[[bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
+                <kano-palette id="palette" bitmaps="[[selected.userProperties.bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
                 <div class="canvas-container">
                     <label>Canvas</label>
                     <iron-pages selected="[[previewState]]" attr-for-selected="name">
@@ -185,13 +165,13 @@
                                             name="stopped"
                                             bitmap="{{selectedFrame}}"
                                             spacing="2"
-                                            width="[[width]]"
-                                            height="[[height]]"
+                                            width="[[selected.userProperties.width]]"
+                                            height="[[selected.userProperties.height]]"
                                             pixel-size="21"
                                             palette="[[palette]]"
                                             pen-color="[[penColor]]"
                                             pen-type="[[penType]]"></kano-pixel-canvas>
-                        <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[width]]" height="[[height]]" pixel-size="21"></kano-bitmap-renderer>
+                        <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" pixel-size="21"></kano-bitmap-renderer>
                     </iron-pages>
                 </div>
             </div>
@@ -213,9 +193,9 @@
                 </button>
             </div>
             <div class="framelist-button-container">
-                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><span>+<!-- <iron-icon icon="kano-icons:plus"></iron-icon> --></span></button>
+                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><span><iron-icon icon="kano-icons:plus"></iron-icon></span></button>
             </div>
-            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" width="[[width]]" height="[[height]]" class="frame-list" id="frames"></kano-bitmap-list>
+            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" class="frame-list" id="frames"></kano-bitmap-list>
         </div>
     </template>
     <script type="text/javascript">
@@ -229,29 +209,32 @@
                 },
                 bitmaps: {
                     type: Array,
-                    value: () => {
-                        return [['#000000']];
-                    },
                     notify: true
                 },
-                width: {
-                    type: Number,
-                    value: 1
-                },
-                height: {
-                    type: Number,
-                    value: 1
-                },
-                speed: {
-                    type: Number,
-                    value: 15
+                selectedFrame: {
+                    type: Array,
+                    value: () => {
+                        return ['#000000'];
+                    }
                 }
             },
             observers: [
-                '_bitmapChanged(selectedFrame, width, height)',
                 '_onSelectedChanged(selected.*)',
-                '_selectedFrameChanged(selectedFrame)'
+                '_selectedFrameChanged(selectedFrame.*)',
+                '_bitmapsChanged(bitmaps.*)'
             ],
+            // yeye () {
+            //     console.log('change DETECTED')
+            // },
+            // yoyo (s) {
+            //     console.log('selected', s)
+            // },
+            _bitmapsChanged () {
+                // console.log('ANIMATION EDITOR CHANGED');
+                // console.log('local bitmaps', this.bitmaps)
+                // console.log('local bitmaps', this.bitmaps)
+                this.set('selected.userProperties.bitmaps', this.bitmaps);
+            },
             attached () {
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
@@ -261,13 +244,10 @@
                 this.previewIndex = 0;
             },
             _onSelectedChanged (e) {
-
-                this.width = this.selected.userProperties.width;
-                this.height = this.selected.userProperties.height;
-                this.speed = this.selected.userProperties.speed;
                 this.bitmaps = this.selected.userProperties.bitmaps;
+                // this.bitmaps = this.selected.userProperties.bitmaps;
                 if (e.path = "selected") {
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selected.userProperties.bitmaps.length - 1];
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selected.userProperties.bitmaps.length - 1].slice(0);
                 }
             },
             _togglePreviewState () {
@@ -286,11 +266,7 @@
                         this.previewIndex = 0;
                     }
                 }
-                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.speed);
-            },
-            _selectedFrameChanged () {
-                
-                this.$.palette._computePalette();
+                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
             },
             _generateEmptyBitmap (name, width, height, color='#000000') {
                 let length = width * height;
@@ -298,14 +274,17 @@
                     this.push(name, color);
                 }
             },
-            _bitmapChanged () {
-                
+            _selectedFrameChanged (e) {
+                // console.log('frame changed', e.path)
                 if (!this.selectedFrame) {
                     return;
                 }
+
                 if (this.selectedFrame.length === 0) {
                     this._generateEmptyBitmap('selectedFrame', this.width, this.height);
                 }
+                this.$.palette._computePalette();
+                // this.set('selected.userProperties.bitmaps')
             },
             _addFrame () {
                 this.$.frames.addFrame();
