@@ -195,7 +195,7 @@
             <div class="framelist-button-container">
                 <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><span><iron-icon icon="kano-icons:plus"></iron-icon></span></button>
             </div>
-            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" class="frame-list" id="frames"></kano-bitmap-list>
+            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" selected-index="{{selectedIndex}}" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" class="frame-list" id="frames"></kano-bitmap-list>
         </div>
     </template>
     <script type="text/javascript">
@@ -207,9 +207,9 @@
                     type: Object,
                     notify: true
                 },
-                bitmaps: {
-                    type: Array,
-                    notify: true
+                selectedIndex: {
+                    type: Number,
+                    value: 0
                 },
                 selectedFrame: {
                     type: Array,
@@ -220,21 +220,8 @@
             },
             observers: [
                 '_onSelectedChanged(selected.*)',
-                '_selectedFrameChanged(selectedFrame.*)',
-                '_bitmapsChanged(bitmaps.*)'
+                '_selectedFrameChanged(selectedFrame.*)'
             ],
-            // yeye () {
-            //     console.log('change DETECTED')
-            // },
-            // yoyo (s) {
-            //     console.log('selected', s)
-            // },
-            _bitmapsChanged () {
-                // console.log('ANIMATION EDITOR CHANGED');
-                // console.log('local bitmaps', this.bitmaps)
-                // console.log('local bitmaps', this.bitmaps)
-                this.set('selected.userProperties.bitmaps', this.bitmaps);
-            },
             attached () {
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
@@ -244,10 +231,9 @@
                 this.previewIndex = 0;
             },
             _onSelectedChanged (e) {
-                this.bitmaps = this.selected.userProperties.bitmaps;
-                // this.bitmaps = this.selected.userProperties.bitmaps;
+                this.selectedIndex = this.selectedIndex || 0;
                 if (e.path = "selected") {
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selected.userProperties.bitmaps.length - 1].slice(0);
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
                 }
             },
             _togglePreviewState () {
@@ -259,10 +245,11 @@
                 }
             },
             _updatePreview () {
-                if (this.bitmaps) {
-                    this.frame = this.bitmaps[this.previewIndex];
+                let bitmaps = this.selected.userProperties.bitmaps;
+                if (bitmaps) {
+                    this.frame = bitmaps[this.previewIndex];
                     this.previewIndex++;
-                    if (this.previewIndex > this.bitmaps.length - 1) {
+                    if (this.previewIndex > bitmaps.length - 1) {
                         this.previewIndex = 0;
                     }
                 }
@@ -275,7 +262,6 @@
                 }
             },
             _selectedFrameChanged (e) {
-                // console.log('frame changed', e.path)
                 if (!this.selectedFrame) {
                     return;
                 }
@@ -283,8 +269,7 @@
                 if (this.selectedFrame.length === 0) {
                     this._generateEmptyBitmap('selectedFrame', this.width, this.height);
                 }
-                this.$.palette._computePalette();
-                // this.set('selected.userProperties.bitmaps')
+                // this.$.palette._computePalette();
             },
             _addFrame () {
                 this.$.frames.addFrame();

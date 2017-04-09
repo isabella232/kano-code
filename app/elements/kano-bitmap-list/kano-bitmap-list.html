@@ -21,14 +21,12 @@
                 @apply --layout-center;
                 height: 120px;
                 position: relative;
-                /*overflow-x: auto;*/
                 padding: 0;
             }
             sortable-js {
                 @apply --layout-horizontal;
                 @apply --layout-end;
                 padding: 11px 4px;
-                /*overflow-x: hidden;*/
                 max-width: 100%;
                 box-sizing: border-box;
             }
@@ -97,7 +95,7 @@
                                                         spacing="1"
                                                         pixel-size="4"
                                                         bitmap="[[bm]]"
-                                                        on-mousedown="_registerPosition"
+                                                        on-mousedown="_registerBinPosition"
                                                         on-tap="_selectFrame"
                                                         class$="[[_computeFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
                                 </div>
@@ -124,7 +122,8 @@
                 },
                 selectedIndex: {
                     type: Number,
-                    value: 0
+                    value: 0,
+                    notify: true
                 },
                 width: {
                     type: Number,
@@ -137,7 +136,7 @@
             },
             observers: [
                 '_selectedChanged(selected.*)',
-                '_bitmapsChanged(bitmaps)'
+                
             ],
             _selectedChanged (e) {
                 if (this.sorting) {
@@ -161,16 +160,10 @@
                     });
                 }
             },
-            _bitmapsChanged () {
-                let lastIndex = this.bitmaps.length -1;
-                this.selectedIndex = lastIndex;
-                this.selected = this.bitmaps[lastIndex].slice(0);
-                this.async(() => this.$.carousel.scrollToEnd(), 100);
-            },
             _sortStarted (e) {
                 if (e.detail) {
                     this.sorting = true;
-                    this.$.bin.style.left = this.middle + 'px';
+                    this.$.bin.style.left = this.binPosition + 'px';
                     
                     this.$.frames.animate([{
                         transform: 'translateY(0%)'
@@ -237,10 +230,10 @@
                 let event = Polymer.dom(e);
                 this._select(event.localTarget);
             },
-            _registerPosition (e) {
+            _registerBinPosition (e) {
                 let event = Polymer.dom(e),
                     sortableItem = event.localTarget.parentElement;
-                this.middle = sortableItem.offsetLeft;
+                this.binPosition = sortableItem.offsetLeft;
             },
             _select (target) {
                 let model = this.$.repeat.modelForElement(target),

@@ -144,21 +144,22 @@
                     type: Array,
                     value: () => {
                         return [['#000000']];
-                    }
+                    },
+                    observer: 'test'
                 },
                 penType: {
                     type: String,
                     computed: '_computePenType(_penType, _isShiftPressed)',
-                    notify: true
+                    notify: true,
                 },
                 penColor: {
                     type: String,
                     notify: true
                 }
             },
-            observers: [
-                '_selectedChanged(selected.*)'
-            ],
+            test () {
+                console.log('POO')
+            },
             attached () {
                 this._onKeyEvent = this._onKeyEvent.bind(this);
                 document.addEventListener('keydown', this._onKeyEvent);
@@ -170,8 +171,8 @@
                     running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
                 };
                 this.previewState = 'stopped';
-                this.DEFAULT_PALETTE = ['#000000', '#ce1124', '#fb823f', '#f7e548', '#44fb42', '#4397f9', '#f66af9',
-                                '#8f35f7', '#ffffff', '#f85653', '#3ffde0'];
+                this.DEFAULT_PALETTE = ['#ffffff', '#ce1124', '#fb823f', '#f7e548', '#44fb42', '#4397f9', '#f66af9',
+                                '#8f35f7', '#000000', '#f85653', '#3ffde0'];
                 this.previewIndex = 0;
             },
             detached () {
@@ -179,17 +180,18 @@
                 document.removeEventListener('keyup', this._onKeyEvent);
             },
             _computePenType (penType, shiftPressed) {
+                console.log('pen type while computing is', penType)
                 return shiftPressed ? 'fill' : penType;
             },
             _onKeyEvent (e) {
                 this.set('_isShiftPressed', e.shiftKey);
             },
             _penControlTapped (e) {
-                let target = e.target;
+                let target = e.currentTarget;
                 this.set('_penType', target.getAttribute('name'));
             },
             _penColorChanged () {
-                this._computePalette();
+                // this._computePalette();
                 this._closeWheel();
             },
             _openWheel () {
@@ -206,10 +208,8 @@
             _computePaletteColor (color) {
                 return `background: ${color}`;
             },
-            _selectedChanged (e) {
-                this._computePalette();
-            },
             _computePalette () {
+                console.log('computing palette')
                 this.debounce('palette', () => {
                     let palette = this.bitmaps.reduce((acc, bitmap) => {
                         return acc.concat(bitmap);
