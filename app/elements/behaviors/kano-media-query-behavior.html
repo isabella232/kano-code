@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <script type="text/javascript">
 
     window.Kano = window.Kano || {};
@@ -7,53 +6,20 @@
     window.Kano.Behaviors = window.Kano.Behaviors || {};
 
     // @polymerBehavior
-    Kano.Behaviors.MediaQueryBehaviorImpl = {
+    Kano.Behaviors.MediaQueryBehavior = {
         properties: {
             smallScreen: {
                 type: Boolean,
-                value: false,
                 reflectToAttribute: true
             },
             mediumScreen: {
                 type: Boolean,
-                value: false,
                 reflectToAttribute: true
             },
             largeScreen: {
                 type: Boolean,
-                value: false,
                 reflectToAttribute: true
             }       
-        },
-        attached () {
-            this._instanceProps = this._instanceProps = {};
-            this._instanceProps.smallScreen = true;
-            this._instanceProps.mediumScreen = true;
-            this._instanceProps.largeScreen = true;
-
-            let root = Polymer.dom(this.root);
-            let template = document.createElement('template');
-
-            template.innerHTML = 
-            '<iron-media-query query="(max-width: 700px)" id$={{id}} query-matches="{{smallScreen}}">' +
-            '</iron-media-query>' +
-            '<iron-media-query query="(min-width: 700px) and (max-width: 980px)" id$={{id}} query-matches="{{mediumScreen}}">' +
-            '</iron-media-query>' +
-            '<iron-media-query query="(min-width: 980px) and (max-width: 1280px)" id$={{id}} query-matches="{{largeScreen}}">' +
-            '</iron-media-query>'
-
-            this.templatize(template);
-            this.instance = this.stamp({
-                smallScreen: this.smallScreen,
-                mediumScreen: this.mediumScreen,
-                largeScreen: this.largeScreen
-            });
-            Polymer.dom(this.root).appendChild(this.instance.root);
-        },
-        _forwardInstanceProp (inst, prop, value) {
-            this.set(prop, value);
         }
     };
-    Kano.Behaviors.MediaQueryBehavior = [Polymer.Templatizer, Kano.Behaviors.MediaQueryBehaviorImpl];
-
 </script>

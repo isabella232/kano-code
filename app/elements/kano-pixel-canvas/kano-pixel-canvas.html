@@ -36,7 +36,7 @@
         left: 0;
         width: 18px;
         height: 18px;
-        opacity: 0.45;
+        opacity: 1;
         border: 2px solid white;
         pointer-events: none;
         @apply --shadow-elevation-2dp;
@@ -50,16 +50,16 @@
     }
     </style>
     <template>
-        <div class="content" on-contextmenu="_preventContextMenu" draggable="false">
-            <div class="canvas-wrapper" draggable="false">
-                <div class="canvas" draggable="false" style$="[[_computeCanvasStyle(width, pixelSize, spacing)]]">
+        <div class="content" on-contextmenu="_preventContextMenu">
+            <div class="canvas-wrapper">
+                <div class="canvas" style$="[[_computeCanvasStyle(width, pixelSize, spacing)]]">
                     <template is="dom-repeat" items="[[bitmap]]" as="pixel" id="repeat">
-                        <div class="pixel" id$="pixel-[[index]]" style$="[[_computePixelStyle(pixel, pixelSize, spacing)]]" on-mouseover="_pixelOver" on-mouseout="_pixelOut" draggable="false"></div>
+                        <div class="pixel" id$="pixel-[[index]]" style$="[[_computePixelStyle(pixel, pixelSize, spacing)]]" on-mouseover="_pixelOver" on-mouseout="_pixelOut"></div>
                     </template>
                 </div>
             </div>
         </div>
-        <div class="pen" draggable="false" id="pen" style$="[[_computePenStyle(pixelSize, penColor, _isMouseOver)]]"></div>
+        <div class="pen" id="pen" style$="[[_computePenStyle(pixelSize, penColor, _isMouseOver)]]"></div>
         <iron-a11y-keys target="[[target]]" keys="cmd+z ctrl+z" on-keys-pressed="undo"></iron-a11y-keys>
     </template>
     <script type="text/javascript">

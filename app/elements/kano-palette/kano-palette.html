@@ -4,35 +4,60 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../behaviors/kano-media-query-behavior.html">
+<link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <dom-module id="kano-palette">
     <style>
     :host {
-        @apply --layout-horizontal;
-        text-align: left;
+        display: block;
     }
-    :host .pen-control {
-        margin-right: 24px;
-
+    .pen-control {
+        @apply --layout-flex-auto;
+        margin-right: 16px;
     }
-    .palette, .controls {
-        @apply --layout-flex;
-        text-align: left;
+    :host([small-screen]) .pen-control {
+        margin-right: 10px;
+    }
+    .palette {
+        @apply --layout-flex-auto;
+        @apply --layout-vertical;
+        @apply --layout-start;
     }
     .palette-content {
-        @apply --layout-horizontal;
+        @apply --layout-vertical;
         @apply --layout-wrap;
-        @apply --layout-justified;
-        width: 43px;
+        height: 150px;
+    }
+    :host([medium-screen]) .palette-content,
+    :host([small-screen]) .palette-content {
+        @apply --layout-horizontal;
+        width: 216px;
+        height: auto;
     }
     .palette-color, .pen-control button {
-        width: 20px;
-        height: 20px;
-        margin-bottom: 3px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
         border: 1px solid transparent;
         box-sizing: border-box;
         position: relative;
+    }
+    .palette-color {
+        margin: 0 2px 4px;
+    }
+    .pen-control button {
+        margin: 0 8px 8px 0;
+    }
+    :host([small-screen]) .palette-color {
+        width: 18px;
+        height: 18px;
+    }
+    :host([small-screen]) .pen-control button {
+        width: 28px;
+        height: 28px;
+        margin-right: 4px;
+        margin-bottom: 0;
     }
     .palette-color.selected {
         border-color: grey;
@@ -56,13 +81,13 @@
         background-image: url(/assets/icons/pencil.svg);
     }
     .add-color {
+        @apply --layout-vertical;
+        @apply --layout-center;
+        @apply --layout-center-justified;
         background: transparent;
         color: grey;
         font-size: 22px;
         font-family: monospace;
-        @apply --layout-vertical;
-        @apply --layout-center;
-        @apply --layout-center-justified;
     }
     .add-color:focus {
         outline: none;
@@ -72,10 +97,13 @@
         @apply --kano-button;
         @apply --layout-horizontal;
         @apply --layout-center-justified;
-        width: 32px;
-        height: 32px;
+        width: 42px;
+        height: 42px;
         padding: 0;
         background-color: var(--color-chateau);
+    }
+    .pen-control button:hover {
+        background-color: var(--color-abbey);
     }
     .pen-control button iron-icon {
         --iron-icon-height: 20px;
@@ -84,6 +112,10 @@
     }
     .pen-control iron-selector {
         @apply --layout-vertical;
+    }
+    :host([medium-screen]) .pen-control iron-selector,
+    :host([small-screen]) .pen-control iron-selector {
+        @apply --layout-horizontal;
     }
     .pen-control button:focus {
         outline: none;
@@ -109,6 +141,8 @@
     }
     </style>
     <template>
+        <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
+        </kano-media-query>
         <div class="pen-control">
             <label>Tools</label>
             <iron-selector selected="[[penType]]" attr-for-selected="name">
@@ -139,13 +173,13 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-palette',
+            behaviors: [Kano.Behaviors.MediaQueryBehavior],
             properties: {
                 bitmaps: {
                     type: Array,
                     value: () => {
                         return [['#000000']];
-                    },
-                    observer: 'test'
+                    }
                 },
                 penType: {
                     type: String,
@@ -156,9 +190,6 @@
                     type: String,
                     notify: true
                 }
-            },
-            test () {
-                console.log('POO')
             },
             attached () {
                 this._onKeyEvent = this._onKeyEvent.bind(this);
@@ -180,7 +211,6 @@
                 document.removeEventListener('keyup', this._onKeyEvent);
             },
             _computePenType (penType, shiftPressed) {
-                console.log('pen type while computing is', penType)
                 return shiftPressed ? 'fill' : penType;
             },
             _onKeyEvent (e) {
@@ -191,7 +221,7 @@
                 this.set('_penType', target.getAttribute('name'));
             },
             _penColorChanged () {
-                // this._computePalette();
+                this._computePalette();
                 this._closeWheel();
             },
             _openWheel () {
@@ -209,7 +239,6 @@
                 return `background: ${color}`;
             },
             _computePalette () {
-                console.log('computing palette')
                 this.debounce('palette', () => {
                     let palette = this.bitmaps.reduce((acc, bitmap) => {
                         return acc.concat(bitmap);
@@ -221,7 +250,7 @@
                     palette = palette.filter((elem, pos, self) => {
                         return self.indexOf(elem) === pos && this.DEFAULT_PALETTE.indexOf(elem) === -1 &&
                                 elem !== null && typeof elem !== 'undefined';
-                    }).splice(-4, 4);
+                    }).splice(-6, 6);
 
                     this.set('palette', palette);
                     if (!this.penColor) {

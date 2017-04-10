@@ -5,6 +5,7 @@
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
+<link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <dom-module id="kano-part-editor">
     <style include="kano-code-shared-styles">
@@ -19,21 +20,37 @@
         :host #config-panel-container {
             @apply --layout-vertical;
             flex: 1 0 auto;
-            overflow: auto;
+            /*overflow: auto;*/
             position: relative;
             box-sizing: border-box;
         }
-        :host(:not(.large)) #config-panel-container {
+        :host #config-panel-container {
             width: 720px;
             padding: var(--kano-modal-content-padding-large);
         }
-        :host([large-screen]:not(.large)) #config-panel-container {
+        :host([large-screen]) #config-panel-container {
             width: 540px;
+            padding: var(--kano-modal-content-padding-large);
         }
-        :host([medium-screen]:not(.large)) #config-panel-container,
-        :host([small-screen]:not(.large)) #config-panel-container {
-            padding: var(--kano-modal-content-padding-small);
+        :host([medium-screen]) #config-panel-container {
             width: 380px;
+            padding: var(--kano-modal-content-padding-small);
+        }
+        :host([small-screen]) #config-panel-container {
+            width: 380px;
+            padding: 16px;
+        }
+        :host(.large) #config-panel-container {
+            width: 920px;
+            padding: 0;
+        }
+        :host([medium-screen].large) #config-panel-container {
+            width: 665px;
+            padding: 0;
+        }
+        :host([small-screen].large) #config-panel-container {
+            width: 100%;
+            padding: 0;
         }
         #config-panel-container > * {
             @apply --layout-vertical;
@@ -46,7 +63,10 @@
         }
         :host .type-display {
             width: 80px;
-            margin-right: 8px;
+            margin-right: 32px;
+        }
+        :host([small-screen][with-name-editor]) .type-display {
+            display: none;
         }
         :host .title-bar {
             flex: 1 0 auto;
@@ -61,8 +81,15 @@
             border-bottom: 1px solid #202428;
             padding: var(--kano-modal-header-padding-large);
         }
-        :host([medium-screen]) .title-bar {
+        :host([medium-screen]) .title-bar,
+        :host([small-screen]) .title-bar {
             padding: var(--kano-modal-header-padding-small);
+        }
+        :host([small-screen]) .title-bar {
+            padding: 16px;
+        }
+        :host([small-screen]) kano-input {
+            width: 140px;
         }
         :host button {
             @apply --kano-button;
@@ -74,12 +101,15 @@
             background-color: var(--color-grassland);
         }
         :host .done-button:hover {
-            background-color: var(--color-apple);
+            background-color: var(--color-sushi);
         }
         :host .delete-button {
             background-color: var(--color-chateau);
             padding: 14px 16px 12px;
             margin-right: 24px;
+        }
+        :host([small-screen]) .delete-button {
+            margin-right: 16px;
         }
         :host .delete-button:hover {
             background-color: var(--color-abbey);
@@ -91,10 +121,16 @@
             width: 20px;
             height: 20px;
         }
+        [hidden] {
+          display: none !important;
+        }
     </style>
     <template>
+        <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
+        </kano-media-query>
         <div class="title-bar">
             <div class="type-display">[[selected.label]]</div>
+            <kano-input hidden$="[[!withNameEditor]]" type="text" label="Name" value="{{selected.name}}" no-label></kano-input>
             <div class="button-container">
                 <button class="delete-button" type="button" on-tap="_deletePart" dialog-dismiss>Delete</button>
                 <button class="done-button" type="button" dialog-dismiss>Done</button>
@@ -119,6 +155,11 @@
             },
             mode: {
                 type: Object
+            },
+            withNameEditor: {
+                type: Boolean,
+                computed: '_needNameEditor(selected)',
+                reflectToAttribute: true
             }
         },
         _instanceProps: {
@@ -128,7 +169,17 @@
             '_configPanelChanged(selected.configPanel)',
             '_selectedChanged(selected.*)'
         ],
+        _selectedChanged (e) {
+            if (this.instance) {
+                this.instance.set(e.path, e.value);
+            }
+            // Let know the bindings that the `id` changed together with the name
+            if (e.path === 'selected.name') {
+                this.notifyPath('selected.id', this.selected.id);
+            }
+        },
         _configPanelChanged (panel) {
+            console.log(panel);
             let tagName = panel || 'div',
                 container = Polymer.dom(this.$['config-panel-container']),
                 template = document.createElement('template');
@@ -170,14 +221,8 @@
         _forwardInstanceProp (inst, prop, value) {
             this.set(prop, value);
         },
-        _selectedChanged (e) {
-            if (this.instance) {
-                this.instance.set(e.path, e.value);
-            }
-            // Let know the bindings that the `id` changed together with the name
-            if (e.path === 'selected.name') {
-                this.notifyPath('selected.id', this.selected.id);
-            }
+        _needNameEditor (selected) {
+            return selected && selected.configPanel === 'kano-light-animation-editor';
         },
         _deletePart () {
             this.fire('delete-part', this.selected);

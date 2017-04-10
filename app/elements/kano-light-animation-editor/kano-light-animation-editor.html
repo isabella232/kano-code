@@ -2,20 +2,19 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
-<link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
+<link rel="import" href="../kano-palette/kano-palette.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
-<link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../kano-palette/kano-palette.html">
+<link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
+<link rel="import" href="../inputs/kano-input/kano-input.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <dom-module id="kano-light-animation-editor">
@@ -26,7 +25,6 @@
         }
         :host([medium-screen]),
         :host([small-screen]) {
-            max-width: 665px;
             @apply --layout-vertical;
         }
         :host button {
@@ -34,46 +32,19 @@
             @apply --layout-horizontal;
             @apply --layout-center-justified;
             background-color: var(--color-chateau);
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
         }
-        .main {
-            @apply --layout-horizontal;
-            @apply --layout-start-justified;
-            padding: 32px 48px;
+        :host button:hover {
+            background-color: var(--color-abbey);
         }
-        :host([medium-screen]) .main,
-        :host([small-screen]) .main {
-            @apply --layout-vertical;
-        }
-        .canvas-editor {
-            @apply --layout-horizontal;
-        }
-        .canvas-container {
-            @apply --layout-flex-none;
-            @apply --layout-vertical;
-            width: 400px;
-            height: 244px;
-            margin: 0 36px;
-        }
-        .canvas-container iron-pages {
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-        }
-        kano-pixel-canvas {
-            cursor: none;
-            --kano-pixel-editor-background: var(--color-dark);
-        }
-        .control-container {
-            flex: 1 1 auto;
-            min-height: 260px;
-            @apply --layout-vertical;
-        }
-        :host([medium-screen]) .control-container label,
-        :host([small-screen]) .control-container label {
-            margin-top: 16px;
+        :host([small-screen]) button {
+            width: 28px;
+            height: 28px;
         }
         :host label {
+            @apply --layout-self-start;
             display: inline-block;
             font-family: var(--font-body);
             font-size: 16px;
@@ -81,58 +52,137 @@
             text-align: left;
             color: rgba(255,255,255,0.5);
             margin-bottom: 24px;
-            @apply --layout-self-start;
         }
-        .control-content {
-            @apply --layout-flex;
+        .settings {
+            @apply --layout-horizontal;
+            @apply --layout-justified;
+            @apply --layout-center;
+            padding: var(--kano-modal-header-padding-large);
+            border-bottom: 1px solid #202428;
+        }
+        :host([medium-screen]) .settings,
+        :host([small-screen]) .settings {
             @apply --layout-vertical;
+            align-items: stretch;
+            padding: var(--kano-modal-header-padding-small);
+            padding-top: 24px;
         }
-        .control-content kano-input {
-            min-height: 33px;
-            margin-bottom: 16px;
-            --kano-input-label: {
-                width: 70px;
-                margin-right: 30px;
-            };
+        :host([small-screen]) .settings {
+            padding: 24px 16px 16px;
         }
-        .control-content kano-input-range {
-            --kano-input-range-label: {
-                width: 70px;
-                margin-right: 30px;
-            };
-        }
-        :host .row {
-            margin-bottom: 16px;
-        }
-        :host .row:last-child {
+        .settings label {
+            margin-right: 24px;
             margin-bottom: 0;
+            @apply --layout-self-center;
         }
-        .slider {
-            --kano-settings-label: {
-                width: 80px;
+        :host([medium-screen]) .settings label,
+        :host([small-screen]) .settings label {
+            display: none;
+        }
+        .settings kano-input-range {
+            width: 210px;
+            margin-right: 12px;
+            --kano-input-range-label: {
+                width: 42px;
+                margin-right: 16px;
             };
+            --kano-input-range-display: {
+                width: 48px;
+                margin-left: 12px;
+            };
+        }
+        .settings kano-input-range:last-of-type {
+            margin-right: 0;
+        }
+        :host([medium-screen]) .settings kano-input-range,
+        :host([small-screen]) .settings kano-input-range {
+            width: auto;
+            margin: 8px 0;
+        }
+        .main {
+            @apply --layout-horizontal;
+            @apply --layout-start-justified;
+            padding: 24px 48px;
+        }
+        :host([medium-screen]) .main {
+            @apply --layout-vertical;
+            padding: 32px;
+        }
+        :host([small-screen]) .main {
+            @apply --layout-vertical;
+            padding: 32px 16px;
+        }
+        .editing-tools {
+            @apply --layout-horizontal;
+        }
+        #palette {
+            @apply --layout-horizontal;
+            @apply --layout-justified;
+            width: 194px;
+            text-align: left;
+        }
+        :host([small-screen]) #palette,
+        :host([medium-screen]) #palette {
+            flex: 5 5 auto;
+            @apply --layout-start-justified;
+        }
+        .small-screen-control-container {
+            display: none;
+        }
+        :host([small-screen]) .small-screen-control-container,
+        :host([medium-screen]) .small-screen-control-container {
+            @apply --layout-vertical;
+            @apply --layout-flex-auto;
+            margin-left: 8px;
+        }
+        .canvas-container {
+            @apply --layout-vertical;
+            width: 400px;
+            margin: 0 36px;
+        }
+        :host([small-screen]) .canvas-container,
+        :host([medium-screen]) .canvas-container {
+            margin: 24px 0 0 0;
+            @apply --layout-self-center;
+        }
+        :host([small-screen]) .canvas-container {
+            width: 366px;
+        }
+        .canvas-container iron-pages {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+            transform: translateY(-2px);
+        }
+        kano-pixel-canvas {
+            cursor: none;
+            --kano-pixel-editor-background: var(--color-dark);
+        }
+        .control-container {
+            @apply --layout-flex-auto;
+            @apply --layout-vertical;
+            width: 106px;
+            margin-left: 16px;
+        }
+        :host([small-screen]) .control-container,
+        :host([medium-screen]) .control-container {
+            display: none;
+            margin-left: 0;
         }
         .framelist-container {
-            height: 98px;
-            border-top: 1px solid #202428;
-            padding: 24px 48px 0;
             @apply --layout-horizontal;
             @apply --layout-center;
+            border-top: 1px solid #202428;
+            padding: 0 48px;
         }
-        .framelist-container button {
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-            font-size: 32px;
-            font-family: monospace;
-            padding: 0;
-        }
-        .framelist-button-container {
-            margin-right: 16px;
+        :host([small-screen]) .framelist-container {
+            padding: 12px 16px;
         }
         #frames {
-            overflow: hidden;
             @apply --layout-flex;
+            overflow: hidden;
+        }
+        button.add-frame {
+            margin-right: 16px;
         }
         button.add-frame:disabled {
             opacity: 0.3;
@@ -154,46 +204,57 @@
         }
     </style>
     <template>
-        <div class="header"></div>
+        <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
+        </kano-media-query>
+        <div class="settings">
+            <label>Settings</label>
+            <kano-input-range class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+            <kano-input-range class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+            <kano-input-range class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+        </div>
         <div class="main">
-            <div class="canvas-editor">
+            <div class="editing-tools">
                 <kano-palette id="palette" bitmaps="[[selected.userProperties.bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
-                <div class="canvas-container">
-                    <label>Canvas</label>
-                    <iron-pages selected="[[previewState]]" attr-for-selected="name">
-                        <kano-pixel-canvas id="canvas"
-                                            name="stopped"
-                                            bitmap="{{selectedFrame}}"
-                                            spacing="2"
-                                            width="[[selected.userProperties.width]]"
-                                            height="[[selected.userProperties.height]]"
-                                            pixel-size="21"
-                                            palette="[[palette]]"
-                                            pen-color="[[penColor]]"
-                                            pen-type="[[penType]]"></kano-pixel-canvas>
-                        <kano-bitmap-renderer class="preview-renderer" name="running" bitmap="[[frame]]" spacing="2" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" pixel-size="21"></kano-bitmap-renderer>
-                    </iron-pages>
+                <div class="small-screen-control-container">
+                    <label>Controls</label>
+                    <button type="button" name="button" on-tap="_togglePreviewState">
+                        <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+                    </button>
                 </div>
+            </div>
+            <div class="canvas-container">
+                <label>Canvas</label>
+                <iron-pages selected="[[previewState]]" attr-for-selected="name">
+                    <kano-pixel-canvas id="canvas"
+                                        name="stopped"
+                                        bitmap="{{selectedFrame}}"
+                                        spacing="2"
+                                        width="[[selected.userProperties.width]]"
+                                        height="[[selected.userProperties.height]]"
+                                        pixel-size="[[pixelSize]]"
+                                        palette="[[palette]]"
+                                        pen-color="[[penColor]]"
+                                        pen-type="[[penType]]"></kano-pixel-canvas>
+                    <kano-bitmap-renderer class="preview-renderer" 
+                                          name="running"
+                                          bitmap="[[frame]]"
+                                          spacing="2"
+                                          width="[[selected.userProperties.width]]"
+                                          height="[[selected.userProperties.height]]"
+                                          pixel-size="[[pixelSize]]"></kano-bitmap-renderer>
+                </iron-pages>
             </div>
             <div class="control-container">
                 <label>Controls</label>
-                <div class="control-content">
-                    <kano-input type="text" label="Name" value="{{element.name}}"></kano-input>
-                    <kano-input-range class="slider row" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
-                    <kano-input-range class="slider row" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
-                    <kano-input-range class="slider row" value="{{selected.userProperties.speed}}" label="Frame rate" min="1" max="30" symbol="fps"></kano-input-range>
-                </div>
+                <button type="button" name="button" on-tap="_togglePreviewState">
+                    <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+                </button>
             </div>
         </div>
         <div class="divider"></div>
         <div class="framelist-container">
             <div class="framelist-button-container">
-                <button type="button" name="button" class="preview-control" on-tap="_togglePreviewState">
-                    <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
-                </button>
-            </div>
-            <div class="framelist-button-container">
-                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><span><iron-icon icon="kano-icons:plus"></iron-icon></span></button>
+                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button>
             </div>
             <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" selected-index="{{selectedIndex}}" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" class="frame-list" id="frames"></kano-bitmap-list>
         </div>
@@ -216,11 +277,15 @@
                     value: () => {
                         return ['#000000'];
                     }
+                },
+                pixelSize: {
+                    type: Number,
+                    value: 21
                 }
             },
             observers: [
                 '_onSelectedChanged(selected.*)',
-                '_selectedFrameChanged(selectedFrame.*)'
+                '_onSmallScreenActive(smallScreen)'
             ],
             attached () {
                 this.previewButtonIconPaths = {
@@ -229,6 +294,7 @@
                 };
                 this.previewState = 'stopped';
                 this.previewIndex = 0;
+                this.$.palette._computePalette();
             },
             _onSelectedChanged (e) {
                 this.selectedIndex = this.selectedIndex || 0;
@@ -255,22 +321,6 @@
                 }
                 this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
             },
-            _generateEmptyBitmap (name, width, height, color='#000000') {
-                let length = width * height;
-                for (let i = 0; i < length; i++) {
-                    this.push(name, color);
-                }
-            },
-            _selectedFrameChanged (e) {
-                if (!this.selectedFrame) {
-                    return;
-                }
-
-                if (this.selectedFrame.length === 0) {
-                    this._generateEmptyBitmap('selectedFrame', this.width, this.height);
-                }
-                // this.$.palette._computePalette();
-            },
             _addFrame () {
                 this.$.frames.addFrame();
             },
@@ -282,6 +332,9 @@
                     this.blur();
                     return false;
                 }
+            },
+            _onSmallScreenActive (smallScreen) {
+                this.pixelSize = smallScreen ? 18 : 20;
             }
         });
     </script>
