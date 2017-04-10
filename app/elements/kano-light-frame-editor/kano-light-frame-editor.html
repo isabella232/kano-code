@@ -9,6 +9,7 @@
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
+<link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-palette/kano-palette.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
@@ -18,7 +19,6 @@
         :host {
             @apply --layout-vertical;
             @apply --layout-center-justified;
-            min-width: 680px;
         }
         :host button {
             @apply --kano-button;
@@ -31,19 +31,34 @@
         .main {
             @apply --layout-horizontal;
             @apply --layout-start-justified;
-            margin-top: 16px;
             padding: 32px 48px;
         }
-        :host([medium-screen]) .main {
+        :host([medium-screen]) .main,
+        :host([small-screen]) .main {
             @apply --layout-vertical;
+            padding: 32px;
         }
-        .canvas-editor {
+        :host([small-screen]) .main {
+            padding: 32px 16px;
+        }
+        #palette {
             @apply --layout-horizontal;
+            @apply --layout-justified;
+            width: 130px;
+            text-align: left;
+        }
+        :host([medium-screen]) #palette {
+            width: 72%;
+            margin-bottom: 32px;
+        }
+        :host([small-screen]) #palette {
+            width: 80%;
+            margin-bottom: 32px;
         }
         .control-container {
-            flex: 1 1 auto;
-            min-height: 260px;
             @apply --layout-vertical;
+            flex: 1 0 auto;
+            min-height: 200px;
         }
         :host([medium-screen]) .control-container label {
             margin-top: 16px;
@@ -66,8 +81,8 @@
             min-height: 33px;
             margin-bottom: 16px;
             --kano-input-label: {
-                width: 70px;
-                margin-right: 30px;
+                width: 40px;
+                margin-right: 24px;
             };
         }
         :host .row {
@@ -78,8 +93,8 @@
         }
         .control-content kano-input-range {
             --kano-input-range-label: {
-                width: 70px;
-                margin-right: 30px;
+                width: 40px;
+                margin-right: 24px;
             };
         }
         .canvas-container {
@@ -89,9 +104,16 @@
             height: 244px;
             margin: 0 36px;
         }
-        .canvas-container iron-pages {
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
+        :host([small-screen]) .canvas-container,
+        :host([medium-screen]) .canvas-container {
+            margin: 0 0 32px;
+        }
+        :host([medium-screen]) .canvas-container {
+            width: 100%;
+        }
+        :host([small-screen]) .canvas-container {
+            width: 100%;
+            min-width: 352px;
         }
         kano-pixel-canvas {
             cursor: none;
@@ -99,22 +121,22 @@
         }
     </style>
     <template>
+        <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
+        </kano-media-query>
         <div class="header"></div>
         <div class="main">
-            <div class="canvas-editor">
-                <kano-palette id="palette" bitmaps="[[bitmap]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
-                <div class="canvas-container">
-                    <label>Canvas</label>
-                    <kano-pixel-canvas id="canvas"
-                                        bitmap="{{bitmap}}"
-                                        spacing="2"
-                                        width="[[width]]"
-                                        height="[[height]]"
-                                        pixel-size="21"
-                                        palette="[[palette]]"
-                                        pen-color="[[penColor]]"
-                                        pen-type="[[penType]]"></kano-pixel-canvas>
-                </div>
+            <kano-palette id="palette" bitmaps="[[bitmap]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
+            <div class="canvas-container">
+                <label>Canvas</label>
+                <kano-pixel-canvas id="canvas"
+                                   bitmap="{{bitmap}}"
+                                   spacing="2"
+                                   width="[[width]]"
+                                   height="[[height]]"
+                                   pixel-size="[[pixelSize]]"
+                                   palette="[[palette]]"
+                                   pen-color="[[penColor]]"
+                                   pen-type="[[penType]]"></kano-pixel-canvas>
             </div>
             <div class="control-container">
                 <label>Controls</label>
@@ -150,10 +172,9 @@
             },
             observers: [
                 '_bitmapChanged(selectedFrame, width, height)',
-                '_onSelectedChanged(selected.*)'
+                '_onSelectedChanged(selected.*)',
+                '_onSmallScreenActive(smallScreen)'
             ],
-            attached () {w
-            },
             _onSelectedChanged (e) {
                 this.width = this.selected.userProperties.width;
                 this.height = this.selected.userProperties.height;
@@ -181,6 +202,9 @@
                     this.blur();
                     return false;
                 }
+            },
+            _onSmallScreenActive (smallScreen) {
+                this.pixelSize = smallScreen ? 18 : 20;
             }
         });
     </script>

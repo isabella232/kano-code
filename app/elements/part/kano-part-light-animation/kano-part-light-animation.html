@@ -57,25 +57,21 @@
                 return this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
             },
             _sizeChanged () {
-                let bitmaps = this.model.userProperties.bitmaps || [],
-                    width = this.model.userProperties.width,
+                let width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
                 if (this.model.userProperties.bitmaps.length === 0) {
-                    let firstBitmap = [];
-                    for (let i = 0; i < height * width; i++) {
-                        firstBitmap.push('#000000');
-                    }
-                    this.set('model.userProperties.bitmaps', [firstBitmap]);
+                    this._generateEmptyFrame();
                     return;
                 }
                 this.storedBitmaps = this.storedBitmaps || this.storeBitmaps(); 
-                bitmaps = this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this));
-                this.set('model.userProperties.bitmaps', bitmaps);
+                this.set('model.userProperties.bitmaps',
+                        this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
             },
             _adjustBitmapForStorage (bitmap) {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
+
                 for (let i = 0; i < 128; i++) {
                     newBitmap.push('#000000');
                 }
@@ -83,9 +79,9 @@
                 bitmap.forEach((color, i) => {
                     let x = i % width,
                         y = Math.floor(i / width),
-                        realPos = x + y * 16;
-                    if (realPos < 128) {
-                        newBitmap[realPos] = color;
+                        storedPos = x + y * 16;
+                    if (storedPos < 128) {
+                        newBitmap[storedPos] = color;
                     }
                 });
                 return newBitmap;
@@ -94,6 +90,7 @@
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
+
                 for (let i = 0; i < height * width; i++) {
                     newBitmap.push('#000000');
                 }
@@ -107,6 +104,13 @@
                     }
                 });
                 return newBitmap;
+            },
+            _generateEmptyFrame () {
+                let emptyFrame = [];
+                for (let i = 0; i < this.model.userProperties.height * this.model.userProperties.width; i++) {
+                    emptyFrame.push('#000000');
+                }
+                this.set('model.userProperties.bitmaps', [emptyFrame]);
             }
         });
     </script>

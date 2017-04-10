@@ -420,12 +420,9 @@ Polymer({
         }
     },
     _toggleFullscreenModal (isFullScreen) {
-        let editModal = this.$['edit-part-dialog'];
-        editModal.fitInto = isFullScreen ? window : this.$['root-view'];
+        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
+        this.$['edit-part-dialog'].withBackdrop = isFullScreen;
         this.toggleClass('large', isFullScreen, this.$['edit-part-dialog-content']);
-        // editModal.style.width = isFullScreen ? 'auto' : '720px';
-        this.toggleClass('small-width', !isFullScreen, this.$['code-overlay']);
-        editModal.withBackdrop = isFullScreen;
         //If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
     },
