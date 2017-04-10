@@ -27,18 +27,6 @@
         :host([small-screen]) {
             @apply --layout-vertical;
         }
-        :host button {
-            @apply --kano-button;
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-            background-color: var(--color-chateau);
-            width: 40px;
-            height: 40px;
-            padding: 0;
-        }
-        :host button:hover {
-            background-color: var(--color-abbey);
-        }
         :host([small-screen]) button {
             width: 28px;
             height: 28px;
@@ -133,17 +121,20 @@
         :host([medium-screen]) .small-screen-control-container {
             @apply --layout-vertical;
             @apply --layout-flex-auto;
+            width: 48px;
             margin-left: 8px;
         }
         .canvas-container {
+            @apply --layout-flex-none;
             @apply --layout-vertical;
             width: 400px;
+            height: 244px;
             margin: 0 36px;
         }
         :host([small-screen]) .canvas-container,
         :host([medium-screen]) .canvas-container {
-            margin: 24px 0 0 0;
             @apply --layout-self-center;
+            margin: 24px 0 0 0;
         }
         :host([small-screen]) .canvas-container {
             width: 366px;
@@ -151,7 +142,7 @@
         .canvas-container iron-pages {
             @apply --layout-horizontal;
             @apply --layout-center-justified;
-            transform: translateY(-2px);
+            margin-top: -2px;
         }
         kano-pixel-canvas {
             cursor: none;
@@ -181,8 +172,22 @@
             @apply --layout-flex;
             overflow: hidden;
         }
-        button.add-frame {
-            margin-right: 16px;
+        :host button {
+            @apply --kano-button;
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+            background-color: var(--color-chateau);
+            width: 40px;
+            height: 40px;
+            padding: 0;
+        }
+        iron-icon {
+            --iron-icon-height: 18px;
+            --iron-icon-width: 18px;
+            fill: #999;
+        }
+        :host button:hover {
+            background-color: var(--color-abbey);
         }
         button.add-frame:disabled {
             opacity: 0.3;
@@ -251,12 +256,16 @@
                 </button>
             </div>
         </div>
-        <div class="divider"></div>
         <div class="framelist-container">
             <div class="framelist-button-container">
                 <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button>
             </div>
-            <kano-bitmap-list bitmaps="{{selected.userProperties.bitmaps}}" selected="{{selectedFrame}}" selected-index="{{selectedIndex}}" width="[[selected.userProperties.width]]" height="[[selected.userProperties.height]]" class="frame-list" id="frames"></kano-bitmap-list>
+            <kano-bitmap-list id="frames"
+                              bitmaps="{{selected.userProperties.bitmaps}}"
+                              selected="{{selectedFrame}}"
+                              selected-index="{{selectedIndex}}"
+                              width="[[selected.userProperties.width]]"
+                              height="[[selected.userProperties.height]]"></kano-bitmap-list>
         </div>
     </template>
     <script type="text/javascript">

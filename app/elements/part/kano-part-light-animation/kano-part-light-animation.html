@@ -36,33 +36,27 @@
                 }
             },
             _onBitmapsChanged (e) {
+                //Lock observer as it's resetting the observed property
                 if (this.lock) {
                     return;
                 }
                 this.lock = true;
-                //Skip function if bitmaps were newly set. We only want to store while individual frames are being edited.
                 this.async(() => this.lock = false);
     
                 if (e.path.search(/splices/) !== -1) {
-                    console.log('REGEX PASSED');
                     this._setBitmap();
                 }
                 
             },
             _setBitmap () {
-                console.log('setting bitmap baby')
                 this.set('storedBitmaps', this.storeBitmaps());
                 this.set('model.userProperties.bitmaps',
                     this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
-            },
-            ready () {
-                this.frameIndex = 0;
             },
             storeBitmaps () {
                 return this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
             },
             _sizeChanged () {
-                console.log('size changed')
                 let bitmaps = this.model.userProperties.bitmaps || [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
