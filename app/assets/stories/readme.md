@@ -511,6 +511,17 @@ Later on you will be able to target this block using:
 }
 ```
 
+You can also target inputs or fields in a block by specifying its `inputName`:
+```json
+{
+    "block": {
+        "id": "show_marker",
+        "inputName": "LATITUDE"
+    }
+}
+```
+You can find a list of all blocks and their inputs by running `Kano.MakeApps.Utils.displayBlockInputs();` in your browser's console
+
 To target a category in a blockly workspace, define an object and use the `category` key e.g.
 
 ```json
