@@ -261,9 +261,17 @@
             }, 200);
         },
         _bannerButtonTapped () {
-            //progress to next story
+
             if (this.selectedStep.isLast) {
-                this.fire('next-story');
+
+                if (this.scene.autoshare) {
+                    let shareDetail = this.$.editor.compileApp();
+                    shareDetail.title = `${this.user.username}'s ${this.storyName}`;
+                    shareDetail.autoshare = true;
+                    this.fire('share', shareDetail);
+                } else {
+                    this.fire('next-story');
+                }
             } else if (this.state.hints && this.state.hints.enabled) {
                 this.$.challenge.nextStep();
             } else {

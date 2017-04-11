@@ -21,7 +21,7 @@ var SharingBehavior = {
         }
     },
     listeners: {
-        'cover-generated': '_goToForm',
+        'cover-generated': '_onCoverGenerated',
         'change-gif': '_goToGifCreator'
     },
     observers: [
@@ -34,8 +34,13 @@ var SharingBehavior = {
     _goToGifCreator () {
         this._goToPage('gif-creation');
     },
-    _goToForm () {
-        this._goToPage('sharing-form');
+    _onCoverGenerated () {
+        if (this.shareInfo.autoshare) {
+            this._shareApp();
+            this._goToPage('publishing');
+        } else {
+            this._goToPage('sharing-form');
+        }
     },
     _shareApp () {
         // Generates the standalone component
@@ -105,7 +110,7 @@ var SharingBehavior = {
     },
 
     /**
-    * Opens the sharing modal and share the app
+    * Opens the sharing modal and shares the app
     */
     share (e) {
         let app = e.detail.app,
@@ -125,13 +130,14 @@ var SharingBehavior = {
             },
             workspaceInfo: e.detail.workspaceInfo,
             page: 'gif-creation',
-            title: '',
+            title: e.detail.title || '',
             description: '',
             id: null,
             background: e.detail.background,
             parts: e.detail.parts,
             code: e.detail.code,
-            mode
+            mode,
+            autoshare: e.detail.autoshare
         };
 
         this.set('shareInfo', shareInfo);

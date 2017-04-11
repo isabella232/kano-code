@@ -209,6 +209,7 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING = "Publishing";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_APP_IS_LIVE = "Your app is live! Share it with your friends.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_OPEN_APP = "Open app";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_NEXT_CHALLENGE = "Next Challenge";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING_FAILED = "Publishing failed";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_TRY_LATER = "Please try again later.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_UNFORTUNATE = "This is unfortunate";
