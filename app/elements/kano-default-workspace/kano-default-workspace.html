@@ -114,7 +114,7 @@
                 border-bottom: 1px solid #202428;
                 @apply --layout-horizontal;
                 @apply --layout-center;
-                padding: 10px 1px;
+                padding: 0 1px;
             }
             .add-parts .label {
                 text-transform: uppercase;
@@ -122,15 +122,23 @@
                 color: white;
                 font-size: 12px;
                 letter-spacing: 0.03em;
+                padding: 10px 0;
             }
             .add-parts .action {
                 @apply --layout-horizontal;
                 @apply --layout-center;
+                cursor: pointer;
+                padding: 8px;
+                transition: background 0.3s;
+            }
+            .add-parts .action:hover {
+                background: rgba(255, 255, 255, 0.1);
             }
             .add-parts .action label {
                 margin-right: 15px;
                 font-size: 12px;
                 color: rgba(255, 255, 255, 0.5);
+                cursor: pointer;
             }
             .add-parts button {
                 @apply --layout-horizontal;
@@ -213,9 +221,9 @@
                                     mouse-y="[[mouseY]]"></kano-workspace-toolbar>
             <div class="add-parts">
                 <div class="label">[[localize('PARTS', 'Parts')]]</div>
-                <div class="action">
+                <div class="action" on-tap="_addPartsTapped">
                     <label for="add-part-button">[[localize('ADD_PART', 'Add Part')]]</label>
-                    <button id="add-part-button" type="button" on-tap="_addPartsTapped">+</button>
+                    <button id="add-part-button" type="button">+</button>
                 </div>
             </div>
             <div class="part-list">
