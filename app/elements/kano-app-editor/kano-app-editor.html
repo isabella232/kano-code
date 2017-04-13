@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
@@ -35,6 +36,13 @@ Example:
         position: relative;
         display: block;
         @apply --layout-vertical;
+    }
+    :host([lockdown]) {
+        pointer-events: none;
+    }
+    /*Don't apply lockdown on topbar*/
+    :host([lockdown]) ::slotted(*) {
+        pointer-events: auto;
     }
     :host section {
         @apply --layout-horizontal-reverse;
@@ -225,6 +233,7 @@ Example:
     }
     </style>
     <template>
+        <iron-overlay-backdrop id="backdrop" on-click="_onLockdownClicked"></iron-overlay-backdrop>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">

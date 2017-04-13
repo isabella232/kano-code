@@ -86,6 +86,11 @@ Polymer({
             type: Object,
             value: null
         },
+        lockdown: {
+            type: Boolean,
+            reflectToAttribute: true,
+            observer: '_onLockdownChanged'
+        },
         hideLeaveAlert: {
             type: Boolean,
             value: false,
@@ -657,9 +662,13 @@ Polymer({
             });
         });
     },
-    trapEvent (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    _onLockdownChanged (value) {
+        //Catch click events with backdrop
+        if (value) {
+            this.$.backdrop.open();
+        } else {
+            this.$.backdrop.close();
+        }
     },
     getMakeButtonClass (running, editableLayout) {
         let classes = [];
@@ -743,6 +752,9 @@ Polymer({
             this._disableDrag();
             this.set('editableLayout', false);
         }
+    },
+    _onLockdownClicked () {
+        this.fire('lockdown-clicked');
     },
     getBlockly () {
         return this.$['root-view'].getBlockly();
