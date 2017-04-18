@@ -30,12 +30,13 @@
         }
         .main {
             @apply --layout-horizontal;
-            @apply --layout-start-justified;
+            @apply --layout-center-justified;
             padding: 32px 48px;
         }
         :host([medium-screen]) .main,
         :host([small-screen]) .main {
             @apply --layout-vertical;
+            @apply --layout-center;
             padding: 32px;
         }
         :host([small-screen]) .main {
@@ -100,20 +101,26 @@
         .canvas-container {
             @apply --layout-flex-none;
             @apply --layout-vertical;
-            width: 400px;
             height: 244px;
             margin: 0 36px;
+        }
+        .canvas-content {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+            width: 385px;
+            margin-top: -2px;
+            margin-left: -2px;
         }
         :host([small-screen]) .canvas-container,
         :host([medium-screen]) .canvas-container {
             margin: 0 0 32px;
         }
-        :host([medium-screen]) .canvas-container {
-            width: 100%;
-        }
         :host([small-screen]) .canvas-container {
-            width: 100%;
             min-width: 352px;
+        }
+        :host([small-screen]) .control-container,
+        :host([medium-screen]) .control-container {
+            @apply --layout-self-stretch;
         }
         kano-pixel-canvas {
             cursor: none;
@@ -128,15 +135,17 @@
             <kano-palette id="palette" bitmaps="[[bitmap]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
             <div class="canvas-container">
                 <label>Canvas</label>
-                <kano-pixel-canvas id="canvas"
-                                   bitmap="{{bitmap}}"
-                                   spacing="2"
-                                   width="[[width]]"
-                                   height="[[height]]"
-                                   pixel-size="[[pixelSize]]"
-                                   palette="[[palette]]"
-                                   pen-color="[[penColor]]"
-                                   pen-type="[[penType]]"></kano-pixel-canvas>
+                <div class="canvas-content">
+                    <kano-pixel-canvas id="canvas"
+                                       bitmap="{{selected.userProperties.bitmap}}"
+                                       spacing="2"
+                                       width="[[selected.userProperties.width]]"
+                                       height="[[selected.userProperties.height]]"
+                                       pixel-size="[[pixelSize]]"
+                                       palette="[[palette]]"
+                                       pen-color="[[penColor]]"
+                                       pen-type="[[penType]]"></kano-pixel-canvas>
+                </div>
             </div>
             <div class="control-container">
                 <label>Controls</label>
@@ -159,6 +168,9 @@
                 },
                 bitmap: {
                     type: Array,
+                    value: () => {
+                        return ['#000000'];
+                    },
                     notify: true
                 },
                 width: {
@@ -171,31 +183,10 @@
                 }
             },
             observers: [
-                '_bitmapChanged(selectedFrame, width, height)',
-                '_onSelectedChanged(selected.*)',
                 '_onSmallScreenActive(smallScreen)'
             ],
-            _onSelectedChanged (e) {
-                this.width = this.selected.userProperties.width;
-                this.height = this.selected.userProperties.height;
-                this.bitmap = this.selected.userProperties.bitmap;
-            },
-            _generateEmptyBitmap (name, width, height, color='#000000') {
-                let length = width * height;
-                for (let i = 0; i < length; i++) {
-                    this.push(name, color);
-                }
-            },
-            _bitmapChanged () {
-                if (!this.bitmap) {
-                    return;
-                }
-                if (this.bitmap.length === 0) {
-                    this._generateEmptyBitmap('bitmap', this.width, this.height);
-                }
-            },
-            _addFrame () {
-                this.$.frames.addFrame();
+            attached () {
+                this.$.palette._computePalette();
             },
             enterQuitsInput () {
                 if (event.keyCode == 13) {

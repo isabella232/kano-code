@@ -107,7 +107,8 @@ Polymer({
         'remove-part': '_removePartReceived',
         'save-button-clicked': 'share',
         'open-parts-modal': '_openPartsModal',
-        'edit-background': '_openBackgroundDialog'
+        'edit-background': '_openBackgroundDialog',
+        'iron-resize': '_refitPartModal'
     },
     _openBackgroundDialog () {
         this.$['edit-background-dialog'].open();
@@ -667,6 +668,9 @@ Polymer({
     trapEvent (e) {
         e.preventDefault();
         e.stopPropagation();
+    },
+    _refitPartModal () {
+        this.$['edit-part-dialog'].refit();
     },
     getMakeButtonClass (running, editableLayout) {
         let classes = [];

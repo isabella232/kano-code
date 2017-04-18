@@ -1,7 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
 <link rel="import" href="../../bower_components/x-carousel/x-carousel.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <!--
 
@@ -68,24 +71,35 @@
             }
             button {
                 background-color: transparent;
-                color: rgba(255,255,255,0.5);
+                color: rgba(255, 255, 255, 0.5);
                 border: 0;
                 cursor: pointer;
-                font-size: 24px;
-                margin: 27px 14px;
+                padding: 0;
+                margin: 0;
             }
             button:focus {
                 outline: none;
             }
+            button iron-icon {
+                --iron-icon-height: 16px;
+                --iron-icon-width: 16px;
+                margin: 22px 14px 22px 21px;
+            }
+            button iron-icon.end-arrow {
+                transform: rotate(180deg);
+                margin: 22px 21px 22px 14px;
+            }
             x-carousel {
                 position: relative;
-                height: 120px;
+                height: 112px;
                 @apply --layout-horizontal;
                 @apply --layout-center;
             }
         </style>
         <x-carousel id="carousel">
-            <button type="button" slot="left-button" carousel-control-left>&lt;</button>
+            <button type="button" slot="left-button" carousel-control-left>
+                <iron-icon icon="kano-icons:arrow"></iron-icon>
+            </button>
                 <div slot="content">
                     <sortable-js group="frames" class="bin" id="bin"></sortable-js>
                     <sortable-js id="frames" group="frames" animation="150" on-start="_sortStarted" on-end="_sortEnd" on-remove="_sortRemove">
@@ -103,7 +117,9 @@
                             </template>
                     </sortable-js>
                 </div>
-            <button type="button" slot="right-button" carousel-control-right>&gt;</button>
+            <button type="button" slot="right-button" carousel-control-right>
+                <iron-icon class="end-arrow" icon="kano-icons:arrow"></iron-icon>
+            </button>
         </x-carousel>
     </template>
     <script>

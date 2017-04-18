@@ -7,6 +7,8 @@
     :host {
         display: inline-block;
         position: fixed;
+        top: 0;
+        left: 0;
         z-index: 1;
         visibility: hidden;
         text-align: center;
@@ -199,11 +201,13 @@
             });
             observer.observe(this, { childList: true, subtree: true, characterData: true });
             this._onClickEvent = this._onClickEvent.bind(this);
+            this._onWindowResize = this._onWindowResize.bind(this);
             document.addEventListener('click', this._onClickEvent);
             document.addEventListener('touchend', this._onClickEvent);
+            window.addEventListener('resize', this._onWindowResize);
         },
         detached () {
-            window.removeEventListener('resize', this.updatePosition.bind(this));
+            window.removeEventListener('resize', this._onWindowResize);
             document.removeEventListener('click', this._onClickEvent);
             document.removeEventListener('touchend', this._onClickEvent);
 
@@ -240,6 +244,9 @@
                     return;
                 }
 
+                /* Compute stacking context relative to viewport */
+                this._computeContext();
+
                 /* See whether the target was a rect or an element */
                 if ('left' in target && 'top' in target &&
                     'width' in target && 'height' in target) {
@@ -253,8 +260,8 @@
                 tooltipStyle = tooltip.style;
                 rect = this.getBoundingClientRect();
 
-                widthCenter = tRect.left + (tRect.width / 2) - (rect.width / 2);
-                heightCenter = tRect.top + (tRect.height / 2) - (rect.height / 2);
+                widthCenter = tRect.left + (tRect.width / 2) - (rect.width / 2) - this.contextOffset.left;
+                heightCenter = tRect.top + (tRect.height / 2) - (rect.height / 2) - this.contextOffset.top;
 
                 if (['top', 'bottom'].indexOf(this.position) !== -1) {
                     style.left = `${widthCenter}px`;
@@ -266,13 +273,13 @@
                 }
 
                 if (this.position === 'top') {
-                    style.top = `${tRect.top - rect.height - 20}px`;
+                    style.top = `${tRect.top - this.contextOffset.top - 20}px`;
                 } else if (this.position === 'bottom') {
-                    style.top = `${tRect.bottom + 20}px`;
+                    style.top = `${tRect.bottom - this.contextOffset.top + 20}px`;
                 } else if (this.position === 'right') {
-                    style.left = `${tRect.right + 20}px`;
+                    style.left = `${tRect.right - this.contextOffset.left + 20}px`;
                 } else if (this.position === 'left') {
-                    style.left = `${tRect.left - rect.width - 20}px`;
+                    style.left = `${tRect.left - this.contextOffset.left - rect.width - 20}px`;
                 }
 
                 if (this.zIndex !== null) {
@@ -284,6 +291,7 @@
             }, 10);
         },
         open () {
+
             // Let an eventual click event triggering the open go the the click handler
             setTimeout(() => {
                 let style = this.style;
@@ -309,6 +317,7 @@
                 });
                 this.opened = true;
                 this.alreadyAnimated = true;
+
             });
         },
         close () {
@@ -319,7 +328,7 @@
             if (this.noAnimations) {
                 return this.onCloseAnimationEnd();
             }
-            this.animate([{
+            let animation = this.animate([{
                 opacity: 1,
                 transform: 'scale(1)'
             }, {
@@ -328,12 +337,12 @@
             }], {
                 easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)',
                 duration: 150
-            }).onfinish = this.onCloseAnimationEnd.bind(this);
+            }).onfinish = this.onCloseAnimationEnd();
         },
         onCloseAnimationEnd () {
             let style = this.style;
             this.alreadyAnimated = false;
-            style.visibility = 'hidden';
+            this.style.visibility = 'hidden';
         },
         setupTargetTracking () {
             let target = this.target;
@@ -349,6 +358,22 @@
             if (this.trackTarget && target && 'getBoundingClientRect' in target) {
                 this.targetTracker = setInterval(this.updatePosition.bind(this), 1000);
             }
+        },
+        _computeContext () {
+            this.style.left = this.style.top = 0;
+            let contextBounds = this.getBoundingClientRect();
+            this.set('contextOffset', {
+                top: contextBounds.top,
+                left: contextBounds.left
+            });
+        },
+        _onWindowResize () {
+            if (!this.opened) {
+                return;
+            }
+            let resizeTimer;
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => this.updatePosition(), 100);
         },
         caretHidden (position) {
             return position === 'float';

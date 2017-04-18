@@ -57,13 +57,11 @@
                 return this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
             },
             _sizeChanged () {
-                let width = this.model.userProperties.width,
-                    height = this.model.userProperties.height;
                 if (this.model.userProperties.bitmaps.length === 0) {
                     this._generateEmptyFrame();
                     return;
                 }
-                this.storedBitmaps = this.storedBitmaps || this.storeBitmaps(); 
+                this.storedBitmaps = this.storedBitmaps || this.storeBitmaps();
                 this.set('model.userProperties.bitmaps',
                         this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
             },

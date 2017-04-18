@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../kano-color-wheel/kano-color-wheel.html">
 <!--
 @group Kano Elements
@@ -11,6 +12,7 @@
     <style>
     :host {
         display: block;
+        position: relative;
     }
     .pixel {
         width: 20px;
@@ -31,7 +33,7 @@
         background-color: var(--kano-pixel-editor-background, #444);
     }
     .pen {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 18px;
@@ -65,6 +67,7 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-pixel-canvas',
+            behaviors: [Polymer.IronResizableBehavior],
             properties: {
                 /**
                  * An array of all the pixels of the canvas
@@ -121,8 +124,10 @@
             listeners: {
                 'mousedown': '_mouseDown',
                 'mouseover': '_onMouseOver',
+                'mousemove': '_onMouseMove',
                 'mouseout': '_onMouseOut',
-                'mousemove': '_onMouseMove'
+                'mouseenter': '_computePosition',
+                'iron-resize': '_computePosition'
             },
             attached () {
                 this._mouseUp = this._mouseUp.bind(this);
@@ -334,8 +339,9 @@
                 this._isMouseOver = true;
             },
             _onMouseMove (e) {
-                if (this._isMouseOver) {
-                    this.transform(`translate(${e.x - 14}px, ${e.y - 14}px)`, this.$.pen);
+                if (this._isMouseOver && this.position) {
+                    let x = this.getBoundingClientRect();
+                    this.transform(`translate(${e.x - this.position.left - 14}px, ${e.y - this.position.top - 14}px)`, this.$.pen);
                 }
             },
             _onMouseOut () {
@@ -343,6 +349,9 @@
             },
             _computePenStyle (size, color, isMouseOver) {
                 return `background: ${color}; display: ${isMouseOver ? 'block' : 'none'}; width: ${size}px; height: ${size}px;}`;
+            },
+            _computePosition () {
+                this.position = this.getBoundingClientRect();
             }
         });
     </script>

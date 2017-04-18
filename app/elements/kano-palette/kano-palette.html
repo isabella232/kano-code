@@ -27,7 +27,7 @@ Custom property | Description | Default
         @apply --kano-pen-control;
     }
     :host([small-screen]) .pen-control {
-        margin-right: 10px;
+        margin-right: 8px;
     }
     .palette {
         @apply --layout-flex-auto;
@@ -107,17 +107,18 @@ Custom property | Description | Default
         @apply --kano-button;
         @apply --layout-horizontal;
         @apply --layout-center-justified;
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
+        border-radius: 3px;
         padding: 0;
         background-color: var(--color-chateau);
     }
-    .pen-control button:hover {
-        background-color: var(--color-abbey);
+    .pen-control button:hover iron-icon {
+        fill: #fff;
     }
     .pen-control button iron-icon {
-        --iron-icon-height: 18px;
-        --iron-icon-width: 18px;
+        --iron-icon-height: 15px;
+        --iron-icon-width: 15px;
         fill: #999;
     }
     .pen-control iron-selector {
@@ -130,13 +131,16 @@ Custom property | Description | Default
     .pen-control button:focus {
         outline: none;
     }
-    .pen-control button.iron-selected {
-        border-color: #fff;
+    button.iron-selected {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    button.iron-selected iron-icon {
+        fill: #fff;
     }
     :host label {
         display: inline-block;
         font-family: var(--font-body);
-        font-size: 16px;
+        font-size: 14px;
         font-weight: bold;
         color: rgba(255,255,255,0.5);
         margin-bottom: 24px;
@@ -173,10 +177,10 @@ Custom property | Description | Default
                 <template is="dom-repeat" items="[[palette]]" as="color">
                     <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]] [[penType]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                 </template>
-                <button class="palette-color add-color" on-tap="_openWheel" id="add-color">+</button>
+                <button id="add-color" class="palette-color add-color" on-tap="_openWheel">+</button>
             </div>
         </div>
-        <kano-tooltip class="tooltip" position="right" id="tooltip" target="[[tooltipTarget]]" auto-close>
+        <kano-tooltip id="tooltip" class="tooltip" position="right" target="[[tooltipTarget]]" auto-close>
             <kano-color-wheel value="{{penColor}}" on-value-changed="_penColorChanged"></kano-color-wheel>
         </kano-tooltip>
     </template>
@@ -235,8 +239,13 @@ Custom property | Description | Default
                 this._closeWheel();
             },
             _openWheel () {
-                this.tooltipTarget = this.$['add-color'].getBoundingClientRect();
-                this.$.tooltip.open();
+                /* We refer from using the hashed element library (i.e. this.$['add-color']) to get the most up-to-date clientRect value. We briefly reset the target so kano-tooltip detects the element as a new value. */
+                let target = this.$$('#add-color');
+                this.$.tooltip.set('target', null);
+                this.async(() => {
+                    this.$.tooltip.set('target', target);
+                    this.$.tooltip.open();
+                });
             },
             _paletteItemTapped (e) {
                 let color = e.model.get('color');

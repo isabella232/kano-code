@@ -35,7 +35,7 @@
             @apply --layout-self-start;
             display: inline-block;
             font-family: var(--font-body);
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             text-align: left;
             color: rgba(255,255,255,0.5);
@@ -45,7 +45,7 @@
             @apply --layout-horizontal;
             @apply --layout-justified;
             @apply --layout-center;
-            padding: var(--kano-modal-header-padding-large);
+            padding: 20px 48px 18px;
             border-bottom: 1px solid #202428;
         }
         :host([medium-screen]) .settings,
@@ -56,7 +56,7 @@
             padding-top: 24px;
         }
         :host([small-screen]) .settings {
-            padding: 24px 16px 16px;
+            padding: 24px 16px 24px;
         }
         .settings label {
             margin-right: 24px;
@@ -89,8 +89,8 @@
         }
         .main {
             @apply --layout-horizontal;
-            @apply --layout-start-justified;
-            padding: 24px 48px;
+            @apply --layout-center-justified;
+            padding: 16px 48px 16px;
         }
         :host([medium-screen]) .main {
             @apply --layout-vertical;
@@ -101,12 +101,13 @@
             padding: 32px 16px;
         }
         .editing-tools {
+            @apply --layout-flex-auto;
             @apply --layout-horizontal;
         }
         #palette {
             @apply --layout-horizontal;
             @apply --layout-justified;
-            width: 194px;
+            width: 148px;
             text-align: left;
         }
         :host([small-screen]) #palette,
@@ -122,14 +123,14 @@
             @apply --layout-vertical;
             @apply --layout-flex-auto;
             width: 48px;
-            margin-left: 8px;
+            margin-left: 16px;
         }
         .canvas-container {
             @apply --layout-flex-none;
             @apply --layout-vertical;
-            width: 400px;
+            width: 385px;
             height: 244px;
-            margin: 0 36px;
+            margin: 0 72px;
         }
         :host([small-screen]) .canvas-container,
         :host([medium-screen]) .canvas-container {
@@ -144,6 +145,7 @@
             @apply --layout-horizontal;
             @apply --layout-center-justified;
             margin-top: -2px;
+            margin-left: -2px;
         }
         kano-pixel-canvas {
             cursor: none;
@@ -153,12 +155,10 @@
             @apply --layout-flex-auto;
             @apply --layout-vertical;
             width: 106px;
-            margin-left: 16px;
         }
         :host([small-screen]) .control-container,
         :host([medium-screen]) .control-container {
             display: none;
-            margin-left: 0;
         }
         .framelist-container {
             @apply --layout-horizontal;
@@ -178,35 +178,40 @@
             @apply --layout-horizontal;
             @apply --layout-center-justified;
             background-color: var(--color-chateau);
-            width: 40px;
-            height: 40px;
+            border-radius: 3px;
+            width: 36px;
+            height: 36px;
             padding: 0;
         }
         iron-icon {
-            --iron-icon-height: 18px;
-            --iron-icon-width: 18px;
+            --iron-icon-height: 15px;
+            --iron-icon-width: 15px;
             fill: #999;
         }
-        :host button:hover {
-            background-color: var(--color-abbey);
+        :host button.add-frame:hover iron-icon {
+            fill: #fff;
         }
         button.add-frame:disabled {
             opacity: 0.3;
         }
-        kano-animated-svg {
+        button.control kano-animated-svg,
+        .small-screen-control-container button kano-animated-svg {
             @apply --layout-flex;
             width: 18px;
             height: 18px;
             -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
             filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-            --kano-animated-path: {
-                fill: white;
-                stroke: white;
-                stroke-width: 3px;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                transition: all ease-in-out 200ms;
-            }
+            fill: #999;
+            stroke: #999;
+            stroke-width: 3px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all ease-in-out 200ms;
+        }
+        button.control:hover kano-animated-svg,
+        .small-screen-control-container button kano-animated-svg {
+            fill: #fff;
+            stroke: #fff;
         }
     </style>
     <template>
@@ -252,7 +257,7 @@
             </div>
             <div class="control-container">
                 <label>Controls</label>
-                <button type="button" name="button" on-tap="_togglePreviewState">
+                <button class="control" type="button" name="button" on-tap="_togglePreviewState">
                     <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
                 </button>
             </div>
@@ -290,7 +295,7 @@
                 },
                 pixelSize: {
                     type: Number,
-                    value: 21
+                    value: 20
                 }
             },
             observers: [
