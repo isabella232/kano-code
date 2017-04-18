@@ -87,6 +87,11 @@ Polymer({
             type: Object,
             value: null
         },
+        lockdown: {
+            type: Boolean,
+            reflectToAttribute: true,
+            observer: '_onLockdownChanged'
+        },
         hideLeaveAlert: {
             type: Boolean,
             value: false,
@@ -94,7 +99,6 @@ Polymer({
         }
     },
     observers: [
-        'addedPartsChanged(addedParts.*)',
         'selectedPartChanged(selected.*)',
         'backgroundChanged(background.*)',
         'updateColors(addedParts.splices)',
@@ -323,9 +327,6 @@ Polymer({
             value: e.value
         });
     },
-    addedPartsChanged () {
-        this.fire('change');
-    },
     computeBackground () {
         let style = this.background.userStyle;
         return Object.keys(style).reduce((acc, property) => {
@@ -358,14 +359,17 @@ Polymer({
             e.detail.keyboardEvent.preventDefault();
             e.detail.keyboardEvent.stopPropagation();
         }
-        this.fire('share', {
+        this.fire('share', this.compileApp());
+    },
+    compileApp () {
+        return {
             app: this.save(false, false),
             workspaceInfo: JSON.stringify(this.save()),
             background: this.background.userStyle.background,
             mode: this.mode,
             code: this.code,
             parts: this.addedParts
-        });
+        };
     },
     generateCover () {
         return this.$.workspace.generateCover();
@@ -665,9 +669,13 @@ Polymer({
             });
         });
     },
-    trapEvent (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    _onLockdownChanged (value) {
+        //Catch click events with backdrop
+        if (value) {
+            this.$.backdrop.open();
+        } else {
+            this.$.backdrop.close();
+        }
     },
     _refitPartModal () {
         this.$['edit-part-dialog'].refit();
@@ -754,6 +762,9 @@ Polymer({
             this._disableDrag();
             this.set('editableLayout', false);
         }
+    },
+    _onLockdownClicked () {
+        this.fire('lockdown-clicked');
     },
     getBlockly () {
         return this.$['root-view'].getBlockly();

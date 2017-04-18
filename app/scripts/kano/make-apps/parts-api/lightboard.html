@@ -12,7 +12,7 @@
             },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
-                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+                Kano.AppModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
 
                 this.iterator = {
                     currentColumn: 1,
@@ -21,28 +21,28 @@
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
-                if (this.appModules) {
-                    this.appModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEvent);
+                if (Kano.AppModules) {
+                    Kano.AppModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEvent);
                 }
             },
             clear () {
-                return this.appModules.getModule('lightboard').clear(this.render.bind(this));
+                return Kano.AppModules.getModule('lightboard').clear(this.render.bind(this));
             },
             turnOn (light, color) {
-                return this.appModules.getModule('lightboard').turnOn(light, color, this.render.bind(this));
+                return Kano.AppModules.getModule('lightboard').turnOn(light, color, this.render.bind(this));
             },
             turnOff (light) {
-                return this.appModules.getModule('lightboard').turnOff(light, this.render.bind(this));
+                return Kano.AppModules.getModule('lightboard').turnOff(light, this.render.bind(this));
             },
             text (text, color, backgroundColor) {
-                return this.appModules.getModule('lightboard').text(text.toString(), color, backgroundColor, this.render.bind(this));
+                return Kano.AppModules.getModule('lightboard').text(text.toString(), color, backgroundColor, this.render.bind(this));
             },
             render () {},
             getBitmap () {
-                return this.appModules.getModule('lightboard').getBitmap();
+                return Kano.AppModules.getModule('lightboard').getBitmap();
             },
             scroll (text, color, backgroundColor, speed) {
-                return this.appModules.getModule('lightboard').scroll(text.toString(), color, backgroundColor, speed, this.render.bind(this));
+                return Kano.AppModules.getModule('lightboard').scroll(text.toString(), color, backgroundColor, speed, this.render.bind(this));
             },
             forEach (direction, callback) {
                 if (direction === 'column') {
@@ -65,7 +65,7 @@
             _updateShape (e) {
                 this.debounce("updateShape-" + e.detail.id, () => {
                     let shape = e.detail;
-                    this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape, this.render.bind(this));
+                    Kano.AppModules.getModule('lightboard').updateOrCreateShape(shape.id, shape, this.render.bind(this));
                 });
             }
         };

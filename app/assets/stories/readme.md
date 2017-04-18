@@ -17,6 +17,8 @@ The order and metadata of each scenes are defines in the `index.json` file. Here
         "id": "_0", // Scene id (not implemented yet)
         "component": "my_story/my-story-intro-1", // Scene component
         "data": {} // Additional data to give to the component
+        "show_remix_options": true, // Optional flag where applicable
+        "autoshare": true // Optional flag applicable
     },{
         "id": "_1",
         "component": "my_story/my-story-intro-2",
@@ -510,6 +512,17 @@ Later on you will be able to target this block using:
     "block": "show_marker"
 }
 ```
+
+You can also target inputs or fields in a block by specifying its `inputName`:
+```json
+{
+    "block": {
+        "id": "show_marker",
+        "inputName": "LATITUDE"
+    }
+}
+```
+You can find a list of all blocks and their inputs by running `Kano.MakeApps.Utils.displayBlockInputs();` in your browser's console
 
 To target a category in a blockly workspace, define an object and use the `category` key e.g.
 

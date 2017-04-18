@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
@@ -38,6 +39,13 @@ Example:
         position: relative;
         display: block;
         @apply --layout-vertical;
+    }
+    :host([lockdown]) {
+        pointer-events: none;
+    }
+    /*Don't apply lockdown on topbar*/
+    :host([lockdown]) ::slotted(*) {
+        pointer-events: auto;
     }
     :host section {
         @apply --layout-horizontal-reverse;
@@ -235,6 +243,7 @@ Example:
     <template>
         <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
         </kano-media-query>
+
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">

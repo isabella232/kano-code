@@ -114,6 +114,11 @@
             } else if (this.scene.show_remix_options) {
                 this.set('sceneData.completed', true);
             }
+
+            if (this.scene.autoshare) {
+                this.set('sceneData.autoshare', true);
+            }
+
             this.fire('track-event', {
                 event: 'worldTutorialCompleted'
             });
@@ -127,6 +132,7 @@
             this.setupOverlay(scene.overlay_before);
             component = this._parseSceneComponent(scene.component);
             this.sceneData = Object.assign({}, scene.data);
+
             // Let the end of the overlay load the data
             if (!this.scene.overlay_before) {
                 this.set('sceneData.started', true);

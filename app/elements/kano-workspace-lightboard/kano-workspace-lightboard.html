@@ -223,7 +223,11 @@
         /* globals Polymer, Kano */
         Polymer({
             is: 'kano-workspace-lightboard',
-            behaviors: [Kano.Behaviors.WorkspaceBehavior, Kano.MakeApps.PartsAPI.lightboard],
+            behaviors: [
+                Kano.Behaviors.WorkspaceBehavior,
+                Kano.MakeApps.PartsAPI.lightboard,
+                Kano.Behaviors.AppElementRegistryBehavior
+            ],
             observers: [
                 '_disableJoystickMouse(joystickQueue.length)'
             ],
@@ -264,8 +268,7 @@
                             's': 'lightboard-btn-B'
                         };
                     }
-                },
-
+                }
             },
             ready () {
                 this.set('bitmap', new Array(128));
@@ -278,6 +281,10 @@
                 document.body.addEventListener('keydown', this._onKeyDown);
                 document.body.addEventListener('keyup', this._onKeyUp);
                 window.addEventListener('blur', this._stopSimulation);
+
+                this._registerElement('lightboard-joystick', this.$.joystick);
+                this._registerElement('lightboard-button-A', this.$['lightboard-btn-A']);
+                this._registerElement('lightboard-button-B', this.$['lightboard-btn-B']);
             },
             detached () {
                 document.body.removeEventListener('keydown', this._onKeyDown);

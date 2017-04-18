@@ -2,7 +2,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/web-components/kano-glint-animation/kano-glint-animation.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
@@ -47,13 +46,6 @@
             @apply --layout-center-justified;
             --iron-icon-width: 14px;
             --iron-icon-height: 14px;
-            --iron-overlay-backdrop-opened: {
-                background: transparent;
-                pointer-events: auto;
-            };
-        }
-        :host([force-cta]) {
-            z-index: 1;
         }
         :host .content {
             @apply --layout-flex;
@@ -126,14 +118,12 @@
         :host button.animate {
             animation-name: button-enter;
         }
-        :host([is-last]) #primary-button,
-        :host([force-cta]) #primary-button {
+        :host(.green-cta) #primary-button {
             background-color: var(--color-grassland);
             backface-visibility: hidden;
             perspective: 1000px;
         }
-        :host([is-last]) #primary-button:hover,
-        :host([force-cta]) #primary-button:hover {
+        :host(.green-cta) #primary-button:hover {
             background-color: var(--color-apple);
         }
         .markdown-html p {
@@ -144,7 +134,6 @@
         }
     </style>
     <template>
-        <iron-overlay-backdrop id="backdrop" on-click="_animateCta"></iron-overlay-backdrop>
         <iron-image src="[[imgSrc]]" alt="Judoka in a speech bubble" sizing="contain" hidden$="[[imgPage]]"></iron-image>
         <iron-pages class="animations-pager" attr-for-selected="name" selected="[[imgPage]]" hidden$="[[!imgPage]]">
             <div name="judoka">
@@ -211,7 +200,7 @@
                 <iron-icon class="save-icon" src="/assets/icons/save.svg"></iron-icon>
                 <div>[[localize('SAVE', 'Save')]]</div>
             </button>
-            <kano-glint-animation id="primary-button-container" running="[[_computeGlint(forceCta, isLast)]]">
+            <kano-glint-animation id="primary-button-container" running="[[glint]]">
                 <button id="primary-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped">[[buttonLabel]]</button>
             </kano-glint-animation>
         </div>
@@ -242,18 +231,13 @@
                 value: 'judoka'
             },
             buttonLabel: {
-                type: String
+                type: String,
+                observer: '_onButtonLabelChanged'
             },
             showButton: {
                 type: Boolean,
                 value: false,
                 observer: '_showButtonChanged'
-            },
-            forceCta: {
-                type: Boolean,
-                value: false,
-                reflectToAttribute: true,
-                observer: '_forceCta'
             },
             isLast: {
                 type: Boolean,
@@ -262,7 +246,7 @@
                 observer: '_isLastChanged'
             }
         },
-        _animateCta () {
+        animateButton () {
             this.$['primary-button-container'].animate([{
                     offset: 0.0,
                     transform: 'translate3d(0, 0, 0)'
@@ -305,7 +289,7 @@
             });
         },
         attached () {
-            this._registerElement('banner-button', this.$.button);
+            this._registerElement('banner-button', this.$['primary-button']);
         },
         _buttonTapped () {
             this.fire('button-tapped');
@@ -319,22 +303,17 @@
                 this._triggerAnimation(buttonElement);
             }
         },
-        _forceCta (value) {
-            //We block pointer events outside the banner with a transparent backdrop
-            if (value) {
-                this.$.backdrop.open();
-            } else {
-                this.$.backdrop.close();
-            }
-        },
         _isLastChanged (last) {
             if (last) {
                 let saveButtonElement = this.$['save-button'];
                 this._triggerAnimation(saveButtonElement);
             }
         },
-        _computeGlint (isLast, forceCta) {
-            return (isLast || forceCta);
+        _onButtonLabelChanged (label) {
+            let isNext = label === 'Next',
+                isGreen = isNext || this.isLast || label === 'Next Challenge';
+            this.glint = isGreen || label === 'Hints';
+            this.toggleClass('green-cta', isGreen);
         },
         _triggerAnimation (element) {
             this.toggleClass('animate', false, element);

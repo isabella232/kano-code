@@ -395,6 +395,7 @@
         id: 'math',
         colour: COLOUR,
         blocks: [
+            'math_number',
             'math_arithmetic',
             {
                 id: 'unary',

@@ -23,8 +23,7 @@
                         this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
                     } else {
                         if (this.model.connected !== !!e.detail.newDevice) {
-                            this.model.connected = !!e.detail.newDevice;
-                            this.notifyPath('model.connected');
+                            this.set('model.connected', !!e.detail.newDevice);
                         }
                     }
                 };
@@ -50,8 +49,7 @@
                 }
 
                 if (notify && this.model.connected !== !!newDevice) {
-                    this.model.connected = !!newDevice;
-                    this.notifyPath('model.connected');
+                    this.set('model.connected', !!newDevice);
                 }
             },
             getGyroData (axis) {
