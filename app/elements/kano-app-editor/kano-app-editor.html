@@ -4,12 +4,15 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../kano-animation/animations/from-big-animation.html">
+<link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-workspace/kano-workspace.html">
 <link rel="import" href="../kano-part-editor/kano-part-editor.html">
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
@@ -110,7 +113,7 @@ Example:
         position: relative;
     }
     kano-root-view {
-        @apply(--layout-flex);
+        @apply --layout-flex;
     }
     :host #resize {
         position: absolute;
@@ -128,21 +131,22 @@ Example:
     }
     paper-dialog {
         @apply --layout-horizontal;
-        border-radius: 6px;
-        padding: 24px 40px 24px 24px;
+        background-color: var(--color-dark);
+        border-radius: 3px;
+        overflow: auto;
+        color: #fff;
     }
     paper-dialog#dialog>iron-pages {
         @apply --layout-horizontal;
         @apply --layout-flex;
         margin: 0px;
-        padding: 0px;
+        padding: 18px 24px 12px;
     }
     paper-dialog>iron-pages>div {
         @apply --layout-horizontal;
         @apply --layout-start;
         @apply --layout-flex;
         font-family: var(--font-body);
-        color: #464646;
     }
     paper-dialog #modal-content {
         @apply --layout-flex;
@@ -164,7 +168,6 @@ Example:
         font-family: var(--font-body);
         margin: 0px;
         font-weight: bold;
-        color: black;
     }
     paper-dialog div#buttons {
         padding: 18px 0px 0px;
@@ -192,19 +195,24 @@ Example:
     .editor {
         position: relative;
     }
+    #edit-part-dialog,
+    #edit-background-dialog {
+        min-width: 380px;
+    }
     #edit-part-dialog {
-        @apply --layout-vertical;
-        overflow: auto;
-    }
-    #edit-part-dialog kano-part-editor {
         flex: 1 0 auto;
-        min-width: 420px;
+        @apply --layout-vertical;
+        font-weight: bold;
+        color: #fff;
     }
-    #edit-part-dialog .icon-button,
-    #edit-background-dialog .icon-button {
-        position: absolute;
-        right: 0;
-        top: 0;
+    :host([small-screen]) #edit-part-dialog,
+    :host([small-screen]) #edit-background-dialog {
+        width: 100%;
+        left: -32px !important;
+    }
+    :host #edit-part-dialog-content,
+    :host #background-editor {
+        margin: 0;
     }
     .code-overlay {
         @apply --layout-fit;
@@ -233,7 +241,9 @@ Example:
     }
     </style>
     <template>
-        <iron-overlay-backdrop id="backdrop" on-click="_onLockdownClicked"></iron-overlay-backdrop>
+        <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
+        </kano-media-query>
+
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">
@@ -323,25 +333,20 @@ Example:
                 </div>
             </iron-pages>
         </paper-dialog>
-        <paper-dialog id="edit-part-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
-            <button class="icon-button" type="button" dialog-dismiss>
-                <iron-icon icon="close"></iron-icon>
-            </button>
+        <paper-dialog id="edit-part-dialog" entry-animation="from-big-animation" on-iron-overlay-closed="_partEditorDialogClosed">
             <kano-part-editor
+                id="edit-part-dialog-content"
                 selected="{{selected}}"
                 mode="[[mode]]"
-                class="tooltip-content"
+                class="no-padding"
                 on-delete-part="deletePartClicked"
                 hide-delete-button
                 id="part-editor"></kano-part-editor>
         </paper-dialog>
         <paper-dialog id="edit-background-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_backgroundEditorDialogClosed">
-            <button class="icon-button" type="button" dialog-dismiss>
-                <iron-icon icon="close"></iron-icon>
-            </button>
             <kano-background-editor
-                class="tooltip-content"
                 id="background-editor"
+                class="no-padding"
                 mode="[[mode.id]]"
                 background="{{background}}"
                 name="background"></kano-background-editor>
@@ -358,3 +363,4 @@ Example:
 </dom-module>
 
 <script src="./kano-app-editor.js"></script>
+f

@@ -1,12 +1,15 @@
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+
 <dom-module id="kano-color-wheel">
     <style>
     :host {
         display: block;
         position: relative;
+        background-color: var(--color-dark);
+        border-radius: 3px;
     }
     #canvas {
         border-radius: 50%;
-        border: 1px solid black;
         margin: 37px 50px;
         cursor: pointer;
     }
@@ -20,8 +23,8 @@
         pointer-events: none;
         transition: transform cubic-bezier(0.2, 0, 0.13, 1.5) 150ms, opacity cubic-bezier(0.2, 0, 0.13, 1.5) 150ms;
         transform-origin: 50% 110%;
-        @apply(--shadow-elevation-2dp);
-        border: 2px solid white;
+        @apply --shadow-elevation-2dp;
+        border: 1px solid var(--color-dark);
     }
     .magn.open {
         opacity: 1;
@@ -110,9 +113,12 @@
 
                 return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
             },
-            rgbToHex (r, g, b) {
-                let rgb = b | (g << 8) | (r << 16);
-                return '#' + rgb.toString(16);
+            componentToHex(c) {
+                let hex = c.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            },
+            rgbToHex(r, g, b) {
+                return '#' + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
             },
             _onMouseMove (e) {
                 if (this._isMouseOver) {
@@ -124,8 +130,8 @@
                         a = 180 - Math.atan2(r - y, r - x),
                         h, s, l, rgbValue;
                     h = a * 180 / Math.PI;
-                    s = 100 - (dist * 40 / r);
-                    l = 115 - (dist * 70 / r);
+                    s = 100 - (dist * 2 / r);
+                    l = 105 - (dist * 95 / r);
 
                     h = h % 360;
                     h /= 360;
@@ -141,20 +147,20 @@
                 }
             },
             _drawWheel (canvas, size) {
-                var r = (size - 2) / 2,
+                let r = (size - 2) / 2,
                     ctx;
                 canvas.setAttribute('width', size);
                 canvas.setAttribute('height', size);
                 ctx = canvas.getContext('2d');
 
-                for (var i = 0; i < r + 1; i++) {
+                for (let i = 0; i < r + 1; i++) {
                     // A ring
-                    var c = 2 * Math.PI * i;
-                    for (var j = 0; j < c; j++) {
-                        var a = j * 2 * Math.PI / c,
+                    let c = 5 * Math.PI * i;
+                    for (let j = 0; j < c; j++) {
+                        let a = j * 3 * Math.PI / c,
                         y = Math.cos(a) * i,
                         x = Math.sin(a) * i;
-                        ctx.fillStyle = `hsl(${a * 180 / Math.PI}, ${100 - (i * 40 / r)}%, ${115 - (i * 70 / r)}%)`;
+                        ctx.fillStyle = `hsl(${a * 180 / Math.PI}, ${100 - (i * 2 / r)}%, ${105 - i * 95 / r}%)`;
                         ctx.fillRect(r + x, r + y, 2, 2);
                     }
                 }
