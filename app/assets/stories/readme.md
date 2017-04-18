@@ -17,6 +17,8 @@ The order and metadata of each scenes are defines in the `index.json` file. Here
         "id": "_0", // Scene id (not implemented yet)
         "component": "my_story/my-story-intro-1", // Scene component
         "data": {} // Additional data to give to the component
+        "show_remix_options": true, // Optional flag where applicable
+        "autoshare": true // Optional flag applicable
     },{
         "id": "_1",
         "component": "my_story/my-story-intro-2",

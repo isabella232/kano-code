@@ -362,14 +362,17 @@ Polymer({
             e.detail.keyboardEvent.preventDefault();
             e.detail.keyboardEvent.stopPropagation();
         }
-        this.fire('share', {
+        this.fire('share', this.compileApp());
+    },
+    compileApp () {
+        return {
             app: this.save(false, false),
             workspaceInfo: JSON.stringify(this.save()),
             background: this.background.userStyle.background,
             mode: this.mode,
             code: this.code,
             parts: this.addedParts
-        });
+        };
     },
     generateCover () {
         return this.$.workspace.generateCover();
