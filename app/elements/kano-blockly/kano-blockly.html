@@ -67,6 +67,10 @@ Example:
             @apply(--layout-center);
         }
 
+        .blocklyBlockCanvas.smoothScroll, ::slotted(*.blocklyBlockCanvas.smoothScroll) {
+            transition: transform 200ms ease-out;
+        }
+
         .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"]), ::slotted(* .blocklyTreeRoot>div[role="group"]>div:not([role="treeitem"])) {
             display: none;
         }
@@ -277,6 +281,9 @@ Example:
                 type: Boolean,
                 value: false
             }
+        },
+        listeners: {
+            'toolbox.scroll': '_onToolboxScroll'
         },
         ready () {
             this.codeRelatedEvents = [Blockly.Events.CREATE, Blockly.Events.MOVE, Blockly.Events.CHANGE];
@@ -536,7 +543,12 @@ Example:
         onBlocklyChange (e) {
             if (e.type === Blockly.Events.OPEN_SEARCHBOX) {
                 this._openOmnibox();
-
+                return;
+            }
+            if (e.type === Blockly.Events.SCROLL) {
+                this.debounce('workspacePan', () => {
+                    this.fire('workspace-scroll');
+                }, 200);
                 return;
             }
             if (e.type === Blockly.Events.CREATE) {
@@ -556,6 +568,9 @@ Example:
                     this.workspace.fireChangeListener(ev);
                     this.lastCreated = null;
                     this._onToolboxEndDrag();
+                } else if (e.type === Blockly.Events.MOVE) {
+                    // The event type is `move` and the block concerned was not just created
+                    this.fire('block-move');
                 }
             }
             this.fire('change', e);
@@ -630,6 +645,11 @@ Example:
         },
         getToolbox () {
             return this.$.toolbox;
+        },
+        _onToolboxScroll (e) {
+            this.debounce('scrollEvent', () => {
+                this.fire('toolbox-scroll');
+            }, 200);
         }
     });
 </script>
