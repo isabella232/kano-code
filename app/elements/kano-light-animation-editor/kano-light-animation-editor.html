@@ -183,9 +183,11 @@
             height: 36px;
             padding: 0;
         }
-        iron-icon {
-            --iron-icon-height: 15px;
-            --iron-icon-width: 15px;
+        button.add-frame iron-icon {
+            --iron-icon-height: 21px;
+            --iron-icon-width: 21px;
+            margin-top: 1px;
+            margin-left: 2px;
             fill: #999;
         }
         :host button.add-frame:hover iron-icon {
@@ -302,6 +304,9 @@
                 '_onSelectedChanged(selected.*)',
                 '_onSmallScreenActive(smallScreen)'
             ],
+            created () {
+                this._onKeydown = this._onKeydown.bind(this);
+            },
             attached () {
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
@@ -309,7 +314,11 @@
                 };
                 this.previewState = 'stopped';
                 this.previewIndex = 0;
+                document.addEventListener('keydown', this._onKeydown);
                 this.$.palette._computePalette();
+            },
+            detached () {
+                document.removeEventListener('keydown', this._onKeydown);
             },
             _onSelectedChanged (e) {
                 this.selectedIndex = this.selectedIndex || 0;
@@ -336,16 +345,31 @@
                 }
                 this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
             },
+            _selectNextFrame () {
+                this.selectedIndex++;
+                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+            },
+            _selectPreviousFrame () {
+                this.selectedIndex--;
+                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+            },
             _addFrame () {
                 this.$.frames.addFrame();
             },
             _isNewFrameDisabled (previewState) {
                 return (previewState === 'running');
             },
-            enterQuitsInput () {
-                if (event.keyCode == 13) {
-                    this.blur();
-                    return false;
+            _onKeydown (e) {
+                switch (e.key) {
+                    case 'n':
+                      this._addFrame();
+                      break;
+                    case 'ArrowRight':
+                      this._selectNextFrame();
+                      break;
+                    case 'ArrowLeft':
+                      this._selectPreviousFrame();
+                      break;
                 }
             },
             _onSmallScreenActive (smallScreen) {
