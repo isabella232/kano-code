@@ -8,6 +8,8 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/light-frame.html">
+<link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
 <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
 <link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
@@ -160,7 +162,11 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-light-frame-editor',
-            behaviors: [PolymerFilters.FilterBehavior, Kano.Behaviors.MediaQueryBehavior],
+            behaviors: [
+                PolymerFilters.FilterBehavior,
+                Kano.Behaviors.MediaQueryBehavior,
+                Kano.MakeApps.PartsAPI['light-frame']
+            ],
             properties: {
                 selected: {
                     type: Object,
@@ -183,10 +189,13 @@
                 }
             },
             observers: [
-                '_onSmallScreenActive(smallScreen)'
+                '_onSmallScreenActive(smallScreen)',
+                '_userPropertiesChanged(selected.userProperties.*)'
             ],
             attached () {
                 this.$.palette._computePalette();
+                this.BOARD_WIDTH = 16;
+                this.BOARD_HEIGHT = 8;
             },
             enterQuitsInput () {
                 if (event.keyCode == 13) {
@@ -196,6 +205,28 @@
             },
             _onSmallScreenActive (smallScreen) {
                 this.pixelSize = smallScreen ? 18 : 20;
+            },
+            _renderOnRealDevice () {
+                Kano.AppModules.modules.lightboard.shapes = {
+                    'being-edited': this.getShape()
+                };
+                Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+            },
+            _userPropertiesChanged () {
+                this._renderOnRealDevice();
+            },
+            getShape () {
+                this.model = this.selected;
+                return {
+                    id: 'being-edited',
+                    x: this.getX(),
+                    y: this.getY(),
+                    width: this.getWidth(),
+                    height: this.getHeight(),
+                    visible: true,
+                    bitmap: this.selected.userProperties.bitmap,
+                    type: 'frame'
+                };
             }
         });
     </script>

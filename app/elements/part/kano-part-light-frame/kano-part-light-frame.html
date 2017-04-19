@@ -36,6 +36,11 @@
                 '_sizeChanged(model.userProperties.width, model.userProperties.height)',
                 '_onBitmapChanged(model.userProperties.bitmap.*)'
             ],
+
+            get bitmap () {
+                return this.get('model.userProperties.bitmap');
+            },
+
             _onBitmapChanged (e) {
                 //Lock observer as it's resetting the observed property
                 if (this.lock) {
@@ -107,20 +112,6 @@
                     emptyFrame.push('#000000');
                 }
                 this.set('model.userProperties.bitmap', emptyFrame);
-            },
-            _updateLightboard () {
-                this.debounce('_updateLightboard', () => {
-                    let shape = {
-                        id: this.model.id,
-                        x: this.getX(),
-                        y: this.getY(),
-                        width: this.model.userProperties.width,
-                        height: this.model.userProperties.height,
-                        bitmap: this.model.userProperties.bitmap,
-                        type: 'frame'
-                    };
-                    this.fire('update-shape', shape);
-                });
             }
         });
     </script>
