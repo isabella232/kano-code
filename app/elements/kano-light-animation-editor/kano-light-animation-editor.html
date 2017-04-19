@@ -7,6 +7,8 @@
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
+<link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
 <link rel="import" href="../kano-palette/kano-palette.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
@@ -277,7 +279,11 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-light-animation-editor',
-            behaviors: [PolymerFilters.FilterBehavior, Kano.Behaviors.MediaQueryBehavior],
+            behaviors: [
+                PolymerFilters.FilterBehavior,
+                Kano.Behaviors.MediaQueryBehavior,
+                Kano.MakeApps.PartsAPI['light-animation']
+            ],
             properties: {
                 selected: {
                     type: Object,
@@ -300,7 +306,9 @@
             },
             observers: [
                 '_onSelectedChanged(selected.*)',
-                '_onSmallScreenActive(smallScreen)'
+                '_onSmallScreenActive(smallScreen)',
+                '_onFrameChanged(frame.*)',
+                '_onSelectedFrameChanged(selectedFrame.*)',
             ],
             attached () {
                 this.previewButtonIconPaths = {
@@ -310,12 +318,20 @@
                 this.previewState = 'stopped';
                 this.previewIndex = 0;
                 this.$.palette._computePalette();
+                this.BOARD_WIDTH = 16;
+                this.BOARD_HEIGHT = 8;
             },
             _onSelectedChanged (e) {
                 this.selectedIndex = this.selectedIndex || 0;
                 if (e.path = "selected") {
                     this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
                 }
+            },
+            _onFrameChanged () {
+                this._renderOnRealDevice(this.frame);
+            },
+            _onSelectedFrameChanged () {
+                this._renderOnRealDevice(this.selectedFrame);
             },
             _togglePreviewState () {
                 this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
@@ -350,6 +366,25 @@
             },
             _onSmallScreenActive (smallScreen) {
                 this.pixelSize = smallScreen ? 18 : 20;
+            },
+            _renderOnRealDevice (frame) {
+                Kano.AppModules.modules.lightboard.shapes = {
+                    'being-edited': this.getShape(frame)
+                };
+                Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+            },
+            getShape (frame) {
+                this.model = this.selected;
+                return {
+                    id: 'being-edited',
+                    x: this.getX(),
+                    y: this.getY(),
+                    width: this.getWidth(),
+                    height: this.getHeight(),
+                    visible: true,
+                    bitmap: frame,
+                    type: 'frame'
+                };
             }
         });
     </script>
