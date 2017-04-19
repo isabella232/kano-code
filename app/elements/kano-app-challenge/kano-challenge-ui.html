@@ -290,16 +290,28 @@ Example:
             this.modal = this.$.modal;
             this.highlight = {};
             this.loadSound('/assets/audio/sounds/ding.mp3');
+            this._refitUiElements = this._refitUiElements.bind(this);
+            this.eventsCausingRefit = {
+                'toolbox-scroll': ['flyout_block'],
+                'workspace-scroll': ['block'],
+                'block-move': ['block']
+            };
         },
         attached () {
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.updateTooltips = this.updateTooltips.bind(this);
             this.addEventListener('mousewheel', this.updateTooltips, true);
             window.addEventListener('resize', this.updateTooltips);
+            Object.keys(this.eventsCausingRefit).forEach(eventName => {
+                this.addEventListener(eventName, this._refitUiElements);
+            });
         },
         detached () {
             this.removeEventListener('mousewheel', this.updateTooltips);
             window.removeEventListener('resize', this.updateTooltips);
+            Object.keys(this.eventsCausingRefit).forEach(eventName => {
+                this.removeEventListener(eventName, this._refitUiElements);
+            });
         },
         getToolbox () {
             return this.editor.getBlocklyWorkspace().toolbox;
@@ -307,26 +319,60 @@ Example:
         _nextStep () {
             this.fire('next-step');
         },
+        /**
+         * Reposition the UI elements of the current step without delay.
+         * Useful when a user interaction changed the position of one of the targets.
+         */
+        _refitUiElements (e) {
+            let step = this.step,
+                targetConcerned = this.eventsCausingRefit[e.type];
+            if (step.beacon && this._targetIsConcerned(step.beacon.target, targetConcerned)) {
+                this._fitBeacon(step);
+            }
+            if (step.arrow && this._targetIsConcerned(step.arrow.target, targetConcerned)) {
+                this._fitArrow(step);
+            }
+            this._fitTooltips(step);
+        },
+        /**
+         * Checks if the target of the beacon matches the type of targets concerned by the refit event received
+         */
+        _targetIsConcerned (target, targetTypes) {
+            return typeof target === 'object' && Object.keys(target).some(key => targetTypes.indexOf(key) !== -1);
+        },
         computeTooltips (step) {
             this.set('tooltips', []);
             this.debounce('computeTooltips', () => {
-                /* With hints disabled, only show tooltips for injected steps */
-                if (!this.state.hints.enabled && !step.injected) {
-                    this.tooltips = [];
-                    return;
-                }
-
-                let tooltips = step.tooltips || [];
-                tooltips = tooltips.map((tooltip) => {
-                    let copy = Object.assign({}, tooltip);
-                    copy.target = this._getTargetElement(tooltip.location);
-                    copy.text = tooltip.text;
-                    copy.tracking = tooltip.tracking !== false ? true : false;
-                    return copy;
-                });
-
-                this.set('tooltips', tooltips);
+                this._fitTooltips(step, true);
             }, 200);
+        },
+        _fitTooltips (step, scroll) {
+            /* With hints disabled, only show tooltips for injected steps */
+            if (!this.state.hints.enabled && !step.injected) {
+                this.tooltips = [];
+                return;
+            }
+
+            let tooltips = step.tooltips || [];
+            tooltips = tooltips.map(tooltip => {
+                let copy = Object.assign({}, tooltip);
+                copy.target = this._getTargetElement(tooltip.location);
+                if ('getBoundingClientRect' in copy.target) {
+                    copy.target = copy.target.getBoundingClientRect();
+                }
+                if (scroll) {
+                    this._scrollWorkspaceOnTargetIfNeeded(copy.target, tooltip.location);
+                }
+                copy.text = tooltip.text;
+                copy.tracking = !!tooltip.tracking;
+
+                return copy;
+            });
+            // Forces a recompute on the dom-repeat to make sure all tooltips are updated
+            this.set('tooltips', []);
+            this.async(() => {
+                this.set('tooltips', tooltips);
+            });
         },
         _tooltipDomChanged (e) {
             let tooltips = Polymer.dom(this.root).querySelectorAll('kano-tooltip[bounce]'),
@@ -358,35 +404,39 @@ Example:
             }
         },
         computeArrow (step) {
-            let source, target;
-
             if (!step || !step.arrow || (!this.state.hints.enabled && !step.injected)) {
                 this.$.arrow.hide();
                 this.arrow = {};
                 return;
             }
             this.async(() => {
-                if (step.arrow.source) {
-                    source = this._getTargetElement(step.arrow.source);
-                    if ('getBoundingClientRect' in source) {
-                        source = source.getBoundingClientRect();
-                    }
-                }
-                target = this._getTargetElement(step.arrow.target);
-                if ('getBoundingClientRect' in target) {
-                    target = target.getBoundingClientRect();
-                }
-                this.set('arrow', {
-                    source,
-                    target,
-                    size: step.arrow.size || 70,
-                    angle: step.arrow.angle || 0
-                });
+                this._fitArrow(step, true);
             }, 300);
         },
-        computeBeacon (step) {
-            let target, angle, offset;
+        _fitArrow (step, scroll) {
+            let source, target;
 
+            if (step.arrow.source) {
+                source = this._getTargetElement(step.arrow.source);
+                if ('getBoundingClientRect' in source) {
+                    source = source.getBoundingClientRect();
+                }
+            }
+            target = this._getTargetElement(step.arrow.target);
+            if ('getBoundingClientRect' in target) {
+                target = target.getBoundingClientRect();
+            }
+            if (scroll) {
+                this._scrollWorkspaceOnTargetIfNeeded(target, step.arrow.target);
+            }
+            this.set('arrow', {
+                source,
+                target,
+                size: step.arrow.size || 70,
+                angle: step.arrow.angle || 0
+            });
+        },
+        computeBeacon (step) {
             this.$.beacon.animate({
                 opacity: [1, 0]
             }, {
@@ -404,27 +454,58 @@ Example:
             }
 
             this.async(() => {
-                target = this._getTargetElement(step.beacon.target);
-                angle = step.beacon.angle || 0;
-                offset = step.beacon.offset || 10;
-                if (target && ('getBoundingClientRect' in target)) {
-                    target = target.getBoundingClientRect();
-                }
-                this.set('beacon', {
-                    target,
-                    angle,
-                    offset
-                });
-                this.$.beacon.animate({
-                    opacity: [0, 1]
-                }, {
-                    duration: 200,
-                    delay: 10,
-                    fill: 'forwards'
-                });
-                this.toggleClass('animate', true, this.$.beacon);
-                this.toggleClass('animate', true, this.$.ring);
+                this._fitBeacon(step, true);
             }, 300);
+        },
+        _scrollWorkspaceOnTargetIfNeeded (target, location) {
+            if (location.block) {
+                let workspace = this.editor.getBlocklyWorkspace(),
+                    workspaceRect = workspace.svgBackground_.getBoundingClientRect(),
+                    viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+                    viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+                    block;
+                if (target &&
+                        (target.top + target.height > workspaceRect.top + workspaceRect.height) ||
+                        (target.left + target.width > workspaceRect.left + workspaceRect.width)) {
+                    block = this.getTargetBlock(location.block);
+                    workspace.scrollBlockIntoView(block, true);
+                }
+            }
+        },
+        _fitBeacon (step, scroll) {
+            let target = this._getTargetElement(step.beacon.target),
+                angle = step.beacon.angle || 0,
+                offset = step.beacon.offset || 10,
+                viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+                viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            if (target && ('getBoundingClientRect' in target)) {
+                target = target.getBoundingClientRect();
+            }
+            if (scroll) {
+                this._scrollWorkspaceOnTargetIfNeeded(target, step.beacon.target);
+            }
+            // Check if the target is out of the viewport (vertically)
+            if (target && target.top + target.height > viewportHeight) {
+                if (step.beacon.target.flyout_block) {
+                    let toolbox = this._getElement('blockly-toolbox');
+                    // Force a scroll of the toolbox to move the target in the viewport. Add 50 to make sure it's not just at the border of the screen
+                    toolbox.scrollTop = toolbox.scrollTop + (target.top + target.height - viewportHeight) + 50;
+                }
+            }
+            this.set('beacon', {
+                target,
+                angle,
+                offset
+            });
+            this.$.beacon.animate({
+                opacity: [0, 1]
+            }, {
+                duration: 200,
+                delay: 10,
+                fill: 'forwards'
+            });
+            this.toggleClass('animate', true, this.$.beacon);
+            this.toggleClass('animate', true, this.$.ring);
         },
         _ringAnimationIterated (e) {
             this._ringSoundTimeout = setTimeout(() => {
