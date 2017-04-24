@@ -48,9 +48,16 @@ var SharingBehavior = {
         attachment,
         appName = 'make-apps',
         cover = this.shareInfo.coverBlob,
-        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+        spritesheet = this.shareInfo.spriteSheetBlob,
+        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
+        files;
 
-        cover.filename = 'cover.gif';
+        if (this.shareInfo.mode.sharing.cover === 'still') {
+            cover.filename = 'cover.png';
+        } else {
+            cover.filename = 'cover.gif';
+        }
+
         workspaceInfo.filename = 'workspace_info.json';
 
         this.set('shareInfo.loading', true);
@@ -61,15 +68,22 @@ var SharingBehavior = {
             appName = 'lightboard';
         }
 
+        files = {
+            cover: cover,
+            workspace_info: workspaceInfo
+        };
+
+        if (this.shareInfo.mode.sharing.spritesheet && spritesheet) {
+            spritesheet.filename = 'spritesheet.png';
+            files.lightboard_spritesheet = spritesheet;
+        }
+
         //Share by calling the API
         return Kano.MakeApps.sdk.api.share.post({
             app: appName,
             title: this.shareInfo.title,
             description: this.shareInfo.description,
-            files: {
-                cover: cover,
-                workspace_info: workspaceInfo
-            },
+            files: files,
             is_private: this.shareInfo.is_private || false
         }).then((res) => {
             if (res.status == 200) {

@@ -550,39 +550,67 @@
             this.recording = true;
 
             if (sharingConfig.cover === 'still') {
-                let waitingFrame = 0,
-                    interval;
-                this.gifRenderProgress = 0;
-                // Simulate gif recording
-                interval = setInterval(_ => {
-                    // Fake frame increment
-                    waitingFrame++;
-                    // Let the user know the progress state
-                    this.gifRenderProgress += (100 / LENGTH);
-                    // The number of fake frames hit the limit
-                    if (waitingFrame > LENGTH) {
-                        clearInterval(interval);
-                        // Generate the still cover
-                        this.generateCover(workspace,
-                                    parts,
-                                    workspace.width,
-                                    workspace.height,
-                                    1,
-                                    sharingConfig.padding,
-                                    sharingConfig.color)
-                            .then(image => {
-                                let base64Data = image.src.split(',').pop(),
-                                    blob = this.base64toBlob(base64Data, 'image/png');
-                                this.gifSrc = image.src;
-                                this.shareInfo.coverBlob = blob;
-                                this.fire('cover-generated');
-                                // Reset UI for potential future gif-creation
-                                this.recording = false;
-                                this.firstRender = false;
-                                this.gifRenderProgress = 0;
-                            });
-                    }
-                }, 1000 / FPS);
+                if (sharingConfig.spritesheet) {
+                    this.generateSpriteSheet(workspace, FPS, 4)
+                        .then((url) => {
+                            let data = url.split(',').pop(),
+                                spriteSheetBlob = this.base64toBlob(data, 'image/png');
+
+                            this.shareInfo.spriteSheetBlob = spriteSheetBlob
+
+                            return this.generateCover(workspace,
+                                        parts,
+                                        workspace.width,
+                                        workspace.height,
+                                        1,
+                                        sharingConfig.padding,
+                                        sharingConfig.color);
+                        }).then(image => {
+                            let base64Data = image.src.split(',').pop(),
+                                blob = this.base64toBlob(base64Data, 'image/png');
+                            this.gifSrc = image.src;
+                            this.shareInfo.coverBlob = blob;
+                            this.fire('cover-generated');
+                            // Reset UI for potential future gif-creation
+                            this.recording = false;
+                            this.firstRender = false;
+                            this.gifRenderProgress = 0;
+                        });
+                } else {
+                    let waitingFrame = 0,
+                        interval;
+                    this.gifRenderProgress = 0;
+                    // Simulate gif recording
+                    interval = setInterval(_ => {
+                        // Fake frame increment
+                        waitingFrame++;
+                        // Let the user know the progress state
+                        this.gifRenderProgress += (100 / LENGTH);
+                        // The number of fake frames hit the limit
+                        if (waitingFrame > LENGTH) {
+                            clearInterval(interval);
+                            // Generate the still cover
+                            this.generateCover(workspace,
+                                        parts,
+                                        workspace.width,
+                                        workspace.height,
+                                        1,
+                                        sharingConfig.padding,
+                                        sharingConfig.color)
+                                .then(image => {
+                                    let base64Data = image.src.split(',').pop(),
+                                        blob = this.base64toBlob(base64Data, 'image/png');
+                                    this.gifSrc = image.src;
+                                    this.shareInfo.coverBlob = blob;
+                                    this.fire('cover-generated');
+                                    // Reset UI for potential future gif-creation
+                                    this.recording = false;
+                                    this.firstRender = false;
+                                    this.gifRenderProgress = 0;
+                                });
+                        }
+                    }, 1000 / FPS);
+                }
             } else {
                 this._generateGifCover(workspace, parts, 0.6, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
                     let url = URL.createObjectURL(blob);
