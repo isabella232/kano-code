@@ -2,7 +2,17 @@
     "steps": [
         {
             "banner": {
-                "text": "Let's set those pixels alight🔥! (With animation) We're going to make a Pixel Fireplace, fireplaces move so we'll need a loop from the Control tray"
+                "text": "We're going to recreate the Northern Lights (also known as Aurora Borealis 😎) with pixel lights!",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "We're making a lightshow so we need to redraw the lights every frame."
             },
             "beacon": {
                 "target": {
@@ -69,7 +79,7 @@
         },
         {
             "banner": {
-                "text": "Change <kano-value-preview><span>seconds</span></kano-value-preview> to <kano-value-preview><span>frames</span></kano-value-preview> so all the code is repeated every frame"
+                "text": "Change from <kano-value-preview><span>seconds</span></kano-value-preview> to <kano-value-preview><span>frames</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
@@ -91,32 +101,188 @@
         },
         {
             "banner": {
-                "text": "There are 128 pixels on the lightboard so we need to nest a loop within the loop, open the Control tray"
+                "text": "We're making a lightshow so we need to redraw the lights every second."
             },
             "beacon": {
                 "target": {
-                    "category": "control"
+                    "category": "lightboard"
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "control"
+                    "open-flyout": "lightboard"
                 }
             }
         },
         {
             "banner": {
-                "text": "Drag the block onto your code space"
+                "text": "We have some special blocks for looping through the lights"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "repeat_x_times"
+                    "flyout_block": "lightboard#light_foreach"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "repeat_x_times",
+                        "type": "lightboard#light_foreach",
+                        "id": "block_1"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "9oPpMi260O9~ADPxpV9$"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_0",
+                            "rawId": "9oPpMi260O9~ADPxpV9$",
+                            "inputName": "DO"
+                        },
+                        "target": "block_1"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "9oPpMi260O9~ADPxpV9$"
+                    }
+                },
+                "target": "DO"
+            }
+        },
+        {
+            "banner": {
+                "text": "We're going to nest another forEach loop so we loop through every light on the board."
+            },
+            "beacon": {
+                "target": {
+                    "category": "lightboard"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "lightboard"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the Lights forEach block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "lightboard#light_foreach"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "lightboard#light_foreach",
+                        "id": "block_2"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": "eORqZNj=Tu1C|?A13sYE"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_1",
+                            "rawId": "eORqZNj=Tu1C|?A13sYE",
+                            "inputName": "DO"
+                        },
+                        "target": "block_2"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": "eORqZNj=Tu1C|?A13sYE"
+                    }
+                },
+                "target": "DO"
+            }
+        },
+        {
+            "banner": {
+                "text": "Change from <kano-value-preview><span>column</span></kano-value-preview> to <kano-value-preview><span>row</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_2"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_2"
+                        },
+                        "value": "row"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Now we're looping through every light lets start turning them on."
+            },
+            "beacon": {
+                "target": {
+                    "category": "lightboard"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "lightboard"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block turns lights on"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "lightboard#turn_on"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "lightboard#turn_on",
                         "id": "block_3"
                     }
                 }
@@ -129,7 +295,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_0"
+                        "id": "block_2",
+                        "rawId": "O5NYUqY(Uei^FO!mvo:%"
                     }
                 }
             },
@@ -137,7 +304,9 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_0"
+                            "id": "block_2",
+                            "rawId": "O5NYUqY(Uei^FO!mvo:%",
+                            "inputName": "DO"
                         },
                         "target": "block_3"
                     }
@@ -146,63 +315,41 @@
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_0"
+                        "id": "block_2",
+                        "rawId": "O5NYUqY(Uei^FO!mvo:%"
                     }
-                }
+                },
+                "target": "DO"
             }
         },
         {
             "banner": {
-                "text": "Change from <kano-value-preview><span>10</span></kano-value-preview> to <kano-value-preview><span>1</span></kano-value-preview> so we can see what the code within is doing"
+                "text": "Open this tray"
             },
             "beacon": {
                 "target": {
-                    "block": {
-                        "shadow": "N",
-                        "id": "block_3"
-                    }
+                    "category": "lightboard"
                 }
             },
             "validation": {
                 "blockly": {
-                    "value": {
-                        "target": {
-                            "shadow": "N",
-                            "id": "block_3"
-                        },
-                        "value": "1"
-                    }
+                    "open-flyout": "lightboard"
                 }
             }
         },
         {
             "banner": {
-                "text": "We need a variable to keep track of what row we're drawing on, open the Variables tray"
+                "text": "This block turns on individual lights"
             },
             "beacon": {
                 "target": {
-                    "category": "variables"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "variables"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "variables_set"
+                    "flyout_block": "lightboard#light_x_y"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "variables_set",
+                        "type": "lightboard#light_x_y",
                         "id": "block_4"
                     }
                 }
@@ -216,7 +363,7 @@
                 "target": {
                     "block": {
                         "id": "block_3",
-                        "rawId": "ECK6bvHZ{/l^M6f,^OlI"
+                        "rawId": "k)?|fN64a{(J2wK6d74]"
                     }
                 }
             },
@@ -225,8 +372,8 @@
                     "connect": {
                         "parent": {
                             "id": "block_3",
-                            "rawId": "ECK6bvHZ{/l^M6f,^OlI",
-                            "inputName": "DO"
+                            "rawId": "k)?|fN64a{(J2wK6d74]",
+                            "inputName": "TARGET"
                         },
                         "target": "block_4"
                     }
@@ -236,62 +383,40 @@
                 "location": {
                     "block": {
                         "id": "block_3",
-                        "rawId": "ECK6bvHZ{/l^M6f,^OlI"
+                        "rawId": "k)?|fN64a{(J2wK6d74]"
                     }
                 },
-                "target": "DO"
+                "target": "TARGET"
             }
         },
         {
             "banner": {
-                "text": "Change to <kano-value-preview><span>flameHeight</span></kano-value-preview>"
+                "text": "We need to point to which lights to turn on in our loop"
             },
             "beacon": {
                 "target": {
-                    "block": {
-                        "id": "block_4"
-                    }
+                    "category": "lightboard"
                 }
             },
             "validation": {
                 "blockly": {
-                    "value": {
-                        "target": {
-                            "id": "block_4"
-                        },
-                        "value": "flameHeight"
-                    }
+                    "open-flyout": "lightboard"
                 }
             }
         },
         {
             "banner": {
-                "text": "We're going to randomly choose what row to draw on to create a flickering effect, open the Math tray"
+                "text": "This block points to the light coordinates within our loops"
             },
             "beacon": {
                 "target": {
-                    "category": "math"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "math"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "This block will choose a different random number every time, drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "math_random"
+                    "flyout_block": "lightboard#light_foreach_index"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "math_random",
+                        "type": "lightboard#light_foreach_index",
                         "id": "block_5"
                     }
                 }
@@ -305,7 +430,7 @@
                 "target": {
                     "block": {
                         "id": "block_4",
-                        "rawId": "Mwo5#K(bM|nwT:FIY7d("
+                        "rawId": "6ugsh/LCT5qUWVX-ZhH9"
                     }
                 }
             },
@@ -314,8 +439,8 @@
                     "connect": {
                         "parent": {
                             "id": "block_4",
-                            "rawId": "Mwo5#K(bM|nwT:FIY7d(",
-                            "inputName": "VALUE"
+                            "rawId": "6ugsh/LCT5qUWVX-ZhH9",
+                            "inputName": "X"
                         },
                         "target": "block_5"
                     }
@@ -325,63 +450,25 @@
                 "location": {
                     "block": {
                         "id": "block_4",
-                        "rawId": "Mwo5#K(bM|nwT:FIY7d("
+                        "rawId": "6ugsh/LCT5qUWVX-ZhH9"
                     }
                 },
-                "target": "VALUE"
+                "target": "X"
             }
         },
         {
             "banner": {
-                "text": "The pixels start from 1 so change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>1</span></kano-value-preview>"
+                "text": "Notice how we are looping across every column and turning the lights on as we go.",
+                "next_button": true
             },
             "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MIN",
-                        "id": "block_5"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "shadow": "MIN",
-                            "id": "block_5"
-                        },
-                        "value": "1"
-                    }
-                }
+                "target": "banner-button",
+                "offset": 0
             }
         },
         {
             "banner": {
-                "text": "The lightboard is 8 pixels tall so change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>8</span></kano-value-preview>"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MAX",
-                        "id": "block_5"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "shadow": "MAX",
-                            "id": "block_5"
-                        },
-                        "value": "8"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Let's turn on some lights, open this tray"
+                "text": "We need a second block because we're in a nested loop"
             },
             "beacon": {
                 "target": {
@@ -400,13 +487,13 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#turn_on"
+                    "flyout_block": "lightboard#light_foreach_index"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#turn_on",
+                        "type": "lightboard#light_foreach_index",
                         "id": "block_6"
                     }
                 }
@@ -420,7 +507,7 @@
                 "target": {
                     "block": {
                         "id": "block_4",
-                        "rawId": "Mwo5#K(bM|nwT:FIY7d("
+                        "rawId": "6ugsh/LCT5qUWVX-ZhH9"
                     }
                 }
             },
@@ -429,7 +516,8 @@
                     "connect": {
                         "parent": {
                             "id": "block_4",
-                            "rawId": "Mwo5#K(bM|nwT:FIY7d("
+                            "rawId": "6ugsh/LCT5qUWVX-ZhH9",
+                            "inputName": "Y"
                         },
                         "target": "block_6"
                     }
@@ -439,265 +527,7 @@
                 "location": {
                     "block": {
                         "id": "block_4",
-                        "rawId": "Mwo5#K(bM|nwT:FIY7d("
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "We need to turn specific lights on, open this tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "lightboard"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "lightboard"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "lightboard#light_x_y"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "lightboard#light_x_y",
-                        "id": "block_7"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Connect it to this block"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_6",
-                        "rawId": "C=4rCyXTLz}/AlRZl|6R"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_6",
-                            "rawId": "C=4rCyXTLz}/AlRZl|6R",
-                            "inputName": "TARGET"
-                        },
-                        "target": "block_7"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_6",
-                        "rawId": "C=4rCyXTLz}/AlRZl|6R"
-                    }
-                },
-                "target": "TARGET"
-            }
-        },
-        {
-            "banner": {
-                "text": "We're going to use random numbers again for flickery flames, open the Math tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "math"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "math"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "math_random"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "math_random",
-                        "id": "block_8"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Connect it to this block"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_7",
-                        "rawId": "DC_V?$w-[Ny?wl!xP~Oq"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_7",
-                            "rawId": "DC_V?$w-[Ny?wl!xP~Oq",
-                            "inputName": "X"
-                        },
-                        "target": "block_8"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_7",
-                        "rawId": "DC_V?$w-[Ny?wl!xP~Oq"
-                    }
-                },
-                "target": "X"
-            }
-        },
-        {
-            "banner": {
-                "text": "Again the pixels start at 1 so change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>1</span></kano-value-preview>"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MIN",
-                        "id": "block_8"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "shadow": "MIN",
-                            "id": "block_8"
-                        },
-                        "value": "1"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "The lightboard is 16 pixels wide so change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>16</span></kano-value-preview>"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MAX",
-                        "id": "block_8"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "shadow": "MAX",
-                            "id": "block_8"
-                        },
-                        "value": "16"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "We're currently randomly turning lights on across a single line, try hitting the restart button to see them turn on. Let's fill the rest of the board",
-                "next_button": true
-            },
-            "beacon": {
-                "target": "banner-button",
-                "offset": 0
-            }
-        },
-        {
-            "banner": {
-                "text": "We're going to use our flameHeight variable, open the Variables tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "variables"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "variables"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "variables_get"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "variables_get",
-                        "id": "block_9"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Connect it to this block"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_7",
-                        "rawId": "DC_V?$w-[Ny?wl!xP~Oq"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_7",
-                            "rawId": "DC_V?$w-[Ny?wl!xP~Oq",
-                            "inputName": "Y"
-                        },
-                        "target": "block_9"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_7",
-                        "rawId": "DC_V?$w-[Ny?wl!xP~Oq"
+                        "rawId": "6ugsh/LCT5qUWVX-ZhH9"
                     }
                 },
                 "target": "Y"
@@ -705,12 +535,12 @@
         },
         {
             "banner": {
-                "text": "Change to <kano-value-preview><span>flameHeight</span></kano-value-preview>"
+                "text": "Change <kano-value-preview><span>currentColumn</span></kano-value-preview> to <kano-value-preview><span>currentRow</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_9"
+                        "id": "block_6"
                     }
                 }
             },
@@ -718,16 +548,16 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "id": "block_9"
+                            "id": "block_6"
                         },
-                        "value": "flameHeight"
+                        "value": "currentRow"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Now our whole lightboard fills in because we're randomly changing the X and the Y values",
+                "text": "because of our loops we're turning each light on individually, now let's bring them to life",
                 "next_button": true
             },
             "beacon": {
@@ -737,7 +567,7 @@
         },
         {
             "banner": {
-                "text": "Let's bring those flames to life, open the Color tray"
+                "text": "Open the Color tray"
             },
             "beacon": {
                 "target": {
@@ -763,7 +593,7 @@
                 "blockly": {
                     "create": {
                         "type": "create_color",
-                        "id": "block_10"
+                        "id": "block_7"
                     }
                 }
             }
@@ -775,8 +605,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_6",
-                        "rawId": "C=4rCyXTLz}/AlRZl|6R"
+                        "id": "block_3",
+                        "rawId": "k)?|fN64a{(J2wK6d74]"
                     }
                 }
             },
@@ -784,19 +614,19 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_6",
-                            "rawId": "C=4rCyXTLz}/AlRZl|6R",
+                            "id": "block_3",
+                            "rawId": "k)?|fN64a{(J2wK6d74]",
                             "inputName": "COLOR"
                         },
-                        "target": "block_10"
+                        "target": "block_7"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_6",
-                        "rawId": "C=4rCyXTLz}/AlRZl|6R"
+                        "id": "block_3",
+                        "rawId": "k)?|fN64a{(J2wK6d74]"
                     }
                 },
                 "target": "COLOR"
@@ -804,12 +634,12 @@
         },
         {
             "banner": {
-                "text": "Change <kano-value-preview><span>rgb</span></kano-value-preview> to <kano-value-preview><span>hsv</span></kano-value-preview>, hsv treats color like a rainbow, we'll need this to get our red and orange colors"
+                "text": "Change <kano-value-preview><span>rgb</span></kano-value-preview> to <kano-value-preview><span>hsv</span></kano-value-preview>, hsv treats color like a rainbow"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_10"
+                        "id": "block_7"
                     }
                 }
             },
@@ -817,7 +647,7 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "id": "block_10"
+                            "id": "block_7"
                         },
                         "value": "hsv"
                     }
@@ -852,7 +682,7 @@
                 "blockly": {
                     "create": {
                         "type": "math_arithmetic",
-                        "id": "block_11"
+                        "id": "block_8"
                     }
                 }
             }
@@ -864,8 +694,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_10",
-                        "rawId": "atphU/8zgN#)^MV/H9*M"
+                        "id": "block_7",
+                        "rawId": "W)-:8/{9KO]hOYQ+v;iL"
                     }
                 }
             },
@@ -873,19 +703,19 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_10",
-                            "rawId": "atphU/8zgN#)^MV/H9*M",
+                            "id": "block_7",
+                            "rawId": "W)-:8/{9KO]hOYQ+v;iL",
                             "inputName": "1"
                         },
-                        "target": "block_11"
+                        "target": "block_8"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_10",
-                        "rawId": "atphU/8zgN#)^MV/H9*M"
+                        "id": "block_7",
+                        "rawId": "W)-:8/{9KO]hOYQ+v;iL"
                     }
                 },
                 "target": "1"
@@ -893,38 +723,16 @@
         },
         {
             "banner": {
-                "text": "Change <kano-value-preview><span>+</span></kano-value-preview> to <kano-value-preview><span>x</span></kano-value-preview>"
+                "text": "Open this tray"
             },
             "beacon": {
                 "target": {
-                    "block": {
-                        "id": "block_11"
-                    }
+                    "category": "lightboard"
                 }
             },
             "validation": {
                 "blockly": {
-                    "value": {
-                        "target": {
-                            "id": "block_11"
-                        },
-                        "value": "MULTIPLY"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Let's use our flameHeight variable to control the color, open the Variables tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "variables"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "variables"
+                    "open-flyout": "lightboard"
                 }
             }
         },
@@ -934,14 +742,14 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "variables_get"
+                    "flyout_block": "lightboard#light_foreach_index"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "variables_get",
-                        "id": "block_12"
+                        "type": "lightboard#light_foreach_index",
+                        "id": "block_9"
                     }
                 }
             }
@@ -953,8 +761,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_11",
-                        "rawId": "ow_u+p`[),5Yei(xY)v2"
+                        "id": "block_8",
+                        "rawId": ")weE~`aE.UjLb/.0VQr7"
                     }
                 }
             },
@@ -962,19 +770,19 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_11",
-                            "rawId": "ow_u+p`[),5Yei(xY)v2",
+                            "id": "block_8",
+                            "rawId": ")weE~`aE.UjLb/.0VQr7",
                             "inputName": "A"
                         },
-                        "target": "block_12"
+                        "target": "block_9"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_11",
-                        "rawId": "ow_u+p`[),5Yei(xY)v2"
+                        "id": "block_8",
+                        "rawId": ")weE~`aE.UjLb/.0VQr7"
                     }
                 },
                 "target": "A"
@@ -982,29 +790,17 @@
         },
         {
             "banner": {
-                "text": "Change to <kano-value-preview><span>flameHeight</span></kano-value-preview>"
+                "text": "A spectrum of color! With our nested loops we can use a few blocks to change each light in it's own way",
+                "next_button": true
             },
             "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_12"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "id": "block_12"
-                        },
-                        "value": "flameHeight"
-                    }
-                }
+                "target": "banner-button",
+                "offset": 0
             }
         },
         {
             "banner": {
-                "text": "Didn't look like much happened? Well let's pump up the value a bit, open the Variables tray"
+                "text": "Open the Variables tray"
             },
             "beacon": {
                 "target": {
@@ -1030,7 +826,7 @@
                 "blockly": {
                     "create": {
                         "type": "math_number",
-                        "id": "block_13"
+                        "id": "block_10"
                     }
                 }
             }
@@ -1042,8 +838,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_11",
-                        "rawId": "ow_u+p`[),5Yei(xY)v2"
+                        "id": "block_8",
+                        "rawId": ")weE~`aE.UjLb/.0VQr7"
                     }
                 }
             },
@@ -1051,19 +847,19 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_11",
-                            "rawId": "ow_u+p`[),5Yei(xY)v2",
+                            "id": "block_8",
+                            "rawId": ")weE~`aE.UjLb/.0VQr7",
                             "inputName": "B"
                         },
-                        "target": "block_13"
+                        "target": "block_10"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_11",
-                        "rawId": "ow_u+p`[),5Yei(xY)v2"
+                        "id": "block_8",
+                        "rawId": ")weE~`aE.UjLb/.0VQr7"
                     }
                 },
                 "target": "B"
@@ -1071,12 +867,12 @@
         },
         {
             "banner": {
-                "text": "Change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>2</span></kano-value-preview>"
+                "text": "Change from <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>70</span></kano-value-preview> to make the color more like the Northern Lights"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_13"
+                        "id": "block_10"
                     }
                 }
             },
@@ -1084,35 +880,25 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "id": "block_13"
+                            "id": "block_10"
                         },
-                        "value": "2"
+                        "value": "70"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Our loop is currently just lighting pixels and on top of each other, let's see what happens when we turn the lightboard off each time",
-                "next_button": true
-            },
-            "beacon": {
-                "target": "banner-button",
-                "offset": 0
-            }
-        },
-        {
-            "banner": {
-                "text": "Let's turn the lights off each frame, open this tray"
+                "text": "Now let's make those lights sparkle"
             },
             "beacon": {
                 "target": {
-                    "category": "lightboard"
+                    "category": "math"
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "lightboard"
+                    "open-flyout": "math"
                 }
             }
         },
@@ -1122,14 +908,14 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#turn_off"
+                    "flyout_block": "math_random"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#turn_off",
-                        "id": "block_1"
+                        "type": "math_random",
+                        "id": "block_11"
                     }
                 }
             }
@@ -1141,8 +927,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_0",
-                        "rawId": "?,2=%a$PHzD9ONt3N!G+"
+                        "id": "block_7",
+                        "rawId": "W)-:8/{9KO]hOYQ+v;iL"
                     }
                 }
             },
@@ -1150,22 +936,111 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_0",
-                            "rawId": "?,2=%a$PHzD9ONt3N!G+",
-                            "inputName": "DO"
+                            "id": "block_7",
+                            "rawId": "W)-:8/{9KO]hOYQ+v;iL",
+                            "inputName": "3"
                         },
-                        "target": "block_1"
+                        "target": "block_11"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_0",
-                        "rawId": "?,2=%a$PHzD9ONt3N!G+"
+                        "id": "block_7",
+                        "rawId": "W)-:8/{9KO]hOYQ+v;iL"
                     }
                 },
-                "target": "DO"
+                "target": "3"
+            }
+        },
+        {
+            "banner": {
+                "text": "Open the Math tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "math"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "math"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "math_arithmetic"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "math_arithmetic",
+                        "id": "block_12"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_11",
+                        "rawId": "oy!-E]I`3t7^3@]|2{$o"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_11",
+                            "rawId": "oy!-E]I`3t7^3@]|2{$o",
+                            "inputName": "MIN"
+                        },
+                        "target": "block_12"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_11",
+                        "rawId": "oy!-E]I`3t7^3@]|2{$o"
+                    }
+                },
+                "target": "MIN"
+            }
+        },
+        {
+            "banner": {
+                "text": "Change from <kano-value-preview><span>+</span></kano-value-preview> to <kano-value-preview><span>x</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_12"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_12"
+                        },
+                        "value": "MULTIPLY"
+                    }
+                }
             }
         },
         {
@@ -1189,14 +1064,14 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#lights_all"
+                    "flyout_block": "lightboard#light_foreach_index"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#lights_all",
-                        "id": "block_2"
+                        "type": "lightboard#light_foreach_index",
+                        "id": "block_13"
                     }
                 }
             }
@@ -1208,8 +1083,8 @@
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_1",
-                        "rawId": "dDlV4NhrqgPWucwbSC)C"
+                        "id": "block_12",
+                        "rawId": "j=6Nfx,67Ws~Hs|h?x)U"
                     }
                 }
             },
@@ -1217,43 +1092,32 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_1",
-                            "rawId": "dDlV4NhrqgPWucwbSC)C",
-                            "inputName": "TARGET"
+                            "id": "block_12",
+                            "rawId": "j=6Nfx,67Ws~Hs|h?x)U",
+                            "inputName": "A"
                         },
-                        "target": "block_2"
+                        "target": "block_13"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_1",
-                        "rawId": "dDlV4NhrqgPWucwbSC)C"
+                        "id": "block_12",
+                        "rawId": "j=6Nfx,67Ws~Hs|h?x)U"
                     }
                 },
-                "target": "TARGET"
+                "target": "A"
             }
         },
         {
             "banner": {
-                "text": "This looks quite cool but it's certainly not fire... let's light more pixels every frame",
-                "next_button": true
-            },
-            "beacon": {
-                "target": "banner-button",
-                "offset": 0
-            }
-        },
-        {
-            "banner": {
-                "text": "This loop decides how many pixels we light let's light more and watch the effect come to life, change <kano-value-preview><span>1</span></kano-value-preview> to <kano-value-preview><span>60</span></kano-value-preview>"
+                "text": "Change from <kano-value-preview><span>currentColumn</span></kano-value-preview> to <kano-value-preview><span>currentRow</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "shadow": "N",
-                        "id": "block_3"
+                        "id": "block_13"
                     }
                 }
             },
@@ -1261,17 +1125,105 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "shadow": "N",
-                            "id": "block_3"
+                            "id": "block_13"
                         },
-                        "value": "60"
+                        "value": "currentRow"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Now we have a roaring fire 🔥 perfect for roasties smores or sausages",
+                "text": "Open the Variables tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "variables"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "variables"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "math_number"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "math_number",
+                        "id": "block_14"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_12",
+                        "rawId": "j=6Nfx,67Ws~Hs|h?x)U"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_12",
+                            "rawId": "j=6Nfx,67Ws~Hs|h?x)U",
+                            "inputName": "B"
+                        },
+                        "target": "block_14"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_12",
+                        "rawId": "j=6Nfx,67Ws~Hs|h?x)U"
+                    }
+                },
+                "target": "B"
+            }
+        },
+        {
+            "banner": {
+                "text": "Now let's make it look like a horizon, change <kano-value-preview><span>0</span></kano-value-preview> to <kano-value-preview><span>10</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_14"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_14"
+                        },
+                        "value": "10"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "You can now enjoy the lights 🌌",
                 "next_button": true
             },
             "beacon": {
@@ -1283,35 +1235,30 @@
     "parts": [],
     "modules": [
         "control",
-        "variables",
+        "color",
         "math",
-        "color"
+        "variables"
     ],
-    "variables": [
-        "flameHeight"
-    ],
+    "variables": [],
     "filterBlocks": {
         "control": [
-            "every_x_seconds",
-            "repeat_x_times"
+            "every_x_seconds"
         ],
         "lightboard": [
-            "turn_off",
-            "lights_all",
+            "light_foreach",
             "turn_on",
-            "light_x_y"
-        ],
-        "variables": [
-            "variables_set",
-            "variables_get",
-            "math_number"
-        ],
-        "math": [
-            "math_random",
-            "math_arithmetic"
+            "light_x_y",
+            "light_foreach_index"
         ],
         "color": [
             "create_color"
+        ],
+        "math": [
+            "math_arithmetic",
+            "math_random"
+        ],
+        "variables": [
+            "math_number"
         ]
     },
     "mode": "lightboard"

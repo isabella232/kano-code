@@ -2,7 +2,7 @@
     "steps": [
         {
             "banner": {
-                "text": "Now you will learn how to turn on random lights to bring your pixel kit to life!",
+                "text": "Let's make a cool and colourful clock 🌈⏰",
                 "next_button": true
             },
             "beacon": {
@@ -12,7 +12,36 @@
         },
         {
             "banner": {
-      					"text": "First let's get our loop ready..."
+                "text": "Just like a real clock our code clock needs parts to tell the time <br>Open the parts drawer by clicking here."
+            },
+            "beacon": {
+                "target": "add-part-button"
+            },
+            "validation": {
+                "open-parts": true
+            }
+        },
+        {
+            "tooltips": [
+                {
+                    "location": "parts-panel",
+                    "position": "top",
+                    "text": "Click on <b>Clock</b> to add it to your app"
+                }
+            ],
+            "beacon": {
+                "target": "parts-panel-clock"
+            },
+            "validation": {
+                "add-part": {
+                    "type": "clock",
+                    "id": "part_0"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Clocks tick every second so we'll need a loop, open the Control tray"
             },
             "beacon": {
                 "target": {
@@ -27,7 +56,7 @@
         },
         {
             "banner": {
-                "text": "Drag the block onto your code space"
+                "text": "Drag the block onto your code space to repeat code every second"
             },
             "beacon": {
                 "target": {
@@ -79,16 +108,16 @@
         },
         {
             "banner": {
-                "text": "Now we want to turn on some lights"
+                "text": "We need a way to display the time, let's use a text block. Open this tray"
             },
             "beacon": {
                 "target": {
-                    "category": "lightboard"
+                    "category": "lightboard_text"
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "lightboard"
+                    "open-flyout": "lightboard_text"
                 }
             }
         },
@@ -98,13 +127,13 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#turn_on"
+                    "flyout_block": "lightboard#light_scroll_text"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#turn_on",
+                        "type": "lightboard#light_scroll_text",
                         "id": "block_1"
                     }
                 }
@@ -118,7 +147,7 @@
                 "target": {
                     "block": {
                         "id": "block_0",
-                        "rawId": "~(t%wG{yddB%/~=42LaQ"
+                        "rawId": "dDeG%[FT(pX?vPtK]lRY"
                     }
                 }
             },
@@ -127,7 +156,7 @@
                     "connect": {
                         "parent": {
                             "id": "block_0",
-                            "rawId": "~(t%wG{yddB%/~=42LaQ",
+                            "rawId": "dDeG%[FT(pX?vPtK]lRY",
                             "inputName": "DO"
                         },
                         "target": "block_1"
@@ -138,7 +167,7 @@
                 "location": {
                     "block": {
                         "id": "block_0",
-                        "rawId": "~(t%wG{yddB%/~=42LaQ"
+                        "rawId": "dDeG%[FT(pX?vPtK]lRY"
                     }
                 },
                 "target": "DO"
@@ -146,32 +175,40 @@
         },
         {
             "banner": {
-                "text": "We want to turn on a specific light, open the lightboard tray again"
+                "text": "We need to hook the clock data up to the text block, open the Clock tray"
             },
             "beacon": {
                 "target": {
-                    "category": "lightboard"
+                    "category": {
+                        "part": "part_0"
+                    }
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "lightboard"
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
                 }
             }
         },
         {
             "banner": {
-                "text": "Drag the block onto your code space"
+                "text": "This block will get the current time, grab it"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#light_x_y"
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "get_formatted_time"
+                    }
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#light_x_y",
+                        "target": "part_0",
+                        "type": "get_formatted_time",
                         "id": "block_2"
                     }
                 }
@@ -185,7 +222,7 @@
                 "target": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "..qyPK6JwI~e~1+`Yi)N"
+                        "rawId": "Hb{b|U{jf8iRW$X-l.B/"
                     }
                 }
             },
@@ -194,8 +231,8 @@
                     "connect": {
                         "parent": {
                             "id": "block_1",
-                            "rawId": "..qyPK6JwI~e~1+`Yi)N",
-                            "inputName": "TARGET"
+                            "rawId": "Hb{b|U{jf8iRW$X-l.B/",
+                            "inputName": "TEXT"
                         },
                         "target": "block_2"
                     }
@@ -205,88 +242,20 @@
                 "location": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "..qyPK6JwI~e~1+`Yi)N"
+                        "rawId": "Hb{b|U{jf8iRW$X-l.B/"
                     }
                 },
-                "target": "TARGET"
+                "target": "TEXT"
             }
         },
         {
             "banner": {
-                "text": "Now we want to turn on a random light. To do that we need a <b>random number</b> These live in the Math tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "math"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "math"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "This block generates a random number between a given range. It's just like tossing a giant dice!"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "math_random"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "math_random",
-                        "id": "block_3"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Tell it to randomly turn on a light"
+                "text": "Change from <kano-value-preview><span>date</span></kano-value-preview> to <kano-value-preview><span>time</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_2",
-                        "rawId": "~z4#lv;Q;xGRIj@jiHoG"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_2",
-                            "rawId": "~z4#lv;Q;xGRIj@jiHoG",
-                            "inputName": "X"
-                        },
-                        "target": "block_3"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_2",
-                        "rawId": "~z4#lv;Q;xGRIj@jiHoG"
-                    }
-                },
-                "target": "X"
-            }
-        },
-        {
-            "banner": {
-                "text": "Now we just need to tweak the number, we want it to cover all the columns... Change from <kano-value-preview><span>10</span></kano-value-preview> to <kano-value-preview><span>16</span></kano-value-preview>"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MAX",
-                        "id": "block_3"
+                        "id": "block_2"
                     }
                 }
             },
@@ -294,90 +263,22 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "shadow": "MAX",
-                            "id": "block_3"
+                            "id": "block_2"
                         },
-                        "value": "16"
+                        "value": "time"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Let's get another one to randomize the y value"
-            },
-            "beacon": {
-                "target": {
-                    "category": "math"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "math"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Drag the block onto your code space"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "math_random"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "math_random",
-                        "id": "block_4"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Connect it to control the y position"
+                "text": "Let's speed this up a bit change <kano-value-preview><span>100</span></kano-value-preview> to <kano-value-preview><span>600</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_2",
-                        "rawId": "~z4#lv;Q;xGRIj@jiHoG"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_2",
-                            "rawId": "~z4#lv;Q;xGRIj@jiHoG",
-                            "inputName": "Y"
-                        },
-                        "target": "block_4"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_2",
-                        "rawId": "~z4#lv;Q;xGRIj@jiHoG"
-                    }
-                },
-                "target": "Y"
-            }
-        },
-        {
-            "banner": {
-                "text": "Let's tweak it to control all of the rows! Change from <kano-value-preview><span>10</span></kano-value-preview> to <kano-value-preview><span>8</span></kano-value-preview>"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "shadow": "MAX",
-                        "id": "block_4"
+                        "shadow": "SPEED",
+                        "id": "block_1"
                     }
                 }
             },
@@ -385,17 +286,27 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "shadow": "MAX",
-                            "id": "block_4"
+                            "shadow": "SPEED",
+                            "id": "block_1"
                         },
-                        "value": "8"
+                        "value": "600"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Finally let's get a random color in here"
+                "text": "Ok so it tells the time but we can make it even cooler and more colorful",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "Let's add a splash of pixel color, open the Color tray"
             },
             "beacon": {
                 "target": {
@@ -414,14 +325,14 @@
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "random_colour"
+                    "flyout_block": "create_color"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "random_colour",
-                        "id": "block_5"
+                        "type": "create_color",
+                        "id": "block_3"
                     }
                 }
             }
@@ -434,7 +345,7 @@
                 "target": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "..qyPK6JwI~e~1+`Yi)N"
+                        "rawId": "Hb{b|U{jf8iRW$X-l.B/"
                     }
                 }
             },
@@ -443,10 +354,10 @@
                     "connect": {
                         "parent": {
                             "id": "block_1",
-                            "rawId": "..qyPK6JwI~e~1+`Yi)N",
+                            "rawId": "Hb{b|U{jf8iRW$X-l.B/",
                             "inputName": "COLOR"
                         },
-                        "target": "block_5"
+                        "target": "block_3"
                     }
                 }
             },
@@ -454,7 +365,7 @@
                 "location": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "..qyPK6JwI~e~1+`Yi)N"
+                        "rawId": "Hb{b|U{jf8iRW$X-l.B/"
                     }
                 },
                 "target": "COLOR"
@@ -462,7 +373,126 @@
         },
         {
             "banner": {
-                "text": "Whoa you're a light super hero! Try making it go even faster by changing <kano-value-preview><span>seconds</span></kano-value-preview> to <kano-value-preview><span>frames</span></kano-value-preview>...",
+                "text": "We want to use a rainbow of colors so change <kano-value-preview><span>rgb</span></kano-value-preview> to <kano-value-preview><span>hsv</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_3"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_3"
+                        },
+                        "value": "hsv"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Now we'll hook the current seconds data into our color block, open the Clock tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "get_time"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_0",
+                        "type": "get_time",
+                        "id": "block_4"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_3",
+                        "rawId": "PL;ak0Z;*b+sU@L#L]Lz"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_3",
+                            "rawId": "PL;ak0Z;*b+sU@L#L]Lz",
+                            "inputName": "1"
+                        },
+                        "target": "block_4"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_3",
+                        "rawId": "PL;ak0Z;*b+sU@L#L]Lz"
+                    }
+                },
+                "target": "1"
+            }
+        },
+        {
+            "banner": {
+                "text": "Change from <kano-value-preview><span>year</span></kano-value-preview> to <kano-value-preview><span>Seconds</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_4"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_4"
+                        },
+                        "value": "seconds"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Now we have the coolest clock you coded yourself, watch it for a little while and see how the colour cycles",
                 "next_button": true
             },
             "beacon": {
@@ -471,10 +501,11 @@
             }
         }
     ],
-    "parts": [],
+    "parts": [
+        "clock"
+    ],
     "modules": [
         "control",
-        "math",
         "color"
     ],
     "variables": [],
@@ -483,14 +514,14 @@
             "every_x_seconds"
         ],
         "lightboard": [
-            "turn_on",
-            "light_x_y"
+            "light_scroll_text"
         ],
-        "math": [
-            "math_random"
+        "clock": [
+            "get_formatted_time",
+            "get_time"
         ],
         "color": [
-            "random_colour"
+            "create_color"
         ]
     },
     "mode": "lightboard"

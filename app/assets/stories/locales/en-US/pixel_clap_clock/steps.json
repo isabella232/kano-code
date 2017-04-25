@@ -2,7 +2,7 @@
     "steps": [
         {
             "banner": {
-                "text": "We're going to make a sound reactive light show, let's start with the basics",
+                "text": "We're going to make a clock that appears whenever you clap, using the microphone",
                 "next_button": true
             },
             "beacon": {
@@ -12,32 +12,69 @@
         },
         {
             "banner": {
-                "text": "Light shows are animated so we need a loop, open the Control tray"
+                "text": "The microphone can detect how loud you are.<br />First, click on 'Add part' (look for the yellow circle)."
             },
             "beacon": {
-                "target": {
-                    "category": "control"
-                }
+                "target": "add-part-button"
             },
             "validation": {
-                "blockly": {
-                    "open-flyout": "control"
+                "open-parts": true
+            }
+        },
+        {
+            "tooltips": [
+                {
+                    "location": "parts-panel",
+                    "position": "top",
+                    "text": "Click on <b>Mic</b> to add it to your app"
+                }
+            ],
+            "beacon": {
+                "target": "parts-panel-microphone"
+            },
+            "validation": {
+                "add-part": {
+                    "type": "microphone",
+                    "id": "part_0"
                 }
             }
         },
         {
             "banner": {
-                "text": "This block repeats all the code within it every second"
+      					"text": "The microphone code lives in here.<br />Open it."
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "every_x_seconds"
+                    "category": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block let's you use sound to trigger your code. Grab it."
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "threshold"
+                    }
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "every_x_seconds",
+                        "target": "part_0",
+                        "type": "threshold",
                         "id": "block_0"
                     }
                 }
@@ -45,7 +82,7 @@
         },
         {
             "banner": {
-                "text": "Connect it to this block"
+      					"text": "Connect it to your event"
             },
             "beacon": {
                 "target": {
@@ -79,32 +116,56 @@
         },
         {
             "banner": {
-                "text": "Let's light up a pixel, open this tray"
+      					"text": "Change the trigger volume to <kano-value-preview><span>90</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
-                    "category": "lightboard"
+                    "block": {
+                        "shadow": "VALUE",
+                        "id": "block_0"
+                    }
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "lightboard"
+                    "value": {
+                        "target": {
+                            "shadow": "VALUE",
+                            "id": "block_0"
+                        },
+                        "value": "90"
+                    }
                 }
             }
         },
         {
             "banner": {
-                "text": "This block lights up pixels on the lightboard"
+                "text": "Let's display the time"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#turn_on"
+                    "category": "lightboard_text"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "lightboard_text"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "You can use this block to write with lights. Grab it!"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "lightboard#light_scroll_text"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#turn_on",
+                        "type": "lightboard#light_scroll_text",
                         "id": "block_1"
                     }
                 }
@@ -112,13 +173,13 @@
         },
         {
             "banner": {
-                "text": "Connect it to this block so it repeats every second"
+      					"text": "Connect it in your microphone trigger"
             },
             "beacon": {
                 "target": {
                     "block": {
                         "id": "block_0",
-                        "rawId": "pN//yl~e%?Jm-*e82[R("
+                        "rawId": "?s+UT_qERqihy`O.B+ir"
                     }
                 }
             },
@@ -127,7 +188,7 @@
                     "connect": {
                         "parent": {
                             "id": "block_0",
-                            "rawId": "pN//yl~e%?Jm-*e82[R(",
+                            "rawId": "?s+UT_qERqihy`O.B+ir",
                             "inputName": "DO"
                         },
                         "target": "block_1"
@@ -138,7 +199,7 @@
                 "location": {
                     "block": {
                         "id": "block_0",
-                        "rawId": "pN//yl~e%?Jm-*e82[R("
+                        "rawId": "?s+UT_qERqihy`O.B+ir"
                     }
                 },
                 "target": "DO"
@@ -146,32 +207,69 @@
         },
         {
             "banner": {
-                "text": "Let's turn on a specific pixel, open the lightboard tray"
+                "text": "Next we need to add the clock data part<br>Click here to see all the parts."
             },
             "beacon": {
-                "target": {
-                    "category": "lightboard"
-                }
+                "target": "add-part-button"
             },
             "validation": {
-                "blockly": {
-                    "open-flyout": "lightboard"
+                "open-parts": true
+            }
+        },
+        {
+            "tooltips": [
+                {
+                    "location": "parts-panel",
+                    "position": "top",
+                    "text": "Click on <b>Clock</b> to add it to your app"
+                }
+            ],
+            "beacon": {
+                "target": "parts-panel-clock"
+            },
+            "validation": {
+                "add-part": {
+                    "type": "clock",
+                    "id": "part_1"
                 }
             }
         },
         {
             "banner": {
-                "text": "Drag the block onto your code space"
+                "text": "Open the Clock tray"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#light_x_y"
+                    "category": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_1"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block let's us use the time from the clock part"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_1",
+                        "type": "get_formatted_time"
+                    }
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#light_x_y",
+                        "target": "part_1",
+                        "type": "get_formatted_time",
                         "id": "block_2"
                     }
                 }
@@ -179,13 +277,13 @@
         },
         {
             "banner": {
-                "text": "Connect it to this block"
+      					"text": "Connect it to the scroll text input"
             },
             "beacon": {
                 "target": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "}:N^fbDBY(C7Fvrq|^GN"
+                        "rawId": "|}bOa7x`90j-^y]K=iuq"
                     }
                 }
             },
@@ -194,8 +292,8 @@
                     "connect": {
                         "parent": {
                             "id": "block_1",
-                            "rawId": "}:N^fbDBY(C7Fvrq|^GN",
-                            "inputName": "TARGET"
+                            "rawId": "|}bOa7x`90j-^y]K=iuq",
+                            "inputName": "TEXT"
                         },
                         "target": "block_2"
                     }
@@ -205,20 +303,19 @@
                 "location": {
                     "block": {
                         "id": "block_1",
-                        "rawId": "}:N^fbDBY(C7Fvrq|^GN"
+                        "rawId": "|}bOa7x`90j-^y]K=iuq"
                     }
                 },
-                "target": "TARGET"
+                "target": "TEXT"
             }
         },
         {
             "banner": {
-                "text": "This chooses the horizontal position of the pixel, Change it from <kano-value-preview><span>1</span></kano-value-preview> to <kano-value-preview><span>8</span></kano-value-preview>"
+                "text": "Change <kano-value-preview><span>date</span></kano-value-preview> to <kano-value-preview><span>time</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "shadow": "X",
                         "id": "block_2"
                     }
                 }
@@ -227,23 +324,22 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "shadow": "X",
                             "id": "block_2"
                         },
-                        "value": "8"
+                        "value": "time"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Notice how the pixel moved. Now for the vertical position, change this from <kano-value-preview><span>1</span></kano-value-preview> to <kano-value-preview><span>5</span></kano-value-preview>"
+                "text": "Change 'speed' to <kano-value-preview><span>90</span></kano-value-preview>"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "shadow": "Y",
-                        "id": "block_2"
+                        "shadow": "SPEED",
+                        "id": "block_1"
                     }
                 }
             },
@@ -251,84 +347,17 @@
                 "blockly": {
                     "value": {
                         "target": {
-                            "shadow": "Y",
-                            "id": "block_2"
+                            "shadow": "SPEED",
+                            "id": "block_1"
                         },
-                        "value": "5"
+                        "value": "90"
                     }
                 }
             }
         },
         {
             "banner": {
-                "text": "Ok now we've turned on a light let's make it colorful, open the Color tray"
-            },
-            "beacon": {
-                "target": {
-                    "category": "color"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "open-flyout": "color"
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "This block chooses a random color every time"
-            },
-            "beacon": {
-                "target": {
-                    "flyout_block": "random_colour"
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "create": {
-                        "type": "random_colour",
-                        "id": "block_3"
-                    }
-                }
-            }
-        },
-        {
-            "banner": {
-                "text": "Connect it to this block"
-            },
-            "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_1",
-                        "rawId": "}:N^fbDBY(C7Fvrq|^GN"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "connect": {
-                        "parent": {
-                            "id": "block_1",
-                            "rawId": "}:N^fbDBY(C7Fvrq|^GN",
-                            "inputName": "COLOR"
-                        },
-                        "target": "block_3"
-                    }
-                }
-            },
-            "phantom_block": {
-                "location": {
-                    "block": {
-                        "id": "block_1",
-                        "rawId": "}:N^fbDBY(C7Fvrq|^GN"
-                    }
-                },
-                "target": "COLOR"
-            }
-        },
-        {
-            "banner": {
-                "text": "Wow! A flashing pixel. Ok it doesn't look like much now but soon it will be awesome, try the next challenge",
+      					"text": "Clap your hands to see the time!<br />Can you figure out how to speed it up?",
                 "next_button": true
             },
             "beacon": {
@@ -337,22 +366,21 @@
             }
         }
     ],
-    "parts": [],
-    "modules": [
-        "control",
-        "color"
+    "parts": [
+        "microphone",
+        "clock"
     ],
+    "modules": [],
     "variables": [],
     "filterBlocks": {
-        "control": [
-            "every_x_seconds"
+        "mic": [
+            "threshold"
         ],
         "lightboard": [
-            "turn_on",
-            "light_x_y"
+            "light_scroll_text"
         ],
-        "color": [
-            "random_colour"
+        "clock": [
+            "get_formatted_time"
         ]
     },
     "mode": "lightboard"
