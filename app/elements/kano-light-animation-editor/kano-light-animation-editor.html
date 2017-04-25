@@ -329,6 +329,11 @@
             },
             detached () {
                 document.removeEventListener('keydown', this._onKeydown);
+                this._stopPreview();
+            },
+            stop () {
+                console.log('stop');
+                this._stopPreview();
             },
             _onSelectedChanged (e) {
                 this.selectedIndex = this.selectedIndex || 0;
@@ -349,6 +354,10 @@
                 } else {
                     clearTimeout(this.timeoutId);
                 }
+            },
+            _stopPreview () {
+                this.set('previewState', 'stopped');
+                clearTimeout(this.timeoutId);
             },
             _updatePreview () {
                 let bitmaps = this.selected.userProperties.bitmaps;
