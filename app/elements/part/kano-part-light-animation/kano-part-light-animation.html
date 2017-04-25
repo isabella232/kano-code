@@ -36,17 +36,16 @@
                 }
             },
             _onBitmapsChanged (e) {
-                //Lock observer as it's resetting the observed property
+                //Lock observer while resetting the observed property
                 if (this.lock) {
                     return;
                 }
                 this.lock = true;
-                this.async(() => this.lock = false);
     
                 if (e.path.search(/splices/) !== -1) {
                     this._setBitmap();
                 }
-                
+                this.async(() => this.lock = false);
             },
             _setBitmap () {
                 this.set('storedBitmaps', this.storeBitmaps());
