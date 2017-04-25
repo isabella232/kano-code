@@ -410,13 +410,7 @@
 
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
             this.hardwareAPI.on('new-part-request', (e) => {
-                for (let i = 0; i < Kano.MakeApps.Parts.list.length; i++) {
-                    model = Kano.MakeApps.Parts.list[i];
-                    if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
-                        this.fire('add-part', model.type, { node: this.editor });
-                        break;
-                    }
-                }
+                this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
             });
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
