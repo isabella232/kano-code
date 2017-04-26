@@ -9,7 +9,7 @@
 <link rel="import" href="../../scripts/kano/make-apps/stories.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
-<link rel="import" href="../../elements/behaviors/kano-tracking-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-code-ga-tracking-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
 <link rel="import" href="../../elements/kano-challenge-completed-modal/kano-challenge-completed-modal.html">
@@ -77,7 +77,7 @@
         behaviors: [
             Kano.Behaviors.ViewBehavior,
             Kano.Behaviors.SharingBehavior,
-            Kano.Behaviors.TrackingBehavior,
+            Kano.Behaviors.Tracking.GABehavior,
             Kano.Behaviors.SoundPlayerBehavior
         ],
         properties: {
@@ -121,6 +121,17 @@
                 })
                 .then((story) => {
                     this.story = story;
+                    let trackingData = {
+                        id: story.id,
+                        name: story.name
+                    };
+                    if (story.progress && story.progress.group) {
+                        trackingData.group = story.progress.group;
+                    }
+                    this.fire('track-challenge-event', {
+                        type: 'attempt',
+                        data: trackingData
+                    });
                     if (story.progress) {
                         return Kano.MakeApps.Progress.loadProgress(story.progress.group);
                     }
@@ -165,7 +176,18 @@
                 //FIXME for demo we turn the gamification enabled always true on this branch
                 gamificationEnabled = true || flags.experiments.indexOf('gamification_modal') !== -1,
                 payload,
-                fakeGamificationData;
+                fakeGamificationData,
+                trackingData = {
+                    id: this.story.id,
+                    name: this.story.name
+                };
+            if (this.story.progress && this.story.progress.group) {
+                trackingData.group = this.story.progress.group;
+            }
+            this.fire('track-challenge-event', {
+                type: 'complete',
+                data: trackingData
+            });
             if (Kano.MakeApps.sdk.auth.getToken()) {
                 headers.append('Content-Type', 'application/json');
                 headers.append('Authorization', Kano.MakeApps.sdk.auth.getToken());
@@ -182,6 +204,7 @@
                 }).then(r => r.json())
                 .then(res => {
                     if (gamificationEnabled) {
+                        this._trackRewards(res.update);
                         this.$['reward-modal'].open(res, this.user);
                     } else {
                         this.$['challenge-completed'].open();
@@ -224,6 +247,33 @@
                     this.$['challenge-completed'].open();
                 }
                 this.playSound('/assets/audio/samples/challenge_complete.wav');
+            }
+        },
+        _trackRewards (update) {
+            let levelChanges = update.levels && update.levels.changes,
+                badgeChanges = update['badges-basic'] && update['badges-basic'].changes,
+                xpChanges = levelChanges && levelChanges['total-xp'];
+            if (xpChanges) {
+                this.fire('tracking-event', {
+                    name: 'xp_earned',
+                    data: {
+                        previous_level: xpChanges.oldValue,
+                        new_level: xpChanges.newValue,
+                        xp_earned: xpChanges.newValue - xpChanges.oldValue,
+                        leveled_up: !!levelChanges.level
+                    }
+                });
+            }
+            if (badgeChanges) {
+                badgeChanges.new.forEach(badge => {
+                    this.fire('tracking-event', {
+                        name: 'badge_unlocked',
+                        data: {
+                            badge_id: badge.id,
+                            badge_name: badge.title
+                        }
+                    });
+                });
             }
         },
         selectedChanged () {

@@ -15,6 +15,7 @@ let gulp = require('gulp'),
     runSequence = require('run-sequence'),
     env = process.env.NODE_ENV || 'development',
     target = process.env.TARGET || 'web',
+    version = require('./package.json').version,
     utils;
 
 const DEFAULT_META_DATA = [
@@ -66,6 +67,7 @@ utils = {
         code += 'window.Kano.MakeApps.config = {};';
         code += `window.Kano.MakeApps.config.ENV = '${env}';`;
         code += `window.Kano.MakeApps.config.TARGET = '${target}';`;
+        code += `window.Kano.MakeApps.config.VERSION = '${version}';`;
         code += 'window.AudioContext = window.AudioContext || window.webkitAudioContext;';
 
         return code;

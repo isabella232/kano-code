@@ -12,6 +12,9 @@ window.Kano.Behaviors = window.Kano.Behaviors || {};
 var SharingBehavior = {
 
     properties: {
+        remixedShare: {
+            type: Object
+        },
         shareInfo: {
             type: Object,
             value: function () {
@@ -36,13 +39,15 @@ var SharingBehavior = {
     },
     _onCoverGenerated () {
         if (this.shareInfo.autoshare) {
-            this._shareApp();
+            this._shareApp({
+                share: true
+            });
             this._goToPage('publishing');
         } else {
             this._goToPage('sharing-form');
         }
     },
-    _shareApp () {
+    _shareApp (options) {
         // Generates the standalone component
         let savedApp,
         attachment,
@@ -50,7 +55,12 @@ var SharingBehavior = {
         cover = this.shareInfo.coverBlob,
         spritesheet = this.shareInfo.spriteSheetBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
-        files;
+        files,
+        trackingData = {};
+
+        if (this.remixedShare) {
+            trackingData.remixed_from_project_id = this.remixedShare.id;
+        }
 
         if (this.shareInfo.mode.sharing.cover === 'still') {
             cover.filename = 'cover.png';
@@ -67,6 +77,8 @@ var SharingBehavior = {
         if (this.shareInfo.mode.id === 'lightboard') {
             appName = 'lightboard';
         }
+
+        trackingData.project_type = appName;
 
         files = {
             cover: cover,
@@ -102,6 +114,7 @@ var SharingBehavior = {
                 // Attach the file to the share
                 return Kano.MakeApps.sdk.api.share.attach({ id: share.id, files: { attachment } }).then((res) => {
                     if (res.status == 200) {
+                        trackingData.project_id = share.id;
                         return res.body.item;
                     } else {
                         throw new Error('Could not share the app');
@@ -113,6 +126,12 @@ var SharingBehavior = {
         }).then((share) => {
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
+            if (options && options.share) {
+                this.fire('tracking-event', {
+                    name: 'shared_project',
+                    data: trackingData
+                });
+            }
             if (!this.shareInfo.is_private) {
                 this._goToPage('success');
             }
@@ -197,14 +216,14 @@ var SharingBehavior = {
         }
     },
 
-    confirmShare () {
+    confirmShare (e) {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
             this.waitingAuth = true;
             return this.fire('login');
         }
-        this._shareApp();
+        this._shareApp(e.detail);
 
         if (!this.shareInfo.is_private) {
             this._goToPage('publishing');

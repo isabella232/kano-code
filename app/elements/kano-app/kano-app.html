@@ -14,7 +14,8 @@
 <link rel="import" href="../kano-ui-item/kano-ui-item.html">
 <link rel="import" href="../behaviors/kano-modal-animator-behavior.html">
 <link rel="import" href="../behaviors/kano-view-behavior.html">
-<link rel="import" href="../behaviors/kano-tracking-behavior.html">
+<link rel="import" href="../behaviors/kano-code-ga-tracking-behavior.html">
+<link rel="import" href="../behaviors/kano-code-tracking-behavior.html">
 <link rel="import" href="../kano-slider/kano-slider.html">
 <link rel="import" href="../kano-try-chrome/kano-try-chrome.html">
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
@@ -104,7 +105,8 @@ Example:
     Polymer({
         is: 'kano-app',
         behaviors: [
-            Kano.Behaviors.TrackingBehavior
+            Kano.Behaviors.Tracking.GABehavior,
+            Kano.Behaviors.Tracking.KanoCodeBehavior
         ],
         properties: {
             user: {
@@ -130,8 +132,8 @@ Example:
             signup: '_signup',
             'kano-error': '_showErrorOnToast',
             'view-loaded': '_viewLoaded',
-            'track-event': '_trackEvent',
-            'track-page': '_trackPage'
+            'ga-tracking-event': '_trackGAEvent',
+            'ga-page-tracking-event': '_trackGAPage'
         },
         _routeChanged (route) {
             // User not authenticated not actions to be done
@@ -226,6 +228,9 @@ Example:
             this.$.auth.reset();
             Kano.MakeApps.Progress.reset();
             clearInterval(this._pollingIntervalId);
+            this.fire('tracking-event', {
+                name: 'logged_out'
+            });
         },
         _login (e) {
             if (e && e.detail) {
@@ -265,6 +270,9 @@ Example:
                 this._startNotificationsPolling();
             }
             this.authenticated = true;
+            this.fire('tracking-event', {
+                name: 'logged_in'
+            });
         },
         _populateUser () {
             this._updateProfile();
@@ -303,10 +311,10 @@ Example:
         _viewLoaded () {
             window.prerenderReady = true;
         },
-        _trackEvent (e, payload) {
+        _trackGAEvent (e, payload) {
             this.dispatchTrackingEvent(payload);
         },
-        _trackPage (e, payload) {
+        _trackGAPage (e, payload) {
             this.dispatchVirtualPageView(payload.title, payload.path);
         }
     });
