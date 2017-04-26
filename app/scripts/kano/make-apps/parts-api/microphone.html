@@ -10,21 +10,21 @@
 
         Microphone = {
             start () {
-                this.volume = Kano.AppModules.getModule('mic').volume;
+                this.volume = this.appModules.getModule('mic').volume;
             },
             stop () {
-                Kano.AppModules.getModule('mic').removeListener('microphone:threshold');
+                this.appModules.getModule('mic').removeListener('microphone:threshold');
             },
             onVolumeThreshold (value, over, callback) {
-                Kano.AppModules.getModule('mic').on(`microphone:threshold:${value}`, function (e) {
+                this.appModules.getModule('mic').on(`microphone:threshold:${value}`, function (e) {
                     callback();
                 });
             },
             getvolume () {
-                return Kano.AppModules.getModule('mic').getVolume();
+                return this.appModules.getModule('mic').getVolume();
             },
             getpitch () {
-                return Kano.AppModules.getModule('mic').getPitch();
+                return this.appModules.getModule('mic').getPitch();
             }
         };
 

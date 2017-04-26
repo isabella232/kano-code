@@ -20,12 +20,12 @@
                     this.movement = e.movement;
                 };
 
-                Kano.AppModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
+                this.appModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
             },
             stop () {
                 Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
 
-                Kano.AppModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
+                this.appModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
                 this.movement = false;
             }
         };
