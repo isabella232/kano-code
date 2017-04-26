@@ -23,6 +23,9 @@
                     };
                 }
                 this.isRunning = true;
+                // In old apps, we refered to Kano.AppModules directly. Now we set a standalone appModules.
+                // Keep this to ensure old apps and not yet updated clients still work
+                this.appModules = this.appModules || Kano.AppModules;
             },
             when (name, callback) {
                 this.userListeners = this.userListeners || {};
