@@ -136,7 +136,10 @@
                     /* TODO disconnect slave sensor devices too */
 
                     this.socket.on('device-update', getDeviceUpdateHandler(this, hwapi));
-                    this.emit('request-device-update');
+
+                    setTimeout(() => {
+                        this.socket.emit('request-device-update');
+                    }, 0);
                 }
             }
 
