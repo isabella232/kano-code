@@ -61,7 +61,7 @@
             },
                 headers = new Headers();
 
-            fetch('/scripts/kano-code-lib.js.js')
+            fetch('app/scripts/kano-code-lib.js')
                 .then(r => {
                     if (!r.ok) {
                         return Promise.reject();
@@ -69,7 +69,7 @@
                     return r.text();
                 })
                 .then(code => {
-                    program.partsAPI = code;
+                    program.kanoCodeLib = code;
                     headers.set('Content-Type', 'application/json');
                     // Send the program to the kit
                     return fetch(`http://localhost:3000/program/${p}`, {
@@ -88,7 +88,6 @@
             Object.keys(Blockly.Blocks).forEach(type => {
                 let block = Blockly.getDataBlock(type),
                     inputs = [];
-                console.log(type);
                 block.inputList.forEach(input => {
                     if (input.name) {
                         inputs.push(input.name);
