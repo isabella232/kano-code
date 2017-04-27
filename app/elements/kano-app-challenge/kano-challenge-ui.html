@@ -434,7 +434,7 @@ Example:
             this.toggleClass('animate', false, this.$.beacon);
             this.toggleClass('animate', false, this.$.ring);
 
-            if (!step.beacon) {
+            if (!step || !step.beacon || (!this.state.hints.enabled && !step.injected)) {
                 return;
             }
 
@@ -443,7 +443,7 @@ Example:
             }, 300);
         },
         _scrollWorkspaceOnTargetIfNeeded (target, location) {
-            if (location.block) {
+            if (location && location.block) {
                 let workspace = this.editor.getBlocklyWorkspace(),
                     workspaceRect = workspace.svgBackground_.getBoundingClientRect(),
                     viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
