@@ -1,8 +1,11 @@
 'use strict';
 
-const shards = require('./shards');
+const shards = require('./shards'),
+      partsApi = require('./parts-api');
 
 module.exports = (gulp, $) => {
+
+    partsApi(gulp, $);
 
     gulp.task('treemap', () => {
         return shards.generateTreeMap({
@@ -94,7 +97,7 @@ module.exports = (gulp, $) => {
             'copy-all',
             'shards',
             'split',
-            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n'],
+            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n', 'parts-api'],
             'compress',
             'sw',
             'external-play-bundle', done);
