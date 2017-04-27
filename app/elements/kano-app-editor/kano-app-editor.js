@@ -177,6 +177,8 @@ Polymer({
         if (target === this.$['edit-part-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
             this.editableLayout = false;
+            // Stop eventual actions the part editor might be doing
+            this.$['edit-part-dialog-content'].stop();
         }
     },
     _isPauseOverlayHidden (running, editableLayout) {

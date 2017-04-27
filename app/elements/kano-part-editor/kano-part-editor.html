@@ -203,9 +203,7 @@
             // Listen to scroll events on the part-editor to append the top/bottom divider
             this.scrollTarget.addEventListener('scroll', this._onScroll.bind(this));
 
-            while (container.firstChild) {
-                container.removeChild(container.firstChild);
-            }
+            this._cleanContainer();
 
             container.appendChild(this.instance.root);
 
@@ -237,6 +235,15 @@
                 this.blur();
                 return false;
             }
+        },
+        _cleanContainer () {
+            let container = Polymer.dom(this.$['config-panel-container']);
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+        },
+        stop () {
+            this._cleanContainer();
         }
     });
 </script>
