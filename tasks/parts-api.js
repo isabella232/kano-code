@@ -12,7 +12,7 @@ module.exports = (gulp, $) => {
             .pipe($.vulcanize())
             .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
             .pipe($.if('*.js', $.transpile()))
-            .pipe(rename('app/scripts/kano-code-lib.js'))
+            .pipe(rename('scripts/kano-code-lib.js'))
             .pipe($.if('*.js', gulp.dest('www')));
         return stream;
     });
