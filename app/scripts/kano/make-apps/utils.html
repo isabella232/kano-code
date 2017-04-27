@@ -48,7 +48,7 @@
                     }
                     return r.text();
                 }).catch(e => {
-                    
+
                 });
         }
 
@@ -59,29 +59,17 @@
                 code: app.code.snapshot.javascript,
                 mode: app.mode
             },
-                headers = new Headers(),
-                getPartsAPICode = fetch('/scripts/kano/make-apps/parts-api/parts-api.js')
-                    .then(r => {
-                        if (!r.ok) {
-                            return Promise.reject();
-                        }
-                        return r.text();
-                    }),
+                headers = new Headers();
 
-                getAppModulesCode = fetch('/scripts/kano/app-modules/index.js')
-                    .then(r => {
-                        if (!r.ok) {
-                            return Promise.reject();
-                        }
-                        return r.text();
-                    }),
-
-                promises = [getPartsAPICode, getAppModulesCode];
-
-            // Get the parts API code bundle that contains the whole parts definition
-            Promise.all(promises).then(codes => {
-                    program.partsAPI = codes[0];
-                    program.appModules = codes[1];
+            fetch('/scripts/kano-code-lib.js.js')
+                .then(r => {
+                    if (!r.ok) {
+                        return Promise.reject();
+                    }
+                    return r.text();
+                })
+                .then(code => {
+                    program.partsAPI = code;
                     headers.set('Content-Type', 'application/json');
                     // Send the program to the kit
                     return fetch(`http://localhost:3000/program/${p}`, {
@@ -103,11 +91,11 @@
                 console.log(type);
                 block.inputList.forEach(input => {
                     if (input.name) {
-                    inputs.push(input.name);   
+                        inputs.push(input.name);
                     }
                     input.fieldRow.forEach(field => {
                         if (field.name) {
-                            inputs.push(field.name);   
+                            inputs.push(field.name);
                         }
                     });
                 });
