@@ -56,7 +56,8 @@ var SharingBehavior = {
         spritesheet = this.shareInfo.spriteSheetBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
         files,
-        trackingData = {};
+        trackingData = {},
+        hardware = [];
 
         if (this.remixedShare) {
             trackingData.remixed_from_project_id = this.remixedShare.id;
@@ -80,6 +81,16 @@ var SharingBehavior = {
 
         trackingData.project_type = appName;
 
+        if (this.shareInfo.mode.id === 'lightboard') {
+            hardware.push({product: 'lightboard'});
+        }
+
+        this.shareInfo.parts.forEach((part) => {
+            if (part.type === 'gyro-accelerometer') {
+                hardware.push({product: 'gyro-accelerometer'});
+            }
+        });
+
         files = {
             cover: cover,
             workspace_info: workspaceInfo
@@ -96,7 +107,8 @@ var SharingBehavior = {
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: files,
-            is_private: this.shareInfo.is_private || false
+            is_private: this.shareInfo.is_private || false,
+            hardware: hardware
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
