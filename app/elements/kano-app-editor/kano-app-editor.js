@@ -147,6 +147,16 @@ Polymer({
             }
         });
     },
+    _newPartRequest (e) {
+        let model;
+        for (let i = 0; i < this.parts.length; i++) {
+            model = this.parts[i];
+            if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
+                this._addPart({ detail: model.type });
+                break;
+            }
+        }
+    },
     _addPart (e) {
         let viewport = this.$.workspace.getViewport(),
             viewportRect = viewport.getBoundingClientRect(),

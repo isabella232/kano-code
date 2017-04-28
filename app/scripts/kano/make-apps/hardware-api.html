@@ -249,6 +249,8 @@
             constructor (config) {
                 super();
 
+                this._debouncers = {};
+
                 if (config) {
                     this.config(config);
                 }
@@ -325,7 +327,7 @@
             }
 
             reassignDevices () {
-                setTimeout(() => {
+                this.debounce('reassign-devices', () => {
                     this._cleanupDeviceMap();
 
                     this._doGetAllDevices(this.devices).forEach((dev) => {
@@ -348,7 +350,14 @@
                             }
                         }
                     });
-                }, 0);
+                }, 100);
+            }
+
+            debounce (id, cb, delay) {
+                if (this._debouncers[id]) {
+                    clearTimeout(this._debouncers[id]);
+                }
+                this._debouncers[id] = setTimeout(cb, delay);
             }
 
             getPartForDevice (deviceId) {

@@ -97,6 +97,9 @@
         },
         ready () {
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+            this.hardwareAPI.on('new-part-request', (e) => {
+                this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
+            });
 
             this.modal = this.$['share-modal'];
 
