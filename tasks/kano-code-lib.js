@@ -7,7 +7,7 @@ module.exports = (gulp, $) => {
     /**
      * No need to babelify here, this code will be sent to a node environment
      */
-    gulp.task('parts-api', () => {
+    gulp.task('kano-code-lib', () => {
         let stream = gulp.src('app/scripts/kano/make-apps/parts-api/index.html', { base: 'app' })
             .pipe($.vulcanize())
             .pipe($.if('*.html', $.crisper({ scriptInHead: false })))

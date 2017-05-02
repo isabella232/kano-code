@@ -163,7 +163,7 @@ gulp.task('validate-challenges', () => {
 
 require('./tasks/service-worker')(gulp, $);
 require('./tasks/workers')(gulp, $);
-require('./tasks/parts-api')(gulp, $);
+require('./tasks/kano-code-lib')(gulp, $);
 require('./tasks/build')(gulp, $);
 require('./tasks/test')(gulp, $);
 require('./tasks/doc')(gulp, $);

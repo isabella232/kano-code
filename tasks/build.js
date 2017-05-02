@@ -1,11 +1,11 @@
 'use strict';
 
 const shards = require('./shards'),
-      partsApi = require('./parts-api');
+      kanoCodeLib = require('./kano-code-lib');
 
 module.exports = (gulp, $) => {
 
-    partsApi(gulp, $);
+    kanoCodeLib(gulp, $);
 
     gulp.task('treemap', () => {
         return shards.generateTreeMap({
@@ -97,7 +97,7 @@ module.exports = (gulp, $) => {
             'copy-all',
             'shards',
             'split',
-            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n', 'parts-api'],
+            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n', 'kano-code-lib'],
             'compress',
             'sw',
             'external-play-bundle', done);
@@ -136,7 +136,7 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('compress', () => {
-        return gulp.src(['www/**/*.{js,html}', '!www/scripts/kano/make-apps/parts-api/parts-api.js'])
+        return gulp.src(['www/**/*.{js,html}', '!www/scripts/kano/scripts/kano-code-lib.js'])
             .pipe($.if('*.html', $.htmlmin({
                 collapseWhitespace: true,
                 minifyCSS: true,
