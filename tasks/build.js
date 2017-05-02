@@ -104,13 +104,13 @@ module.exports = (gulp, $) => {
     });
 
     gulp.task('copy-index', () => {
-        return gulp.src(['app/index.html',
-                        'app/scripts/index.js',
-                        'app/scripts/splash.js',
-                        'app/assets/vendor/cache-polyfill/cache-polyfill.js',
-                        'app/assets/vendor/object-assign/object-assign.js',
-                        'app/bower_components/webcomponentsjs/webcomponents-lite.min.js'
-                        ], { base: 'app' })
+        return gulp.src(['.tmp/app/index.html',
+                        '.tmp/app/scripts/index.js',
+                        '.tmp/app/scripts/splash.js',
+                        '.tmp/app/assets/vendor/cache-polyfill/cache-polyfill.js',
+                        '.tmp/app/assets/vendor/object-assign/object-assign.js',
+                        '.tmp/app/bower_components/webcomponentsjs/webcomponents-lite.min.js'
+                        ], { base: '.tmp/app' })
             .pipe($.if('index.html', $.htmlReplace($.utils.getHtmlReplaceOptions())))
             .pipe($.if('index.html', $.inlineSource()))
             .pipe($.if('index.html', $.utils.htmlAutoprefixerStream()))
