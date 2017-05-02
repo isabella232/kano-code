@@ -332,7 +332,6 @@
                 this._stopPreview();
             },
             stop () {
-                console.log('stop');
                 this._stopPreview();
             },
             _onSelectedChanged (e) {
@@ -371,11 +370,11 @@
                 this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
             },
             _selectNextFrame () {
-                this.selectedIndex++;
+                this.selectedIndex = Math.min(this.selected.userProperties.bitmaps.length - 1, this.selectedIndex + 1);
                 this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
             },
             _selectPreviousFrame () {
-                this.selectedIndex--;
+                this.selectedIndex = Math.max(0, this.selectedIndex - 1);
                 this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
             },
             _addFrame () {
