@@ -62,15 +62,23 @@
 
             _create (type, one, two, three) {
                 if (type === 'rgb') {
-                    let red = Math.round(one * 2.55),
-                        green = Math.round(two * 2.55),
-                        blue = Math.round(three * 2.55);
+                    let red, green, blue;
+                    one = Math.min(100, one);
+                    two = Math.min(100, two);
+                    three = Math.min(100, three);
+                    red = Math.round(one * 2.55);
+                    green = Math.round(two * 2.55);
+                    blue = Math.round(three * 2.55);
                     return this.RGBtoHEX(red, green, blue);
                 } else if (type === 'hsv') {
-                    let hue = one / 100,
-                        saturation = two / 100,
-                        value = three / 100,
-                        rgb = this.HSVtoRGB(hue, saturation, value);
+                    let hue, saturation, value, rgb;
+                    one = one % 100;
+                    two = Math.min(100, two);
+                    three = Math.min(100, three);
+                    hue = one / 100;
+                    saturation = two / 100;
+                    value = three / 100;
+                    rgb = this.HSVtoRGB(hue, saturation, value);
                     return this.RGBtoHEX(rgb.r, rgb.g, rgb.b);
                 }
             }

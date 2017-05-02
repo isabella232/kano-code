@@ -197,17 +197,19 @@
 
     Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Back to Projects";
 
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Recording your gif";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin recording your gif";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start recording your animated gif";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Generating Animation";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin generating the animation";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start generating your animated gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_MAKE_ANOTHER = "Make another gif";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_ON_WORLD = "Share on Kano World";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_ON_WORLD = "Kano Share";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_COPY = "copy";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_GET_SHARE_LINK = "Get share link";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BRING_TO_LIFE = "Bring your own creation to life";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BUILD_YOUR_OWN = "build your own";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING = "Publishing";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_APP_IS_LIVE = "Your app is live! Share it with your friends.";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHED = "Published";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_APP_IS_LIVE = "Your app is now live!";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_WITH_FRIENDS = "Share it with your friends.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_OPEN_APP = "Open app";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_NEXT_CHALLENGE = "Next Challenge";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING_FAILED = "Publishing failed";

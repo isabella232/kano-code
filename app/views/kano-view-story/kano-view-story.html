@@ -29,16 +29,12 @@
         }
         paper-dialog {
             border-radius: 5px;
+            overflow: hidden;
+            background: transparent;
         }
-        @media screen and (max-width: 1200px) {
-            #share-modal {
-                max-width: 900px;
-            }
-        }
-        @media screen and (max-width: 960px) {
-            #share-modal {
-                max-width: 330px;
-            }
+        paper-dialog#share-modal kano-share-modal {
+            padding: 0px;
+            margin: 0px;
         }
     </style>
     <template>
@@ -201,19 +197,19 @@
                     }
                 };
                 fetch(`${Kano.MakeApps.config.API_URL}/progress`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload)
-                }).then(r => r.json())
-                .then(res => {
-                    if (gamificationEnabled) {
-                        this._trackRewards(res.update);
-                        this.$['reward-modal'].open(res, this.user);
-                    } else {
-                        this.$['challenge-completed'].open();
-                    }
-                    this.playSound('/assets/audio/samples/challenge_complete.wav');
-                })
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json())
+                    .then(res => {
+                        if (gamificationEnabled) {
+                            this._trackRewards(res.update);
+                            this.$['reward-modal'].open(res, this.user);
+                        } else {
+                            this.$['challenge-completed'].open();
+                        }
+                        this.playSound('/assets/audio/samples/challenge_complete.wav');
+                    });
             } else {
                 //send fake progress data if there's no registered user
                 //TODO -- change this when specs are ready
