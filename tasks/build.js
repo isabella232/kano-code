@@ -105,8 +105,10 @@ module.exports = (gulp, $) => {
 
     gulp.task('copy-index', () => {
         return gulp.src(['.tmp/app/index.html',
+                        '.tmp/app/index.js',
                         '.tmp/app/scripts/index.js',
                         '.tmp/app/scripts/splash.js',
+                        '.tmp/app/style/main.css',
                         '.tmp/app/assets/vendor/cache-polyfill/cache-polyfill.js',
                         '.tmp/app/assets/vendor/object-assign/object-assign.js',
                         '.tmp/app/bower_components/webcomponentsjs/webcomponents-lite.min.js'
@@ -119,7 +121,8 @@ module.exports = (gulp, $) => {
 
     gulp.task('blockly-media', () => {
         return gulp.src([
-            'app/assets/vendor/google-blockly/media/**/*'
+            'app/assets/vendor/google-blockly/media/**/*',
+            'app/assets/vendor/google-blockly/msg/**/*'
         ], { base: 'app' })
             .pipe(gulp.dest('www'));
     });
