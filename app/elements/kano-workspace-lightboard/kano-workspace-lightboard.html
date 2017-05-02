@@ -309,10 +309,12 @@
                         return;
                     }
                     this.joystickPressed = target;
+                    this.firingEvents[target] = setInterval(() => this.fire(target), 100);
+                } else {
+                    this.fire(target);
                 }
                 this.isMouseUsed = true;
                 this.$[target].classList.add('pressed');
-                this.firingEvents[target] = setInterval(() => this.fire(target), 100);
             },
             _mouseUp (e) {
                 if (e.type === 'touchend') {
@@ -387,8 +389,10 @@
                 this.$[target].classList.add('pressed');
                 if (this._isJoystick(target)) {
                     this.$.joystick.classList.add('pressed');
+                    this.firingEvents[target] = setInterval(() => this.fire(target), 100);
+                } else {
+                    this.fire(target);
                 }
-                this.firingEvents[target] = setInterval(() => this.fire(target), 100);
             },
             _isJoystick (target) {
                 return target.search(/js/) !== -1;
