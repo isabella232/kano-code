@@ -48,12 +48,12 @@
                 width: 100%;
                 height: calc(100% - 400px);
                 z-index: 101;
+                padding: 0;
             }
             :host #content {
                 position: relative;
                 width: auto;
-                height: 322px;
-                min-height: 322px;
+                padding: 8px 0;
                 transition: background linear 150ms;
             }
             :host.running #content {
@@ -83,12 +83,12 @@
                 animation: fade-in 200ms linear;
             }
             kano-workspace-toolbar {
-                padding: 24px 8px;
+                padding: 32px 8px;
             }
             .controls {
                 @apply --layout-vertical;
                 @apply --layout-justified;
-                @apply --layout-flex;
+                @apply --layout-flex-auto;
                 padding: 0px 6px;
                 box-sizing: border-box;
             }
@@ -314,6 +314,11 @@
                         return [];
                     },
                     notify: true
+                },
+                expansion: {
+                    type: Number,
+                    value: 0,
+                    observer: '_expansionChanged'
                 }
             },
             observers: [
@@ -366,6 +371,9 @@
                     }
                 });
                 this._partsToAnimateIn = [];
+            },
+            _expansionChanged (v) {
+                this.$.content.style['height'] = v > 0 ? `${20 + v * 6}vw` : '20vw';
             },
             ready () {
                 this._partsToAnimateIn = [];

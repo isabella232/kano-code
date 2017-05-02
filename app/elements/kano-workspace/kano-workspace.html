@@ -112,6 +112,10 @@
             simpleMode: {
                 type: Boolean,
                 computed: 'isModeSimple(mode)'
+            },
+            expansion: {
+                type: Number,
+                observer: '_expansionChanged'
             }
         },
         _instanceProps: {
@@ -168,6 +172,11 @@
         _partsMenuOpenChanged () {
             if (this.instance) {
                 this.instance.set('partsMenuOpen', this.partsMenuOpen);
+            }
+        },
+        _expansionChanged () {
+            if (this.instance) {
+                this.instance.set('expansion', this.expansion);
             }
         },
         _onAltT () {
@@ -275,13 +284,16 @@
                                                         running="[[running]]"
                                                         editable-layout="[[editableLayout]]"
                                                         parts-menu-open="[[partsMenuOpen]]"
-                                                        parts="[[parts]]"></${tagName}>`;
+                                                        parts="[[parts]]"
+                                                        expansion="[[expansion]]">
+                                                        </${tagName}>`;
 
                     this.templatize(template);
 
                     this.instance = this.stamp({
                         mode: this.mode,
-                        parts: this.parts
+                        parts: this.parts,
+                        expansion: this.expansion
                     });
 
                     newDropzone = this.instance.root;
