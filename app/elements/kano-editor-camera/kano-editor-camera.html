@@ -7,6 +7,7 @@
             width: 100%;
             height: 100%;
             border-radius: 5px;
+            padding-top: 12px;
             @apply --layout-vertical;
         }
         kano-default-workspace {
@@ -30,7 +31,8 @@
                                 running="{{running}}"
                                 editable-layout="[[editableLayout]]"
                                 parts-menu-open="[[partsMenuOpen]]"
-                                parts="[[parts]]">
+                                parts="[[parts]]"
+                                expansion="[[expansion]]">
             <kano-workspace-camera id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot></slot>
             </kano-workspace-camera>
@@ -43,6 +45,7 @@
             behaviors: [Kano.Behaviors.WorkspaceBehavior],
             properties: {
                 autoStart: Boolean,
+                expansion: Number,
                 running: {
                     type: Boolean,
                     value: false
