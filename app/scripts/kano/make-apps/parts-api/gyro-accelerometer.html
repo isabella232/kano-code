@@ -8,6 +8,7 @@
 
         GyroAccelerometer = {
             start () {
+                this.id = 'gyro-accelerometer';
                 PartsAPI.Base.start.apply(this, arguments);
                 this.gyroEventListener = (e) => {
                     this.lastGyroVector = e;
@@ -59,7 +60,6 @@
                 return this.lastAccelVector[axis];
             }
         };
-
         // @polymerBehavior
         Kano.MakeApps.PartsAPI['gyro-accelerometer'] = Object.assign({}, PartsAPI.Base, GyroAccelerometer);
     })(window.Kano = window.Kano || {});
