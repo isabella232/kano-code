@@ -23,7 +23,7 @@
                 this.addMethod('on', '_on');
                 this.addMethod('removeListener', '_removeListener');
                 this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
-                this.addMethod('connect', '_connect');
+                this.addMethod('removeShape', '_removeShape');
                 this.addMethod('getBitmap', '_getBitmap');
                 this.addMethod('clear', '_clear');
             }
@@ -146,6 +146,11 @@
             _updateOrCreateShape (id, shape, cb) {
                 this.shapes[id] = shape;
                 this.updateAndSync(shape.force, cb);
+            }
+
+            _removeShape (id, cb) {
+                delete this.shapes[id];
+                this.updateAndSync(true, cb);
             }
 
             _turnOn (light, color, cb) {

@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/light.html">
 <link rel="import" href="../behaviors/kano-workspace-behavior.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts-api/lightboard.html">
@@ -218,6 +219,7 @@
             </button>
         </div>
         <slot></slot>
+        <iron-signals on-iron-signal-remove-shape="_removeShape"></iron-signals>
     </template>
     <script>
         /* globals Polymer, Kano */
@@ -231,9 +233,6 @@
             observers: [
                 '_disableJoystickMouse(joystickQueue.length)'
             ],
-            listeners: {
-                'update-shape': '_updateShape'
-            },
             properties: {
                 pressedKeys: {
                     type: Object,
