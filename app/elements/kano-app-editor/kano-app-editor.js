@@ -87,6 +87,10 @@ Polymer({
             type: Object,
             value: null
         },
+        workspaceExpansion: {
+            type: Number,
+            value: 0
+        },
         lockdown: {
             type: Boolean,
             reflectToAttribute: true,
@@ -750,7 +754,8 @@ Polymer({
     mouseMoved (e) {
         let workspacePanel = this.$['workspace-panel'],
             container = this.$.section,
-            offsetPanel;
+            offsetPanel,
+            workspaceRelSize;
 
         if (!this.isResizing) {
             return;
@@ -759,6 +764,13 @@ Polymer({
 
         offsetPanel = container.getBoundingClientRect().right - e.clientX;
         workspacePanel.style.width = `${offsetPanel}px`;
+
+        /*
+        workspaceExpansion is the ratio by which the workspace is expanded in size
+        min 0 [min-width: 30%], max 1 [max-width: 50%]
+        */
+        workspaceRelSize = Math.max(Math.min(offsetPanel / window.innerWidth, 0.5), 0.3);
+        this.workspaceExpansion = (workspaceRelSize - 0.3) / 0.2;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
