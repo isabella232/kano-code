@@ -1,4 +1,4 @@
-<link rel="import" href="./base.html">
+<link rel="import" href="./dongle-base.html">
 <script>
     (function (Kano) {
         let GyroAccelerometer, PartsAPI;
@@ -9,49 +9,18 @@
         GyroAccelerometer = {
             start () {
                 this.id = 'gyro-accelerometer';
-                PartsAPI.Base.start.apply(this, arguments);
-                this.gyroEventListener = (e) => {
-                    this.lastGyroVector = e;
-                    this.fire('gyro-accel-update');
-                };
 
-                this.accelEventListener = (e) => {
-                    this.lastAccelVector = e;
-                };
-
-                this.mappingChangedEventListener = (e) => {
-                    if (this.isRunning) {
-                        this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
-                    } else {
-                        if (this.model.connected !== !!e.detail.newDevice) {
-                            this.set('model.connected', !!e.detail.newDevice);
-                        }
+                this.listeners = {
+                    'gyro-data': (e) => {
+                        this.lastGyroVector = e;
+                        this.fire('gyro-accel-update');
+                    },
+                    'accelerometer-data': (e) => {
+                        this.lastAccelVector = e;
                     }
                 };
 
-                this.remapListeners(null, this.appModules.getModule('gyroAccelerometer').getDeviceForPart(this.id), true);
-                this.appModules.getModule('gyroAccelerometer').on(this.id + '-mapping-changed', this.mappingChangedEventListener);
-            },
-            stop () {
-                PartsAPI.Base.stop.apply(this, arguments);
-
-                this.appModules.getModule('gyroAccelerometer').removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
-                this.remapListeners(this.appModules.getModule('gyroAccelerometer').getDeviceForPart(this.id), null);
-            },
-            remapListeners (oldDevice, newDevice, notify) {
-                if (oldDevice) {
-                    oldDevice.removeListener('gyro-data', this.gyroEventListener);
-                    oldDevice.removeListener('accelerometer-data', this.accelEventListener);
-                }
-
-                if (newDevice) {
-                    newDevice.on('gyro-data', this.gyroEventListener);
-                    newDevice.on('accelerometer-data', this.accelEventListener);
-                }
-
-                if (notify && this.model.connected !== !!newDevice) {
-                    this.set('model.connected', !!newDevice);
-                }
+                PartsAPI.DongleBase.start.apply(this, arguments);
             },
             getGyroData (axis) {
                 return this.lastGyroVector[axis];
@@ -61,6 +30,6 @@
             }
         };
         // @polymerBehavior
-        Kano.MakeApps.PartsAPI['gyro-accelerometer'] = Object.assign({}, PartsAPI.Base, GyroAccelerometer);
+        Kano.MakeApps.PartsAPI['gyro-accelerometer'] = Object.assign({}, PartsAPI.DongleBase, GyroAccelerometer);
     })(window.Kano = window.Kano || {});
 </script>
