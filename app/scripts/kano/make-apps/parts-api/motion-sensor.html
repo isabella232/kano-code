@@ -8,9 +8,10 @@
 
         MotionSensor = {
             start () {
+                this.module = 'motionSensor';
                 this.lastProximityValue = 255;
 
-                this.listeners = {
+                this.handlers = {
                     'proximity-data': (e) => {
                         this.lastProximityValue = this.dataToPercentage(e.proximity);
                         this.fire('proximity-update');
@@ -39,6 +40,6 @@
         };
 
         // @polymerBehavior
-        Kano.MakeApps.PartsAPI['motion-sensor'] = Object.assign({}, PartsAPI.DongleBase, ProximitySensor);
+        Kano.MakeApps.PartsAPI['motion-sensor'] = Object.assign({}, PartsAPI.DongleBase, MotionSensor);
     })(window.Kano = window.Kano || {});
 </script>

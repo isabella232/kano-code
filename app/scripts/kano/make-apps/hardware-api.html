@@ -42,6 +42,8 @@
                             newDevice = new Camera(deviceInfo, hwapi);
                         } else if (deviceInfo.product === 'gyro-accelerometer') {
                             newDevice = new TiltSensor(deviceInfo, self);
+                        } else if (deviceInfo.product === 'motion-sensor') {
+                            newDevice = new MotionSensor(deviceInfo, self);
                         } else {
                             newDevice = new PowerUpDevice(deviceInfo, self);
                         }
@@ -110,7 +112,7 @@
                 this.number = tokens[tokens.length - 1];
 
                 this._socketOn(`motion-sensor:${this.number}:proximity-data`, (value) => {
-                    this.emitter.emit('proxmity-data', value);
+                    this.emitter.emit('proximity-data', value);
                 });
                 this._socketOn(`motion-sensor:${this.number}:gesture`, (value) => {
                     this.emitter.emit('gesture', value);
@@ -290,6 +292,10 @@
                         the device's connected status */
 
                 this.socket.on('device-update', getDeviceUpdateHandler(this, this));
+                this.requestDeviceUpdate();
+            }
+
+            requestDeviceUpdate () {
                 this.socket.emit('request-device-update');
             }
 
