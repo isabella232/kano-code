@@ -2,7 +2,7 @@
 (function (Kano) {
     Kano.MakeApps = Kano.MakeApps || {};
 
-    const COLOUR = '#88c440';
+    const COLOR = '#88c440';
 
     let category,
         register = (Blockly) => {
@@ -10,7 +10,7 @@
             init: function () {
                 let json = {
                     id: 'random_colour',
-                    colour: COLOUR,
+                    colour: COLOR,
                     message0: Blockly.Msg.COLOR_RANDOM,
                     output: 'Colour'
                 };
@@ -51,7 +51,7 @@
                     this.sourceBlock_.updateShape_(option);
                 });
 
-                this.setColour(COLOUR);
+                this.setColour(COLOR);
 
                 this.appendDummyInput()
                     .appendField('new color with')
@@ -113,13 +113,13 @@
         };
 
         category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOUR);
+            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
         });
     };
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_COLOR,
         id: 'color',
-        colour: COLOUR,
+        colour: COLOR,
         blocks: [
             'colour_picker',
             'create_color',
