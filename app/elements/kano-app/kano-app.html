@@ -297,6 +297,13 @@ Example:
             Kano.MakeApps.sdk.api.users.get.byUsername({ username: this.user.username })
                 .then((res) => {
                     this.set('user.profile', res.body.user.profile);
+                    this._updateProgress();
+                });
+        },
+        _updateProgress () {
+            Kano.MakeApps.sdk.api.progress.get()
+                .then((res) => {
+                    this.set('user.profile.levels', res.body.progress.levels);
                 });
         },
         _userChanged (user) {
