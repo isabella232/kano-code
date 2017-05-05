@@ -91,6 +91,9 @@
                 observer: '_addedPartsChanged'
             }
         },
+        listeners: {
+            'parts-changed': '_partsChanged'
+        },
         ready () {
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
             this.hardwareAPI.on('new-part-request', (e) => {
@@ -138,7 +141,14 @@
                 .then((progress) => this.updateExtensions(progress));
         },
         _addedPartsChanged () {
-            this.hardwareAPI.setParts(this.addedParts);
+            if (this.hardwareAPI) {
+                this.hardwareAPI.setParts(this.addedParts);
+            }
+        },
+        _partsChanged () {
+            if (this.hardwareAPI) {
+                this.hardwareAPI.requestDeviceUpdate();
+            }
         },
         updateExtensions (progress) {
             let story = this.story,

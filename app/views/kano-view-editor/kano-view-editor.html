@@ -149,9 +149,11 @@
             }
         },
         observers: [
-            '_onAddedPartsChanged(addedParts.splices)',
-            '_partsChanged(parts.splices)'
+            '_onAddedPartsChanged(addedParts.splices)'
         ],
+        listeners: {
+            'parts-changed': '_partsChanged'
+        },
         attached () {
             this._onDragover = this._onDragover.bind(this);
             this._onDrop = this._onDrop.bind(this);
@@ -174,9 +176,6 @@
             this.removeEventListener('drop', this._onDrop);
             this.removeEventListener('dragenter', this._onDragenter);
             this.removeEventListener('dragleave', this._onDragleave);
-        },
-        _partsChanged () {
-            this.hardwareAPI.requestDeviceUpdate();
         },
         _pauseAndShare (e) {
             this.running = false;
@@ -424,6 +423,13 @@
             if (this.hardwareAPI) {
                 this.hardwareAPI.setParts(this.addedParts);
             }
+        },
+        _partsChanged () {
+            this.debounce('parts-changed', () => {
+                if (this.hardwareAPI) {
+                    this.hardwareAPI.requestDeviceUpdate();
+                }
+            }, 300);
         },
         save () {
             let modeId = this.mode.id;
