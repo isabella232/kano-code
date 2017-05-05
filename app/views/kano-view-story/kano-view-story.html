@@ -92,6 +92,9 @@
             }
         },
         ready () {
+            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
             this.hardwareAPI.on('new-part-request', (e) => {
                 this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
@@ -282,6 +285,7 @@
             if (!this.story) {
                 return;
             }
+
             Kano.MakeApps.Stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
                     this.set('scene', scene);
