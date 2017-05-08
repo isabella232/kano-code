@@ -494,7 +494,7 @@
                         <button on-tap="copyToClipboard" type="button">[[localize('COPY', 'copy')]]</button>
                     </div>
                     <div class="actions">
-                        <button type="button" class="next round" on-tap="_nextStory">[[localize('NEXT_CHALLENGE', 'Next Challenge')]]</button>
+                        <button hidden$="[[!inChallenge]]" type="button" class="next round" on-tap="_nextStory">[[localize('NEXT_CHALLENGE', 'Next Challenge')]]</button>
                         <a href$="[[playUrl(shareInfo.slug)]]" target="_blank">
                             <button class="open round" type="button">[[localize('OPEN_APP', 'Open app')]]</button>
                         </a>
@@ -577,6 +577,10 @@
                 value: 'https://world.kano.me'
             },
             isAuthenticated: {
+                type: Boolean,
+                value: false
+            },
+            inChallenge: {
                 type: Boolean,
                 value: false
             }

@@ -31,9 +31,7 @@
                 '_onBitmapsChanged(model.userProperties.bitmaps.*)'
             ],
             properties: {
-                storedBitmaps: {
-                    type: Array
-                }
+                storedBitmaps: Array
             },
             _onBitmapsChanged (e) {
                 //Lock observer while resetting the observed property
@@ -43,11 +41,11 @@
                 this.lock = true;
     
                 if (e.path.search(/splices/) !== -1) {
-                    this._setBitmap();
+                    this._setBitmaps();
                 }
                 this.async(() => this.lock = false);
             },
-            _setBitmap () {
+            _setBitmaps () {
                 this.set('storedBitmaps', this.storeBitmaps());
                 this.set('model.userProperties.bitmaps',
                     this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));

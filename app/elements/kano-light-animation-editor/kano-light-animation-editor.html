@@ -24,6 +24,7 @@
         :host {
             @apply --layout-vertical;
             @apply --layout-center-justified;
+            background-color: var(--color-dark);
         }
         :host([medium-screen]),
         :host([small-screen]) {
@@ -47,7 +48,7 @@
             @apply --layout-horizontal;
             @apply --layout-justified;
             @apply --layout-center;
-            padding: 20px 48px 18px;
+            padding: 10px 48px 8px;
             border-bottom: 1px solid #202428;
         }
         :host([medium-screen]) .settings,
@@ -400,10 +401,15 @@
                 this.pixelSize = smallScreen ? 18 : 20;
             },
             _renderOnRealDevice (frame) {
-                Kano.AppModules.modules.lightboard.shapes = {
-                    'being-edited': this.getShape(frame)
-                };
-                Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+                try {
+                    Kano.AppModules.modules.lightboard.shapes = {
+                       'being-edited': this.getShape(frame)
+                    };
+                    Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+                }
+                catch (e) {
+                   return;
+                }
             },
             getShape (frame) {
                 this.model = this.selected;

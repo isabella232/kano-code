@@ -11,7 +11,6 @@
             },
             step: {
                 type: Number,
-                value: 0,
                 notify: true
             },
             selectedStep: {
@@ -32,7 +31,8 @@
                     };
                 },
                 notify: true
-            }
+            },
+            sceneVariables: Object
         },
         forceReloadStep () {
             this.started = false;
@@ -62,6 +62,10 @@
             // Update stats if step includes optional hint
             if (selectedStep['set-state'] && selectedStep['set-state'].hints && selectedStep['set-state'].hints.enabled === false) {
                 this.set('hints.total', this.hints.total + 1);
+            }
+
+            if (selectedStep.banner) {
+                selectedStep.banner.text = this._processMarkdown(selectedStep.banner.text);
             }
 
             if (selectedStep.tooltips) {
@@ -133,8 +137,10 @@
             return location;
         },
         _processMarkdown (text) {
-            let reg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
-            return text.replace(reg, (match, before, type, after) => {
+            let processedText = text,
+                blockReg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
+
+            processedText = processedText.replace(blockReg, (match, before, type, after) => {
                 let pieces = type.split('#');
                 if (pieces.length > 1) {
                     pieces[0] = this.stepIds[pieces[0]] || pieces[0];
@@ -142,6 +148,13 @@
                 type = pieces.join('#');
                 return `<kano-blockly-block${before}type="${type}"${after}></kano-blockly-block>`;
             });
+
+            //Inject variables to markdown syntax
+            processedText = Object.keys(this.sceneVariables).reduce((acc, key) => {
+                return acc.replace(new RegExp('\\$\\{' + key + '\\}', 'g'), this.sceneVariables[key] || '');
+            }, text);
+
+            return processedText;
         },
         /**
          * Move to the next step or set the challenge as done

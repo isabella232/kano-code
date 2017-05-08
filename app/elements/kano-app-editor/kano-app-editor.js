@@ -107,7 +107,8 @@ Polymer({
         'backgroundChanged(background.*)',
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
-        '_codeChanged(code.*)'
+        '_codeChanged(code.*)',
+        '_partsChanged(parts.slices)'
     ],
     listeners: {
         'mode-ready': '_onModeReady',
@@ -151,8 +152,17 @@ Polymer({
             }
         });
     },
+    _partsChanged () {
+        this.fire('parts-changed', this.parts);
+    },
     _newPartRequest (e) {
         let model;
+
+        // Too early
+        if (!Array.isArray(this.parts)) {
+            return;
+        }
+
         for (let i = 0; i < this.parts.length; i++) {
             model = this.parts[i];
             if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
@@ -541,7 +551,7 @@ Polymer({
     },
     onHideLeaveAlertChanged (flag) {
         //show alert on default flag
-        if (!flag && !window.navigator.userAgent.match("Electron")) {
+        if (!flag && !window.navigator.userAgent.match('Electron')) {
             window.onbeforeunload = () => {
                 return 'Any unsaved changes to your app will be lost. Continue?';
             }
