@@ -109,7 +109,7 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
+            Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
         },
         attached () {
             Kano.MakeApps.Stories.getById(this.context.params.id)
@@ -315,7 +315,7 @@
         nextStory (e) {
             let storyId;
             if (!this.story.next) {
-                location.href = Kano.MakeApps.config.WORLD_URL + '/projects';
+                location.href = Kano.MakeApps.config.PROJECTS_URL;
                 return;
             }
             storyId = this.story.next.id;
