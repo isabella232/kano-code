@@ -92,6 +92,9 @@
                 observer: '_addedPartsChanged'
             }
         },
+        listeners: {
+            'parts-changed': '_partsChanged'
+        },
         ready () {
             Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
@@ -143,7 +146,14 @@
                 .then((progress) => this.updateExtensions(progress));
         },
         _addedPartsChanged () {
-            this.hardwareAPI.setParts(this.addedParts);
+            if (this.hardwareAPI) {
+                this.hardwareAPI.setParts(this.addedParts);
+            }
+        },
+        _partsChanged () {
+            if (this.hardwareAPI) {
+                this.hardwareAPI.requestDeviceUpdate();
+            }
         },
         updateExtensions (progress) {
             let story = this.story,

@@ -151,6 +151,9 @@
         observers: [
             '_onAddedPartsChanged(addedParts.splices)'
         ],
+        listeners: {
+            'parts-changed': '_partsChanged'
+        },
         attached () {
             this._onDragover = this._onDragover.bind(this);
             this._onDrop = this._onDrop.bind(this);
@@ -421,6 +424,13 @@
             if (this.hardwareAPI) {
                 this.hardwareAPI.setParts(this.addedParts);
             }
+        },
+        _partsChanged () {
+            this.debounce('parts-changed', () => {
+                if (this.hardwareAPI) {
+                    this.hardwareAPI.requestDeviceUpdate();
+                }
+            }, 300);
         },
         save () {
             let modeId = this.mode.id;
