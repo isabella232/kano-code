@@ -55,7 +55,8 @@
                               on-next-story="nextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
-                              is-authenticated="[[user]]"></kano-share-modal>
+                              is-authenticated="[[user]]"
+                              in-challenge></kano-share-modal>
        </paper-dialog>
        <kano-challenge-completed-modal id="challenge-completed"
                                        on-close="_setStoryEnded"></kano-challenge-completed-modal>
@@ -105,6 +106,7 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+            Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
         },
         attached () {
             Kano.MakeApps.Stories.getById(this.context.params.id)
