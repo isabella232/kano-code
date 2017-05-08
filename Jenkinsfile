@@ -54,39 +54,39 @@ node {
         }
     }
 
-    stage('pwa') {
-        parallel(
-            'lighthouse report': {
-                def report_file = 'index.html'
-                def report_folder = './lighthouse-report/'
-                def deployed_url = ''
-                if (env.NODE_ENV=="staging") {
-                    deployed_url = "https://apps-staging.kano.me"
-                } else if (env.NODE_ENV=="production") {
-                    deployed_url = "https://apps.kano.me"
-                }
-                env.DISPLAY = ':99.0'
-                env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
-                sh "rm -rf ${report_folder}"
-                sh "mkdir ${report_folder}"
+    // stage('pwa') {
+    //     parallel(
+    //         'lighthouse report': {
+    //             def report_file = 'index.html'
+    //             def report_folder = './lighthouse-report/'
+    //             def deployed_url = ''
+    //             if (env.NODE_ENV=="staging") {
+    //                 deployed_url = "https://apps-staging.kano.me"
+    //             } else if (env.NODE_ENV=="production") {
+    //                 deployed_url = "https://apps.kano.me"
+    //             }
+    //             env.DISPLAY = ':99.0'
+    //             env.LIGHTHOUSE_CHROMIUM_PATH = '/usr/bin/google-chrome-stable'
+    //             sh "rm -rf ${report_folder}"
+    //             sh "mkdir ${report_folder}"
 
-                sh "timeout 20000 xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet || echo 'Lighthouse timedout'"
+    //             sh "timeout 20000 xvfb-run  --auto-servernum lighthouse ${deployed_url} --output html --output-path=${report_folder}${report_file} --quiet || echo 'Lighthouse timedout'"
 
-                publishHTML (target: [
-                    keepAll: true,
-                    reportDir: report_folder,
-                    reportFiles: report_file,
-                    reportName: "Lighthouse report"
-                ])
-            },
-            'archive': {
-                def version = getVersion()
-                def filename = "kano-code-v${version}-build-${env.BUILD_NUMBER}.tar.gz"
-                sh "tar -czf ${filename} ./www"
-                archiveArtifacts filename
-            }
-        )
-    }
+    //             publishHTML (target: [
+    //                 keepAll: true,
+    //                 reportDir: report_folder,
+    //                 reportFiles: report_file,
+    //                 reportName: "Lighthouse report"
+    //             ])
+    //         },
+    //         'archive': {
+    //             def version = getVersion()
+    //             def filename = "kano-code-v${version}-build-${env.BUILD_NUMBER}.tar.gz"
+    //             sh "tar -czf ${filename} ./www"
+    //             archiveArtifacts filename
+    //         }
+    //     )
+    // }
 }
 
 def deploy_doc() {
