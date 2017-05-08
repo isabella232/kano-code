@@ -15,6 +15,7 @@
 <link rel="import" href="../../elements/behaviors/kano-modal-animator-behavior.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
+<link rel="import" href="../../scripts/kano/make-apps/debug/challenge.html">
 
 <dom-module id="kano-view-tutorial">
     <style>
@@ -81,6 +82,20 @@
         :host .start-overlay .buttons {
             margin-top: 20px;
         }
+        .block-highlighter-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+        }
+        .block-highlighter-container path,
+        .block-highlighter-container rect {
+            fill: var(--color-sky);
+            fill-opacity: 0.6;
+        }
     </style>
     <template>
         <template is="dom-if" if="[[loaded]]" on-dom-change="_editorDomChanged">
@@ -88,7 +103,8 @@
                                scene="[[scene]]"
                                story-name="[[fileName]]"
                                on-scene-done="_showEndModal"
-                               added-parts="{{addedParts}}"></kano-scene-editor>
+                               added-parts="{{addedParts}}"
+                               current-step="{{step}}"></kano-scene-editor>
         </template>
         <div class$="start-overlay {{_computeOverlayClass(testing)}}">
             <div class="wrapper">
@@ -112,6 +128,10 @@
               <button class="start-button" dialog-confirm>Got it</button>
           </div>
         </paper-dialog>
+        <svg id="block-highlighter-svg" class="block-highlighter-container">
+            <path id="block-highlighter"></path>
+            <rect id="element-highlighter"></rect>
+        </svg>
     </template>
 </dom-module>
 
@@ -121,7 +141,14 @@
         is: 'kano-view-tutorial',
         behaviors: [
             Kano.Behaviors.ModalAnimatorBehavior,
-            Kano.Behaviors.EditorViewBehavior
+            Kano.Behaviors.EditorViewBehavior,
+            Kano.Behaviors.AppElementRegistryBehavior
+        ],
+        listeners: {
+            'challenge-ui-error': '_onChallengeUIError'
+        },
+        observers: [
+            '_stepChanged(step)'
         ],
         properties: {
             app: {
@@ -134,7 +161,7 @@
             },
             fileName: {
                 type: String,
-                value: 'Drop your .kcode file here'
+                value: 'Drop your .kcode or .json challenge file here'
             },
             dragging: {
                 type: Boolean,
@@ -149,6 +176,91 @@
                 observer: '_addedPartsChanged'
             }
         },
+        _onModeReady () {
+            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this);
+            this.async(() => {
+                this.initialContext = this._getCurrentEditorContext();
+                this._updateContext();
+            });
+        },
+        _debuggerConnected () {
+            this._updateContext();
+        },
+        _stepChanged () {
+            Kano.MakeApps.Debug.Challenge.step = this.step;
+            this._updateContext();
+        },
+        _updateContext () {
+            let editor = this.$$('#editor');
+            if (editor) {
+                let stepIds = editor.$.challenge.stepIds,
+                    blockIds = editor.$.challenge.blockIds,
+                    elementIds = this._getElementList(),
+                    categoryIds;
+                categoryIds = Object.keys(editor.editor.defaultCategories);
+                categoryIds = categoryIds.concat(editor.editor.mode.categories.map(category => category.id));
+                Kano.MakeApps.Debug.Challenge.updateChallengeContext({
+                    stepIds,
+                    blockIds,
+                    elementIds,
+                    categoryIds,
+                    initial: this.initialContext,
+                    steps: this.scene.steps,
+                    stepIndex: this.step
+                });
+            }
+        },
+        _onChallengeUIError (e) {
+            Kano.MakeApps.Debug.Challenge.setError({
+                message: e.detail.message,
+                selector: JSON.stringify(e.detail.detail, null, 4)
+            });
+        },
+        _highlightElement (id) {
+            this.debounce('highlightBlock', () => {
+                let editor = this.$$('#editor');
+                if (editor) {
+                    let challengeUI = editor.$.challenge.$.ui,
+                        el = challengeUI._getTargetElement(id),
+                        rect;
+                    if (el) {
+                        this.$['block-highlighter-svg'].style.display = 'block';
+                        this.$['element-highlighter'].style.display = 'block';
+                        rect = el.getBoundingClientRect();
+                        this.$['element-highlighter'].setAttribute('width', rect.width);
+                        this.$['element-highlighter'].setAttribute('height', rect.height);
+                        this.$['element-highlighter'].setAttribute('transform', `translate(${rect.left}, ${rect.top})`);
+                    }
+                }
+            }, 10);
+        },
+        _highlightBlock (id) {
+            this.debounce('highlightBlock', () => {
+                let editor = this.$$('#editor');
+                if (editor) {
+                    let challengeUI = editor.$.challenge.$.ui,
+                        el = challengeUI._getTargetElement({
+                            block: { id }
+                        }), path, blockRect, newBlockRect, scale;
+                    if (el) {
+                        this.$['block-highlighter-svg'].style.display = 'block';
+                        this.$['block-highlighter'].style.display = 'block';
+                        path = el.getAttribute('d');
+                        this.$['block-highlighter'].setAttribute('d', path);
+                        blockRect = el.getBoundingClientRect();
+                        newBlockRect = this.$['block-highlighter'].getBoundingClientRect();
+                        scale = blockRect.width / newBlockRect.width;
+                        this.$['block-highlighter'].setAttribute('transform', `translate(${blockRect.left}, ${blockRect.top}) scale(${scale}, ${scale})`);
+                    }
+                }
+            }, 10);
+        },
+        _blurBlock () {
+            this.$['block-highlighter-svg'].style.display = 'none';
+            this.$['block-highlighter'].style.display = 'none';
+            this.$['element-highlighter'].style.display = 'none';
+            this.$['block-highlighter'].removeAttribute('transform');
+        },
         ready () {
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
 
@@ -160,6 +272,23 @@
 
             this.configureModal(this.$['end-modal'], 'scale-down');
             this.configureModal(this.$['end-modal'], 'fade-out');
+
+            Kano.MakeApps.Debug.Challenge.on('update-step', (e) => {
+                let path = e.path ? e.path.replace('step', '') : '';
+                this.set(`scene.steps.${this.step}${path}`, e.value);
+                this.debounce('forceReload', () => {
+                    let editor = this.$$('#editor');
+                    if (editor) {
+                        editor.forceReloadStep();
+                    }
+                }, 200);
+            });
+            Kano.MakeApps.Debug.Challenge.on('connected', () => this._debuggerConnected());
+            Kano.MakeApps.Debug.Challenge.on('highlight-block', (id) => this._highlightBlock(id));
+            Kano.MakeApps.Debug.Challenge.on('blur-block', () => this._blurBlock());
+            Kano.MakeApps.Debug.Challenge.on('highlight-element', (id) => this._highlightElement(id));
+            Kano.MakeApps.Debug.Challenge.on('blur-element', () => this._blurBlock());
+            Kano.MakeApps.Debug.Challenge.on('save-challenge', () => this._downloadSteps());
         },
         attached () {
             this.loaded = false;
@@ -175,7 +304,7 @@
             return JSON.stringify(this.challenge, null, '    ');
         },
         dumpSteps () {
-            return JSON.stringify(this.challenge.data, null, '    ');
+            return JSON.stringify(this.scene, null, '    ');
         },
         _downloadSteps () {
             let a = window.document.createElement('a');
@@ -235,13 +364,33 @@
         _fileChanged (contents) {
             if (contents) {
                 let app = JSON.parse(contents);
+                if ('code' in app) {
+                    // Likely to be an app
+                    this.challenge = Kano.MakeApps.Challenge.createFromApp(app);
+                } else if ('steps' in app) {
+                    // Likely to be steps
+                    this.challenge = { data: app };
+                }
 
-                this.mode = Kano.MakeApps.Mode.modes[app.mode];
-
-                this.challenge = Kano.MakeApps.Challenge.createFromApp(app);
                 this.scene = Object.assign({}, this.challenge.data);
+                this.mode = Kano.MakeApps.Mode.modes[this.scene.mode];
                 this.loaded = true;
+                Kano.MakeApps.Debug.Challenge.loadChallenge(this.challenge);
+                this._updateContext();
             }
+        },
+        _getCurrentEditorContext () {
+            let editor = this.$$('#editor'),
+                workspace, blocks;
+            if (!editor) {
+                return {};
+            }
+            workspace = editor.editor.getBlocklyWorkspace();
+            blocks = workspace.getAllBlocks();
+            return {
+                parts: editor.editor.addedParts.map(part => part.id),
+                blocks: blocks.map(block => block.id)
+            };
         },
         _startChallenge () {
             this.set('scene.started', true);

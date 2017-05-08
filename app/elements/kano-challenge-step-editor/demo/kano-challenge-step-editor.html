@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>kano-challenge-step-editor demo</title>
+
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+        <link rel="import" href="../../../../bower_components/iron-demo-helpers/demo-snippet.html">
+        <link rel="import" href="../../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+        <link rel="import" href="../kano-challenge-step-editor.html">
+
+        <style is="custom-style" include="demo-pages-shared-styles">
+
+        </style>
+    </head>
+    <body unresolved>
+        <div class="vertical-section-container centered">
+        <h3></h3>
+        <demo-snippet>
+            <template>
+                <template is="dom-bind" id="bind">
+                    <kano-challenge-step-editor step="{{step}}"></kano-challenge-step-editor>
+                    <div class="preview">[[_str(step.*)]]</div>
+                </template>
+            </template>
+        </demo-snippet>
+
+        <script>
+            document.addEventListener('WebComponentsReady', () => {
+                var bind = document.querySelector('#bind');
+                bind._str = (v) => {
+                    return JSON.stringify(v.base, null, '\t');
+                };
+                bind.step = {
+                    banner: {
+                        text: "Hello"
+                    },
+                    beacon: {
+                        offset: 0
+                    },
+                    tooltips: [{
+                        text: 'Tooltips #1 text'
+                    }, {
+                        text: 'Tooltips #2 text'
+                    }]
+                };
+            });
+        </script>
+    </body>
+</html>
