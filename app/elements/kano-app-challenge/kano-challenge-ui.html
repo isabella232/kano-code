@@ -617,27 +617,49 @@ Example:
         _getTargetElement (selector) {
             let element = this.editor,
                 partId,
-                block;
+                block,
+                el;
             if (typeof selector == 'object') {
                 if (selector.block) {
                     block = this.getTargetBlock(selector.block);
                     if (selector.block.inputName) {
-                        return this.getTargetBlockInput(selector.block);
+                        let el = this.getTargetBlockInput(selector.block);
+                        if (!el) {
+                            this._notifyError('Could not find input', selector.block);
+                        }
+                        return el;
+                    }
+                    if (!block || !block.svgPath_) {
+                        this._notifyError('Could not find block', selector.block);
                     }
                     return block.svgPath_;
                 } else if (selector.category) {
-                    let toolbox = this._getElement('blockly-toolbox');
-                    return toolbox.getCategoryElement(selector.category);
+                    let toolbox = this._getElement('blockly-toolbox'),
+                        el = toolbox.getCategoryElement(selector.category);
+                    if (!el) {
+                        this._notifyError('Could not find category', selector.category);
+                    }
+                    return el;
                 } else if (selector.flyout_block) {
-                    let toolbox = this._getElement('blockly-toolbox');
-
-                    return toolbox.getFlyoutBlock(selector.flyout_block).getSvgRoot();
+                    let toolbox = this._getElement('blockly-toolbox'),
+                        block = toolbox.getFlyoutBlock(selector.flyout_block);
+                    if (!block) {
+                        this._notifyError('Could not find block in flyout', selector.flyout_block);
+                    }
+                    return block.getSvgRoot();
                 } else if (selector.root) {
                     element = document.querySelector(selector.root);
                     selector = selector.path;
                 }
             }
-            return this._getElement(selector);
+            el = this._getElement(selector);
+            if (!el) {
+                this._notifyError('Could not find element', selector);
+            }
+            return el;
+        },
+        _notifyError (message, detail) {
+            this.fire('challenge-ui-error', { message, detail });
         },
         updateTooltips () {
             this.debounce('updateTooltips', () => {
