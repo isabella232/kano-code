@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors.html">
-<link rel="import" href="../../kano-slider/kano-slider.html">
+<link rel="import" href="../../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
 <!--
@@ -17,6 +18,7 @@ Custom property | Description | Default
         :host {
             @apply --layout-horizontal;
             @apply --layout-center;
+            min-height: 64px;
         }
         :host label {
             width: var(--kano-part-settings-label-width, 82px);
@@ -49,7 +51,8 @@ Custom property | Description | Default
             font-size: 12px;
             text-transform: none;
         }
-        kano-slider {
+        paper-slider {
+            width: auto;
             @apply --layout-flex;
             --paper-slider-height: 3px;
             --paper-slider-container-color: #435055;
@@ -61,12 +64,12 @@ Custom property | Description | Default
     </style>
     <template>
         <label hidden$="[[noLabel]]">[[label]]</label>
-        <kano-slider
-              min="{{min}}"
-              max="{{max}}"
+        <paper-slider
+              id="slider"
+              min="[[min]]"
+              max="[[max]]"
               value="{{value}}"
-              immediate-value="{{value}}"
-              step="{{step}}"></kano-slider>
+              immediate-value="{{value}}"></paper-slider>
         <div class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
     </template>
 </dom-module>
@@ -76,6 +79,12 @@ Custom property | Description | Default
     Polymer({
         is: 'kano-input-range',
         behaviors: [Kano.Behaviors.Input],
+        attached () {
+            /* add kano-code-shared-styles to paper-slider for custom styling */
+            let customStyle = document.createElement('style', 'custom-style');
+            customStyle.setAttribute('include', 'kano-code-shared-styles');
+            Polymer.dom(this.$.slider.root).appendChild(customStyle);
+        },
         _roundValue (value) {
             return Math.round(value);
         }

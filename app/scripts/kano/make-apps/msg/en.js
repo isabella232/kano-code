@@ -54,7 +54,7 @@
 
     Kano.MakeApps.Msg.RESET = "Reset";
     Kano.MakeApps.Msg.DELETE = "delete";
-  
+
     Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
     Kano.MakeApps.Msg.EXPORT = "Export";
     Kano.MakeApps.Msg.IMPORT = "Import";
@@ -115,10 +115,8 @@
     Kano.MakeApps.Msg.PART_LIGHT_RECTANGLE_NAME = "Rectangle";
     Kano.MakeApps.Msg.PART_FIREWORKS_NAME = "Fireworks";
     Kano.MakeApps.Msg.PART_TALKING_FACE_NAME = "Talking face";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_NAME = "Gesture Sensor";
     Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_NAME = "Tilt";
-    Kano.MakeApps.Msg.PART_MOTION_SENSOR_NAME = "Tripwire";
-    Kano.MakeApps.Msg.PART_PROXIMITY_SENSOR_NAME = "Proximity Sensor";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_NAME = "Motion";
 
     Kano.MakeApps.Msg.BLOCK_TEXT_INPUT_TYPE_IN = "Type in here...";
 
@@ -174,17 +172,14 @@
     Kano.MakeApps.Msg.PART_DATA_SPORTS_SPORT_TENNIS = "Tennis";
     Kano.MakeApps.Msg.PART_DATA_SPORTS_SPORT_GOLF = "Golf";
 
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_UP = "gesture up";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_DOWN = "gesture down";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_LEFT = "gesture left";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_RIGHT = "gesture right";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_NEAR = "gesture near";
-    Kano.MakeApps.Msg.PART_GESTURE_SENSOR_FAR = "gesture far";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_UP = "gesture up";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_DOWN = "gesture down";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_LEFT = "gesture left";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_RIGHT = "gesture right";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_NEAR = "gesture near";
+    Kano.MakeApps.Msg.PART_MOTION_SENSOR_FAR = "gesture far";
 
     Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_READ_DATA = "reads data";
-
-    Kano.MakeApps.Msg.PART_MOTION_SENSOR_START = "movement starts";
-    Kano.MakeApps.Msg.PART_MOTION_SENSOR_END = "movement ends";
 
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_CLOSE = "close";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_ADD_PARTS = "add parts";

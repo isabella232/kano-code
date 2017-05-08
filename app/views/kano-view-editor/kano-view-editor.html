@@ -83,7 +83,7 @@
             <kano-editor-topbar
                 exit-url="[[exitUrl]]"
                 user="[[user]]"
-                profile="[[profile]]"
+                profile="[[user.profile]]"
                 slot="above-code"></kano-editor-topbar>
         </kano-app-editor>
         <paper-dialog id="error-dialog" with-backdrop>
@@ -151,6 +151,9 @@
         observers: [
             '_onAddedPartsChanged(addedParts.splices)'
         ],
+        listeners: {
+            'parts-changed': '_partsChanged'
+        },
         attached () {
             this._onDragover = this._onDragover.bind(this);
             this._onDrop = this._onDrop.bind(this);
@@ -399,6 +402,7 @@
         ready () {
             Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+            Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
 
             this.loaded = false;
             this.editor = this.$.editor;
@@ -420,6 +424,13 @@
             if (this.hardwareAPI) {
                 this.hardwareAPI.setParts(this.addedParts);
             }
+        },
+        _partsChanged () {
+            this.debounce('parts-changed', () => {
+                if (this.hardwareAPI) {
+                    this.hardwareAPI.requestDeviceUpdate();
+                }
+            }, 300);
         },
         save () {
             let modeId = this.mode.id;

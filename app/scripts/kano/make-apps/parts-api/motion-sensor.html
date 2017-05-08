@@ -1,4 +1,4 @@
-<link rel="import" href="./base.html">
+<link rel="import" href="./dongle-base.html">
 <script>
     (function (Kano) {
         let MotionSensor, PartsAPI;
@@ -8,29 +8,38 @@
 
         MotionSensor = {
             start () {
-                this.movement = false;
-                Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
+                this.module = 'motionSensor';
+                this.lastProximityValue = 255;
 
-                this.motionEventListener = (e) => {
-                    if (e.movement) {
-                        this.fire('movement-start');
-                    } else {
-                        this.fire('movement-end');
+                this.handlers = {
+                    'proximity-data': (e) => {
+                        this.lastProximityValue = this.dataToPercentage(e.proximity);
+                        this.fire('proximity-update');
+                    },
+                    'gesture': (e) => {
+                        if (e.type) {
+                            let fireString = 'gesture-' + e.type;
+                            this.fire(fireString);
+                        }
                     }
-                    this.movement = e.movement;
                 };
 
-                this.appModules.getModule('motionSensor').on('motion-sensor:0:motion-data', this.motionEventListener);
+                PartsAPI.DongleBase.start.apply(this, arguments);
             },
             stop () {
-                Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
+                PartsAPI.DongleBase.stop.apply(this, arguments);
 
-                this.appModules.getModule('motionSensor').removeListener('motion-sensor:0:motion-data', this.motionEventListener);
-                this.movement = false;
+                this.lastProximityValue = 0;
+            },
+            getValue () {
+                return this.lastProximityValue;
+            },
+            dataToPercentage (value) {
+                return Math.round((value / 255) * 100);
             }
         };
 
         // @polymerBehavior
-        Kano.MakeApps.PartsAPI['motion-sensor'] = Object.assign({}, PartsAPI.Base, MotionSensor);
+        Kano.MakeApps.PartsAPI['motion-sensor'] = Object.assign({}, PartsAPI.DongleBase, MotionSensor);
     })(window.Kano = window.Kano || {});
 </script>

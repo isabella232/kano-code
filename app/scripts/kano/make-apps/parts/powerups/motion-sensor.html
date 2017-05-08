@@ -14,18 +14,51 @@
                 properties: [],
                 style: []
             },
+            supportedHardware: ['motion-sensor'],
             userProperties: {},
             events: [{
-                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_START,
-                id: 'movement-start'
+                label: Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_READ_DATA,
+                id: 'proximity-update'
+            },{
+                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_UP,
+                id: 'gesture-up'
             },
             {
-                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_END,
-                id: 'movement-end'
+                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_DOWN,
+                id: 'gesture-down'
+            },
+            {
+                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_LEFT,
+                id: 'gesture-left'
+            },
+            {
+                label: Kano.MakeApps.Msg.PART_MOTION_SENSOR_RIGHT,
+                id: 'gesture-right'
             }],
-            blocks: []
+            blocks: [{
+                block: (part) => {
+                    return {
+                        id: 'motion_sensor_value',
+                        message0: `${part.name} ${Blockly.Msg.BLOCK_VALUE}`,
+                        inputsInline: false,
+                        output: 'Number'
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getValue()`;
+                        return [code];
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getValue()`;
+                        return [code];
+                    };
+                }
+            }]
         };
 
-        Kano.MakeApps.Parts.registerPart(motionSensor, 'dongles');
+        Kano.MakeApps.Parts.registerPart(motionSensor);
     })(window.Kano = window.Kano || {});
 </script>
