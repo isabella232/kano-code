@@ -1,0 +1,76 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<dom-module id="kano-value-rendering">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <canvas id="canvas" style$="width: [[width]]px; height: [[height]]px" width$="[[_canvasWidth]]" height$="[[_canvasHeight]]"></canvas>
+    </template>
+    <script>
+        Polymer({
+            is:'kano-value-rendering',
+            properties: {
+                width: {
+                    type: Number,
+                    value: 32
+                },
+                height: {
+                    type: Number,
+                    value: 32
+                },
+                offsetX: {
+                    type: Number,
+                    value: 0
+                },
+                offsetY: {
+                    type: Number,
+                    value: 0
+                },
+                _canvasWidth: {
+                    type: Number,
+                    computed: '_double(width)'
+                },
+                _canvasHeight: {
+                    type: Number,
+                    computed: '_double(height)'
+                },
+                value: {
+                    type: String,
+                    observer: '_render'
+                },
+                font: {
+                    type: String,
+                    value: '24px Bariol'
+                },
+                color: {
+                    type: String,
+                    value: 'white'
+                }
+            },
+            attached () {
+                this.ctx = this.$.canvas.getContext('2d');
+                this._render();
+            },
+            _double (value) {
+                return value * 2;
+            },
+            _render () {
+                let value = this.value;
+                if (!this.ctx) {
+                    return;
+                }
+                if (typeof value === 'undefined') {
+                    value = '';
+                }
+                this.ctx.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
+                this.ctx.font = this.font;
+                this.ctx.fillStyle = this.color;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'center';
+                this.ctx.fillText(value, this._canvasWidth / 2, this._canvasHeight / 2 + this.offsetX);
+            }
+        });
+    </script>
+</dom-module>

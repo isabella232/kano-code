@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/microphone.html">
+<link rel="import" href="../kano-value-rendering/kano-value-rendering.html">
 <dom-module id="kano-ic-microphone">
     <template>
         <style>
@@ -23,8 +24,12 @@
                 width: 32px;
                 border-right: 1px solid #202428;
             }
-            canvas {
+            canvas#canvas {
                 width: 200px;
+                height: 32px;
+            }
+            canvas#data {
+                width: 32px;
                 height: 32px;
             }
         </style>
@@ -32,7 +37,7 @@
             <canvas id="canvas" width="200" height="32"></canvas>
         </div>
         <div class="data">
-            <span>[[value]]</span>
+            <kano-value-rendering width="32" height="32" value="[[value]]" offset-x="10"></kano-value-rendering>
         </div>
     </template>
     <script>

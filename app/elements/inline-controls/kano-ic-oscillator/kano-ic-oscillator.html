@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/oscillator.html">
+<link rel="import" href="../kano-value-rendering/kano-value-rendering.html">
 <dom-module id="kano-ic-oscillator">
     <template>
         <style>
@@ -27,7 +28,9 @@
         <div class="visuals" id="visuals">
             <canvas id="canvas" width="200" height="32"></canvas>
         </div>
-        <div class="data">[[yValue]]</div>
+        <div class="data">
+            <kano-value-rendering width="32" height="32" value="[[yValue]]" offset-x="10"></kano-value-rendering>
+        </div>
     </template>
     <script>
         Polymer({
@@ -87,7 +90,7 @@
                 this.ctx.stroke();
                 this.ctx.closePath();
 
-                if (!this.prevTimestamp || timestamp - this.prevTimestamp > 100) {
+                if (!this.prevTimestamp || timestamp - this.prevTimestamp > 16) {
                     this.prevTimestamp = timestamp;
                     this.set('yValue', Math.round(this.getValue()));
                 }
