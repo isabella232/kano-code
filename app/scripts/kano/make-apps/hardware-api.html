@@ -149,12 +149,15 @@
                 this.devices = [];
 
                 if (this.url) {
-                    this.socket = io.connect(this.url);
-                    /* TODO needs an on-error handler that will change
-                            the device's connected status */
-                    /* TODO disconnect slave sensor devices too */
+                    if (!this.socket) {
+                        this.socket = io.connect(this.url);
 
-                    this.socket.on('device-update', getDeviceUpdateHandler(this, hwapi));
+                        /* TODO needs an on-error handler that will change
+                                the device's connected status */
+                        /* TODO disconnect slave sensor devices too */
+
+                        this.socket.on('device-update', getDeviceUpdateHandler(this, hwapi));
+                    }
 
                     setTimeout(() => {
                         this.socket.emit('request-device-update');
