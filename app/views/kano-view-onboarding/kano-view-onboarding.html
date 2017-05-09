@@ -274,7 +274,6 @@
             return reward;
         },
         _handleModalAction (e) {
-            let projectsUrl = Kano.MakeApps.config.WORLD_URL + "/projects";
             if (e.detail.trackingEvent) {
                 this.fire('track-event', e.detail.trackingEvent);
             }
@@ -282,15 +281,15 @@
                 this.alertDisabled = true;
                 this.fire('signup', {
                     onSuccess: () => {
-                        location.href = projectsUrl;
+                        location.href = Kano.MakeApps.config.PROJECTS_URL;
                     },
                     onCancel: () => {
-                        location.href = projectsUrl;
+                        location.href = Kano.MakeApps.config.PROJECTS_URL;
                     }
                 });
             } else if (e.detail.type === 'progress' && this.stageNo === (this.stages.length - 1)) {
                 this.alertDisabled = true;
-                location.href = projectsUrl;
+                location.href = Kano.MakeApps.config.PROJECTS_URL;
             } else {
                 if (this.stageNo < this.stages.length - 1) {
                     this.stageNo++;
