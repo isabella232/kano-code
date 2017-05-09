@@ -227,8 +227,8 @@
                 </div>
             </div>
             <div class="part-list">
+                <slot name="extra-parts"></slot>
                 <sortable-js handle=".handle" animation="150">
-                    <slot name="extra-parts"></slot>
                     <template is="dom-repeat" items="{{parts}}" as="part" on-dom-change="_partsElementsRepeaterChanged">
                         <div class="part" id$="part-[[part.id]]">
                             <iron-icon class="handle" icon="menu"></iron-icon>
@@ -327,14 +327,13 @@
             _partsAddedOrRemoved (changeRecord) {
                 if (changeRecord && changeRecord.keySplices) {
                     changeRecord.keySplices.forEach(splice => {
-                        let added = splice.added;
+                        const added = splice.added,
+                              removed = splice.removed;
                         added.forEach(key => {
-                            let part = this.get(`parts.${key}`),
-                                partEl;
+                            const part = this.get(`parts.${key}`);
                             if (!part) {
                                 return;
                             }
-                            partEl = this.$$(`#part-${part.id}`);
                             this._partsToAnimateIn.push(part);
                         });
                     });

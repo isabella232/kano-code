@@ -267,6 +267,7 @@ Polymer({
         this.set('code', this._formatCode({}));
         this.set('background', getDefaultBackground());
         this.save();
+        Kano.MakeApps.Parts.Part.clear();
         this.$.workspace.reset();
         if (!this.remixMode) {
             localStorage.removeItem(`savedApp-${this.mode.id}`);
@@ -460,6 +461,7 @@ Polymer({
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
         this.splice('addedParts', index, 1);
+        Kano.MakeApps.Parts.freeId(part);
         this.$.workspace.clearSelection();
     },
     onPartReady (e) {

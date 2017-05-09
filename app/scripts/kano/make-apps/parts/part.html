@@ -98,6 +98,13 @@
             Part.nameRegistry = {};
         };
 
+        Part.freeId = (model) => {
+            const names = Part.nameRegistry[model.type];
+            if (names) {
+                delete names[model.name];
+            }
+        };
+
         Kano.MakeApps.Parts.Part = Part;
 
     })(window.Kano = window.Kano || {});
