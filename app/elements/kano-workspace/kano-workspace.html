@@ -307,12 +307,6 @@
                     /* Update dropzone reference */
                     this.dropzone = this.$$(`#${this.mode.id}`);
 
-                    this.dropzone.addEventListener('parts-changed', (e) => {
-                        if (e.detail.path === 'parts.splices') {
-                            this.set(e.detail.path, e.detail.value);
-                        }
-                    });
-
                     if (this.dropzone.setBackground) {
                         this.dropzone.setBackground(this.background);
                     }
@@ -389,7 +383,7 @@
             }
             path = e.path;
             if (this.dropzone) {
-                this.dropzone.set(path, e.value);
+                this.dropzone.notifyPath(path, e.value);
             }
             if (path === 'parts.splices') {
                 let keySplices = e.value.keySplices,
