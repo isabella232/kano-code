@@ -821,8 +821,14 @@
                 });
             }
         },
-        copyToClipboard () {
-            this.$$("#shareurl").select();
+        copyToClipboard (e) {
+            const target = e.path ? e.path[0] : e.target,
+                  parent = target.parentNode,
+                  input = parent.querySelector('input');
+            if (!input) {
+                return;
+            }
+            input.select();
             document.execCommand('copy');
         },
         _socialShareTwitter () {
