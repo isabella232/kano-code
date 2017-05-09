@@ -184,6 +184,9 @@
     Blockly.Msg.BLOCK_GYRO_ACCELEROMETER_GYRO_AXIS = "Gyroscope %1 axis";
     Blockly.Msg.BLOCK_GYRO_ACCELEROMETER_ACCEL_AXIS = "Accelerometer %1 axis";
 
+    Blockly.Msg.BLOCK_MOTION_WHEN = "when";
+    Blockly.Msg.BLOCK_MOTION_IS_TRIGGERED = "is triggered";
+
     window.CustomBlocklyMsg = Blockly.Msg;
 
 })(window.Blockly = window.Blockly || {});
