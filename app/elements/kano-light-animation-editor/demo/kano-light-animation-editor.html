@@ -37,35 +37,38 @@
             }
         </style>
     </head>
-    <body>
+    <body unresolved>
+        <div class="vertical-section-container">
         <h1>kano-light-animation-editor</h1>
-        <h4>The page also includes kano-part-light-animation for the right behavior when the editor changes its size dimensions etc.</h4>
-        <template is="dom-bind" id="bind">
-            <kano-light-animation-editor selected="{{model}}"></kano-light-animation-editor>
-            <kano-part-light-animation model={{model}} hidden></kano-part-light-animation>
-        </template>
-        <script>
-            document.addEventListener('WebComponentsReady', () => {
-                const bind = document.getElementById('bind');
-                
-                bind.model = {
-                    userProperties: {
-                        speed: 7,
-                        width: 16,
-                        height: 8,
-                        bitmaps: [_generateEmptyFrame()]
-                    }
-                };
+            <demo-snippet>
+                <template is="dom-bind" id="bind">
+                    <kano-light-animation-editor selected="{{model}}"></kano-light-animation-editor>
+                    <kano-part-light-animation model={{model}} hidden></kano-part-light-animation>
+                </template>
+                <script>
+                    document.addEventListener('WebComponentsReady', () => {
+                        const bind = document.getElementById('bind');
 
-                function _generateEmptyFrame () {
-                    const emptyFrame = [];
-                    for (let i = 0; i < 128; i++) {
-                        emptyFrame.push('#000000');
-                    }
-                    return emptyFrame;
-                }
+                        bind.model = {
+                            userProperties: {
+                                speed: 7,
+                                width: 16,
+                                height: 8,
+                                bitmaps: [_generateEmptyFrame()]
+                            }
+                        };
 
-            });
-        </script>
+                        function _generateEmptyFrame () {
+                            const emptyFrame = [];
+                            for (let i = 0; i < 128; i++) {
+                                emptyFrame.push('#000000');
+                            }
+                            return emptyFrame;
+                        }
+
+                    });
+                </script>
+            </demo-snippet>
+        </div>
     </body>
 </html>
