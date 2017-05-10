@@ -274,6 +274,37 @@
                         return code;
                     };
                 }
+            },{
+                block: (part) => {
+                    return {
+                        id: 'speaker_set_volume',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_VOLUME}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'VOLUME',
+                            check: 'Number'
+                        }],
+                        previousStatement: null,
+                        nextStatement: null,
+                        shadow: {
+                            'VOLUME': '<shadow type="math_number"><field name="NUM">100</field></shadow>'
+                        }
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let volume = Blockly.JavaScript.valueToCode(block, 'VOLUME') || 100,
+                            code = `parts.get('${part.id}').setVolume(${volume});\n`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let volume = Blockly.Pseudo.valueToCode(block, 'VOLUME') || 100,
+                            code = `parts.get('${part.id}').setVolume(${volume});\n`;
+                        return code;
+                    };
+                }
             }]);
         };
 

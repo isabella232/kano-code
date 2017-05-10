@@ -33,6 +33,9 @@
                 try {
                     this.ctx = Kano.AudioContext;
                     this.webAudioSupported = true;
+                    this.gainControl = this.ctx.createGain();
+                    this.gainControl.connect(this.ctx.destination);
+                    this.output = this.gainControl;
                 } catch (e) {
                     this.webAudioSupported = false;
                 }
@@ -93,9 +96,13 @@
             createSource (buffer) {
                 let source = this.ctx.createBufferSource();
                 source.buffer = buffer;
-                source.connect(this.ctx.destination);
+                source.connect(this.output);
                 this.sources.push(source);
                 return source;
+            },
+            setVolume (volume) {
+                volume = Math.min(Math.max(volume, 0), 100);
+                this.gainControl.gain.value = (volume * 0.01);
             },
             loadSample (name) {
                 if (this.samples[name]) {

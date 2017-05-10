@@ -113,6 +113,7 @@
     Blockly.Msg.BLOCK_SPEAKER_PLAY = "play %1";
     Blockly.Msg.BLOCK_SPEAKER_PLAYBACK_RATE = "set pitch to %1";
     Blockly.Msg.BLOCK_SPEAKER_LOOP = "loop %1";
+    Blockly.Msg.BLOCK_SPEAKER_VOLUME = "set volume %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
     Blockly.Msg.BLOCK_STICKER_RANDOM = "random sticker";
