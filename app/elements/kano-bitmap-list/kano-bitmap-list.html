@@ -115,9 +115,6 @@
             properties: {
                 bitmaps: {
                     type: Array,
-                    value: () => {
-                        return [[]];
-                    },
                     notify: true
                 },
                 selected: {
@@ -139,8 +136,8 @@
                 }
             },
             observers: [
-                '_selectedChanged(selected.*)'
-                
+                '_selectedChanged(selected.*)',
+                '_bitmapsChanged(bitmaps)'
             ],
             _selectedChanged (e) {
                 if (this.sorting) {
@@ -160,6 +157,11 @@
                     splices.indexSplices.forEach(splice => {
                         this.splice(`bitmaps.${index}`, splice.index, 1, this.selected[splice.index]);
                     });
+                }
+            },
+            _bitmapsChanged () {
+                if (!this.selected) {
+                    this.selected = this.bitmaps[0].slice(0);
                 }
             },
             _sortStarted (e) {
