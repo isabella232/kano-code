@@ -15,8 +15,8 @@
                 this.handlers = {
                     'proximity-data': (e) => {
                         const newValue = this.dataToPercentage(e.proximity);
-                        this._triggerListeners(newValue, this.lastProximityValue);
-                        this.lastProximityValue = newValue;
+                        this._triggerListeners(newValue, this.model.lastProximityValue);
+                        this.model.lastProximityValue = newValue;
                         this.fire('proximity-update');
                     },
                     'gesture': (e) => {
@@ -35,18 +35,17 @@
                 this.reset();
             },
             reset () {
-                this.lastProximityValue = 0;
+                this.model.lastProximityValue = 0;
                 this._listeners = [];
             },
             _triggerListeners (newValue, oldValue) {
-                let value = this.lastProximityValue,
+                let value = this.model.lastProximityValue,
                     zoneSize = 100 / 5;                 // 100 is the whole span, 5 is the number of zones
-
 
                 this._listeners.forEach(listener => {
                     let zoneClamp = [(listener.zone - 1) * zoneSize, listener.zone * zoneSize];
                     // Was outside of the clamp and now is inside
-                    if (oldValue < zoneClamp[0] || oldValue > zoneClamp[1] &&
+                    if ((oldValue < zoneClamp[0] || oldValue > zoneClamp[1]) &&
                         (newValue >= zoneClamp[0] && newValue <= zoneClamp[1])) {
                             listener.callback();
                         }
@@ -56,7 +55,7 @@
                 this._listeners.push({ zone, callback });
             },
             getValue () {
-                return this.lastProximityValue;
+                return this.model.lastProximityValue;
             },
             dataToPercentage (value) {
                 return Math.round((value / 255) * 100);
