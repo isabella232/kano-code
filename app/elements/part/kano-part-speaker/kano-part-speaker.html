@@ -86,10 +86,12 @@
                 if (this.tts) {
                     this.tts.stop();
                 }
-                // Ignore sources not started
-                try {
-                    this.sources.forEach(source => source.stop());
-                } catch (e) {}
+                this.sources.forEach(source => {
+                    // Ignore sources not started
+                    try {
+                        source.stop()
+                    } catch (e) {}
+                }); 
                 this.sources = [];
                 this._playbackRate = 1;
             },
