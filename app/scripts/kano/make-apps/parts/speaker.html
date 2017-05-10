@@ -243,6 +243,54 @@
                         return [`'${sample}'`];
                     };
                 }
+            },{
+                block: (ui) => {
+                    return {
+                        id: 'random_sound',
+                        message0: Blockly.Msg.BLOCK_SPEAKER_RANDOM,
+                        output: 'Sample'
+                    };
+                },
+                javascript: (ui) => {
+                    return function (block) {
+                        let code = [`parts.get('${ui.id}').randomSound()`];
+                        return code;
+                    };
+                },
+                pseudo: (ui) => {
+                    return function (block) {
+                        let code = [`parts.get('${ui.id}').randomSound()`];
+                        return code;
+                    };
+                }
+            },{
+                block: (ui) => {
+                    let sets = Kano.MakeApps.Files.samples;
+                    return {
+                        id: 'random_from_set',
+                        message0: Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM,
+                        args0: [{
+                            type: 'field_dropdown',
+                            name: 'SET',
+                            options: Object.keys(sets).map(key => [key, key])
+                        }],
+                        output: 'Sample'
+                    };
+                },
+                javascript: (ui) => {
+                    return function (block) {
+                        let set = block.getFieldValue('SET') || 'drum machine',
+                            code = [`parts.get('${ui.id}').randomSound('${set}')`];
+                        return code;
+                    };
+                },
+                pseudo: (ui) => {
+                    return function (block) {
+                        let set = block.getFieldValue('SET') || 'drum machine',
+                            code = [`parts.get('${ui.id}').randomSound('${set}')`];
+                        return code;
+                    };
+                }
             }]);
         };
 

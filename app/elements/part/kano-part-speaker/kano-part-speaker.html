@@ -93,6 +93,16 @@
                             });
                         });
                 }
+            },
+            randomSound (set) {
+                let randomSample, samples, sets;
+                if (!set) {
+                    sets = Object.keys(Kano.MakeApps.Files.samples),
+                    set = sets[Math.floor(Math.random() * sets.length)];
+                }
+                samples = Object.keys(Kano.MakeApps.Files.samples[set]);
+                randomSample = samples[Math.floor(Math.random() * samples.length)];
+                return this.play(randomSample);
             }
         });
     })();

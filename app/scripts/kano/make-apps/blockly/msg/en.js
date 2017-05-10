@@ -112,6 +112,8 @@
     Blockly.Msg.BLOCK_SPEAKER_ITALIAN = "Italian";
     Blockly.Msg.BLOCK_SPEAKER_PLAY = "play %1";
     Blockly.Msg.BLOCK_SPEAKER_LOOP = "loop %1";
+    Blockly.Msg.BLOCK_SPEAKER_RANDOM = "random sound";
+    Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
     Blockly.Msg.BLOCK_STICKER_RANDOM = "random sticker";
