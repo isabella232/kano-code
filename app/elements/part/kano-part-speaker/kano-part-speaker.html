@@ -33,6 +33,9 @@
                 try {
                     this.ctx = Kano.AudioContext;
                     this.webAudioSupported = true;
+                    this.gainControl = this.ctx.createGain();
+                    this.gainControl.connect(this.ctx.destination);
+                    this.output = this.gainControl;
                 } catch (e) {
                     this.webAudioSupported = false;
                 }
@@ -47,6 +50,7 @@
                 this.loadSample(sample)
                     .then(buffer => {
                         let source = this.createSource(buffer);
+                        source.playbackRate.value = this._playbackRate;
                         source.start(this.ctx.currentTime);
                         this.sources.push(source);
                     });
@@ -59,24 +63,48 @@
                     .then(buffer => {
                         let source = this.createSource(buffer);
                         source.loop = true;
+                        source.playbackRate.value = this._playbackRate;
                         source.start(this.ctx.currentTime);
                         this.sources.push(source);
                     });
+            },
+            setPlaybackRate (rate) {
+                let realRate;
+                rate = Math.min(Math.max(rate, 0), 200);
+                realRate = (rate) * 0.01;
+                this.sources.forEach(source => {
+                    source.playbackRate.value = realRate;
+                });
+                this._playbackRate = realRate;
+            },
+            start () {
+                Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
+                this._playbackRate = 1;
             },
             stop () {
                 Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
                 if (this.tts) {
                     this.tts.stop();
                 }
-                this.sources.forEach(source => source.stop());
+                this.sources.forEach(source => {
+                    // Ignore sources not started
+                    try {
+                        source.stop()
+                    } catch (e) {}
+                }); 
                 this.sources = [];
+                this._playbackRate = 1;
             },
             createSource (buffer) {
                 let source = this.ctx.createBufferSource();
                 source.buffer = buffer;
-                source.connect(this.ctx.destination);
+                source.connect(this.output);
                 this.sources.push(source);
                 return source;
+            },
+            setVolume (volume) {
+                volume = Math.min(Math.max(volume, 0), 100);
+                this.gainControl.gain.value = (volume * 0.01);
             },
             loadSample (name) {
                 if (this.samples[name]) {
