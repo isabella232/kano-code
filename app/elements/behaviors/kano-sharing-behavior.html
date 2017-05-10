@@ -61,7 +61,7 @@ var SharingBehavior = {
             'gyro-accelerometer',
             'motion-sensor'
         ],
-        hardwareParts = this.shareInfo.parts.filter(part => {
+        hardware = this.shareInfo.parts.filter(part => {
             return part.partType === 'hardware' &&
                    taggableParts.indexOf(part.partType) >= 0;
         }).map(part => {
@@ -87,12 +87,6 @@ var SharingBehavior = {
         this.set('shareInfo.loading', true);
 
         trackingData.project_type = appName;
-
-        this.shareInfo.parts.forEach((part) => {
-            if (part.type === 'gyro-accelerometer') {
-                hardware.push({product: 'gyro-accelerometer'});
-            }
-        });
 
         files = {
             cover: cover,
