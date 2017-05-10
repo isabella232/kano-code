@@ -47,6 +47,7 @@
                 this.loadSample(sample)
                     .then(buffer => {
                         let source = this.createSource(buffer);
+                        source.playbackRate.value = this._playbackRate;
                         source.start(this.ctx.currentTime);
                         this.sources.push(source);
                     });
@@ -59,17 +60,35 @@
                     .then(buffer => {
                         let source = this.createSource(buffer);
                         source.loop = true;
+                        source.playbackRate.value = this._playbackRate;
                         source.start(this.ctx.currentTime);
                         this.sources.push(source);
                     });
+            },
+            setPlaybackRate (rate) {
+                let realRate;
+                rate = Math.min(Math.max(rate, 0), 200);
+                realRate = (rate) * 0.01;
+                this.sources.forEach(source => {
+                    source.playbackRate.value = realRate;
+                });
+                this._playbackRate = realRate;
+            },
+            start () {
+                Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
+                this._playbackRate = 1;
             },
             stop () {
                 Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
                 if (this.tts) {
                     this.tts.stop();
                 }
-                this.sources.forEach(source => source.stop());
+                // Ignore sources not started
+                try {
+                    this.sources.forEach(source => source.stop());
+                } catch (e) {}
                 this.sources = [];
+                this._playbackRate = 1;
             },
             createSource (buffer) {
                 let source = this.ctx.createBufferSource();
