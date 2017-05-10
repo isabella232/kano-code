@@ -92,6 +92,8 @@ Example:
             this._addValidator('open-settings-tooltip', 'matchPartTarget');
             this._addValidator('open-part-settings', 'matchPartTarget');
             this._addValidator('settings-interaction', 'matchSettingsInteraction');
+
+            this._addOppositeAction('add-part', 'close-parts', '_partsClosed');
             this.changeCounts = {};
             this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
             this.editor.addEventListener('blockly-ready', (e) => {
@@ -107,6 +109,9 @@ Example:
         detached () {
             this.removeEventListener('mousewheel', this.updateTooltips);
             window.removeEventListener('resize', this.updateTooltips);
+        },
+        _partsClosed () {
+            return this._prevStep();
         },
         isNextHidden () {
             let currentStep;
