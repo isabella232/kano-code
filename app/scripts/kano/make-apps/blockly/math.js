@@ -193,6 +193,48 @@
             return [code];
         };
 
+        Blockly.Blocks.math_lerp = {
+            init: function () {
+                let json = {
+                    id: 'math_lerp',
+                    colour: COLOR,
+                    message0: Blockly.Msg.MATH_LERP,
+                    args0: [{
+                        type: "input_value",
+                        name: "FROM",
+                        check: "Number"
+                    }, {
+                        type: "input_value",
+                        name: "TO",
+                        check: "Number"
+                    }, {
+                        type: 'input_value',
+                        name: 'PERCENT',
+                        check: "Number"
+                    }],
+                    inputsInline: true,
+                    output: "Number"
+                };
+                this.jsonInit(json);
+            }
+        };
+
+        Blockly.JavaScript.math_lerp = (block) => {
+            let from = Blockly.JavaScript.valueToCode(block, 'FROM') || 0,
+                to = Blockly.JavaScript.valueToCode(block, 'TO') || 200,
+                precent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
+                code = `math.lerp(${from}, ${to}, ${precent})`;
+            return [code];
+        };
+
+        Blockly.Pseudo.math_lerp = (block) => {
+            let from = Blockly.Pseudo.valueToCode(block, 'FROM') || 0,
+                to = Blockly.Pseudo.valueToCode(block, 'TO') || 200,
+                precent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
+                code = `math.lerp(${from}, ${to}, ${precent})`;
+            return [code];
+        };
+
         Blockly.Pseudo.math_single = (block) => {
             // Math operators with single operand.
             let operator = block.getFieldValue('OP'),
@@ -403,6 +445,9 @@
             },{
                 id: 'math_random',
                 defaults: ['MIN', 'MAX']
+            }, {
+                id: 'math_lerp',
+                defaults: ['FROM', 'TO', 'PERCENT']
             },
             'math_single',
             'math_trig',

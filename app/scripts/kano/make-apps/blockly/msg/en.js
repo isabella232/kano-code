@@ -29,6 +29,7 @@
 
     Blockly.Msg.RANDOM_CAT = "random cat";
 
+    Blockly.Msg.MATH_LERP = "lerp from %1 to %2 % %3";
     Blockly.Msg.BLOCK_VALUE = "value";
     Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "set background color to %1";
     Blockly.Msg.BLOCK_IS_CLICKED = "is clicked";
