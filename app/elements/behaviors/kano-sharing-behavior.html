@@ -57,7 +57,20 @@ var SharingBehavior = {
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
         files,
         trackingData = {},
-        hardware = [];
+        taggableParts = [
+            'gyro-accelerometer',
+            'motion-sensor'
+        ],
+        hardwareParts = this.shareInfo.parts.filter(part => {
+            return part.partType === 'hardware' &&
+                   taggableParts.indexOf(part.partType) >= 0;
+        }).map(part => {
+            return { product: part.type };
+        });
+
+        if (this.shareInfo.mode.id === 'lightboard') {
+            hardware.push({product: 'lightboard'});
+        }
 
         if (this.remixedShare) {
             trackingData.remixed_from_project_id = this.remixedShare.id;
@@ -73,17 +86,7 @@ var SharingBehavior = {
 
         this.set('shareInfo.loading', true);
 
-        /* For filtering reasons, lightboard shares use different app name
-           from regular Make Apps shares. */
-        if (this.shareInfo.mode.id === 'lightboard') {
-            appName = 'lightboard';
-        }
-
         trackingData.project_type = appName;
-
-        if (this.shareInfo.mode.id === 'lightboard') {
-            hardware.push({product: 'lightboard'});
-        }
 
         this.shareInfo.parts.forEach((part) => {
             if (part.type === 'gyro-accelerometer') {
