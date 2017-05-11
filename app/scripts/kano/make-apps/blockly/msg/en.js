@@ -12,6 +12,7 @@
     Blockly.Msg.CATEGORY_MISC = "Misc";
 
     Blockly.Msg.COLOR_RANDOM = "random color";
+    Blockly.Msg.COLOR_LERP = "lerp from %1 to %2 % %3";
 
     Blockly.Msg.LOOP_FOREVER_REPEAT = "Repeat";
     Blockly.Msg.LOOP_FOREVER_FOREVER = "forever";
