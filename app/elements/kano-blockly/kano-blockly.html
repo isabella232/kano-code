@@ -168,6 +168,7 @@ Example:
         },
         ready () {
             this.codeRelatedEvents = [Blockly.Events.CREATE, Blockly.Events.MOVE, Blockly.Events.CHANGE];
+            this._blurInput = this._blurInput.bind(this);
         },
         /**
          * Inject blockly to the workspace div
@@ -224,10 +225,12 @@ Example:
             });
 
             document.body.style.overflow = 'hidden';
+            document.addEventListener('iron-overlay-opened', this._blurInput);
         },
         detached () {
             this.workspace.dispose();
             document.body.style.overflow = undefined;
+            document.removeEventListener('iron-overlay-opened', this._blurInput);
         },
         _onToolboxBlockCreated () {
             this.$.svg.style.zIndex = 1;
@@ -520,6 +523,9 @@ Example:
                 return this.addEventListener('blockly-ready', this._defaultBlocksChanged.bind(this));
             }
             this._checkDefaultBlocks();
+        },
+        _blurInput () {
+            Blockly.WidgetDiv.hide();
         },
         getWorkspace () {
             return this.workspace;
