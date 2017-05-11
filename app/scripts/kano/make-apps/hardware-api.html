@@ -165,9 +165,13 @@
                 }
             }
 
-            emit (name, detail) {
+            emit (name, detail, volatile=false) {
                 if (this.socket) {
-                    this.socket.emit(name, detail);
+                    if (volatile) {
+                        this.socket.volatile.emit(name, detail);
+                    } else {
+                        this.socket.emit(name, detail);
+                    }
                 }
             }
 
