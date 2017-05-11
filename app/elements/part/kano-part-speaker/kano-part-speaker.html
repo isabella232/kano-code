@@ -25,6 +25,15 @@
         Polymer({
             is: 'kano-part-speaker',
             behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            observers: [
+                '_mutedChanged(model.muted)'
+            ],
+            properties: {
+                volume: {
+                    type: Number,
+                    value: 100
+                }
+            },
             ready () {
                 this.sources = [];
                 this.samples = {};
@@ -80,6 +89,7 @@
             start () {
                 Kano.MakeApps.PartsAPI.Base.start.apply(this, arguments);
                 this._playbackRate = 1;
+                this.volume = 100;
             },
             stop () {
                 Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
@@ -95,6 +105,9 @@
                 this.sources = [];
                 this._playbackRate = 1;
             },
+            _mutedChanged () {
+                this.setVolume(this.volume);
+            },
             createSource (buffer) {
                 let source = this.ctx.createBufferSource();
                 source.buffer = buffer;
@@ -103,8 +116,10 @@
                 return source;
             },
             setVolume (volume) {
-                volume = Math.min(Math.max(volume, 0), 100);
-                this.gainControl.gain.value = (volume * 0.01);
+                let value;
+                this.volume = Math.min(Math.max(volume, 0), 100);
+                value = this.model.muted ? 0 : (this.volume * 0.01);
+                this.gainControl.gain.value = value;
             },
             loadSample (name) {
                 if (this.samples[name]) {

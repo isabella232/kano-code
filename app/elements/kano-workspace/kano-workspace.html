@@ -259,6 +259,10 @@
                 dropzone.setBackground(bg);
             }
         },
+        _forwardInstancePath (inst, path, value) {
+            this.set(path, value);
+            this._parentProps = {};
+        },
         _modeChanged (mode) {
             let placeholder = this.$$('#workspace-placeholder'),
                 newDropzone, modeId, importPromise;
@@ -284,7 +288,7 @@
                                                         running="[[running]]"
                                                         editable-layout="[[editableLayout]]"
                                                         parts-menu-open="[[partsMenuOpen]]"
-                                                        parts="[[parts]]"
+                                                        parts="{{parts}}"
                                                         expansion="[[expansion]]">
                                                         </${tagName}>`;
 
