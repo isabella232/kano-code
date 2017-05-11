@@ -56,7 +56,21 @@ var SharingBehavior = {
         spritesheet = this.shareInfo.spriteSheetBlob,
         workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
         files,
-        trackingData = {};
+        trackingData = {},
+        taggableParts = [
+            'gyro-accelerometer',
+            'motion-sensor'
+        ],
+        hardware = this.shareInfo.parts.filter(part => {
+            return part.partType === 'hardware' &&
+                   taggableParts.indexOf(part.partType) >= 0;
+        }).map(part => {
+            return { product: part.type };
+        });
+
+        if (this.shareInfo.mode.id === 'lightboard') {
+            hardware.push({product: 'lightboard'});
+        }
 
         if (this.remixedShare) {
             trackingData.remixed_from_project_id = this.remixedShare.id;
@@ -71,12 +85,6 @@ var SharingBehavior = {
         workspaceInfo.filename = 'workspace_info.json';
 
         this.set('shareInfo.loading', true);
-
-        /* For filtering reasons, lightboard shares use different app name
-           from regular Make Apps shares. */
-        if (this.shareInfo.mode.id === 'lightboard') {
-            appName = 'lightboard';
-        }
 
         trackingData.project_type = appName;
 
@@ -96,7 +104,8 @@ var SharingBehavior = {
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: files,
-            is_private: this.shareInfo.is_private || false
+            is_private: this.shareInfo.is_private || false,
+            hardware: hardware
         }).then((res) => {
             if (res.status == 200) {
                 let share = res.body.item;
