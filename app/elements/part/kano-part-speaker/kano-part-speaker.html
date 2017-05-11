@@ -22,11 +22,15 @@
     (function() {
         Kano.AudioContext = Kano.AudioContext || new AudioContext();
 
+        const OSCILLATOR_FREQ_RANGE_LOW = 20,
+              OSCILLATOR_FREQ_RANGE_HI = 5000;
+
         Polymer({
             is: 'kano-part-speaker',
             behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
             ready () {
                 this.sources = [];
+                this.oscillators = [];
                 this.samples = {};
                 this.tts = new Kano.MakeApps.TextToSpeech();
                 this.tts.configure(Kano.MakeApps.config);
@@ -91,9 +95,17 @@
                     try {
                         source.stop()
                     } catch (e) {}
-                }); 
+                });
                 this.sources = [];
                 this._playbackRate = 1;
+
+                this.oscillators.forEach(oscillator => {
+                    // Ignore sources not started
+                    try {
+                        oscillator.stop()
+                    } catch (e) {}
+                });
+                this.oscillators = [];
             },
             createSource (buffer) {
                 let source = this.ctx.createBufferSource();
@@ -131,6 +143,18 @@
                 samples = Object.keys(Kano.MakeApps.Files.samples[set]);
                 randomSample = samples[Math.floor(Math.random() * samples.length)];
                 return this.play(randomSample);
+            },
+            playFrequency (freq, length) {
+                let oscillator = this.ctx.createOscillator();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
+                                             ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                oscillator.connect(this.output);
+                oscillator.start(0);
+                oscillator.stop(this.ctx.currentTime + length / 1000);
+
+                this.oscillators.push(oscillator);
             }
         });
     })();
