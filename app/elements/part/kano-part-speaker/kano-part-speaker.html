@@ -22,11 +22,15 @@
     (function() {
         Kano.AudioContext = Kano.AudioContext || new AudioContext();
 
+        const OSCILLATOR_FREQ_RANGE_LOW = 20,
+              OSCILLATOR_FREQ_RANGE_HI = 5000;
+
         Polymer({
             is: 'kano-part-speaker',
             behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
             ready () {
                 this.sources = [];
+                this.oscillators = [];
                 this.samples = {};
                 this.tts = new Kano.MakeApps.TextToSpeech();
                 this.tts.configure(Kano.MakeApps.config);
@@ -36,6 +40,10 @@
                     this.gainControl = this.ctx.createGain();
                     this.gainControl.connect(this.ctx.destination);
                     this.output = this.gainControl;
+
+                    this.oscillatorsGain = this.ctx.createGain();
+                    this.oscillatorsGain.connect(this.output);
+                    this.oscillatorsGain.gain.value = 0.2;
                 } catch (e) {
                     this.webAudioSupported = false;
                 }
@@ -73,7 +81,9 @@
                 rate = Math.min(Math.max(rate, 0), 200);
                 realRate = (rate) * 0.01;
                 this.sources.forEach(source => {
-                    source.playbackRate.value = realRate;
+                    if (source instanceof AudioBufferSourceNode) {
+                        source.playbackRate.value = realRate;
+                    }
                 });
                 this._playbackRate = realRate;
             },
@@ -91,7 +101,7 @@
                     try {
                         source.stop()
                     } catch (e) {}
-                }); 
+                });
                 this.sources = [];
                 this._playbackRate = 1;
             },
@@ -131,6 +141,28 @@
                 samples = Object.keys(Kano.MakeApps.Files.samples[set]);
                 randomSample = samples[Math.floor(Math.random() * samples.length)];
                 return this.play(randomSample);
+            },
+            playFrequency (freq, length) {
+                let oscillator = this.ctx.createOscillator();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
+                                             ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                oscillator.connect(this.oscillatorsGain);
+                oscillator.start(0);
+                oscillator.stop(this.ctx.currentTime + length / 1000);
+
+                oscillator.onended = () => {
+                    let index = this.sources.indexOf(oscillator);
+
+                    if (index >= 0) {
+                        setTimeout(() => {
+                            this.sources.splice(index, 1);
+                        }, 0);
+                    }
+                };
+
+                this.sources.push(oscillator);
             }
         });
     })();
