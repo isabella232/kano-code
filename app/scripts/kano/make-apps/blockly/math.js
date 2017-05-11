@@ -222,16 +222,16 @@
         Blockly.JavaScript.math_lerp = (block) => {
             let from = Blockly.JavaScript.valueToCode(block, 'FROM') || 0,
                 to = Blockly.JavaScript.valueToCode(block, 'TO') || 200,
-                precent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
-                code = `math.lerp(${from}, ${to}, ${precent})`;
+                percent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
+                code = `math.lerp(${from}, ${to}, ${percent})`;
             return [code];
         };
 
         Blockly.Pseudo.math_lerp = (block) => {
             let from = Blockly.Pseudo.valueToCode(block, 'FROM') || 0,
                 to = Blockly.Pseudo.valueToCode(block, 'TO') || 200,
-                precent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
-                code = `math.lerp(${from}, ${to}, ${precent})`;
+                percent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
+                code = `math.lerp(${from}, ${to}, ${percent})`;
             return [code];
         };
 

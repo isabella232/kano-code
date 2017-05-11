@@ -8,6 +8,7 @@
 
                 this.addMethod('random', '_random');
                 this.addMethod('create', '_create');
+                this.addMethod('lerp', '_lerp');
             }
             HSVtoRGB (h, s, v) {
                 let r, g, b, i, f, p, q, t;
@@ -34,6 +35,15 @@
             RGBtoHEX (r, g, b) {
                 let hexColor = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).substr(1);
                 return '#' + hexColor;
+            }
+
+            HEXtoRGBComponents (hex) {
+                const match = hex.replace(/#/,'').match(/.{1,2}/g);
+                return {
+                    r: parseInt(match[0], 16),
+                    g: parseInt(match[1], 16),
+                    b: parseInt(match[2], 16)
+                };
             }
 
             _random () {
@@ -81,6 +91,19 @@
                     rgb = this.HSVtoRGB(hue, saturation, value);
                     return this.RGBtoHEX(rgb.r, rgb.g, rgb.b);
                 }
+            }
+
+            _lerp (from, to, percentage) {
+                from = this.HEXtoRGBComponents(from);
+                to = this.HEXtoRGBComponents(to);
+                percentage = Math.min(Math.max(percentage, 0), 100);
+                const components = ['r', 'g', 'b'],
+                    newColor = {};
+                for (let i = 0; i < components.length; i++) {
+                    const c = components[i];
+                    newColor[c] = Math.round(from[c] + (to[c] - from[c]) * percentage / 100);
+                }
+                return this.RGBtoHEX(newColor['r'], newColor['g'], newColor['b']);
             }
         }
 
