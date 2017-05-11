@@ -44,7 +44,7 @@
     }
     </style>
     <template>
-        <paper-input value="{{value}}" on-keydown="enterQuitsInput" no-label-float></paper-input>
+        <paper-input id="input" value="{{value}}" on-keydown="enterQuitsInput" no-label-float autofocus="[[autofocus]]"></paper-input>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -53,9 +53,18 @@
     Polymer({
         is: 'kano-input-text',
         behaviors: [Kano.Behaviors.Input],
+        properties: {
+            autofocus: Boolean
+        },
         observers: [
             'valueChanged(value)'
         ],
+        focus () {
+            this.$.input.focus();
+        },
+        select () {
+            this.$.input.inputElement.select();
+        },
         valueChanged () {
             this.fire('change');
         },
