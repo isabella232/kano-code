@@ -139,6 +139,7 @@ Polymer({
     _closePartsModal () {
         this.$['parts-modal'].close();
         this.$['add-parts'].reset();
+        this.notifyChange('close-parts');
     },
     _partsModalClosed () {
         this.notifyChange('close-parts');

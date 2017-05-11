@@ -445,6 +445,7 @@ Example:
             });
 
             clearTimeout(this._ringSoundTimeout);
+            this._ringAnimationCount = 0;
 
             this.toggleClass('animate', false, this.$.beacon);
             this.toggleClass('animate', false, this.$.ring);
@@ -508,8 +509,12 @@ Example:
             this.toggleClass('animate', true, this.$.ring);
         },
         _ringAnimationIterated (e) {
+            if (this._ringAnimationCount > 4) {
+                return;
+            }
             this._ringSoundTimeout = setTimeout(() => {
                 this.playSound('/assets/audio/sounds/ding.mp3');
+                this._ringAnimationCount++;
             }, 4600 * 0.75);
         },
         stepChanged () {

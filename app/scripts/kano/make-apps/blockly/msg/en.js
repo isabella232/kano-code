@@ -29,6 +29,7 @@
 
     Blockly.Msg.RANDOM_CAT = "random cat";
 
+    Blockly.Msg.MATH_LERP = "lerp from %1 to %2 % %3";
     Blockly.Msg.BLOCK_VALUE = "value";
     Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "set background color to %1";
     Blockly.Msg.BLOCK_IS_CLICKED = "is clicked";
@@ -111,7 +112,11 @@
     Blockly.Msg.BLOCK_SPEAKER_GERMAN = "German";
     Blockly.Msg.BLOCK_SPEAKER_ITALIAN = "Italian";
     Blockly.Msg.BLOCK_SPEAKER_PLAY = "play %1";
+    Blockly.Msg.BLOCK_SPEAKER_PLAYBACK_RATE = "set pitch to %1";
     Blockly.Msg.BLOCK_SPEAKER_LOOP = "loop %1";
+    Blockly.Msg.BLOCK_SPEAKER_VOLUME = "set volume %1";
+    Blockly.Msg.BLOCK_SPEAKER_RANDOM = "random sound";
+    Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
     Blockly.Msg.BLOCK_STICKER_RANDOM = "random sticker";
