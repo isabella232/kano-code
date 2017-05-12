@@ -305,27 +305,7 @@
                        return code;
                    };
                }
-            },{
-                block: (ui) => {
-                    return {
-                        id: 'random_sound',
-                        message0: Blockly.Msg.BLOCK_SPEAKER_RANDOM,
-                        output: 'Sample'
-                    };
-                },
-                javascript: (ui) => {
-                    return function (block) {
-                        let code = [`parts.get('${ui.id}').randomSound()`];
-                        return code;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let code = [`parts.get('${ui.id}').randomSound()`];
-                        return code;
-                    };
-                }
-            },{
+           },{
                 block: (ui) => {
                     let sets = Kano.MakeApps.Files.samples;
                     return {
@@ -334,7 +314,7 @@
                         args0: [{
                             type: 'field_dropdown',
                             name: 'SET',
-                            options: Object.keys(sets).map(key => [key, key])
+                            options: ['any'].concat(Object.keys(sets)).map(key => [key, key])
                         }],
                         output: 'Sample'
                     };
@@ -427,7 +407,75 @@
                         return code;
                     };
                 }
-            }]);
+            }, {
+               block: (part) => {
+                   return {
+                       id: 'speaker_start_synth',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_START_SYNTH}`,
+                       previousStatement: null,
+                       nextStatement: null
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let code = `parts.get('${part.id}').startSynth();\n`;
+                       return code;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let code = `parts.get('${part.id}').startSynth();\n`;
+                       return code;
+                   };
+               }
+           }, {
+               block: (part) => {
+                   return {
+                       id: 'speaker_synth_set_frequency',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_SYNTH_SET_FREQUENCY}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'FREQUENCY',
+                            check: 'Number'
+                        }],
+                       previousStatement: null,
+                       nextStatement: null,
+                       shadow: {
+                           'FREQUENCY': '<shadow type="math_number"><field name="NUM">25</field></shadow>'
+                       }
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25;
+
+                       if (freq > 100) {
+                           freq = 100;
+                       }
+
+                       if (freq < 0) {
+                           freq = 0;
+                       }
+
+                       return `parts.get('${part.id}').setSynthFrequency(${freq});\n`;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25;
+
+                       if (freq > 100) {
+                           freq = 100;
+                       }
+
+                       if (freq < 0) {
+                           freq = 0;
+                       }
+
+                       return `parts.get('${part.id}').setSynthFrequency(${freq});\n`;
+                   };
+               }
+           }]);
         };
 
 
