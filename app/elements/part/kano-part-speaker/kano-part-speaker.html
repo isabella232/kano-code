@@ -113,6 +113,7 @@
                     } catch (e) {}
                 });
                 this.sources = [];
+                this.synth = null;
                 this._playbackRate = 1;
             },
             _mutedChanged () {
@@ -149,7 +150,7 @@
             },
             randomSound (set) {
                 let randomSample, samples, sets;
-                if (!set) {
+                if (!set || set === 'any') {
                     sets = Object.keys(Kano.MakeApps.Files.samples),
                     set = sets[Math.floor(Math.random() * sets.length)];
                 }
@@ -157,13 +158,19 @@
                 randomSample = samples[Math.floor(Math.random() * samples.length)];
                 return this.play(randomSample);
             },
-            playFrequency (freq, length) {
+            _createOscillator () {
                 let oscillator = this.ctx.createOscillator();
 
                 oscillator.type = 'sine';
+                oscillator.connect(this.oscillatorsGain);
+
+                return oscillator;
+            },
+            playFrequency (freq, length) {
+                let oscillator = this._createOscillator();
+
                 oscillator.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
                                              ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
-                oscillator.connect(this.oscillatorsGain);
                 oscillator.start(0);
                 oscillator.stop(this.ctx.currentTime + length / 1000);
 
@@ -178,6 +185,19 @@
                 };
 
                 this.sources.push(oscillator);
+            },
+            startSynth () {
+                if (!this.synth) {
+                    this.synth = this._createOscillator();
+                    this.sources.push(this.synth);
+                    this.synth.start(0);
+                }
+            },
+            setSynthFrequency (freq) {
+                if (this.synth) {
+                    this.synth.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
+                                                 ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                }
             }
         });
     })();

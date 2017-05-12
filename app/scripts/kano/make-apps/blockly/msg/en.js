@@ -116,9 +116,10 @@
     Blockly.Msg.BLOCK_SPEAKER_PLAYBACK_RATE = "set pitch to %1";
     Blockly.Msg.BLOCK_SPEAKER_LOOP = "loop %1";
     Blockly.Msg.BLOCK_SPEAKER_VOLUME = "set volume %1";
-    Blockly.Msg.BLOCK_SPEAKER_RANDOM = "random sound";
-    Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random %1";
-    Blockly.Msg.BLOCK_SPEAKER_PLAY_FREQUENCY_FOR = "Speaker: play frequency %1 for %2 miliseconds";
+    Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random sound %1";
+    Blockly.Msg.BLOCK_SPEAKER_PLAY_FREQUENCY_FOR = "Speaker: synthesize frequency %1 for %2 miliseconds";
+    Blockly.Msg.BLOCK_SPEAKER_START_SYNTH = "start synth";
+    Blockly.Msg.BLOCK_SPEAKER_SYNTH_SET_FREQUENCY = "synth set frequency %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
     Blockly.Msg.BLOCK_STICKER_RANDOM = "random sticker";
