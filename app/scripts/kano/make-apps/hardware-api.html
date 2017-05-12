@@ -150,7 +150,7 @@
 
                 if (this.url) {
                     if (!this.socket) {
-                        this.socket = io.connect(this.url);
+                        this.socket = HardwareAPI.connect(this.url);
 
                         /* TODO needs an on-error handler that will change
                                 the device's connected status */
@@ -282,6 +282,14 @@
                 }
             }
 
+            // Returns an already opened connection if exists, otherwise creates a new one and returns it
+            static connect (url) {
+                if (!HardwareAPI.sockets[url]) {
+                    HardwareAPI.sockets[url] = io.connect(url);
+                }
+                return HardwareAPI.sockets[url];
+            }
+
             /* DO NOT CALL THIS METHOD FROM OUTSIDE THE CLASS
              * This is here purely for backwards-compatibility with old
              * exported apps.
@@ -294,7 +302,7 @@
                 this.parts = [];
                 this.reassignDevices();
 
-                this.socket = io.connect(this.url);
+                this.socket = HardwareAPI.connect(this.url);
                 /* TODO needs an on-error handler that will change
                         the device's connected status */
 
@@ -447,6 +455,9 @@
                 }
             }
         }
+
+        // Static pool of connections
+        HardwareAPI.sockets = {};
 
         Kano.MakeApps.HardwareAPI = HardwareAPI;
 
