@@ -37,7 +37,7 @@
             is: 'kano-part-light-circle',
             behaviors: [Kano.MakeApps.PartsAPI['light-circle'], Kano.Behaviors.LightShapeBehavior],
             _computeContainerStyle () {
-                let radius = this.model.userProperties.radius,
+                let radius = Math.round(this.model.userProperties.radius || 0),
                     size = ((radius * 2) + 1) * this.PIXEL_SIZE + 4,
                     container = this.$['pixel-array'],
                     bitmap = new Array(Math.pow(radius, 2)),
