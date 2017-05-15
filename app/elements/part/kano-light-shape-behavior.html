@@ -16,7 +16,7 @@
         BOARD_WIDTH: 16,
         BOARD_HEIGHT: 8,
         applyTransform () {
-            if (!this.model) {
+            if (!this.model || this.isRunning) {
                 return;
             }
             let x = Math.min(Math.max(this.OFFSET_X, this.OFFSET_X + this.PIXEL_SIZE * this.getX()), this.OFFSET_X + (this.BOARD_WIDTH - parseInt(this.model.userProperties.width)) * this.PIXEL_SIZE),
