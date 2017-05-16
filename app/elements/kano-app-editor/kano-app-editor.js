@@ -138,12 +138,11 @@ Polymer({
     },
     _closePartsModal () {
         this.$['parts-modal'].close();
-        this.$['add-parts'].reset();
-        this.notifyChange('close-parts');
     },
     _partsModalClosed () {
-        this.notifyChange('close-parts');
+        this.$['add-parts'].reset();
         this.partsMenuOpen = false;
+        this.notifyChange('close-parts');
     },
     _addParts (e) {
         this._closePartsModal();
