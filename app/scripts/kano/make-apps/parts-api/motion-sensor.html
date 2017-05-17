@@ -59,6 +59,20 @@
             },
             dataToPercentage (value) {
                 return Math.round((value / 255) * 100);
+            },
+            setMode (mode) {
+                let device = this.appModules.getModule(this.module).getDeviceForPart(this.id);
+
+                if (device) {
+                    device.setMode(mode);
+                }
+            },
+            setUpdateInterval (interval) {
+                let device = this.appModules.getModule(this.module).getDeviceForPart(this.id);
+
+                if (device) {
+                    device.setUpdateInterval(interval);
+                }
             }
         };
 

@@ -15,6 +15,26 @@
                 type: Number,
                 value: 0
             }
+        },
+        observers: [
+            '_reconfigure(model.userProperties.mode, model.userProperties.updateInterval)'
+        ],
+        // ready () {
+        //     this.lastMode = this.model.userProperties.mode;
+        //     this.lastUpdateInterval = model.userProperties.updateInterval;
+        // },
+        _reconfigure (mode, interval) {
+            this.debounce('reconfigure', () => {
+                if (mode !== this.lastMode) {
+                    this.lastMode = this.model.userProperties.mode;
+                    this.setMode(this.model.userProperties.mode);
+                }
+
+                if (interval !== this.lastUpdateInterval) {
+                    this.lastUpdateInterval = this.model.userProperties.updateInterval;
+                    this.setUpdateInterval(this.model.userProperties.updateInterval);
+                }
+            }, 250);
         }
     });
 </script>
