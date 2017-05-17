@@ -11,10 +11,18 @@
             Kano.Behaviors.UIBehavior
         ],
         properties: {
-            lastProximityValue: {
-                type: Number,
-                value: 0
+            module: {
+                type: String,
+                value: 'motionSensor'
             }
+        },
+        attached () {
+            this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
+            this._onGestureChanged = this._onGestureChanged.bind(this);
+            this.handlers = {
+                'proximity-data': this._onProximityDataChanged,
+                'gesture': this._onGestureChanged
+            };
         }
     });
 </script>

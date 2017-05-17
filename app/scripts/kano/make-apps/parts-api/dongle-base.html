@@ -9,23 +9,18 @@
 
         // @polymerBehavior
         DongleBase = {
+            properties: {
+                _listeners: {
+                    type: Array,
+                    value: () => []
+                },
+                handlers: {
+                    type: Array,
+                    value: () => []
+                }
+            },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
-
-                this.handlers = this.handlers || [];
-
-                this.mappingChangedEventListener = (e) => {
-                    if (this.isRunning) {
-                        this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
-                    } else {
-                        if (this.model.connected !== !!e.detail.newDevice) {
-                            this.set('model.connected', !!e.detail.newDevice);
-                        }
-                    }
-                };
-
-                this.remapListeners(null, this.appModules.getModule(this.module).getDeviceForPart(this.id), true);
-                this.appModules.getModule(this.module).on(this.id + '-mapping-changed', this.mappingChangedEventListener);
             },
             remapListeners (oldDevice, newDevice, notify) {
                 if (oldDevice) {
