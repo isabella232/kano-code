@@ -22,6 +22,7 @@
                 this.addMethod('scroll', '_scroll');
                 this.addMethod('on', '_on');
                 this.addMethod('removeListener', '_removeListener');
+                this.addMethod('removeAllListeners', '_removeAllListeners');
                 this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
                 this.addMethod('removeShape', '_removeShape');
                 this.addMethod('getBitmap', '_getBitmap');
@@ -82,7 +83,7 @@
                     this.throttle('updateAndSync', () => {
                         this.drawLights();
                         cb(this.bitmap);
-                    }, 1000 / 20);
+                    }, 1000 / 15);
                 }
             }
 
@@ -255,6 +256,12 @@
             _removeListener (name, callback) {
                 this._getAllLightboards().forEach((lightboard) => {
                     lightboard.removeListener(name, callback);
+                });
+            }
+
+            _removeAllListeners (name) {
+                this._getAllLightboards().forEach((lightboard) => {
+                    lightboard.removeAllListeners(name);
                 });
             }
         }

@@ -4,66 +4,12 @@
 
         Kano.MakeApps = Kano.MakeApps || {};
 
-        function getDeviceUpdateHandler(self, hwapi) {
-            return (devices) => {
-                // Drop disconnected devices
-                self.devices = self.devices.filter((existingDevice) => {
-                    let exists = false;
-                    devices.forEach((deviceInfo) => {
-                        if (existingDevice.id === deviceInfo.id) {
-                            exists = true;
-                        }
-                    });
-
-                    if (!exists) {
-                        existingDevice.tearDown();
-                    }
-
-                    return exists;
-                });
-
-                devices.forEach((deviceInfo) => {
-                    let devInstance = null;
-
-                    self.devices.forEach((existingDevice) => {
-                        if (existingDevice.id === deviceInfo.id) {
-                            devInstance = existingDevice;
-                        }
-                    });
-
-                    if (devInstance)  {
-                        devInstance.update(deviceInfo, hwapi);
-                    } else {
-                        let newDevice;
-
-                        if (deviceInfo.product === 'lightboard') {
-                            newDevice = new Lightboard(deviceInfo, hwapi);
-                        } else if (deviceInfo.product === 'camera') {
-                            newDevice = new Camera(deviceInfo, hwapi);
-                        } else if (deviceInfo.product === 'gyro-accelerometer') {
-                            newDevice = new TiltSensor(deviceInfo, self);
-                        } else if (deviceInfo.product === 'motion-sensor') {
-                            newDevice = new MotionSensor(deviceInfo, self);
-                        } else {
-                            newDevice = new PowerUpDevice(deviceInfo, self);
-                        }
-
-                        self.devices.push(newDevice);
-                    }
-                });
-
-                if (hwapi) {
-                    hwapi.reassignDevices();
-                    hwapi.emit('devices-updated', hwapi.getAllDevices());
-                }
-            };
-        }
-
         class Device {
             constructor (options) {
                 this.id = options.id;
                 this.product = options.product;
                 this.vendor = options.vendor;
+                this.serialNumber = options.serialNumber;
             }
 
             update (options) {}
@@ -100,6 +46,10 @@
 
             removeListener () {
                 this.emitter.removeListener.apply(this.emitter, arguments);
+            }
+
+            removeAllListeners () {
+                this.emitter.removeAllListeners.apply(this.emitter, arguments);
             }
         }
 
@@ -149,37 +99,87 @@
             constructor (options, hwapi) {
                 super(options);
 
-                this.update(options, hwapi);
+                this.hwapi = hwapi;
+
+                this.update(options);
             }
 
-            update (options, hwapi) {
+            /**
+             * A change was detected in the configuration of the Kit.
+             * Update the web socket connections and update all devices
+             */
+            update (options) {
                 this.url = options.url || null;
+                this.serial = options.serial || false;
                 this.devices = [];
 
-                if (this.url) {
-                    if (!this.socket) {
-                        this.socket = HardwareAPI.connect(this.url);
-
-                        /* TODO needs an on-error handler that will change
-                                the device's connected status */
-                        /* TODO disconnect slave sensor devices too */
-
-                        this.socket.on('device-update', getDeviceUpdateHandler(this, hwapi));
+                if (this.url || this.serial) {
+                    if (this.socket) {
+                        this.socket.removeAllListeners('disconnect');
                     }
+                    this.serialSocket = null;
+                    this.networkSocket = null;
+                    this.socket = null;
+                    if (this.serial) {
+                        this.serialSocket = HardwareAPI.connect(this.hwapi.url);
+                    }
+                    if (this.url) {
+                        this.networkSocket = HardwareAPI.connect(this.url);
+                    }
+                    this.socket = this.serial ? this.serialSocket : this.networkSocket;
 
-                    setTimeout(() => {
-                        this.socket.emit('request-device-update');
-                    }, 100);
+                    this.updateDevices().then(() => {
+                        this.socket.on('device-added', (info) => {
+                            const device = HardwareAPI.instanciateDevice(info, this);
+                            this.hwapi.addDevice(device);
+                        });
+
+                        this.socket.on('device-removed', (info) => {
+                            let device = this.getDeviceById(info.id);
+                            this.hwapi.removeDevice(device);
+                        });
+                    });
+
+                    this.socket.on('disconnect', () => {});
+
+                    // Tells the Kano Code App to enable OTG control on the Kit
+                    if (this.serialSocket) {
+                        this.socket.emit('serial-init');
+                    }
                 }
             }
 
-            emit (name, detail, volatile=false) {
+            /**
+             * Update the list of devices connected to this Kit.
+             * Ensures the web socket connection is opened, then queries the devices.
+             */
+            updateDevices () {
+                const socket = this.socket;
+                // No socket, can't query devices
+                if (socket) {
+                    let ensureConnected = () => {
+                        if (!socket.connected) {
+                            return new Promise((resolve, reject) => {
+                                socket.on('connect', () => {
+                                    resolve();
+                                });
+                            });
+                        }
+                        return Promise.resolve();
+                    };
+                    return ensureConnected().then(() => {
+                        return HardwareAPI.getTopDevices(this.networkSocket);
+                    }).then(devices => {
+                        this.devices = devices.map(d => {
+                            return HardwareAPI.instanciateDevice(d, this);
+                        });
+                    });
+                }
+            }
+
+            emit (name, detail) {
                 if (this.socket) {
-                    if (volatile) {
-                        this.socket.volatile.emit(name, detail);
-                    } else {
-                        this.socket.emit(name, detail);
-                    }
+                    this.socket.emit(name, detail);
                 }
             }
 
@@ -192,6 +192,12 @@
             removeListener (name, cb) {
                 if (this.socket) {
                     this.socket.removeListener(name, cb);
+                }
+            }
+
+            removeAllListeners (name) {
+                if (this.socket) {
+                    this.socket.removeAllListeners(name);
                 }
             }
         }
@@ -269,6 +275,13 @@
             }
         }
 
+        const productToClassMap = {
+            lightboard: Lightboard,
+            camera: Camera,
+            'gyro-accelerometer': TiltSensor,
+            'motion-sensor': MotionSensor
+        };
+
         /**
          *  -> Has a [] of parts's models
          *  -> Receives an event when a new part is added
@@ -298,24 +311,107 @@
                 return HardwareAPI.sockets[url];
             }
 
+            /**
+             * Returns an instance of a Device from a device information.
+             */
+            static instanciateDevice (info, api) {
+                const deviceClass = productToClassMap[info.product] || PowerUpDevice;
+                return new deviceClass(info, api);
+            }
+
             /* DO NOT CALL THIS METHOD FROM OUTSIDE THE CLASS
              * This is here purely for backwards-compatibility with old
              * exported apps.
              */
             config (config) {
+                let ensureConnectionIsOpened;
                 this.devices = [];
                 this.url = this._getAPIUrl(config);
                 this.partsToDevicesMap = {};
 
-                this.parts = [];
-                this.reassignDevices();
+                this.parts = null;
 
+                // Connect to the Kano Code App
                 this.socket = HardwareAPI.connect(this.url);
-                /* TODO needs an on-error handler that will change
-                        the device's connected status */
 
-                this.socket.on('device-update', getDeviceUpdateHandler(this, this));
-                this.requestDeviceUpdate();
+                ensureConnectionIsOpened = () => {
+                    if (!this.socket.connected) {
+                        return new Promise((resolve, reject) => {
+                            this.socket.on('connect', resolve);
+                        });
+                    }
+                    return Promise.resolve();
+                }
+
+                // Wait until the connection is opened
+                ensureConnectionIsOpened().then(() => {
+                    // Initialise the devices
+                    return HardwareAPI.getTopDevices(this.socket);
+                }).then(devices => {
+
+                    // Instanciate all the devices found
+                    this.devices = devices.map(d => {
+                        return HardwareAPI.instanciateDevice(d, this);
+                    });
+
+                    // Assign the new devices to the existing parts
+                    this.reassignDevices();
+
+                    // Update the sockets when the serial status changed
+                    this.socket.on('device-serial-connected', (d) => {
+                        let device = this.getDeviceById(d.id);
+                        device.update(d, this);
+                    });
+
+                    this.socket.on('device-serial-disconnected', (d) => {
+                        let device = this.getDeviceById(d.id);
+                        // The device can be removed as soon as it looses it serial connection
+                        if (device) {
+                            device.update(d, this);
+                        }
+                    });
+
+                    // Create and match a device when added
+                    this.socket.on('device-added', (info) => {
+                        const device = HardwareAPI.instanciateDevice(info, this);
+                        this.addDevice(device);
+                    });
+
+                    // Unbinds and delete a device when disconnected
+                    this.socket.on('device-removed', (info) => {
+                        let device = this.getDeviceById(info.id);
+                        this.removeDevice(device);
+                    });
+
+                });
+            }
+
+            /**
+             * Ask a socket the connected devices. Times out after 2 second
+             */
+            static getTopDevices (socket) {
+                return new Promise((resolve, reject) => {
+                    let deviceUpdateCallback, timeoutId;
+                    deviceUpdateCallback = (devices) => {
+                        socket.removeListener('device-update', deviceUpdateCallback);
+                        clearTimeout(timeoutId);
+                        resolve(devices);
+                    };
+                    socket.on('device-update', deviceUpdateCallback);
+                    timeoutId = setTimeout(() => {
+                        socket.removeListener('device-update', deviceUpdateCallback);
+                        throw new Error('Could not get devices over web sockets after 4 seconds');
+                    }, 2000);
+                    socket.emit('request-device-update');
+                });
+            }
+
+            getDeviceById (id) {
+                for (let i = 0; i < this.devices.length; i++) {
+                    if (this.devices[i].id === id) {
+                        return this.devices[i];
+                    }
+                }
             }
 
             requestDeviceUpdate () {
@@ -359,12 +455,22 @@
                        part.supportedHardware.indexOf(dev.product) >= 0;
             }
 
+            _partIsFreeAndMatchesDevice (part, device) {
+                return !this.getDeviceForPart(part.id) && this._partSupportsDevice(part, device)
+            }
+
+            /**
+             * Find an available match for a device
+             */
             _findFreeMatchingPartForDevice (dev) {
+                const preferedPart = HardwareAPI.bindingHistory[dev.serialNumber];
+                if (preferedPart && this._partIsFreeAndMatchesDevice(preferedPart, dev)) {
+                    return preferedPart;
+                }
                 for (let i = 0; i < this.parts.length; i++) {
                     let part = this.parts[i];
 
-                    if (!this.getDeviceForPart(part.id) &&
-                        this._partSupportsDevice(part, dev)) {
+                    if (this._partIsFreeAndMatchesDevice(part, dev)) {
                         return part;
                     }
                 }
@@ -372,29 +478,89 @@
                 return null;
             }
 
+            /**
+             * Add and try to find an existing match for the device
+             */
+            addDevice (device) {
+                this.devices.push(device);
+                this.findOrCreatePartForDevice(device);
+            }
+
+            /**
+             * Unbinds and remove a device
+             */
+            removeDevice (device) {
+                const index = this.devices.indexOf(device);
+                this.unbindPartFromDevice(device);
+                device.tearDown();
+                if (index !== -1) {
+                    this.devices.splice(index, 1);
+                }
+            }
+
+            /**
+             * Try to match a device to part. Notify of a new Device creation if
+             * no match was found
+             */
+            findOrCreatePartForDevice (device) {
+                // The device is already bound, abort
+                if (this.getPartForDevice(device.id)) {
+                    return;
+                }
+                // Find a part that could be boudn to this device
+                let part = this._findFreeMatchingPartForDevice(device);
+
+                if (part) {
+                    // Bind the part to the device
+                    this.partsToDevicesMap[part.id] = device;
+                    HardwareAPI.bindingHistory[device.serialNumber] = part;
+                    // Notify the change
+                    this.emit(`${part.id}-mapping-changed`, {
+                        detail: {
+                            oldDevice: null,
+                            newDevice: this.partsToDevicesMap[part.id]
+                        }
+                    });
+                } else {
+                    // Request a new part to be added
+                    setTimeout(() => {
+                        this.emit('new-part-request', { detail: device });
+                    }, 0);
+                }
+            }
+
+            /**
+             * Find a part matching the device and frees it
+             */
+            unbindPartFromDevice (device) {
+                let part = this.getPartForDevice(device.id);
+                // No part was boudn to this device, abort
+                if (!part) {
+                    return;
+                }
+                // Free up the bind to the part
+                delete this.partsToDevicesMap[part.id];
+                // Notify the change
+                this.emit(`${part.id}-mapping-changed`, {
+                    detail: {
+                        oldDevice: this.partsToDevicesMap[part.id],
+                        newDevice: null
+                    }
+                });
+            }
+
+            /**
+             * Wipe all the bindings between parts and devices and rematch them all
+             */
             reassignDevices () {
+                if (!this.parts) {
+                    return;
+                }
                 this.debounce('reassign-devices', () => {
                     this._cleanupDeviceMap();
 
                     this._doGetAllDevices(this.devices).forEach((dev) => {
-                        if (!this.getPartForDevice(dev.id)) {
-                            let part = this._findFreeMatchingPartForDevice(dev);
-
-                            if (part) {
-                                this.partsToDevicesMap[part.id] = dev;
-                                this.emit(`${part.id}-mapping-changed`, {
-                                    detail: {
-                                        oldDevice: null,
-                                        newDevice: this.partsToDevicesMap[part.id]
-                                    }
-                                });
-                            } else {
-                                /* Request a new part to be added */
-                                setTimeout(() => {
-                                    this.emit('new-part-request', { detail: dev });
-                                }, 0);
-                            }
-                        }
+                        this.findOrCreatePartForDevice(dev);
                     });
                 }, 100);
             }
@@ -466,6 +632,8 @@
 
         // Static pool of connections
         HardwareAPI.sockets = {};
+        // Keeps a history of bindings between device serial number and part
+        HardwareAPI.bindingHistory = {};
 
         Kano.MakeApps.HardwareAPI = HardwareAPI;
 
