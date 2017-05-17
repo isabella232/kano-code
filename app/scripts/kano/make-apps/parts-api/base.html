@@ -20,8 +20,7 @@
                 this.appModules = this.appModules || Kano.AppModules;
 
                 if (this.model && this.handlers) {
-                    this.mappingChangedEventListener = this.mappingChangedEventListener.bind(this);
-                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener);
+                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener.bind(this));
                 }
             },
             onDestroyed () {
