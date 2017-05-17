@@ -10,6 +10,7 @@
             Kano.MakeApps.PartsAPI['gyro-accelerometer'],
             Kano.Behaviors.UIBehavior
         ],
+        module: 'gyroAccelerometer',
         properties: {
             lastGyroVector: {
                 type: Object,
@@ -19,6 +20,14 @@
                 type: Object,
                 value: {x: 0.0, y: 0.0, z: 0.0}
             }
+        },
+        attached () {
+            this._onAccelorometerDataChanged = this._onAccelorometerDataChanged.bind(this);
+            this._onGyroDataChanged = this._onGyroDataChanged.bind(this);
+            this.handlers = {
+                'gyro-data': this._onGyroDataChanged,
+                'accelerometer-data': this._onAccelorometerDataChanged
+            };
         },
         getAngle (vec) {
             let ref = {x: 1, y: 0},

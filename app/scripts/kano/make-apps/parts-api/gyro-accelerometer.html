@@ -8,19 +8,6 @@
 
         GyroAccelerometer = {
             start () {
-                //this.id = 'gyro-accelerometer';
-                this.module = 'gyroAccelerometer';
-
-                this.handlers = {
-                    'gyro-data': (e) => {
-                        this.lastGyroVector = e;
-                        this.fire('gyro-accel-update');
-                    },
-                    'accelerometer-data': (e) => {
-                        this.lastAccelVector = e;
-                    }
-                };
-
                 PartsAPI.DongleBase.start.apply(this, arguments);
             },
             getGyroData (axis) {
@@ -28,6 +15,13 @@
             },
             getAccelerometerData (axis) {
                 return this.lastAccelVector[axis];
+            },
+            _onGyroDataChanged (e) {
+                this.lastGyroVector = e;
+                this.fire('gyro-accel-update');
+            },
+            _onAccelorometerDataChanged (e) {
+                this.lastAccelVector = e;
             }
         };
         // @polymerBehavior
