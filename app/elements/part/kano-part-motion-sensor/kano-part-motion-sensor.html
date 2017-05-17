@@ -16,6 +16,9 @@
                 value: 'motionSensor'
             }
         },
+        observers: [
+            '_reconfigure(model.userProperties.mode, model.userProperties.updateInterval)'
+        ],
         attached () {
             this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
             this._onGestureChanged = this._onGestureChanged.bind(this);
@@ -23,6 +26,19 @@
                 'proximity-data': this._onProximityDataChanged,
                 'gesture': this._onGestureChanged
             };
+        },
+        _reconfigure (mode, interval) {
+            this.debounce('reconfigure', () => {
+                if (mode !== this.lastMode) {
+                    this.lastMode = this.model.userProperties.mode;
+                    this.setMode(this.model.userProperties.mode);
+                }
+
+                if (interval !== this.lastUpdateInterval) {
+                    this.lastUpdateInterval = this.model.userProperties.updateInterval;
+                    this.setUpdateInterval(this.model.userProperties.updateInterval);
+                }
+            }, 250);
         }
     });
 </script>

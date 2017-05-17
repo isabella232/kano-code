@@ -62,6 +62,11 @@
 
     Kano.MakeApps.Msg.PARTS = "Parts";
 
+    Kano.MakeApps.Msg.MODE = "Mode";
+    Kano.MakeApps.Msg.UPDATE_INTERVAL = "Interval";
+    Kano.MakeApps.Msg.PROXIMITY = "Proximity";
+    Kano.MakeApps.Msg.GESTURE = "Gesture";
+
     Kano.MakeApps.Msg.STROKE_SIZE = "Stroke Size";
     Kano.MakeApps.Msg.STROKE_COLOR = "Stroke Color";
     Kano.MakeApps.Msg.WIDTH = "Width";

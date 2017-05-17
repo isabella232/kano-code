@@ -118,6 +118,14 @@
                     this.emitter.emit('gesture', value);
                 });
             }
+
+            setMode (mode) {
+                this.master.socket.emit(`motion-sensor:${this.number}:set-mode`, {mode});
+            }
+
+            setUpdateInterval (interval) {
+                this.master.socket.emit(`motion-sensor:${this.number}:set-update-interval`, {interval});
+            }
         }
 
         class TiltSensor extends PowerUpDevice {
