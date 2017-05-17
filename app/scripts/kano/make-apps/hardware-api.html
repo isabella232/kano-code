@@ -47,6 +47,10 @@
             removeListener () {
                 this.emitter.removeListener.apply(this.emitter, arguments);
             }
+
+            removeAllListeners () {
+                this.emitter.removeAllListeners.apply(this.emitter, arguments);
+            }
         }
 
         class MotionSensor extends PowerUpDevice {
@@ -188,6 +192,12 @@
             removeListener (name, cb) {
                 if (this.socket) {
                     this.socket.removeListener(name, cb);
+                }
+            }
+
+            removeAllListeners (name) {
+                if (this.socket) {
+                    this.socket.removeAllListeners(name);
                 }
             }
         }
