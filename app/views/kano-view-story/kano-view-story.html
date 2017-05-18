@@ -43,17 +43,16 @@
                             user="[[user]]"
                             scene="{{scene}}"
                             on-scene-done="nextScene"
-                            story-name="{{story.name}}"
-                            next-story="{{story.next}}"
+                            story="[[story]]"
                             extensions="[[story.extensions]]"
                             on-extend-story="extendStory"
-                            on-next-story="nextStory"
+                            on-next-story="goToNextStory"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
-        <paper-dialog id="share-modal" with-backdrop>
+        <paper-dialog id="share-modal" no-cancel-on-esc-key no-cancel-on-outside-click with-backdrop>
             <kano-share-modal on-confirm="confirmShare"
                               on-dismiss="dismissShare"
-                              on-next-story="nextStory"
+                              on-next-story="goToNextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"
@@ -118,7 +117,7 @@
                     if (typeof story.next === 'string') {
                         return Kano.MakeApps.Stories.getById(story.next)
                             .then((nextStory) => {
-                                story.next = nextStory;
+                                this.set('story.next', nextStory);
                                 return story;
                             })
                             .catch(() => {
@@ -314,14 +313,16 @@
             let extensionId = e.detail;
             page.redirect(`/story/${extensionId}`);
         },
-        nextStory (e) {
+        goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
                 location.href = Kano.MakeApps.config.PROJECTS_URL;
                 return;
             }
-            storyId = this.story.next.id;
-            page.redirect(`/story/${storyId}`);
+
+            if (this.story.next) {
+                page.redirect(`/story/${this.story.next}`);
+            }
         },
         _setStoryEnded () {
             this.set('scene.ended', true);
