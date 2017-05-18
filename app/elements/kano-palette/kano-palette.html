@@ -240,7 +240,7 @@ Custom property | Description | Default
                 this._closeWheel();
             },
             _openWheel () {
-                /* We refer from using the hashed element library (i.e. this.$['add-color']) to get the most up-to-date clientRect value. We briefly reset the target so kano-tooltip detects the element as a new value. */
+                /* The hashed element library (this.$['add-color']) is not getting the most up-to-date clientRect value. Target is temporarly set to null to make sure that path is notified. */
                 let target = this.$$('#add-color');
                 this.$.tooltip.set('target', null);
                 this.async(() => {
