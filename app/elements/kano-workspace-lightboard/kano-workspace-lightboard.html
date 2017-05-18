@@ -309,6 +309,7 @@
                         return;
                     }
                     this.joystickPressed = target;
+                    this.fire(target);
                     this.firingEvents[target] = setInterval(() => this.fire(target), 100);
                 } else {
                     this.fire(target);
@@ -389,6 +390,7 @@
                 this.$[target].classList.add('pressed');
                 if (this._isJoystick(target)) {
                     this.$.joystick.classList.add('pressed');
+                    this.fire(target);
                     this.firingEvents[target] = setInterval(() => this.fire(target), 100);
                 } else {
                     this.fire(target);
