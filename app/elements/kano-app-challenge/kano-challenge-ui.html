@@ -206,7 +206,8 @@ Example:
                           position="[[tooltip.position]]"
                           z-index="[[tooltip.zIndex]]"
                           tracking="[[tooltip.tracking]]"
-                          bounce$="[[tooltip.bounce]]">
+                          bounce$="[[tooltip.bounce]]"
+                          on-tap="_stopPropagation">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
                         <marked-element markdown="[[tooltip.text]]">
@@ -266,6 +267,10 @@ Example:
         listeners: {
             'change': '_editorChanged',
             'mode-ready': 'stepChanged'
+        },
+        _stopPropagation (e) {
+            e.preventDefault();
+            e.stopPropagation();
         },
         _editorChanged (e) {
             // Store current step object

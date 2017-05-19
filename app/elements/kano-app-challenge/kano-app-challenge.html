@@ -85,13 +85,15 @@ Example:
             this._addValidator('trigger', 'matchTrigger');
             this._addValidator('running', 'matchValue');
             this._addValidator('select-new-part', 'matchPartType');
-            this._addValidator('open-part-config', 'matchPartTarget');
             this._addValidator('enable-refresh', 'matchPartTarget');
             this._addValidator('disable-refresh', 'matchPartTarget');
             this._addValidator('manual-refresh', 'matchPartTarget');
             this._addValidator('open-settings-tooltip', 'matchPartTarget');
             this._addValidator('open-part-settings', 'matchPartTarget');
             this._addValidator('settings-interaction', 'matchSettingsInteraction');
+            this._addValidator('light-animation-tool-changed', 'matchValue');
+            this._addValidator('light-animation-paint', 'matchTool');
+            this._addValidator('light-animation-preview-changed', 'matchValue');
 
             this._addOppositeAction('add-part', 'close-parts', '_partsClosed');
             this.changeCounts = {};
@@ -179,6 +181,9 @@ Example:
         matchValue (validation, event) {
             return validation.value === event.value;
         },
+        matchTool (validation, event) {
+            return validation.tool === event.tool;
+        },
         matchAddPart (validation, event) {
             // Check the type of the added part
             if (!this.matchPartType(validation, event)) {
@@ -194,6 +199,7 @@ Example:
             return validation.type === event.part.type;
         },
         matchSettingsInteraction (validation, event) {
+            console.log(event);
             return validation.setting === event.setting;
         },
         isStepTarget (validation, id) {

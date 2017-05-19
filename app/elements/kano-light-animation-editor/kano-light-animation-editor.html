@@ -19,6 +19,8 @@
 <link rel="import" href="../inputs/kano-input/kano-input.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <dom-module id="kano-light-animation-editor">
     <style include="kano-code-shared-styles">
         :host {
@@ -222,13 +224,13 @@
         </kano-media-query>
         <div class="settings">
             <label>Settings</label>
-            <kano-input-range class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
-            <kano-input-range class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
-            <kano-input-range class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+            <kano-input-range id="width-slider" class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+            <kano-input-range id="height-slider" class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+            <kano-input-range id="speed-slider" class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
         </div>
         <div class="main">
             <div class="editing-tools">
-                <kano-palette id="palette" bitmaps="[[selected.userProperties.bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}"></kano-palette>
+                <kano-palette id="palette" bitmaps="[[selected.userProperties.bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}" wheel-opened="{{wheelOpened}}"></kano-palette>
                 <div class="small-screen-control-container">
                     <label>Controls</label>
                     <button type="button" name="button" on-tap="_togglePreviewState">
@@ -238,7 +240,7 @@
             </div>
             <div class="canvas-container">
                 <label>Canvas</label>
-                <iron-pages selected="[[previewState]]" attr-for-selected="name">
+                <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
                     <kano-pixel-canvas id="canvas"
                                         name="stopped"
                                         bitmap="{{selectedFrame}}"
@@ -248,7 +250,8 @@
                                         pixel-size="[[pixelSize]]"
                                         palette="[[palette]]"
                                         pen-color="[[penColor]]"
-                                        pen-type="[[penType]]"></kano-pixel-canvas>
+                                        pen-type="[[penType]]"
+                                        on-paint-action="_onPaintAction"></kano-pixel-canvas>
                     <kano-bitmap-renderer class="preview-renderer" 
                                           name="running"
                                           bitmap="[[frame]]"
@@ -260,14 +263,14 @@
             </div>
             <div class="control-container">
                 <label>Controls</label>
-                <button class="control" type="button" name="button" on-tap="_togglePreviewState">
+                <button id="preview-button" class="control" type="button" name="button" on-tap="_togglePreviewState">
                     <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
                 </button>
             </div>
         </div>
         <div class="framelist-container">
             <div class="framelist-button-container">
-                <button type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button>
+                <button id="add-frame-button" type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button>
             </div>
             <kano-bitmap-list id="frames"
                               bitmaps="{{selected.userProperties.bitmaps}}"
@@ -283,6 +286,8 @@
             behaviors: [
                 PolymerFilters.FilterBehavior,
                 Kano.Behaviors.MediaQueryBehavior,
+                Kano.Behaviors.AppElementRegistryBehavior,
+                Kano.Behaviors.AppEditorBehavior,
                 Kano.MakeApps.PartsAPI['light-animation']
             ],
             properties: {
@@ -303,6 +308,22 @@
                 pixelSize: {
                     type: Number,
                     value: 20
+                },
+                penType: {
+                    type: String,
+                    observer: '_penTypeChanged'
+                },
+                penColor: {
+                    type: String,
+                    observer: '_penColorChanged'
+                },
+                wheelOpened: {
+                    type: Boolean,
+                    observer: '_wheelStatusChanged'
+                },
+                previewState: {
+                    type: String,
+                    observer: '_previewStateChanged'
                 }
             },
             observers: [
@@ -315,6 +336,7 @@
                 this._onKeydown = this._onKeydown.bind(this);
             },
             attached () {
+                let paletteElements = this.$.palette.getElementsRegistry();
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
                     running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
@@ -325,6 +347,20 @@
                 this.$.palette._computePalette();
                 this.BOARD_WIDTH = 16;
                 this.BOARD_HEIGHT = 8;
+                this._registerElement('animation-editor', this);
+                this._registerElement('animation-editor-width-slider', this.$['width-slider']);
+                this._registerElement('animation-editor-height-slider', this.$['height-slider']);
+                this._registerElement('animation-editor-speed-slider', this.$['speed-slider']);
+                this._registerElement('animation-editor-palette', this.$['palette']);
+                this._registerElement('animation-editor-canvas', this.$['canvas-area']);
+                this._registerElement('animation-editor-preview-button', this.$['preview-button']);
+                this._registerElement('animation-editor-add-frame-button', this.$['add-frame-button']);
+                this._registerElement('animation-editor-frames', this.$['frames']);
+                this._registerElement('animation-editor-brush-button', paletteElements['brush-button']);
+                this._registerElement('animation-editor-bucket-button', paletteElements['bucket-button']);
+                this._registerElement('animation-editor-colors', paletteElements['colors']);
+                this._registerElement('animation-editor-add-color-button', paletteElements['add-color-button']);
+                this._registerElement('animation-editor-color-wheel', paletteElements['color-wheel']);
             },
             detached () {
                 document.removeEventListener('keydown', this._onKeydown);
@@ -332,6 +368,22 @@
             },
             stop () {
                 this._stopPreview();
+            },
+            _penTypeChanged (newValue) {
+                this.notifyChange('light-animation-tool-changed', { value: newValue });
+            },
+            _penColorChanged (newValue) {
+                this.notifyChange('light-animation-color-changed', { value: newValue });
+            },
+            _wheelStatusChanged (opened) {
+                const event = opened ? 'light-animation-wheel-open' : 'light-animation-wheel-close';
+                this.notifyChange(event);
+            },
+            _previewStateChanged () {
+                this.notifyChange('light-animation-preview-changed', { value: this.previewState });
+            },
+            _onPaintAction () {
+                this.notifyChange('light-animation-paint', { tool: this.penType });
             },
             _onSelectedChanged (e) {
                 this.selectedIndex = this.selectedIndex || 0;
@@ -378,6 +430,7 @@
             },
             _addFrame () {
                 this.$.frames.addFrame();
+                this.notifyChange('light-animation-add-frame');
             },
             _isNewFrameDisabled (previewState) {
                 return (previewState === 'running');
