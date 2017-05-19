@@ -160,17 +160,17 @@ Custom property | Description | Default
         <div class="pen-control">
             <label>Tools</label>
             <iron-selector selected="[[penType]]" attr-for-selected="name">
-                <button on-tap="_penControlTapped" name="draw">
+                <button id="brush-button" on-tap="_penControlTapped" name="draw">
                     <iron-icon icon="kano-icons:paint-brush"></iron-icon>
                 </button>
-                <button on-tap="_penControlTapped" name="fill">
+                <button id="bucket-button" on-tap="_penControlTapped" name="fill">
                     <iron-icon icon="kano-icons:paint-bucket"></iron-icon>
                 </button>
             </iron-selector>
         </div>
         <div class="palette">
             <label>Colors</label>
-            <div class="palette-content">
+            <div class="palette-content" id="colors">
                 <template is="dom-repeat" items="[[DEFAULT_PALETTE]]" as="color">
                     <div class$="palette-color [[_computePaletteItemSelectedClass(color, penColor)]] [[penType]]" style$="[[_computePaletteColor(color)]]" on-tap="_paletteItemTapped"></div>
                 </template>
@@ -180,8 +180,8 @@ Custom property | Description | Default
                 <button id="add-color" class="palette-color add-color" on-tap="_openWheel">+</button>
             </div>
         </div>
-        <kano-tooltip id="tooltip" class="tooltip" position="right" target="[[tooltipTarget]]" auto-close>
-            <kano-color-wheel value="{{penColor}}" on-value-changed="_penColorChanged"></kano-color-wheel>
+        <kano-tooltip id="tooltip" class="tooltip" position="right" target="[[tooltipTarget]]" auto-close opened="{{wheelOpened}}">
+            <kano-color-wheel id="wheel" value="{{penColor}}" on-value-changed="_penColorChanged" render-later></kano-color-wheel>
         </kano-tooltip>
     </template>
     <script type="text/javascript">
@@ -202,6 +202,10 @@ Custom property | Description | Default
                 },
                 penColor: {
                     type: String,
+                    notify: true
+                },
+                wheelOpened: {
+                    type: Boolean,
                     notify: true
                 }
             },
@@ -225,6 +229,15 @@ Custom property | Description | Default
                 document.removeEventListener('keydown', this._onKeyEvent);
                 document.removeEventListener('keyup', this._onKeyEvent);
             },
+            getElementsRegistry () {
+                return {
+                    'brush-button': this.$['brush-button'],
+                    'bucket-button': this.$['bucket-button'],
+                    'colors': this.$['colors'],
+                    'add-color-button': this.$['add-color'],
+                    'color-wheel': this.$['wheel']
+                }
+            },
             _computePenType (penType, shiftPressed) {
                 return shiftPressed ? 'fill' : penType;
             },
@@ -243,10 +256,18 @@ Custom property | Description | Default
                 /* The hashed element library (this.$['add-color']) is not getting the most up-to-date clientRect value. Target is temporarly set to null to make sure that path is notified. */
                 let target = this.$$('#add-color');
                 this.$.tooltip.set('target', null);
+                this._renderWheel();
                 this.async(() => {
                     this.$.tooltip.set('target', target);
                     this.$.tooltip.open();
                 });
+            },
+            _renderWheel () {
+                if (this._wheelRendered) {
+                    return;
+                }
+                this._wheelRendered = true;
+                this.$.wheel.render();
             },
             _paletteItemTapped (e) {
                 let color = e.model.get('color');

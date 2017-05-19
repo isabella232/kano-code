@@ -340,6 +340,13 @@
                 }
             },
             _partsElementsRepeaterChanged () {
+                let allPartsEl = Polymer.dom(this.root).querySelectorAll('.part'),
+                    partEl, partElId;
+                for (let i = 0; i < allPartsEl.length; i++) {
+                    partEl = allPartsEl[i];
+                    partElId = partEl.getAttribute('id');
+                    this._registerElement(`parts-controls-${partElId}`, partEl);
+                }
                 this._partsToAnimateIn.forEach(part => {
                     let partEl = this.$$(`#part-${part.id}`),
                         listItemEl,
@@ -353,17 +360,16 @@
                         transform: ['translateX(30%)', 'translateX(0%)'],
                         opacity: [0, 1]
                     }, {
-                        duration: 500,
+                        duration: 300,
                         easing: 'ease-out',
-                        delay: 300,
                         fill: 'backwards'
                     });
                     if (partInlineControlsEl) {
                         partInlineControlsEl.animate({
                             opacity: [0, 1]
                         }, {
-                            duration: 600,
-                            delay: 800,
+                            duration: 300,
+                            delay: 400,
                             fill: 'backwards',
                             easing: 'ease-out'
                         });
@@ -381,6 +387,7 @@
                 this.target = document.body;
                 this.$.content.resizeView();
                 this._registerElement('add-part-button', this.$['add-part-button']);
+                this._registerElement('parts-controls', this);
             },
             _toggleFullscreen () {
                 this.toggleClass('fullscreen');

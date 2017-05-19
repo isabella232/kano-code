@@ -200,6 +200,7 @@ Polymer({
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-part-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
+            this.notifyChange('close-part-settings', { part: this.selected });
             this.editableLayout = false;
             // Stop eventual actions the part editor might be doing
             this.$['edit-part-dialog-content'].stop();
