@@ -105,19 +105,19 @@
             }
 
             _correlatePitch (buf, sampleRate) {
-                let MIN_SAMPLES = 0,  // will be initialized when AudioContext is created.
+                const MIN_SAMPLES = 0,  // will be initialized when AudioContext is created.
                     GOOD_ENOUGH_CORRELATION = 0.9, // this is the "bar" for how close a correlation needs to be
                     SIZE = buf.length,
                     MAX_SAMPLES = Math.floor(SIZE / 2),
-                    best_offset = -1,
+                    correlations = new Array(MAX_SAMPLES);
+                let best_offset = -1,
                     best_correlation = 0,
                     rms = 0,
-                    foundGoodCorrelation = false,
-                    correlations = new Array(MAX_SAMPLES);
+                    foundGoodCorrelation = false;
 
                 for (let i = 0; i < SIZE; i++) {
                     let val = buf[i];
-                    rms += val * val;
+                    rms = rms + val * val;
                 }
                 rms = Math.sqrt(rms / SIZE);
                 if (rms < 0.01) { // not enough signal
