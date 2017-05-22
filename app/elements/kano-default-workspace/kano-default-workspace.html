@@ -27,7 +27,7 @@
                 position: fixed;
                 top: 0px;
                 right: 0px;
-                color: white;
+                color: #fff;
                 background-color: transparent;
                 z-index: 101;
                 border: none;
@@ -38,7 +38,7 @@
                 cursor: pointer;
             }
             :host .fullscreen-close div {
-                transition: all 0.3s ease;
+                transition: all 0.2s ease;
                 transform: translate(0, -7px);
             }
             :host .fullscreen-close div:hover {
@@ -93,7 +93,7 @@
                 @apply --layout-vertical;
                 @apply --layout-justified;
                 @apply --layout-flex-auto;
-                padding: 0px 6px;
+                padding: 0px 2px;
                 box-sizing: border-box;
             }
             :host(:not(.fullscreen)) .overlay {
@@ -114,17 +114,17 @@
                 width: 100%;
             }
             .add-parts {
+                height: 46px;
                 border-top: 1px solid #202428;
                 border-bottom: 1px solid #202428;
                 @apply --layout-horizontal;
                 @apply --layout-center;
-                padding: 0 1px;
             }
             .add-parts .label {
                 text-transform: uppercase;
                 @apply --layout-flex;
-                color: white;
-                font-size: 12px;
+                color: #fff;
+                font-size: 14px;
                 letter-spacing: 0.03em;
                 padding: 10px 0;
             }
@@ -132,17 +132,14 @@
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 cursor: pointer;
-                padding: 8px;
-                transition: background 0.3s;
-            }
-            .add-parts .action:hover {
-                background: rgba(255, 255, 255, 0.1);
+                transition: background 0.2s;
             }
             .add-parts .action label {
-                margin-right: 15px;
-                font-size: 12px;
+                margin-right: 12px;
+                font-size: 14px;
                 color: rgba(255, 255, 255, 0.5);
                 cursor: pointer;
+                transition: color 0.2s;
             }
             .add-parts button {
                 @apply --layout-horizontal;
@@ -157,8 +154,15 @@
                 font-weight: bold;
                 width: 24px;
                 height: 24px;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.25);
                 color: rgba(255, 255, 255, 0.75);
+            }
+            .add-parts .action:hover label {
+                color: #fff;
+            }
+            .add-parts .action:hover button {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.5);
             }
             paper-dialog {
                 background: transparent;
@@ -180,7 +184,7 @@
                 @apply --layout-center;
                 border-bottom: 1px solid #202428;
                 height: 40px;
-                color: white;
+                color: #fff;
             }
             .part.sortable-ghost {
                 opacity: 0.1;
@@ -198,15 +202,19 @@
             .handle {
                 cursor: move;
             }
-            .remove-part {
+            button.remove-part {
                 background: inherit;
-                border: 0px;
                 cursor: pointer;
+                line-height: 0;
+                border: 0;
                 padding: 0;
                 margin: 0 12px;
             }
             .part:hover .remove-part iron-icon {
                 fill: var(--color-rhubarb);
+            }
+            .part:hover iron-icon.handle {
+                fill: #fff;
             }
             [hidden] {
                 display: none !important;
@@ -360,31 +368,16 @@
                 }
                 this._partsToAnimateIn.forEach(part => {
                     let partEl = this.$$(`#part-${part.id}`),
-                        listItemEl,
                         partInlineControlsEl;
                     if (!partEl) {
                         return;
                     }
-                    listItemEl = partEl.querySelector('kano-part-list-item');
-                    partInlineControlsEl = listItemEl.getInlineControlsElement();
-                    partEl.animate({
-                        transform: ['translateX(30%)', 'translateX(0%)'],
+                    partEl.querySelector('kano-part-list-item').animate({
                         opacity: [0, 1]
                     }, {
                         duration: 300,
-                        easing: 'ease-out',
-                        fill: 'backwards'
+                        fill: 'forwards'
                     });
-                    if (partInlineControlsEl) {
-                        partInlineControlsEl.animate({
-                            opacity: [0, 1]
-                        }, {
-                            duration: 300,
-                            delay: 400,
-                            fill: 'backwards',
-                            easing: 'ease-out'
-                        });
-                    }
                 });
                 this._partsToAnimateIn = [];
             },
