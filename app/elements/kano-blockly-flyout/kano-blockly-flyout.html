@@ -56,7 +56,6 @@
                     this._blockDB = {};
                 },
                 attached () {
-                    this.dragAngleRange_ = 70;
                     Polymer.dom(this.root).appendChild(Blockly.Css.styleSheet_.ownerNode.cloneNode(true));
                     this._render();
                 },
@@ -284,46 +283,8 @@
                     var dx = e.clientX - Blockly.Flyout.startDownEvent_.clientX;
                     var dy = e.clientY - Blockly.Flyout.startDownEvent_.clientY;
 
-                    var createBlock = this.determineDragIntention_(dx, dy);
-                    if (createBlock) {
-                        Blockly.longStop_();
-                        this._createBlockFunc(Blockly.Flyout.startBlock_)(Blockly.Flyout.startDownEvent_);
-                    } else if (this.dragMode_ == Blockly.DRAG_FREE) {
-                        Blockly.longStop_();
-                    }
+                    this._createBlockFunc(Blockly.Flyout.startBlock_)(Blockly.Flyout.startDownEvent_);
                     e.stopPropagation();
-                },
-                determineDragIntention_ (dx, dy) {
-                    if (this.dragMode_ == Blockly.DRAG_FREE) {
-                        // Once in free mode, always stay in free mode and never create a block.
-                        return false;
-                    }
-                    var dragDistance = Math.sqrt(dx * dx + dy * dy);
-                    if (dragDistance < this.DRAG_RADIUS) {
-                        // Still within the sticky drag radius.
-                        this.dragMode_ = Blockly.DRAG_STICKY;
-                        return false;
-                    } else {
-                        if (this.isDragTowardWorkspace_(dx, dy)) {
-                            // Immediately create a block.
-                            return true;
-                        } else {
-                            // Immediately move to free mode - the drag is away from the workspace.
-                            this.dragMode_ = Blockly.DRAG_FREE;
-                            return false;
-                        }
-                    }
-                },
-                isDragTowardWorkspace_ (dx, dy) {
-                    // Direction goes from -180 to 180, with 0 toward the right and 90 on top.
-                    const dragDirection = Math.atan2(dy, dx) / Math.PI * 180;
-
-                    const range = this.dragAngleRange_;
-                    // Check for left or right dragging.
-                    if ((dragDirection < range && dragDirection > -range) || (dragDirection < -180 + range || dragDirection > 180 - range)) {
-                        return true;
-                    }
-                    return false;
                 },
                 _createBlockFunc (originBlock) {
                     return (e) => {
