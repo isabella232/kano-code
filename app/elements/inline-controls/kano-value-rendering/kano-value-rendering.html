@@ -42,34 +42,48 @@
                 },
                 font: {
                     type: String,
-                    value: '24px Bariol'
+                    value: '24px Bariol',
+                    observer: '_updateFont'
                 },
                 color: {
                     type: String,
-                    value: 'white'
+                    value: 'white',
+                    observer: '_updateColor'
                 }
             },
             attached () {
-                this.ctx = this.$.canvas.getContext('2d');
+                this._updateFont();
+                this._updateColor();
                 this._render();
+            },
+            _getContext () {
+                if (!this.ctx) {
+                    this.ctx = this.$.canvas.getContext('2d');
+                }
+                return this.ctx;
+            },
+            _updateFont () {
+                this._getContext().font = this.font;
+            },
+            _updateColor () {
+                this._getContext().fillStyle = this.color;
             },
             _double (value) {
                 return value * 2;
             },
             _render () {
-                let value = this.value;
+                let value = this.value,
+                    ctx = this._getContext();
                 if (!this.ctx) {
                     return;
                 }
                 if (typeof value === 'undefined') {
                     value = '';
                 }
-                this.ctx.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
-                this.ctx.font = this.font;
-                this.ctx.fillStyle = this.color;
-                this.ctx.textAlign = 'center';
-                this.ctx.textBaseline = 'center';
-                this.ctx.fillText(value, this._canvasWidth / 2, this._canvasHeight / 2 + this.offsetX);
+                ctx.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'center';
+                ctx.fillText(value, this._canvasWidth / 2, this._canvasHeight / 2 + this.offsetX);
             }
         });
     </script>
