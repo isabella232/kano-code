@@ -1,13 +1,17 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
+<link rel="import" href="../kano-icons/kc-base.html">
 <link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
 <link rel="import" href="../kano-part-list-item/kano-part-list-item.html">
-<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
+
 <dom-module id="kano-default-workspace">
     <template>
         <style>
@@ -175,7 +179,7 @@
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 border-bottom: 1px solid #202428;
-                height: 43px;
+                height: 40px;
                 color: white;
             }
             .part.sortable-ghost {
@@ -184,18 +188,25 @@
             kano-part-list-item {
                 @apply --layout-flex;
                 cursor: pointer;
+                max-width: 100%;
+            }
+            iron-icon {
+                --iron-icon-width: 12px;
+                --iron-icon-height: 12px;
+                --iron-icon-fill-color: #8F9195;
             }
             .handle {
                 cursor: move;
-            }
-            .remove-part, .handle {
-                color: #3A4248;
-                font-size: 32px;
             }
             .remove-part {
                 background: inherit;
                 border: 0px;
                 cursor: pointer;
+                padding: 0;
+                margin: 0 12px;
+            }
+            .part:hover .remove-part iron-icon {
+                fill: var(--color-rhubarb);
             }
             [hidden] {
                 display: none !important;
@@ -231,11 +242,11 @@
                 <sortable-js handle=".handle" animation="150">
                     <template is="dom-repeat" items="{{parts}}" as="part" on-dom-change="_partsElementsRepeaterChanged">
                         <div class="part" id$="part-[[part.id]]">
-                            <iron-icon class="handle" icon="menu"></iron-icon>
                             <kano-part-list-item model="{{part}}" on-tap="_partItemTapped"></kano-part-list-item>
-                            <button type="button" class="remove-part" on-tap="_removePart">
-                                <iron-icon icon="close"></iron-icon>
+                            <button type="button" class="remove-part">
+                                <iron-icon icon="kc-base:close" on-tap="_removePart"></iron-icon>
                             </button>
+                            <iron-icon class="handle" icon="kc-base:handle"></iron-icon>
                         </div>
                     </template>
                 </sortable-js>
@@ -243,7 +254,7 @@
         </div>
         <div class="overlay">
             <button class="fullscreen-close" on-tap="_toggleFullscreen">
-                <iron-icon icon="close"></iron-icon>
+                <iron-icon icon="kc-base:close"></iron-icon>
             </button>
             <kano-workspace-toolbar running="[[running]]"
                                     no-part-controls
@@ -413,6 +424,7 @@
                 this.fire('remove-part', part);
             },
             _partItemTapped (e) {
+                e.preventDefault();
                 let part = e.model.get('part');
                 this.fire('part-selected', part);
             }

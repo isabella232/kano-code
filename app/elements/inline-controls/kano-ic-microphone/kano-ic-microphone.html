@@ -1,36 +1,30 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/microphone.html">
 <link rel="import" href="../kano-value-rendering/kano-value-rendering.html">
 <dom-module id="kano-ic-microphone">
     <template>
         <style>
             :host {
-                display: block;
                 @apply --layout-horizontal;
                 @apply --layout-end-justified;
                 color: white;
             }
             .visuals {
-                @apply --layout-wrap;
                 @apply --layout-horizontal;
-                border-right: 1px solid #202428;
-                border-left: 1px solid #202428;
+                @apply --layout-flex-auto;
+                margin: 0 12px;
             }
             .data {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 @apply --layout-center-justified;
                 width: 32px;
-                border-right: 1px solid #202428;
-            }
-            canvas {
-                width: 200px;
-                height: 32px;
             }
         </style>
         <div class="visuals" id="visuals">
-            <canvas id="canvas" width="200" height="32"></canvas>
+            <canvas id="canvas" height="32"></canvas>
         </div>
         <div class="data">
             <kano-value-rendering width="32" height="32" value="[[value]]" offset-x="10"></kano-value-rendering>
@@ -39,40 +33,55 @@
     <script>
         Polymer({
             is:'kano-ic-microphone',
-            behaviors: [Kano.MakeApps.PartsAPI.microphone],
+            behaviors: [Kano.MakeApps.PartsAPI.microphone, Polymer.IronResizableBehavior],
             properties: {
                 model: Object
             },
+            listeners: {
+                'iron-resize': '_initCanvas'
+            },
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
-                this.values = [];
                 Kano.Microphone.start().then(() => {
+                    this.values = [];
                     this._update();
-                    this._render();
+                    this._initCanvas();
                 }).catch(error => {
                     this.disabled = true;
                 });
+            },
+            _initCanvas () {
+                if (!this.values) {
+                    return;
+                }
+
+                if (this._nextFrameId) {
+                    cancelAnimationFrame(this._nextFrameId);
+                }
+                this.$.canvas.style.width = '100%';
+                this.$.canvas.width = this.$.canvas.offsetWidth;
+                this.async(() => this._render());
             },
             _update () {
                 this._updateInterval = setInterval(() => {
                     let volume = Kano.Microphone.getVolume();
                     this.values.push(volume);
-                    if (this.values.length > 30) {
+                    if (this.values.length > Math.round(this.$.canvas.width / 8) + 1) {
                         this.values.shift();
                     }
                     this.set('value', Math.round(volume));
                 }, 100);
             },
             _render () {
-                let step = this.$.canvas.width / 30,
+                const step = 8,
                     height = 32,
-                    spacing = 2,
-                    barHeight;
+                    spacing = 2;
+                let barHeight;
                 this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
                 this.ctx.save();
                 this.ctx.translate(0.5, 0.5);
                 this.ctx.fillStyle = '#8F9195';
-                for (let i = 0; i < this.values.length; i++) {
+                for (var i = 0; i < this.values.length; i++) {
                     barHeight = this.values[i] / 100 * height;
                     this._fillRoundedRect(this.ctx, i * step - spacing, height / 2 - barHeight / 2, step - spacing * 2, barHeight, 1);
                 }

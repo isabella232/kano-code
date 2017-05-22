@@ -3,7 +3,7 @@
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="./kano-add-parts-item.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/button.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <dom-module id="kano-add-parts">
     <template>
         <style>
@@ -12,16 +12,20 @@
                 color: white;
                 background: #2A2F35;
             }
-            :host>* {
-                padding: 18px 0px;
-            }
             .categories {
                 @apply --layout-horizontal;
-                padding-top: 0px;
+                padding: 24px 32px;
             }
             .categories h2 {
                 font-weight: normal;
                 font-size: 16px;
+                margin: 0;
+            }
+            .underline {
+                @apply --layout-self-stretch;
+                height: 4px;
+                border-radius: 6px;
+                margin: 24px 0;
             }
             .categories>* {
                 @apply --layout-vertical;
@@ -29,44 +33,51 @@
                 @apply --layout-flex;
             }
             .categories>*:not(:first-of-type) {
-                margin-left: 24px;
+                margin-left: 32px;
             }
-            .categories .ui h2 {
-                color: #88c440;
+            .categories .ui .underline {
+                background-color: #88c440;
             }
-            .categories .data h2 {
-                color: #00d9c7;
+            .categories .data .underline {
+                background-color: #00d9c7;
             }
-            .categories .hardware h2 {
-                color: #00a6f6;
+            .categories .hardware .underline {
+                background-color: #00a6f6;
             }
             header {
                 @apply --layout-horizontal;
                 @apply --layout-center;
+                height: 58px;
+                padding: 0 16px;
                 border-bottom: 2px solid #252A30;
             }
             header .label {
                 @apply --layout-flex;
+                font-size: 16px;
+                font-weight: bold;
             }
             .button {
                 @apply --kano-button;
-                padding: 8px 18px;
-                margin: 4px;
-                font-size: 12px;
+                padding: 8px 24px;
+                font-size: 14px;
+                font-weight: bold;
                 border-radius: 3px;
                 background: #54595D;
                 text-shadow: none;
             }
-            button.add {
-                font-size: 17px;
-                padding: 12px 25px;
-                background: #7DC553;
+            .button:hover {
+                background-color: #5b646b;
             }
             kano-add-parts-item {
-                border-bottom: 2px solid #252A30;
+                @apply --layout-center-justified;
+                width: 238px;
+                height: 40px;
+                background-color: var(--color-chateau);
+                border-radius: 3px;
+                margin-bottom: 16px;
             }
-            kano-add-parts-item:first-of-type {
-                border-top: 2px solid #252A30;
+            kano-add-parts-item:hover {
+                background-color: #5b646b;
             }
             .ui kano-add-parts-item[selected] {
                 --iron-icon-fill-color: #88c440;
@@ -83,34 +94,39 @@
         </style>
         <header>
             <div class="label">[[localize('ADD_PARTS', 'Add Parts')]]</div>
-            <button type="button" class="button" on-tap="_cancel">[[localize('CANCEL', 'Cancel')]]</button>
-            <button type="button" class="button add" on-tap="_confirm" hidden>[[localize('DONE', 'Done')]]</button>
+            <button type="button" class="button" on-tap="_confirm">[[localize('DONE', 'Done')]]</button>
         </header>
         <div class="categories">
             <div class="ui">
                 <h2>Interface</h2>
+                <div class="underline"></div>
                 <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('ui')]]" as="part" on-dom-change="_repeaterChanged">
                     <kano-add-parts-item id$="[[part.type]]"
                                             label="[[part.label]]"
                                             type="[[part.type]]"
+                                            color-fill="#88c440"
                                             on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
             </div>
             <div class="data">
                 <h2>Data</h2>
+                <div class="underline"></div>
                 <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('data')]]" as="part" on-dom-change="_repeaterChanged">
                     <kano-add-parts-item id$="[[part.type]]"
                                             label="[[part.label]]"
                                             type="[[part.type]]"
+                                            color-fill="#00d9c7"
                                             on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
             </div>
             <div class="hardware">
                 <h2>Hardware</h2>
+                <div class="underline"></div>
                 <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('hardware')]]" as="part" on-dom-change="_repeaterChanged">
                     <kano-add-parts-item id$="[[part.type]]"
                                             label="[[part.label]]"
                                             type="[[part.type]]"
+                                            color-fill="#00a6f6"
                                             on-part-tap="_addPart"></kano-add-parts-item>
                 </template>
             </div>

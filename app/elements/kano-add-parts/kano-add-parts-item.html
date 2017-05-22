@@ -12,10 +12,8 @@
                 cursor: pointer;
                 color: white;
                 overflow: hidden;
-                --iron-icon-fill-color: #8F9195;
             }
             #label {
-                margin-left: 4px;
                 color: white;
             }
             button.body {
@@ -23,7 +21,7 @@
                 @apply --layout-center;
                 background: inherit;
                 color: inherit;
-                padding: 6px 0px;
+                padding: 0;
                 border: 0px;
                 font-size: 14px;
                 font-family: var(--font-body);
@@ -48,9 +46,10 @@
                 height: 14px;
             }
             iron-icon {
-                --iron-icon-width: 20px;
-                --iron-icon-height: 20px;
-                margin: 4px;
+                --iron-icon-width: 24px;
+                --iron-icon-height: 24px;
+                --iron-icon-fill-color: #8F9195;
+                margin: 8px 12px 8px 8px;
             }
             .clear {
                 --iron-icon-fill-color: #8F9195;
@@ -63,7 +62,7 @@
         <button type="button" class="body" on-tap="_tapped">
             <div class="number" hidden$="[[!count]]">[[count]]</div>
             <div id="content">
-                <iron-icon icon="parts:[[type]]"></iron-icon>
+                <iron-icon id="part-icon" icon="parts:[[type]]"></iron-icon>
                 <div id="label">[[label]]</div>
             </div>
             <div type="button" class="bin" on-tap="_binTapped" hidden$="[[_isCountZero(count)]]">
@@ -81,7 +80,18 @@
                     value: 0,
                     observer: '_countChanged'
                 },
-                type: String
+                type: String,
+                colorFill: String
+            },
+            listeners: {
+                'mouseenter': '_applyColor',
+                'mouseleave': '_unApplyColor'
+            },
+            _applyColor () {
+                this.icon.style.fill = this.colorFill;
+            },
+            _unApplyColor () {
+                this.icon.style.fill = '#8F9195';
             },
             _tapped (e) {
                 e.preventDefault();
