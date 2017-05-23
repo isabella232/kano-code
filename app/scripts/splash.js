@@ -1,7 +1,7 @@
 (function (Kano) {
     let MARGIN = 10,
         MIN_WIDTH = 15,
-        SPACE_LIMIT = 120,
+        SPACE_LIMIT = 100,
         DELAY_MIN = 100,
         DELAY_MAX = 400,
         LINES = 7,
