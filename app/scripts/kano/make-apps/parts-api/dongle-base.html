@@ -13,8 +13,10 @@
             handlers: [],
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
+                this.remapListeners(null, this.appModules.getModule(this.module).getDeviceForPart(this.id), true);
             },
             remapListeners (oldDevice, newDevice, notify) {
+
                 if (oldDevice) {
                     Object.keys(this.handlers).forEach((eventName) => {
                         oldDevice.removeListener(eventName, this.handlers[eventName]);

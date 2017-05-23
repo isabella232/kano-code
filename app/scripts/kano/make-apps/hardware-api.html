@@ -463,9 +463,13 @@
              * Find an available match for a device
              */
             _findFreeMatchingPartForDevice (dev) {
-                const preferedPart = HardwareAPI.bindingHistory[dev.serialNumber];
-                if (preferedPart && this._partIsFreeAndMatchesDevice(preferedPart, dev)) {
-                    return preferedPart;
+                const preferredPart = HardwareAPI.bindingHistory[dev.serialNumber];
+                if (preferredPart && this._partIsFreeAndMatchesDevice(preferredPart, dev)) {
+                    if (this.parts.indexOf(preferredPart) > -1) {
+                        return preferredPart;
+                    } else {
+                        delete HardwareAPI.bindingHistory[dev.serialNumber];
+                    }
                 }
                 for (let i = 0; i < this.parts.length; i++) {
                     let part = this.parts[i];
