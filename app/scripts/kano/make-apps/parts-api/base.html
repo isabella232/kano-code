@@ -22,10 +22,12 @@
                     if (typeof desc.set === 'function') {
                         setter = desc.set.bind(target);
                     }
-                    Object.defineProperty(target, key, {
-                        get: getter,
-                        set: setter
-                    });
+                    if (getter && setter) {
+                        Object.defineProperty(target, key, {
+                            get: getter,
+                            set: setter
+                        });
+                    }
                 });
                 return target;
             },
