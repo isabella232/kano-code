@@ -7,6 +7,9 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         Oscillator = {
+            onDestroyed () {
+                this._stopOscillating();
+            },
             start () {
                 PartsAPI.Base.start.apply(this);
                 this.set('model.x', 0);
