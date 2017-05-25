@@ -21,6 +21,9 @@
                 return parseInt(this.get('model.userProperties.delay')) + this.x;
             },
             _updateValue () {
+                if (this.timeout) {
+                    this._stopOscillating();
+                }
                 this.timeout = setTimeout(() => {
                     this.set('model.x', this.model.x + this._getStep());
                     this._checkBounds();
