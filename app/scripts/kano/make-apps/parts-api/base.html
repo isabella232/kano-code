@@ -8,6 +8,35 @@
 
         // @polymerBehavior
         Kano.MakeApps.PartsAPI.Base = Base = {
+            /**
+             * Do a Object.assign, but also brings in the getter/setters
+             */
+            applyMixin (target, source) {
+                Object.assign(target, source);
+                Object.keys(source).forEach(key => {
+                    let desc = Object.getOwnPropertyDescriptor(source, key),
+                        getter, setter;
+                    if (typeof desc.get === 'function') {
+                        getter = desc.get.bind(target);
+                    }
+                    if (typeof desc.set === 'function') {
+                        setter = desc.set.bind(target);
+                    }
+                    Object.defineProperty(target, key, {
+                        get: getter,
+                        set: setter
+                    });
+                });
+                return target;
+            },
+            applyMixins (target) {
+                let args = Array.prototype.slice.apply(arguments);
+                args.shift();
+                args.forEach(source => {
+                    this.applyMixin(target, source);
+                });
+                return target;
+            },
             attached () {
                 this.onCreated();
             },
