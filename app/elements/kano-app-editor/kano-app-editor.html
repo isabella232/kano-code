@@ -177,15 +177,22 @@ Example:
             margin: 0px;
             font-family: var(--font-body);
         }
+        paper-dialog#dialog {
+            background-color: #fff;
+        }
         paper-dialog#dialog>iron-pages {
             @apply --layout-horizontal;
             @apply --layout-flex;
         }
-        paper-dialog>iron-pages>div {
+        paper-dialog#dialog>iron-pages>div {
             @apply --layout-horizontal;
             @apply --layout-start;
             @apply --layout-flex;
             font-family: var(--font-body);
+            color: #292f35;
+        }
+        paper-dialog#dialog>iron-pages>h2 {
+            color: #000;
         }
         paper-dialog .buttons .confirm {
             background: #EA0923;
@@ -196,6 +203,7 @@ Example:
         <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
         </kano-media-query>
 
+        <iron-overlay-backdrop id="backdrop" on-click="_onLockdownClicked"></iron-overlay-backdrop>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[modeReady]]">
