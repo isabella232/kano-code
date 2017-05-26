@@ -43,6 +43,7 @@
 
     Kano.MakeApps.Msg.CANCEL = "Cancel";
     Kano.MakeApps.Msg.CONFIRM = "Confirm";
+    Kano.MakeApps.Msg.GOT_IT = "Got it";
 
     Kano.MakeApps.Msg.EXIT = "Exit";
     Kano.MakeApps.Msg.CLOSE = "Close";
@@ -191,6 +192,7 @@
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_DONE = "Done";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_EDIT_LAYOUT = "Edit Layout";
 
+
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT_CHALLENGE = "Next Challenge";
@@ -228,6 +230,8 @@
     Kano.MakeApps.Msg.KANO_BLOCKLY_OMNIBOX_TYPE = "Type: ";
 
     Kano.MakeApps.Msg.KANO_ADD_PARTS_ADD_PARTS = "Add Parts";
+    Kano.MakeApps.Msg.KANO_ADD_PARTS_NO_PARTS_HEADER = "No parts available";
+    Kano.MakeApps.Msg.KANO_ADD_PARTS_NO_PARTS_TEXT = "No parts here yet. Complete the challenge to unlock them all!";
 
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ARE_YOU_SURE = "Are you sure";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_RESET = "You'll lose any unsaved changes";
