@@ -17,12 +17,12 @@
                     let desc = Object.getOwnPropertyDescriptor(source, key),
                         getter, setter;
                     if (typeof desc.get === 'function') {
-                        getter = desc.get.bind(target);
+                        getter = desc.get;
                     }
                     if (typeof desc.set === 'function') {
-                        setter = desc.set.bind(target);
+                        setter = desc.set;
                     }
-                    if (getter && setter) {
+                    if (getter || setter) {
                         Object.defineProperty(target, key, {
                             get: getter,
                             set: setter
@@ -49,6 +49,7 @@
                 // In old apps, we refered to Kano.AppModules directly. Now we set a standalone appModules.
                 // Keep this to ensure old apps and not yet updated clients still work
                 this.appModules = this.appModules || Kano.AppModules;
+
 
                 if (this.model && this.handlers) {
                     this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener.bind(this));
