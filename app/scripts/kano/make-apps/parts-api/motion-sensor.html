@@ -7,6 +7,16 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         MotionSensor = {
+            module: 'motionSensor',
+            onCreated () {
+                this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
+                this._onGestureChanged = this._onGestureChanged.bind(this);
+                this.handlers = {
+                    'proximity-data': this._onProximityDataChanged,
+                    'gesture': this._onGestureChanged
+                };
+                Kano.MakeApps.PartsAPI.DongleBase.onCreated.apply(this);
+            },
             start () {
                 this.reset();
                 PartsAPI.DongleBase.start.apply(this, arguments);

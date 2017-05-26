@@ -7,6 +7,16 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         GyroAccelerometer = {
+            module: 'gyroAccelerometer',
+            onCreated () {
+                this._onAccelorometerDataChanged = this._onAccelorometerDataChanged.bind(this);
+                this._onGyroDataChanged = this._onGyroDataChanged.bind(this);
+                this.handlers = {
+                    'gyro-data': this._onGyroDataChanged,
+                    'accelerometer-data': this._onAccelorometerDataChanged
+                };
+                Kano.MakeApps.PartsAPI.DongleBase.onCreated.apply(this);
+            },
             start () {
                 PartsAPI.DongleBase.start.apply(this, arguments);
             },

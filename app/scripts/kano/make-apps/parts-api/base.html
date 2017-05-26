@@ -49,17 +49,6 @@
                 // In old apps, we refered to Kano.AppModules directly. Now we set a standalone appModules.
                 // Keep this to ensure old apps and not yet updated clients still work
                 this.appModules = this.appModules || Kano.AppModules;
-
-
-                if (this.model && this.handlers) {
-                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener.bind(this));
-                }
-            },
-            onDestroyed () {
-                if (this.model && this.handlers) {
-                    this.appModules.getModule(this.module).removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
-                    this.remapListeners(this.appModules.getModule(this.module).getDeviceForPart(this.model.id), null);
-                }
             },
             start () {
                 if (this.model) {

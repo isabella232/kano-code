@@ -10,19 +10,10 @@
             Kano.MakeApps.PartsAPI['motion-sensor'],
             Kano.Behaviors.UIBehavior
         ],
-        module: 'motionSensor',
         observers: [
             '_reconfigure(model.userProperties.mode, model.userProperties.updateInterval)',
             '_onConnectedChange(model.connected)'
         ],
-        attached () {
-            this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
-            this._onGestureChanged = this._onGestureChanged.bind(this);
-            this.handlers = {
-                'proximity-data': this._onProximityDataChanged,
-                'gesture': this._onGestureChanged
-            };
-        },
         _onConnectedChange (connected) {
             if (!connected) {
                 this.set('model.lastProximityValue', 0);
