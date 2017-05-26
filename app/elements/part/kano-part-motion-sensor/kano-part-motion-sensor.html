@@ -12,7 +12,8 @@
         ],
         module: 'motionSensor',
         observers: [
-            '_reconfigure(model.userProperties.mode, model.userProperties.updateInterval)'
+            '_reconfigure(model.userProperties.mode, model.userProperties.updateInterval)',
+            '_onConnectedChange(model.connected)'
         ],
         attached () {
             this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
@@ -21,6 +22,11 @@
                 'proximity-data': this._onProximityDataChanged,
                 'gesture': this._onGestureChanged
             };
+        },
+        _onConnectedChange (connected) {
+            if (!connected) {
+                this.set('model.lastProximityValue', 0);
+            }
         },
         _reconfigure (mode, interval) {
             this.debounce('reconfigure', () => {

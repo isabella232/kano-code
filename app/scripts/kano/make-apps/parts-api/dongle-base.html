@@ -15,6 +15,7 @@
                 PartsAPI.Base.start.apply(this, arguments);
             },
             remapListeners (oldDevice, newDevice, notify) {
+
                 if (oldDevice) {
                     Object.keys(this.handlers).forEach((eventName) => {
                         oldDevice.removeListener(eventName, this.handlers[eventName]);
@@ -33,9 +34,6 @@
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
-
-                this.appModules.getModule(this.module).removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
-                this.remapListeners(this.appModules.getModule(this.module).getDeviceForPart(this.id), null);
             }
         };
 

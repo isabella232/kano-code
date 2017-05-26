@@ -9,26 +9,21 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         Microphone = {
-            start () {
-                this.volume = this.appModules.getModule('mic').volume;
-            },
-            stop () {
-                this.appModules.getModule('mic').removeListener('microphone:threshold');
-            },
             onVolumeThreshold (value, over, callback) {
-                this.appModules.getModule('mic').on(`microphone:threshold:${value}`, function (e) {
+                this.appModules.getModule('mic').onVolumeThreshold(value, (e) => {
                     callback();
                 });
             },
-            getvolume () {
-                return this.appModules.getModule('mic').getVolume();
+            get volume () {
+                return this.appModules ? this.appModules.getModule('mic').getVolume() : 0;
             },
-            getpitch () {
-                return this.appModules.getModule('mic').getPitch();
+            get pitch () {
+                return this.appModules ? this.appModules.getModule('mic').getPitch() : 0;
             }
         };
 
+
         // @polymerBehavior
-        Kano.MakeApps.PartsAPI['microphone'] = Object.assign({}, PartsAPI.Base, Microphone);
+        Kano.MakeApps.PartsAPI['microphone'] = Kano.MakeApps.PartsAPI.Base.applyMixins({}, PartsAPI.Base, Microphone);
     })(window.Kano = window.Kano || {});
 </script>

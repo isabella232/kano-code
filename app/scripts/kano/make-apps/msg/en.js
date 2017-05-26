@@ -52,9 +52,11 @@
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
     Kano.MakeApps.Msg.SAVE = "Save";
 
-
     Kano.MakeApps.Msg.RESET = "Reset";
     Kano.MakeApps.Msg.DELETE = "delete";
+
+    Kano.MakeApps.Msg.NEXT_CHALLENGE = "Next Challenge";
+    Kano.MakeApps.Msg.BACK_TO_CHALLENGES = "Back to Challenges";
 
     Kano.MakeApps.Msg.RESET_WORKSPACE = "Reset Workspace";
     Kano.MakeApps.Msg.EXPORT = "Export";
@@ -195,9 +197,6 @@
 
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
-    Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT_CHALLENGE = "Next Challenge";
-
-    Kano.MakeApps.Msg.KANO_SIDE_MENU_BACK_TO_PROJECTS = "Back to Projects";
 
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Generating Animation";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BEGIN_RECORDING = "Click to begin generating the animation";

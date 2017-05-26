@@ -246,34 +246,30 @@
                 if (this.banner) {
                     if (step.banner) {
 
-                        //restrict click events on app-editor if lockdown is true
-                        this.$.editor.set('lockdown', step.banner.lockdown);
+                        this.$.editor.set('lockdown', step.banner.lockdown);    //restrict click events if true
+                        this.set('banner.isLast', step.isLast);
 
                         if (step.isLast) {
                             this.set('banner.icon', null);
                             this.set('banner.imgPage', 'star');
-                            this.set('banner.buttonLabel', this.localize('NEXT_CHALLANGE', 'Next Challenge'));
-                            this.set('banner.isLast', true);
+                            this.set('banner.buttonLabel', Boolean(this.story.next) ?
+                                    this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
                         } else if (step.banner.animation) {
                             animation = step.banner.animation;
                             this.set('banner.imgPage', animation);
                             this.set('banner.icon', null);
-                            this.set('banner.isLast', false);
                         } else if (step.banner.icon) {
                             iconId = step.banner.icon;
                             this.set('banner.icon', BANNER_ICONS[iconId]);
                             this.set('banner.imgPage', null);
-                            this.set('banner.isLast', false);
                         } else {
                             this.set('banner.icon', null);
                             this.set('banner.imgPage', 'judoka');
-                            this.set('banner.isLast', false);
                         }
                     } else {
                         //TODO quickfix for demo. Needs to be removed.
                         this.set('banner.icon', null);
                         this.set('banner.imgPage', 'judoka');
-                        this.set('banner.isLast', false);
                     }
                 }
             }, 200);
