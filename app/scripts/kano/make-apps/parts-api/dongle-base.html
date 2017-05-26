@@ -13,8 +13,9 @@
             handlers: [],
             onCreated () {
                 Kano.MakeApps.PartsAPI.Base.onCreated.apply(this);
+                this.mappingChangedEventListener = this.mappingChangedEventListener.bind(this);
                 if (this.model && this.handlers) {
-                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener.bind(this));
+                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener);
                 }
             },
             onDestroyed () {
@@ -25,6 +26,12 @@
             },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
+            },
+            mappingChangedEventListener (e) {
+                this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
+                if (!this.isRunning && this.model.connected !== !!e.detail.newDevice) {
+                    this.set('model.connected', !!e.detail.newDevice);
+                }
             },
             remapListeners (oldDevice, newDevice, notify) {
 
