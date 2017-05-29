@@ -14,7 +14,7 @@
             position: relative;
             text-align: center;
             border-radius: 6px;
-            background-color: var(--kano-app-editor-workspace-background);
+            background-color: var(--color-dark);
             @apply --layout-vertical;
         }
         :host #config-panel-container {
@@ -94,31 +94,15 @@
         }
         :host button {
             @apply --kano-button;
-            @apply --layout-self-center;
+            padding: 8px 24px;
             font-size: 14px;
-            line-height: 14px;
-            text-shadow: none;
             font-weight: bold;
             border-radius: 3px;
-            padding: 12px 22px 10px;
+            background: #54595D;
+            text-shadow: none;
         }
-        :host button.done-button {
-            background-color: var(--color-grassland);
-        }
-        :host button.done-button:hover {
-            background-color: var(--color-sushi);
-        }
-        :host button.delete-button {
-            background-color: var(--color-chateau);
-            padding: 10px 16px 8px;
-            margin-right: 24px;
-            font-size: 12px;
-        }
-        :host([small-screen]) .delete-button {
-            margin-right: 16px;
-        }
-        :host .delete-button:hover {
-            background-color: var(--color-abbey);
+        :host button:hover {
+            background-color: #5b646b;
         }
         :host .icon {
             cursor: pointer;
@@ -138,7 +122,6 @@
             <div class="type-display">[[selected.label]]</div>
             <kano-input hidden$="[[!withNameEditor]]" type="text" label="Name" value="{{selected.name}}" no-label></kano-input>
             <div class="button-container">
-                <button class="delete-button" type="button" on-tap="_deletePart" dialog-dismiss>Delete</button>
                 <button class="done-button" type="button" dialog-dismiss>Done</button>
             </div>
         </div>
@@ -226,9 +209,6 @@
         },
         _needNameEditor (selected) {
             return selected && selected.configPanel === 'kano-light-animation-editor';
-        },
-        _deletePart () {
-            this.fire('delete-part', this.selected);
         },
         enterQuitsInput () {
             if (event.keyCode == 13) {

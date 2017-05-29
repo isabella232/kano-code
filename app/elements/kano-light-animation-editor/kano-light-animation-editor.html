@@ -2,6 +2,8 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
@@ -13,10 +15,13 @@
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
+<link rel="import" href="../kano-icons/parts.html">
 <link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
+<link rel="import" href="../kano-style/themes/dark.html">
 <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
 <link rel="import" href="../inputs/kano-input/kano-input.html">
+<link rel="import" href="../inputs/kano-input-color/kano-input-color.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
@@ -24,17 +29,10 @@
 <dom-module id="kano-light-animation-editor">
     <style include="kano-code-shared-styles">
         :host {
+            width: 880px;
             @apply --layout-vertical;
             @apply --layout-center-justified;
             background-color: var(--color-dark);
-        }
-        :host([medium-screen]),
-        :host([small-screen]) {
-            @apply --layout-vertical;
-        }
-        :host([small-screen]) button {
-            width: 28px;
-            height: 28px;
         }
         :host label {
             @apply --layout-self-start;
@@ -43,36 +41,61 @@
             font-size: 14px;
             font-weight: bold;
             text-align: left;
+            text-transform: uppercase;
             color: rgba(255,255,255,0.5);
-            margin-bottom: 24px;
+            margin-bottom: 19px;
         }
-        .settings {
+        .top-panel {
             @apply --layout-horizontal;
             @apply --layout-justified;
             @apply --layout-center;
-            padding: 10px 48px 8px;
-            border-bottom: 1px solid #202428;
+            height: 64px;
+            padding: 0 8px;
+            border-bottom: 1px solid var(--);
         }
-        :host([medium-screen]) .settings,
-        :host([small-screen]) .settings {
-            @apply --layout-vertical;
-            align-items: stretch;
-            padding: var(--kano-modal-header-padding-small);
-            padding-top: 24px;
+        .top-panel>* {
+            margin: 0 8px;
         }
-        :host([small-screen]) .settings {
-            padding: 24px 16px 24px;
+        .top-panel .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 16px;
+            color: #fff;
         }
-        .settings label {
-            margin-right: 24px;
-            margin-bottom: 0;
-            @apply --layout-self-center;
+        .top-panel .action button {
+            @apply --kano-button;
+            border-radius: 3px;
+            background: #54595d;
         }
-        :host([medium-screen]) .settings label,
-        :host([small-screen]) .settings label {
-            display: none;
+        .top-panel .action button:hover {
+            background-color: #5b646b;
         }
-        .settings kano-input-range {
+        .top-panel .action button#done {
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: none;
+            padding: 8px 24px;
+        }
+        .top-panel .action button:not(#done) {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin-right: 16px;
+        }
+        .top-panel .action button:not(#done)>* {
+            margin: 0 auto;
+        }
+        .top-panel iron-icon {
+            --iron-icon-fill-color: #fff;
+        }
+        .top-panel .action button iron-icon {
+            fill: #8f9195;
+            transition: fill 100ms;
+        }
+        .top-panel .action button:hover iron-icon {
+            fill: #fff;
+        }
+        .top-panel kano-input-range {
             width: 210px;
             margin-right: 12px;
             --kano-input-range-label: {
@@ -84,30 +107,61 @@
                 margin-left: 12px;
             };
         }
-        .settings kano-input-range:last-of-type {
+        .top-panel kano-input-range:last-of-type {
             margin-right: 0;
         }
-        :host([medium-screen]) .settings kano-input-range,
-        :host([small-screen]) .settings kano-input-range {
-            width: auto;
-            margin: 8px 0;
-        }
-        .main {
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-            padding: 16px 48px 16px;
-        }
-        :host([medium-screen]) .main {
-            @apply --layout-vertical;
-            padding: 32px;
-        }
-        :host([small-screen]) .main {
-            @apply --layout-vertical;
-            padding: 32px 16px;
-        }
-        .editing-tools {
+        .top-panel .action {
             @apply --layout-flex-auto;
             @apply --layout-horizontal;
+            @apply --layout-end-justified;
+        }
+        .top-panel button kano-animated-svg {
+            @apply --layout-flex;
+            width: 18px;
+            height: 18px;
+            -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+            filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+            fill: #8F9195;
+            stroke: #8F9195;
+            stroke-width: 3px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all ease-in-out 200ms;
+        }
+        .top-panel button:hover kano-animated-svg {
+            fill: #fff;
+            stroke: #fff;
+        }
+        .center-panel {
+            @apply --layout-horizontal;
+            @apply --layout-center-justified;
+        }
+        .side-menu {
+            @apply --layout-vertical;
+            border-right: 1px solid var(--kano-app-part-editor-border);
+        }
+        .side-menu button {
+            @apply --kano-button;
+            display: block;
+            width: 56px;
+            height: 56px;
+            background-color: transparent;
+            border-radius: 0;
+            padding: 0;
+        }
+        .side-menu button iron-icon {
+            fill: #8f9195;
+            transition: fill 100ms;
+        }
+        .side-menu button:hover {
+            background: #54595d;
+        }
+        .side-menu button.selected {
+            background: #5b646b;
+        }
+        .side-menu button:hover iron-icon,
+        .side-menu button.selected iron-icon {
+            fill: #fff;
         }
         #palette {
             @apply --layout-horizontal;
@@ -115,36 +169,10 @@
             width: 148px;
             text-align: left;
         }
-        :host([small-screen]) #palette,
-        :host([medium-screen]) #palette {
-            flex: 5 5 auto;
-            @apply --layout-start-justified;
-        }
-        .small-screen-control-container {
-            display: none;
-        }
-        :host([small-screen]) .small-screen-control-container,
-        :host([medium-screen]) .small-screen-control-container {
-            @apply --layout-vertical;
-            @apply --layout-flex-auto;
-            width: 48px;
-            margin-left: 16px;
-        }
         .canvas-container {
             @apply --layout-flex-none;
             @apply --layout-vertical;
-            width: 385px;
-            height: 244px;
-            margin: 0 72px;
-        }
-        :host([small-screen]) .canvas-container,
-        :host([medium-screen]) .canvas-container {
-            @apply --layout-self-center;
-            margin: 24px 0 0 0;
-        }
-        :host([small-screen]) .canvas-container {
-            width: 100%;
-            min-width: 352px;
+            margin: 56px;
         }
         .canvas-container iron-pages {
             @apply --layout-horizontal;
@@ -158,35 +186,71 @@
         }
         .control-container {
             @apply --layout-flex-auto;
+            border-left: 1px solid var(--kano-app-part-editor-border);
+        }
+        .control-container label:first-of-type {
+            margin: 19px 0;
+        }
+        .control-content {
+            @apply --layout-flex-auto;
             @apply --layout-vertical;
-            width: 106px;
+            margin: 0 40px;
         }
-        :host([small-screen]) .control-container,
-        :host([medium-screen]) .control-container {
-            display: none;
-        }
-        .framelist-container {
+        .control-content .custom-colour-header {
             @apply --layout-horizontal;
             @apply --layout-center;
-            border-top: 1px solid #202428;
-            padding: 0 48px;
         }
-        :host([small-screen]) .framelist-container {
-            padding: 12px 16px;
+        .control-content .custom-colour-header button {
+            @apply --kano-button;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: transparent;
+            color: #8f9195;
+            padding: 0;
+        }
+        .control-content .custom-colour-header label,
+        .control-content .custom-colour-header button {
+            margin-right: 16px;
+        }
+        .control-content kano-tooltip {
+            --kano-tooltip-border-color: var(--color-dark);
+            --kano-tooltip-background-color: var(--color-dark);
+            --kano-tooltip-caret: {
+                @apply(--shadow-elevation-2dp);
+            };
+        }
+        #default-palette,
+        #custom-palette {
+            --kano-input-color-margin: 0.5px;
+        }
+        #default-palette {
+            margin-bottom: 16px;
+        }
+        .bottom-panel {
+            background-color: #252b31;
+        }
+        .bottom-panel-header {
+            border-top: 1px solid var(--kano-app-part-editor-border);
+            border-bottom: 1px solid var(--kano-app-part-editor-border);
+        }
+        kano-bitmap-list button {
+            @apply --kano-button;
+        }
+        kano-bitmap-list button,
+        kano-bitmap-list label {
+            font-size: 14px;
+            font-weight: bold;
+            background-color: transparent;
+            color: #8f9195;
+            margin: 16px 40px 16px 0;
+            padding: 0;
+        }
+        .bottom-panel-label {
+            margin: 16px 40px 16px 16px;
         }
         #frames {
             @apply --layout-flex;
             overflow: hidden;
-        }
-        :host button {
-            @apply --kano-button;
-            @apply --layout-horizontal;
-            @apply --layout-center-justified;
-            background-color: var(--color-chateau);
-            border-radius: 3px;
-            width: 36px;
-            height: 36px;
-            padding: 0;
         }
         button.add-frame iron-icon {
             --iron-icon-height: 21px;
@@ -199,47 +263,41 @@
         button.add-frame:disabled {
             opacity: 0.3;
         }
-        button.control kano-animated-svg,
-        .small-screen-control-container button kano-animated-svg {
-            @apply --layout-flex;
-            width: 18px;
-            height: 18px;
-            -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-            filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-            fill: #999;
-            stroke: #999;
-            stroke-width: 3px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: all ease-in-out 200ms;
-        }
-        button.control:hover kano-animated-svg,
-        .small-screen-control-container button kano-animated-svg {
-            fill: #fff;
-            stroke: #fff;
-        }
     </style>
     <template>
         <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
         </kano-media-query>
-        <div class="settings">
-            <label>Settings</label>
-            <kano-input-range id="width-slider" class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
-            <kano-input-range id="height-slider" class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
-            <kano-input-range id="speed-slider" class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+        <div class="top-panel">
+            <iron-icon id="part-icon" icon="parts:light-animation"></iron-icon>
+            <div class="title">Animation</div>
+            <div class="action">
+                <button id="reverse" type="button">
+                    <iron-icon icon="av:skip-previous"></iron-icon>
+                </button>
+                <button id="reset" type="button">
+                    <iron-icon icon="av:replay"></iron-icon>
+                </button >
+                <button id="preview-button" type="button" on-tap="_togglePreviewState">
+                    <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+                </button>
+                <button id="done" type="button" dialog-dismiss>Done</button>
+            </div>
         </div>
-        <div class="main">
-            <div class="editing-tools">
-                <kano-palette id="palette" bitmaps="[[selected.userProperties.bitmaps]]" pen-type="{{penType}}" palette="{{palette}}" pen-color="{{penColor}}" wheel-opened="{{wheelOpened}}"></kano-palette>
-                <div class="small-screen-control-container">
-                    <label>Controls</label>
-                    <button type="button" name="button" on-tap="_togglePreviewState">
-                        <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
+        <div class="center-panel">
+            <div class="side-menu">
+                <iron-selector selected="[[penType]]" attr-for-selected="name">
+                    <button id="draw-button" class="side-menu-button" on-tap="_penControlTapped" name="draw">
+                        <iron-icon icon="kano-icons:paint-brush"></iron-icon>
                     </button>
-                </div>
+                    <button id="fill-button" class="side-menu-button" on-tap="_penControlTapped" name="fill">
+                        <iron-icon icon="kano-icons:paint-bucket"></iron-icon>
+                    </button>
+                </iron-selector>
+                <button id="settings-button" class="side-menu-button" on-tap="_settingsTapped">
+                    <iron-icon icon="settings"></iron-icon>
+                </button>
             </div>
             <div class="canvas-container">
-                <label>Canvas</label>
                 <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
                     <kano-pixel-canvas id="canvas"
                                         name="stopped"
@@ -262,22 +320,52 @@
                 </iron-pages>
             </div>
             <div class="control-container">
-                <label>Controls</label>
-                <button id="preview-button" class="control" type="button" name="button" on-tap="_togglePreviewState">
-                    <kano-animated-svg width="32" height="32" paths="[[previewButtonIconPaths]]" selected="[[previewState]]"></kano-animated-svg>
-                </button>
+                    <iron-pages class="control-content" selected="[[controlPanel]]" attr-for-selected="name">
+                        <div name="palette">
+                            <label>Colors</label>
+                            <kano-input-color id="default-palette" on-value-changed="_onColorChange" idle="[[customPaletteActive]]"></kano-input-color>
+                            <div class="custom-colour-header">
+                                <label>Custom</label>
+                                <button id="custom-colour-add" type="button">
+                                    <span on-tap="_openWheel">Add</span>
+                                    <kano-tooltip id="tooltip" class="tooltip" position="right" target="[[tooltipTarget]]" auto-close opened="{{wheelOpened}}">
+                                        <kano-color-wheel id="wheel" on-value-changed="_addCustomColor" render-later></kano-color-wheel>
+                                    </kano-tooltip>
+                                </button>
+                                <button id="custom-colour-delete" type="button">
+                                    <span>Delete</span>
+                                </button>
+                            </div>
+                            <kano-input-color id="custom-palette" on-value-changed="_onColorChange" idle="[[!customPaletteActive]]"></kano-input-color>
+                        </div>
+                        <div name="settings">
+                            <label>Settings</label>
+                            <kano-input-range id="width-slider" class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+                            <kano-input-range id="height-slider" class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+                            <kano-input-range id="speed-slider" class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+                        </div>
+                    </iron-pages>
             </div>
         </div>
-        <div class="framelist-container">
-            <div class="framelist-button-container">
-                <button id="add-frame-button" type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button>
-            </div>
+        <div class="bottom-panel">
             <kano-bitmap-list id="frames"
                               bitmaps="{{selected.userProperties.bitmaps}}"
                               selected="{{selectedFrame}}"
                               selected-index="{{selectedIndex}}"
                               width="[[selected.userProperties.width]]"
-                              height="[[selected.userProperties.height]]"></kano-bitmap-list>
+                              height="[[selected.userProperties.height]]">
+                        <!-- <button id="add-frame-button" type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button> -->
+                        <label class="bottom-panel-label" slot="label">Animate</label>
+                        <button id="preview-button" type="button" slot="add-button">
+                            <span>Add cell</span>
+                        </button>
+                        <button id="preview-button" type="button" slot="duplicate-button">
+                            <span>Duplicate</span>
+                        </button>
+                        <button id="preview-button" type="button" slot="delete-button">
+                            <span>Delete</span>
+                        </button>
+            </kano-bitmap-list>
         </div>
     </template>
     <script type="text/javascript">
@@ -291,6 +379,9 @@
                 Kano.MakeApps.PartsAPI['light-animation']
             ],
             properties: {
+                controlPanel: {
+                    type: String
+                },
                 selected: {
                     type: Object,
                     notify: true
@@ -311,7 +402,7 @@
                 },
                 penType: {
                     type: String,
-                    observer: '_penTypeChanged'
+                    computed: '_computePenType(_penType, _isShiftPressed)'
                 },
                 penColor: {
                     type: String,
@@ -324,6 +415,10 @@
                 previewState: {
                     type: String,
                     observer: '_previewStateChanged'
+                },
+                customPaletteActive: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -331,46 +426,78 @@
                 '_onSmallScreenActive(smallScreen)',
                 '_onFrameChanged(frame.*)',
                 '_onSelectedFrameChanged(selectedFrame.*)',
+                '_onControlPanelChanged(controlPanel, penType)'
             ],
             created () {
                 this._onKeydown = this._onKeydown.bind(this);
+                this._onKeyup = this._onKeyup.bind(this);
             },
             attached () {
-                let paletteElements = this.$.palette.getElementsRegistry();
+                // let paletteElements = this.$.palette.getElementsRegistry();
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
                     running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
                 };
+                this._isShiftPressed = false;
                 this.previewState = 'stopped';
                 this.previewIndex = 0;
                 document.addEventListener('keydown', this._onKeydown);
-                this.$.palette._computePalette();
+                document.addEventListener('keyup', this._onKeyup);
+                // this.$.palette._computePalette();
                 this.BOARD_WIDTH = 16;
                 this.BOARD_HEIGHT = 8;
+                this.set('_penType', 'draw');
+                this.controlPanel = 'palette';
+                this.$$('#custom-palette').colors = [];
                 this._registerElement('animation-editor', this);
                 this._registerElement('animation-editor-width-slider', this.$['width-slider']);
                 this._registerElement('animation-editor-height-slider', this.$['height-slider']);
                 this._registerElement('animation-editor-speed-slider', this.$['speed-slider']);
-                this._registerElement('animation-editor-palette', this.$['palette']);
+                // this._registerElement('animation-editor-palette', this.$['palette']);
                 this._registerElement('animation-editor-canvas', this.$['canvas-area']);
                 this._registerElement('animation-editor-preview-button', this.$['preview-button']);
                 this._registerElement('animation-editor-add-frame-button', this.$['add-frame-button']);
                 this._registerElement('animation-editor-frames', this.$['frames']);
-                this._registerElement('animation-editor-brush-button', paletteElements['brush-button']);
-                this._registerElement('animation-editor-bucket-button', paletteElements['bucket-button']);
-                this._registerElement('animation-editor-colors', paletteElements['colors']);
-                this._registerElement('animation-editor-add-color-button', paletteElements['add-color-button']);
-                this._registerElement('animation-editor-color-wheel', paletteElements['color-wheel']);
+                // this._registerElement('animation-editor-draw-button', paletteElements['draw-button']);
+                // this._registerElement('animation-editor-fill-button', paletteElements['fill-button']);
+                // this._registerElement('animation-editor-colors', paletteElements['colors']);
+                // this._registerElement('animation-editor-add-color-button', paletteElements['add-color-button']);
+                // this._registerElement('animation-editor-color-wheel', paletteElements['color-wheel']);
             },
             detached () {
                 document.removeEventListener('keydown', this._onKeydown);
+                document.removeEventListener('keyup', this._onKeyup);
                 this._stopPreview();
+            },
+            _addCustomColor (e) {
+                this.$['custom-palette'].addColor(e.detail.value);
+                this.$.tooltip.close();
+            },
+            _computePalette () {
+                this.debounce('palette', () => {
+                    let palette = this.bitmaps.reduce((acc, bitmap) => {
+                        return acc.concat(bitmap);
+                    }, []);
+
+                    palette.push(this.penColor);
+
+                    // Remove duplicates and color already in the default palette. Limit to 18 custom colors
+                    palette = palette.filter((elem, pos, self) => {
+                        return self.indexOf(elem) === pos && this.DEFAULT_PALETTE.indexOf(elem) === -1 &&
+                                elem !== null && typeof elem !== 'undefined';
+                    }).splice(-6, 6);
+
+                    this.set('palette', palette);
+                    if (!this.penColor) {
+                        this.set('penColor', this.palette[0]);
+                    }
+                }, 16);
+            },
+            _computePenType (penType, shiftPressed) {
+                return shiftPressed ? 'fill' : penType;
             },
             stop () {
                 this._stopPreview();
-            },
-            _penTypeChanged (newValue) {
-                this.notifyChange('light-animation-tool-changed', { value: newValue });
             },
             _penColorChanged (newValue) {
                 this.notifyChange('light-animation-color-changed', { value: newValue });
@@ -428,6 +555,9 @@
                 this.selectedIndex = Math.max(0, this.selectedIndex - 1);
                 this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
             },
+            _settingsTapped () {
+                this.controlPanel = 'settings';
+            },
             _addFrame () {
                 this.$.frames.addFrame();
                 this.notifyChange('light-animation-add-frame');
@@ -435,7 +565,23 @@
             _isNewFrameDisabled (previewState) {
                 return (previewState === 'running');
             },
+            _onControlPanelChanged (panel, penType) {
+                if (panel === 'palette' && this._isShiftPressed) {
+                    return;
+                } else if (panel === 'palette') {
+                    this._highlightSideMenuButton(`${penType}-button`);
+                } else {
+                    this._highlightSideMenuButton(`${panel}-button`);
+                }
+            },
+            _highlightSideMenuButton (id) {
+                Polymer.dom(this.root).querySelectorAll('.side-menu-button').forEach((el) => {
+                    this.toggleClass('selected', el.id === id, el);
+                }, this)
+            },
             _onKeydown (e) {
+                this.set('_isShiftPressed', e.shiftKey);
+
                 switch (e.key) {
                     case 'n':
                       this._addFrame();
@@ -448,8 +594,28 @@
                       break;
                 }
             },
+            _onKeyup (e) {
+                this.set('_isShiftPressed', e.shiftKey);
+            },
+            _openWheel (e) {
+                const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget;
+                // this.$.tooltip.set('target', null);
+                this._renderWheel();
+                this.async(() => {
+                    this.$.tooltip.set('target', target.getBoundingClientRect());
+                    this.$.tooltip.open();
+                });
+            },
             _onSmallScreenActive (smallScreen) {
                 this.pixelSize = smallScreen ? 18 : 20;
+            },
+            _penControlTapped (e) {
+                if (this._isShiftPressed) {
+                    return;
+                }
+                const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget;
+                this.controlPanel = 'palette';
+                this.set('_penType', target.getAttribute('name'));
             },
             _renderOnRealDevice (frame) {
                 try {
@@ -460,6 +626,19 @@
                 }
                 catch (e) {
                    return;
+                }
+            },
+            _renderWheel () {
+                if (this._wheelRendered) {
+                    return;
+                }
+                this._wheelRendered = true;
+                this.$.wheel.render();
+            },
+            _onColorChange (e) {
+                if (e.detail.value) {
+                    this.customPaletteActive = Polymer.dom(e).rootTarget.id === 'custom-palette';
+                    this.penColor = e.detail.value;
                 }
             },
             getShape (frame) {

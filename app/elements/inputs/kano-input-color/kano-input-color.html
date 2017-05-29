@@ -1,91 +1,201 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../behaviors.html">
+<link rel="import" href="../../kano-color-wheel/kano-color-wheel.html">
+<link rel="import" href="../../kano-tooltip/kano-tooltip.html">
 <!--
-`kano-input-color` Dislpay a color palette and allows selection by clicking on one of them
+`kano-input-color` Display a color palette and allows selection by clicking on one of them
 
 Example:
     <kano-input-color value="{{value}}"></kano-input-color>
 
 @group Kano Elements
 @hero hero.svg
-@demo ./demo.html
+@demo ./demo/kano-input-color.html
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--kano-input-color-size` | Size of a single color field | 29px
+`--kano-input-color-margin` | Size of margin around a color field | 2px
+`--kano-input-color-background` | Background color on host | 'transparent'
 -->
 <dom-module id="kano-input-color">
     <style>
-    :host .colors {
-        text-align: center;
-        margin: 8px 0;
-    }
-    :host .color {
-        display: inline-block;
-        width: 29px;
-        height: 29px;
-        margin: 2px;
-        border-radius: 3px;
-    }
-    :host .color:hover {
+    :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        width: 100%;
         cursor: pointer;
+        background-color: var(--kano-input-color-background, 'transparent');
     }
+    :host #select-frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--kano-input-color-size, 29px);
+        height: var(--kano-input-color-size, 29px);
+        outline-offset: -1px;
+        outline: 4px solid #bbb;
+        z-index: 1;
+        transition: transform 200ms;
+    }
+    :host .colors {
+        @apply --layout-horizontal;
+        @apply --layout-wrap;
+    }
+    .color {
+        width: var(--kano-input-color-size, 29px);
+        height: var(--kano-input-color-size, 29px);
+        margin: var(--kano-input-color-margin, 2px);
+        transition: transform 150ms;
+    }
+    .color:hover {
+        transform: scale(1) !important;
+    }
+
     </style>
     <template>
+        <div id="select-frame" hidden$="[[idle]]"></div>
         <div class="colors">
-            <template is="dom-repeat" items="{{colors}}" as="color">
-                <div class="color" style$="[[_computeColor(color, value)]]" on-tap="_selectColor"></div>
+            <template id="palette" is="dom-repeat" items="{{colors}}" as="color">
+                <div id$="color-[[index]]" class="color" style$="[[_computeColor(color, value)]]" on-tap="_doSelectColor"></div>
             </template>
         </div>
     </template>
 </dom-module>
 <script type="text/javascript">
 
-    const COLORS = [
-        '#ffffff',  // White
-        '#000000',  // Black
-        '#e95c5a',  // Red
-        '#ff842a',  // Kano Orange
-        '#f8eb1e',  // Yellow
-        '#3caa36',  // Green
-        '#0e6633',  // Dark Green
-        '#59b3d0',  // Light Blue
-        '#2a3080',  // Dark Blue
-        '#642682',  // Violet
-        '#db7d92',  // Pink
-        '#683d12'   // Brown
-    ];
-
     Polymer({
-
-        behaviors: [Kano.Behaviors.Input],
-
         is: 'kano-input-color',
-
+        behaviors: [Kano.Behaviors.Input],
         properties: {
             colors: {
                 type: Array,
-                value: () => COLORS
+                value: () => [
+                    '#ffffff',  // White
+                    '#000000',  // Black
+                    '#e95c5a',  // Red
+                    '#ff842a',  // Kano Orange
+                    '#f8eb1e',  // Yellow
+                    '#3caa36',  // Green
+                    '#0e6633',  // Dark Green
+                    '#59b3d0',  // Light Blue
+                    '#2a3080',  // Dark Blue
+                    '#642682',  // Violet
+                    '#db7d92',  // Pink
+                    '#683d12'   // Brown
+                ]
             },
             value: {
                 type: String,
-                value: COLORS[0]
+                notify: true
+            },
+            rowSize: {
+                type: Number,
+                value: 6,
+                observer: '_onRowSizeChanged'
+            },
+            selectedIndex: {
+                type: Number,
+                observer: 'selectColor'
+            },
+            idle: {
+                type: Boolean,
+                value: false
             }
         },
+        observers: [
+            '_onIdleChanged(idle, frame)'
+        ],
+        listeners: {
+            'mousemove': '_onMouseMove',
+            'mouseout': '_onMouseOut'
+        },
+        ready () {
+            if (!this.idle) {
+                this.set('selectedIndex', 0);
+            }
+            this.frame = this.$['select-frame']
+        },
+        _highlight (index) {
+            const target = this.$$(`#color-${index}`);
 
+            if (target) {
+                target.style.transform = 'none';
+                this.transform(`translate(${target.offsetLeft}px, ${target.offsetTop}px)`, this.frame);
+                this.frame.style['outline-color'] = this.colors[index] === '#ffffff' ? '#bbb' : '#fff';
+            }
+        },
+        _onIdleChanged (idle, wasIdle) {
+            if (idle) {
+                this.selectedIndex = this.value = null;
+                this.frame.style.transition = `none`;
+            } else if (!idle && wasIdle) {
+                //reapply transition only after the frame is visible again
+                this.async(() => this.frame.style.transition = `transform 200ms`, 10);
+            }
+        },
+        _onRowSizeChanged (rowSize) {
+            const colorSize = this.getComputedStyleValue('--kano-input-color-size') || '29px',
+                margin = this.getComputedStyleValue('--kano-input-color-margin') || '2px';
+            this.style.width = `${(parseFloat(colorSize, 10) + 2 *
+                    parseFloat(margin, 10)) * this.rowSize}px`;
+            this.style.height = `${(parseFloat(colorSize, 10) + 2 *
+                    parseFloat(margin, 10)) * this.colors.length / rowSize}px`;
 
+        },
+        addColor (color) {
+            if (/^#[0-9A-F]{6}$/i.test(color)) {
+                this.push('colors', color);
+                this.selectedIndex = this.colors.length - 1;
+            }
+        },
+        removeColor (index) {
+            this.splice('colors', index, 1);
+            this.selectedIndex = this.colors.length ? this.selectedIndex - 1 : null;
+        },
         _computeColor (color, value) {
-            let style = `background-color: ${color};`;
-            if (color === value) {
-                style += `outline: 1px dashed #aaa;
-                            outline-offset: 1px;`;
-            }
-            if (color === '#ffffff') {
-                style += `box-shadow: inset 0 0 0 1px #eee;`
-            }
-            return style;
+            return `background-color: ${color};`;
         },
-
-        _selectColor (e) {
-            this.set('value', e.model.get('color'));
+        _onMouseMove () {
+            if (!this.colorsRotated) {
+                Polymer.dom(this.root).querySelectorAll('.color').forEach((el, index) => {
+                    if (index !== this.selectedIndex) {
+                        this.transform(`scale(0.95) rotate(${-4 + Math.random() * 8}deg)`, el);
+                    }
+                });
+                this.colorsRotated = true;
+            } else if (this.moveCount && this.moveCount > 18) {
+                this.colorsRotated = false;
+                this.moveCount = 0;
+                this.userHasChosen = false;
+            } else if (this.userHasChosen) {
+                this.moveCount = this.moveCount ? this.moveCount + 1 : 1;
+            }
+        },
+        _onMouseOut () {
+            Polymer.dom(this.root).querySelectorAll('.color').forEach((el) => {
+                this.transform('none', el);
+            });
+            this.colorsRotated = false;
+        },
+        _doSelectColor (e) {
+            const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget;
+            this.selectedIndex = this.$.palette.indexForElement(target);
+            this.userHasChosen = true;
+        },
+        selectColor (index) {
+            if (typeof index !== 'number') {
+                return;
+            }
+            this.set('value', this.colors[index]);
             this.fire('change', this.value);
+            this.async(() => this._highlight(index));
         }
     });
 </script>
