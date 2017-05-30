@@ -10,10 +10,12 @@
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-code-ga-tracking-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-story-scene/kano-story-scene.html">
 <link rel="import" href="../../elements/kano-challenge-completed-modal/kano-challenge-completed-modal.html">
 <link rel="import" href="../../elements/kano-reward-modal/kano-reward-modal.html">
+<link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
 
@@ -42,17 +44,17 @@
                             user="[[user]]"
                             scene="{{scene}}"
                             on-scene-done="nextScene"
-                            story-name="{{story.name}}"
-                            next-story="{{story.next}}"
+                            story="[[story]]"
                             extensions="[[story.extensions]]"
                             on-extend-story="extendStory"
-                            on-next-story="nextStory"
+                            on-next-story="goToNextStory"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
-        <paper-dialog id="share-modal" with-backdrop>
-            <kano-share-modal on-confirm="confirmShare"
+        <paper-dialog id="share-modal" no-cancel-on-esc-key no-cancel-on-outside-click with-backdrop>
+            <kano-share-modal id="share-modal-content"
+                              on-confirm="confirmShare"
                               on-dismiss="dismissShare"
-                              on-next-story="nextStory"
+                              on-next-story="goToNextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"
@@ -75,7 +77,8 @@
             Kano.Behaviors.ViewBehavior,
             Kano.Behaviors.SharingBehavior,
             Kano.Behaviors.Tracking.GABehavior,
-            Kano.Behaviors.SoundPlayerBehavior
+            Kano.Behaviors.SoundPlayerBehavior,
+            Kano.Behaviors.I18nBehavior
         ],
         properties: {
             selected: {
@@ -117,7 +120,7 @@
                     if (typeof story.next === 'string') {
                         return Kano.MakeApps.Stories.getById(story.next)
                             .then((nextStory) => {
-                                story.next = nextStory;
+                                this.set('story.next', nextStory);
                                 return story;
                             })
                             .catch(() => {
@@ -221,6 +224,7 @@
                         if (gamificationEnabled) {
                             this._trackRewards(res.update);
                             this.$['reward-modal'].open(res, this.user);
+                            this.fire('update-user-progress', res.update);
                         } else {
                             this.$['challenge-completed'].set('hints', hints);
                             this.$['challenge-completed'].open();
@@ -297,6 +301,8 @@
             if (!this.story) {
                 return;
             }
+            this.$['share-modal-content'].set('nextButtonLabel', Boolean(this.story.next) ?
+                    this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
 
             Kano.MakeApps.Stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
@@ -312,14 +318,16 @@
             let extensionId = e.detail;
             page.redirect(`/story/${extensionId}`);
         },
-        nextStory (e) {
+        goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
                 location.href = Kano.MakeApps.config.PROJECTS_URL;
                 return;
             }
-            storyId = this.story.next.id;
-            page.redirect(`/story/${storyId}`);
+
+            if (this.story.next) {
+                page.redirect(`/story/${this.story.next}`);
+            }
         },
         _setStoryEnded () {
             this.set('scene.ended', true);

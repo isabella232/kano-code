@@ -14,6 +14,7 @@
         text-align: center;
         --kano-tooltip-border-width: 0px;
         --kano-tooltip-border-color: transparent;
+        --kano-tooltip-caret-width: 15px;
     }
     :host([position="top"]) {
         transform-origin: 50% 100%;
@@ -71,47 +72,48 @@
         top: 50%;
     }
     :host .tooltip:after {
-        border-width: 15px;
+        backface-visibility: hidden;
+        border-width: var(--kano-tooltip-caret-width);
     }
     :host([position="bottom"]) .tooltip:after {
         border-bottom-color: var(--kano-tooltip-background-color, white);
-        margin-left: -15px;
+        margin-left: -var(--kano-tooltip-caret-width);
     }
     :host([position="top"]) .tooltip:after {
         border-top-color: var(--kano-tooltip-background-color, white);
-        margin-left: -15px;
+        margin-left: -var(--kano-tooltip-caret-width);
     }
     :host([position="right"]) .tooltip:after {
         border-right-color: var(--kano-tooltip-background-color, white);
-        margin-top: -15px;
+        margin-top: -var(--kano-tooltip-caret-width);
     }
     :host([position="left"]) .tooltip:after {
         border-left-color: var(--kano-tooltip-background-color, white);
-        margin-top: -15px;
+        margin-top: -var(--kano-tooltip-caret-width);
     }
     :host .tooltip:before {
-        border-width: calc(15px + var(--kano-tooltip-border-width));
+        border-width: calc(var(--kano-tooltip-caret-width) + var(--kano-tooltip-border-width));
     }
     :host([position="bottom"]) .tooltip:before {
         border-bottom-color: var(--kano-tooltip-border-color);
-        margin-left: calc(-15px - var(--kano-tooltip-border-width));
+        margin-left: calc(-var(--kano-tooltip-caret-width) - var(--kano-tooltip-border-width));
     }
     :host([position="top"]) .tooltip:before {
         border-top-color: var(--kano-tooltip-border-color);
-        margin-left: calc(-15px - var(--kano-tooltip-border-width));
+        margin-left: calc(-var(--kano-tooltip-caret-width) - var(--kano-tooltip-border-width));
     }
     :host([position="right"]) .tooltip:before {
         border-right-color: var(--kano-tooltip-border-color);
-        margin-top: calc(-15px - var(--kano-tooltip-border-width));
+        margin-top: calc(-var(--kano-tooltip-caret-width) - var(--kano-tooltip-border-width));
     }
     :host([position="left"]) .tooltip:before {
         border-left-color: var(--kano-tooltip-border-color);
-        margin-top: calc(-15px - var(--kano-tooltip-border-width));
+        margin-top: calc(-var(--kano-tooltip-caret-width) - var(--kano-tooltip-border-width));
     }
     :host .tooltip .caret-shadow {
         position: absolute;
-        width: 24px;
-        height: 24px;
+        width: calc(var(--kano-tooltip-caret-width) + 8px);
+        height: calc(var(--kano-tooltip-caret-width) + 8px);
         background-color: transparent;
         transform: rotate(45deg);
         z-index: -1;
@@ -121,26 +123,26 @@
     :host([position="bottom"]) .tooltip .caret-shadow {
         bottom: 100%;
         left: 50%;
-        margin-left: -12px;
-        margin-bottom: -14px;
+        margin-left: calc((-var(--kano-tooltip-caret-width) - 8px) / 2);
+        margin-bottom: calc((-var(--kano-tooltip-caret-width) - 8px) / 2 - 2px);
     }
     :host([position="left"]) .tooltip .caret-shadow {
         top: 50%;
         left: 100%;
-        margin-top: -12px;
-        margin-left: -14px;
+        margin-top: calc((-var(--kano-tooltip-caret-width) - 8px) / 2);
+        margin-left: calc((-var(--kano-tooltip-caret-width) - 8px) / 2 - 2px);
     }
     :host([position="right"]) .tooltip .caret-shadow {
         top: 50%;
         right: 100%;
-        margin-top: -12px;
-        margin-right: -14px;
+        margin-top: calc((-var(--kano-tooltip-caret-width) - 8px) / 2);
+        margin-right: calc((-var(--kano-tooltip-caret-width) - 8px) / 2 - 2px);
     }
     :host([position="top"]) .tooltip .caret-shadow {
         top: 100%;
         left: 50%;
-        margin-left: -12px;
-        margin-top: -14px;
+        margin-left: calc((-var(--kano-tooltip-caret-width) - 8px) / 2);
+        margin-top: calc((-var(--kano-tooltip-caret-width) - 8px) / 2 - 2px);
     }
     :host .wrapper {
         position: relative;

@@ -22,6 +22,7 @@
                 this.addMethod('scroll', '_scroll');
                 this.addMethod('on', '_on');
                 this.addMethod('removeListener', '_removeListener');
+                this.addMethod('removeAllListeners', '_removeAllListeners');
                 this.addMethod('updateOrCreateShape', '_updateOrCreateShape');
                 this.addMethod('removeShape', '_removeShape');
                 this.addMethod('getBitmap', '_getBitmap');
@@ -82,7 +83,7 @@
                     this.throttle('updateAndSync', () => {
                         this.drawLights();
                         cb(this.bitmap);
-                    }, 1000 / 20);
+                    }, 1000 / 15);
                 }
             }
 
@@ -100,17 +101,18 @@
                         return;
                     }
                     if (shape.type === 'rectangle') {
-                        for (let x = shape.x; x < shape.x + shape.width; x++) {
-                            for (let y = shape.y; y < shape.y + shape.height; y++) {
+                        for (var x = shape.x; x < shape.x + shape.width; x++) {
+                            for (var y = shape.y; y < shape.y + shape.height; y++) {
                                 shapesBitmap[LightboardModule.getIndex(x, y)] = shape.color;
                             }
                         }
                     } else if (shape.type === 'circle') {
                         let distance,
                             index;
-                        for (let x = -shape.radius; x <= shape.radius; x++) {
-                            for (let y = -shape.radius; y <= shape.radius; y++) {
-                                distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+                        for (var x = -shape.radius; x <= shape.radius; x++) {
+                            for (var y = -shape.radius; y <= shape.radius; y++) {
+                                distance = Math.sqrt(x * x + y * y);
                                 if (shape.radius >= distance &&
                                     shape.x + x <= 15 &&
                                     shape.x + x >= 0 &&
@@ -213,7 +215,6 @@
 
             _clear (cb) {
                 this.lights = new Array(128);
-                this.bitmap = new Array(128);
                 this.updateAndSync(false, cb);
             }
 
@@ -256,6 +257,12 @@
             _removeListener (name, callback) {
                 this._getAllLightboards().forEach((lightboard) => {
                     lightboard.removeListener(name, callback);
+                });
+            }
+
+            _removeAllListeners (name) {
+                this._getAllLightboards().forEach((lightboard) => {
+                    lightboard.removeAllListeners(name);
                 });
             }
         }

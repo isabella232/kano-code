@@ -14,11 +14,34 @@
             colour: COLOR,
             component: 'kano-part-motion-sensor',
             customizable: {
-                properties: [],
+                properties: [
+                    {
+                        key: 'mode',
+                        type: 'list',
+                        label: Kano.MakeApps.Msg.MODE,
+                        value: 'proximity',
+                        options: [{
+                            value: 'proximity',
+                            label: Kano.MakeApps.Msg.PROXIMITY
+                        }, {
+                            value: 'gesture',
+                            label: Kano.MakeApps.Msg.GESTURE
+                        }]
+                    }, {
+                        key: 'updateInterval',
+                        type: 'range',
+                        label: Kano.MakeApps.Msg.UPDATE_INTERVAL,
+                        min: 50,
+                        max: 1000
+                    }
+                ],
                 style: []
             },
+            userProperties: {
+                mode: 'proximity',
+                updateInterval: 100
+            },
             supportedHardware: ['motion-sensor', /* Old name */'proximity-sensor'],
-            userProperties: {},
             events: [{
                 label: Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_READ_DATA,
                 id: 'proximity-update'
@@ -58,7 +81,7 @@
 
                             this.appendStatementInput('DO');
 
-                            this.setColour(COLOR);
+                            this.setColour(part.colour);
                         }
                     };
                     return {

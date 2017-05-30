@@ -4,11 +4,10 @@
 <dom-module id="kano-editor-normal">
     <style>
         :host {
-            display: block;
+            @apply --layout-vertical;
             width: 100%;
             height: 100%;
             padding-top: 12px;
-            @apply --layout-vertical;
         }
         kano-default-workspace {
             @apply --layout-vertical;
@@ -23,15 +22,15 @@
             display: none;
         }
         .part {
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
         }
         .part .background-icon {
             --iron-icon-fill-color: #8F9195;
-            --iron-icon-width: 20px;
-            --iron-icon-height: 20px;
-            margin: 4px;
-            margin-left: 28px;
+            --iron-icon-width: 24px;
+            --iron-icon-height: 24px;
+            margin: 8px 12px 8px 0;
+            flex-shrink: 0;
         }
         .part .handle {
             color: #3A4248;
@@ -47,8 +46,7 @@
                                 running="{{running}}"
                                 editable-layout="[[editableLayout]]"
                                 parts-menu-open="[[partsMenuOpen]]"
-                                parts="[[parts]]"
-                                expansion="[[expansion]]"
+                                parts="{{parts}}"
                                 show-mouse-position>
             <kano-workspace-normal id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot></slot>
@@ -66,7 +64,6 @@
             behaviors: [Kano.Behaviors.WorkspaceBehavior],
             properties: {
                 autoStart: Boolean,
-                expansion: Number,
                 mousePositionX: {
                     type: Number,
                     value: 250,

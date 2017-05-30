@@ -44,8 +44,6 @@
             @apply --layout-horizontal;
             @apply --layout-center;
             @apply --layout-center-justified;
-            --iron-icon-width: 14px;
-            --iron-icon-height: 14px;
         }
         :host .content {
             @apply --layout-flex;
@@ -60,7 +58,7 @@
             margin-bottom: 5px;
         }
         :host .content .body {
-            font-weight: bold;
+            font-size: 18px;
             @apply --layout-flex;
         }
         :host iron-image,
@@ -107,13 +105,22 @@
             padding: 10px 22px;
             border-radius: 3px;
         }
+        :host .button:hover {
+            background-color: #5B646B;
+        }
         :host #save-button {
             @apply --layout-horizontal;
             @apply --layout-center;
             margin: 0 10px;
         }
-        :host #save-button iron-icon {
+        #save-button iron-icon {
+            --iron-icon-width: 14px;
+            --iron-icon-height: 14px;
+            opacity: 0.75;
             margin-right: 8px;
+        }
+        #save-button:hover iron-icon {
+            opacity: 0.85;
         }
         :host button.animate {
             animation-name: button-enter;
@@ -310,8 +317,7 @@
             }
         },
         _onButtonLabelChanged (label) {
-            let isNext = label === 'Next',
-                isGreen = isNext || this.isLast || label === 'Next Challenge';
+            let isGreen = label === 'Next' || this.isLast;
             this.glint = isGreen || label === 'Hints';
             this.toggleClass('green-cta', isGreen);
         },

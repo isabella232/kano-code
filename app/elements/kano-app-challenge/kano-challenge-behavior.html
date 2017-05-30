@@ -64,7 +64,7 @@
                 this.set('hints.total', this.hints.total + 1);
             }
 
-            if (selectedStep.banner) {
+            if (selectedStep.banner && selectedStep.banner.text) {
                 selectedStep.banner.text = this._processMarkdown(selectedStep.banner.text);
             }
 
@@ -179,17 +179,51 @@
         stepChanged () {
             this.selectedStep = this.computeSelectedStep();
         },
-        _prevStep () {
-            if (this.step > 0) {
-                this.step--;
+        _prevStep (n=1) {
+            this._goToStep(Math.max(0, this.step - n));
+        },
+        _getStateAt (index) {
+            let state = {
+                hints: {
+                    enabled: true
+                }
+            };
+            for (let i = 0; i < this.steps.length; i++) {
+                if ('set-state' in this.steps[i]) {
+                    Object.assign(state, this.steps[i]['set-state']);
+                }
             }
+            return state;
         },
         _goToStep (index) {
-            // Force a change notification
-            if (this.step === index) {
-                this.set('step', index - 1);
+            let step = index,
+                start = Math.min(this.step, index),
+                end = Math.max(this.step, index),
+                diff = index - this.step,
+                direction = 1,
+                state;
+            // Compute the direction of the jump
+            if (diff !== 0) {
+                direction = (diff / Math.abs(diff));
             }
-            this.set('step', index);
+            // Calculate real diff by adding the steps to skip
+            for (; start < end; start++) {
+                if ('set-state' in this.steps[start]) {
+                    // Add the steps to skip in the diff
+                    diff += direction;
+                    end += direction;
+                }
+            }
+            step = this.step + diff;
+            // Jumping through step time means that the state can be wrong. Get the state at that point
+            state = this._getStateAt(step);
+            // Force a change notification
+            if (this.step === step) {
+                this.set('step', step - 1);
+            }
+            // Apply the latest state
+            this.set('state', state);
+            this.set('step', step);
         },
         _injectStep (step, offset) {
             let index = this.step + (typeof offset === 'undefined' ? 1 : offset);

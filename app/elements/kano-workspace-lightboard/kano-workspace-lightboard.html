@@ -20,14 +20,14 @@
 
         #led-matrix {
             position: absolute;
-            top: 36px;
+            top: 37px;
             left: 17px;
             background-color: transparent;
         }
 
         :host ::slotted(*) {
             position: absolute;
-            top: 0px;
+            top: 1px;
             left: 0px;
         }
         :host([joystick-mouse-off]) #joystick,
@@ -180,7 +180,7 @@
                 on-mouseup="_mouseUp"
                 on-touchend="_mouseUp"
                 on-mouseleave="_mouseUp"></button>
-        <kano-bitmap-renderer id="led-matrix" bitmap="[[bitmap]]" width="16" height="8" pixel-size="21" spacing="3"></kano-bitmap-renderer>
+        <kano-bitmap-renderer id="led-matrix" bitmap="[[bitmap]]" width="16" height="8" pixel-size="25" spacing="1"></kano-bitmap-renderer>
         <div id="joystick">
             <button id="lightboard-js-up"
                     class="js-dir"
@@ -309,6 +309,7 @@
                         return;
                     }
                     this.joystickPressed = target;
+                    this.fire(target);
                     this.firingEvents[target] = setInterval(() => this.fire(target), 100);
                 } else {
                     this.fire(target);
@@ -389,6 +390,7 @@
                 this.$[target].classList.add('pressed');
                 if (this._isJoystick(target)) {
                     this.$.joystick.classList.add('pressed');
+                    this.fire(target);
                     this.firingEvents[target] = setInterval(() => this.fire(target), 100);
                 } else {
                     this.fire(target);

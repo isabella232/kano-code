@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
 <link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
@@ -100,10 +101,14 @@ Example:
         @apply(--layout-center);
     }
     :host .tooltip-content button {
-        margin-top: 10px;
-        background-color: white;
-        color: #435055;
+        margin: 10px 0 0 0;
+        background-color: var(--color-grassland);
+        color: #fff;
         text-shadow: none;
+        padding: 10px 22px;
+    }
+    :host .tooltip-content button:hover {
+        background-color: var(--color-apple);
     }
     kano-tooltip {
         z-index: 201;
@@ -165,10 +170,9 @@ Example:
         animation: 1s ease-out infinite pulse;
     }
     .beacon .core {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: #fde23d;
+        font-size: 24px;
+        margin-bottom: 4px;
+        color: #fde23d;
     }
     .beacon-wrapper .ring {
         position: absolute;
@@ -197,7 +201,7 @@ Example:
             <div class="beacon-wrapper" slot="arrow-image">
                 <div class="ring" id="ring" on-animationiteration="_ringAnimationIterated" on-animationstart="_ringAnimationIterated"></div>
                 <div class="beacon" id="beacon">
-                    <div class="core"></div>
+                    <div class="core">&#9670;</div>
                 </div>
             </div>
         </kano-arrow>
@@ -207,7 +211,8 @@ Example:
                           position="[[tooltip.position]]"
                           z-index="[[tooltip.zIndex]]"
                           tracking="[[tooltip.tracking]]"
-                          bounce$="[[tooltip.bounce]]">
+                          bounce$="[[tooltip.bounce]]"
+                          on-tap="_stopPropagation">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
                         <marked-element markdown="[[tooltip.text]]">
@@ -237,7 +242,8 @@ Example:
         behaviors: [
             Kano.Behaviors.AppElementRegistryBehavior,
             Kano.Behaviors.SoundPlayerBehavior,
-            Kano.Behaviors.I18nBehavior
+            Kano.Behaviors.I18nBehavior,
+            Polymer.IronResizableBehavior
         ],
         properties: {
             tooltips: {
@@ -266,7 +272,12 @@ Example:
         ],
         listeners: {
             'change': '_editorChanged',
-            'mode-ready': 'stepChanged'
+            'mode-ready': 'stepChanged',
+            'iron-resize': '_onResize'
+        },
+        _stopPropagation (e) {
+            e.preventDefault();
+            e.stopPropagation();
         },
         _editorChanged (e) {
             // Store current step object
@@ -318,6 +329,22 @@ Example:
         },
         _nextStep () {
             this.fire('next-step');
+        },
+        _onResize () {
+            let step = this.step;
+            if (!step) {
+                return;
+            }
+
+            if (step.beacon) {
+                this._fitBeacon(step);
+            }
+
+            if (step.arrow) {
+                this._fitArrow(step);
+            }
+
+            this._fitTooltips(step);
         },
         /**
          * Reposition the UI elements of the current step without delay.
@@ -445,6 +472,7 @@ Example:
             });
 
             clearTimeout(this._ringSoundTimeout);
+            this._ringAnimationCount = 0;
 
             this.toggleClass('animate', false, this.$.beacon);
             this.toggleClass('animate', false, this.$.ring);
@@ -508,8 +536,12 @@ Example:
             this.toggleClass('animate', true, this.$.ring);
         },
         _ringAnimationIterated (e) {
+            if (this._ringAnimationCount > 4) {
+                return;
+            }
             this._ringSoundTimeout = setTimeout(() => {
                 this.playSound('/assets/audio/sounds/ding.mp3');
+                this._ringAnimationCount++;
             }, 4600 * 0.75);
         },
         stepChanged () {

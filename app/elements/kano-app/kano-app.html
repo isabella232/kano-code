@@ -16,7 +16,6 @@
 <link rel="import" href="../behaviors/kano-view-behavior.html">
 <link rel="import" href="../behaviors/kano-code-ga-tracking-behavior.html">
 <link rel="import" href="../behaviors/kano-code-tracking-behavior.html">
-<link rel="import" href="../kano-slider/kano-slider.html">
 <link rel="import" href="../kano-try-chrome/kano-try-chrome.html">
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
 <!--
@@ -72,6 +71,9 @@ Example:
     }
     :host .logged-out {
         background: white;
+    }
+    #toast {
+        --paper-toast-background-color: var(--kano-app-editor-workspace-background);
     }
     #toast button {
         background-color: var(--color-green);
@@ -133,7 +135,8 @@ Example:
             'kano-error': '_showErrorOnToast',
             'view-loaded': '_viewLoaded',
             'ga-tracking-event': '_trackGAEvent',
-            'ga-page-tracking-event': '_trackGAPage'
+            'ga-page-tracking-event': '_trackGAPage',
+            'update-user-progress': '_updateUserProgress'
         },
         _routeChanged (route) {
             // User not authenticated not actions to be done
@@ -260,6 +263,12 @@ Example:
                 this.set('authCallbacks', null);
             }
         },
+        _fetchUserProgress () {
+            Kano.MakeApps.sdk.api.progress.get()
+                .then((res) => {
+                    this.set('user.profile.levels', res.body.progress.levels);
+                });
+        },
         _onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
@@ -297,14 +306,17 @@ Example:
             Kano.MakeApps.sdk.api.users.get.byUsername({ username: this.user.username })
                 .then((res) => {
                     this.set('user.profile', res.body.user.profile);
-                    this._updateProgress();
+                    this._fetchUserProgress();
                 });
         },
-        _updateProgress () {
-            Kano.MakeApps.sdk.api.progress.get()
-                .then((res) => {
-                    this.set('user.profile.levels', res.body.progress.levels);
-                });
+        _updateUserProgress (e) {
+            let progress = e.detail 
+                           && e.detail.levels
+                           && e.detail.levels.progress;
+            if (!progress) {
+                return;
+            }
+            this.set('user.profile.levels', progress);
         },
         _userChanged (user) {
             this.debounce('userChanged', () => {

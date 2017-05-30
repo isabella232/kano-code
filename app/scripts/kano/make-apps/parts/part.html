@@ -53,8 +53,8 @@
                 this.fullscreenEdit = opts.fullscreenEdit || false;
 
             }
-            getUniqueName (value, inc=0) {
-                let newName = inc ? `${value} ${inc}` : value;
+            getUniqueName (value, inc=1) {
+                let newName = (inc === 2) ? `${value} ${inc}` : value;
                 if (Part.nameRegistry[this.type][newName]) {
                     return this.getUniqueName(value, inc + 1);
                 }

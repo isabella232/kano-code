@@ -112,6 +112,49 @@
             return [code];
         };
 
+        Blockly.Blocks.color_lerp = {
+            init: function () {
+                let json = {
+                    id: 'color_lerp',
+                    colour: COLOR,
+                    message0: Blockly.Msg.COLOR_LERP,
+                    args0: [{
+                        type: "input_value",
+                        name: "FROM",
+                        check: "Colour"
+                    }, {
+                        type: "input_value",
+                        name: "TO",
+                        check: "Colour"
+                    }, {
+                        type: 'input_value',
+                        name: 'PERCENT',
+                        check: "Number"
+                    }],
+                    inputsInline: true,
+                    output: "Colour"
+                };
+                this.jsonInit(json);
+            }
+        };
+
+        Blockly.JavaScript.color_lerp = (block) => {
+            Blockly.JavaScript.valueToCode(block, 'FROM') || '"#ffffff"'
+            let from = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
+                to = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
+                percent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
+                code = `colour.lerp(${from}, ${to}, ${percent})`;
+            return [code];
+        };
+
+        Blockly.Pseudo.color_lerp = (block) => {
+            let from = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
+                to = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
+                percent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
+                code = `math.lerp(${from}, ${to}, ${percent})`;
+            return [code];
+        };
+
         category.blocks.forEach((category) => {
             Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
         });
@@ -123,7 +166,11 @@
         blocks: [
             'colour_picker',
             'create_color',
-            'random_colour'
+            'random_colour',
+            {
+                id: 'color_lerp',
+                defaults: ['FROM', 'TO', 'PERCENT']
+            }
         ]
     });
 

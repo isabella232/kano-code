@@ -1,13 +1,18 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
+<link rel="import" href="../kano-icons/kc-base.html">
 <link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
 <link rel="import" href="../kano-part-list-item/kano-part-list-item.html">
-<link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
+
 <dom-module id="kano-default-workspace">
     <template>
         <style>
@@ -23,7 +28,7 @@
                 position: fixed;
                 top: 0px;
                 right: 0px;
-                color: white;
+                color: #fff;
                 background-color: transparent;
                 z-index: 101;
                 border: none;
@@ -34,7 +39,7 @@
                 cursor: pointer;
             }
             :host .fullscreen-close div {
-                transition: all 0.3s ease;
+                transition: all 0.2s ease;
                 transform: translate(0, -7px);
             }
             :host .fullscreen-close div:hover {
@@ -53,7 +58,7 @@
             :host #content {
                 position: relative;
                 width: auto;
-                padding: 8px 0;
+                margin: 14px 40px 0;
                 transition: background linear 150ms;
             }
             :host.running #content {
@@ -83,13 +88,12 @@
                 animation: fade-in 200ms linear;
             }
             kano-workspace-toolbar {
-                padding: 32px 8px;
+                padding: 32px 40px;
             }
             .controls {
                 @apply --layout-vertical;
                 @apply --layout-justified;
                 @apply --layout-flex-auto;
-                padding: 0px 6px;
                 box-sizing: border-box;
             }
             :host(:not(.fullscreen)) .overlay {
@@ -110,17 +114,18 @@
                 width: 100%;
             }
             .add-parts {
-                border-top: 1px solid #202428;
-                border-bottom: 1px solid #202428;
                 @apply --layout-horizontal;
                 @apply --layout-center;
-                padding: 0 1px;
+                height: 46px;
+                border-top: 1px solid #202428;
+                border-bottom: 1px solid #202428;
+                margin: 0 40px;
             }
             .add-parts .label {
                 text-transform: uppercase;
                 @apply --layout-flex;
-                color: white;
-                font-size: 12px;
+                color: #fff;
+                font-size: 14px;
                 letter-spacing: 0.03em;
                 padding: 10px 0;
             }
@@ -128,17 +133,14 @@
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 cursor: pointer;
-                padding: 8px;
-                transition: background 0.3s;
-            }
-            .add-parts .action:hover {
-                background: rgba(255, 255, 255, 0.1);
+                transition: background 0.2s;
             }
             .add-parts .action label {
-                margin-right: 15px;
-                font-size: 12px;
+                margin-right: 12px;
+                font-size: 14px;
                 color: rgba(255, 255, 255, 0.5);
                 cursor: pointer;
+                transition: color 0.2s;
             }
             .add-parts button {
                 @apply --layout-horizontal;
@@ -153,8 +155,15 @@
                 font-weight: bold;
                 width: 24px;
                 height: 24px;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.25);
                 color: rgba(255, 255, 255, 0.75);
+            }
+            .add-parts .action:hover label {
+                color: #fff;
+            }
+            .add-parts .action:hover button {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.5);
             }
             paper-dialog {
                 background: transparent;
@@ -170,32 +179,48 @@
                 @apply --layout-flex;
                 @apply --layout-vertical;
                 overflow: auto;
+                padding: 0 40px;
             }
             .part, ::slotted(.part) {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 border-bottom: 1px solid #202428;
-                height: 43px;
-                color: white;
+                height: 40px;
+                color: #fff;
             }
             .part.sortable-ghost {
-                opacity: 0.1;
+                opacity: 0.3;
+            }
+            .part.sortable-drag {
+                background-color: var(--kano-app-editor-workspace-background);
+                box-shadow: 0px 2px 4px 0 rgba(0, 0, 0, 0.75);
             }
             kano-part-list-item {
                 @apply --layout-flex;
                 cursor: pointer;
+                max-width: 100%;
+            }
+            iron-icon {
+                --iron-icon-width: 12px;
+                --iron-icon-height: 12px;
+                --iron-icon-fill-color: #8F9195;
             }
             .handle {
                 cursor: move;
             }
-            .remove-part, .handle {
-                color: #3A4248;
-                font-size: 32px;
-            }
-            .remove-part {
+            button.remove {
                 background: inherit;
-                border: 0px;
                 cursor: pointer;
+                line-height: 0;
+                border: 0;
+                padding: 0;
+                margin: 0 12px;
+            }
+            .remove:hover iron-icon {
+                fill: var(--color-rhubarb);
+            }
+            iron-icon.handle:hover {
+                fill: #fff;
             }
             [hidden] {
                 display: none !important;
@@ -231,11 +256,11 @@
                 <sortable-js handle=".handle" animation="150">
                     <template is="dom-repeat" items="{{parts}}" as="part" on-dom-change="_partsElementsRepeaterChanged">
                         <div class="part" id$="part-[[part.id]]">
-                            <iron-icon class="handle" icon="menu"></iron-icon>
-                            <kano-part-list-item model="[[part]]" on-tap="_partItemTapped"></kano-part-list-item>
-                            <button type="button" class="remove-part" on-tap="_removePart">
-                                <iron-icon icon="close"></iron-icon>
+                            <kano-part-list-item model="{{part}}" on-tap="_partItemTapped"></kano-part-list-item>
+                            <button type="button" class="remove">
+                                <iron-icon icon="kc-base:close" on-tap="_removePart"></iron-icon>
                             </button>
+                            <iron-icon class="handle" icon="kc-base:handle"></iron-icon>
                         </div>
                     </template>
                 </sortable-js>
@@ -243,7 +268,7 @@
         </div>
         <div class="overlay">
             <button class="fullscreen-close" on-tap="_toggleFullscreen">
-                <iron-icon icon="close"></iron-icon>
+                <iron-icon icon="kc-base:close"></iron-icon>
             </button>
             <kano-workspace-toolbar running="[[running]]"
                                     no-part-controls
@@ -259,7 +284,8 @@
             behaviors: [
                 Kano.Behaviors.I18nBehavior,
                 Kano.Behaviors.AppEditorBehavior,
-                Kano.Behaviors.AppElementRegistryBehavior
+                Kano.Behaviors.AppElementRegistryBehavior,
+                Polymer.IronResizableBehavior
             ],
             properties: {
                 running: {
@@ -314,16 +340,14 @@
                         return [];
                     },
                     notify: true
-                },
-                expansion: {
-                    type: Number,
-                    value: 0,
-                    observer: '_expansionChanged'
                 }
             },
             observers: [
                 '_partsAddedOrRemoved(parts.splices)'
             ],
+            listeners: {
+                'iron-resize': '_setViewportHeight'
+            },
             _partsAddedOrRemoved (changeRecord) {
                 if (changeRecord && changeRecord.keySplices) {
                     changeRecord.keySplices.forEach(splice => {
@@ -340,47 +364,41 @@
                 }
             },
             _partsElementsRepeaterChanged () {
+                let allPartsEl = Polymer.dom(this.root).querySelectorAll('.part'),
+                    partEl, partElId;
+                for (let i = 0; i < allPartsEl.length; i++) {
+                    partEl = allPartsEl[i];
+                    partElId = partEl.getAttribute('id');
+                    this._registerElement(`parts-controls-${partElId}`, partEl);
+                }
                 this._partsToAnimateIn.forEach(part => {
                     let partEl = this.$$(`#part-${part.id}`),
-                        listItemEl,
                         partInlineControlsEl;
                     if (!partEl) {
                         return;
                     }
-                    listItemEl = partEl.querySelector('kano-part-list-item');
-                    partInlineControlsEl = listItemEl.getInlineControlsElement();
-                    partEl.animate({
-                        transform: ['translateX(30%)', 'translateX(0%)'],
+                    partEl.querySelector('kano-part-list-item').animate({
                         opacity: [0, 1]
                     }, {
-                        duration: 500,
-                        easing: 'ease-out',
-                        delay: 300,
-                        fill: 'backwards'
+                        duration: 300,
+                        fill: 'forwards'
                     });
-                    if (partInlineControlsEl) {
-                        partInlineControlsEl.animate({
-                            opacity: [0, 1]
-                        }, {
-                            duration: 600,
-                            delay: 800,
-                            fill: 'backwards',
-                            easing: 'ease-out'
-                        });
-                    }
                 });
                 this._partsToAnimateIn = [];
             },
-            _expansionChanged (v) {
-                this.$.content.style['height'] = v > 0 ? `${20 + v * 6}vw` : '20vw';
+            _setViewportHeight () {
+                const aspectRatio = this.height / this.width;
+                window.requestAnimationFrame(() => this.$.content.style['height'] =
+                        `${(this.offsetWidth - 80) * aspectRatio}px`);
+                        this.$.content.resizeView();
             },
             ready () {
                 this._partsToAnimateIn = [];
             },
             attached () {
                 this.target = document.body;
-                this.$.content.resizeView();
                 this._registerElement('add-part-button', this.$['add-part-button']);
+                this._registerElement('parts-controls', this);
             },
             _toggleFullscreen () {
                 this.toggleClass('fullscreen');
@@ -413,6 +431,7 @@
                 this.fire('remove-part', part);
             },
             _partItemTapped (e) {
+                e.preventDefault();
                 let part = e.model.get('part');
                 this.fire('part-selected', part);
             }

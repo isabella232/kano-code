@@ -2,32 +2,39 @@
 <script>
     (function (Kano) {
 
-        var DongleBase;
+        let DongleBase, PartsAPI;
 
         Kano.MakeApps = Kano.MakeApps || {};
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         // @polymerBehavior
         DongleBase = {
+            _listeners: [],
+            handlers: [],
+            onCreated () {
+                Kano.MakeApps.PartsAPI.Base.onCreated.apply(this);
+                this.mappingChangedEventListener = this.mappingChangedEventListener.bind(this);
+                if (this.model && this.handlers) {
+                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener);
+                }
+            },
+            onDestroyed () {
+                if (this.model && this.handlers) {
+                    this.appModules.getModule(this.module).removeListener(this.model.id + '-mapping-changed', this.mappingChangedEventListener);
+                    this.remapListeners(this.appModules.getModule(this.module).getDeviceForPart(this.model.id), null);
+                }
+            },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
-
-                this.handlers = this.handlers || [];
-
-                this.mappingChangedEventListener = (e) => {
-                    if (this.isRunning) {
-                        this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
-                    } else {
-                        if (this.model.connected !== !!e.detail.newDevice) {
-                            this.set('model.connected', !!e.detail.newDevice);
-                        }
-                    }
-                };
-
-                this.remapListeners(null, this.appModules.getModule(this.module).getDeviceForPart(this.id), true);
-                this.appModules.getModule(this.module).on(this.id + '-mapping-changed', this.mappingChangedEventListener);
+            },
+            mappingChangedEventListener (e) {
+                this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
+                if (!this.isRunning && this.model.connected !== !!e.detail.newDevice) {
+                    this.set('model.connected', !!e.detail.newDevice);
+                }
             },
             remapListeners (oldDevice, newDevice, notify) {
+
                 if (oldDevice) {
                     Object.keys(this.handlers).forEach((eventName) => {
                         oldDevice.removeListener(eventName, this.handlers[eventName]);
@@ -46,9 +53,6 @@
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
-
-                this.appModules.getModule(this.module).removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
-                this.remapListeners(this.appModules.getModule(this.module).getDeviceForPart(this.id), null);
             }
         };
 

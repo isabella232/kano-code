@@ -37,8 +37,8 @@
         .spacer {
             @apply --layout-flex;
         }
-        #settings-button {
-            margin: 0px;
+        button#settings {
+            margin: 0 8px 0 0;
         }
         kano-animated-svg {
             min-width: 17px;
@@ -62,6 +62,10 @@
         }
         kano-tooltip {
             box-sizing: border-box;
+            --kano-tooltip-caret-width: 9px;
+        }
+        kano-tooltip.fly {
+            --kano-tooltip-caret-width: 7px;
         }
         button {
             @apply --layout-horizontal;
@@ -70,9 +74,9 @@
             @apply --kano-button;
             background-color: rgba(255, 255, 255, 0.25);
             border-radius: 3px;
-            padding: 8px 16px;
+            padding: 10px 16px;
             cursor: pointer;
-            margin-left: 9px;
+            margin: 0 8px 0 0;
             font-size: 12px;
             border-radius: 2px;
             text-shadow: none;
@@ -94,8 +98,9 @@
             width: 32px;
             height: 32px;
         }
-        #play-pause-button {
+        button#play-pause {
             background: #7CC74C;
+            margin: 0;
         }
         iron-icon {
             --iron-icon-width: 20px;
@@ -106,11 +111,16 @@
         button:focus iron-icon {
             opacity: 1;
         }
+        button#save iron-icon {
+            --iron-icon-width: 14px;
+            --iron-icon-height: 14px;
+            --iron-icon-fill-color: #fff;
+        }
         ul {
-            margin: 0px;
-            padding: 16px 0px;
-            color: black;
             min-width: 200px;
+            margin: 0px;
+            padding: 14px 0 10px;
+            color: black;
         }
         li {
             @apply --layout-vertical;
@@ -120,21 +130,23 @@
             @apply --layout-horizontal;
             @apply --layout-center;
             @apply --layout-start-justified;
-            padding: 8px 14px;
             cursor: pointer;
-            opacity: 0.6;
+            opacity: 0.9;
             background: transparent;
-            color: black;
-            text-transform: initial;
-            margin-left: 0px;
-            font-size: 16px;
-            font-family: var(--font-body);
+            margin: 0;
             transition: none;
-            text-decoration: none;
             border-radius: 0px;
         }
+        .text {
+            color: var(--color-chateau);
+            text-transform: initial;
+            font-size: 14px;
+            font-family: var(--font-body);
+            text-decoration: none;
+            padding: 6px 12px;
+        }
         ul li .inline:hover {
-            opacity: 0.9;
+            opacity: 1;
             background: rgba(0, 0, 0, 0.2);
         }
         ul li .inline iron-icon {
@@ -145,8 +157,12 @@
         }
     </style>
     <template>
-        <button id="settings-button" type="button" class="icon settings" hidden$="[[!showSettings]]" on-tap="_settingsTapped">
+        <button id="settings" type="button" class="icon settings" hidden$="[[!showSettings]]" on-tap="_openTooltip">
             <iron-icon icon="settings"></iron-icon>
+        </button>
+        <kano-tooltip id="save-tooltip" class="fly" position="top"><div class="text">Save</div></kano-tooltip>
+        <button id="save" type="button" class="icon" on-tap="_save" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
+            <iron-icon src="/assets/icons/save.svg"></iron-icon>
         </button>
         <div class="spacer" hidden$="[[!showSettings]]"></div>
         <div class="mouse-position" hidden$="[[mousePositionHidden(showMousePosition)]]">
@@ -163,44 +179,41 @@
             </button>
         </div>
         <div class="player-bar" hidden$="[[noPlayerBar]]">
-            <button class="icon" type="button" on-tap="fullscreenClicked">
+            <kano-tooltip id="fullscreen-tooltip" class="fly" position="top"><div class="text">Fullscreen</div></kano-tooltip>
+            <button id="fullscreen" class="icon" type="button" on-tap="fullscreenClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <img src="/assets/icons/fullscreen-icon.svg" alt="Fullscreen mode" />
             </button>
-            <button class="icon" type="button" on-tap="resetClicked">
+            <kano-tooltip id="reset-tooltip" class="fly" position="top"><div class="text">Reset</div></kano-tooltip>
+            <button id="reset" class="icon" type="button" on-tap="resetClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <img src="/assets/icons/reset-icon.svg" alt="Reset app" />
             </button>
-            <button class="icon" id="play-pause-button" type="button" on-tap="_runButtonClicked">
+            <kano-tooltip id="play-pause-tooltip" class="fly" position="top"><div class="text">[[playPauseLabel]]</div></kano-tooltip>
+            <button id="play-pause" class="icon" type="button" on-tap="_runButtonClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}"></kano-animated-svg>
             </button>
         </div>
-        <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
+        <kano-tooltip id="settings-tooltip" position="bottom" auto-close>
             <ul>
                 <li>
-                    <button type="button" class="inline" on-tap="_save">
-                        <iron-icon src="/assets/icons/save.svg"></iron-icon>
-                        <div>[[localize('SAVE', 'Save')]]</div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="inline" on-tap="_reset">
+                    <button type="button" class="inline text" on-tap="_reset">
                         <iron-icon src="/assets/icons/reset.svg"></iron-icon>
                         <div>[[localize('RESET_WORKSPACE', 'Reset Workspace')]]</div>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="inline" on-tap="_export">
+                    <button type="button" class="inline text" on-tap="_export">
                         <iron-icon src="/assets/icons/export.svg"></iron-icon>
                         <div>[[localize('EXPORT', 'Export')]]</div>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="inline" on-tap="_import">
+                    <button type="button" class="inline text" on-tap="_import">
                         <iron-icon src="/assets/icons/import.svg"></iron-icon>
                         <div>[[localize('IMPORT', 'Import')]]</div>
                     </button>
                 </li>
                 <li>
-                    <a href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank" class="inline">
+                    <a href="https://insights.hotjar.com/s?siteId=119134&surveyId=9857" target="_blank" class="inline text">
                         <iron-icon src="/assets/icons/feedback.svg"></iron-icon>
                         <div>[[localize('GIVE_FEEDBACK', 'Give Feedback')]]</div>
                     </a>
@@ -249,6 +262,10 @@
             showSettings: {
                 type: Boolean,
                 value: false
+            },
+            playPauseLabel: {
+                typs: String,
+                value: 'Pause'
             }
         },
         ready () {
@@ -271,6 +288,7 @@
         },
         _runButtonClicked (e) {
             this.fire('run-button-clicked');
+            this.playPauseLabel = this.running ? 'Pause' : 'Play';
         },
         resetClicked (e) {
             this.fire('reset-button-clicked');
@@ -293,32 +311,47 @@
         _applyButtonClass (open) {
             return open ? 'open' : '';
         },
-        _settingsTapped () {
-            if (!this.$.tooltip.opened) {
-                this._openTooltip();
+        _startTimer (e) {
+            this.hoverTimer = this.async(() => {
+                this._openTooltip(e);
+                this.hoverTimer = null;
+            }, 800);
+        },
+        _stopTimer (e) {
+            if (this.hoverTimer) {
+                this.cancelAsync(this.hoverTimer);
+            } else {
+                this._closeTooltip(e);
             }
         },
-        _openTooltip () {
-            this.tooltipTarget = this.$['settings-button'];
-            this.$.tooltip.open();
+        _openTooltip (e) {
+            const targetId = this._computeTargetId(e),
+                tooltip = this.$[`${targetId}-tooltip`];
+            tooltip.target = this.$[targetId].getBoundingClientRect();
+            tooltip.open();
         },
-        _closeTooltip () {
-            this.$.tooltip.close();
+        _closeTooltip (e) {
+            const targetId = this._computeTargetId(e),
+                tooltip = this.$[`${targetId}-tooltip`];
+            tooltip.close();
+        },
+        _computeTargetId (e) {
+            return e.currentTarget ? e.currentTarget.id : Polymer.dom(e).rootTarget.id;
         },
         _reset () {
-            this._closeTooltip();
+            this.$['settings-tooltip'].close();
             this.fire('iron-signal', { name: 'reset-workspace' });
         },
         _export () {
-            this._closeTooltip();
+            this.$['settings-tooltip'].close();
             this.fire('iron-signal', { name: 'export-app' });
         },
         _import () {
-            this._closeTooltip();
+            this.$['settings-tooltip'].close();
             this.fire('iron-signal', { name: 'import-app' });
         },
         _save () {
-            this._closeTooltip();
+            this.$['settings-tooltip'].close();
             this.fire('save-button-clicked');
         }
     });

@@ -12,7 +12,7 @@
             },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
-                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+                this.attachListeners();
 
                 this.iterator = {
                     currentColumn: 1,
@@ -21,8 +21,15 @@
             },
             stop () {
                 PartsAPI.Base.stop.apply(this, arguments);
+                this.detachListeners();
+            },
+            attachListeners () {
+                this.detachListeners();
+                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+            },
+            detachListeners () {
                 if (this.appModules) {
-                    this.appModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEvent);
+                    this.appModules.getModule('lightboard').removeAllListeners('button-down');
                 }
             },
             clear () {
@@ -63,10 +70,8 @@
                 this.fire("lightboard-" + data['button-id']);
             },
             _updateShape (e) {
-                this.debounce("updateShape-" + e.detail.id, () => {
-                    let shape = e.detail;
-                    this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape, this.render.bind(this));
-                });
+                let shape = e.detail;
+                this.appModules.getModule('lightboard').updateOrCreateShape(shape.id, shape, this.render.bind(this));
             },
             _removeShape (e) {
                 let shapeId = e.detail;

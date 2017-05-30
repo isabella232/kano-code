@@ -87,10 +87,6 @@ Polymer({
             type: Object,
             value: null
         },
-        workspaceExpansion: {
-            type: Number,
-            value: 0
-        },
         lockdown: {
             type: Boolean,
             reflectToAttribute: true,
@@ -138,11 +134,11 @@ Polymer({
     },
     _closePartsModal () {
         this.$['parts-modal'].close();
-        this.$['add-parts'].reset();
     },
     _partsModalClosed () {
-        this.notifyChange('close-parts');
+        this.$['add-parts'].reset();
         this.partsMenuOpen = false;
+        this.notifyChange('close-parts');
     },
     _addParts (e) {
         this._closePartsModal();
@@ -200,6 +196,7 @@ Polymer({
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-part-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
+            this.notifyChange('close-part-settings', { part: this.selected });
             this.editableLayout = false;
             // Stop eventual actions the part editor might be doing
             this.$['edit-part-dialog-content'].stop();
@@ -776,13 +773,6 @@ Polymer({
 
         offsetPanel = container.getBoundingClientRect().right - e.clientX;
         workspacePanel.style.width = `${offsetPanel}px`;
-
-        /*
-        workspaceExpansion is the ratio by which the workspace is expanded in size
-        min 0 [min-width: 30%], max 1 [max-width: 50%]
-        */
-        workspaceRelSize = Math.max(Math.min(offsetPanel / window.innerWidth, 0.5), 0.3);
-        this.workspaceExpansion = (workspaceRelSize - 0.3) / 0.2;
 
         //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
