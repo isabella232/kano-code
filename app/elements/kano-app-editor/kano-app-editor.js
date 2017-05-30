@@ -468,6 +468,9 @@ Polymer({
         this.$.workspace.clearSelection();
     },
     _onPartsSet (parts) {
+        if (!this.queuedHardware) {
+            return;
+        }
         this.async(() => {
             let product;
             for (var i = 0; i < this.queuedHardware.length; i++) {
