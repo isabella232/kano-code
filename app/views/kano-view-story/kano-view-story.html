@@ -91,13 +91,15 @@
                 observer: 'selectedChanged'
             },
             addedParts: {
-                type: Array,
-                observer: '_addedPartsChanged'
+                type: Array
             }
         },
         listeners: {
             'parts-changed': '_partsChanged'
         },
+        observers: [
+            '_addedPartsChanged(addedParts.splices)'
+        ],
         ready () {
             Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;

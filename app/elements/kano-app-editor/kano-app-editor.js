@@ -104,7 +104,8 @@ Polymer({
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)',
-        '_partsChanged(parts.slices)'
+        '_partsChanged(parts.slices)',
+        '_onPartsSet(parts)'
     ],
     listeners: {
         'mode-ready': '_onModeReady',
@@ -156,12 +157,17 @@ Polymer({
 
         // Too early
         if (!Array.isArray(this.parts)) {
+            this.queuedHardware = this.queuedHardware || [];
+            this.queuedHardware.push(e.detail.product);
             return;
         }
-
-        for (let i = 0; i < this.parts.length; i++) {
+        this._addHardwarePart(e.detail.product);
+    },
+    _addHardwarePart (product) {
+        let model;
+        for (var i = 0; i < this.parts.length; i++) {
             model = this.parts[i];
-            if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
+            if (model.supportedHardware && model.supportedHardware.indexOf(product) >= 0) {
                 this._addPart({ detail: model.type });
                 break;
             }
@@ -460,6 +466,18 @@ Polymer({
         this.splice('addedParts', index, 1);
         Kano.MakeApps.Parts.freeId(part);
         this.$.workspace.clearSelection();
+    },
+    _onPartsSet (parts) {
+        if (!this.queuedHardware) {
+            return;
+        }
+        this.async(() => {
+            let product;
+            for (var i = 0; i < this.queuedHardware.length; i++) {
+                product = this.queuedHardware[i];
+                this._addHardwarePart(product);
+            }
+        });
     },
     onPartReady (e) {
         let clone;
