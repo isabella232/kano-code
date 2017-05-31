@@ -130,7 +130,9 @@
                 let value;
                 this.volume = Math.min(Math.max(volume, 0), 100);
                 value = this.model.muted ? 0 : (this.volume * 0.01);
-                this.gainControl.gain.value = value;
+                if (this.gainControl) {
+                    this.gainControl.gain.value = value;
+                }
             },
             loadSample (name) {
                 if (this.samples[name]) {
