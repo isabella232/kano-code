@@ -1,5 +1,6 @@
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../../kano-slider/kano-slider.html">
 <link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
@@ -16,36 +17,30 @@ Custom property | Description | Default
     <style is="custom-style" include="input-range"></style>
     <style>
         :host {
-            @apply --layout-horizontal;
-            @apply --layout-center;
-            min-height: 64px;
+            @apply --layout-vertical;
         }
         :host label {
-            width: var(--kano-part-settings-label-width, 82px);
             color: rgba(255, 255, 255, 0.5);
             text-align: left;
-            font-size: 14px;
+            text-transform: uppercase;
+            font-size: 12px;
+            line-height: 12px;
             font-family: var(--font-body);
             font-weight: bold;
-            margin-right: 40px;
+            margin-bottom: 8px;
             @apply --kano-input-range-label;
         }
-        :host .inputs {
-            @apply --kano-settings-container;
+        .slider-container {
+            background: var(--color-chateau);
+            border-radius: 6px;
+            padding: 8px 6px 10px;
         }
         :host .display {
-            @apply --kano-button;
             @apply --layout-horiztonal;
             @apply --layout-center-justified;
-            width: 52px;
-            border-radius: 3px;
-            background-color: var(--color-chateau);
-            text-shadow: none;
-            padding: 9px 0 8px;
-            margin-left: 16px;
+            color: #fff;
             font-size: 14px;
-            line-height: 14px;
-            text-align: center;
+            margin: 0 0 8px 4px;
             @apply --kano-input-range-display;
         }
         :host .display span.symbol {
@@ -65,13 +60,14 @@ Custom property | Description | Default
     </style>
     <template>
         <label hidden$="[[noLabel]]">[[label]]</label>
-        <paper-slider
-              id="slider"
-              min="[[min]]"
-              max="[[max]]"
-              value="{{value}}"
-              immediate-value="{{value}}"></paper-slider>
-        <div class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
+        <div class="slider-container">
+            <div class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
+            <kano-slider
+                  id="slider"
+                  min="[[min]]"
+                  max="[[max]]"
+                  value="{{value}}"></kano-slider>
+        </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -80,6 +76,7 @@ Custom property | Description | Default
     Polymer({
         is: 'kano-input-range',
         behaviors: [Kano.Behaviors.Input],
+
         attached () {
             /* add kano-code-shared-styles to paper-slider for custom styling */
             let customStyle = document.createElement('style', 'custom-style');

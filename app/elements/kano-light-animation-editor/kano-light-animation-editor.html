@@ -95,21 +95,6 @@
         .top-panel .action button:hover iron-icon {
             fill: #fff;
         }
-        .top-panel kano-input-range {
-            width: 210px;
-            margin-right: 12px;
-            --kano-input-range-label: {
-                width: 42px;
-                margin-right: 16px;
-            };
-            --kano-input-range-display: {
-                width: 48px;
-                margin-left: 12px;
-            };
-        }
-        .top-panel kano-input-range:last-of-type {
-            margin-right: 0;
-        }
         .top-panel .action {
             @apply --layout-flex-auto;
             @apply --layout-horizontal;
@@ -134,7 +119,6 @@
         }
         .center-panel {
             @apply --layout-horizontal;
-            @apply --layout-center-justified;
         }
         .side-menu {
             @apply --layout-vertical;
@@ -172,7 +156,9 @@
         .canvas-container {
             @apply --layout-flex-none;
             @apply --layout-vertical;
-            margin: 56px;
+            @apply --layout-center-justified;
+            width: 554px;
+            height: 320px;
         }
         .canvas-container iron-pages {
             @apply --layout-horizontal;
@@ -186,15 +172,20 @@
         }
         .control-container {
             @apply --layout-flex-auto;
+            @apply --layout-horizontal;
             border-left: 1px solid var(--kano-app-part-editor-border);
         }
         .control-container label:first-of-type {
-            margin: 19px 0;
+            margin: 20px 0;
         }
         .control-content {
             @apply --layout-flex-auto;
+            @apply --layout-horizontal;
+            padding: 0 28px;
+        }
+        .control-content>* {
+            @apply --layout-flex-auto;
             @apply --layout-vertical;
-            margin: 0 40px;
         }
         .control-content .custom-colour-header {
             @apply --layout-horizontal;
@@ -219,12 +210,24 @@
                 @apply(--shadow-elevation-2dp);
             };
         }
+        .control-content .settings-controls {
+            @apply --layout-vertical;
+            @apply --layout-flex-auto;
+            @apply --layout-justified;
+            padding-bottom: 36px;
+        }
+        .control-container .size-settings {
+            @apply --layout-horizontal;
+        }
+        .control-container kano-input-range:first-child {
+            margin-right: 16px;
+        }
         #default-palette,
         #custom-palette {
             --kano-input-color-margin: 0.5px;
         }
         #default-palette {
-            margin-bottom: 16px;
+            margin: 4px 0 16px;
         }
         .bottom-panel {
             background-color: #252b31;
@@ -235,26 +238,50 @@
         }
         kano-bitmap-list button {
             @apply --kano-button;
+            color: #8f9195;
         }
         kano-bitmap-list button,
         kano-bitmap-list label {
+            @apply --layout-horizontal;
+            @apply --layout-center;
             font-size: 14px;
+            line-height: 18px;
             font-weight: bold;
             background-color: transparent;
-            color: #8f9195;
             margin: 16px 40px 16px 0;
             padding: 0;
+            transition: color 100ms;
+        }
+        kano-bitmap-list label {
+            color: white;
+        }
+        kano-bitmap-list iron-icon {
+            --iron-icon-height: 14px;
+            --iron-icon-width: 14px;
+            margin-right: 8px;
+            transition: fill 100ms;
+        }
+        kano-bitmap-list iron-icon#add-icon {
+            --iron-icon-height: 18px;
+            --iron-icon-width: 18px;
+        }
+
+        kano-bitmap-list button:hover {
+            color: #fff;
+        }
+        kano-bitmap-list button:hover iron-icon {
+            fill: #fff;
         }
         .bottom-panel-label {
-            margin: 16px 40px 16px 16px;
+            margin: 16px 40px 16px 24px;
         }
         #frames {
             @apply --layout-flex;
             overflow: hidden;
         }
         button.add-frame iron-icon {
-            --iron-icon-height: 21px;
-            --iron-icon-width: 21px;
+            --iron-icon-height: 18px;
+            --iron-icon-width: 18px;
             fill: #999;
         }
         :host button.add-frame:hover iron-icon {
@@ -340,9 +367,14 @@
                         </div>
                         <div name="settings">
                             <label>Settings</label>
-                            <kano-input-range id="width-slider" class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
-                            <kano-input-range id="height-slider" class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
-                            <kano-input-range id="speed-slider" class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+                            <div class="settings-controls">
+                                <kano-input type="text" label="Name" value="{{selected.name}}"></kano-input>
+                                <div class="size-settings">
+                                    <kano-input-range id="width-slider" class="slider" value="{{selected.userProperties.width}}" label="Width" min="1" max="16"></kano-input-range>
+                                    <kano-input-range id="height-slider" class="slider" value="{{selected.userProperties.height}}" label="Height" min="1" max="8"></kano-input-range>
+                                </div>
+                                <kano-input-range id="speed-slider" class="slider" value="{{selected.userProperties.speed}}" label="Speed" min="1" max="30" symbol="fps"></kano-input-range>
+                            </div>
                         </div>
                     </iron-pages>
             </div>
@@ -357,12 +389,15 @@
                         <!-- <button id="add-frame-button" type="button" name="button" class="add-frame" on-tap="_addFrame" disabled$="[[isEq(previewState, 'running')]]"><iron-icon icon="kano-icons:plus"></iron-icon></button> -->
                         <label class="bottom-panel-label" slot="label">Animate</label>
                         <button id="preview-button" type="button" slot="add-button">
+                            <iron-icon id="add-icon" icon="add"></iron-icon>
                             <span>Add cell</span>
                         </button>
                         <button id="preview-button" type="button" slot="duplicate-button">
+                            <iron-icon icon="content-copy"></iron-icon>
                             <span>Duplicate</span>
                         </button>
                         <button id="preview-button" type="button" slot="delete-button">
+                            <iron-icon icon="clear"></iron-icon>
                             <span>Delete</span>
                         </button>
             </kano-bitmap-list>

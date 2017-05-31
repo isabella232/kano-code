@@ -1,0 +1,132 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../behaviors.html">
+<link rel="import" href="../../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
+<!--
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--kano-input-range-label`
+-->
+<dom-module id="kano-slider">
+    <style is="custom-style" include="input-range"></style>
+    <style>
+        :host {
+            @apply --layout-horizontal;
+            @apply --layout-center;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 5px;
+            cursor: pointer;
+            background: var(--color-dark);
+            border-radius: 6px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 10px;
+            border: 2px solid #fff;
+            border-radius: 500px;
+            background: var(--color-kano-orange);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: var(--color-dark);
+        }
+        input[type=range]:focus::-webkit-slider-thumb {
+            border: none;
+        }
+
+        /*******************/
+
+        input[type=range]::-moz-range-track {
+          width: 100%;
+          height: 8.4px;
+          cursor: pointer;
+          box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+          background: #3071a9;
+          border-radius: 1.3px;
+          border: 0.2px solid #010101;
+        }
+        input[type=range]::-moz-range-thumb {
+          box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+          border: 1px solid #000000;
+          height: 36px;
+          width: 16px;
+          border-radius: 3px;
+          background: #ffffff;
+          cursor: pointer;
+        }
+        input[type=range]::-ms-track {
+          width: 100%;
+          height: 8.4px;
+          cursor: pointer;
+          background: transparent;
+          border-color: transparent;
+          color: transparent;
+        }
+        input[type=range]::-ms-fill-lower {
+          background: #2a6495;
+          border: 0.2px solid #010101;
+          border-radius: 2.6px;
+          box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+        input[type=range]::-ms-fill-upper {
+          background: #3071a9;
+          border: 0.2px solid #010101;
+          border-radius: 2.6px;
+          box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+        input[type=range]::-ms-thumb {
+          box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+          border: 1px solid #000000;
+          height: 36px;
+          width: 16px;
+          border-radius: 3px;
+          background: #ffffff;
+          cursor: pointer;
+          height: 8.4px;
+        }
+        input[type=range]:focus::-ms-fill-lower {
+          background: #3071a9;
+        }
+        input[type=range]:focus::-ms-fill-upper {
+          background: #367ebd;
+        }
+
+    </style>
+    <template>
+        <input type="range" min="[[min]]" max="[[max]]" value="{{value::input}}" id="fader" step="1">
+        <!-- <div class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div> -->
+    </template>
+</dom-module>
+<script type="text/javascript">
+    /* globals Polymer, Kano */
+
+    Polymer({
+        is: 'kano-slider',
+        properties: {
+            value: {
+                type: Number,
+                notify: true
+            }
+        },
+        _roundValue (value) {
+            return Math.round(value);
+        }
+    });
+</script>

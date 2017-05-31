@@ -49,9 +49,10 @@ Custom property | Description | Default
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 @apply --layout-center-justified;
+                position: relative;
+                margin-right: 16px;
                 width: 116px;
                 height: 68px;
-                cursor: pointer;
                 border: 2px solid #8f9195;
                 border-radius: 6px;
                 box-sizing: border-box;
@@ -59,8 +60,28 @@ Custom property | Description | Default
             .sortable-item.sortable-ghost {
                 opacity: 0.45;
             }
-            kano-bitmap-renderer.selected {
-                border-color: var(--color-chateau);
+            kano-bitmap-renderer {
+                cursor: pointer;
+            }
+            .sortable-item.selected {
+                border: 2px solid #fff;
+            }
+            .index-number {
+                width: 18px;
+                height: 18px;
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                background: #bbb;
+                color: #252b31;
+                font-size: 14px;
+                font-weight: bold;
+                line-height: 18px;
+                text-align: center;
+                border-radius: 3px;
+            }
+            .sortable-item:not(.selected) .index-number {
+                display: none;
             }
             .bin {
                 position: absolute;
@@ -111,15 +132,15 @@ Custom property | Description | Default
                 <sortable-js group="frames" class="bin" id="bin"></sortable-js>
                 <sortable-js id="frames" group="frames" animation="150" on-start="_sortStarted" on-end="_sortEnd" on-remove="_sortRemove">
                         <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
-                            <div class="sortable-item">
+                            <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex)]]">
                                 <kano-bitmap-renderer width="[[width]]"
                                                     height="[[height]]"
                                                     spacing="1"
                                                     pixel-size="4"
                                                     bitmap="[[bm]]"
                                                     on-mousedown="_registerBinPosition"
-                                                    on-tap="_selectFrame"
-                                                    class$="[[_computeFrameSelectedClass(index, selectedIndex)]]"></kano-bitmap-renderer>
+                                                    on-tap="_selectFrame"></kano-bitmap-renderer>
+                                <div hidden$="[[!displayedIndex]]"" class="index-number">[[displayedIndex]]</div>
                             </div>
                         </template>
                 </sortable-js>
@@ -151,12 +172,19 @@ Custom property | Description | Default
                 height: {
                     type: Number,
                     value: 1
+                },
+                displayedIndex: {
+                    type: Number,
+                    computed: '_computeDisplayedIndex(selectedIndex)'
                 }
             },
             observers: [
                 '_selectedChanged(selected.*)',
                 '_bitmapsChanged(bitmaps)'
             ],
+            _computeDisplayedIndex (selectedIndex) {
+                return selectedIndex + 1;
+            },
             _selectedChanged (e) {
                 if (this.sorting) {
                     return;
