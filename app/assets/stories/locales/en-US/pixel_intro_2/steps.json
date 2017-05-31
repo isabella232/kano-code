@@ -1,78 +1,51 @@
 {
     "steps": [
-  		{
-  			"banner": {
-  				"text":"Ready to control color? 🌈",
-  				"next_button": true
-  			}
-  		},
-  		{
-  			"set-state": {
-  				"hints": {
-  					"enabled": false,
-  					"disabled-banner": {
-  						"text": "Can you find where the code to control the <b>lightboard</b> lives?",
-  						"hint_button": true
-  					}
-  				}
-  			}
-  		},
         {
             "banner": {
-      				"text":"Open the lightboard tray"
+                "text": "Let's make things move on their own using loops 🔄",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "We're going to use a loop which is a block that runs the code inside over and over. Open the Control tray"
             },
             "beacon": {
                 "target": {
-                    "category": "lightboard"
+                    "category": "control"
                 }
             },
             "validation": {
                 "blockly": {
-                    "open-flyout": "lightboard"
+                    "open-flyout": "control"
                 }
-            },
-      			"reward": true
+            }
         },
-    		{
-    			"set-state": {
-    				"hints": {
-    					"enabled": false,
-    					"disabled-banner": {
-    						"text": "Awesome! Now can you find the block that <b>turns on</b> a light?<br>Drag it into the event block",
-    						"hint_button": true
-    					}
-    				}
-    			}
-    		},
         {
             "banner": {
-              "text": "Drag this block onto your code space"
+                "text": "This block will loop code once every second. Drag the block onto your code space"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "lightboard#turn_on"
+                    "flyout_block": "every_x_seconds"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "lightboard#turn_on",
+                        "type": "every_x_seconds",
                         "id": "block_0"
                     }
                 }
-            },
-      			"reward": true
+            }
         },
-    		{
-    			"set-state": {
-    				"hints": {
-    					"enabled": true
-    				}
-    			}
-    		},
         {
             "banner": {
-    					"text": "🎉🎉That's the one!🎉🎉<br>Connect it to this block"
+                "text": "Connect it to this block"
             },
             "beacon": {
                 "target": {
@@ -104,20 +77,368 @@
                 "target": "DO"
             }
         },
-    		{
-    			"set-state": {
-    				"hints": {
-    					"enabled": false,
-    					"disabled-banner": {
-    						"text": "Can you find where the <b>color</b> blocks live?",
-    						"hint_button": true
-    					}
-    				}
-    			}
-    		},
         {
             "banner": {
-                "text": "Open the Color tray"
+                "text": "Now let's add some lights, open the lightboard tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "lightboard"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "lightboard"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "lightboard#turn_on"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "lightboard#turn_on",
+                        "id": "block_1"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "Gn#|cG)Tv+IsCE#]GiWB"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_0",
+                            "rawId": "Gn#|cG)Tv+IsCE#]GiWB",
+                            "inputName": "DO"
+                        },
+                        "target": "block_1"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "Gn#|cG)Tv+IsCE#]GiWB"
+                    }
+                },
+                "target": "DO"
+            }
+        },
+        {
+            "banner": {
+                "text": "We're going to turn a single light, open this tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "lightboard"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "lightboard"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block turns on individual lights, drag it onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "lightboard#light_x_y"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "lightboard#light_x_y",
+                        "id": "block_2"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": "$@x7RzJ:viPRJ8Fn1UGn"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_1",
+                            "rawId": "$@x7RzJ:viPRJ8Fn1UGn",
+                            "inputName": "TARGET"
+                        },
+                        "target": "block_2"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": "$@x7RzJ:viPRJ8Fn1UGn"
+                    }
+                },
+                "target": "TARGET"
+            }
+        },
+        {
+            "banner": {
+                "text": "Now we're going to use a random block, this will generate different number each time. Open the Math tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "math"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "math"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block works like rolling a dice, drag it onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "math_random"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "math_random",
+                        "id": "block_3"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_2",
+                        "rawId": "m+2t-4R2];5f8WesT`Yn"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_2",
+                            "rawId": "m+2t-4R2];5f8WesT`Yn",
+                            "inputName": "X"
+                        },
+                        "target": "block_3"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_2",
+                        "rawId": "m+2t-4R2];5f8WesT`Yn"
+                    }
+                },
+                "target": "X"
+            }
+        },
+        {
+            "banner": {
+                "text": "The lightboard, loop block and the random block are working together to turn on a new light every second",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "The lightboard is 16 pixels wide so let's fill the top row. Change <kano-value-preview><span>10</span></kano-value-preview> to <kano-value-preview><span>16</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "shadow": "MAX",
+                        "id": "block_3"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "shadow": "MAX",
+                            "id": "block_3"
+                        },
+                        "value": "16"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This is cool but watch what happens when we make our loop faster. Change <kano-value-preview><span>seconds</span></kano-value-preview> to <kano-value-preview><span>frames</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0"
+                    }
+                },
+                "angle": -10
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_0"
+                        },
+                        "value": "frames"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Now we can use another random to fill the entire board. Open the Math tray again"
+            },
+            "beacon": {
+                "target": {
+                    "category": "math"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "math"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag another random block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "math_random"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "math_random",
+                        "id": "block_4"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_2",
+                        "rawId": "m+2t-4R2];5f8WesT`Yn"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_2",
+                            "rawId": "m+2t-4R2];5f8WesT`Yn",
+                            "inputName": "Y"
+                        },
+                        "target": "block_4"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_2",
+                        "rawId": "m+2t-4R2];5f8WesT`Yn"
+                    }
+                },
+                "target": "Y"
+            }
+        },
+        {
+            "banner": {
+                "text": "The lightboard is 8 pixels high so change <kano-value-preview><span>10</span></kano-value-preview> to <kano-value-preview><span>8</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "shadow": "MAX",
+                        "id": "block_4"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "shadow": "MAX",
+                            "id": "block_4"
+                        },
+                        "value": "8"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Awesome, you've made a sparkly light show. Now we can bring it to life with color",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "Just like we used a random number we're now going to use a random color. Open the Color tray"
             },
             "beacon": {
                 "target": {
@@ -128,55 +449,35 @@
                 "blockly": {
                     "open-flyout": "color"
                 }
-            },
-      			"reward": true
+            }
         },
-    		{
-    			"set-state": {
-    				"hints": {
-    					"enabled": false,
-    					"disabled-banner": {
-    						"text": "Nice! Now grab the color picker block",
-    						"hint_button": true
-    					}
-    				}
-    			}
-    		},
         {
             "banner": {
-    					"text": "Grab the color picker block"
+                "text": "This block generates a random color evert time, drag it onto your code space"
             },
             "beacon": {
                 "target": {
-                    "flyout_block": "colour_picker"
+                    "flyout_block": "random_colour"
                 }
             },
             "validation": {
                 "blockly": {
                     "create": {
-                        "type": "colour_picker",
-                        "id": "block_1"
+                        "type": "random_colour",
+                        "id": "block_5"
                     }
                 }
-            },
-      			"reward": true
+            }
         },
-    		{
-    			"set-state": {
-    				"hints": {
-    					"enabled": true
-    				}
-    			}
-    		},
         {
             "banner": {
-                "text": "Awesome! Connect it to this block"
+                "text": "Connect it to this block"
             },
             "beacon": {
                 "target": {
                     "block": {
-                        "id": "block_0",
-                        "rawId": "mO*D4frt%hI=LV9tAlE)"
+                        "id": "block_1",
+                        "rawId": "$@x7RzJ:viPRJ8Fn1UGn"
                     }
                 }
             },
@@ -184,19 +485,19 @@
                 "blockly": {
                     "connect": {
                         "parent": {
-                            "id": "block_0",
-                            "rawId": "mO*D4frt%hI=LV9tAlE)",
+                            "id": "block_1",
+                            "rawId": "$@x7RzJ:viPRJ8Fn1UGn",
                             "inputName": "COLOR"
                         },
-                        "target": "block_1"
+                        "target": "block_5"
                     }
                 }
             },
             "phantom_block": {
                 "location": {
                     "block": {
-                        "id": "block_0",
-                        "rawId": "mO*D4frt%hI=LV9tAlE)"
+                        "id": "block_1",
+                        "rawId": "$@x7RzJ:viPRJ8Fn1UGn"
                     }
                 },
                 "target": "COLOR"
@@ -204,29 +505,17 @@
         },
         {
             "banner": {
-    					"text": "Change to your favorite color"
+                "text": "Cool lights! All using the power of random and loops",
+                "next_button": true
             },
             "beacon": {
-                "target": {
-                    "block": {
-                        "id": "block_1"
-                    }
-                }
-            },
-            "validation": {
-                "blockly": {
-                    "value": {
-                        "target": {
-                            "id": "block_1"
-                        },
-                        "value": ""
-                    }
-                }
+                "target": "banner-button",
+                "offset": 0
             }
         },
         {
             "banner": {
-                "text": "Now try changing the color",
+                "text": "Next we'll learn how to control the pixels using sound 🎤",
                 "next_button": true
             },
             "beacon": {
@@ -237,15 +526,24 @@
     ],
     "parts": [],
     "modules": [
+        "control",
+        "math",
         "color"
     ],
     "variables": [],
     "filterBlocks": {
+        "control": [
+            "every_x_seconds"
+        ],
         "lightboard": [
-            "turn_on"
+            "turn_on",
+            "light_x_y"
+        ],
+        "math": [
+            "math_random"
         ],
         "color": [
-            "colour_picker"
+            "random_colour"
         ]
     },
     "mode": "lightboard"

@@ -5,6 +5,7 @@
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../kano-media-query/kano-media-query.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <dom-module id="kano-part-editor">
@@ -135,7 +136,8 @@
         behaviors: [
             Polymer.Templatizer,
             Kano.Behaviors.MediaQueryBehavior,
-            Kano.Behaviors.I18nBehavior
+            Kano.Behaviors.I18nBehavior,
+            Kano.Behaviors.AppElementRegistryBehavior
         ],
         properties: {
             selected: {
@@ -158,6 +160,9 @@
             '_configPanelChanged(selected.configPanel)',
             '_selectedChanged(selected.*)'
         ],
+        attached () {
+            this._registerElement('part-editor-done', this.$.done);
+        },
         _selectedChanged (e) {
             if (this.instance) {
                 this.instance.set(e.path, e.value);

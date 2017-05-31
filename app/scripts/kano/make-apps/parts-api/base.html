@@ -8,6 +8,37 @@
 
         // @polymerBehavior
         Kano.MakeApps.PartsAPI.Base = Base = {
+            /**
+             * Do a Object.assign, but also brings in the getter/setters
+             */
+            applyMixin (target, source) {
+                Object.assign(target, source);
+                Object.keys(source).forEach(key => {
+                    let desc = Object.getOwnPropertyDescriptor(source, key),
+                        getter, setter;
+                    if (typeof desc.get === 'function') {
+                        getter = desc.get;
+                    }
+                    if (typeof desc.set === 'function') {
+                        setter = desc.set;
+                    }
+                    if (getter || setter) {
+                        Object.defineProperty(target, key, {
+                            get: getter,
+                            set: setter
+                        });
+                    }
+                });
+                return target;
+            },
+            applyMixins (target) {
+                let args = Array.prototype.slice.apply(arguments);
+                args.shift();
+                args.forEach(source => {
+                    this.applyMixin(target, source);
+                });
+                return target;
+            },
             attached () {
                 this.onCreated();
             },
@@ -18,17 +49,8 @@
                 // In old apps, we refered to Kano.AppModules directly. Now we set a standalone appModules.
                 // Keep this to ensure old apps and not yet updated clients still work
                 this.appModules = this.appModules || Kano.AppModules;
-
-                if (this.model && this.handlers) {
-                    this.appModules.getModule(this.module).on(this.model.id + '-mapping-changed', this.mappingChangedEventListener.bind(this));
-                }
             },
-            onDestroyed () {
-                if (this.model && this.handlers) {
-                    this.appModules.getModule(this.module).removeListener(this.id + '-mapping-changed', this.mappingChangedEventListener);
-                    this.remapListeners(this.appModules.getModule(this.module).getDeviceForPart(this.model.id), null);
-                }
-            },
+            onDestroyed () {},
             start () {
                 if (this.model) {
                     this.savedState = {
@@ -190,12 +212,6 @@
                         Base.waiting[id] = cb; 
                     }
                 });
-            },
-            mappingChangedEventListener (e) {
-                this.remapListeners(e.detail.oldDevice, e.detail.newDevice, true);
-                if (!this.isRunning && this.model.connected !== !!e.detail.newDevice) {
-                    this.set('model.connected', !!e.detail.newDevice);
-                }
             }
         };
 

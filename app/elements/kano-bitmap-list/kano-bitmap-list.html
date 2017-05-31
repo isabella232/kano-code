@@ -130,7 +130,7 @@ Custom property | Description | Default
             <iron-icon icon="kano-icons:arrow" slot="left-button" carousel-control-left></iron-icon>
             <div slot="content">
                 <sortable-js group="frames" class="bin" id="bin"></sortable-js>
-                <sortable-js id="frames" group="frames" animation="150" on-start="_sortStarted" on-end="_sortEnd" on-remove="_sortRemove">
+                <sortable-js id="frames" group="frames" animation="150" on-start="_sortStart" on-end="_sortEnd" on-update="_sortUpdate" on-remove="_sortRemove">
                         <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
                             <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex)]]">
                                 <kano-bitmap-renderer width="[[width]]"
@@ -210,7 +210,7 @@ Custom property | Description | Default
                     this.selected = this.bitmaps[0].slice(0);
                 }
             },
-            _sortStarted (e) {
+            _sortStart (e) {
                 if (e.detail) {
                     this.sorting = true;
                     this.$.bin.style.left = this.binPosition + 'px';
@@ -239,11 +239,8 @@ Custom property | Description | Default
                 }
             },
             _sortEnd (e) {
-                if (e.detail) {
+                this.debounce('sort-end', () => {
                     this.sorting = false;
-                    this.$.frames.style.width = 'auto';
-                    this.selectedIndex = e.detail.newIndex;
-                    this.selected = this.bitmaps[this.selectedIndex].slice(0);
 
                     this.$.frames.animate([{
                         transform: 'translateY(20%)'
@@ -266,15 +263,23 @@ Custom property | Description | Default
                     }).onfinish = () => {
                         this.$.bin.style.display = 'none';
                     }
+                }, 100);
+            },
+            _sortUpdate (e) {
+                if (e.detail) {
+                    this.selectedIndex = e.detail.newIndex;
+                    this.selected = this.bitmaps[this.selectedIndex].slice(0);
                 }
             },
             _sortRemove (e) {
-                if (this.bitmaps.length !== 0) {
-                    this.selectedIndex = e.detail && e.detail.newIndex || 0;
-                    this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
-                } else {
-                    this.async(() => this.createEmptyFrame());
-                }
+                this.debounce('sort-remove', () => {
+                    if (this.bitmaps.length === 0) {
+                        this.addFrame();
+                    } else {
+                        this.selectedIndex--;
+                        this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
+                    }
+                }, 100);
             },
             _selectFrame (e) {
                 let event = Polymer.dom(e);
@@ -294,30 +299,28 @@ Custom property | Description | Default
             _computeFrameSelectedClass (index, selectedIndex) {
                 return index === selectedIndex ? 'selected' : '';
             },
-            addFrame () {
-                let copy;
-
-                if (!this.bitmaps.length) {
-                    this.createEmptyFrame();
-                } else {
-                    copy = this.bitmaps[this.selectedIndex].slice(0);
-                    this.splice('bitmaps', this.selectedIndex, 0, copy);
-                    this.selectedIndex = this.selectedIndex + 1;
-                    this.set('selected', copy.slice(0));
-                }
-
-                if (this.selectedIndex === this.bitmaps.length - 1) {
-                    this.async(() => this.$.carousel.scrollToEnd(), 100);
-                }
+            //FIXME use this method to duplicate frames
+            _duplicateFrame () {
+                const copy = this.bitmaps[this.selectedIndex].slice(0);
+                this.splice('bitmaps', this.selectedIndex, 0, copy);
+                this.selectedIndex++;
+                this.set('selected', copy.slice(0));
             },
-            createEmptyFrame () {
+            addFrame () {
                 let frame = [];
 
                 for (let i = 0; i < this.width * this.height; i++) {
                     frame.push('#000000');
                 }
                 this.push('bitmaps', frame);
-                this.selectedIndex = 0;
+
+                if (this.bitmaps.length) {
+                    this.selectedIndex++;
+                    this.async(() => this.$.carousel.scrollToEnd(), 100);
+                } else {
+                    this.selectedIndex = 0;
+                }
+
                 this.set('selected', frame);
             }
         });

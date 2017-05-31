@@ -7,8 +7,20 @@
         PartsAPI = Kano.MakeApps.PartsAPI = Kano.MakeApps.PartsAPI || {};
 
         GyroAccelerometer = {
+            module: 'gyroAccelerometer',
+            onCreated () {
+                this._onAccelorometerDataChanged = this._onAccelorometerDataChanged.bind(this);
+                this._onGyroDataChanged = this._onGyroDataChanged.bind(this);
+                this.handlers = {
+                    'gyro-data': this._onGyroDataChanged,
+                    'accelerometer-data': this._onAccelorometerDataChanged
+                };
+                Kano.MakeApps.PartsAPI.DongleBase.onCreated.apply(this);
+            },
             start () {
                 PartsAPI.DongleBase.start.apply(this, arguments);
+                this.lastGyroVector = { x: 0, y: 0, z: 0 };
+                this.lastAccelVector = { x: 0, y: 0, z: 0 };
             },
             getGyroData (axis) {
                 return this.lastGyroVector[axis];
@@ -22,6 +34,7 @@
             },
             _onAccelorometerDataChanged (e) {
                 this.lastAccelVector = e;
+                this.fire('gyro-accel-update');
             }
         };
         // @polymerBehavior
