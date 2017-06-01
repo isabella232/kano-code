@@ -169,10 +169,11 @@ var SharingBehavior = {
     },
     _triggerGamificationEngine (payload) {
         return new Promise(function (resolve, reject) {
-            let headers = new Headers();
-            if (Kano.MakeApps.sdk.auth.getToken()) {
+            let headers = new Headers(),
+                token = Kano.MakeApps.sdk.auth.getToken();
+            if (token) {
                 headers.append('Content-Type', 'application/json');
-                headers.append('Authorization', Kano.MakeApps.sdk.auth.getToken());
+                headers.append('Authorization', token);
                 fetch(`${Kano.MakeApps.config.API_URL}/progress`, {
                     method: 'POST',
                     headers,
