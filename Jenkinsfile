@@ -72,7 +72,7 @@ def archive(bucket) {
 }
 
 def deploy(dir, bucket) {
-    sh 'aws s3 sync ${dir} s3://${bucket} --region eu-west-1 --cache-control "max-age=600" --only-show-errors'
+    sh "aws s3 sync ${dir} s3://${bucket} --region eu-west-1 --cache-control \"max-age=600\" --only-show-errors"
 }
 
 def getVersion() {
