@@ -158,10 +158,13 @@ Polymer({
         // Too early
         if (!Array.isArray(this.parts)) {
             this.queuedHardware = this.queuedHardware || [];
-            this.queuedHardware.push(e.detail.product);
+            this.queuedHardware.push(e.detail);
             return;
         }
-        this._addHardwarePart(e.detail.product);
+
+        if (!this.queuedHardware || this.queuedHardware.indexOf(e.detail) === -1) {
+            this._addHardwarePart(e.detail.product);
+        }
     },
     _addHardwarePart (product) {
         let model;
@@ -471,13 +474,20 @@ Polymer({
         if (!this.queuedHardware) {
             return;
         }
+
         this.async(() => {
-            let product;
+            let product,
+                partTypes;
             for (var i = 0; i < this.queuedHardware.length; i++) {
-                product = this.queuedHardware[i];
-                this._addHardwarePart(product);
+                product = this.queuedHardware[i].product;
+                partTypes = this.parts.map(p => p.type);
+                if (partTypes.indexOf(product) > -1) {
+                    this._addHardwarePart(product);
+                    this.splice('queuedHardware', i, 1);
+                }
             }
-        });
+        }, 5);
+
     },
     onPartReady (e) {
         let clone;
