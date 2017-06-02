@@ -1,7 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="./kano-add-parts-item.html">
@@ -124,63 +123,60 @@
             .no-part button.confirm:hover {
                 background-color: #5b646b;
             }
+            [hidden] {
+              display: none !important;
+            }
 
         </style>
         <header>
             <div class="label">[[localize('ADD_PARTS', 'Add Parts')]]</div>
             <button type="button" class="button" on-tap="_confirm">[[localize('DONE', 'Done')]]</button>
         </header>
-        <iron-lazy-pages attr-for-selected="name" selected="[[_computeSelected(availableParts)]]">
-            <template is="iron-lazy-page" name="empty">
-                <div class="no-part">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div class="no-part-text">
-                        <h2>[[localize('NO_PARTS_HEADER', 'No parts available')]]</h2>
-                        <div>[[localize('NO_PARTS_TEXT', 'No parts here yet. Complete the challenge to unlock them all!')]]</div>
-                    </div>
-                    <button dialog-confirm class="confirm">[[localize('GOT_IT', 'Got it')]]</button>
+            <div class="no-part" hidden$="[[!empty]]">
+                <div id="badge">
+                    <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
                 </div>
-            </template>
-            <template is="iron-lazy-page" name="list">
-                <div class="categories">
-                    <div class="ui">
-                        <h2>Interface</h2>
-                        <div class="underline"></div>
-                        <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('ui')]]" as="part" on-dom-change="_repeaterChanged">
-                            <kano-add-parts-item id$="[[part.type]]"
-                                                    label="[[part.label]]"
-                                                    type="[[part.type]]"
-                                                    color-fill="#00d9c7"
-                                                    on-part-tap="_addPart"></kano-add-parts-item>
-                        </template>
-                    </div>
-                    <div class="data">
-                        <h2>Data</h2>
-                        <div class="underline"></div>
-                        <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('data')]]" as="part" on-dom-change="_repeaterChanged">
-                            <kano-add-parts-item id$="[[part.type]]"
-                                                    label="[[part.label]]"
-                                                    type="[[part.type]]"
-                                                    color-fill="#f25446"
-                                                    on-part-tap="_addPart"></kano-add-parts-item>
-                        </template>
-                    </div>
-                    <div class="hardware">
-                        <h2>Hardware</h2>
-                        <div class="underline"></div>
-                        <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('hardware')]]" as="part" on-dom-change="_repeaterChanged">
-                            <kano-add-parts-item id$="[[part.type]]"
-                                                    label="[[part.label]]"
-                                                    type="[[part.type]]"
-                                                    color-fill="#ff40a6"
-                                                    on-part-tap="_addPart"></kano-add-parts-item>
-                        </template>
-                    </div>
+                <div class="no-part-text">
+                    <h2>[[localize('NO_PARTS_HEADER', 'No parts available')]]</h2>
+                    <div>[[localize('NO_PARTS_TEXT', 'No parts here yet. Complete the challenge to unlock them all!')]]</div>
                 </div>
-            </template>
-        </iron-lazy-pages>
+                <button dialog-confirm class="confirm">[[localize('GOT_IT', 'Got it')]]</button>
+            </div>
+            <div class="categories" hidden$="[[empty]]">
+                <div class="ui">
+                    <h2>Interface</h2>
+                    <div class="underline"></div>
+                    <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('ui')]]" as="part" on-dom-change="_repeaterChanged">
+                        <kano-add-parts-item id$="[[part.type]]"
+                                                label="[[part.label]]"
+                                                type="[[part.type]]"
+                                                color-fill="#00d9c7"
+                                                on-part-tap="_addPart"></kano-add-parts-item>
+                    </template>
+                </div>
+                <div class="data">
+                    <h2>Data</h2>
+                    <div class="underline"></div>
+                    <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('data')]]" as="part" on-dom-change="_repeaterChanged">
+                        <kano-add-parts-item id$="[[part.type]]"
+                                                label="[[part.label]]"
+                                                type="[[part.type]]"
+                                                color-fill="#f25446"
+                                                on-part-tap="_addPart"></kano-add-parts-item>
+                    </template>
+                </div>
+                <div class="hardware">
+                    <h2>Hardware</h2>
+                    <div class="underline"></div>
+                    <template is="dom-repeat" items="[[availableParts]]" filter="[[_getFilter('hardware')]]" as="part" on-dom-change="_repeaterChanged">
+                        <kano-add-parts-item id$="[[part.type]]"
+                                                label="[[part.label]]"
+                                                type="[[part.type]]"
+                                                color-fill="#ff40a6"
+                                                on-part-tap="_addPart"></kano-add-parts-item>
+                    </template>
+                </div>
+            </div>
     </template>
     <script>
         Polymer({
@@ -190,17 +186,17 @@
                 Kano.Behaviors.AppElementRegistryBehavior
             ],
             properties: {
-                availableParts: Array
+                availableParts: {
+                    type: Array,
+                    observer: '_onAvailablePartsChanged'
+                },
+                empty: Boolean
             },
             ready () {
                 this.selection = {};
             },
-            _computeSelected (parts) {
-                if (parts.length === 0) {
-                    return 'empty';
-                } else {
-                    return 'list';
-                }
+            _onAvailablePartsChanged (parts) {
+                this.empty = !Boolean(parts.length);
             },
             _getFilter (type) {
                 return (item) => {
