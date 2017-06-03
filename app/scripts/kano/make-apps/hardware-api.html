@@ -29,14 +29,14 @@
             }
 
             _socketOn (name, cb) {
-                if (this.master.socket) {
-                    this.master.socket.on(name, cb);
+                if (this.master.powerUpSocket) {
+                    this.master.powerUpSocket.on(name, cb);
                 }
             }
 
             _socketRemoveListener (name, cb) {
-                if (this.master.socket) {
-                    this.master.socket.removeListener(name, cb);
+                if (this.master.powerUpSocket) {
+                    this.master.powerUpSocket.removeListener(name, cb);
                 }
             }
 
@@ -70,11 +70,11 @@
             }
 
             setMode (mode) {
-                this.master.socket.emit(`motion-sensor:${this.number}:set-mode`, {mode});
+                this.master.powerUpSocket.emit(`motion-sensor:${this.number}:set-mode`, {mode});
             }
 
             setUpdateInterval (interval) {
-                this.master.socket.emit(`motion-sensor:${this.number}:set-update-interval`, {interval});
+                this.master.powerUpSocket.emit(`motion-sensor:${this.number}:set-update-interval`, {interval});
             }
         }
 
@@ -127,6 +127,7 @@
                         this.networkSocket = HardwareAPI.connect(this.url);
                     }
                     this.socket = this.serial ? this.serialSocket : this.networkSocket;
+                    this.powerUpSocket = this.networkSocket;
 
                     this.updateDevices().then(() => {
                         this.socket.on('device-added', (info) => {
