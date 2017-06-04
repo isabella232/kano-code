@@ -130,18 +130,18 @@
                     this.powerUpSocket = this.networkSocket;
 
                     this.updateDevices().then(() => {
-                        this.socket.on('device-added', (info) => {
+                        this.networkSocket.on('device-added', (info) => {
                             const device = HardwareAPI.instanciateDevice(info, this);
                             this.hwapi.addDevice(device);
                         });
 
-                        this.socket.on('device-removed', (info) => {
-                            let device = this.getDeviceById(info.id);
+                        this.networkSocket.on('device-removed', (info) => {
+                            let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
                             this.hwapi.removeDevice(device);
                         });
                     });
 
-                    this.socket.on('disconnect', () => {});
+                    this.networkSocket.on('disconnect', () => {});
 
                     // Tells the Kano Code App to enable OTG control on the Kit
                     if (this.serialSocket) {
