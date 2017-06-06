@@ -187,9 +187,15 @@
                 '_userPropertiesChanged(selected.userProperties.*)'
             ],
             attached () {
+                //wait for model to set up
+                this.async(() => this._initRender(), 10);
+
                 this.$.palette._computePalette();
                 this.BOARD_WIDTH = 16;
                 this.BOARD_HEIGHT = 8;
+            },
+            detached () {
+                Kano.AppModules.modules.lightboard._stop();
             },
             enterQuitsInput () {
                 if (event.keyCode == 13) {
@@ -221,6 +227,10 @@
                     bitmap: this.selected.userProperties.bitmap,
                     type: 'frame'
                 };
+            },
+            _initRender () {
+                Kano.AppModules.modules.lightboard._start();
+                this._renderOnRealDevice();
             }
         });
     </script>

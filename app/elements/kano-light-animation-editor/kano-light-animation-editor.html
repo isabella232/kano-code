@@ -336,6 +336,9 @@
                 this._onKeydown = this._onKeydown.bind(this);
             },
             attached () {
+                //wait for model to set up
+                this.async(() => this._initRender(), 10);
+
                 let paletteElements = this.$.palette.getElementsRegistry();
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
@@ -363,6 +366,8 @@
                 this._registerElement('animation-editor-color-wheel', paletteElements['color-wheel']);
             },
             detached () {
+                Kano.AppModules.modules.lightboard._stop();
+
                 document.removeEventListener('keydown', this._onKeydown);
                 this._stopPreview();
             },
@@ -474,6 +479,10 @@
                     bitmap: frame,
                     type: 'frame'
                 };
+            },
+            _initRender () {
+                Kano.AppModules.modules.lightboard._start();
+                this._renderOnRealDevice(this.frame);
             }
         });
     </script>
