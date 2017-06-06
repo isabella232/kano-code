@@ -56,13 +56,13 @@
             _setBitmap () {
                 this.set('storedBitmap', this._adjustBitmapForStorage(this.model.userProperties.bitmap));
                 this.set('model.userProperties.bitmap',
-                    this._adjustBitmapForDisplay(this.storedBitmap));
+                    this._adjustForDisplay(this.storedBitmap));
             },
             _sizeChanged () {
                 this.storedBitmap = this.storedBitmap ||
                         this._adjustBitmapForStorage(this.model.userProperties.bitmap);
                 this.set('model.userProperties.bitmap',
-                    this._adjustBitmapForDisplay(this.storedBitmap));
+                    this._adjustForDisplay(this.storedBitmap));
             },
             _adjustBitmapForStorage (bitmap) {
                 let newBitmap = [],
@@ -83,7 +83,7 @@
                 });
                 return newBitmap;
             },
-            _adjustBitmapForDisplay (bitmap) {
+            _adjustForDisplay (bitmap) {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
