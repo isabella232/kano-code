@@ -91,22 +91,28 @@
                     list = fixture('addFrame');
                     list.bitmaps = createFrames(5);
                 });
-                test('addFrame selects the new frame', () => {
+                test('addFrame selects the new frame after 100ms', (done) => {
                     let prevIndex = list.selectedIndex,
                         newIndex;
                     list.addFrame();
-                    newIndex = list.selectedIndex;
-                    assert(newIndex === prevIndex + 1, 'When adding a frame, `selectedIndex` is not pointing to the newly created frame');
+                    setTimeout(() => {
+                        newIndex = list.selectedIndex;
+                        assert(newIndex === prevIndex + 1, 'When adding a frame, `selectedIndex` is not pointing to the newly created frame');
+                        done();
+                    }, 120);
                 });
-                // FIXME: implement duplicate method and update this test
-                // test('addFrame copies the previous frame', () => {
-                //     let prevFrame = list.selected.slice(0),
-                //         newFrame;
+                test('addFrame inserts an empty frame', (done) => {
+                    let newFrame;
                     
-                //     list.addFrame();
-                //     newFrame = list.selected.slice(0);
-                //     assert.deepEqual(prevFrame, newFrame, 'The newly created frame is not a copy of the previously selected frame');
-                // });
+                    list.addFrame();
+                    setTimeout(() => {
+                        newFrame = list.selected.slice(0);
+                        newFrame.forEach(pixel => {
+                            assert.equal(pixel, '#000000', 'A pixel is not black on the newly inserted frame');
+                        });
+                        done();
+                    }, 120);
+                });
             });
         </script>
     </body>
