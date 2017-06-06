@@ -155,7 +155,7 @@ Custom property | Description | Default
                                                     bitmap="[[bm]]"
                                                     on-mousedown="_registerBinPosition"
                                                     on-tap="_selectFrame"></kano-bitmap-renderer>
-                                <div hidden$="[[!displayedIndex]]"" class="index-number">[[displayedIndex]]</div>
+                                <div hidden$="[[!displayedIndex]]" class="index-number">[[displayedIndex]]</div>
                             </div>
                         </template>
                 </sortable-js>
@@ -212,6 +212,9 @@ Custom property | Description | Default
 
                 this.async(() => {
                     let target = Polymer.dom(this.root).querySelector('.selected');
+                    if (!target) {
+                        return;
+                    }
                     this.$.carousel.moveTo(target.offsetLeft + target.offsetWidth / 2);
                 }, 100);
 
