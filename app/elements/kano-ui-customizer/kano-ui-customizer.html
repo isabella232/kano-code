@@ -1,9 +1,20 @@
-<link rel="import" href="../inputs/kano-input/kano-input.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../inputs/kano-input/kano-input.html">
+<link rel="import" href="../inputs/kano-input/kano-input.html">
+<link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <dom-module id="kano-ui-customizer">
-    <style>
+    <style include="kano-code-shared-styles">
         :host {
             @apply --layout-vertical;
+            --kano-input-color-size: 29px;
+
+            --kano-color-input-field: {
+                margin: 14px auto 0;
+            };
+        }
+        kano-input {
+            margin-bottom: var(--kano-part-editor-input-margin, 24px);
         }
     </style>
     <template>
@@ -16,7 +27,8 @@
                     value="[[computeValue(property.key)]]"
                     min="[[property.min]]"
                     max="[[property.max]]"
-                    options="[[property.options]]"></kano-input>
+                    options="[[property.options]]"
+                    theme="[[theme]]"></kano-input>
         </template>
     </template>
 </dom-module>
@@ -33,25 +45,35 @@
             customizable: {
                 type: Array,
                 value: () => []
-            }
+            },
+            theme: String
         },
         propertyChanged (e) {
-            let target = e.path ? e.path[0] : e.target;
-            if (target.tagName !== 'KANO-INPUT') {
+            if (Polymer.dom(e).rootTarget.tagName !== 'KANO-INPUT') {
                 return;
             }
-            let propertyName = e.model.get('property.key');
-            if (typeof(e.detail.value) == 'number') {
+            let propertyName = e.model.get('property.key'),
+                value = e.detail.value;
+
+            if (typeof value === 'number') {
                 if (propertyName == 'width' || propertyName == 'height') {
-                      e.detail.value = `${e.detail.value.toString()}px`;
+                      value = `${value.toString()}px`;
                 } else if (propertyName == 'font-size') {
-                      e.detail.value = `${e.detail.value.toString()}em`;
+                      value = `${value.toString()}em`;
                 }
             }
-            this.set(`userValues.${propertyName}`, e.detail.value);
+            this.set(`userValues.${propertyName}`, value);
         },
         computeValue (propertyName) {
-            return this.userValues[propertyName];
+            let value = this.userValues[propertyName];
+
+            if (this._needParsing(value)) {
+                value = parseFloat(value, 10);
+            }
+            return value;
+        },
+        _needParsing (value) {
+            return /\d*\.?\d+(?:px|em)?/i.test(value);
         }
     });
 </script>

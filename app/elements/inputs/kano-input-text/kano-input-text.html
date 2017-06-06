@@ -1,50 +1,41 @@
-<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../behaviors.html">
-<link rel="import" href="../../../bower_components/web-components/kano-style/typography.html">
+<link rel="import" href="../../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
 
 <dom-module id="kano-input-text">
-    <style>
-    :host label {
-        @apply --kano-settings-label;
-    }
-    :host .inputs label {
-        margin-right: 24px;
-    }
-    paper-input {
-        text-align: left;
-        --paper-input-container-input: {
-            color: #fff;
+    <style include="kano-code-shared-styles">
+        :host {
+            display: block;
+        }
+        label {
+            @apply --kano-part-editor-label;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #484d53;
+            height: 42px;
+            border: 0;
             font-family: var(--font-body);
+            font-size: 14px;
             font-weight: bold;
-            padding-top: 4px;
-        };
-        --paper-input-container-underline: {
-            display: none;
-        };
-        --paper-input-container-underline-focus: {
-            display: none;
-        };
-        --paper-input-container: {
+            line-height: 14px;
+            color: #fff;
+            padding-left: 8px;
             border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            background-color: var(--color-chateau);
-            font-size: 14px;
-            line-height: 14px;
-            padding: 7px 8px 5px;
-        };
-        --paper-input-container-label,
-        --paper-input-container-input: {
-            color: #fff;
-            font-family: var(--font-body);
-            font-size: 14px;
-            font-weight: bold;
-            line-height: 14px;
-        };
-    }
+        }
+        input:focus {
+            background-color: #4E575E;
+            outline: none;
+            border: 2px solid rgba(255,255,255,0.25);
+        }
+        [hidden] {
+            display: none !important;
+        }
     </style>
     <template>
-        <paper-input id="input" value="{{value}}" on-keydown="enterQuitsInput" no-label-float autofocus="[[autofocus]]"></paper-input>
+        <label hidden$="[[!label]]">[[label]]</label>
+        <input type="text" id="input" value="{{value::input}}" on-keydown="enterQuitsInput" autofocus="[[autofocus]]"></paper-input>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -57,7 +48,8 @@
             autofocus: Boolean
         },
         observers: [
-            'valueChanged(value)'
+            'valueChanged(value)',
+            'themeChanged(theme)'
         ],
         focus () {
             this.$.input.focus();
@@ -68,9 +60,14 @@
         valueChanged () {
             this.fire('change');
         },
-        enterQuitsInput () {
-            if (event.keyCode == 13) {
-                this.blur();
+        themeChanged (theme) {
+            this.updateStyles({
+                '--element-theme': theme
+            });
+        },
+        enterQuitsInput (e) {
+            if (e.key == 'Enter') {
+                this.$.input.blur();
                 return false;
             }
         }
