@@ -5,7 +5,7 @@
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../ui/kano-ui-viewport/kano-ui-viewport.html">
-<link rel="import" href="../kano-icons/kc-base.html">
+<link rel="import" href="../kano-icons/kc-ui.html">
 <link rel="import" href="../kano-workspace-toolbar/kano-workspace-toolbar.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
 <link rel="import" href="../kano-part-list-item/kano-part-list-item.html">
@@ -126,6 +126,7 @@
                 @apply --layout-flex;
                 color: #fff;
                 font-size: 14px;
+                font-weight: bold;
                 letter-spacing: 0.03em;
                 padding: 10px 0;
             }
@@ -179,9 +180,10 @@
                 @apply --layout-flex;
                 @apply --layout-vertical;
                 overflow: auto;
-                padding: 0 40px;
+                padding: 0 40px 40px;
             }
             .part, ::slotted(.part) {
+                @apply --layout-flex-none;
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 border-bottom: 1px solid #202428;
@@ -201,8 +203,8 @@
                 max-width: 100%;
             }
             iron-icon {
-                --iron-icon-width: 12px;
-                --iron-icon-height: 12px;
+                --iron-icon-width: 27px;
+                --iron-icon-height: 27px;
                 --iron-icon-fill-color: #8F9195;
             }
             .handle {
@@ -214,7 +216,6 @@
                 line-height: 0;
                 border: 0;
                 padding: 0;
-                margin: 0 12px;
             }
             .remove:hover iron-icon {
                 fill: var(--color-rhubarb);
@@ -258,9 +259,9 @@
                         <div class="part" id$="part-[[part.id]]">
                             <kano-part-list-item model="{{part}}" on-tap="_partItemTapped"></kano-part-list-item>
                             <button type="button" class="remove">
-                                <iron-icon icon="kc-base:close" on-tap="_removePart"></iron-icon>
+                                <iron-icon icon="kc-ui:close" on-tap="_removePart"></iron-icon>
                             </button>
-                            <iron-icon class="handle" icon="kc-base:handle"></iron-icon>
+                            <iron-icon class="handle" icon="kc-ui:handle"></iron-icon>
                         </div>
                     </template>
                 </sortable-js>
@@ -268,7 +269,7 @@
         </div>
         <div class="overlay">
             <button class="fullscreen-close" on-tap="_toggleFullscreen">
-                <iron-icon icon="kc-base:close"></iron-icon>
+                <iron-icon icon="kc-ui:close"></iron-icon>
             </button>
             <kano-workspace-toolbar running="[[running]]"
                                     no-part-controls

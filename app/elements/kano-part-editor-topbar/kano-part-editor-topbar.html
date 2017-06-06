@@ -1,0 +1,80 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
+<dom-module id="kano-part-editor-topbar">
+    <style>
+        :host {
+            display: block;
+            @apply --layout-horizontal;
+            @apply --layout-justified;
+            @apply --layout-center;
+            height: 59px;
+            padding: 0 8px;
+            border-bottom: 1px solid var(--kano-app-part-editor-border);
+        }
+        :host>* {
+            margin: 0 8px;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 16px;
+            color: #fff;
+            cursor: default;
+        }
+        .action {
+            @apply --layout-flex-auto;
+            @apply --layout-horizontal;
+            @apply --layout-end-justified;
+        }
+        .action button {
+            @apply --kano-button;
+            border-radius: 3px;
+            background: #54595d;
+        }
+        .action button:hover {
+            background-color: var(--part-theme);
+        }
+        .action button#done {
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: none;
+            padding: 8px 24px;
+        }
+        iron-icon {
+            --iron-icon-fill-color: var(--part-theme);
+        }
+    </style>
+    <template>
+        <iron-icon id="part-icon" icon="parts:[[icon]]"></iron-icon>
+        <div class="title">[[label]]</div>
+        <div class="action">
+            <slot name="action"></slot>
+            <button id="done" type="button" dialog-dismiss>Done</button>
+        </div>
+    </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'kano-part-editor-topbar',
+            behaviors: [
+                Kano.Behaviors.AppElementRegistryBehavior
+            ],
+            properties: {
+                icon: String,
+                label: String,
+                theme: String,
+            },
+            observers: [
+                '_onThemeChanged(theme)'
+            ],
+            attached () {
+                this._registerElement('part-editor-done', this.$.done);
+            },
+            _onThemeChanged (theme) {
+                  this.updateStyles({
+                      '--part-theme': theme
+                  });
+            }
+        });
+    </script>
+</dom-module>

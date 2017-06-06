@@ -52,6 +52,11 @@
         </template>
     </template>
     <script>
+        var themeColors = {
+            'ui': '#00d9c7',
+            'data': '#9b61bd',
+            'hardware': '#ef5285'
+        };
         Polymer({
             is:'kano-part-list-item',
             behaviors: [Polymer.Templatizer],
@@ -76,7 +81,7 @@
                 }
             },
             _applyColor () {
-                this.$.icon.style.fill = this.model.colour;
+                this.$.icon.style.fill = themeColors[this.model.partType];
             },
             _unApplyColor () {
                 this.$.icon.style.fill = '#8F9195';

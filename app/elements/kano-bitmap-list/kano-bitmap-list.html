@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/x-carousel/x-carousel.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
+<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <!--
 
@@ -50,12 +51,14 @@ Custom property | Description | Default
                 @apply --layout-center;
                 @apply --layout-center-justified;
                 position: relative;
-                margin-right: 16px;
                 width: 116px;
                 height: 68px;
                 border: 2px solid #8f9195;
                 border-radius: 6px;
                 box-sizing: border-box;
+            }
+            .sortable-item:not(:first-of-type) {
+                margin-left: 22px;
             }
             .sortable-item.sortable-ghost {
                 opacity: 0.45;
@@ -85,7 +88,7 @@ Custom property | Description | Default
             }
             .bin {
                 position: absolute;
-                top: 28px;
+                top: 30px;
                 left: 0;
                 width: 312px;
                 height: 150px;
@@ -94,7 +97,7 @@ Custom property | Description | Default
                 @apply --layout-center-justified;
                 display: none;
                 background-image: url(/assets/icons/layout-bin-icon.png);
-                background-size: 28px;
+                background-size: 22px;
                 background-position: center center;
                 background-repeat: no-repeat;
                 overflow: visible;
@@ -122,15 +125,27 @@ Custom property | Description | Default
         </style>
             <div class="action-container">
                 <slot name="label"></slot>
-                <slot name="add-button" on-tap="addFrame"></slot>
-                <slot name="duplicate-button" on-tap="duplicateFrame"></slot>
-                <slot name="delete-button" on-tap="deleteFrame"></slot>
+                <div on-tap="addFrame">
+                    <slot name="add-button"></slot>
+                </div>
+                <div on-tap="duplicateFrame">
+                    <slot name="duplicate-button"></slot>
+                </div>
+                <div on-tap="deleteFrame">
+                    <slot name="delete-button"></slot>
+                </div>
             </div>
         <x-carousel id="carousel" keep-controls-visible>
             <iron-icon icon="kano-icons:arrow" slot="left-button" carousel-control-left></iron-icon>
             <div slot="content">
                 <sortable-js group="frames" class="bin" id="bin"></sortable-js>
-                <sortable-js id="frames" group="frames" animation="150" on-start="_sortStart" on-end="_sortEnd" on-update="_sortUpdate" on-remove="_sortRemove">
+                <sortable-js id="frames"
+                             group="frames"
+                             animation="150"
+                             on-start="_sortStart"
+                             on-end="_sortEnd"
+                             on-update="_sortUpdate"
+                             on-remove="_afterDelete">
                         <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
                             <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex)]]">
                                 <kano-bitmap-renderer width="[[width]]"
@@ -151,6 +166,9 @@ Custom property | Description | Default
     <script>
         Polymer({
             is: 'kano-bitmap-list',
+            behaviors: [
+                Kano.Behaviors.AppEditorBehavior
+            ],
             properties: {
                 bitmaps: {
                     type: Array,
@@ -230,7 +248,7 @@ Custom property | Description | Default
                         transform: 'translateY(0%)'
                     }, {
                         opacity: 1,
-                        transform: 'translateY(-50%)'
+                        transform: 'translateY(-55%)'
                     }], {
                         duration: 150,
                         fill: 'forwards'
@@ -253,7 +271,7 @@ Custom property | Description | Default
 
                     this.$.bin.animate([{
                         opacity: 1,
-                        transform: 'translateY(-50%)'
+                        transform: 'translateY(-55%)'
                     }, {
                         opacity: 0,
                         transform: 'translateY(0%)'
@@ -271,12 +289,12 @@ Custom property | Description | Default
                     this.selected = this.bitmaps[this.selectedIndex].slice(0);
                 }
             },
-            _sortRemove (e) {
+            _afterDelete() {
                 this.debounce('sort-remove', () => {
                     if (this.bitmaps.length === 0) {
                         this.addFrame();
                     } else {
-                        this.selectedIndex--;
+                        this.selectedIndex = this.selectedIndex === 0 ? this.selectedIndex : this.selectedIndex - 1;
                         this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
                     }
                 }, 100);
@@ -299,29 +317,36 @@ Custom property | Description | Default
             _computeFrameSelectedClass (index, selectedIndex) {
                 return index === selectedIndex ? 'selected' : '';
             },
-            //FIXME use this method to duplicate frames
-            _duplicateFrame () {
+            duplicateFrame () {
                 const copy = this.bitmaps[this.selectedIndex].slice(0);
                 this.splice('bitmaps', this.selectedIndex, 0, copy);
                 this.selectedIndex++;
                 this.set('selected', copy.slice(0));
             },
             addFrame () {
-                let frame = [];
+                this.debounce('add-frame', () => {
+                    let frame = [];
 
-                for (let i = 0; i < this.width * this.height; i++) {
-                    frame.push('#000000');
-                }
-                this.push('bitmaps', frame);
+                    for (let i = 0; i < this.width * this.height; i++) {
+                        frame.push('#000000');
+                    }
 
-                if (this.bitmaps.length) {
-                    this.selectedIndex++;
-                    this.async(() => this.$.carousel.scrollToEnd(), 100);
-                } else {
-                    this.selectedIndex = 0;
-                }
+                    if (this.bitmaps.length) {
+                        this.selectedIndex++;
+                        this.async(() => this.$.carousel.scrollToEnd(), 100);
+                    } else {
+                        this.selectedIndex = 0;
+                        this.set('selected', frame.slice(0));
+                    }
 
-                this.set('selected', frame);
+                    this.push('bitmaps', frame);
+                    this.set('selected', frame);
+                    this.notifyChange('light-animation-add-frame');
+                }, 100);
+            },
+            deleteFrame () {
+                this.splice('bitmaps', this.selectedIndex, 1);
+                this._afterDelete();
             }
         });
     </script>

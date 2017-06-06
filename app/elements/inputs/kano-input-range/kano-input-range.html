@@ -1,9 +1,9 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../behaviors.html">
 <link rel="import" href="../../kano-code-shared-styles/kano-code-shared-styles.html">
 <link rel="import" href="../../kano-slider/kano-slider.html">
-<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
-<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../../bower_components/web-components/kano-style/kano-style.html">
 <!--
 ### Styling
 
@@ -19,55 +19,41 @@ Custom property | Description | Default
         :host {
             @apply --layout-vertical;
         }
-        :host label {
-            color: rgba(255, 255, 255, 0.5);
-            text-align: left;
-            text-transform: uppercase;
-            font-size: 12px;
-            line-height: 12px;
-            font-family: var(--font-body);
-            font-weight: bold;
-            margin-bottom: 8px;
-            @apply --kano-input-range-label;
+        label {
+            @apply --kano-part-editor-label;
         }
         .slider-container {
-            background: var(--color-chateau);
-            border-radius: 6px;
+            background: #484d53;
+            border-radius: 3px;
             padding: 8px 6px 10px;
         }
         :host .display {
             @apply --layout-horiztonal;
             @apply --layout-center-justified;
+            position: relative;
             color: #fff;
             font-size: 14px;
-            margin: 0 0 8px 4px;
+            font-weight: bold;
+            margin: 0 0 10px 4px;
+            overflow: hidden;
             @apply --kano-input-range-display;
         }
         :host .display span.symbol {
             font-size: 12px;
             text-transform: none;
         }
-        paper-slider {
-            width: auto;
-            @apply --layout-flex;
-            --paper-slider-height: 3px;
-            --paper-slider-container-color: #435055;
-            --paper-progress-active-color: #435055;
-            --paper-progress-secondary-color: #435055;
-            --paper-slider-knob-color: #d3d6d8;
-            --paper-slider-knob-start-color: #d3d6d8;
-        }
     </style>
     <template>
-        <label hidden$="[[noLabel]]">[[label]]</label>
-        <div class="slider-container">
-            <div class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
-            <kano-slider
-                  id="slider"
-                  min="[[min]]"
-                  max="[[max]]"
-                  value="{{value}}"></kano-slider>
-        </div>
+        <label hidden$="[[!label]]">[[label]]</label>
+            <div class="slider-container">
+                <div id="display" class="display">[[_roundValue(value)]]<span hidden$=[[!symbol]] class="symbol"> [[symbol]]</span></div>
+                <kano-slider
+                      id="slider"
+                      min="[[min]]"
+                      max="[[max]]"
+                      value="{{value}}"
+                      theme="[[theme]]"></kano-slider>
+            </div>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -76,15 +62,11 @@ Custom property | Description | Default
     Polymer({
         is: 'kano-input-range',
         behaviors: [Kano.Behaviors.Input],
-
-        attached () {
-            /* add kano-code-shared-styles to paper-slider for custom styling */
-            let customStyle = document.createElement('style', 'custom-style');
-            customStyle.setAttribute('include', 'kano-code-shared-styles');
-            Polymer.dom(this.$.slider.root).appendChild(customStyle);
+        properties: {
+            theme: String
         },
         _roundValue (value) {
-            return Math.round(value);
+            return Math.round(parseFloat(value));
         }
     });
 </script>
