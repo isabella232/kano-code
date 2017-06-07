@@ -48,8 +48,7 @@ Polymer({
             value: false
         },
         selected: {
-            type: Object,
-            value: null
+            type: Object
         },
         running: {
             type: Boolean,
@@ -104,7 +103,8 @@ Polymer({
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)',
-        '_partsChanged(parts.slices)'
+        '_partsChanged(parts.slices)',
+        '_onPartsSet(parts)'
     ],
     listeners: {
         'mode-ready': '_onModeReady',
@@ -113,7 +113,8 @@ Polymer({
         'save-button-clicked': 'share',
         'open-parts-modal': '_openPartsModal',
         'edit-background': '_openBackgroundDialog',
-        'iron-resize': '_refitPartModal'
+        'iron-resize': '_refitPartModal',
+        'feature-not-available-offline': '_openOfflineDialog'
     },
     _openBackgroundDialog () {
         this.$['edit-background-dialog'].open();
@@ -156,12 +157,20 @@ Polymer({
 
         // Too early
         if (!Array.isArray(this.parts)) {
+            this.queuedHardware = this.queuedHardware || [];
+            this.queuedHardware.push(e.detail);
             return;
         }
 
-        for (let i = 0; i < this.parts.length; i++) {
+        if (!this.queuedHardware || this.queuedHardware.indexOf(e.detail) === -1) {
+            this._addHardwarePart(e.detail.product);
+        }
+    },
+    _addHardwarePart (product) {
+        let model;
+        for (var i = 0; i < this.parts.length; i++) {
             model = this.parts[i];
-            if (model.supportedHardware && model.supportedHardware.indexOf(e.detail.product) >= 0) {
+            if (model.supportedHardware && model.supportedHardware.indexOf(product) >= 0) {
                 this._addPart({ detail: model.type });
                 break;
             }
@@ -313,9 +322,9 @@ Polymer({
         let range = 33.33,
             colorMapHS = {
                 system: [206, 100],
-                ui: [89, 52],
-                hardware: [289, 32],
-                data: [1, 61]
+                ui: [175, 100],
+                data: [278, 41],
+                hardware: [341, 83]
             },
             grouped = this.addedParts.reduce((acc, part) => {
                 acc[part.partType] = acc[part.partType] || [];
@@ -383,7 +392,14 @@ Polymer({
             e.detail.keyboardEvent.preventDefault();
             e.detail.keyboardEvent.stopPropagation();
         }
-        this.fire('share', this.compileApp());
+
+        Kano.MakeApps.Utils.onLine().then((isOnline) => {
+            if (isOnline) {
+                this.fire('share', this.compileApp());
+            } else {
+                this._openOfflineDialog();
+            }
+        });
     },
     compileApp () {
         return {
@@ -451,15 +467,38 @@ Polymer({
     _toggleFullscreenModal (isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
-        this.toggleClass('large', isFullScreen, this.$['edit-part-dialog-content']);
+        this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
         //If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
+    },
+    _repositionPanel (e) {
+        const target = this.$[Polymer.dom(e).rootTarget.id];
+        this.async(() => target.parentElement.refit(), 10);
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
         this.splice('addedParts', index, 1);
         Kano.MakeApps.Parts.freeId(part);
         this.$.workspace.clearSelection();
+    },
+    _onPartsSet (parts) {
+        if (!this.queuedHardware) {
+            return;
+        }
+
+        this.async(() => {
+            let product,
+                partTypes;
+            for (var i = 0; i < this.queuedHardware.length; i++) {
+                product = this.queuedHardware[i].product;
+                partTypes = this.parts.map(p => p.type);
+                if (partTypes.indexOf(product) > -1) {
+                    this._addHardwarePart(product);
+                    this.splice('queuedHardware', i, 1);
+                }
+            }
+        }, 5);
+
     },
     onPartReady (e) {
         let clone;
@@ -807,5 +846,8 @@ Polymer({
         setTimeout(() => {
             this.running = true;
         }, 0);
-    }
+    },
+    _openOfflineDialog () {
+        this._openDialog('feature-not-available-offline');
+    },
 });

@@ -91,13 +91,15 @@
                 observer: 'selectedChanged'
             },
             addedParts: {
-                type: Array,
-                observer: '_addedPartsChanged'
+                type: Array
             }
         },
         listeners: {
             'parts-changed': '_partsChanged'
         },
+        observers: [
+            '_addedPartsChanged(addedParts.splices)'
+        ],
         ready () {
             Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
             Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
@@ -189,10 +191,14 @@
             }
         },
         _displayUserReward (hints) {
+            Kano.MakeApps.Utils.onLine().then((isOnline) => {
+                /* Enable/disable gamification based on internet availability */
+                this._doDisplayUserReward(hints, isOnline);
+            });
+        },
+        _doDisplayUserReward (hints, gamificationEnabled) {
             let headers = new Headers(),
                 flags = Kano.MakeApps.config.getFlags(),
-                //FIXME for demo we turn the gamification enabled always true on this branch
-                gamificationEnabled = true || flags.experiments.indexOf('gamification_modal') !== -1,
                 payload,
                 fakeGamificationData,
                 trackingData = {

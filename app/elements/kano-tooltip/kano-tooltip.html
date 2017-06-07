@@ -96,7 +96,7 @@
     }
     :host([position="bottom"]) .tooltip:before {
         border-bottom-color: var(--kano-tooltip-border-color);
-        margin-left: calc(-var(--kano-tooltip-caret-width) var(--kano-tooltip-border-width));
+        margin-left: calc(-var(--kano-tooltip-caret-width) - var(--kano-tooltip-border-width));
     }
     :host([position="top"]) .tooltip:before {
         border-top-color: var(--kano-tooltip-border-color);
@@ -272,13 +272,13 @@
                 }
 
                 if (this.position === 'top') {
-                    style.top = `${tRect.top - rect.height - this.contextOffset.top - 16}px`;
+                    style.top = `${tRect.top - rect.height - this.contextOffset.top - 20}px`;
                 } else if (this.position === 'bottom') {
-                    style.top = `${tRect.bottom - this.contextOffset.top + 16}px`;
+                    style.top = `${tRect.bottom - this.contextOffset.top + 20}px`;
                 } else if (this.position === 'right') {
-                    style.left = `${tRect.right - this.contextOffset.left + 16}px`;
+                    style.left = `${tRect.right - this.contextOffset.left + 20}px`;
                 } else if (this.position === 'left') {
-                    style.left = `${tRect.left - this.contextOffset.left - rect.width - 16}px`;
+                    style.left = `${tRect.left - this.contextOffset.left - rect.width - 20}px`;
                 }
 
                 if (this.zIndex !== null) {
