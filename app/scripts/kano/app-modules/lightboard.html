@@ -219,8 +219,8 @@
 
             _animateText (animationFrames, speed, callback) {
                 if (animationFrames.length) {
-                    this.bitmap = animationFrames.shift();
-                    this.drawLights();
+                    this.lights = animationFrames.shift();
+                    this.updateAndSync(false, () => {});
                     this.animateFrameTimeout = setTimeout(() => {
                         callback(this.bitmap);
                         this._animateText(animationFrames, speed, callback);
