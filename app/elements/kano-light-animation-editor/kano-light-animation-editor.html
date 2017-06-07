@@ -300,10 +300,7 @@
                     value: 0
                 },
                 selectedFrame: {
-                    type: Array,
-                    value: () => {
-                        return ['#000000'];
-                    }
+                    type: Array
                 },
                 pixelSize: {
                     type: Number,
@@ -336,9 +333,6 @@
                 this._onKeydown = this._onKeydown.bind(this);
             },
             attached () {
-                //wait for model to set up
-                this.async(() => this._initRender(), 10);
-
                 let paletteElements = this.$.palette.getElementsRegistry();
                 this.previewButtonIconPaths = {
                     stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
@@ -400,6 +394,10 @@
                 this._renderOnRealDevice(this.frame);
             },
             _onSelectedFrameChanged () {
+                if (!this.deviceRenders) {
+                    Kano.AppModules.modules.lightboard._start();
+                    this.deviceRenders = true;
+                }
                 this._renderOnRealDevice(this.selectedFrame);
             },
             _togglePreviewState () {
@@ -479,10 +477,6 @@
                     bitmap: frame,
                     type: 'frame'
                 };
-            },
-            _initRender () {
-                Kano.AppModules.modules.lightboard._start();
-                this._renderOnRealDevice(this.frame);
             }
         });
     </script>

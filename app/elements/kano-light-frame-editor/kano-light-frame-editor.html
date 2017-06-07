@@ -187,9 +187,6 @@
                 '_userPropertiesChanged(selected.userProperties.*)'
             ],
             attached () {
-                //wait for model to set up
-                this.async(() => this._initRender(), 10);
-
                 this.$.palette._computePalette();
                 this.BOARD_WIDTH = 16;
                 this.BOARD_HEIGHT = 8;
@@ -213,6 +210,10 @@
                 Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
             },
             _userPropertiesChanged () {
+                if (!this.deviceRenders) {
+                    Kano.AppModules.modules.lightboard._start();
+                    this.deviceRenders = true;
+                }
                 this._renderOnRealDevice();
             },
             getShape () {
@@ -227,10 +228,6 @@
                     bitmap: this.selected.userProperties.bitmap,
                     type: 'frame'
                 };
-            },
-            _initRender () {
-                Kano.AppModules.modules.lightboard._start();
-                this._renderOnRealDevice();
             }
         });
     </script>
