@@ -79,13 +79,14 @@
             observers: [
                 '_renderOnRealDevice(selected.userProperties.bitmap)'
             ],
-            attached () {
-                this.async(this._initRender, 10);
-            },
             _renderOnRealDevice () {
+                if (!this.deviceRenders) {
+                    Kano.AppModules.modules.lightboard._start();
+                    this.deviceRenders = true;
+                }
                 try {
                     Kano.AppModules.modules.lightboard.shapes = {
-                       'being-edited': this.getShape(this.selectedFrame)
+                       'being-edited': this.getShape()
                     };
                     Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
                 }
@@ -105,10 +106,6 @@
                     bitmap: this.selected.userProperties.bitmap,
                     type: 'frame'
                 };
-            },
-            _initRender () {
-                Kano.AppModules.modules.lightboard._start();
-                this._renderOnRealDevice();
             }
         });
     </script>
