@@ -291,6 +291,8 @@
             },
             attached () {
                 let panelElements;
+ 
+                this.async(this._initRender, 10);
 
                 document.addEventListener('keydown', this._onKeydown);
                 document.addEventListener('keyup', this._onKeyup);
@@ -412,6 +414,10 @@
                     bitmap: frame,
                     type: 'frame'
                 };
+            },
+            _initRender () {
+                Kano.AppModules.modules.lightboard._start();
+                this._renderOnRealDevice(this.frame);
             }
         });
     </script>
