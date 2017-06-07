@@ -24,7 +24,7 @@
         kano-editor-banner {
             background: #394148;
             color: white;
-            border-bottom: 1px solid #282E34;
+            border-bottom: 1px solid var(--kano-app-editor-workspace-border, #22272d);
             height: 82px;
         }
         .bolt {
@@ -40,7 +40,7 @@
             color: white;
             background: #32393F;
             height: 22px;
-            border-top: 1px solid #282E34;
+            border-top: 1px solid var(--kano-app-editor-workspace-border, #22272d);
         }
         .progress .bar {
             position: absolute;
@@ -284,6 +284,7 @@
                         shareDetail.title = `${this.user.username}'s ${this.story.name}`;
                         shareDetail.autoshare = true;
 
+                        this.running = false;
                         this.fire('share', shareDetail);
                     }
                 });

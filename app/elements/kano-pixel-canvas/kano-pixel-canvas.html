@@ -61,7 +61,7 @@
                 </div>
             </div>
         </div>
-        <div class="pen" id="pen" style$="[[_computePenStyle(pixelSize, penColor, _isMouseOver)]]"></div>
+        <div class="pen" id="pen" style$="[[_computePenStyle(pixelSize, penColor, penType, _isMouseOver)]]"></div>
         <iron-a11y-keys target="[[target]]" keys="cmd+z ctrl+z" on-keys-pressed="undo"></iron-a11y-keys>
     </template>
     <script type="text/javascript">
@@ -74,7 +74,7 @@
                  */
                 bitmap: {
                     type: Array,
-                    value: null,
+                    value: () => [],
                     notify: true
                 },
                 /**
@@ -193,9 +193,8 @@
                     }
                 }
             },
-            _hoverPixel (el) {
+            _hoverPixel (el, color) {
                 el.setAttribute('data-color', el.style.backgroundColor);
-                el.style.backgroundColor = this.penColor;
             },
             _hoverGroup (indices, color) {
                 indices.forEach(index => {
@@ -225,11 +224,11 @@
                 this._paintOrHover(index, target);
             },
             _paintOrHover (index, target) {
-                let color = this.rightClick ? '#000000' : this.penColor;
+                let color = this.rightClick || this.penType === 'erase' ? '#000000' : this.penColor;
                 target = target || this.$$(`#pixel-${index}`);
                 // The mouse is down, effectively paint on the bitmap, otherwise just apply a hover
                 if (this.isMouseDown) {
-                    if (this.penType === 'draw') {
+                    if (this.penType === 'draw' || this.penType === 'erase') {
                         if (this.bitmap[index] !== color) {
                             this._recordHistoryChange(index, this.bitmap[index], color);
                             this._paintPixel(index, color);
@@ -248,8 +247,8 @@
                     }
                     this._blurAll();
                 } else {
-                    if (this.penType === 'draw') {
-                        this._hoverPixel(target);
+                    if (this.penType === 'draw' || this.penType === 'erase') {
+                        this._hoverPixel(target, color);
                     } else if (this.penType === 'fill') {
                         this._hoverGroup(this.getFillGroup(index));
                     }
@@ -341,14 +340,14 @@
             },
             _onMouseMove (e) {
                 if (this._isMouseOver && this.position) {
-                    let x = this.getBoundingClientRect();
                     this.transform(`translate(${e.x - this.position.left - 14}px, ${e.y - this.position.top - 14}px)`, this.$.pen);
                 }
             },
             _onMouseOut () {
                 this._isMouseOver = false;
             },
-            _computePenStyle (size, color, isMouseOver) {
+            _computePenStyle (size, color, penType, isMouseOver) {
+                color = penType === "erase" ? '#000000' : color;
                 return `background: ${color}; display: ${isMouseOver ? 'block' : 'none'}; width: ${size}px; height: ${size}px;}`;
             },
             _computePosition () {

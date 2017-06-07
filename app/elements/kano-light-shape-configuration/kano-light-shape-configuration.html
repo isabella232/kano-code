@@ -1,27 +1,64 @@
 <link rel="import" href="../kano-ui-customizer/kano-ui-customizer.html">
 <link rel="import" href="../inputs/kano-input/kano-input.html">
 <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
+<link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
+<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/input.html">
 <dom-module id="kano-light-shape-configuration">
-    <style is="custom-style" include="input-range"></style>
-    <style>
+    <style is="custom-style" include="kano-code-shared-styles input-range">
         :host {
+            display: block;
+            overflow: hidden;
+        }
+        .config {
+            box-sizing: border-box;
+            max-height: var(--kano-part-editor-content-height);
+            padding: var(--kano-part-editor-padding);
+            overflow: auto;
+        }
+        kano-input {
+            margin-bottom: var(--kano-part-editor-input-margin);
+        }
+        .position {
             @apply --layout-horizontal;
+            @apply --layout-center;
+            margin-bottom: var(--kano-part-editor-input-margin);
+        }
+        .position>* {
+            @apply --layout-flex-auto;
+        }
+        kano-input-range:first-child {
+            margin-right: 32px;
         }
     </style>
     <template>
-        <kano-input type="text" label="Name" value="{{element.name}}"></kano-input>
-        <kano-ui-customizer id="properties"
-            customizable="{{element.customizable.properties}}"
-            user-values="{{element.userProperties}}">
-        </kano-ui-customizer>
-        <kano-ui-customizer id="style"
-            customizable="{{element.customizable.style}}"
-            user-values="{{element.userStyle}}">
-        </kano-ui-customizer>
-        <kano-input-range value="{{position.x}}" label="X Position" min="1" max="[[maxX]]"></kano-input-range>
-        <kano-input-range value="{{position.y}}" label="Y Position" min="1" max="[[maxY]]"></kano-input-range>
+        <kano-part-editor-topbar icon="[[element.type]]" label="[[element.label]]" theme="[[theme]]"></kano-part-editor-topbar>
+        <div class="config">
+            <kano-input type="text" label="Name" value="{{element.name}}" theme="[[theme]]"></kano-input>
+            <kano-ui-customizer id="properties"
+                                customizable="{{element.customizable.properties}}"
+                                user-values="{{element.userProperties}}"
+                                theme="[[theme]]">
+            </kano-ui-customizer>
+            <kano-ui-customizer id="style"
+                                customizable="{{element.customizable.style}}"
+                                user-values="{{element.userStyle}}"
+                                theme="[[theme]]">
+            </kano-ui-customizer>
+            <div class="position">
+                <kano-input-range value="{{position.x}}"
+                                  label="X Position"
+                                  min="1"
+                                  max="[[maxX]]"
+                                  theme="[[theme]]"></kano-input-range>
+                <kano-input-range value="{{position.y}}"
+                                  label="Y Position"
+                                  min="1"
+                                  max="[[maxY]]"
+                                  theme="[[theme]]"></kano-input-range>
+            </div>
+        </div>
     </template>
 </dom-module>
 
@@ -56,7 +93,8 @@
                 type: Number,
                 computed: '_computeMaxY(element.userProperties.*)',
                 value: 8
-            }
+            },
+            theme: String
         },
         observers: [
             'computeRoundPosition(element.position.*)',
