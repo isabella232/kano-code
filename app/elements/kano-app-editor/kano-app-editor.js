@@ -48,8 +48,7 @@ Polymer({
             value: false
         },
         selected: {
-            type: Object,
-            value: null
+            type: Object
         },
         running: {
             type: Boolean,
@@ -323,9 +322,9 @@ Polymer({
         let range = 33.33,
             colorMapHS = {
                 system: [206, 100],
-                ui: [89, 52],
-                hardware: [289, 32],
-                data: [1, 61]
+                ui: [175, 100],
+                data: [278, 41],
+                hardware: [341, 83]
             },
             grouped = this.addedParts.reduce((acc, part) => {
                 acc[part.partType] = acc[part.partType] || [];
@@ -468,9 +467,13 @@ Polymer({
     _toggleFullscreenModal (isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
-        this.toggleClass('large', isFullScreen, this.$['edit-part-dialog-content']);
+        this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
         //If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
+    },
+    _repositionPanel (e) {
+        const target = this.$[Polymer.dom(e).rootTarget.id];
+        this.async(() => target.parentElement.refit(), 10);
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);

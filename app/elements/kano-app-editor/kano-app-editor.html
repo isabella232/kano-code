@@ -53,20 +53,20 @@ Example:
             @apply --layout-flex;
         }
         :host section #blocks-panel {
-            position: relative;
-            min-width: 50%;
-            max-width: 70%;
             @apply --layout-flex-auto;
             @apply --layout-vertical;
             @apply --kano-inset-box-shadow;
+            position: relative;
+            min-width: 50%;
+            max-width: 70%;
         }
         :host section #workspace-panel {
+            @apply --layout-vertical;
             position: relative;
             min-width: 33%;
             max-width: 50%;
             width: 33%;
             background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
-            @apply --layout-vertical;
         }
         .tab-selector {
             --paper-tabs: {
@@ -99,9 +99,9 @@ Example:
             --paper-tab-ink: var(--color-dark);
         }
         :host iron-pages.workspace-pages {
-            overflow-y: auto;
             @apply --layout-vertical;
             @apply --layout-flex;
+            overflow-y: auto;
         }
         :host #workspace-panel kano-workspace {
             @apply --layout-flex;
@@ -135,15 +135,20 @@ Example:
         .editor {
             position: relative;
         }
-        #edit-part-dialog,
-        #edit-background-dialog {
-            min-width: 380px;
-        }
         #edit-part-dialog {
-            flex: 1 0 auto;
             @apply --layout-vertical;
+            @apply --layout-flex-auto;
+            background-color: transparent;
+            flex-shrink: 0;
+            overflow: hidden;
             font-weight: bold;
             color: #fff;
+        }
+        .modal {
+            width: 427px;
+        }
+        .large-modal {
+            width: 880px;
         }
         :host([small-screen]) #edit-part-dialog,
         :host([small-screen]) #edit-background-dialog {
@@ -172,6 +177,7 @@ Example:
         paper-dialog#parts-modal {
             padding: 0px;
             border-radius: 6px;
+            background: #292f35;
         }
         kano-add-parts#add-parts {
             margin: 0px;
@@ -305,15 +311,17 @@ Example:
                 </div>
             </iron-pages>
         </paper-dialog>
-        <paper-dialog id="edit-part-dialog" entry-animation="from-big-animation" no-cancel-on-outside-click on-iron-overlay-closed="_partEditorDialogClosed">
+        <paper-dialog id="edit-part-dialog"
+                      entry-animation="from-big-animation"
+                      on-iron-overlay-closed="_partEditorDialogClosed"
+                      no-cancel-on-outside-click>
             <kano-part-editor
                 id="edit-part-dialog-content"
                 selected="{{selected}}"
                 mode="[[mode]]"
-                class="no-padding"
-                on-delete-part="deletePartClicked"
-                hide-delete-button
-                id="part-editor"></kano-part-editor>
+                class="modal no-padding"
+                on-config-panel-changed="_repositionPanel"
+                on-delete-part="deletePartClicked"></kano-part-editor>
         </paper-dialog>
         <paper-dialog id="edit-background-dialog" fit-into="[[codeEditor]]" entry-animation="from-big-animation" on-iron-overlay-closed="_backgroundEditorDialogClosed">
             <kano-background-editor
