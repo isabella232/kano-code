@@ -5,6 +5,31 @@
 
     let register = (Blockly) => {
 
+        Blockly.Blocks.math_arithmetic = {
+            init: function () {
+                let options = [
+                    { label: "%{BKY_MATH_ADDITION_SYMBOL} add", textLabel: "%{BKY_MATH_ADDITION_SYMBOL}", value: "ADD" },
+                    { label: "%{BKY_MATH_SUBTRACTION_SYMBOL} substract", textLabel: "%{BKY_MATH_SUBTRACTION_SYMBOL}", value: "MINUS" },
+                    { label: "%{BKY_MATH_MULTIPLICATION_SYMBOL} multiply", textLabel: "%{BKY_MATH_MULTIPLICATION_SYMBOL}", value: "MULTIPLY" },
+                    { label: "%{BKY_MATH_DIVISION_SYMBOL} divide", textLabel: "%{BKY_MATH_DIVISION_SYMBOL}", value: "DIVIDE" },
+                    { label: "%{BKY_MATH_POWER_SYMBOL} to the power of", textLabel: "%{BKY_MATH_POWER_SYMBOL}", value: "POWER" }
+                ]
+                this.appendValueInput('A')
+                    .setCheck('Number');
+
+                this.appendDummyInput()
+                    .appendField(new Blockly.FieldCustomDropdown(options), 'OP');
+
+                this.appendValueInput('B')
+                    .setCheck('Number');
+
+                this.setInputsInline(true);
+                this.setOutput('Number');
+                this.setColour('%{BKY_MATH_HUE}');
+                this.setHelpUrl('%{BKY_MATH_ARITHMETIC_HELPURL}');
+            }
+        }
+
         /* --- max(x, y) */
         Blockly.Blocks.math_min_max = {
             init: function () {
