@@ -85,7 +85,6 @@
                              code="{{code}}"
                              mode="[[mode]]"
                              on-share="_pauseAndShare"
-                             challenge-state="[[challengeState]]"
                              on-lockdown-clicked="_notifyBanner"
                              hide-leave-alert="[[alertDisabled]]">
                 <div slot="above-code">
@@ -138,10 +137,6 @@
                 type: Number,
                 notify: true
             },
-            challengeState: {
-                type: Object,
-                computed: 'computeChallengeStatus(progress, story.name, scene.*, ended)'
-            },
             scene: {
                 type: Object
             },
@@ -157,11 +152,6 @@
             remix: {
                 type: Boolean,
                 observer: '_remixChanged'
-            },
-            ended: {
-                type: Boolean,
-                value: false,
-                observer: '_onEndedChanged'
             },
             sceneVariables: {
                 type: Object,
@@ -401,11 +391,15 @@
                 editor.load(JSON.parse(this.scene.defaultApp), Kano.MakeApps.Parts.list);
             }
         },
-        _completedChanged () {
-            if (this.scene.completed) {
+        _completedChanged (completed) {
+            if (completed) {
+                this.remix = true;
                 this.$.editor.generateCover().then((image) => {
                     this.appPreview = image.src;
                 });
+            //don't alert user on leaving if it's the last story
+            } else if (completed && !this.story.next) {
+                this.alertDisabled = true;
             }
         },
         computeProgress (currentStep, scene) {
@@ -413,15 +407,6 @@
                 return 1;
             }
             return (currentStep + 1) / scene.steps.length;
-        },
-        computeChallengeStatus (progress, title, scene, ended) {
-            return {
-                progress: progress,
-                title: title,
-                nextStory: Boolean(this.story.next),
-                started: this.scene.started,
-                ended: this.ended
-            };
         },
         resetHints () {
             this.set('hints.total', 0);
@@ -531,15 +516,6 @@
             this.$.editor.load(savedState.app, this._computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
-        },
-        _onEndedChanged (ended) {
-            if (ended) {
-                this.remix = true;
-            }
-            //don't alert user on leaving if it's the last story
-            if (ended && !this.story.next) {
-                this.alertDisabled = true;
-            }
         },
         powerUp (e) {
             let extensionId = e.detail.id;
