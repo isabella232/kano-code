@@ -82,10 +82,6 @@ Polymer({
             type: Boolean,
             value: false
         },
-        challengeState: {
-            type: Object,
-            value: null
-        },
         lockdown: {
             type: Boolean,
             reflectToAttribute: true,

@@ -723,11 +723,22 @@ Example:
 
             if (selector.inputName) {
                 // The input targeted might be a field. If a field exists with this name, return the rect matching
-                let field = block.getField(selector.inputName);
+                let field = block.getField(selector.inputName),
+                    input;
+
                 if (field) {
                     return field.fieldGroup_.getBoundingClientRect();
                 }
-                connection = block.getInput(selector.inputName).connection;
+
+                input = block.getInput(selector.inputName);
+                if (!input) {
+                    return block.getSvgRoot();
+                }
+
+                connection = input.connection;
+                if (!connection) {
+                    return block.getSvgRoot();
+                }
             } else {
                 connection = block.nextConnection;
             }
