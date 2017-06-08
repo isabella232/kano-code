@@ -60,12 +60,9 @@
                               is-authenticated="[[user]]"
                               in-challenge></kano-share-modal>
        </paper-dialog>
-       <kano-challenge-completed-modal id="challenge-completed"
-                                       on-close="_setStoryEnded"></kano-challenge-completed-modal>
+       <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
         <kano-reward-modal id="reward-modal"
-                       on-confirm="_setStoryEnded"
-                       on-second-action="_openSignup"
-                       on-close="_setStoryEnded"></kano-reward-modal>
+                       on-second-action="_openSignup"></kano-reward-modal>
     </template>
 </dom-module>
 
@@ -317,7 +314,6 @@
                         HOST: Kano.Util.Router.parseQsParam(this.context.querystring, 'host'),
                         PORT: Kano.Util.Router.parseQsParam(this.context.querystring, 'port')
                     });
-                    this.set('scene.ended', false);
                 });
         },
         extendStory (e) {
@@ -335,14 +331,7 @@
                 page.redirect(`/story/${this.story.next}`);
             }
         },
-        _setStoryEnded () {
-            this.set('scene.ended', true);
-        },
         _openSignup () {
-            let detail = {
-                onSuccess: this._setStoryEnded.bind(this),
-                onCancel: this._setStoryEnded.bind(this)
-            };
             this.fire('signup', detail);
         }
     });
