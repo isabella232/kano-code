@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
 <link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
 <link rel="import" href="../kano-light-frame-editor-panel/kano-light-frame-editor-panel.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
@@ -64,6 +65,9 @@
     <script type="text/javascript">
         Polymer({
             is: 'kano-light-frame-editor',
+            behaviors: [
+                Kano.MakeApps.PartsAPI['light-frame']
+            ],
             properties: {
                 selected: {
                     type: Object,
@@ -79,16 +83,24 @@
             observers: [
                 '_renderOnRealDevice(selected.userProperties.bitmap)'
             ],
+            attached () {
+                this.BOARD_WIDTH = 16;
+                this.BOARD_HEIGHT = 8;
+            },
+            detached () {
+                this.appModule.stop();
+            },
             _renderOnRealDevice () {
                 if (!this.deviceRenders) {
-                    Kano.AppModules.modules.lightboard._start();
+                    const hw = Kano.AppModules.modules.lightboard.api;
+                    this.appModule = Kano.AppModules.createStandalone();
+                    this.appModule.config(Object.assign({}, Kano.MakeApps.config, { hardwareAPI: hw }));
+                    this.appModule.start();
                     this.deviceRenders = true;
                 }
+
                 try {
-                    Kano.AppModules.modules.lightboard.shapes = {
-                       'being-edited': this.getShape()
-                    };
-                    Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+                    this.async(() => this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(), () => {}));
                 }
                 catch (e) {
                    return;
