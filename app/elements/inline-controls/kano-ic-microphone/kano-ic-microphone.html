@@ -45,14 +45,16 @@
             },
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
+                this.values = [];
                 Kano.Microphone.start().then(() => {
-                    this.values = [];
                     this._update();
                     this._initCanvas();
                 }).catch(error => {
                     this.disabled = true;
                 });
             },
+            // Override the PartsAPI onCreated
+            onCreated () {},
             _initCanvas () {
                 if (!this.values) {
                     return;
