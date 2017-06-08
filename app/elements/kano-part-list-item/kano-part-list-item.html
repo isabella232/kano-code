@@ -90,7 +90,11 @@
                 return connected === false ? 'disconnected' : '';
             },
             _computeLabel (connected) {
-                return connected === false ? '(disconnected)' : '';
+                if (this.model.partType === 'data') {
+                    return connected === false ? '(no Internet connection)' : '';
+                } else if (this.model.partType === 'hardware') {
+                    return connected === false ? '(disconnected)' : '';
+                }
             },
             _typeChanged (type) {
                 let template = this.$[type];

@@ -334,6 +334,9 @@
             this.selected.refresh().then((data) => {
                 this.set('selected.data', data);
                 this.loading = false;
+            }).catch(() => {
+                this.set('selected.data', {});
+                this.loading = false;
             });
             this.notifyChange('manual-refresh', {});
         },
