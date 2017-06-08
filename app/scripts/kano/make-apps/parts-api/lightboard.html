@@ -12,6 +12,7 @@
             },
             start () {
                 PartsAPI.Base.start.apply(this, arguments);
+                this._propagateButtonEventCb = this._propagateButtonEvent.bind(this);
                 this.attachListeners();
 
                 this.iterator = {
@@ -25,11 +26,11 @@
             },
             attachListeners () {
                 this.detachListeners();
-                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEvent.bind(this));
+                this.appModules.getModule('lightboard').on('button-down', this._propagateButtonEventCb);
             },
             detachListeners () {
                 if (this.appModules) {
-                    this.appModules.getModule('lightboard').removeAllListeners('button-down');
+                    this.appModules.getModule('lightboard').removeListener('button-down', this._propagateButtonEventCb);
                 }
             },
             clear () {
