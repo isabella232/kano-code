@@ -292,6 +292,9 @@
             attached () {
                 let panelElements;
 
+                this.BOARD_WIDTH = 16;
+                this.BOARD_HEIGHT = 8;
+
                 document.addEventListener('keydown', this._onKeydown);
                 document.addEventListener('keyup', this._onKeyup);
 
@@ -318,6 +321,13 @@
                     this._registerElement('animation-editor-add-color-button', panelElements['add-color-button']);
                     this._registerElement('animation-editor-color-wheel', panelElements['color-wheel']);
                 });
+            },
+            detached () {
+                document.removeEventListener('keydown', this._onKeydown);
+                document.removeEventListener('keyup', this._onKeyup);
+
+                this._stopPreview();
+                this.appModule.stop();
             },
             _onKeydown (e) {
                 this.set('_isShiftPressed', e.shiftKey);
@@ -366,6 +376,10 @@
                     clearTimeout(this.timeoutId);
                 }
             },
+            _stopPreview () {
+                this.set('previewState', 'stopped');
+                clearTimeout(this.timeoutId);
+            },
             _updatePreview () {
                 let bitmaps = this.selected.userProperties.bitmaps;
                 if (bitmaps) {
@@ -391,14 +405,15 @@
             },
             _renderOnRealDevice () {
                 if (!this.deviceRenders) {
-                    Kano.AppModules.modules.lightboard._start();
+                    const hw = Kano.AppModules.modules.lightboard.api;
+                    this.appModule = Kano.AppModules.createStandalone();
+                    this.appModule.config(Object.assign({}, Kano.MakeApps.config, { hardwareAPI: hw }));
+                    this.appModule.start();
                     this.deviceRenders = true;
                 }
+
                 try {
-                    Kano.AppModules.modules.lightboard.shapes = {
-                       'being-edited': this.getShape(this.selectedFrame)
-                    };
-                    Kano.AppModules.modules.lightboard.updateAndSync(false, () => {});
+                    this.async(()=> this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(this.selectedFrame), () => {}));
                 }
                 catch (e) {
                    return;
@@ -415,7 +430,7 @@
                     visible: true,
                     bitmap: frame,
                     type: 'frame'
-                };
+                }
             }
         });
     </script>
