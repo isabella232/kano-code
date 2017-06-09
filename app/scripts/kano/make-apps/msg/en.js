@@ -45,6 +45,10 @@
     Kano.MakeApps.Msg.CONFIRM = "Confirm";
     Kano.MakeApps.Msg.GOT_IT = "Got it";
 
+    Kano.MakeApps.Msg.DO_YOU_SAVE = "Do you want to save your creation?";
+    Kano.MakeApps.Msg.SAVE_IT = "Save it!";
+    Kano.MakeApps.Msg.NO_THANKS = "No, thanks";
+
     Kano.MakeApps.Msg.EXIT = "Exit";
     Kano.MakeApps.Msg.CLOSE = "Close";
     Kano.MakeApps.Msg.DONE = "Done";

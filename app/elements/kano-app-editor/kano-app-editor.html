@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
@@ -183,27 +184,6 @@ Example:
             margin: 0px;
             font-family: var(--font-body);
         }
-        paper-dialog#dialog {
-            background-color: #fff;
-        }
-        paper-dialog#dialog>iron-pages {
-            @apply --layout-horizontal;
-            @apply --layout-flex;
-        }
-        paper-dialog#dialog>iron-pages>div {
-            @apply --layout-horizontal;
-            @apply --layout-start;
-            @apply --layout-flex;
-            font-family: var(--font-body);
-            color: #292f35;
-        }
-        paper-dialog#dialog>iron-pages>h2 {
-            color: #000;
-        }
-        paper-dialog .buttons .confirm {
-            background: #EA0923;
-            color: white;
-        }
     </style>
     <template>
         <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
@@ -241,7 +221,7 @@ Example:
             <div name="code" class="editor" id="blocks-panel">
                 <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
                 <div main class="main">
-                    <slot name="above-code"></slot>
+                    <slot name="above-code" on-exit="_doExit"></slot>
                     <kano-root-view
                         id="root-view"
                         parts="{{addedParts}}"
@@ -255,13 +235,13 @@ Example:
                 </div>
             </div>
         </section>
-        <paper-dialog id="dialog" entry-animation="from-big-animation" with-backdrop on-iron-overlay-closed="_modalClosed">
+        <paper-dialog id="alert-dialog" entry-animation="from-big-animation" with-backdrop on-iron-overlay-closed="_modalClosed" on-share="test">
             <iron-pages attr-for-selected="name" selected="[[dialogPage]]">
-                <div name="confirm-delete">
+                <div name="confirm-delete" class="dialog-content">
                     <div id="badge">
                         <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
                     </div>
-                    <div id="dialog-content">
+                    <div id="dialog-text">
                         <h2>[[localize('ARE_YOU_SURE', 'Are you sure')]]</h2>
                         <div>[[localize('ABOUT_TO_DELETE', 'You are about to delete')]] '[[toBeRemoved.name]]'</div>
                         <div>[[localize('WANT_TO_DO_THIS', 'Are you sure you want to do this?')]]</div>
@@ -271,11 +251,11 @@ Example:
                         </div>
                     </div>
                 </div>
-                <div name="external-use-warning">
+                <div name="external-use-warning" class="dialog-content">
                     <div id="badge">
                         <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
                     </div>
-                    <div id="dialog-content">
+                    <div id="dialog-text">
                         <h2>[[localize('OH_OH', 'Oh oh')]]&hellip;</h2>
                         <div>[[localize('CANT_DELETE', 'You can\'t delete')]] '[[toBeRemoved.name]]' [[localize('USED_IN_CODE', 'because it is used in the code')]]</div>
                         <div class="buttons" id="buttons">
@@ -283,24 +263,24 @@ Example:
                         </div>
                     </div>
                 </div>
-                <div name="reset-warning">
+                <div name="reset-warning" class="dialog-content">
                     <div id="badge">
                         <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
                     </div>
-                    <div id="dialog-content">
+                    <div id="dialog-text">
                         <h2>[[localize('RESET', 'Reset')]]</h2>
-                        <div>[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]</div>
+                        <p>[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]</p>
                         <div class="buttons" id="buttons">
                             <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
                             <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
                         </div>
                     </div>
                 </div>
-                <div name="feature-not-available-offline">
+                <div name="feature-not-available-offline" class="dialog-content">
                     <div id="badge">
                         <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
                     </div>
-                    <div id="dialog-content">
+                    <div id="dialog-text">
                         <h2>[[localize('SHARING_NOT_AVAILABLE', "This feature isn't available offline")]]</h2>
                         <div>[[localize('CONNECT_TO_INTERNET', "Make sure you're connected to the internet.")]]</div>
                         <div class="buttons" id="buttons">
@@ -308,9 +288,17 @@ Example:
                         </div>
                     </div>
                 </div>
+                <div name="prompt-to-save" class="dialog-content">
+                    <div id="badge">
+                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
+                    </div>
+                    <div id="dialog-text">
+                        <slot name="save-prompt-dialog-content"></slot>
+                    </div>
+                </div>
             </iron-pages>
         </paper-dialog>
-        <paper-dialog id="edit-part-dialog"
+        <paper-dialog id="edit-part-dialog"t
                       entry-animation="from-big-animation"
                       on-iron-overlay-closed="_partEditorDialogClosed"
                       no-cancel-on-outside-click>

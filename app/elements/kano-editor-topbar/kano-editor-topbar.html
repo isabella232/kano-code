@@ -155,7 +155,6 @@
             is: 'kano-editor-topbar',
             behaviors: [Kano.Behaviors.I18nBehavior],
             properties: {
-                exitUrl: String,
                 exitButtonLabel: String,
                 profile: Object,
                 user: {
@@ -180,12 +179,13 @@
                 return '/assets/avatar/judoka-face.svg';
             },
             _exitButtonTapped () {
-                if (this._runningOnElectron()) {
-                    window.history.back();
-                    return;
-                }
+                this.fire('exit');
+                // if (this._runningOnElectron()) {
+                //     window.history.back();
+                //     return;
+                // }
 
-                window.location = this.exitUrl;
+                // window.location = this.exitUrl;
             },
             _closeTooltip () {
                 this.$.tooltip.close();

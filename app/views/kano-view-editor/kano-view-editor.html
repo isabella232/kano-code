@@ -6,14 +6,16 @@
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
+<link rel="import" href="../../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
+<link rel="import" href="../kano-style/dialog.html">
 
 <dom-module id="kano-view-editor">
-    <style>
+    <style include="kano-style-dialog">
     :host {
         display: block;
         @apply(--layout-vertical);
@@ -77,12 +79,21 @@
             on-share="_pauseAndShare"
             mode="[[mode]]"
             remix-mode="[[remixMode]]"
+            exit-url="[[exitUrl]]"
             show-share-button>
             <kano-editor-topbar
-                exit-url="[[exitUrl]]"
                 user="[[user]]"
                 profile="[[user.profile]]"
                 slot="above-code"></kano-editor-topbar>
+            <div slot="save-prompt-dialog-content" class="dialog-text">
+                    <h2>[[localize('DO_YOU_SAVE', 'Do you want to save your creation?')]]</h2>
+                    <p>[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]</p>
+                    <div class="buttons" id="buttons">
+                        <button dialog-confirm class="dialog-button confirm" data-action="share" on-tap="_forwardAction">[[localize('SAVE_IT', 'Save it!')]]</button>
+                        <button dialog-confirm class="dialog-button cancel" data-action="confirm-exit" on-tap="_forwardAction">[[localize('NO_THANKS', 'No\, thanks')]]</button>
+                        <button dialog-confirm class="dialog-button cancel">[[localize('CANCEL', 'Cancel')]]</button>
+                    </div> 
+            </div>
         </kano-app-editor>
         <paper-dialog id="error-dialog" with-backdrop>
             <h2 class="title">{{error.title}}</h2>
@@ -114,7 +125,8 @@
         is: 'kano-view-editor',
         behaviors: [
             Kano.Behaviors.SharingBehavior,
-            Kano.Behaviors.EditorViewBehavior
+            Kano.Behaviors.EditorViewBehavior,
+            Kano.Behaviors.I18nBehavior
         ],
         properties: {
             context: Object,
@@ -147,7 +159,8 @@
             }
         },
         observers: [
-            '_onAddedPartsChanged(addedParts.splices)'
+            '_onAddedPartsChanged(addedParts.splices)',
+            '_onSaveAttempt(user.saveAttempted)'
         ],
         listeners: {
             'parts-changed': '_partsChanged'
@@ -449,6 +462,16 @@
             let data = e.detail;
             // Add the new code and its rule to the components store
             Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
+        },
+        _onSaveAttempt (attempted) {
+            if (attempted) {
+                this.$.editor.showSavePrompt = false;
+            }
+        },
+        _forwardAction (e) {
+            const target = Polymer.dom(e).rootTarget;
+            console.log(target.getAttribute('data-action'));
+            this.fire(target.getAttribute('data-action'));
         }
     });
 </script>

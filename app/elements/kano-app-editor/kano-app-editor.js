@@ -89,9 +89,14 @@ Polymer({
         },
         hideLeaveAlert: {
             type: Boolean,
-            value: false,
-            observer: 'onHideLeaveAlertChanged'
-        }
+            value: true,
+            observer: 'setLeaveAlert'
+        },
+        showSavePrompt: {
+            type: Boolean,
+            value: false
+        },
+        exitUrl: String
     },
     observers: [
         'selectedPartChanged(selected.*)',
@@ -216,10 +221,18 @@ Polymer({
         if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
             return;
         }
+
+        // Restart code if not in edit mode
         if (!this.editableLayout) {
             this.toggleRunning(false);
             this.toggleRunning(true);
         }
+
+        // Mark code as unsaved
+        if (this.prevCode) {
+            this.showSavePrompt = true;
+        }
+
         this.prevCode = this.code.snapshot.javascript;
     },
     _proxyChange (e) {
@@ -233,7 +246,7 @@ Polymer({
     },
     _openDialog (page) {
         this.dialogPage = page;
-        this.$.dialog.open();
+        this.$['alert-dialog'].open();
     },
     _removePartInitiated (part) {
         this.toBeRemoved = part;
@@ -581,16 +594,14 @@ Polymer({
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
-        this.onHideLeaveAlertChanged(false);
     },
-    onHideLeaveAlertChanged (flag) {
-        //show alert on default flag
-        if (!flag && !window.navigator.userAgent.match('Electron')) {
+    setLeaveAlert (alert) {
+        if (alert && !window.navigator.userAgent.match('Electron')) {
             window.onbeforeunload = () => {
                 return 'Any unsaved changes to your app will be lost. Continue?';
+                return false;
             }
         } else {
-            //don't alert
             window.onbeforeunload = null;
         }
     },
@@ -846,4 +857,19 @@ Polymer({
     _openOfflineDialog () {
         this._openDialog('feature-not-available-offline');
     },
+    _doExit () {
+        this.hideLeaveAlert = false;
+
+        if (this.showSavePrompt) {
+            this._openDialog('prompt-to-save');
+        } else {
+            this._confirmExit();
+        }
+    },
+    _confirmExit () {
+        window.location = this.exitUrl;
+    },
+    test () {
+        console.log('WASSUP');
+    }
 });

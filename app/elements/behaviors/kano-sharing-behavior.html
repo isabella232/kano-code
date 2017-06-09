@@ -135,6 +135,7 @@ var SharingBehavior = {
         }).then((share) => {
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
+            this.set('user.saveAttempted', true);
             if (options && options.share) {
                 this.fire('tracking-event', {
                     name: 'shared_project',
@@ -146,6 +147,7 @@ var SharingBehavior = {
             }
             return share;
         }).catch((e) => {
+            this.set('user.saveAttempted', true);
             console.error(e);
             this._goToPage('failure');
         });
