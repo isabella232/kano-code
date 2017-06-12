@@ -4,12 +4,12 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
 <link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
 <link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
+<link rel="import" href="../kano-icons/kc-ui.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-light-frame-editor-panel/kano-light-frame-editor-panel.html">
 <link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
@@ -33,12 +33,14 @@
             background: #54595d;
             border-radius: 3px;
             padding: 0;
-            margin-right: 16px;
+            margin-right: 12px;
         }
         .action-control button:hover {
             background-color: #00d9c7;
         }
         .action-control button iron-icon {
+            --iron-icon-height: 28px;
+            --iron-icon-width: 28px;
             fill: #8f9195;
             transition: fill 300ms;
         }
@@ -46,21 +48,14 @@
             fill: #fff;
         }
         .action-control button kano-animated-svg {
-            width: 18px;
-            height: 18px;
-            -webkit-filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-            filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
-            fill: #8F9195;
-            stroke: #8F9195;
-            stroke-width: 3px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: all ease-in-out 300ms;
+            width: 28px;
+            height: 28px;
+            fill: #8f9195;
+            transition: fill ease-in-out 300ms;
             margin: 0 auto;
         }
         .action-control button:hover kano-animated-svg {
             fill: #fff;
-            stroke: #fff;
         }
         .settings {
             @apply --layout-vertical;
@@ -85,6 +80,7 @@
             --kano-pixel-editor-background: var(--color-dark);
         }
         .bottom-panel {
+            z-index: 2;
             background-color: #252b31;
         }
         .bottom-panel-header {
@@ -111,7 +107,7 @@
             line-height: 16px;
             font-weight: bold;
             background-color: transparent;
-            margin: 7px 60px 7px 0;
+            margin: 7px 40px 7px 0;
             padding: 0;
             transition: color 300ms;
         }
@@ -119,13 +115,11 @@
             color: white;
         }
         kano-bitmap-list iron-icon {
-            --iron-icon-height: 14px;
-            --iron-icon-width: 14px;
+            --iron-icon-height: 18px;
+            --iron-icon-width: 18px;
             margin-right: 8px;
-        }
-        iron-icon.add-icon {
-            --iron-icon-height: 16px;
-            --iron-icon-width: 16px;
+            fill: #8f9195;
+            transition: fill 300ms;
         }
         kano-bitmap-list button:hover {
             color: #fff;
@@ -137,42 +131,31 @@
             fill: var(--color-flame);
         }
         #bitmap-label {
-            margin: 7px 52px 7px 24px;
+            margin: 7px 40px;
         }
         #frames {
             @apply --layout-flex;
             overflow: hidden;
-        }
-        button.add-frame iron-icon {
-            --iron-icon-height: 18px;
-            --iron-icon-width: 18px;
-            fill: #999;
-        }
-        :host button.add-frame:hover iron-icon {
-            fill: var(--color-kano-orange);
-        }
-        button.add-frame:disabled {
-            opacity: 0.3;
         }
     </style>
     <template>
         <kano-part-editor-topbar icon="light-animation" label="[[element.label]]" theme="[[theme]]">
             <div class="action-control" slot="action">
                 <button id="reverse" type="button" on-tap="_resetPreview">
-                    <iron-icon icon="av:skip-previous"></iron-icon>
+                    <iron-icon icon="kc-ui:restart"></iron-icon>
                 </button>
                 <button id="preview-button" type="button" on-tap="_togglePreviewState">
-                    <kano-animated-svg width="32" S
-                                       height="32"
+                    <kano-animated-svg width="64"
+                                       height="64"
                                        paths="[[previewButtonIconPaths]]"
-                                       selected="[[previewState]]"></kano-animated-svg>
+                                       selected="[[_computeControlIcon(running)]]"></kano-animated-svg>
                 </button>
             </div>
         </kano-part-editor-topbar>
         <kano-light-frame-editor-panel id="editor-panel"
                                        bitmap="{{selectedFrame}}"
-                                       width="{{selected.userProperties.width}}"
-                                       height="{{selected.userProperties.height}}"
+                                       width="[[selected.userProperties.width]]"
+                                       height="[[selected.userProperties.height]]"
                                        pen-color="{{penColor}}"
                                        pen-type="{{penType}}">
         <div slot="canvas" class="canvas">
@@ -187,13 +170,16 @@
                                     pen-color="[[penColor]]"
                                     pen-type="[[penType]]"
                                     on-paint-action="_onPaintAction"></kano-pixel-canvas>
-                <kano-bitmap-renderer class="preview-renderer"
+                <kano-bitmap-renderer id="renderer"
+                                      class="preview-renderer"
                                       name="running"
                                       bitmap="[[frame]]"
+                                      loop="[[running]]"
                                       pixel-size="22"
                                       spacing="1"
                                       width="[[selected.userProperties.width]]"
-                                      height="[[selected.userProperties.height]]"></kano-bitmap-renderer>
+                                      height="[[selected.userProperties.height]]"
+                                      fps="30"></kano-bitmap-renderer>
             </iron-pages>
         </div>
         <div slot="settings" class="settings">
@@ -232,19 +218,20 @@
                               bitmaps="{{selected.userProperties.bitmaps}}"
                               selected="{{selectedFrame}}"
                               selected-index="{{selectedIndex}}"
+                              running$="[[running]]"
                               width="[[selected.userProperties.width]]"
                               height="[[selected.userProperties.height]]">
                 <label id="bitmap-label" slot="label">Animate</label>
-                <button id="add-frame-button" type="button" slot="add-button" disabled$="[[isEq(previewState, 'running')]]">
-                    <iron-icon class="add-icon" icon="add"></iron-icon>
+                <button id="add-frame-button" type="button" slot="add-button" disabled$="[[running]]">
+                    <iron-icon icon="kc-ui:add"></iron-icon>
                     <span>Add cell</span>
                 </button>
-                <button type="button" slot="duplicate-button" disabled$="[[isEq(previewState, 'running')]]">
-                    <iron-icon icon="content-copy"></iron-icon>
+                <button type="button" slot="duplicate-button" disabled$="[[running)]]">
+                    <iron-icon icon="kc-ui:duplicate"></iron-icon>
                     <span>Duplicate</span>
                 </button>
-                <button id="delete-frame-button" type="button" slot="delete-button" disabled$="[[isEq(previewState, 'running')]]">
-                    <iron-icon icon="clear"></iron-icon>
+                <button id="delete-frame-button" type="button" slot="delete-button" disabled$="[[running]]">
+                    <iron-icon icon="kc-ui:close"></iron-icon>
                     <span>Delete</span>
                 </button>
             </kano-bitmap-list>
@@ -276,6 +263,10 @@
                     type: String,
                     value: "#00d9c7"
                 },
+                running: {
+                    type: Boolean,
+                    value: false
+                },
                 selectedFrame: Array,
                 penColor: String,
                 penType: String
@@ -299,8 +290,8 @@
                 document.addEventListener('keyup', this._onKeyup);
 
                 this.previewButtonIconPaths = {
-                    stopped: 'M 10,4 l 16, 12, 0, 0, -16, 12, z',
-                    running: 'M 4,4 l 24, 0 0, 24, -24, 0, z'
+                    stopped: 'M45.69,32.1a2.24,2.24,0,0,1-1.16,2L21.77,47.41a1.4,1.4,0,0,1-1.51,0,1.34,1.34,0,0,1-.74-1.33v-28a1.34,1.34,0,0,1,.74-1.33,1.4,1.4,0,0,1,1.51,0L44.54,30.06A2.24,2.24,0,0,1,45.69,32.1Z',
+                    running: 'M23.34,46a2.43,2.43,0,0,1-1.9-.78,2.69,2.69,0,0,1-.78-1.93V20.71a2.69,2.69,0,0,1,.78-1.93,2.44,2.44,0,0,1,1.9-.78h3.74a2.44,2.44,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24A2.69,2.69,0,0,1,29,45.17a2.43,2.43,0,0,1-1.9.78Zm13.51,0a2.49,2.49,0,0,1-1.9-.78,2.63,2.63,0,0,1-.81-1.93V20.71a2.63,2.63,0,0,1,.81-1.93,2.49,2.49,0,0,1,1.9-.78h3.74a2.43,2.43,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24a2.69,2.69,0,0,1-.78,1.93,2.43,2.43,0,0,1-1.9.78Z'
                 };
                 this.previewState = 'stopped';
 
@@ -330,25 +321,44 @@
                 this.appModule.stop();
             },
             _onKeydown (e) {
+                //disable key commands while running except for 'space'
+                if (this.running && e.key !== ' ') {
+                    return;
+                }
+
                 this.set('_isShiftPressed', e.shiftKey);
                 switch (e.key) {
+                    case 'd':
+                        this._duplicateFrame();
+                        break;
                     case 'n':
-                      this._addFrame();
-                      break;
+                        this._addFrame();
+                        break;
                     case 'ArrowRight':
-                      this._nextFrame();
-                      break;
+                        this._nextFrame();
+                        break;
                     case 'ArrowLeft':
-                      this._previousFrame();
-                      break;
+                        this._previousFrame();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        this._togglePreviewState();
+                        break;
                 }
             },
             _onKeyup (e) {
                 this.set('_isShiftPressed', e.shiftKey);
             },
+            _computeControlIcon (running) {
+                return running ? 'running' : 'stopped';
+            },
             _addFrame () {
                 this.$.frames.addFrame();
                 this.notifyChange('light-animation-add-frame');
+            },
+            _duplicateFrame () {
+                this.$.frames.duplicateFrame();
+                this.notifyChange('light-animation-duplicate-frame');
             },
             _nextFrame () {
                 this.selectedIndex = Math.min(this.selected.userProperties.bitmaps.length - 1, this.selectedIndex + 1);
@@ -359,21 +369,41 @@
                 this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
             },
             _onSelectedChanged (e) {
-                if (e.path === "selected" || e.path === "selected.userProperties.bitmaps") {
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
-                }
+
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex] &&
+                            this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+
+                    //merge bitmaps and compute colors for custom palette only once per session
+                    if (!this.colorsComputed) {
+                        let allColors = this.selected.userProperties.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
+                            if (bitmaps.indexOf(bitmap) === index) {
+                                return acc.concat(bitmap);
+                            }
+                        }, []);
+                        this.$['editor-panel']._computePalette(allColors);
+                        this.colorsComputed = true;
+                    }
             },
             _resetPreview () {
+                clearTimeout(this.timeoutId);
+                this.running = false;
                 this.previewState = 'stopped';
                 this.selectedIndex = 0;
-                clearTimeout(this.timeoutId);
+                this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
             },
             _togglePreviewState () {
                 this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
                 if (this.previewState === 'running') {
+                    this.oldSelectedIndex = this.selectedIndex;
                     this._updatePreview();
+                    this.running = true;
+                    this.$.frames.moveDelay = 0;
                 } else {
                     clearTimeout(this.timeoutId);
+                    this.selectedIndex = this.oldSelectedIndex;
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
+                    this.running = false;
+                    this.async(() => this.$.frames.moveDelay = 350);
                 }
             },
             _stopPreview () {
@@ -388,6 +418,7 @@
                     if (this.selectedIndex > bitmaps.length - 1) {
                         this.selectedIndex = 0;
                     }
+                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
                 }
                 this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
             },
@@ -403,7 +434,7 @@
             _onPaintAction () {
                 this.notifyChange('light-animation-paint', { tool: this.penType });
             },
-            _renderOnRealDevice () {
+            _renderOnRealDevice (frame) {
                 if (!this.deviceRenders) {
                     const hw = Kano.AppModules.modules.lightboard.api;
                     this.appModule = Kano.AppModules.createStandalone();
@@ -413,7 +444,7 @@
                 }
 
                 try {
-                    this.async(() => this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(this.selectedFrame), () => {}));
+                    this.async(() => this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(frame), () => {}));
                 }
                 catch (e) {
                    return;

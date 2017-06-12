@@ -45,6 +45,7 @@
         iron-icon  {
             --iron-icon-height: 32px;
             --iron-icon-width: 32px;
+            transition: fill 300ms;
         }
         .center-panel {
             @apply --layout-horizontal;
@@ -63,8 +64,7 @@
             padding: 0;
         }
         .side-menu button iron-icon {
-            fill: #8f9195;
-            transition: fill 300ms;
+            fill: rgba(255,255,255,0.5);
         }
         .side-menu button:hover {
             background: #54595d;
@@ -116,7 +116,8 @@
         .control-content .custom-colour-header {
             @apply --layout-horizontal;
             @apply --layout-center;
-            margin-bottom: 20px;
+            @apply --layout-justified;
+            margin: 0 14px 20px 0;
         }
         .control-content .custom-colour-header button {
             @apply --kano-button;
@@ -126,8 +127,9 @@
             line-height: 18px;
             font-weight: bold;
             background-color: transparent;
-            color: #8f9195;
+            color: rgba(255,255,255,0.5);
             padding: 0;
+            transition: background-color 300ms;
         }
         .control-content .custom-colour-header label {
             margin: 0 18px 0 0; 
@@ -136,8 +138,8 @@
             margin-right: 14px;
         }
         .control-content .custom-colour-header iron-icon {
-            --iron-icon-height: 14px;
-            --iron-icon-width: 14px;
+            --iron-icon-height: 16px;
+            --iron-icon-width: 16px;
             margin-right: 4px;
         }
         .control-content .custom-colour-header button:hover {
@@ -145,9 +147,6 @@
         }
         .control-content .custom-colour-header button:hover iron-icon {
             fill: var(--part-theme);
-        }
-        .control-content .custom-colour-header button#custom-colour-delete:hover iron-icon {
-            fill: var(--color-flame);
         }
         .control-content kano-tooltip {
             --kano-tooltip-border-color: var(--color-dark);
@@ -172,9 +171,10 @@
             margin-bottom: 38px;
         }
         #custom-palette {
-            height: 101px;
+            height: 103px;
+            width: 97%;
             overflow: auto;
-            margin: 0 0 11px 2px;
+            margin-bottom: 0;
         }
         .settings {
             @apply --layout-vertical;
@@ -223,10 +223,6 @@
                                               row-size="6"></kano-input-color>
                             <div class="custom-colour-header">
                                 <label>Custom</label>
-                                <button id="custom-colour-delete" type="button" on-tap="_deleteColor">
-                                    <iron-icon icon="clear"></iron-icon>
-                                    <span>Delete</span>
-                                </button>
                                 <kano-tooltip id="tooltip" 
                                               class="tooltip"
                                               position="right"
@@ -238,7 +234,7 @@
                                                       render-later></kano-color-wheel>
                                 </kano-tooltip>
                                 <button id="custom-colour-add" type="button" on-tap="_openWheel">
-                                    <iron-icon class="add-icon" icon="add"></iron-icon>
+                                    <iron-icon class="add-icon" icon="kc-ui:add"></iron-icon>
                                     <span >Add</span>
                                 </button>
                             </div>
@@ -272,14 +268,6 @@
                 name: {
                     type: String
                 },
-                width: {
-                    type: Number,
-                    value: 1
-                },
-                height: {
-                    type: Number,
-                    value: 1
-                },
                 penType: {
                     type: String,
                     computed: '_computePenType(_penType, _isShiftPressed)',
@@ -308,7 +296,6 @@
                 }
             },
             observers: [
-                '_computePalette(bitmap)',
                 '_onControlPanelChanged(controlPanel, penType)'
             ],
             attached () {
@@ -318,9 +305,9 @@
                 this.$['custom-palette'].addColor(e.detail.value);
                 this.$.tooltip.close();
             },
-            _computePalette (bitmap) {
+            _computePalette (colors) {
                 this.debounce('palette', () => {
-                    let palette = bitmap.slice(0);
+                    let palette = colors.slice(0);
                     palette.push(this.penColor);
 
                     // Remove duplicates and color already in the default palette
@@ -358,9 +345,6 @@
                 Polymer.dom(this.root).querySelectorAll('.side-menu-button').forEach((el) => {
                     this.toggleClass('selected', el.id === id, el);
                 }, this)
-            },
-            _deleteColor (e) {
-                this.$['custom-palette'].splice('colors', this.$['custom-palette'].selectedIndex, 1);
             },
             _openWheel (e) {
                 const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget;
