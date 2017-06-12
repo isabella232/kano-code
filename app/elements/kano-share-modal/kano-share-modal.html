@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/web-components/kano-lightboard-preview/kano-lightboard-preview.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/input.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/color.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
@@ -389,6 +390,13 @@
         paper-spinner-lite {
             --paper-spinner-color: white;
         }
+        .preview-wrapper {
+            @apply --layout-vertical;
+            @apply --layout-center;
+            @apply --layout-center-justified;
+            margin: auto;
+            position: relative;
+        }
         .change-gif-container {
             position: absolute;
             top: 0px;
@@ -400,6 +408,7 @@
             @apply --layout-center-justified;
             opacity: 0;
             transition: opacity ease-in-out 70ms;
+            cursor: pointer;
         }
         .change-gif-container:hover {
             opacity: 1;
@@ -520,25 +529,31 @@
                 </div>
                 <div name="sharing-form">
                     <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover"></iron-image>
-                        <div class="change-gif-container">
-                            <button class="change-gif" on-tap="_changeGif" type="button">&larr; [[localize('MAKE_ANOTHER', 'Make another gif')]]</button>
+                        <div class="preview-wrapper">
+                            <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
+                            <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
+                            <div class="change-gif-container" on-tap="_changeGif">
+                                <button class="change-gif" type="button">&larr; [[localize('MAKE_ANOTHER', 'Make another gif')]]</button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div name="publishing">
                     <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover"></iron-image>
+                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
+                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
                     </div>
                 </div>
                 <div name="failure">
                     <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover"></iron-image>
+                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
+                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
                     </div>
                 </div>
                 <div name="success">
                     <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover"></iron-image>
+                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
+                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
                     </div>
                 </div>
             </iron-pages>
@@ -739,7 +754,8 @@
                             let data = url.split(',').pop(),
                                 spriteSheetBlob = this.base64toBlob(data, 'image/png');
 
-                            this.shareInfo.spriteSheetBlob = spriteSheetBlob
+                            this.shareInfo.spriteSheetBlob = spriteSheetBlob;
+                            this.spriteSrc = URL.createObjectURL(spriteSheetBlob);
 
                             return this.generateCover(workspace,
                                         parts,
