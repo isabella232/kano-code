@@ -251,11 +251,7 @@ Custom property | Description | Default
                     value: false,
                     observer: '_onRunningChanged'
                 },
-                moveDelay: Number,
-                bar: {
-                    type: Boolean,
-                    value: true
-                }
+                moveDelay: Number
             },
             observers: [
                 '_selectedChanged(selected.*)',
@@ -284,7 +280,7 @@ Custom property | Description | Default
             },
             _bitmapsChanged () {
                 if (!this.selected) {
-                    this.selected = this.bitmaps[0].slice(0);
+                    this.selected = this.bitmaps[0] && this.bitmaps[0].slice(0);
                 }
             },
             _sortStart (e) {

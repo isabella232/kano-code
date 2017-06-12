@@ -158,67 +158,67 @@
                                        height="[[selected.userProperties.height]]"
                                        pen-color="{{penColor}}"
                                        pen-type="{{penType}}">
-        <div slot="canvas" class="canvas">
-            <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
-                <kano-pixel-canvas id="canvas"
-                                    name="stopped"
-                                    bitmap="{{selectedFrame}}"
-                                    width="[[selected.userProperties.width]]"
-                                    height="[[selected.userProperties.height]]"
-                                    pixel-size="22"
-                                    spacing="1"
-                                    pen-color="[[penColor]]"
-                                    pen-type="[[penType]]"
-                                    on-paint-action="_onPaintAction"></kano-pixel-canvas>
-                <kano-bitmap-renderer id="renderer"
-                                      class="preview-renderer"
-                                      name="running"
-                                      bitmap="[[frame]]"
-                                      loop="[[running]]"
-                                      pixel-size="22"
-                                      spacing="1"
-                                      width="[[selected.userProperties.width]]"
-                                      height="[[selected.userProperties.height]]"
-                                      fps="30"></kano-bitmap-renderer>
-            </iron-pages>
-        </div>
-        <div slot="settings" class="settings">
-            <div class="settings-controls">
-                <kano-input-text value="{{selected.name}}"
-                                 theme="[[theme]]"></kano-input-text>
-                <div class="size-settings">
-                    <kano-input-range id="width-slider"
+            <div slot="canvas" class="canvas">
+                <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
+                    <kano-pixel-canvas id="canvas"
+                                       name="stopped"
+                                       bitmap="{{selectedFrame}}"
+                                       width="[[selected.userProperties.width]]"
+                                       height="[[selected.userProperties.height]]"
+                                       pixel-size="22"
+                                       spacing="1"
+                                       pen-color="[[penColor]]"
+                                       pen-type="[[penType]]"
+                                       on-paint-action="_onPaintAction"></kano-pixel-canvas>
+                    <kano-bitmap-renderer id="renderer"
+                                          class="preview-renderer"
+                                          name="running"
+                                          bitmap="[[frame]]"
+                                          loop="[[running]]"
+                                          pixel-size="22"
+                                          spacing="1"
+                                          width="[[selected.userProperties.width]]"
+                                          height="[[selected.userProperties.height]]"
+                                          fps="30"></kano-bitmap-renderer>
+                </iron-pages>
+            </div>
+            <div slot="settings" class="settings">
+                <div class="settings-controls">
+                    <kano-input-text value="{{selected.name}}"
+                                     theme="[[theme]]"></kano-input-text>
+                    <div class="size-settings">
+                        <kano-input-range id="width-slider"
+                                          class="slider"
+                                          value="{{selected.userProperties.width}}"
+                                          label="Width"
+                                          min="1"
+                                          max="16"
+                                          theme="[[theme]]"></kano-input-range>
+                        <kano-input-range id="height-slider"
+                                          class="slider"
+                                          value="{{selected.userProperties.height}}"
+                                          label="Height"
+                                          min="1"
+                                          max="8"
+                                          theme="[[theme]]"></kano-input-range>
+                    </div>
+                    <kano-input-range id="speed-slider"
                                       class="slider"
-                                      value="{{selected.userProperties.width}}"
-                                      label="Width"
+                                      value="{{selected.userProperties.speed}}"
+                                      label="Speed"
                                       min="1"
-                                      max="16"
-                                      theme="[[theme]]"></kano-input-range>
-                    <kano-input-range id="height-slider"
-                                      class="slider"
-                                      value="{{selected.userProperties.height}}"
-                                      label="Height"
-                                      min="1"
-                                      max="8"
+                                      max="30"
+                                      symbol="fps"
                                       theme="[[theme]]"></kano-input-range>
                 </div>
-                <kano-input-range id="speed-slider"
-                                  class="slider"
-                                  value="{{selected.userProperties.speed}}"
-                                  label="Speed"
-                                  min="1"
-                                  max="30"
-                                  symbol="fps"
-                                  theme="[[theme]]"></kano-input-range>
             </div>
-        </div>
         </kano-light-frame-editor-panel>
         <div class="bottom-panel">
             <kano-bitmap-list id="frames"
                               bitmaps="{{selected.userProperties.bitmaps}}"
                               selected="{{selectedFrame}}"
                               selected-index="{{selectedIndex}}"
-                              running$="[[running]]"
+                              running="[[running]]"
                               width="[[selected.userProperties.width]]"
                               height="[[selected.userProperties.height]]">
                 <label id="bitmap-label" slot="label">Animate</label>
@@ -369,7 +369,6 @@
                 this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
             },
             _onSelectedChanged (e) {
-
                     this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex] &&
                             this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
 
@@ -386,24 +385,24 @@
             },
             _resetPreview () {
                 clearTimeout(this.timeoutId);
-                this.running = false;
                 this.previewState = 'stopped';
                 this.selectedIndex = 0;
-                this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
+                this.selectedFrame = this.selected.userProperties.bitmaps[0].slice(0);
+                this.running = false;
             },
             _togglePreviewState () {
                 this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
                 if (this.previewState === 'running') {
                     this.oldSelectedIndex = this.selectedIndex;
                     this._updatePreview();
-                    this.running = true;
                     this.$.frames.moveDelay = 0;
+                    this.running = true;
                 } else {
                     clearTimeout(this.timeoutId);
                     this.selectedIndex = this.oldSelectedIndex;
                     this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
-                    this.running = false;
                     this.async(() => this.$.frames.moveDelay = 350);
+                    this.running = false;
                 }
             },
             _stopPreview () {
@@ -426,7 +425,9 @@
                 this._renderOnRealDevice(this.frame);
             },
             _onSelectedFrameChanged () {
-                this._renderOnRealDevice(this.selectedFrame);
+                if (this.selectedFrame) {
+                    this._renderOnRealDevice(this.selectedFrame);
+                }
             },
             _previewStateChanged () {
                 this.notifyChange('light-animation-preview-changed', { value: this.previewState });
