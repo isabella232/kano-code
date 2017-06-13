@@ -40,13 +40,11 @@
             },
             _wrongCategory (validation, detail) {
                 let step = this.steps[this.step];
-                step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-category-opened');
-                step.arrow = {
+                step.banner = Kano.MakeApps.CopyManager.get('wrong-category-opened');
+                step.beacon = {
                     target: {
                         category: validation
-                    },
-                    angle: 45,
-                    size: 80
+                    }
                 };
                 this._updateStep(step);
             },
@@ -76,27 +74,21 @@
                         }
                     }
                 };
-                step.tooltips = [{
-                    position: 'right',
-                    text: Kano.MakeApps.CopyManager.get('wrong-block-added') + '<br>' + Kano.MakeApps.CopyManager.get('put-block-in-bin'),
-                    location: 'blockly-bin'
-                }];
-                step.arrow = {
-                    target: 'blockly-bin',
-                    angle: 210,
-                    size: 80
+                step.banner = {
+                    text: Kano.MakeApps.CopyManager.get('wrong-block-added') + '<br>' + Kano.MakeApps.CopyManager.get('put-block-in-bin')
+                };
+                step.beacon = {
+                    target: 'blockly-bin'
                 };
                 this._injectStep(step, -1);
             },
             _wrongConnectionRedirect (validation, detail) {
                 let step = this.steps[this.step];
                 // update the tooltip's copy
-                step.tooltips[0].text = Kano.MakeApps.CopyManager.get('wrong-block-connection');
+                step.banner = Kano.MakeApps.CopyManager.get('wrong-block-connection');
                 // Add a boucing arrow
-                step.arrow = {
-                    target: { block: validation.parent },
-                    angle: 210,
-                    size: 80
+                step.beacon = {
+                    target: { block: validation.parent }
                 };
                 this._updateStep(step);
             },
