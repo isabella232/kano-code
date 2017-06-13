@@ -321,10 +321,17 @@
             let extensionId = e.detail;
             page.redirect(`/story/${extensionId}`);
         },
+        _runningOnElectron () {
+            return navigator.userAgent.indexOf("Electron") > -1;
+        },
         goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
-                location.href = Kano.MakeApps.config.PROJECTS_URL;
+                if (this._runningOnElectron()) {
+                    window.history.back();
+                } else {
+                    location.href = Kano.MakeApps.config.PROJECTS_URL;
+                }
                 return;
             }
 
