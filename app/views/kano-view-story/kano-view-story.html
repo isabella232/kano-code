@@ -50,10 +50,11 @@
                             on-next-story="goToNextStory"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
-        <paper-dialog id="share-modal" no-cancel-on-esc-key no-cancel-on-outside-click with-backdrop>
+        <paper-dialog id="share-modal" opened={{shareOpened}} modal>
             <kano-share-modal id="share-modal-content"
                               on-confirm="confirmShare"
                               on-dismiss="dismissShare"
+                              opened="[[shareOpened]]"
                               on-next-story="goToNextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
@@ -91,7 +92,8 @@
             }
         },
         listeners: {
-            'parts-changed': '_partsChanged'
+            'parts-changed': '_partsChanged',
+            'share-successful': '_setUserShared'
         },
         observers: [
             '_addedPartsChanged(addedParts.splices)'
@@ -332,6 +334,9 @@
         },
         _openSignup () {
             this.fire('signup');
+        },
+        _setUserShared () {
+            this.set('user.hasSharedInSession', true);
         }
     });
 </script>

@@ -133,8 +133,10 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
+            this.fire('share-successful');
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
+
             if (options && options.share) {
                 this.fire('tracking-event', {
                     name: 'shared_project',

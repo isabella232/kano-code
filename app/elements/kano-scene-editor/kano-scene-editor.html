@@ -267,12 +267,14 @@
         _bannerButtonTapped () {
             if (this.selectedStep.isLast) {
                 Kano.MakeApps.Utils.onLine().then((isOnline) => {
-                    if (!this.user || this.scene.autoshareDisabled || this._userCompleted(this.story) || !isOnline) {
+                    if (!this.user || this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
+                            this.scene.autoshareDisabled || !isOnline) {
                         this.fire('next-story');
                     } else {
-                        let shareDetail = this.$.editor.compileApp();
+                        const shareDetail = this.$.editor.compileApp();
                         shareDetail.title = `${this.user.username}'s ${this.story.name}`;
                         shareDetail.autoshare = true;
+                        this.scene.autoshareDisabled = true;
 
                         this.running = false;
                         this.fire('share', shareDetail);
@@ -284,7 +286,7 @@
                 this.showHints();
             }
         },
-        _userCompleted (story) {
+        _userAlreadyShared (story) {
             const progress = this._getUserProgress(this.user);
             return progress.indexOf(story.id) > -1;
         },

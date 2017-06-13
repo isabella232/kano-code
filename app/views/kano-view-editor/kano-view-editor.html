@@ -88,9 +88,11 @@
             <h2 class="title">{{error.title}}</h2>
             <p class="description">{{error.description}}</p>
         </paper-dialog>
-        <paper-dialog id="share-modal" with-backdrop>
-            <kano-share-modal on-confirm="confirmShare"
+        <paper-dialog id="share-modal" opened={{shareOpened}} modal>
+            <kano-share-modal id="share-modal-content"
+                              on-confirm="confirmShare"
                               on-dismiss="dismissShare"
+                              opened="[[shareOpened]]"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"></kano-share-modal>
