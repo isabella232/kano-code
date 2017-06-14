@@ -10,7 +10,7 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard") {
                         env.DEV_ENV = "staging"
-                    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="pre-release") {
+                    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
                         env.DEV_ENV = "production"
                     }
                     env.NODE_ENV = "${env.DEV_ENV}"
@@ -59,8 +59,12 @@ pipeline {
                     def bucket = ''
                     if (env.BRANCH_NAME == "jenkins") {
                         echo 'deploy skipped'
-                    } else if (env.BRANCH_NAME == "lightboard") {
+                    } else if (env.BRANCH_NAME == "prod-lightboard") {
                         bucket = 'apps-lightboard.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                    } else if (env.BRANCH_NAME == "lightboard") {
+                        bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
                     } else if (env.NODE_ENV=="staging") {
@@ -77,7 +81,7 @@ pipeline {
                         env.TARGET = "osonline"
                         sh 'gulp copy-index'
                         deploy('./www', 'make-apps-kit-site.kano.me')
-                    }   
+                    }
                 }
             }
         }
