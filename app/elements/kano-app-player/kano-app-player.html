@@ -3,39 +3,47 @@
 <link rel="import" href="../kano-app-player-toolbar/kano-app-player-toolbar.html">
 <dom-module id="kano-app-player">
     <style>
-        :host {
-          display: flex;
-          align-items: center;
-          @apply(--layout-vertical-reverse);
+        :host([layout="vertical"]) {
+            @apply --layout-vertical-reverse;
+            @apply --layout-center;
+        }
+        :host([layout="horizontal"]) {
+            padding: 16px 60px;
+            position: relative;
+            @apply --layout-horizontal;
+            @apply --layout-center;
         }
         :host .user-app {
-            @apply(--layout-flex);
-            @apply(--layout-self-stretch);
+            @apply --layout-flex;
+            @apply --layout-self-stretch;
             height: 100%;
+            width: 100%;
         }
-
         :host(.fullscreen) {
+            padding: 20% 16px;
             position: fixed;
             top: 0px;
             left: 0px;
+            max-width: 100%;
             width: 100%;
             height: 100%;
             z-index: 100;
             background-color: rgba(0, 0, 0, 0.8);
         }
-
+        :host([layout="horizontal"].fullscreen) {
+            @apply --layout-vertical-reverse;
+            @apply --layout-justified;
+            @apply --layout-center;
+        }
         :host(.fullscreen) .user-app {
-            width: 40%;
+            width: 60%;
             height: 40%;
             margin: auto;
         }
-
         :host(.fullscreen) kano-app-player-toolbar {
+            margin: 0 auto 40px auto;
             width: 40%;
-            margin: auto;
-            margin-bottom: 40px;
         }
-
         #container {
             @apply(--layout-vertical);
             @apply(--layout-flex);
@@ -47,8 +55,16 @@
         h1.error {
             color: var(--color-red, red);
         }
-        kano-app-player-toolbar {
+        :host([layout="vertical"]) kano-app-player-toolbar {
             width: 100%;
+        }
+        :host([layout="horizontal"]) kano-app-player-toolbar {
+            position: absolute;
+            right: 0;
+            top: 8%;
+        }
+        :host([layout="horizontal"].fullscreen) kano-app-player-toolbar {
+            position: relative;
         }
     </style>
     <template>
@@ -59,10 +75,14 @@
             </template>
         </div>
         <template is="dom-if" if="{{showToolbar}}">
-            <kano-app-player-toolbar running="[[running]]"
+            <kano-app-player-toolbar layout="[[toolbarLayout]]"
+                                     running="[[running]]"
                                      on-run-button-clicked="_toggleRunning"
                                      on-reset-button-clicked="_reset"
                                      on-fullscreen-button-clicked="_toggleFullscreen"></kano-app-player-toolbar>
+        </template>
+        <template is="dom-if" if="{{showHardware}}">
+            Hardware
         </template>
     </template>
     <script type="text/javascript">
@@ -80,6 +100,15 @@
                     type: Boolean,
                     value:false
                 },
+                fullscreen: {
+                    type: Boolean,
+                    value: false
+                },
+                layout: {
+                    type: String,
+                    value: 'vertical',
+                    reflectToAttribute: true
+                },
                 showToolbar: {
                     type: Boolean,
                     value: false
@@ -87,6 +116,10 @@
                 running: {
                     type: Boolean,
                     value: false
+                },
+                toolbarLayout: {
+                    type: String,
+                    computed: '_toolbarLayout(layout, fullscreen)'
                 }
             },
             _srcChanged () {
@@ -173,6 +206,9 @@
                 this.toggleClass('fullscreen');
                 this.component.$$('kano-ui-viewport').resizeView();
                 this.fullscreen = !this.fullscreen;
+            },
+            _toolbarLayout  (layout, fullscreen) {
+                return layout === 'vertical' || fullscreen ? 'horizontal' : 'vertical';
             }
         });
     </script>
