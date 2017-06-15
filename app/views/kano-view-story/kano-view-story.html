@@ -105,7 +105,8 @@
             customAlert: Boolean
         },
         listeners: {
-            'parts-changed': '_partsChanged'
+            'parts-changed': '_partsChanged',
+            'opened-changed': '_onModalChanged'
             
         },
         observers: [
@@ -342,6 +343,9 @@
         _openSignup () {
             this.fire('signup');
         },
+        _setUserShared () {
+            this.set('user.hasSharedInSession', true);
+        },
         _confirmExit () {
             this.fire('exit-confirmed');
         },
@@ -350,6 +354,17 @@
                 this.$['leave-alert'].open();
             } else {
                 this.fire('exit-confirmed');
+            }
+        },
+        _onModalChanged (e) {
+            if (!this.story) {
+                return;
+            }
+            //TODO Refactor this when challenge modal is implemented similarly to share-modal i.e. as child of a paper dialog
+            const pathIds = Polymer.dom(e).path.map(path => path.id);
+
+            if (pathIds.indexOf('share-modal') > -1 || pathIds.indexOf('reward-modal') > -1) {
+                this.set('story.paused', e.detail.value);
             }
         }
     });

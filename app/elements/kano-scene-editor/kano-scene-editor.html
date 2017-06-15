@@ -71,6 +71,7 @@
                             on-load="loadApp"
                             step="{{currentStep}}"
                             started="[[scene.started]]"
+                            idle="[[story.paused]]"
                             hint-stats="{{hintStats}}"
                             selected-step="{{selectedStep}}"
                             state="{{state}}"
@@ -85,8 +86,7 @@
                              code="{{code}}"
                              mode="[[mode]]"
                              on-share="_pauseAndShare"
-                             on-lockdown-clicked="_notifyBanner"
-                             show-save-prompt="user">
+                             on-lockdown-clicked="_notifyBanner">
                 <div slot="above-code">
                     <kano-editor-topbar user="[[user]]" profile="[[user.profile]]"></kano-editor-topbar>
                     <kano-editor-banner id="banner"
@@ -267,7 +267,7 @@
         _bannerButtonTapped () {
             if (this.selectedStep.isLast) {
                 Kano.MakeApps.Utils.onLine().then((isOnline) => {
-                    if (!this.user || this._userAlreadyShared(this.story) ||
+                    if (!this.user ||  this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
                             this.scene.autoshareDisabled || !isOnline) {
                         this.fire('next-story');
                     } else {

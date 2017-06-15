@@ -30,7 +30,7 @@ Example:
         }
     </style>
     <template>
-        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}" state="{{state}}">
+        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}" state="{{state}}" idle="[[idle]]">
             <slot name="editor" id="content"></slot>
         </kano-challenge-ui>
     </template>
@@ -47,7 +47,8 @@ Example:
             state: {
                 type: Object,
                 notify: true
-            }
+            },
+            idle: Boolean
         },
         observers: [
             'doneChanged(done)'

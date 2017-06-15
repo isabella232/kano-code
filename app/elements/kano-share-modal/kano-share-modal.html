@@ -29,10 +29,10 @@
             @apply --layout-horizontal;
             @apply --layout-center;
             color: white;
-            font-size: 20px;
             top: 32px;
             left: 32px;
             font-size: 14px;
+            letter-spacing: 0.3px;
         }
         .header iron-icon {
             --iron-icon-fill-color: var(--color-chateau);
@@ -80,7 +80,7 @@
             @apply --layout-center-justified;
         }
         .gif-creation-header span,
-        .publish span {
+        .saving span {
             margin: 16px 0px;
             font-size: 20px;
         }
@@ -108,7 +108,7 @@
         button {
             border: none;
             outline: none;
-            font-weight: 500;
+            font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
             color: white;
@@ -157,17 +157,18 @@
         button.round {
             border-radius: 50px;
             padding: 9px 25px;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
-        .kw-share-button,
+        .save-button,
         .next,
         .close {
             background: var(--color-grassland);
             @apply --layout-self-center;
+            transition: background 150ms;
         }
 
-        .kw-share-button:hover,
+        .save-button:hover,
         .next:hover,
         .close:hover {
             background: var(--color-apple);
@@ -208,7 +209,7 @@
             font-family: var(--font-body);
         }
 
-        .publish {
+        .saving {
             @apply --layout-vertical;
             @apply --layout-center;
             @apply --layout-center-justified;
@@ -267,7 +268,6 @@
             background-color: #ff842a;
             border: none;
             outline: none;
-            font-weight: 500;
             color: white;
             padding: 12px;
             cursor: pointer;
@@ -314,11 +314,11 @@
         .success .title, .fail .title {
             font-size: 20px;
             margin-bottom: 4px;
-            font-weight: 400;
         }
         .instructions span {
             color: var(--color-stone);
             font-size: 16px;
+            line-height: 21px;
         }
         .success .composed-button {
             @apply --layout-self-stretch;
@@ -332,16 +332,20 @@
             text-transform: uppercase;
         }
         .fail button {
-            background: var(--color-red);
+            background: var(--color-cinnabar);
             border-radius: 50px;
             padding: 9px 32px;
-            font-weight: 400;
+            font-weight: bold;
+            transition: background 150ms;
+        }
+        .fail button:hover {
+            background: var(--color-flamingo);
         }
         .instructions {
             @apply --layout-vertical;
             @apply --layout-center;
             font-size: 14px;
-            margin-bottom: 12px
+            margin-bottom: 24px;
         }
         .success .instructions {
             margin: 0px;
@@ -421,7 +425,7 @@
         </button>
         <div class="header" hidden$="[[_isHeaderHidden(_page)]]">
             <iron-icon icon="reply"></iron-icon>
-            <span>[[localize('SHARE', 'Share')]]</span>
+            <span>[[localize('SAVING', 'Saving')]]</span>
         </div>
         <section class="options">
             <iron-pages id="options-pager" selected="[[_page]]" attr-for-selected="name">
@@ -459,7 +463,7 @@
 
                     <hr>
 
-                    <button type="button" name="button" class="kw-share-button round" on-tap="_shareOnKW">[[localize('SHARE_ON_WORLD', 'Kano Share')]]</button>
+                    <button type="button" name="button" class="save-button round" on-tap="_shareOnKW">[[localize('SAVE', 'Save')]]</button>
 
                     <div class="generate-url">
                         <div class="social-share-container">
@@ -472,12 +476,12 @@
                         </div>
                     </div>
                 </form>
-                <div id="publish-process" class="publish" name="publishing">
+                <div id="saving-process" class="saving" name="saving">
                     <div class="blocks" id="gif-creation-blocks"></div>
-                    <span>[[localize('PUBLISHING', 'Publishing')]] ...</span>
+                    <span>[[localize('Saving', 'Saving')]]&hellip;</span>
                 </div>
                 <div class="fail" name="failure">
-                    <div class="title">[[localize('PUBLISHING_FAILED', 'Publishing failed')]]</div>
+                    <div class="title">[[localize('SAVING_FAILED', 'Saving failed')]]</div>
                     <div class="instructions">
                         <span>[[localize('TRY_LATER', 'Please try again later.')]]</span>
                     </div>
@@ -486,9 +490,9 @@
                 <div name="success" class="success">
                     <iron-icon src="/assets/icons/success.svg"></iron-icon>
                     <div class="instructions">
-                        <h2>[[localize('PUBLISHED', 'Published')]]</h2>
-                        <span>[[localize('APP_IS_LIVE', 'Your app is now live!')]]</span>
-                        <span>[[localize('SHARE_WITH_FRIENDS', 'Share it with your friends.')]]</span>
+                        <h2>[[localize('SAVED', 'Saved')]]</h2>
+                        <span>[[localize('APP_IS_STORED', 'Your app is safely stored in \'My Creations\'.')]]</span>
+                        <span>[[localize('WANT_TO_SHARE', 'Want to share it with your friends?')]]</span>
                     </div>
                     <div class="composed-button" hidden$="[[!shareInfo.slug]]">
                         <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
@@ -531,7 +535,7 @@
                         </div>
                     </div>
                 </div>
-                <div name="publishing">
+                <div name="saving">
                     <div class="app-player-container">
                         <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
                         <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
@@ -630,7 +634,7 @@
                 if (this.splash) {
                     this.splash.cancel();
                 }
-                if (page === 'gif-creation' || page === 'publishing') {
+                if (page === 'gif-creation' || page === 'saving') {
                     let container = this.$['options-pager'].querySelector(`.iron-selected #gif-creation-blocks`);
                     this.splash = new Kano.BlockAnimation(container);
                     this.splash.init();

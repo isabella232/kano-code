@@ -190,14 +190,17 @@ Example:
     .markdown-html p {
         margin: 0px;
     }
+    [hidden] {
+        display: none !important;
+    }
     </style>
     <template>
         <slot name="editor" id="content"></slot>
-        <kano-highlight id="highlight" x="[[highlight.x]]" y="[[highlight.y]]" width="[[highlight.width]]" height="[[highlight.height]]"></kano-highlight>
-        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow">
+        <kano-highlight id="highlight" x="[[highlight.x]]" y="[[highlight.y]]" width="[[highlight.width]]" height="[[highlight.height]]" hidden$="[[idle]]"></kano-highlight>
+        <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow" hidden$="[[idle]]">
             <iron-image slot="arrow-image" src="/assets/icons/blue-arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
-        <kano-arrow target="[[beacon.target]]" bounce="0" angle="[[beacon.angle]]" offset="[[beacon.offset]]">
+        <kano-arrow target="[[beacon.target]]" bounce="0" angle="[[beacon.angle]]" offset="[[beacon.offset]]" hidden$="[[idle]]">
             <div class="beacon-wrapper" slot="arrow-image">
                 <div class="ring" id="ring" on-animationiteration="_ringAnimationIterated" on-animationstart="_ringAnimationIterated"></div>
                 <div class="beacon" id="beacon">
@@ -212,7 +215,8 @@ Example:
                           z-index="[[tooltip.zIndex]]"
                           tracking="[[tooltip.tracking]]"
                           bounce$="[[tooltip.bounce]]"
-                          on-tap="_stopPropagation">
+                          on-tap="_stopPropagation"
+                          hidden$="[[idle]]">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
                         <marked-element markdown="[[tooltip.text]]">
@@ -265,6 +269,10 @@ Example:
                     };
                 },
                 notify: true
+            },
+            idle: {
+                type: Boolean,
+                observer: '_onIdleChanged'
             }
         },
         observers: [
@@ -536,7 +544,7 @@ Example:
             this.toggleClass('animate', true, this.$.ring);
         },
         _ringAnimationIterated (e) {
-            if (this._ringAnimationCount > 4) {
+            if (this._ringAnimationCount > 4 || this.idle) {
                 return;
             }
             this._ringSoundTimeout = setTimeout(() => {
@@ -765,6 +773,12 @@ Example:
         finishStep () {
             if (this.step.play_on_end) {
                 this.playSound(`/assets/audio/sounds/${this.step.play_on_end}.wav`);
+            }
+        },
+        _onIdleChanged (idle) {
+            if (idle) {
+                clearTimeout(this._ringSoundTimeout);
+                this._ringAnimationCount = 0;
             }
         }
     });
