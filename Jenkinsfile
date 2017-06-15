@@ -1,66 +1,95 @@
 #!groovy
-node {
-    stage('check environment') {
-        if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard") {
-            env.DEV_ENV = "staging"
-        } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="pre-release") {
-            env.DEV_ENV = "production"
+@Library('kanolib') _
+
+pipeline {
+    agent any
+
+    stages {
+        stage('check environment') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard") {
+                        env.DEV_ENV = "staging"
+                    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
+                        env.DEV_ENV = "production"
+                    }
+                    env.NODE_ENV = "${env.DEV_ENV}"
+                }
+            }
         }
-        env.NODE_ENV = "${env.DEV_ENV}"
-    }
 
-    stage('checkout') {
-        checkout scm
-    }
-
-    stage('clean') {
-        sh "rm -rf app/bower_components"
-        sh "bower cache clean"
-    }
-
-    stage('install dependencies') {
-        sh "npm install --ignore-scripts"
-        sh "bower install"
-    }
-
-    stage('test') {
-        sh "gulp validate-challenges"
-        try {
-            sh "xvfb-run --auto-servernum gulp wct"
-        } catch (Exception err) {
-            slackSend color: '#ff0000', message: 'Kano Code build failed to pass tests on staging. Deploy canceled'
-            currentBuild.result = 'FAILURE'
+        stage('checkout') {
+            steps {
+                checkout scm
+            }
         }
-        // Remove the test folder
-        sh "rm -rf www"
+
+        stage('clean') {
+            steps {
+                sh "rm -rf app/bower_components"
+                sh "bower cache clean"
+            }
+        }
+
+        stage('install dependencies') {
+            steps {
+                sh "npm install --ignore-scripts"
+                sh "bower install"
+            }
+        }
+
+        stage('test') {
+            steps {
+                sh "gulp validate-challenges"
+                sh "xvfb-run --auto-servernum gulp wct"
+                // Remove the test folder
+                sh "rm -rf www"
+            }
+        }
+
+        stage('build') {
+            steps {
+                sh "gulp build"
+            }
+        }
+
+        stage('deploy') {
+            steps {
+                script {
+                    def bucket = ''
+                    if (env.BRANCH_NAME == "jenkins") {
+                        echo 'deploy skipped'
+                    } else if (env.BRANCH_NAME == "prod-lightboard") {
+                        bucket = 'apps-lightboard.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                    } else if (env.BRANCH_NAME == "lightboard") {
+                        bucket = 'apps-lightboard-staging.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                    } else if (env.NODE_ENV=="staging") {
+                        bucket = 'make-apps-staging-site.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                        sh 'gulp doc'
+                        deploy('./www-doc', 'make-apps-doc')
+                    } else if (env.NODE_ENV=="production") {
+                        bucket = 'make-apps-prod-site.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                        // Rebuild the config of the index with the kit's target env
+                        env.TARGET = "osonline"
+                        sh 'gulp copy-index'
+                        deploy('./www', 'make-apps-kit-site.kano.me')
+                    }
+                }
+            }
+        }
     }
 
-    stage('build') {
-        sh "gulp build"
-    }
-
-    stage('deploy') {
-        def bucket = ''
-        if (env.BRANCH_NAME == "jenkins") {
-            echo 'deploy skipped'
-        } else if (env.BRANCH_NAME == "lightboard") {
-            bucket = 'apps-lightboard.kano.me'
-            deploy('./www', bucket)
-            archive(bucket)
-        } else if (env.NODE_ENV=="staging") {
-            bucket = 'make-apps-staging-site.kano.me'
-            deploy('./www', bucket)
-            archive(bucket)
-            sh 'gulp doc'
-            deploy('./www-doc', 'make-apps-doc')
-        } else if (env.NODE_ENV=="production") {
-            bucket = 'make-apps-prod-site.kano.me'
-            deploy('./www', bucket)
-            archive(bucket)
-            // Rebuild the config of the index with the kit's target env
-            env.TARGET = "osonline"
-            sh 'gulp copy-index'
-            deploy('./www', 'make-apps-kit-site.kano.me')
+    post {
+        failure {
+            notify_failure_to_committers()
         }
     }
 }

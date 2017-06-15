@@ -6,17 +6,18 @@
         :host {
             display: block;
         }
-
+        :host([layout="vertical"]) .panel {
+            @apply --layout-vertical;
+            @apply --layout-start-justified;
+        }
+        :host([layout="horizontal"]) .panel {
+            @apply --layout-horizontal;
+            @apply --layout-around-justified;
+        }
         :host .panel {
+            @apply --layout-center;
             border-radius: 5px;
             padding: 4px 4px;
-
-            display: flex;
-            flex-direction: row;
-
-            align-items: center;
-            justify-content: center;
-
             color: #d0d3d9;
         }
         :host .panel .icon iron-icon,
@@ -42,10 +43,8 @@
             opacity: 0.5;
         }
         :host .panel .icon {
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
+            @apply --layout-center;
+            @apply --layout-justified;
             cursor: pointer;
         }
         :host .panel .spacer {
@@ -74,6 +73,11 @@
     Polymer({
         is: 'kano-app-player-toolbar',
         properties: {
+            layout: {
+                type: String,
+                value: 'horizontal',
+                reflectToAttribute: true
+            },
             running: {
                 type: Boolean
             }

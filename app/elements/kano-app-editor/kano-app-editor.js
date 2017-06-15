@@ -293,13 +293,10 @@ Polymer({
         }
         return false;
     },
-    setColorRange (hs, range, items = []) {
-        // Set the increment value, which will decide how much to change the lightness between all colors
-        let increment = range / (items.length + 1);
-        // Grab the HS values from the color map
-        items.forEach((item, i) => {
-            // Calculate the lightness
-            let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
+    setColorRange (hs, items = []) {
+        items.forEach((item, index) => {
+            // Higher index decreases lightness
+            const L = hs[2] - index * 2;
             // Set the color
             item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
         });
@@ -313,12 +310,11 @@ Polymer({
         }, 10);
     },
     _updateColors () {
-        let range = 33.33,
-            colorMapHS = {
+        const colorMapHS = {
                 system: [206, 100],
-                ui: [175, 100],
-                data: [278, 41],
-                hardware: [341, 83]
+                ui: [175, 100, 39],
+                data: [278, 41, 56],
+                hardware: [341, 83, 63]
             },
             grouped = this.addedParts.reduce((acc, part) => {
                 acc[part.partType] = acc[part.partType] || [];
@@ -330,7 +326,7 @@ Polymer({
 
         Object.keys(grouped).forEach((partType) => {
             let parts = grouped[partType];
-            this.setColorRange(colorMapHS[partType], range, parts);
+            this.setColorRange(colorMapHS[partType], parts);
         });
     },
     isPartDeletionDisabled () {

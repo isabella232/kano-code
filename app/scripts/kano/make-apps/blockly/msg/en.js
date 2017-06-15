@@ -63,6 +63,8 @@
     Blockly.Msg.BLOCK_DATA_FOR_EACH = "for each item in";
     Blockly.Msg.BLOCK_DATA_UPDATED = "updated";
 
+    Blockly.Msg.BLOCK_RSS_SET_SOURCE = "set source %1";
+
     Blockly.Msg.BLOCK_BOX_SET_STROKE_SIZE = "set stroke size to %1";
     Blockly.Msg.BLOCK_BOX_SET_STROKE_COLOR = "set stroke color to %1";
 
