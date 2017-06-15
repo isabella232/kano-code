@@ -1,4 +1,5 @@
 <link rel="import" href="./dongle-base.html">
+<link rel="import" href="../spring.html">
 <script>
     (function (Kano) {
         let MotionSensor, PartsAPI;
@@ -10,30 +11,43 @@
             module: 'motionSensor',
             onCreated () {
                 this._onProximityDataChanged = this._onProximityDataChanged.bind(this);
+                this._generateUpdate = this._generateUpdate.bind(this);
                 this._onGestureChanged = this._onGestureChanged.bind(this);
                 this.handlers = {
                     'proximity-data': this._onProximityDataChanged,
                     'gesture': this._onGestureChanged
                 };
                 Kano.MakeApps.PartsAPI.DongleBase.onCreated.apply(this);
+
+                this.spring = new Kano.MakeApps.Spring(1, 400, 20);
+                this.spring.snap(0);
             },
             start () {
                 this.reset();
                 PartsAPI.DongleBase.start.apply(this, arguments);
+                this._updateLoop = requestAnimationFrame(this._generateUpdate);
             },
             stop () {
                 PartsAPI.DongleBase.stop.apply(this, arguments);
+                cancelAnimationFrame(this._updateLoop);
                 this.reset();
             },
             reset () {
                 this.model.lastProximityValue = 0;
                 this._listeners = [];
             },
-            _onProximityDataChanged (e) {
-                const newValue = this.dataToPercentage(e.proximity);
+            _generateUpdate () {
+                let newValue = Math.round(this.spring.x() * 100);
+
+                newValue = newValue > 100 ? 100 : newValue;
                 this._triggerListeners(newValue, this.model.lastProximityValue);
                 this.set('model.lastProximityValue', newValue);
                 this.fire('proximity-update');
+
+                requestAnimationFrame(this._generateUpdate);
+            },
+            _onProximityDataChanged (e) {
+                this.spring.setEnd(this.dataToPercentage(e.proximity) / 100);
             },
             _onGestureChanged (e) {
                 if (e.type) {
