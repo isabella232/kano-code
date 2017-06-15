@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
@@ -48,20 +49,32 @@
                             extensions="[[story.extensions]]"
                             on-extend-story="extendStory"
                             on-next-story="goToNextStory"
+                            on-exit="_exit"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
-        <paper-dialog id="share-modal" no-cancel-on-esc-key no-cancel-on-outside-click with-backdrop>
+        <paper-dialog id="share-modal" opened={{shareOpened}} modal>
             <kano-share-modal id="share-modal-content"
                               on-confirm="confirmShare"
                               on-dismiss="dismissShare"
+                              opened="[[shareOpened]]"
                               on-next-story="goToNextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"
                               in-challenge></kano-share-modal>
-       </paper-dialog>
-       <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
+        </paper-dialog>
+        <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
         <kano-reward-modal id="reward-modal" on-second-action="_openSignup"></kano-reward-modal>
+        <kano-alert id="leave-alert"
+                    heading="[[localize('OH_OH', 'Oh oh')]]"
+                    text="[[localize('LEAVE_CHALLENGE', 'Are you sure you want to leave the challenge?')]]"
+                    entry-animation="from-big-animation"
+                    with-backdrop>
+            <div slot="actions">
+                <button class="kano-alert-primary" on-tap="_confirmExit" dialog-confirm>[[localize('CONFIRM', 'Confirm')]]</button>
+                <button class="kano-alert-secondary" dialog-dismiss>[[localize('CANCEL', 'Cancel')]]</button>
+            </div>
+        </kano-alert>
     </template>
 </dom-module>
 
@@ -88,10 +101,12 @@
             },
             addedParts: {
                 type: Array
-            }
+            },
+            customAlert: Boolean
         },
         listeners: {
             'parts-changed': '_partsChanged'
+            
         },
         observers: [
             '_addedPartsChanged(addedParts.splices)'
@@ -183,6 +198,7 @@
                     extension = this.story.extension ? this.story.id : null;
                 Kano.MakeApps.Progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id)
                     .then((progress) => this.updateExtensions(progress));
+                this.customAlert = false;
                 this._displayUserReward(hints);
             }
         },
@@ -313,6 +329,7 @@
                         HOST: Kano.Util.Router.parseQsParam(this.context.querystring, 'host'),
                         PORT: Kano.Util.Router.parseQsParam(this.context.querystring, 'port')
                     });
+                    this.customAlert = true;
                 });
         },
         extendStory (e) {
@@ -322,7 +339,7 @@
         goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
-                location.href = Kano.MakeApps.config.PROJECTS_URL;
+                this.fire('exit-confirmed');
                 return;
             }
 
@@ -332,6 +349,16 @@
         },
         _openSignup () {
             this.fire('signup');
+        },
+        _confirmExit () {
+            this.fire('exit-confirmed');
+        },
+        _exit () {
+            if (this.customAlert) {
+                this.$['leave-alert'].open();
+            } else {
+                this.fire('exit-confirmed');
+            }
         }
     });
 </script>

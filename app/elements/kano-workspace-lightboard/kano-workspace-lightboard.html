@@ -177,7 +177,7 @@
                 on-mouseup="_mouseUp"
                 on-touchend="_mouseUp"
                 on-mouseleave="_mouseUp"></button>
-        <kano-bitmap-renderer id="led-matrix" bitmap="[[bitmap]]" width="16" height="8" pixel-size="25" spacing="1"></kano-bitmap-renderer>
+        <kano-bitmap-renderer id="led-matrix" bitmap="[[bitmap]]" width="16" height="8" pixel-size="25" spacing="1" loop></kano-bitmap-renderer>
         <div id="joystick">
             <button id="lightboard-js-up"
                     class="js-dir"
@@ -228,41 +228,18 @@
                 Kano.MakeApps.PartsAPI.lightboard,
                 Kano.Behaviors.AppElementRegistryBehavior
             ],
-            observers: [
-                '_disableJoystickMouse(joystickQueue.length)'
-            ],
             properties: {
-                pressedKeys: {
-                    type: Object,
-                    value: () =>  {
-                        return {};
-                    }
-                },
-                firingEvents: {
-                    type: Object,
-                    value: () =>  {
-                        return {};
-                    }
-                },
-                joystickQueue: {
-                    type: Array,
-                    value: () => []
-                },
-                joystickMouseOff: {
-                    type: Boolean,
-                    reflectToAttribute: true
-                },
                 keyMap: {
                     type: Object,
                     value: () => {
                         return {
-                            'ArrowLeft': 'lightboard-js-left',
-                            'ArrowUp': 'lightboard-js-up',
-                            'ArrowRight': 'lightboard-js-right',
-                            'ArrowDown': 'lightboard-js-down',
-                            'a': 'lightboard-btn-A',
-                            'b': 'lightboard-btn-B',
-                            's': 'lightboard-btn-B'
+                            'ArrowLeft': 'js-left',
+                            'ArrowUp': 'js-up',
+                            'ArrowRight': 'js-right',
+                            'ArrowDown': 'js-down',
+                            'a': 'btn-A',
+                            'b': 'btn-B',
+                            's': 'btn-B'
                         };
                     }
                 }
@@ -277,7 +254,8 @@
             attached () {
                 this._onKeyDown = this._onKeyDown.bind(this);
                 this._onKeyUp = this._onKeyUp.bind(this);
-                this._stopSimulation = this._stopSimulation.bind(this);
+
+                this._keysDown = {};
 
                 document.body.addEventListener('keydown', this._onKeyDown);
                 document.body.addEventListener('keyup', this._onKeyUp);
@@ -300,120 +278,64 @@
                     e.stopPropagation();
                 }
                 let target = e.currentTarget.id;
-                if (this._isJoystick(target)) {
-                    //Don't allow simultaneous joystick action
-                    if (this.JoystickPressed) {
-                        return;
-                    }
-                    this.joystickPressed = target;
-                    this.fire(target);
-                    this.firingEvents[target] = setInterval(() => this.fire(target), 100);
-                } else {
-                    this.fire(target);
+                target = target.replace('lightboard-', '');
+                if (this._keysDown[target]) {
+                    return;
                 }
-                this.isMouseUsed = true;
-                this.$[target].classList.add('pressed');
+                this._keysDown[target] = true;
+
+                this._buttonDown({ 'button-id': target });
+                this._simulatePressed(target);
             },
             _mouseUp (e) {
                 if (e.type === 'touchend') {
                     e.stopPropagation();
                 }
                 let target = e.currentTarget.id;
-                //Check if function wasn't called by mouseleave event without click
-                if (!this.isMouseUsed) {
-                    return;
-                }
-                //Check if mouseup is on the joystick being pressed
-                if (this.joystickPressed === target) {
-                    this.joystickPressed = null;
-                }
-                //Set false if no other joystick is being held
-                if (!this.joystickPressed) {
-                    this.isMouseUsed = false;
-                }
-                this.$[target].classList.remove('pressed');
-                clearInterval(this.firingEvents[target]);
+                target = target.replace('lightboard-', '');
+
+                this._keysDown[target] = false;
+
+                this._buttonUp({ 'button-id': target });
+                this._simulateReleased(target);
             },
             _onKeyDown (e) {
                 let target = this.keyMap[e.key];
 
-                if (!target || this.pressedKeys[e.key]) {
+                if (!target || this._keysDown[target]) {
                     return;
                 }
-                this.pressedKeys[e.key] = true;
 
-                if (this._isJoystick(target)) {
-                    //Don't trigger action if mouse or touch controls joystick
-                    if (this.joystickPressed) {
-                        return;
-                    }
-                    //We use a queue of joystick keys to allow smoother transition
-                    if (this.joystickQueue.indexOf(target) === -1) {
-                        this.push('joystickQueue', target);
-                    }
-                    //Don't trigger action if there are keys in queue
-                    if (this.joystickQueue.length > 1) {
-                        return;
-                    }
-                }
-                this._simulatePressed(target, e.key);
+                this._keysDown[target] = true;
+
+                this._buttonDown({ 'button-id': target });
+                this._simulatePressed(target);
             },
             _onKeyUp (e) {
-                let target = this.keyMap[e.key],
-                    releasedIndex;
+                let target = this.keyMap[e.key];
 
-                if (this.pressedKeys[e.key]) {
-                    this.$[target].classList.remove('pressed');
-
-                    if (this._isJoystick(target)) {
-                        //Splice released key from queue and simulate next event if there's any
-                        releasedIndex = this.joystickQueue.indexOf(target);
-                        this.splice('joystickQueue', releasedIndex, 1);
-                        if (releasedIndex === 0 && this.joystickQueue.length) {
-                            this._simulatePressed(this.joystickQueue[0]);
-                        }
-                        // We keep the joystick simulation and only remove if no other arrow keys are pressed
-                        this.async(()=> {
-                            if (this.joystickQueue.length === 0) {
-                                this.$.joystick.classList.remove('pressed');
-                            }
-                        }, 300);
-                    }
-                    delete this.pressedKeys[e.key];
-                    clearInterval(this.firingEvents[target]);
+                if (!target) {
+                    return;
                 }
+
+                this._keysDown[target] = false;
+
+                this._buttonUp({ 'button-id': target });
+                this._simulateReleased(target);
             },
             _simulatePressed (target) {
-                this.$[target].classList.add('pressed');
-                if (this._isJoystick(target)) {
+                let id = 'lightboard-' + target;
+                this.$[id].classList.add('pressed');
+                if (this.isJoystick(target)) {
                     this.$.joystick.classList.add('pressed');
-                    this.fire(target);
-                    this.firingEvents[target] = setInterval(() => this.fire(target), 100);
-                } else {
-                    this.fire(target);
                 }
             },
-            _isJoystick (target) {
-                return target.search(/js/) !== -1;
-            },
-            _disableJoystickMouse (keyQueueLength) {
-                //We disable pointer events if keys control joystick
-                if (keyQueueLength > 1) {
-                    this.cancelAsync(this.pendingDisable);
-                    this.joystickMouseOff = true;
-                } else if (keyQueueLength) {
-                    //We delay the disabling to minimise DOM interaction
-                    this.pendingDisable = this.async(() => this.joystickMouseOff = true, 800);
-                } else {
-                    this.cancelAsync(this.pendingDisable);
-                    this.joystickMouseOff = false;
+            _simulateReleased (target) {
+                let id = 'lightboard-' + target;
+                this.$[id].classList.remove('pressed');
+                if (this.isJoystick(target)) {
+                    this.$.joystick.classList.remove('pressed');
                 }
-            },
-            _stopSimulation () {
-                Object.keys(this.firingEvents).forEach(target => clearInterval(this.firingEvents[target]));
-                this.cancelAsync(this.pendingDisable);
-                this.$.joystick.classList.remove('pressed');
-                this.pressedKeys = {};
             },
             stop () {
                 Kano.MakeApps.PartsAPI.lightboard.stop.apply(this);

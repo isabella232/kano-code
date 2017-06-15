@@ -87,15 +87,6 @@ Polymer({
             reflectToAttribute: true,
             observer: '_onLockdownChanged'
         },
-        hideLeaveAlert: {
-            type: Boolean,
-            value: true,
-            observer: 'setLeaveAlert'
-        },
-        showSavePrompt: {
-            type: Boolean,
-            value: false
-        },
         exitUrl: String
     },
     observers: [
@@ -221,16 +212,15 @@ Polymer({
         if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
             return;
         }
+        // Mark code as unsaved
+        if (this.prevCode) {
+            this.fire('code-unsaved');
+        }
 
         // Restart code if not in edit mode
         if (!this.editableLayout) {
             this.toggleRunning(false);
             this.toggleRunning(true);
-        }
-
-        // Mark code as unsaved
-        if (this.prevCode) {
-            this.showSavePrompt = true;
         }
 
         this.prevCode = this.code.snapshot.javascript;
@@ -244,16 +234,12 @@ Polymer({
     deletePartClicked () {
         this._removePartInitiated(this.selected);
     },
-    _openDialog (page) {
-        this.dialogPage = page;
-        this.$['alert-dialog'].open();
-    },
     _removePartInitiated (part) {
         this.toBeRemoved = part;
         if (this.checkBlockDependency(part)) {
-            return this._openDialog('external-use-warning');
+            this.$['dialog-external-use'].open();
         } else {
-            this._openDialog('confirm-delete');
+            this.$['dialog-confirm-delete'].open();
         }
     },
     _removePartReceived (e) {
@@ -262,12 +248,12 @@ Polymer({
     },
     _modalClosed (e) {
         if (e.detail.confirmed) {
-            switch (this.dialogPage) {
-                case 'confirm-delete': {
+            switch (Polymer.dom(e).rootTarget.id) {
+                case 'dialog-confirm-delete': {
                     this._dialogConfirmedDelete();
                     break;
                 }
-                case 'reset-warning': {
+                case 'dialog-reset-warning': {
                     this._dialogConfirmedReset();
                     break;
                 }
@@ -459,7 +445,7 @@ Polymer({
         return code;
     },
     reset () {
-        this._openDialog('reset-warning');
+        this.$['reset-warning'].open();
     },
     onPartSettings () {
         // No part selected, show the background editor
@@ -594,16 +580,6 @@ Polymer({
     detached () {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
-    },
-    setLeaveAlert (alert) {
-        if (alert && !window.navigator.userAgent.match('Electron')) {
-            window.onbeforeunload = () => {
-                return 'Any unsaved changes to your app will be lost. Continue?';
-                return false;
-            }
-        } else {
-            window.onbeforeunload = null;
-        }
     },
     _exportApp () {
         let savedApp = this.save(),
@@ -855,21 +831,6 @@ Polymer({
         }, 0);
     },
     _openOfflineDialog () {
-        this._openDialog('feature-not-available-offline');
-    },
-    _doExit () {
-        this.hideLeaveAlert = false;
-
-        if (this.showSavePrompt) {
-            this._openDialog('prompt-to-save');
-        } else {
-            this._confirmExit();
-        }
-    },
-    _confirmExit () {
-        window.location = this.exitUrl;
-    },
-    test () {
-        console.log('WASSUP');
+        this.$['dialog-offline'].open();
     }
 });

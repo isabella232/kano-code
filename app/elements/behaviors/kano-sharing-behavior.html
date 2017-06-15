@@ -133,9 +133,10 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
+            this.fire('share-successful');
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
-            this.set('user.saveAttempted', true);
+
             if (options && options.share) {
                 this.fire('tracking-event', {
                     name: 'shared_project',
@@ -147,8 +148,8 @@ var SharingBehavior = {
             }
             return share;
         }).catch((e) => {
-            this.set('user.saveAttempted', true);
             console.error(e);
+            this.fire('share-attempted');
             this._goToPage('failure');
         });
     },

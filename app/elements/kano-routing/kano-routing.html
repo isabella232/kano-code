@@ -42,7 +42,7 @@
     </style>
     <iron-lazy-pages selected="[[page]]" attr-for-selected="name" loading="{{loading}}" restamp>
         <template is="iron-lazy-page" name="story" path="/views/kano-view-story/kano-view-story.html">
-            <kano-view-story context="[[context]]" user="{{user}}"></kano-view-story>
+            <kano-view-story context="[[context]]" user="{{user}}" show-save-prompt={{leaveAlert}}></kano-view-story>
         </template>
         <template is="iron-lazy-page" name="tutorial" path="/views/kano-view-tutorial/kano-view-tutorial.html">
             <kano-view-tutorial context="[[context]]" user="{{user}}"></kano-view-tutorial>
@@ -81,7 +81,15 @@
           loading: {
               type: Boolean,
               observer: '_loadingChanged'
+          },
+          leaveAlert: {
+              type: Boolean,
+              value: true,
+              observer: '_onLeaveAlertChanged'
           }
+      },
+      listeners: {
+        'exit-confirmed': '_exit'
       },
       /**
        * Initialize the views
@@ -129,6 +137,28 @@
           if (oldValue === true && newValue === false) {
               this.fire('kano-routing-load-finish');
           }
+      },
+      _onLeaveAlertChanged (alert) {
+          if (alert && !window.navigator.userAgent.match('Electron')) {
+              window.onbeforeunload = () => {
+                  return 'Any unsaved changes to your app will be lost. Continue?';
+                  return false;
+              }
+          } else {
+              window.onbeforeunload = null;
+          }
+      },
+      _exit () {
+          this.leaveAlert = false;
+          //TODO refactor this when Kano2App is able to restore selected device
+          if (this._runningOnElectron()) {
+              window.history.back();
+          } else {
+              location.href = Kano.MakeApps.config.PROJECTS_URL;
+          }
+      },
+      _runningOnElectron () {
+          return navigator.userAgent.indexOf("Electron") > -1;
       }
   });
   </script>

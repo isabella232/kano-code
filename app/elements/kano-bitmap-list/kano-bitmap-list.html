@@ -39,6 +39,10 @@ Custom property | Description | Default
                 position: relative;
                 padding: 0;
             }
+            .animation-roll-padding {
+                @apply --layout-horizontal;
+                opacity: 0.6;
+            }
             sortable-js {
                 @apply --layout-horizontal;
                 @apply --layout-end;
@@ -46,7 +50,8 @@ Custom property | Description | Default
                 max-width: 100%;
                 box-sizing: border-box;
             }
-            .sortable-item {
+            .sortable-item,
+            .padding-container {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 @apply --layout-center-justified;
@@ -57,8 +62,12 @@ Custom property | Description | Default
                 border-radius: 6px;
                 box-sizing: border-box;
             }
-            .sortable-item:not(:first-of-type) {
+            .sortable-item:not(:nth-child(2)),
+            .padding-container {
                 margin-left: 22px;
+            }
+            .padding-container:nth-child(3) {
+                margin-right: 22px;
             }
             .sortable-item.sortable-ghost {
                 opacity: 0.45;
@@ -86,26 +95,6 @@ Custom property | Description | Default
             .sortable-item:not(.selected) .index-number {
                 display: none;
             }
-            .bin {
-                position: absolute;
-                top: 30px;
-                left: 0;
-                width: 312px;
-                height: 150px;
-                @apply --layout-vertical;
-                @apply --layout-center;
-                @apply --layout-center-justified;
-                display: none;
-                background-image: url(/assets/icons/layout-bin-icon.png);
-                background-size: 22px;
-                background-position: center center;
-                background-repeat: no-repeat;
-                overflow: visible;
-            }
-            .bin-list {
-                width: 100%;
-                height: 100%;
-            }
             iron-icon {
                 --iron-icon-height: 16px;
                 --iron-icon-width: 16px;
@@ -122,42 +111,104 @@ Custom property | Description | Default
                 @apply --layout-horizontal;
                 @apply --layout-center;
             }
+            .disabled {
+                opacity: 0.7;
+                pointer-events: none;
+            }
+            .running-0 {
+                opacity: 0.9;
+            }
+            .running-1 {
+                opacity: 0.8;
+            }
+            .running-2 {
+                opacity: 0.7;
+            }
+            .running-3 {
+                opacity: 0.6;
+            }
+            [hidden] {
+                display: none !important;
+            }
         </style>
             <div class="action-container">
                 <slot name="label"></slot>
-                <div on-tap="addFrame">
+                <div on-tap="addFrame" class$="[[_computeButtonClass(running)]]">
                     <slot name="add-button"></slot>
                 </div>
-                <div on-tap="duplicateFrame">
+                <div on-tap="duplicateFrame" class$="[[_computeButtonClass(running)]]">
                     <slot name="duplicate-button"></slot>
                 </div>
-                <div on-tap="deleteFrame">
+                <div on-tap="deleteFrame" class$="[[_computeButtonClass(running)]]">
                     <slot name="delete-button"></slot>
                 </div>
             </div>
-        <x-carousel id="carousel" keep-controls-visible>
+        <x-carousel id="carousel" keep-buttons-visible>
             <iron-icon icon="kano-icons:arrow" slot="left-button" carousel-control-left></iron-icon>
             <div slot="content">
-                <sortable-js group="frames" class="bin" id="bin"></sortable-js>
                 <sortable-js id="frames"
                              group="frames"
                              animation="150"
                              on-start="_sortStart"
                              on-end="_sortEnd"
-                             on-update="_sortUpdate"
-                             on-remove="_afterDelete">
-                        <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
-                            <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex)]]">
-                                <kano-bitmap-renderer width="[[width]]"
-                                                    height="[[height]]"
-                                                    spacing="1"
-                                                    pixel-size="4"
-                                                    bitmap="[[bm]]"
-                                                    on-mousedown="_registerBinPosition"
-                                                    on-tap="_selectFrame"></kano-bitmap-renderer>
-                                <div hidden$="[[!displayedIndex]]" class="index-number">[[displayedIndex]]</div>
-                            </div>
-                        </template>
+                             on-update="_sortUpdate">
+                    <div class="animation-roll-padding" hidden$="[[!running]]">
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 3)]]"></kano-bitmap-renderer>
+                        </div>
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 2)]]"></kano-bitmap-renderer>
+                        </div>
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 1)]]"></kano-bitmap-renderer>
+                        </div>
+                    </div>
+                    <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
+                        <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex, running)]]">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[bm]]"
+                                                  on-tap="_selectFrame"></kano-bitmap-renderer>
+                            <div hidden$="[[!displayedIndex]]" class="index-number">[[displayedIndex]]</div>
+                        </div>
+                    </template>
+                    <div class="animation-roll-padding" hidden$="[[!running]]">
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeRightEdgeBitmaps(running, 0)]]"></kano-bitmap-renderer>
+                        </div>
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeRightEdgeBitmaps(running, 1)]]"></kano-bitmap-renderer>
+                        </div>
+                        <div class="padding-container">
+                            <kano-bitmap-renderer width="[[width]]"
+                                                  height="[[height]]"
+                                                  spacing="1"
+                                                  pixel-size="4"
+                                                  bitmap="[[_computeRightEdgeBitmaps(running, 2)]]"></kano-bitmap-renderer>
+                        </div>
+                    </div>
                 </sortable-js>
             </div>
             <iron-icon class="end-arrow" icon="kano-icons:arrow" slot="right-button" carousel-control-right></iron-icon>
@@ -194,7 +245,13 @@ Custom property | Description | Default
                 displayedIndex: {
                     type: Number,
                     computed: '_computeDisplayedIndex(selectedIndex)'
-                }
+                },
+                running: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_onRunningChanged'
+                },
+                moveDelay: Number
             },
             observers: [
                 '_selectedChanged(selected.*)',
@@ -203,88 +260,37 @@ Custom property | Description | Default
             _computeDisplayedIndex (selectedIndex) {
                 return selectedIndex + 1;
             },
+            _computeButtonClass (running) {
+                return running ? 'disabled' : '';
+            },
             _selectedChanged (e) {
                 if (this.sorting) {
                     return;
                 }
-                let index = this.selectedIndex,
-                    splices;
 
-                this.async(() => {
-                    let target = Polymer.dom(this.root).querySelector('.selected');
-                    if (!target) {
-                        return;
-                    }
-                    this.$.carousel.moveTo(target.offsetLeft + target.offsetWidth / 2);
-                }, 100);
+                this.async(this._moveToSelected);
 
                 //Values of the 'selected' pixel array changed, update the bitmaps array
                 if (e.path === 'selected.splices') {
-                    splices = e.value;
+                    const splices = e.value;
                     splices.indexSplices.forEach(splice => {
-                        this.splice(`bitmaps.${index}`, splice.index, 1, this.selected[splice.index]);
+                        this.splice(`bitmaps.${this.selectedIndex}`, splice.index, 1, this.selected[splice.index]);
                     });
                 }
             },
             _bitmapsChanged () {
                 if (!this.selected) {
-                    this.selected = this.bitmaps[0].slice(0);
+                    this.selected = this.bitmaps[0] && this.bitmaps[0].slice(0);
                 }
             },
             _sortStart (e) {
                 if (e.detail) {
                     this.sorting = true;
-                    this.$.bin.style.left = this.binPosition + 'px';
-                    
-                    this.$.frames.animate([{
-                        transform: 'translateY(0%)'
-                    }, {
-                        transform: 'translateY(20%)'
-                    }], {
-                        duration: 150,
-                        fill: 'forwards'
-                    });
-
-                    this.$.bin.style.display = 'flex';
-                    this.$.bin.animate([{
-                        opacity: 0,
-                        transform: 'translateY(0%)'
-                    }, {
-                        opacity: 1,
-                        transform: 'translateY(-55%)'
-                    }], {
-                        duration: 150,
-                        fill: 'forwards'
-                    });
                     this._select(e.detail.item.children[0]);
                 }
             },
             _sortEnd (e) {
-                this.debounce('sort-end', () => {
-                    this.sorting = false;
-
-                    this.$.frames.animate([{
-                        transform: 'translateY(20%)'
-                    }, {
-                        transform: 'translateY(0%)'
-                    }], {
-                        duration: 150,
-                        fill: 'forwards'
-                    });
-
-                    this.$.bin.animate([{
-                        opacity: 1,
-                        transform: 'translateY(-55%)'
-                    }, {
-                        opacity: 0,
-                        transform: 'translateY(0%)'
-                    }], {
-                        duration: 150,
-                        fill: 'forwards'
-                    }).onfinish = () => {
-                        this.$.bin.style.display = 'none';
-                    }
-                }, 100);
+                this.sorting = false;
             },
             _sortUpdate (e) {
                 if (e.detail) {
@@ -292,24 +298,9 @@ Custom property | Description | Default
                     this.selected = this.bitmaps[this.selectedIndex].slice(0);
                 }
             },
-            _afterDelete() {
-                this.debounce('sort-remove', () => {
-                    if (this.bitmaps.length === 0) {
-                        this.addFrame();
-                    } else {
-                        this.selectedIndex = this.selectedIndex === 0 ? this.selectedIndex : this.selectedIndex - 1;
-                        this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
-                    }
-                }, 100);
-            },
             _selectFrame (e) {
                 let event = Polymer.dom(e);
                 this._select(event.localTarget);
-            },
-            _registerBinPosition (e) {
-                let event = Polymer.dom(e),
-                    sortableItem = event.localTarget.parentElement;
-                this.binPosition = sortableItem.offsetLeft - sortableItem.offsetWidth + 6;
             },
             _select (target) {
                 let model = this.$.repeat.modelForElement(target),
@@ -317,39 +308,74 @@ Custom property | Description | Default
                 this.selected = bitmap.slice(0);
                 this.selectedIndex = this.bitmaps.indexOf(bitmap);
             },
-            _computeFrameSelectedClass (index, selectedIndex) {
-                return index === selectedIndex ? 'selected' : '';
+            _computeFrameSelectedClass (index, selectedIndex, running) {
+                let c = selectedIndex === index ? 'selected' : '';
+                if (!running) {
+                    return c;
+                } else {
+                    return c + ` running-${Math.abs(selectedIndex - index)}`;
+                }
             },
             duplicateFrame () {
                 const copy = this.bitmaps[this.selectedIndex].slice(0);
-                this.splice('bitmaps', this.selectedIndex, 0, copy);
                 this.selectedIndex++;
+                this.splice('bitmaps', this.selectedIndex, 0, copy);
                 this.set('selected', copy.slice(0));
             },
             addFrame () {
                 this.debounce('add-frame', () => {
-                    let frame = [];
-
-                    for (let i = 0; i < this.width * this.height; i++) {
-                        frame.push('#000000');
-                    }
+                    let frame = this._getEmptyFrame();
 
                     if (this.bitmaps.length) {
                         this.selectedIndex++;
-                        this.async(() => this.$.carousel.scrollToEnd(), 100);
                     } else {
                         this.selectedIndex = 0;
-                        this.set('selected', frame.slice(0));
                     }
 
-                    this.push('bitmaps', frame);
-                    this.set('selected', frame);
+                    this.splice('bitmaps', this.selectedIndex, 0, frame);
+                    this.set('selected', frame.slice(0));
+
                     this.notifyChange('light-animation-add-frame');
                 }, 100);
             },
             deleteFrame () {
                 this.splice('bitmaps', this.selectedIndex, 1);
-                this._afterDelete();
+
+                if (this.bitmaps.length === 0) {
+                    this.addFrame();
+                } else {
+                    this.selectedIndex = this.selectedIndex === 0 ? this.selectedIndex : this.selectedIndex - 1;
+                    this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
+                }
+            },
+            _moveToSelected () {
+                const target = Polymer.dom(this.root).querySelector('.selected');
+                if (target) {
+                    this.$.carousel.moveTo(target.offsetLeft + target.offsetWidth / 2, this.moveDelay);
+                }
+            },
+            _onRunningChanged (running, wasRunning) {
+                if (!running && wasRunning) {
+                    this._moveToSelected();
+                }
+            },
+            _getEmptyFrame () {
+                const emptyFrame = [];
+                for (let i = 0; i < this.width * this.height; i++) {
+                    emptyFrame.push('#000000');
+                }
+                return emptyFrame;
+            },
+            //to avoid jumps when animation is playing, we duplicate three frames at the extremes of the list
+            _computeLeftEdgeBitmaps (running, index) {
+                if (running) {
+                    return this.bitmaps[this.bitmaps.length - index] || this._getEmptyFrame();
+                }
+            },
+            _computeRightEdgeBitmaps (running, index) {
+                if (running) {
+                    return this.bitmaps[index] || this._getEmptyFrame();
+                }
             }
         });
     </script>

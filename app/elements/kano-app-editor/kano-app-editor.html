@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-backdrop.html">
+<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
@@ -19,10 +20,8 @@
 <link rel="import" href="../kano-background-editor/kano-background-editor.html">
 <link rel="import" href="../kano-root-view/kano-root-view.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../kano-bitmap-renderer/kano-bitmap-renderer.html">
 <link rel="import" href="../kano-code-display/kano-code-display.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
-<link rel="import" href="../kano-animation/animations/from-big-animation.html">
 <link rel="import" href="../kano-style/dialog.html">
 <!--
 `kano-app-editor`
@@ -221,7 +220,7 @@ Example:
             <div name="code" class="editor" id="blocks-panel">
                 <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
                 <div main class="main">
-                    <slot name="above-code" on-exit="_doExit"></slot>
+                    <slot name="above-code"></slot>
                     <kano-root-view
                         id="root-view"
                         parts="{{addedParts}}"
@@ -235,69 +234,38 @@ Example:
                 </div>
             </div>
         </section>
-        <paper-dialog id="alert-dialog" entry-animation="from-big-animation" with-backdrop on-iron-overlay-closed="_modalClosed" on-share="test">
-            <iron-pages attr-for-selected="name" selected="[[dialogPage]]">
-                <div name="confirm-delete" class="dialog-content">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div id="dialog-text">
-                        <h2>[[localize('ARE_YOU_SURE', 'Are you sure')]]</h2>
-                        <div>[[localize('ABOUT_TO_DELETE', 'You are about to delete')]] '[[toBeRemoved.name]]'</div>
-                        <div>[[localize('WANT_TO_DO_THIS', 'Are you sure you want to do this?')]]</div>
-                        <div class="buttons" id="buttons">
-                            <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
-                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
-                        </div>
-                    </div>
-                </div>
-                <div name="external-use-warning" class="dialog-content">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div id="dialog-text">
-                        <h2>[[localize('OH_OH', 'Oh oh')]]&hellip;</h2>
-                        <div>[[localize('CANT_DELETE', 'You can\'t delete')]] '[[toBeRemoved.name]]' [[localize('USED_IN_CODE', 'because it is used in the code')]]</div>
-                        <div class="buttons" id="buttons">
-                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
-                        </div>
-                    </div>
-                </div>
-                <div name="reset-warning" class="dialog-content">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div id="dialog-text">
-                        <h2>[[localize('RESET', 'Reset')]]</h2>
-                        <p>[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]</p>
-                        <div class="buttons" id="buttons">
-                            <button dialog-confirm class="confirm">[[localize('Confirm', 'Confirm')]]</button>
-                            <button dialog-dismiss class="cancel">[[localize('CANCEL', 'Cancel')]]</button>
-                        </div>
-                    </div>
-                </div>
-                <div name="feature-not-available-offline" class="dialog-content">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div id="dialog-text">
-                        <h2>[[localize('SHARING_NOT_AVAILABLE', "This feature isn't available offline")]]</h2>
-                        <div>[[localize('CONNECT_TO_INTERNET', "Make sure you're connected to the internet.")]]</div>
-                        <div class="buttons" id="buttons">
-                            <button dialog-confirm class="confirm">[[localize('GOT_IT', 'Got it')]]</button>
-                        </div>
-                    </div>
-                </div>
-                <div name="prompt-to-save" class="dialog-content">
-                    <div id="badge">
-                        <iron-icon src="/assets/icons/exclamation.svg"></iron-icon>
-                    </div>
-                    <div id="dialog-text">
-                        <slot name="save-prompt-dialog-content"></slot>
-                    </div>
-                </div>
-            </iron-pages>
-        </paper-dialog>
+        <kano-alert id="dialog-confirm-delete"
+                    heading="[[localize('ARE_YOU_SURE', 'Are you sure')]]"
+                    text="[[localize('ABOUT_TO_DELETE', 'You are about to delete')]] '[[toBeRemoved.name]]'"
+                    entry-animation="from-big-animation"
+                    on-iron-overlay-closed="_modalClosed"
+                    with-backdrop>
+        </kano-alert>
+        <kano-alert id="dialog-external-use"
+                    heading="[[localize('OH_OH', 'Oh oh')]]&hellip;"
+                    text="[[localize('CANT_DELETE', 'You can\'t delete')]] '[[toBeRemoved.name]]' [[localize('USED_IN_CODE', 'because it is used in the code')]]"
+                    entry-animation="from-big-animation"
+                    with-backdrop>
+            <div slot="actions">
+                <button class="kano-alert-secondary" dialog-dismiss>Cancel</button>
+            </div>
+        </kano-alert>
+        <kano-alert id="dialog-reset-warning"
+                    heading="[[localize('RESET', 'Reset')]]"
+                    text="[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]"
+                    entry-animation="from-big-animation"
+                    on-iron-overlay-closed="_modalClosed"
+                    with-backdrop>
+        </kano-alert>
+        <kano-alert id="dialog-offline"
+                    heading="[[localize('SHARING_NOT_AVAILABLE', "This feature isn't available offline")]]"
+                    text="[[localize('CONNECT_TO_INTERNET', "Make sure you're connected to the internet.")]]"
+                    entry-animation="from-big-animation"
+                    with-backdrop>
+            <div slot="actions">
+                <button class="kano-alert-primary" dialog-confirm>[[localize('GOT_IT', 'Got it')]]</button>
+            </div>
+        </kano-alert>
         <paper-dialog id="edit-part-dialog"t
                       entry-animation="from-big-animation"
                       on-iron-overlay-closed="_partEditorDialogClosed"

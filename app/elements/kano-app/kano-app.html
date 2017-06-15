@@ -161,6 +161,11 @@ Example:
             this.apiUrl = Kano.MakeApps.config.API_URL;
             let initialiseSDK = () => {
                 Kano.MakeApps.sdk.auth.initSession((err, user) => {
+                    /**
+                     * Set the token to allow this to be used by the tracking
+                     * behavior
+                     */
+                    this.token = Kano.MakeApps.sdk.auth.getToken();
                     if (user) {
                         this.set('user', user);
                         this._populateUser();
@@ -170,6 +175,12 @@ Example:
                     } else {
                         this.trackVisitType('Logged out');
                     }
+                    /**
+                     * Initialize the tracking only after initializing the sdk
+                     * to ensure that the token is used when starting the
+                     * session, if applicable
+                     */
+                    this._initializeTracking();
                 });
             };
             if (this.offline) {
@@ -231,9 +242,15 @@ Example:
             this.$.auth.reset();
             Kano.MakeApps.Progress.reset();
             clearInterval(this._pollingIntervalId);
+            /**
+             * Attach the token to the event to allow this to be associated with
+             * the user, and then clear the token
+             */
             this.fire('tracking-event', {
-                name: 'logged_out'
+                name: 'logged_out',
+                token: this.token
             });
+            this.token = null;
         },
         _login (e) {
             if (e && e.detail) {
@@ -272,6 +289,7 @@ Example:
         _onLogin (e) {
             let data = e.detail;
             Kano.MakeApps.sdk.auth.setToken(data.token);
+            this.token = data.token;
             data.user.notifications = [];
             this.user = data.user;
             this._populateUser();
@@ -310,7 +328,7 @@ Example:
                 });
         },
         _updateUserProgress (e) {
-            let progress = e.detail 
+            let progress = e.detail
                            && e.detail.levels
                            && e.detail.levels.progress;
             if (!progress) {
