@@ -89,6 +89,10 @@
             },
             addedParts: {
                 type: Array
+            },
+            isChallenge: {
+                type: Boolean,
+                value: true
             }
         },
         listeners: {
@@ -197,8 +201,13 @@
         _doDisplayUserReward (hints, gamificationEnabled) {
             let headers = new Headers(),
                 flags = Kano.MakeApps.config.getFlags(),
-                payload,
                 fakeGamificationData,
+                payload = {
+                    name: 'kano-code-challenge-completed',
+                    detail: {
+                        id: this.story.id
+                    }
+                },
                 trackingData = {
                     id: this.story.id,
                     name: this.story.name
@@ -210,69 +219,55 @@
                 type: 'complete',
                 data: trackingData
             });
-            if (Kano.MakeApps.sdk.auth.getToken()) {
-                headers.append('Content-Type', 'application/json');
-                headers.append('Authorization', Kano.MakeApps.sdk.auth.getToken());
-                payload = {
-                    name: 'kano-code-challenge-completed',
-                    detail: {
-                        id: this.story.id
+            this._triggerGamificationEngine(payload)
+                .then(res => {
+                    if (gamificationEnabled) {
+                        this._trackRewards(res.update);
+                        this.$['reward-modal'].open(res, this.user);
+                        this.fire('update-user-progress', res.update);
+                    } else {
+                        this.$['challenge-completed'].set('hints', hints);
+                        this.$['challenge-completed'].open();
                     }
-                };
-                fetch(`${Kano.MakeApps.config.API_URL}/progress`, {
-                        method: 'POST',
-                        headers,
-                        body: JSON.stringify(payload)
-                    }).then(r => r.json())
-                    .then(res => {
-                        if (gamificationEnabled) {
-                            this._trackRewards(res.update);
-                            this.$['reward-modal'].open(res, this.user);
-                            this.fire('update-user-progress', res.update);
-                        } else {
-                            this.$['challenge-completed'].set('hints', hints);
-                            this.$['challenge-completed'].open();
-                        }
-                        this.playSound('/assets/audio/samples/challenge_complete.wav');
-                    });
-            } else {
-                //send fake progress data if there's no registered user
-                //TODO -- change this when specs are ready
-                fakeGamificationData = {
-                    "update": {
-                        "levels": {
-                            "progress": {
-                                "level": 1
-                            },
-                            "changes": {
-                                "total-xp": {
-                                    "oldValue": 0,
-                                    "newValue": 100
+                    this.playSound('/assets/audio/samples/challenge_complete.wav');
+                })
+                .catch(res => {
+                    let fakeGamificationData = {
+                        'update': {
+                            'levels': {
+                                'progress': {
+                                    'level': 1
                                 },
-                                "level": {
-                                    "oldValue": 1,
-                                    "newValue": 2
-                                },
-                                "xp-offset": {
-                                    "oldValue": 0,
-                                    "newValue": 100
-                                },
-                                "next-threshold": {
-                                    "oldValue": 100,
-                                    "newValue": 260,
+                                'changes': {
+                                    'total-xp': {
+                                        'oldValue': 0,
+                                        'newValue': 100
+                                    },
+                                    'level': {
+                                        'oldValue': 1,
+                                        'newValue': 2
+                                    },
+                                    'xp-offset': {
+                                        'oldValue': 0,
+                                        'newValue': 100
+                                    },
+                                    'next-threshold': {
+                                        'oldValue': 100,
+                                        'newValue': 260
+                                    }
                                 }
                             }
                         }
                     }
-                };
-                if (gamificationEnabled) {
-                    this.$['reward-modal'].open(fakeGamificationData);
-                } else {
-                    this.$['challenge-completed'].set('hints', hints);
-                    this.$['challenge-completed'].open();
-                }
-                this.playSound('/assets/audio/samples/challenge_complete.wav');
-            }
+                    if (gamificationEnabled) {
+                        this.$['reward-modal'].open(fakeGamificationData);
+                    } else {
+                        this.$['challenge-completed'].set('hints', hints);
+                        this.$['challenge-completed'].open();
+                    }
+                    this.playSound('/assets/audio/samples/challenge_complete.wav');
+                });
+
         },
         _trackRewards (update) {
             let levelChanges = update.levels && update.levels.changes,
@@ -322,7 +317,7 @@
             page.redirect(`/story/${extensionId}`);
         },
         _runningOnElectron () {
-            return navigator.userAgent.indexOf("Electron") > -1;
+            return navigator.userAgent.indexOf('Electron') > -1;
         },
         goToNextStory (e) {
             let storyId;

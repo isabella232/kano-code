@@ -21,6 +21,10 @@ var SharingBehavior = {
                 return {};
             },
             notify: true
+        },
+        isChallenge: {
+            type: Boolean,
+            value: false
         }
     },
     listeners: {
@@ -149,12 +153,42 @@ var SharingBehavior = {
                 this._goToPage('success');
             }
             return share;
+        }).then((share) => {
+            // Check if it's a creation you made from scratch or a challenge
+            if (!this.isChallenge) {
+                // Hit the gamification engine
+                let payload = {
+                    name: 'share-creation',
+                    detail: {
+                        id: share.id
+                    }
+                }
+                this._triggerGamificationEngine(payload);
+            }
+            return share;
         }).catch((e) => {
             console.error(e);
             this._goToPage('failure');
         });
     },
-
+    _triggerGamificationEngine (payload) {
+        return new Promise(function (resolve, reject) {
+            let headers = new Headers(),
+                token = Kano.MakeApps.sdk.auth.getToken();
+            if (token) {
+                headers.append('Content-Type', 'application/json');
+                headers.append('Authorization', token);
+                fetch(`${Kano.MakeApps.config.API_URL}/progress`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                }).then(r => r.json())
+                .then(resolve);
+            } else {
+                reject(new Error('No auth token found.'));
+            }
+        });
+    },
     /**
     * Opens the sharing modal and shares the app
     */
