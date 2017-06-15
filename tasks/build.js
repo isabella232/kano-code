@@ -55,9 +55,14 @@ module.exports = (gulp, $) => {
         return file.path.indexOf('config.html') !== -1;
     }
 
-    function notBowerComponentHtml(file) {
-        let needTranspile = file.path.split('.').pop() === 'html' && notBowerComponent(file);
-        return needTranspile;
+    function requiresCrisping(file) {
+        let needTranspile = file.path.split('.').pop() === 'html' && notBowerComponent(file),
+            /**
+             * We don't want to preprocess the app's main index as this will
+             * interfere with the htmlReplacement
+             */
+            notIndex = file.path.indexOf('app/index.html') === -1;
+        return needTranspile && notIndex;
     }
 
     gulp.task('external-play-bundle', () => {
@@ -69,7 +74,7 @@ module.exports = (gulp, $) => {
 
     gulp.task('copy-all', () => {
         return gulp.src('app/**/*', { base: 'app' })
-            .pipe($.if(notBowerComponentHtml, $.crisper({ scriptInHead: false })))
+            .pipe($.if(requiresCrisping, $.crisper({ scriptInHead: false })))
             .pipe($.if(isConfig, $.htmlReplace($.utils.getHtmlReplaceOptions())))
             .pipe($.if('*.html', $.utils.htmlAutoprefixerStream()))
             .pipe($.if(notBowerComponentJs, $.transpile()))
