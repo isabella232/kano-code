@@ -112,9 +112,6 @@
             '_addedPartsChanged(addedParts.splices)'
         ],
         ready () {
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
             this.hardwareAPI.on('new-part-request', (e) => {
                 this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
@@ -125,7 +122,6 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
         },
         attached () {
             Kano.MakeApps.Stories.getById(this.context.params.id)
@@ -325,10 +321,6 @@
             Kano.MakeApps.Stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
                     this.set('scene', scene);
-                    this.set('scene.modeConfig', {
-                        HOST: Kano.Util.Router.parseQsParam(this.context.querystring, 'host'),
-                        PORT: Kano.Util.Router.parseQsParam(this.context.querystring, 'port')
-                    });
                     this.customAlert = true;
                 });
         },

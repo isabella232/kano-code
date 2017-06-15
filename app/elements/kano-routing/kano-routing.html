@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
+<link rel="import" href="../../scripts/kano/util/router.html">
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
@@ -76,6 +78,7 @@
           page: {
               type: String,
               reflectToAttribute: true,
+              observer: '_onPageChanged',
               notify: true
           },
           loading: {
@@ -147,6 +150,12 @@
           } else {
               window.onbeforeunload = null;
           }
+      },
+      _onPageChanged () {
+          Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+          Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+          Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
+          Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
       },
       _exit () {
           this.leaveAlert = false;

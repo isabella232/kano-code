@@ -86,8 +86,7 @@ Polymer({
             type: Boolean,
             reflectToAttribute: true,
             observer: '_onLockdownChanged'
-        },
-        exitUrl: String
+        }
     },
     observers: [
         'selectedPartChanged(selected.*)',
