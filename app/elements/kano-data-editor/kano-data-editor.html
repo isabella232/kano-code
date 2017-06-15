@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
@@ -8,30 +7,37 @@
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../inputs/kano-input/kano-input.html">
+<link rel="import" href="../inputs/kano-input-text/kano-input-text.html">
+<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
+<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
 <link rel="import" href="../kano-data-display/kano-data-display.html">
+<link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
 <link rel="import" href="./kano-what-is-json.html">
 <dom-module id="kano-data-editor">
-    <style>
-    @keyframes spin { 100% { transform: rotate(-360deg); } }
+    <style include="kano-code-shared-styles">
     :host {
         display: block;
-        @apply --layout-vertical;
-        color: #fff;
+        overflow: hidden;
     }
-    :host .content {
-        @apply --layout-vertical;
+    .content {
+        box-sizing: border-box;
+        max-height: var(--kano-part-editor-content-height);
+        padding: var(--kano-part-editor-padding);
+        overflow: auto;
     }
     :host .config {
-        padding: 0 0 36px;
-        flex: 1 0 auto;
         @apply --layout-vertical;
+        @apply --layout-flex-auto;
     }
     :host .line {
-        @apply --layout-horizontal;
-        @apply --layout-center;
-        margin-top: 12px;
-        margin-bottom: 20px;
+        @apply --layout-vertical;
+        margin-bottom: var(--kano-part-editor-input-margin);
         text-align: left;
+    }
+    kano-input,
+    kano-input-text {
+        margin-bottom: var(--kano-part-editor-input-margin);
     }
     #refresh-toggle paper-toggle-button {
         --paper-toggle-button-label-color: #fff;
@@ -44,6 +50,10 @@
         margin: 16px 8px 16px 0px;
         padding: 0;
         transition: transform ease-out 400ms;
+    }
+    :host .refresh-button iron-image {
+        width: 18px;
+        height: 18px;
     }
     :host .refresh-button:hover {
         transform: rotate(-45deg);
@@ -58,8 +68,8 @@
         --paper-spinner-color: #fff;
     }
     #refresh-frequency paper-dropdown-menu {
-        @apply --layout-flex;
         @apply --layout-vertical;
+        border-radius: 3px;
         background: var(--color-abbey);
 
         --paper-dropdown-menu-ripple: {
@@ -85,37 +95,41 @@
             overflow: hidden;
             background-color: var(--color-chateau);
             font-size: 14px;
-            padding: 4px 8px 2px;
+            padding: 9px 8px 7px;
         };
         --paper-input-container-underline: {
             border: none;
         };
         --paper-input-container-underline-focus: {
             border: none;
-        }; 
+        };
+
+        --paper-dropdown-menu-icon: {
+            fill: #9b61bd;
+        };
     }
     :host .line label {
         width: 80px;
         color: rgba(255, 255, 255, 0.5);
         text-align: left;
-        width: var(--kano-part-settings-label-width);
-        font-size: 14px;
+        text-transform: uppercase;
+        font-size: 12px;
+        line-height: 12px;
         font-family: var(--font-body);
         font-weight: bold;
-        margin-right: 40px;
+        margin-bottom: 8px;
     }
     :host.loading .refresh-button iron-image {
         transform-origin: 46% 50%;
         animation: spin 1s linear infinite;
     }
     .dropdown-content {
-        background-color: var(--color-dark);
+        background-color: var(--color-black);
         color: #fff;
         padding: 0;
-        margin-top: 4px;
         --paper-menu-button-content: {
             padding: 3px;
-            background-color: var(--color-dark);
+            background-color: var(--color-black);
         };
         --paper-dropdown-menu-button: {
              left: 0;
@@ -136,7 +150,23 @@
             font-weight: bold;
             font-size: 14px;
             box-sizing: border-box;
-            padding: 7px 8px 3px;
+            padding: 9px 8px 7px;
+            border-bottom: 1px solid var(--kano-app-part-editor-border);
+        };
+
+        --paper-item-focused: {
+            background-color: #9b61bd;
+        };
+
+    }
+    .dropdown-content paper-item:last-of-type {
+        --paper-item: {
+            min-height: 36px;
+            font-family: var(--font-body);
+            font-weight: bold;
+            font-size: 14px;
+            box-sizing: border-box;
+            padding: 9px 8px 7px;
         };
     }
     :host .dropdown-content paper-item:hover {
@@ -144,21 +174,10 @@
             color: #fff;
         };
     }
-    paper-dialog-scrollable {
-        min-height: 360px;
-        @apply(--shadow-elevation-2dp);
-        --paper-dialog-scrollable: {
-            margin: 16px 0;
-            padding: 0 48px;
-        };
-        --divider-color: #202428;
-    }
-    :host .data-browser {
-        position: relative;
-    }
     :host .data-header {
         @apply --layout-horizontal;
         @apply --layout-justified;
+        padding: 0 8px;
     }
     :host .loading-overlay {
         position: absolute;
@@ -172,9 +191,11 @@
         background-color: rgba(255, 255, 255, 0.4);
     }
     :host .data-browser {
-        position: relative;
         @apply --layout-vertical;
-        background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
+        position: relative;
+        border-radius: 6px;
+        margin: 16px 0 24px;
+        border: 1px solid var(--kano-app-part-editor-border);
     }
     :host .param-description {
         font-family: var(--font-body);
@@ -189,8 +210,8 @@
         right: 15px;
     }
     :host .info-button {
-        width: 24px;
-        height: 24px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         border: 0;
         background-color: #fff;
@@ -203,11 +224,15 @@
     *[hidden] {
         display: none !important;
     }
+    @keyframes spin {
+        100% {transform: rotate(-360deg);}
+    }
     </style>
     <template>
+        <kano-part-editor-topbar icon="[[element.type]]" label="[[element.label]]" theme="[[theme]]"></kano-part-editor-topbar>
         <div class="content">
             <div class="config">
-                <kano-input type="text" label="Name" value="{{selected.name}}"></kano-input>
+                <kano-input-text label="Name" value="{{selected.name}}" theme="[[theme]]"></kano-input-text>
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
                             <kano-input id="[[param.key]]"
                                         type="[[param.type]]"
@@ -215,7 +240,7 @@
                                         options="[[param.options]]"
                                         value="[[_computeInputValue(param.key, param.value, selected.config)]]"
                                         on-change="paramChanged"
-                                        description="[[param.description]]"></kano-input>
+                                        theme="[[theme]]"></kano-input>
                 </template>
                 <div class="line" id="refresh-frequency">
                     <label>Refresh</label>
@@ -230,11 +255,10 @@
                     </paper-dropdown-menu>
                 </div>
             </div>
-            <paper-dialog-scrollable>
                 <div class="data-browser" id="data-browser">
                     <div class="data-header">
                         <button type="button" class="refresh-button" on-tap="refresh" id="refresh-button">
-                            <iron-image src="/assets/icons/refresh-icon.svg" width="24" height="24" sizing="contain"></iron-image>
+                            <iron-image src="/assets/icons/refresh-icon.svg" sizing="contain"></iron-image>
                         </button>
                         <button type="button" class="info-button" id="info-button" on-tap="openJsonInfo">?</button>
                     </div>
@@ -243,10 +267,8 @@
                     </template>
                     <paper-tooltip position="left" for="info-button">Learn more about JSON</paper-tooltip>
                     <kano-what-is-json id="what-is-json"></kano-what-is-json>
-                    
                     <paper-spinner-lite active="[[loading]]"></paper-spinner-lite>
                 </div>
-            </paper-dialog-scrollable>
         </div>
     </template>
 </dom-module>
@@ -264,11 +286,15 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
+            },
+            theme: {
+                type: String,
+                value: "#9b61bd"
             }
         },
         observers: [
             'computeDataArray(selected.data.*)',
-            'computeRefreshEnabled(selected.refreshFreq)',
+            'computeRefreshEnabled(selected.refreshFreq)'
         ],
         attached () {
             this.jsonInfo = this.$['what-is-json'];
@@ -307,6 +333,9 @@
             this.loading = true;
             this.selected.refresh().then((data) => {
                 this.set('selected.data', data);
+                this.loading = false;
+            }).catch(() => {
+                this.set('selected.data', {});
                 this.loading = false;
             });
             this.notifyChange('manual-refresh', {});

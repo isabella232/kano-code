@@ -31,6 +31,9 @@
                     .then((data) => {
                         this.set('model.data', data);
                         this.fire('update');
+                        this.set('model.connected', true);
+                    }).catch((e) => {
+                        this.set('model.connected', false);
                     });
             },
             setConfig (name, value) {

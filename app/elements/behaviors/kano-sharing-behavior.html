@@ -63,11 +63,13 @@ var SharingBehavior = {
         trackingData = {},
         taggableParts = [
             'gyro-accelerometer',
-            'motion-sensor'
+            'motion-sensor',
+            'speaker',
+            'microphone'
         ],
         hardware = this.shareInfo.parts.filter(part => {
             return part.partType === 'hardware' &&
-                   taggableParts.indexOf(part.partType) >= 0;
+                   taggableParts.indexOf(part.type) >= 0;
         }).map(part => {
             return { product: part.type };
         });
@@ -137,8 +139,10 @@ var SharingBehavior = {
                 throw new Error('Could not share the app');
             }
         }).then((share) => {
+            this.fire('share-successful');
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
+
             if (options && options.share) {
                 this.fire('tracking-event', {
                     name: 'shared_project',

@@ -52,6 +52,11 @@
         </template>
     </template>
     <script>
+        var themeColors = {
+            'ui': '#00d9c7',
+            'data': '#9b61bd',
+            'hardware': '#ef5285'
+        };
         Polymer({
             is:'kano-part-list-item',
             behaviors: [Polymer.Templatizer],
@@ -76,7 +81,7 @@
                 }
             },
             _applyColor () {
-                this.$.icon.style.fill = this.model.colour;
+                this.$.icon.style.fill = themeColors[this.model.partType];
             },
             _unApplyColor () {
                 this.$.icon.style.fill = '#8F9195';
@@ -85,7 +90,11 @@
                 return connected === false ? 'disconnected' : '';
             },
             _computeLabel (connected) {
-                return connected === false ? '(disconnected)' : '';
+                if (this.model.partType === 'data') {
+                    return connected === false ? '(no Internet connection)' : '';
+                } else if (this.model.partType === 'hardware') {
+                    return connected === false ? '(disconnected)' : '';
+                }
             },
             _typeChanged (type) {
                 let template = this.$[type];
@@ -96,7 +105,9 @@
 
                 this.templatize(template);
 
-                this.instance = this.stamp();
+                this.instance = this.stamp({
+                    model: this.model
+                });
 
                 while (this.$.controls.firstChild) {
                     this.$.controls.removeChild(this.$.controls.firstChild);

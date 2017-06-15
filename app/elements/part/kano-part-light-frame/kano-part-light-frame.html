@@ -23,7 +23,7 @@
     </style>
     <template>
         <div class="container" running$="[[isRunning]]">
-            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" pixel-size="25" spacing="1" bitmap="[[model.userProperties.bitmap]]"></kano-bitmap-renderer>
+            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" pixel-size="25" spacing="1" bitmap="[[model.userProperties.bitmap]]" loop></kano-bitmap-renderer>
         </div>
     </template>
     <script type="text/javascript">
@@ -56,17 +56,13 @@
             _setBitmap () {
                 this.set('storedBitmap', this._adjustBitmapForStorage(this.model.userProperties.bitmap));
                 this.set('model.userProperties.bitmap',
-                    this._adjustBitmapForDisplay(this.storedBitmap));
+                    this._adjustForDisplay(this.storedBitmap));
             },
             _sizeChanged () {
-                if (this.model.userProperties.bitmap.length === 0) {
-                    this._generateEmptyFrame();
-                    return;
-                }
                 this.storedBitmap = this.storedBitmap ||
                         this._adjustBitmapForStorage(this.model.userProperties.bitmap);
                 this.set('model.userProperties.bitmap',
-                    this._adjustBitmapForDisplay(this.storedBitmap));
+                    this._adjustForDisplay(this.storedBitmap));
             },
             _adjustBitmapForStorage (bitmap) {
                 let newBitmap = [],
@@ -87,7 +83,7 @@
                 });
                 return newBitmap;
             },
-            _adjustBitmapForDisplay (bitmap) {
+            _adjustForDisplay (bitmap) {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;

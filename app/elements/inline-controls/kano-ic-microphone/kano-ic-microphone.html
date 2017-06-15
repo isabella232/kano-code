@@ -22,9 +22,12 @@
                 @apply --layout-center-justified;
                 flex-shrink: 0;
             }
+            [hidden] {
+                display: none !important;
+            }
         </style>
         <div class="visuals" id="visuals">
-            <canvas id="canvas" height="32"></canvas>
+            <canvas id="canvas" height="32" hidden$="[[disabled]]"></canvas>
         </div>
         <div class="data">
             <kano-value-rendering width="12" height="12" value="[[value]]" offset-x="10"></kano-value-rendering>
@@ -42,14 +45,16 @@
             },
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
+                this.values = [];
                 Kano.Microphone.start().then(() => {
-                    this.values = [];
                     this._update();
                     this._initCanvas();
                 }).catch(error => {
                     this.disabled = true;
                 });
             },
+            // Override the PartsAPI onCreated
+            onCreated () {},
             _initCanvas () {
                 if (!this.values) {
                     return;

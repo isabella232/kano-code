@@ -15,20 +15,24 @@
         Polymer({
             is: 'kano-bitmap-renderer',
             properties: {
-                width: Number,
-                height: Number,
-                pixelSize: Number,
                 spacing: {
                     type: Number,
                     value: 0
                 },
-                bitmap: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
-                }
+                loop: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_onLoopChanged'
+                },
+                width: Number,
+                height: Number,
+                pixelSize: Number,
+                bitmap: Array,
+                fps: Number
             },
+            observers: [
+                '_onBitmapChanged(bitmap)'
+            ],
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
                 this._renderCanvas();
@@ -36,7 +40,22 @@
             _canvasSize (size, pixelSize, spacing) {
                 return size * pixelSize + (size * (spacing * 2));
             },
+            _onBitmapChanged (bitmap) {
+                if (!this.loop) {
+                    this._renderCanvas();
+                }
+            },
+            _onLoopChanged (newValue, oldValue) {
+                if (newValue) {
+                    this._renderCanvas();
+                } else if (!newValue && oldValue) {
+                    clearTimeout(this.timeoutId);
+                }
+            },
             _renderCanvas () {
+                if (!this.bitmap || !this.ctx) {
+                    return;
+                }
                 let x, y;
                 this.bitmap.forEach((v, i) => {
                     x = (i % this.width);
@@ -46,7 +65,9 @@
                     this.ctx.fillStyle = v;
                     this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
                 }, this);
-                this._animationFrameId = requestAnimationFrame(this._renderCanvas.bind(this));
+                if (this.loop) {
+                    this.timeoutId = setTimeout(this._renderCanvas.bind(this), (1000 / this.fps) || 0);
+                }
             }
         });
     </script>

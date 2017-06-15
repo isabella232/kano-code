@@ -50,22 +50,19 @@
                             on-next-story="goToNextStory"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
-        <paper-dialog id="share-modal" no-cancel-on-esc-key no-cancel-on-outside-click with-backdrop>
+        <paper-dialog id="share-modal" opened={{shareOpened}} modal>
             <kano-share-modal id="share-modal-content"
                               on-confirm="confirmShare"
                               on-dismiss="dismissShare"
+                              opened="[[shareOpened]]"
                               on-next-story="goToNextStory"
                               share-info="{{shareInfo}}"
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"
                               in-challenge></kano-share-modal>
        </paper-dialog>
-       <kano-challenge-completed-modal id="challenge-completed"
-                                       on-close="_setStoryEnded"></kano-challenge-completed-modal>
-        <kano-reward-modal id="reward-modal"
-                       on-confirm="_setStoryEnded"
-                       on-second-action="_openSignup"
-                       on-close="_setStoryEnded"></kano-reward-modal>
+       <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
+        <kano-reward-modal id="reward-modal" on-second-action="_openSignup"></kano-reward-modal>
     </template>
 </dom-module>
 
@@ -99,7 +96,8 @@
             }
         },
         listeners: {
-            'parts-changed': '_partsChanged'
+            'parts-changed': '_partsChanged',
+            'share-successful': '_setUserShared'
         },
         observers: [
             '_addedPartsChanged(addedParts.splices)'
@@ -195,15 +193,16 @@
             }
         },
         _displayUserReward (hints) {
-            let flags = Kano.MakeApps.config.getFlags(),
-                //FIXME for demo we turn the gamification enabled always true on this branch
-                gamificationEnabled = true || flags.experiments.indexOf('gamification_modal') !== -1,
-                payload = {
-                    name: 'kano-code-challenge-completed',
-                    detail: {
-                        id: this.story.id
-                    }
-                },
+            Kano.MakeApps.Utils.onLine().then((isOnline) => {
+                /* Enable/disable gamification based on internet availability */
+                this._doDisplayUserReward(hints, isOnline);
+            });
+        },
+        _doDisplayUserReward (hints, gamificationEnabled) {
+            let headers = new Headers(),
+                flags = Kano.MakeApps.config.getFlags(),
+                payload,
+                fakeGamificationData,
                 trackingData = {
                     id: this.story.id,
                     name: this.story.name
@@ -306,17 +305,23 @@
                         HOST: Kano.Util.Router.parseQsParam(this.context.querystring, 'host'),
                         PORT: Kano.Util.Router.parseQsParam(this.context.querystring, 'port')
                     });
-                    this.set('scene.ended', false);
                 });
         },
         extendStory (e) {
             let extensionId = e.detail;
             page.redirect(`/story/${extensionId}`);
         },
+        _runningOnElectron () {
+            return navigator.userAgent.indexOf("Electron") > -1;
+        },
         goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
-                location.href = Kano.MakeApps.config.PROJECTS_URL;
+                if (this._runningOnElectron()) {
+                    window.history.back();
+                } else {
+                    location.href = Kano.MakeApps.config.PROJECTS_URL;
+                }
                 return;
             }
 
@@ -324,15 +329,11 @@
                 page.redirect(`/story/${this.story.next}`);
             }
         },
-        _setStoryEnded () {
-            this.set('scene.ended', true);
-        },
         _openSignup () {
-            let detail = {
-                onSuccess: this._setStoryEnded.bind(this),
-                onCancel: this._setStoryEnded.bind(this)
-            };
-            this.fire('signup', detail);
+            this.fire('signup');
+        },
+        _setUserShared () {
+            this.set('user.hasSharedInSession', true);
         }
     });
 </script>

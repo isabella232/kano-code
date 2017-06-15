@@ -24,8 +24,7 @@
         kano-editor-banner {
             background: #394148;
             color: white;
-            border-bottom: 1px solid #282E34;
-            height: 82px;
+            border-bottom: 1px solid var(--kano-app-editor-workspace-border, #22272d);
         }
         .bolt {
             background: black;
@@ -40,7 +39,7 @@
             color: white;
             background: #32393F;
             height: 22px;
-            border-top: 1px solid #282E34;
+            border-top: 1px solid var(--kano-app-editor-workspace-border, #22272d);
         }
         .progress .bar {
             position: absolute;
@@ -85,7 +84,6 @@
                              code="{{code}}"
                              mode="[[mode]]"
                              on-share="_pauseAndShare"
-                             challenge-state="[[challengeState]]"
                              on-lockdown-clicked="_notifyBanner"
                              hide-leave-alert="[[alertDisabled]]">
                 <div slot="above-code">
@@ -138,10 +136,6 @@
                 type: Number,
                 notify: true
             },
-            challengeState: {
-                type: Object,
-                computed: 'computeChallengeStatus(progress, story.name, scene.*, ended)'
-            },
             scene: {
                 type: Object
             },
@@ -157,11 +151,6 @@
             remix: {
                 type: Boolean,
                 observer: '_remixChanged'
-            },
-            ended: {
-                type: Boolean,
-                value: false,
-                observer: '_onEndedChanged'
             },
             sceneVariables: {
                 type: Object,
@@ -276,23 +265,27 @@
         },
         _bannerButtonTapped () {
             if (this.selectedStep.isLast) {
+                Kano.MakeApps.Utils.onLine().then((isOnline) => {
+                    if (!this.user || this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
+                            this.scene.autoshareDisabled || !isOnline) {
+                        this.fire('next-story');
+                    } else {
+                        const shareDetail = this.$.editor.compileApp();
+                        shareDetail.title = `${this.user.username}'s ${this.story.name}`;
+                        shareDetail.autoshare = true;
+                        this.scene.autoshareDisabled = true;
 
-                if (!this.user || this.scene.autoshareDisabled || this._userCompleted(this.story)) {
-                    this.fire('next-story');
-                } else {
-                    let shareDetail = this.$.editor.compileApp();
-                    shareDetail.title = `${this.user.username}'s ${this.story.name}`;
-                    shareDetail.autoshare = true;
-                    this.fire('share', shareDetail);
-                }
-
+                        this.running = false;
+                        this.fire('share', shareDetail);
+                    }
+                });
             } else if (this.state.hints && this.state.hints.enabled) {
                 this.$.challenge.nextStep();
             } else {
                 this.showHints();
             }
         },
-        _userCompleted (story) {
+        _userAlreadyShared (story) {
             const progress = this._getUserProgress(this.user);
             return progress.indexOf(story.id) > -1;
         },
@@ -399,11 +392,15 @@
                 editor.load(JSON.parse(this.scene.defaultApp), Kano.MakeApps.Parts.list);
             }
         },
-        _completedChanged () {
-            if (this.scene.completed) {
+        _completedChanged (completed) {
+            if (completed) {
+                this.remix = true;
                 this.$.editor.generateCover().then((image) => {
                     this.appPreview = image.src;
                 });
+            //don't alert user on leaving if it's the last story
+            } else if (completed && !this.story.next) {
+                this.alertDisabled = true;
             }
         },
         computeProgress (currentStep, scene) {
@@ -411,15 +408,6 @@
                 return 1;
             }
             return (currentStep + 1) / scene.steps.length;
-        },
-        computeChallengeStatus (progress, title, scene, ended) {
-            return {
-                progress: progress,
-                title: title,
-                nextStory: Boolean(this.story.next),
-                started: this.scene.started,
-                ended: this.ended
-            };
         },
         resetHints () {
             this.set('hints.total', 0);
@@ -529,15 +517,6 @@
             this.$.editor.load(savedState.app, this._computeParts());
             challenge.set('stepIds', savedState.stepIds);
             challenge.set('blockIds', savedState.blockIds);
-        },
-        _onEndedChanged (ended) {
-            if (ended) {
-                this.remix = true;
-            }
-            //don't alert user on leaving if it's the last story
-            if (ended && !this.story.next) {
-                this.alertDisabled = true;
-            }
         },
         powerUp (e) {
             let extensionId = e.detail.id;

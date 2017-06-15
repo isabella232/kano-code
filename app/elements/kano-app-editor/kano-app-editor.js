@@ -48,8 +48,7 @@ Polymer({
             value: false
         },
         selected: {
-            type: Object,
-            value: null
+            type: Object
         },
         running: {
             type: Boolean,
@@ -83,10 +82,6 @@ Polymer({
             type: Boolean,
             value: false
         },
-        challengeState: {
-            type: Object,
-            value: null
-        },
         lockdown: {
             type: Boolean,
             reflectToAttribute: true,
@@ -114,7 +109,8 @@ Polymer({
         'save-button-clicked': 'share',
         'open-parts-modal': '_openPartsModal',
         'edit-background': '_openBackgroundDialog',
-        'iron-resize': '_refitPartModal'
+        'iron-resize': '_refitPartModal',
+        'feature-not-available-offline': '_openOfflineDialog'
     },
     _openBackgroundDialog () {
         this.$['edit-background-dialog'].open();
@@ -158,10 +154,13 @@ Polymer({
         // Too early
         if (!Array.isArray(this.parts)) {
             this.queuedHardware = this.queuedHardware || [];
-            this.queuedHardware.push(e.detail.product);
+            this.queuedHardware.push(e.detail);
             return;
         }
-        this._addHardwarePart(e.detail.product);
+
+        if (!this.queuedHardware || this.queuedHardware.indexOf(e.detail) === -1) {
+            this._addHardwarePart(e.detail.product);
+        }
     },
     _addHardwarePart (product) {
         let model;
@@ -296,13 +295,10 @@ Polymer({
         }
         return false;
     },
-    setColorRange (hs, range, items = []) {
-        // Set the increment value, which will decide how much to change the lightness between all colors
-        let increment = range / (items.length + 1);
-        // Grab the HS values from the color map
-        items.forEach((item, i) => {
-            // Calculate the lightness
-            let L = (50 - (range / 2)) + (increment * (i + 1)); // unary + is to coerce String j into number
+    setColorRange (hs, items = []) {
+        items.forEach((item, index) => {
+            // Higher index decreases lightness
+            const L = hs[2] - index * 2;
             // Set the color
             item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
         });
@@ -316,12 +312,11 @@ Polymer({
         }, 10);
     },
     _updateColors () {
-        let range = 33.33,
-            colorMapHS = {
+        const colorMapHS = {
                 system: [206, 100],
-                ui: [89, 52],
-                hardware: [289, 32],
-                data: [1, 61]
+                ui: [175, 100, 39],
+                data: [278, 41, 56],
+                hardware: [341, 83, 63]
             },
             grouped = this.addedParts.reduce((acc, part) => {
                 acc[part.partType] = acc[part.partType] || [];
@@ -333,7 +328,7 @@ Polymer({
 
         Object.keys(grouped).forEach((partType) => {
             let parts = grouped[partType];
-            this.setColorRange(colorMapHS[partType], range, parts);
+            this.setColorRange(colorMapHS[partType], parts);
         });
     },
     isPartDeletionDisabled () {
@@ -389,7 +384,14 @@ Polymer({
             e.detail.keyboardEvent.preventDefault();
             e.detail.keyboardEvent.stopPropagation();
         }
-        this.fire('share', this.compileApp());
+
+        Kano.MakeApps.Utils.onLine().then((isOnline) => {
+            if (isOnline) {
+                this.fire('share', this.compileApp());
+            } else {
+                this._openOfflineDialog();
+            }
+        });
     },
     compileApp () {
         return {
@@ -457,9 +459,13 @@ Polymer({
     _toggleFullscreenModal (isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
-        this.toggleClass('large', isFullScreen, this.$['edit-part-dialog-content']);
+        this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
         //If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
+    },
+    _repositionPanel (e) {
+        const target = this.$[Polymer.dom(e).rootTarget.id];
+        this.async(() => target.parentElement.refit(), 10);
     },
     _deletePart (part) {
         let index = this.addedParts.indexOf(part);
@@ -471,13 +477,20 @@ Polymer({
         if (!this.queuedHardware) {
             return;
         }
+
         this.async(() => {
-            let product;
+            let product,
+                partTypes;
             for (var i = 0; i < this.queuedHardware.length; i++) {
-                product = this.queuedHardware[i];
-                this._addHardwarePart(product);
+                product = this.queuedHardware[i].product;
+                partTypes = this.parts.map(p => p.type);
+                if (partTypes.indexOf(product) > -1) {
+                    this._addHardwarePart(product);
+                    this.splice('queuedHardware', i, 1);
+                }
             }
-        });
+        }, 5);
+
     },
     onPartReady (e) {
         let clone;
@@ -825,5 +838,8 @@ Polymer({
         setTimeout(() => {
             this.running = true;
         }, 0);
-    }
+    },
+    _openOfflineDialog () {
+        this._openDialog('feature-not-available-offline');
+    },
 });

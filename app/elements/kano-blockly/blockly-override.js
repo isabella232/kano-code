@@ -239,21 +239,6 @@ Blockly.getSvgXY_ = function(element, workspace) {
   return new goog.math.Coordinate(x, y);
 };
 
-/**
- * Move the zoom controls to the bottom-right corner.
- */
-Blockly.ZoomControls.prototype.position = function() {
-  var metrics = this.workspace_.getMetrics();
-  if (!metrics) {
-    // There are no metrics available (workspace is probably not visible).
-    return;
-  }
-  this.left_ = metrics.viewWidth + metrics.absoluteLeft - this.WIDTH_ - this.MARGIN_SIDE_ - Blockly.Scrollbar.scrollbarThickness;
-
-  this.top_ = 0;
-  this.svgGroup_.setAttribute('transform', 'translate(' + this.left_ + ',' + this.top_ + ')');
-};
-
 Blockly.Block.colourCache = {};
 
 /**
@@ -295,185 +280,6 @@ Blockly.hueToRgb = function(color) {
     return color;
 };
 
-
-    /**
-     * Create the zoom controls.
-     * @return {!Element} The zoom controls SVG group.
-     */
-    Blockly.ZoomControls.prototype.createDom = function() {
-      var workspace = this.workspace_;
-      /* Here's the markup that will be generated:
-      <g class="blocklyZoom">
-        <clippath id="blocklyZoomoutClipPath837493">
-          <rect width="32" height="32" y="77"></rect>
-        </clippath>
-        <image width="96" height="124" x="-64" y="-15" xlink:href="media/sprites.png"
-            clip-path="url(#blocklyZoomoutClipPath837493)"></image>
-        <clippath id="blocklyZoominClipPath837493">
-          <rect width="32" height="32" y="43"></rect>
-        </clippath>
-        <image width="96" height="124" x="-32" y="-49" xlink:href="media/sprites.png"
-            clip-path="url(#blocklyZoominClipPath837493)"></image>
-        <clippath id="blocklyZoomresetClipPath837493">
-          <rect width="32" height="32"></rect>
-        </clippath>
-        <image width="96" height="124" y="-92" xlink:href="media/sprites.png"
-            clip-path="url(#blocklyZoomresetClipPath837493)"></image>
-      </g>
-      */
-      this.svgGroup_ = Blockly.utils.createSvgElement('g',
-          {'class': 'blocklyZoom'}, null);
-      var rnd = String(Math.random()).substring(2);
-
-      var clip = Blockly.utils.createSvgElement('clipPath',
-          {'id': 'blocklyZoomoutClipPath' + rnd},
-          this.svgGroup_);
-      Blockly.utils.createSvgElement('rect',
-          {'width': 32, 'height': 32, 'y': 77},
-          clip);
-      var zoomoutSvg = Blockly.utils.createSvgElement('image',
-          {'width': Blockly.SPRITE.width,
-           'height': Blockly.SPRITE.height, 'x': -64,
-           'y': -15,
-           'clip-path': 'url(' + location.href + '#blocklyZoomoutClipPath' + rnd + ')'},
-          this.svgGroup_);
-      zoomoutSvg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
-          workspace.options.pathToMedia + Blockly.SPRITE.url);
-
-      var clip = Blockly.utils.createSvgElement('clipPath',
-          {'id': 'blocklyZoominClipPath' + rnd},
-          this.svgGroup_);
-      Blockly.utils.createSvgElement('rect',
-          {'width': 32, 'height': 32, 'y': 43},
-          clip);
-      var zoominSvg = Blockly.utils.createSvgElement('image',
-          {'width': Blockly.SPRITE.width,
-           'height': Blockly.SPRITE.height,
-           'x': -32,
-           'y': -49,
-           'clip-path': 'url(' + location.href + '#blocklyZoominClipPath' + rnd + ')'},
-          this.svgGroup_);
-      zoominSvg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
-          workspace.options.pathToMedia + Blockly.SPRITE.url);
-
-      var clip = Blockly.utils.createSvgElement('clipPath',
-          {'id': 'blocklyZoomresetClipPath' + rnd},
-          this.svgGroup_);
-      Blockly.utils.createSvgElement('rect',
-          {'width': 32, 'height': 32},
-          clip);
-      var zoomresetSvg = Blockly.utils.createSvgElement('image',
-          {'width': Blockly.SPRITE.width,
-           'height': Blockly.SPRITE.height, 'y': -92,
-           'clip-path': 'url(' + location.href + '#blocklyZoomresetClipPath' + rnd + ')'},
-          this.svgGroup_);
-      zoomresetSvg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
-          workspace.options.pathToMedia + Blockly.SPRITE.url);
-
-      // Attach event listeners.
-      Blockly.bindEvent_(zoomresetSvg, 'mousedown',  workspace, workspace.zoomReset);
-      Blockly.bindEvent_(zoominSvg, 'mousedown', null, function(e) {
-        workspace.zoomCenter(1);
-        e.stopPropagation();  // Don't start a workspace scroll.
-        e.preventDefault();  // Stop double-clicking from selecting text.
-      });
-      Blockly.bindEvent_(zoomoutSvg, 'mousedown', null, function(e) {
-        workspace.zoomCenter(-1);
-        e.stopPropagation();  // Don't start a workspace scroll.
-        e.preventDefault();  // Stop double-clicking from selecting text.
-      });
-
-      return this.svgGroup_;
-    };
-
-    /**
-     * Move the zoom controls to the bottom-right corner.
-     */
-    Blockly.ZoomControls.prototype.position = function() {
-        var metrics = this.workspace_.getMetrics();
-        if (!metrics) {
-            // There are no metrics available (workspace is probably not visible).
-            return;
-        }
-        if (this.workspace_.RTL) {
-            this.left_ = this.MARGIN_SIDE_ + Blockly.Scrollbar.scrollbarThickness;
-            if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_LEFT) {
-            this.left_ += metrics.flyoutWidth;
-            if (this.workspace_.toolbox_) {
-                this.left_ += metrics.absoluteLeft;
-            }
-            }
-        } else {
-            this.left_ = metrics.viewWidth + metrics.absoluteLeft -
-                this.WIDTH_ - this.MARGIN_SIDE_ - Blockly.Scrollbar.scrollbarThickness;
-
-            if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_RIGHT) {
-            this.left_ -= metrics.flyoutWidth;
-            }
-        }
-        this.top_ = metrics.viewHeight + metrics.absoluteTop -
-            this.HEIGHT_ - this.bottom_;
-        if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_BOTTOM) {
-            this.top_ -= metrics.flyoutHeight;
-        }
-        this.svgGroup_.setAttribute('transform',
-            'translate(' + this.left_ + ',' + this.top_ + ')');
-    };
-
-
-
-    /**
-     * Create the trash can elements.
-     * @return {!Element} The trash can's SVG group.
-     */
-    Blockly.Trashcan.prototype.createDom = function() {
-      /* Here's the markup that will be generated:
-      <g class="blocklyTrash">
-        <clippath id="blocklyTrashBodyClipPath837493">
-          <rect width="47" height="45" y="15"></rect>
-        </clippath>
-        <image width="64" height="92" y="-32" xlink:href="media/sprites.png"
-            clip-path="url(#blocklyTrashBodyClipPath837493)"></image>
-        <clippath id="blocklyTrashLidClipPath837493">
-          <rect width="47" height="15"></rect>
-        </clippath>
-        <image width="84" height="92" y="-32" xlink:href="media/sprites.png"
-            clip-path="url(#blocklyTrashLidClipPath837493)"></image>
-      </g>
-      */
-      this.svgGroup_ = Blockly.utils.createSvgElement('g',
-          {'class': 'blocklyTrash'}, null);
-      var rnd = String(Math.random()).substring(2);
-      var clip = Blockly.utils.createSvgElement('clipPath',
-          {'id': 'blocklyTrashBodyClipPath' + rnd},
-          this.svgGroup_);
-      Blockly.utils.createSvgElement('rect',
-          {'width': this.WIDTH_, 'height': this.BODY_HEIGHT_,
-           'y': this.LID_HEIGHT_},
-          clip);
-      var body = Blockly.utils.createSvgElement('image',
-          {'width': Blockly.SPRITE.width, 'height': Blockly.SPRITE.height, 'y': -32,
-           'clip-path': 'url(' + location.href + '#blocklyTrashBodyClipPath' + rnd + ')'},
-          this.svgGroup_);
-      body.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
-          this.workspace_.options.pathToMedia + Blockly.SPRITE.url);
-
-      var clip = Blockly.utils.createSvgElement('clipPath',
-          {'id': 'blocklyTrashLidClipPath' + rnd},
-          this.svgGroup_);
-      Blockly.utils.createSvgElement('rect',
-          {'width': this.WIDTH_, 'height': this.LID_HEIGHT_}, clip);
-      this.svgLid_ = Blockly.utils.createSvgElement('image',
-          {'width': Blockly.SPRITE.width, 'height': Blockly.SPRITE.height, 'y': -32,
-           'clip-path': 'url(' + location.href + '#blocklyTrashLidClipPath' + rnd + ')'},
-          this.svgGroup_);
-      this.svgLid_.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',
-          this.workspace_.options.pathToMedia + Blockly.SPRITE.url);
-
-      Blockly.bindEvent_(this.svgGroup_, 'mouseup', this, this.click);
-      this.animateLid_();
-      return this.svgGroup_;
-    };
 
 /**
  * Handle a mouse up event on an editable field.
@@ -1161,3 +967,75 @@ Blockly.WorkspaceSvg.prototype.setBrowserFocus = function() {
     }
   }
 };
+
+/**
+ * Class for an editable dropdown field.
+ * @param {(!Array.<!Array>|!Function)} menuGenerator An array of options
+ *     for a dropdown list, or a function which generates these options.
+ * @param {Function=} opt_validator A function that is executed when a new
+ *     option is selected, with the newly selected value as its sole argument.
+ *     If it returns a value, that value (which must be one of the options) will
+ *     become selected in place of the newly selected option, unless the return
+ *     value is null, in which case the change is aborted.
+ * @extends {Blockly.Field}
+ * @constructor
+ */
+Blockly.FieldCustomDropdown = function(menuGenerator, opt_validator) {
+  let options = menuGenerator.map(item => {
+      return [item.label, item.value];
+  });
+  this.textLabels = menuGenerator.reduce((acc, item) => {
+    acc[Blockly.utils.replaceMessageReferences(item.label)] = Blockly.utils.replaceMessageReferences(item.textLabel);
+    return acc;
+  }, {});
+
+  // Call parent's constructor.
+  Blockly.FieldCustomDropdown.superClass_.constructor.call(this, options, opt_validator);
+};
+goog.inherits(Blockly.FieldCustomDropdown, Blockly.FieldDropdown);
+
+/**
+ * Set the text in this field.  Trigger a rerender of the source block.
+ * @param {*} newText New text.
+ */
+Blockly.FieldCustomDropdown.prototype.setText = function(newText) {
+    let text = this.textLabels[newText];
+    if (!text) {
+        return;
+    }
+    Blockly.FieldCustomDropdown.superClass_.setText.call(this, text);
+};
+
+/**
+ * Get the text from this field.
+ * @return {string} Current text.
+ */
+Blockly.FieldCustomDropdown.prototype.getText = function() {
+    let labels = Object.keys(this.textLabels);
+    for (let i = 0; i < labels.length; i++) {
+        if (this.text_ === this.textLabels[labels[i]]) {
+            return labels[i];
+        }
+    }
+};
+
+/**
+ * Install this dropdown on a block.
+ */
+Blockly.FieldCustomDropdown.prototype.init = function() {
+  if (this.fieldGroup_) {
+    // Dropdown has already been initialized once.
+    return;
+  }
+  // Add dropdown arrow: "option ▾" (LTR) or "▾ אופציה" (RTL)
+  this.arrow_ = Blockly.utils.createSvgElement('tspan', {}, null);
+  this.arrow_.appendChild(document.createTextNode(this.sourceBlock_.RTL ?
+      Blockly.FieldDropdown.ARROW_CHAR + ' ' :
+      ' ' + Blockly.FieldDropdown.ARROW_CHAR));
+
+  Blockly.FieldDropdown.superClass_.init.call(this);
+  // Force a reset of the text to add the arrow.
+  var text = this.getText();
+  this.text_ = null;
+  this.setText(text);
+}

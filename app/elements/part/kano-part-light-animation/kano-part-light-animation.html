@@ -18,7 +18,7 @@
     </style>
     <template>
         <div class="container" running$="[[isRunning]]">
-            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" bitmap="[[bitmap]]" pixel-size="25" spacing="1"></kano-bitmap-renderer>
+            <kano-bitmap-renderer width="[[model.userProperties.width]]" height="[[model.userProperties.height]]" bitmap="[[bitmap]]" pixel-size="25" spacing="1" fps="30" loop></kano-bitmap-renderer>
         </div>
     </template>
     <script type="text/javascript">
@@ -48,10 +48,10 @@
             _setBitmaps () {
                 this.set('storedBitmaps', this.storeBitmaps());
                 this.set('model.userProperties.bitmaps',
-                    this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
+                    this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
             },
             storeBitmaps () {
-                return this.model.userProperties.bitmaps.map(this._adjustBitmapForStorage.bind(this));
+                return this.model.userProperties.bitmaps.map(this._adjustForStorage.bind(this));
             },
             _sizeChanged () {
                 if (this.model.userProperties.bitmaps.length === 0) {
@@ -60,9 +60,9 @@
                 }
                 this.storedBitmaps = this.storedBitmaps || this.storeBitmaps();
                 this.set('model.userProperties.bitmaps',
-                        this.storedBitmaps.map(this._adjustBitmapForDisplay.bind(this)));
+                        this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
             },
-            _adjustBitmapForStorage (bitmap) {
+            _adjustForStorage (bitmap) {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
@@ -81,7 +81,7 @@
                 });
                 return newBitmap;
             },
-            _adjustBitmapForDisplay (bitmap) {
+            _adjustForDisplay (bitmap) {
                 let newBitmap = [],
                     width = this.model.userProperties.width,
                     height = this.model.userProperties.height;
