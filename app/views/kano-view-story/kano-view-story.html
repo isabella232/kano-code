@@ -201,8 +201,13 @@
         _doDisplayUserReward (hints, gamificationEnabled) {
             let headers = new Headers(),
                 flags = Kano.MakeApps.config.getFlags(),
-                payload,
                 fakeGamificationData,
+                payload = {
+                    name: 'kano-code-challenge-completed',
+                    detail: {
+                        id: this.story.id
+                    }
+                },
                 trackingData = {
                     id: this.story.id,
                     name: this.story.name
