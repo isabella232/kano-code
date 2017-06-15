@@ -247,6 +247,7 @@
 
     Kano.MakeApps.Msg.KANO_EDITOR_LIGHTBOARD_ADD_PART = "Add Part";
 
+    Kano.MakeApps.Msg.KANO_VIEW_STORY_NOT_FINISHED = "Oh oh.. not finished yet!";
     Kano.MakeApps.Msg.KANO_VIEW_STORY_LEAVE_CHALLENGE = "Are you sure you want to leave the challenge?";
 
 })(window.Kano = window.Kano || {});

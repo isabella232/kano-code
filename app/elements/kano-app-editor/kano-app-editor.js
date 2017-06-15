@@ -444,7 +444,7 @@ Polymer({
         return code;
     },
     reset () {
-        this.$['reset-warning'].open();
+        this.$['dialog-reset-warning'].open();
     },
     onPartSettings () {
         // No part selected, show the background editor
