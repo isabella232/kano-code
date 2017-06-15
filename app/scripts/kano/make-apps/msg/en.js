@@ -63,6 +63,7 @@
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
 
     Kano.MakeApps.Msg.RESET = "Reset";
+    Kano.MakeApps.Msg.RESTART = "Restart";
     Kano.MakeApps.Msg.DELETE = "delete";
 
     Kano.MakeApps.Msg.NEXT_CHALLENGE = "Next Challenge";
@@ -203,6 +204,7 @@
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_ADD_PARTS = "add parts";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_DONE = "Done";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_EDIT_LAYOUT = "Edit Layout";
+    Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_FULLSCREEN = "Fullscreen";
 
 
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";

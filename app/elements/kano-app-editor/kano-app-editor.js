@@ -216,7 +216,7 @@ Polymer({
             this.fire('code-unsaved');
         }
 
-        // Restart code if not in edit mode
+        // Restart code if not editing
         if (!this.editableLayout) {
             this.toggleRunning(false);
             this.toggleRunning(true);
