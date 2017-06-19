@@ -1,0 +1,48 @@
+<link rel="import" type="" href="../microphone.html">
+<script>
+    (function (Kano) {
+
+        class MicrophoneProxy extends Kano.MicrophoneClass {
+
+            constructor () {
+                super();
+            }
+
+            setVolumeMethod (cb) {
+                this._volumeMethod = cb;
+            }
+
+            setPitchMethod (cb) {
+                this._pitchMethod = cb;
+            }
+
+            _updateVolumeData () {
+                if (this._volumeMethod) {
+                    this.volume = this._volumeMethod();
+                } else {
+                    super._updateVolumeData();
+                }
+            }
+
+            _updatePitchData () {
+                if (this._pitchMethod) {
+                    this.pitch = this._pitchMethod();
+                } else {
+                    super._updatePitchData();
+                }
+            }
+
+            stopProxyingVolume () {
+                this._volumeMethod = null;
+            }
+
+            stopProxyingPitch () {
+                this._pitchMethod = null;
+            }
+        }
+
+        // Is a singleton, all microphone proxy data is shared
+        Kano.MicrophoneProxy = new MicrophoneProxy();
+    })(window.Kano = window.Kano || {});
+
+</script>

@@ -16,6 +16,8 @@
                 this.addLifecycleStep('stop', '_stop');
                 this.addLifecycleStep('start', '_start');
 
+                this.addMethod('getVolume', '_getVolume');
+                this.addMethod('getAllLightboards', '_getAllLightboards');
                 this.addMethod('turnOn', '_turnOn');
                 this.addMethod('turnOff', '_turnOff');
                 this.addMethod('setBackgroundColor', '_setBackgroundColor');
@@ -73,6 +75,13 @@
                     x: index % width,
                     y: Math.floor(index / width)
                 };
+            }
+
+            _getVolume () {
+                let lighboards = this.api.getAllDevices();
+                if (lighboards[0]) {
+                    return lighboards[0].volume;
+                }
             }
 
             /* The UI doesn't allow more than one lightboard at the minute so
@@ -264,21 +273,21 @@
                 }, item.speed * animationFrames.length);
             }
 
-            _on (name, callback) {
+            _on (name, callback, socketType) {
                 this._getAllLightboards().forEach((lightboard) => {
-                    lightboard.on(name, callback);
+                    lightboard.on(name, callback, socketType);
                 });
             }
 
-            _removeListener (name, callback) {
+            _removeListener (name, callback, socketType) {
                 this._getAllLightboards().forEach((lightboard) => {
-                    lightboard.removeListener(name, callback);
+                    lightboard.removeListener(name, callback, socketType);
                 });
             }
 
-            _removeAllListeners (name) {
+            _removeAllListeners (name, socketType) {
                 this._getAllLightboards().forEach((lightboard) => {
-                    lightboard.removeAllListeners(name);
+                    lightboard.removeAllListeners(name, socketType);
                 });
             }
         }
