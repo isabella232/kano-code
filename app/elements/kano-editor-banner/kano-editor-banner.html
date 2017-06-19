@@ -1,3 +1,4 @@
+<script src="../../bower_components/twemoji/2/twemoji.min.js"></script>
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
@@ -143,6 +144,11 @@
         [hidden] {
             display: none !important;
         }
+        :host .emoji {
+            max-width: 18px;
+            max-height: 18px;
+            transform: translateY(4px);
+        }
     </style>
     <template>
         <div class="avatar">
@@ -199,12 +205,12 @@
         <div class="content">
             <div class="text">
                 <div class="head" hidden$="[[!head]]">
-                    <marked-element markdown="[[head]]">
+                    <marked-element markdown="[[_replaceEmoji(head)]]">
                         <div class="markdown-html"></div>
                     </marked-element>
                 </div>
                 <div class="body">
-                    <marked-element markdown="[[text]]">
+                    <marked-element markdown="[[_replaceEmoji(text)]]">
                         <div class="markdown-html"></div>
                     </marked-element>
                 </div>
@@ -331,6 +337,13 @@
             this.toggleClass('animate', false, element);
             element.getBoundingClientRect();
             this.toggleClass('animate', true, element);
+        },
+        _replaceEmoji (text) {
+            if (text) {
+                return twemoji.parse(text);
+            }
+
+            return text;
         }
     });
 </script>
