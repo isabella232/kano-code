@@ -66,7 +66,7 @@ pipeline {
                     } else if (env.BRANCH_NAME == "lightboard") {
                         bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
-                        archive(bucket)
+                        archive(bucket, env)
                     } else if (env.NODE_ENV=="staging") {
                         bucket = 'make-apps-staging-site.kano.me'
                         deploy('./www', bucket)
@@ -91,6 +91,20 @@ pipeline {
         failure {
             notify_failure_to_committers()
         }
+        success {
+            release_archive(env)
+        }
+    }
+}
+
+def release_archive (env) {
+    def rev = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
+    publish_to_releases {
+        dir = './www'
+        repo = 'kano-code'
+        channel = env.NODE_ENV
+        version = get_npm_package_version()
+        revision = rev
     }
 }
 
@@ -98,14 +112,6 @@ def archive(bucket) {
     def filename = "kc-build-latest.tar.gz"
     sh "tar -czf ${filename} ./www"
     sh "aws s3 cp ${filename} s3://${bucket} --region eu-west-1"
-    def revision = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
-    publish_to_releases {
-        dir = './www',
-        repo = 'kano-code'
-        channel = env.NODE_ENV
-        version = get_npm_package_version()
-        revision = revision
-    }
 }
 
 def deploy(dir, bucket) {
