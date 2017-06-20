@@ -66,7 +66,7 @@ pipeline {
                     } else if (env.BRANCH_NAME == "lightboard") {
                         bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
-                        archive(bucket, env)
+                        archive(bucket)
                     } else if (env.NODE_ENV=="staging") {
                         bucket = 'make-apps-staging-site.kano.me'
                         deploy('./www', bucket)
