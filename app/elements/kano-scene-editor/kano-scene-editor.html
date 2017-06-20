@@ -65,9 +65,7 @@
     <template>
         <kano-app-challenge id="challenge"
                             steps="[[scene.steps]]"
-                            on-save="saveApp"
-                            on-save-to-storage="saveToStorage"
-                            on-load="loadApp"
+                            mode-ready="[[modeReady]]"
                             step="{{currentStep}}"
                             started="[[scene.started]]"
                             idle="[[story.paused]]"
@@ -75,6 +73,9 @@
                             selected-step="{{selectedStep}}"
                             state="{{state}}"
                             scene-variables="{{sceneVariables}}"
+                            on-save="saveApp"
+                            on-save-to-storage="saveToStorage"
+                            on-load="loadApp"
                             hints="{{hints}}">
             <kano-app-editor id="editor"
                              added-parts="{{addedParts}}"
@@ -89,14 +90,12 @@
                 <div slot="above-code">
                     <kano-editor-topbar user="[[user]]" profile="[[user.profile]]"></kano-editor-topbar>
                     <kano-editor-banner id="banner"
-                                       head="[[banner.head]]"
-                                       text="[[banner.text]]"
-                                       img-src="[[banner.icon]]"
-                                       img-page="[[banner.imgPage]]"
-                                       show-button="[[banner.showButton]]"
-                                       button-label="[[banner.buttonLabel]]"
-                                       is-last="[[banner.isLast]]"
-                                       on-button-tapped="_bannerButtonTapped"></kano-editor-banner>
+                                        head="[[banner.head]]"
+                                        text="[[banner.text]]"
+                                        img-src="[[banner.icon]]"
+                                        img-page="[[banner.imgPage]]"
+                                        button-label="[[banner.buttonLabel]]"
+                                        on-button-tapped="_bannerButtonTapped"></kano-editor-banner>
                 </div>
                 <div class="progress" slot="under-code">
                     <div class="bar" id="bar"></div>
@@ -214,7 +213,7 @@
                         this.set('banner.head', step.banner.head);
                         this.set('banner.text', step.banner.text);
                         this.set('banner.buttonLabel', step.banner.next_button ? label : null);
-                        this.set('banner.showButton', !!this.banner.buttonLabel);
+                        this.$.banner.showButton = !!this.banner.buttonLabel;
                     } else {
                         this.banner = null;
                     }
@@ -226,7 +225,7 @@
                         this.set('banner.text', bannerProps.text);
                         this.set('banner.buttonLabel', this.localize('HINTS', 'Hints'));
                         this.showButtonTimeout = setTimeout(() => {
-                            this.set('banner.showButton', true);
+                            this.$.banner.showButton = true;
                         }, 6000);
                     } else {
                         this.banner = null;
@@ -235,14 +234,15 @@
                 if (this.banner) {
                     if (step.banner) {
 
-                        this.$.editor.set('lockdown', step.banner.lockdown);    //restrict click events if true
-                        this.set('banner.isLast', step.isLast);
+                        this.$.editor.set('lockdown', step.banner.lockdown);    //disable click events if true
+                        this.$.banner.showSaveButton = step.isLast;
 
                         if (step.isLast) {
                             this.set('banner.icon', null);
                             this.set('banner.imgPage', 'star');
                             this.set('banner.buttonLabel', Boolean(this.story.next) ?
                                     this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
+
                         } else if (step.banner.animation) {
                             animation = step.banner.animation;
                             this.set('banner.imgPage', animation);
@@ -527,7 +527,7 @@
             Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
         },
         _notifyBanner () {
-            this.$.banner.animateButton();
+            this.$.banner.shakeButton();
         }
     });
 </script>

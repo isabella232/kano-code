@@ -91,6 +91,20 @@ pipeline {
         failure {
             notify_failure_to_committers()
         }
+        success {
+            release_archive(env)
+        }
+    }
+}
+
+def release_archive (env) {
+    def rev = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
+    publish_to_releases {
+        dir = './www'
+        repo = 'kano-code'
+        channel = env.NODE_ENV
+        version = get_npm_package_version()
+        revision = rev
     }
 }
 
@@ -102,10 +116,4 @@ def archive(bucket) {
 
 def deploy(dir, bucket) {
     sh "aws s3 sync ${dir} s3://${bucket} --region eu-west-1 --cache-control \"max-age=600\" --only-show-errors"
-}
-
-def getVersion() {
-    def packageJsonString = readFile('./package.json')
-    def packageJson = new groovy.json.JsonSlurper().parseText(packageJsonString)
-    return packageJson.version
 }

@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../scripts/kano/make-apps/microphone-proxy.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/microphone.html">
 <link rel="import" href="../kano-value-rendering/kano-value-rendering.html">
 <dom-module id="kano-ic-microphone">
@@ -46,7 +47,7 @@
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
                 this.values = [];
-                Kano.Microphone.start().then(() => {
+                Kano.MicrophoneProxy.start().then(() => {
                     this._update();
                     this._initCanvas();
                 }).catch(error => {
@@ -69,7 +70,7 @@
             },
             _update () {
                 this._updateInterval = setInterval(() => {
-                    let volume = Kano.Microphone.getVolume();
+                    let volume = Kano.MicrophoneProxy.getVolume();
                     this.values.push(volume);
                     if (this.values.length > Math.round(this.$.canvas.width / 8) + 1) {
                         this.values.shift();
