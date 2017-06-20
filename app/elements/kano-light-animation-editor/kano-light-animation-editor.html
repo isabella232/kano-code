@@ -185,8 +185,7 @@
             <div slot="settings" class="settings">
                 <div class="settings-controls">
                     <kano-input-text value="{{selected.name}}"
-                                     theme="[[theme]]"
-                                     on-keydown="_stopEventPropagation"></kano-input-text>
+                                     theme="[[theme]]"></kano-input-text>
                     <div class="size-settings">
                         <kano-input-range id="width-slider"
                                           class="slider"
@@ -322,8 +321,8 @@
                 this.appModule.stop();
             },
             _onKeydown (e) {
-                //disable key commands while running except for 'space'
-                if (this.running && e.key !== ' ') {
+                //disable key commands if event origin is an input, or when running and key is not 'space'
+                if (/INPUT/.test(Polymer.dom(e).rootTarget.tagName) || (this.running && e.key !== ' ')) {
                     return;
                 }
 
@@ -435,9 +434,6 @@
             },
             _onPaintAction () {
                 this.notifyChange('light-animation-paint', { tool: this.penType });
-            },
-            _stopEventPropagation (e) {
-                e.stopPropagation();
             },
             _renderOnRealDevice (frame) {
                 if (!this.deviceRenders) {
