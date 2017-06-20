@@ -100,7 +100,7 @@ def archive(bucket) {
     sh "aws s3 cp ${filename} s3://${bucket} --region eu-west-1"
     def revision = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
     publish_to_releases {
-        dir = './www',
+        dir = './www'
         repo = 'kano-code'
         channel = env.NODE_ENV
         version = get_npm_package_version()
