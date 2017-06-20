@@ -8,6 +8,12 @@
                 super();
             }
 
+            start () {
+                // Ignore errors for now as a kit can provide volume data
+                return super.start()
+                    .catch(e => {});
+            }
+
             setVolumeMethod (cb) {
                 this._volumeMethod = cb;
             }
