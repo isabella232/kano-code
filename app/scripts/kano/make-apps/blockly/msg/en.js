@@ -161,9 +161,12 @@
     Blockly.Msg.BLOCK_LIGHT_MOVE_BY = "move %1 by %2 pixels";
 
     Blockly.Msg.BLOCK_LIGHT_ANIMATION_PLAY = "play";
+    Blockly.Msg.BLOCK_LIGHT_ANIMATION_PLAY_ONCE = "play once";
     Blockly.Msg.BLOCK_LIGHT_ANIMATION_STOP = "stop";
     Blockly.Msg.BLOCK_LIGHT_ANIMATION_GO_TO_FRAME = "go to frame nº %1";
     Blockly.Msg.BLOCK_LIGHT_ANIMATION_SET_SPEED = "set speed to %1";
+    Blockly.Msg.BLOCK_LIGHT_ANIMATION_FRAME_COUNT = "frame count";
+    Blockly.Msg.BLOCK_LIGHT_ANIMATION_CURRENT_FRAME = "current frame";
 
     Blockly.Msg.BLOCK_LIGHT_ANIMATION_DISPLAY_SET_ANIMATION = "set animation to %1";
 
