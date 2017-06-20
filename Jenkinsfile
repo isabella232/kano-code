@@ -8,7 +8,7 @@ pipeline {
         stage('check environment') {
             steps {
                 script {
-                    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard") {
+                    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard" || env.BRANCH_NAME=="lightboard-rc") {
                         env.DEV_ENV = "staging"
                     } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
                         env.DEV_ENV = "production"
@@ -63,7 +63,7 @@ pipeline {
                         bucket = 'apps-lightboard.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
-                    } else if (env.BRANCH_NAME == "lightboard") {
+                    } else if (env.BRANCH_NAME == "lightboard-rc") {
                         bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
