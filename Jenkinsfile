@@ -100,7 +100,7 @@ pipeline {
 def release_archive (env) {
     def rev = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
     publish_to_releases {
-        dir = './test-www'
+        dir = './www'
         repo = 'kano-code'
         channel = env.NODE_ENV
         version = get_npm_package_version()
