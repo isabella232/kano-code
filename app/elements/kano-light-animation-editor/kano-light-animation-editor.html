@@ -321,8 +321,8 @@
                 this.appModule.stop();
             },
             _onKeydown (e) {
-                //disable key commands while running except for 'space'
-                if (this.running && e.key !== ' ') {
+                //disable key commands if event origin is an input, or when running and key is not 'space'
+                if (/INPUT/.test(Polymer.dom(e).rootTarget.tagName) || (this.running && e.key !== ' ')) {
                     return;
                 }
 
