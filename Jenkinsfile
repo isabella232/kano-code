@@ -98,13 +98,13 @@ pipeline {
 }
 
 def release_archive (env) {
-    def revision = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
+    def rev = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
     publish_to_releases {
         dir = './www'
         repo = 'kano-code'
         channel = env.NODE_ENV
         version = get_npm_package_version()
-        revision = revision
+        revision = rev
     }
 }
 
