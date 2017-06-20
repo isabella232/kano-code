@@ -8,16 +8,6 @@
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <dom-module id="kano-editor-banner">
     <style>
-        @keyframes button-enter {
-            0% {
-                opacity: 1;
-                transform: scale(0);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
         @keyframes eye-movement {
             0% {
                 transform: translate(0px);
@@ -50,16 +40,17 @@
             @apply --layout-horizontal;
             height: 100%;
             box-sizing: border-box;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: bold;
             padding: 24px 0 24px;
             min-height: 89px;
         }
         :host .content .head {
             color: #888;
-            font-size: 0.8em;
             margin-bottom: 5px;
         }
         :host .content .body {
-            font-size: 18px;
             @apply --layout-flex;
         }
         :host .avatar {
@@ -71,7 +62,7 @@
             height: 60px;
             width: 60px;
         }
-        :host([is-last]) .animations-pager {
+        :host([show-save-button]) .animations-pager {
             height: 50px;
             width: 50px;
             margin: 0 25px;
@@ -96,7 +87,7 @@
             border: none;
             outline: none;
             cursor: pointer;
-            font-family: 'Bariol', sans-serif;
+            font-family: var(--font-body);
             text-transform: uppercase;
             overflow: hidden;
             white-space: nowrap;
@@ -104,38 +95,39 @@
             box-sizing: border-box;
             color: white;
             font-size: 14px;
-            line-height: 14px;
-            margin: 0;
-            padding: 10px 22px;
+            font-weight: bold;
             border-radius: 3px;
+            box-sizing: border-box;
+            padding: 7px 24px;
+            margin: 0;
+            transition: background 300ms;
         }
         :host .button:hover {
             background-color: #5B646B;
         }
-        :host #save-button {
+        :host #banner-save-button {
             @apply --layout-horizontal;
             @apply --layout-center;
             margin: 0 10px;
         }
-        #save-button iron-icon {
+        #banner-save-button iron-icon {
             --iron-icon-width: 14px;
             --iron-icon-height: 14px;
             opacity: 0.75;
             margin-right: 8px;
         }
-        #save-button:hover iron-icon {
+        #banner-save-button:hover iron-icon {
             opacity: 0.85;
         }
-        :host button.animate {
-            animation-name: button-enter;
-        }
-        :host(.green-cta) #primary-button {
-            background-color: var(--color-grassland);
+        :host(.green-cta) #banner-button {
+            background: var(--color-grassland);
+            font-weight: bold;
+            transition: background 300ms;
             backface-visibility: hidden;
             perspective: 1000px;
         }
-        :host(.green-cta) #primary-button:hover {
-            background-color: var(--color-apple);
+        :host(.green-cta) #banner-button:hover {
+            background: var(--color-apple);
         }
         .markdown-html p {
             margin: 0px;
@@ -214,12 +206,12 @@
                     </marked-element>
                 </div>
             </div>
-            <button id="save-button" type="button" class="button" hidden$="[[!isLast]]" on-tap="_saveTapped">
+            <button id="banner-save-button" type="button" class="button" hidden$="[[!isLast]]" on-tap="_saveTapped">
                 <iron-icon class="save-icon" src="/assets/icons/save.svg"></iron-icon>
                 <div>[[localize('SAVE', 'Save')]]</div>
             </button>
-            <kano-glint-animation id="primary-button-container" running="[[glint]]">
-                <button id="primary-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped">[[buttonLabel]]</button>
+            <kano-glint-animation id="banner-button-container" running="[[glint]]">
+                <button id="banner-button" class="button" type="button" hidden$="[[!showButton]]" on-tap="_buttonTapped" data-animate="300">[[buttonLabel]]</button>
             </kano-glint-animation>
         </div>
     </template>
@@ -257,15 +249,38 @@
                 value: false,
                 observer: '_showButtonChanged'
             },
-            isLast: {
+            showSaveButton: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true,
-                observer: '_isLastChanged'
+                observer: '_showSaveButtonChanged'
             }
         },
-        animateButton () {
-            this.$['primary-button-container'].animate([{
+        attached () {
+            this._registerElement('banner-button', this.$['banner-button']);
+        },
+        _fadeInButton (id, duration) {
+            this.$['banner-button'].setAttribute('data-animate', (duration + 150));
+            //register element with updated 'data-animate' attribute
+            this._registerElement(id, this.$[id]);
+
+            this.$[id].animate([{
+                    transform: 'scale(0)',
+                    opacity: '0'
+                },{
+                    transform: 'scale(1)',
+                    opacity: '1'
+                }
+            ], {
+                duration: duration,
+                fill: 'forwards'
+            }).onfinish = () => {
+                this.$['banner-button'].removeAttribute('data-animate');
+                this._registerElement(id, this.$[id]);
+            };
+        },
+        shakeButton () {
+            this.$['banner-button-container'].animate([{
                     offset: 0.0,
                     transform: 'translate3d(0, 0, 0)'
                 },{
@@ -306,36 +321,28 @@
                 iterations: 1
             });
         },
-        attached () {
-            this._registerElement('banner-button', this.$['primary-button']);
-        },
         _buttonTapped () {
             this.fire('button-tapped');
         },
         _saveTapped () {
             this.fire('save-button-clicked');
         },
-        _showButtonChanged (shown) {
-            if (shown) {
-                let buttonElement = this.$['primary-button'];
-                this._triggerAnimation(buttonElement);
+        _showButtonChanged (value, oldValue) {
+            if (value && !oldValue && !this.showSaveButton) {
+                this._fadeInButton('banner-button', 200);
             }
         },
-        _isLastChanged (last) {
-            if (last) {
-                let saveButtonElement = this.$['save-button'];
-                this._triggerAnimation(saveButtonElement);
+        _showSaveButtonChanged (value) {
+            if (value) {
+                this._fadeInButton('banner-save-button', 200);
+                this._fadeInButton('banner-button', 400);
             }
         },
         _onButtonLabelChanged (label) {
-            let isGreen = label === 'Next' || this.isLast;
+            //FIXME this should consider localization
+            let isGreen = label === 'Next' || this.showSaveButton;
             this.glint = isGreen || label === 'Hints';
             this.toggleClass('green-cta', isGreen);
-        },
-        _triggerAnimation (element) {
-            this.toggleClass('animate', false, element);
-            element.getBoundingClientRect();
-            this.toggleClass('animate', true, element);
         }
     });
 </script>
