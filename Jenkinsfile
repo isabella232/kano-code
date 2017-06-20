@@ -62,7 +62,7 @@ pipeline {
                     } else if (env.BRANCH_NAME == "prod-lightboard") {
                         bucket = 'apps-lightboard.kano.me'
                         deploy('./www', bucket)
-                        archive(bucket, env)
+                        archive(bucket)
                     } else if (env.BRANCH_NAME == "lightboard") {
                         bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
@@ -70,13 +70,13 @@ pipeline {
                     } else if (env.NODE_ENV=="staging") {
                         bucket = 'make-apps-staging-site.kano.me'
                         deploy('./www', bucket)
-                        archive(bucket, env)
+                        archive(bucket)
                         sh 'gulp doc'
                         deploy('./www-doc', 'make-apps-doc')
                     } else if (env.NODE_ENV=="production") {
                         bucket = 'make-apps-prod-site.kano.me'
                         deploy('./www', bucket)
-                        archive(bucket, env)
+                        archive(bucket)
                         // Rebuild the config of the index with the kit's target env
                         env.TARGET = "osonline"
                         sh 'gulp copy-index'
@@ -91,13 +91,13 @@ pipeline {
         failure {
             notify_failure_to_committers()
         }
+        success {
+            release_archive(env)
+        }
     }
 }
 
-def archive(bucket, env) {
-    def filename = "kc-build-latest.tar.gz"
-    sh "tar -czf ${filename} ./www"
-    sh "aws s3 cp ${filename} s3://${bucket} --region eu-west-1"
+def release_archive (env) {
     def revision = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
     publish_to_releases {
         dir = './www'
@@ -106,6 +106,12 @@ def archive(bucket, env) {
         version = get_npm_package_version()
         revision = revision
     }
+}
+
+def archive(bucket) {
+    def filename = "kc-build-latest.tar.gz"
+    sh "tar -czf ${filename} ./www"
+    sh "aws s3 cp ${filename} s3://${bucket} --region eu-west-1"
 }
 
 def deploy(dir, bucket) {
