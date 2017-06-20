@@ -185,7 +185,8 @@
             <div slot="settings" class="settings">
                 <div class="settings-controls">
                     <kano-input-text value="{{selected.name}}"
-                                     theme="[[theme]]"></kano-input-text>
+                                     theme="[[theme]]"
+                                     on-keydown="_stopEventPropagation"></kano-input-text>
                     <div class="size-settings">
                         <kano-input-range id="width-slider"
                                           class="slider"
@@ -434,6 +435,9 @@
             },
             _onPaintAction () {
                 this.notifyChange('light-animation-paint', { tool: this.penType });
+            },
+            _stopEventPropagation (e) {
+                e.stopPropagation();
             },
             _renderOnRealDevice (frame) {
                 if (!this.deviceRenders) {
