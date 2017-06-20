@@ -255,7 +255,7 @@
             this._registerElement('banner-button', this.$['banner-button']);
         },
         _fadeInButton (id, duration) {
-            this.$[id].setAttribute('data-animate', (duration + 100));
+            this.$['banner-button'].setAttribute('data-animate', (duration + 150));
             //register element with updated 'data-animate' attribute
             this._registerElement(id, this.$[id]);
 
@@ -335,7 +335,7 @@
         },
         _onButtonLabelChanged (label) {
             //FIXME this should consider localization
-            let isGreen = label === 'Next' || label == 'Next Challenge';
+            let isGreen = label === 'Next' || this.showSaveButton;
             this.glint = isGreen || label === 'Hints';
             this.toggleClass('green-cta', isGreen);
         }

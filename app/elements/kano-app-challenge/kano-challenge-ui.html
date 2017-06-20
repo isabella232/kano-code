@@ -392,6 +392,10 @@ Example:
                 let copy = Object.assign({}, tooltip);
                 copy.target = this._getTargetElement(tooltip.location);
 
+                if (!copy.target) {
+                    return;
+                }
+
                 if ('getBoundingClientRect' in copy.target) {
                     copy.target = copy.target.getBoundingClientRect();
                 }
@@ -700,7 +704,7 @@ Example:
                     if (!block || !block.svgPath_) {
                         this._notifyError('Could not find block', selector.block);
                     }
-                    return block.svgPath_;
+                    return block && block.svgPath_;
                 } else if (selector.category) {
                     let toolbox = this._getElement('blockly-toolbox'),
                         el = toolbox.getCategoryElement(selector.category);
@@ -834,12 +838,11 @@ Example:
                         longestDelay = currentDelay;
                     }
                 });
-
                 return (longestDelay || 0);
         },
         _setupWithDelay () {
             /* Toggle idle state to show elements with a little delay when the step loads in.
-            This also allows target elements to change their data-animate values with the step. */
+            This also allows to read the current data-animate values of target elements */
             this._computeElements();
             this.idle = true;
             this.async(this._turnOnVisibility, 250);
