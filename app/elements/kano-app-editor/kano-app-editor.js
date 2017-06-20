@@ -82,6 +82,11 @@ Polymer({
             type: Boolean,
             value: false
         },
+        unsavedChanges: {
+            type: Boolean,
+            value: false,
+            notify: true
+        },
         lockdown: {
             type: Boolean,
             reflectToAttribute: true,
@@ -213,7 +218,7 @@ Polymer({
         }
         // Mark code as unsaved
         if (this.prevCode) {
-            this.fire('code-unsaved');
+            this.unsavedChanges = true;
         }
 
         // Restart code if not editing
