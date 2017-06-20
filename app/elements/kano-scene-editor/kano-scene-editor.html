@@ -68,6 +68,7 @@
                             mode-ready="[[modeReady]]"
                             step="{{currentStep}}"
                             started="[[scene.started]]"
+                            idle="[[story.paused]]"
                             hint-stats="{{hintStats}}"
                             selected-step="{{selectedStep}}"
                             state="{{state}}"
@@ -85,10 +86,9 @@
                              code="{{code}}"
                              mode="[[mode]]"
                              on-share="_pauseAndShare"
-                             on-lockdown-clicked="_notifyBanner"
-                             hide-leave-alert="[[alertDisabled]]">
+                             on-lockdown-clicked="_notifyBanner">
                 <div slot="above-code">
-                    <kano-editor-topbar exit-url="[[exitUrl]]" user="[[user]]" profile="[[user.profile]]"></kano-editor-topbar>
+                    <kano-editor-topbar user="[[user]]" profile="[[user.profile]]"></kano-editor-topbar>
                     <kano-editor-banner id="banner"
                                         head="[[banner.head]]"
                                         text="[[banner.text]]"
@@ -266,7 +266,7 @@
         _bannerButtonTapped () {
             if (this.selectedStep.isLast) {
                 Kano.MakeApps.Utils.onLine().then((isOnline) => {
-                    if (!this.user || this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
+                    if (!this.user ||  this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
                             this.scene.autoshareDisabled || !isOnline) {
                         this.fire('next-story');
                     } else {
@@ -398,9 +398,6 @@
                 this.$.editor.generateCover().then((image) => {
                     this.appPreview = image.src;
                 });
-            //don't alert user on leaving if it's the last story
-            } else if (completed && !this.story.next) {
-                this.alertDisabled = true;
             }
         },
         computeProgress (currentStep, scene) {

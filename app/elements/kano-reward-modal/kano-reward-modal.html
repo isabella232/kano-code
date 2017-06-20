@@ -381,7 +381,7 @@
         }
     </style>
     <template>
-        <kano-modal id="modal" opened="{{opened}}" assets-path="/assets" on-dismiss="_onDialogClosed">
+        <kano-modal id="reward-modal" opened="{{opened}}" assets-path="/assets" on-dismiss="_onDialogClosed">
             <div class="content">
                 <iron-pages id="pager" attr-for-selected="id" selected$="[[panel]]">
                     <div id="xp">
@@ -522,10 +522,13 @@
                 value: false
             }
         },
+        attached () {
+            this.modal = this.$['reward-modal'];
+        },
         _launchReward (progress) {
             this.panel = 'xp';
-            this.async(() => this.$.modal.transitionImage('/assets/icons/xp-star.svg'), 280);
-            this.async(() => this.$.modal.transitionImage('/assets/avatar/judoka-smile.svg'), 2100);
+            this.async(() => this.modal.transitionImage('/assets/icons/xp-star.svg'), 280);
+            this.async(() => this.modal.transitionImage('/assets/avatar/judoka-smile.svg'), 2100);
             this.async(() => this._launchProgress(progress), 2800);
         },
         _launchProgress (progress) {
@@ -540,7 +543,7 @@
                 speed = 700;
             }
             this.async(() => this.$['progress-bar'].addValue(progress.gainedXp, speed), 1000);
-            this.async(() => this.$.modal.motif = '/assets/avatar/judoka-face.svg', speed + 1200);
+            this.async(() => this.modal.motif = '/assets/avatar/judoka-face.svg', speed + 1200);
 
             if (progress.levelup) {
                 this.async(() => this._launchLevelUp(), 3400);
@@ -550,21 +553,21 @@
         },
         _launchLevelUp (newRate) {
             this.panel = 'levelup';
-            this.$.modal.motif = null;
+            this.modal.motif = null;
             this.async(() => this.buttonsVisible = true, 2000);
             this.async(() => this.$['flip-container'].classList.toggle("flip"), 1400);
         },
         _secondActionTapped () {
             this.fire('second-action');
-            this.$.modal.close();
+            this.modal.close();
         },
         _confirmTapped () {
             this.fire('confirm');
-            this.$.modal.close();
+            this.modal.close();
         },
         _reset () {
             this.panel = null;
-            this.$.modal.motif = null;
+            this.modal.motif = null;
             this.buttonsVisible = false;
         },
         _computeProgress (data) {
@@ -597,10 +600,10 @@
             this._computeProgress(data);
             this.header = user ? user.username : 'Nice work!';
             this.secondLabel = user ? null : 'Save your Xp';
-            this.$.modal.open();
+            this.modal.open();
         },
         close () {
-            this.$.modal.close();
+            this.modal.close();
         },
         _onDialogClosed () {
             this.fire('close');

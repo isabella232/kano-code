@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
@@ -48,6 +49,7 @@
                             extensions="[[story.extensions]]"
                             on-extend-story="extendStory"
                             on-next-story="goToNextStory"
+                            on-exit="_exit"
                             on-share="share"
                             added-parts="{{addedParts}}"></kano-story-scene>
         <paper-dialog id="share-modal" opened={{shareOpened}} modal>
@@ -60,9 +62,19 @@
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"
                               in-challenge></kano-share-modal>
-       </paper-dialog>
-       <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
+        </paper-dialog>
+        <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
         <kano-reward-modal id="reward-modal" on-second-action="_openSignup"></kano-reward-modal>
+        <kano-alert id="leave-alert"
+                    heading="[[localize('NOT_FINISHED', 'Oh oh.. not finished yet!')]]"
+                    text="[[localize('LEAVE_CHALLENGE', 'Are you sure you want to leave the challenge?')]]"
+                    entry-animation="from-big-animation"
+                    with-backdrop>
+            <div slot="actions">
+                <button class="kano-alert-primary" on-tap="_confirmExit" dialog-confirm>[[localize('CONFIRM', 'Confirm')]]</button>
+                <button class="kano-alert-secondary" dialog-dismiss>[[localize('CANCEL', 'Cancel')]]</button>
+            </div>
+        </kano-alert>
     </template>
 </dom-module>
 
@@ -90,22 +102,17 @@
             addedParts: {
                 type: Array
             },
-            isChallenge: {
-                type: Boolean,
-                value: true
-            }
+            customAlert: Boolean
         },
         listeners: {
             'parts-changed': '_partsChanged',
-            'share-successful': '_setUserShared'
+            'opened-changed': '_onModalChanged'
+            
         },
         observers: [
             '_addedPartsChanged(addedParts.splices)'
         ],
         ready () {
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-
             this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
             this.hardwareAPI.on('new-part-request', (e) => {
                 this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
@@ -116,7 +123,6 @@
             Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
         },
         attached () {
             Kano.MakeApps.Stories.getById(this.context.params.id)
@@ -189,6 +195,7 @@
                     extension = this.story.extension ? this.story.id : null;
                 Kano.MakeApps.Progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id)
                     .then((progress) => this.updateExtensions(progress));
+                this.customAlert = false;
                 this._displayUserReward(hints);
             }
         },
@@ -306,27 +313,17 @@
             Kano.MakeApps.Stories.getSceneByIndex(this.story, this.selected)
                 .then((scene) => {
                     this.set('scene', scene);
-                    this.set('scene.modeConfig', {
-                        HOST: Kano.Util.Router.parseQsParam(this.context.querystring, 'host'),
-                        PORT: Kano.Util.Router.parseQsParam(this.context.querystring, 'port')
-                    });
+                    this.customAlert = true;
                 });
         },
         extendStory (e) {
             let extensionId = e.detail;
             page.redirect(`/story/${extensionId}`);
         },
-        _runningOnElectron () {
-            return navigator.userAgent.indexOf('Electron') > -1;
-        },
         goToNextStory (e) {
             let storyId;
             if (!this.story.next) {
-                if (this._runningOnElectron()) {
-                    window.history.back();
-                } else {
-                    location.href = Kano.MakeApps.config.PROJECTS_URL;
-                }
+                this.fire('exit-confirmed');
                 return;
             }
 
@@ -339,6 +336,27 @@
         },
         _setUserShared () {
             this.set('user.hasSharedInSession', true);
+        },
+        _confirmExit () {
+            this.fire('exit-confirmed');
+        },
+        _exit () {
+            if (this.customAlert) {
+                this.$['leave-alert'].open();
+            } else {
+                this.fire('exit-confirmed');
+            }
+        },
+        _onModalChanged (e) {
+            if (!this.story) {
+                return;
+            }
+            //TODO Refactor this when challenge modal is implemented similarly to share-modal i.e. as child of a paper dialog
+            const pathIds = Polymer.dom(e).path.map(path => path.id);
+
+            if (pathIds.indexOf('share-modal') > -1 || pathIds.indexOf('reward-modal') > -1) {
+                this.set('story.paused', e.detail.value);
+            }
         }
     });
 </script>

@@ -185,13 +185,13 @@
             </button>
         </div>
         <div class="player-bar" hidden$="[[noPlayerBar]]">
-            <kano-tooltip id="fullscreen-tooltip" class="fly" position="top"><div class="text">Fullscreen</div></kano-tooltip>
+            <kano-tooltip id="fullscreen-tooltip" class="fly" position="top"><div class="text">[[localize('FULLSCREEN', 'Fullscreen')]]</div></kano-tooltip>
             <button id="fullscreen" class="icon" type="button" on-tap="fullscreenClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <img src="/assets/icons/fullscreen-icon.svg" alt="Fullscreen mode" />
             </button>
-            <kano-tooltip id="reset-tooltip" class="fly" position="top"><div class="text">Reset</div></kano-tooltip>
-            <button id="reset" class="icon" type="button" on-tap="resetClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
-                <img src="/assets/icons/reset-icon.svg" alt="Reset app" />
+            <kano-tooltip id="restart-tooltip" class="fly" position="top"><div class="text">[[localize('RESTART', 'Restart')]]</div></kano-tooltip>
+            <button id="restart" class="icon" type="button" on-tap="restartClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
+                <img src="/assets/icons/reset-icon.svg" alt="Restart app" />
             </button>
             <kano-tooltip id="play-pause-tooltip" class="fly" position="top"><div class="text">[[playPauseLabel]]</div></kano-tooltip>
             <button id="play-pause" class="icon" type="button" on-tap="_runButtonClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
@@ -296,8 +296,8 @@
             this.fire('run-button-clicked');
             this.playPauseLabel = this.running ? 'Pause' : 'Play';
         },
-        resetClicked (e) {
-            this.fire('reset-button-clicked');
+        restartClicked (e) {
+            this.fire('restart-button-clicked');
         },
         _getRunningStatus (running) {
             return running ? 'running' : 'stopped';

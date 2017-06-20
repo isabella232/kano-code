@@ -41,18 +41,29 @@
     Kano.MakeApps.Msg.Groups['wrong-category-opened'] = ['wrong-category-opened-1'];
     Kano.MakeApps.Msg.Groups['wrong-block-connection'] = ['wrong-block-connection-1'];
 
+    Kano.MakeApps.Msg.OH_OH = "Oh oh";
+    Kano.MakeApps.Msg.DO_YOU_SAVE = "Do you want to save your creation?";
+    Kano.MakeApps.Msg.ARE_YOU_SURE = "Are you sure?";
+
     Kano.MakeApps.Msg.CANCEL = "Cancel";
     Kano.MakeApps.Msg.CONFIRM = "Confirm";
     Kano.MakeApps.Msg.GOT_IT = "Got it";
+    Kano.MakeApps.Msg.NO_THANKS = "No, thanks";
+
+    Kano.MakeApps.Msg.SAVE = "Save";
+    Kano.MakeApps.Msg.SAVE_IT = "Save it!";
+    Kano.MakeApps.Msg.SAVING = "Saving";
+    Kano.MakeApps.Msg.SAVED = "Saved";
+    Kano.MakeApps.Msg.SAVING_FAILED = "Saving failed";
 
     Kano.MakeApps.Msg.EXIT = "Exit";
     Kano.MakeApps.Msg.CLOSE = "Close";
     Kano.MakeApps.Msg.DONE = "Done";
     Kano.MakeApps.Msg.LOGIN = "Login";
     Kano.MakeApps.Msg.LOG_OUT = "Logout";
-    Kano.MakeApps.Msg.SAVE = "Save";
 
     Kano.MakeApps.Msg.RESET = "Reset";
+    Kano.MakeApps.Msg.RESTART = "Restart";
     Kano.MakeApps.Msg.DELETE = "delete";
 
     Kano.MakeApps.Msg.NEXT_CHALLENGE = "Next Challenge";
@@ -193,6 +204,7 @@
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_ADD_PARTS = "add parts";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_DONE = "Done";
     Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_EDIT_LAYOUT = "Edit Layout";
+    Kano.MakeApps.Msg.KANO_WORKSPACE_TOOLBAR_FULLSCREEN = "Fullscreen";
 
 
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
@@ -201,18 +213,14 @@
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Generating Animation";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start generating your animated gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_MAKE_ANOTHER = "Make another gif";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_ON_WORLD = "Kano Share";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_COPY = "copy";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_GET_SHARE_LINK = "Get share link";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BRING_TO_LIFE = "Bring your own creation to life";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_BUILD_YOUR_OWN = "build your own";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING = "Publishing";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHED = "Published";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_APP_IS_LIVE = "Your app is now live!";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_SHARE_WITH_FRIENDS = "Share it with your friends.";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_APP_IS_STORED = "Your app is safely stored in 'My Creations'.";
+    Kano.MakeApps.Msg.KANO_SHARE_MODAL_WANT_TO_SHARE = "Want to share it with your friends?";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_OPEN_APP = "Open app";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_NEXT_CHALLENGE = "Next Challenge";
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_PUBLISHING_FAILED = "Publishing failed";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_TRY_LATER = "Please try again later.";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_UNFORTUNATE = "This is unfortunate";
 
@@ -231,14 +239,15 @@
     Kano.MakeApps.Msg.KANO_ADD_PARTS_NO_PARTS_HEADER = "No parts available";
     Kano.MakeApps.Msg.KANO_ADD_PARTS_NO_PARTS_TEXT = "No parts here yet. Complete the challenge to unlock them all!";
 
-    Kano.MakeApps.Msg.KANO_APP_EDITOR_ARE_YOU_SURE = "Are you sure";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_RESET = "You'll lose any unsaved changes";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_ABOUT_TO_DELETE = "You are about to delete";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_WANT_TO_DO_THIS = "Are you sure you want to do this?";
-    Kano.MakeApps.Msg.KANO_APP_EDITOR_OH_OH = "Oh oh";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_CANT_DELETE = "You can't delete";
     Kano.MakeApps.Msg.KANO_APP_EDITOR_USED_IN_CODE = "because it is used in the code";
 
     Kano.MakeApps.Msg.KANO_EDITOR_LIGHTBOARD_ADD_PART = "Add Part";
+
+    Kano.MakeApps.Msg.KANO_VIEW_STORY_NOT_FINISHED = "Oh oh.. not finished yet!";
+    Kano.MakeApps.Msg.KANO_VIEW_STORY_LEAVE_CHALLENGE = "Are you sure you want to leave the challenge?";
 
 })(window.Kano = window.Kano || {});
