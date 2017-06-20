@@ -1,9 +1,10 @@
+<script src="../../bower_components/twemoji-min/2/twemoji.min.js"></script>
 <script type="text/javascript">
 
     window.Kano = window.Kano || {};
 
     window.Kano.Behaviors = window.Kano.Behaviors || {};
-    
+
     window.Kano.Behaviors.ChallengeBehavior = {
         properties: {
             steps: {
@@ -95,7 +96,7 @@
             return selectedStep;
         },
         /**
-         * Changes the location to adapt to the current context 
+         * Changes the location to adapt to the current context
          */
         processLocation (location) {
             if (typeof location === 'object') {
@@ -154,7 +155,8 @@
                 return acc.replace(new RegExp('\\$\\{' + key + '\\}', 'g'), this.sceneVariables[key] || '');
             }, text);
 
-            return processedText;
+            /* Replace native emoji and return */
+            return twemoji.parse(processedText);
         },
         /**
          * Move to the next step or set the challenge as done
@@ -163,7 +165,7 @@
             // The current step was injected, we remove it form the array
             if (this.selectedStep.injected) {
                 this.splice('steps', this.step, 1);
-                // Use `_goToStep` to force a refresh of the current step 
+                // Use `_goToStep` to force a refresh of the current step
                 this._goToStep(this.step);
             } else {
                 if (this.step < this.steps.length - 1) {

@@ -54,7 +54,7 @@
 
             }
             getUniqueName (value, inc=1) {
-                let newName = (inc === 2) ? `${value} ${inc}` : value;
+                let newName = (inc >= 2) ? `${value} ${inc}` : value;
                 if (Part.nameRegistry[this.type][newName]) {
                     return this.getUniqueName(value, inc + 1);
                 }
@@ -89,6 +89,7 @@
                 plain.nonvolatileProperties = this.nonvolatileProperties;
                 plain.position = this.position;
                 plain.partType = this.partType;
+                plain.supportedHardware = this.supportedHardware;
                 return plain;
             }
         }
