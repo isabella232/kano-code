@@ -98,14 +98,16 @@ def archive(bucket) {
     def filename = "kc-build-latest.tar.gz"
     sh "tar -czf ${filename} ./www"
     sh "aws s3 cp ${filename} s3://${bucket} --region eu-west-1"
+    def revision = env.NODE_ENV == 'production' ? null : env.BUILD_NUMBER
+    publish_to_releases {
+        dir = './www',
+        repo = 'kano-code'
+        channel = env.NODE_ENV
+        version = get_npm_package_version()
+        revision = revision
+    }
 }
 
 def deploy(dir, bucket) {
     sh "aws s3 sync ${dir} s3://${bucket} --region eu-west-1 --cache-control \"max-age=600\" --only-show-errors"
-}
-
-def getVersion() {
-    def packageJsonString = readFile('./package.json')
-    def packageJson = new groovy.json.JsonSlurper().parseText(packageJsonString)
-    return packageJson.version
 }
