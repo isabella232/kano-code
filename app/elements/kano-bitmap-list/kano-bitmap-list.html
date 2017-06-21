@@ -41,7 +41,6 @@ Custom property | Description | Default
             }
             .animation-roll-padding {
                 @apply --layout-horizontal;
-                opacity: 0.6;
             }
             sortable-js {
                 @apply --layout-horizontal;
@@ -115,18 +114,6 @@ Custom property | Description | Default
                 opacity: 0.7;
                 pointer-events: none;
             }
-            .running-0 {
-                opacity: 0.9;
-            }
-            .running-1 {
-                opacity: 0.8;
-            }
-            .running-2 {
-                opacity: 0.7;
-            }
-            .running-3 {
-                opacity: 0.6;
-            }
             [hidden] {
                 display: none !important;
             }
@@ -158,21 +145,21 @@ Custom property | Description | Default
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 3)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                         <div class="padding-container">
                             <kano-bitmap-renderer width="[[width]]"
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 2)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                         <div class="padding-container">
                             <kano-bitmap-renderer width="[[width]]"
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeLeftEdgeBitmaps(running, 1)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                     </div>
                     <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
@@ -192,21 +179,21 @@ Custom property | Description | Default
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeRightEdgeBitmaps(running, 0)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                         <div class="padding-container">
                             <kano-bitmap-renderer width="[[width]]"
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeRightEdgeBitmaps(running, 1)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                         <div class="padding-container">
                             <kano-bitmap-renderer width="[[width]]"
                                                   height="[[height]]"
                                                   spacing="1"
                                                   pixel-size="4"
-                                                  bitmap="[[_computeRightEdgeBitmaps(running, 2)]]"></kano-bitmap-renderer>
+                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
                         </div>
                     </div>
                 </sortable-js>
@@ -309,12 +296,7 @@ Custom property | Description | Default
                 this.selectedIndex = this.bitmaps.indexOf(bitmap);
             },
             _computeFrameSelectedClass (index, selectedIndex, running) {
-                let c = selectedIndex === index ? 'selected' : '';
-                if (!running) {
-                    return c;
-                } else {
-                    return c + ` running-${Math.abs(selectedIndex - index)}`;
-                }
+                return selectedIndex === index ? 'selected' : '';
             },
             duplicateFrame () {
                 const copy = this.bitmaps[this.selectedIndex].slice(0);
@@ -324,7 +306,7 @@ Custom property | Description | Default
             },
             addFrame () {
                 this.debounce('add-frame', () => {
-                    let frame = this._getEmptyFrame();
+                    let frame = this.getEmptyFrame();
 
                     if (this.bitmaps.length) {
                         this.selectedIndex++;
@@ -359,23 +341,12 @@ Custom property | Description | Default
                     this._moveToSelected();
                 }
             },
-            _getEmptyFrame () {
+            getEmptyFrame () {
                 const emptyFrame = [];
                 for (let i = 0; i < this.width * this.height; i++) {
                     emptyFrame.push('#000000');
                 }
                 return emptyFrame;
-            },
-            //to avoid jumps when animation is playing, we duplicate three frames at the extremes of the list
-            _computeLeftEdgeBitmaps (running, index) {
-                if (running) {
-                    return this.bitmaps[this.bitmaps.length - index] || this._getEmptyFrame();
-                }
-            },
-            _computeRightEdgeBitmaps (running, index) {
-                if (running) {
-                    return this.bitmaps[index] || this._getEmptyFrame();
-                }
             }
         });
     </script>

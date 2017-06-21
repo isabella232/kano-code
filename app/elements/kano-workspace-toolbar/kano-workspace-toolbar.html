@@ -68,7 +68,7 @@
         }
         kano-tooltip {
             box-sizing: border-box;
-            --kano-tooltip-caret-width: 9px;
+            --kano-tooltip-caret-width: 12px;
         }
         kano-tooltip.fly {
             --kano-tooltip-caret-width: 7px;
@@ -123,9 +123,9 @@
             --iron-icon-fill-color: #fff;
         }
         ul {
-            min-width: 200px;
+            min-width: 180px;
             margin: 0px;
-            padding: 14px 0 10px;
+            padding: 10px 0 8px;
             color: black;
         }
         li {
@@ -166,7 +166,7 @@
         <button id="settings" type="button" class="icon settings" hidden$="[[!showSettings]]" on-tap="_openTooltip">
             <iron-icon icon="settings"></iron-icon>
         </button>
-        <kano-tooltip id="save-tooltip" class="fly" position="top"><div class="text">Save</div></kano-tooltip>
+        <kano-tooltip id="save-tooltip" class="fly" position="top" offset="16"><div class="text">Save</div></kano-tooltip>
         <button id="save" type="button" class="icon" on-tap="_save" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
             <iron-icon src="/assets/icons/save.svg"></iron-icon>
         </button>
@@ -185,20 +185,20 @@
             </button>
         </div>
         <div class="player-bar" hidden$="[[noPlayerBar]]">
-            <kano-tooltip id="fullscreen-tooltip" class="fly" position="top"><div class="text">[[localize('FULLSCREEN', 'Fullscreen')]]</div></kano-tooltip>
+            <kano-tooltip id="fullscreen-tooltip" class="fly" position="top" offset="16"><div class="text">[[localize('FULLSCREEN', 'Fullscreen')]]</div></kano-tooltip>
             <button id="fullscreen" class="icon" type="button" on-tap="fullscreenClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <img src="/assets/icons/fullscreen-icon.svg" alt="Fullscreen mode" />
             </button>
-            <kano-tooltip id="restart-tooltip" class="fly" position="top"><div class="text">[[localize('RESTART', 'Restart')]]</div></kano-tooltip>
+            <kano-tooltip id="restart-tooltip" class="fly" position="top" offset="16"><div class="text">[[localize('RESTART', 'Restart')]]</div></kano-tooltip>
             <button id="restart" class="icon" type="button" on-tap="restartClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <img src="/assets/icons/reset-icon.svg" alt="Restart app" />
             </button>
-            <kano-tooltip id="play-pause-tooltip" class="fly" position="top"><div class="text">[[playPauseLabel]]</div></kano-tooltip>
+            <kano-tooltip id="play-pause-tooltip" class="fly" position="top" offset="16"><div class="text">[[playPauseLabel]]</div></kano-tooltip>
             <button id="play-pause" class="icon" type="button" on-tap="_runButtonClicked" on-mouseenter="_startTimer" on-mouseleave="_stopTimer">
                 <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}"></kano-animated-svg>
             </button>
         </div>
-        <kano-tooltip id="settings-tooltip" position="bottom" auto-close>
+        <kano-tooltip id="settings-tooltip" position="bottom" offset="16" auto-close>
             <ul>
                 <li>
                     <button type="button" class="inline text" on-tap="_reset">
