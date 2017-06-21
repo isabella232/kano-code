@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
@@ -6,6 +7,7 @@
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
+<link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
@@ -74,16 +76,28 @@
             code="{{code}}"
             added-parts="{{addedParts}}"
             default-categories="[[defaultCategories]]"
-            on-share="_pauseAndShare"
             mode="[[mode]]"
             remix-mode="[[remixMode]]"
+            unsaved-changes="{{showSavePrompt}}"
+            on-share="_pauseAndShare"
+            on-exit="_exit"
             show-share-button>
             <kano-editor-topbar
-                exit-url="[[exitUrl]]"
                 user="[[user]]"
                 profile="[[user.profile]]"
                 slot="above-code"></kano-editor-topbar>
         </kano-app-editor>
+        <kano-alert id="save-prompt"
+                    heading="[[localize('DO_YOU_SAVE', 'Do you want to save your creation?')]]"
+                    text="[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]"
+                    entry-animation="from-big-animation"
+                    with-backdrop>
+            <div slot="actions">
+                <button class="kano-alert-primary" on-tap="_launchShare" dialog-confirm>[[localize('SAVE_IT', 'Save it!')]]</button>
+                <button class="kano-alert-secondary" on-tap="_confirmExit" dialog-dismiss>[[localize('NO_THANKS', 'No\, thanks')]]</button>
+                <button class="kano-alert-secondary" dialog-dismiss>[[localize('CANCEL', 'Cancel')]]</button>
+            </div>
+        </kano-alert>
         <paper-dialog id="error-dialog" with-backdrop>
             <h2 class="title">{{error.title}}</h2>
             <p class="description">{{error.description}}</p>
@@ -116,7 +130,8 @@
         is: 'kano-view-editor',
         behaviors: [
             Kano.Behaviors.SharingBehavior,
-            Kano.Behaviors.EditorViewBehavior
+            Kano.Behaviors.EditorViewBehavior,
+            Kano.Behaviors.I18nBehavior
         ],
         properties: {
             context: Object,
@@ -146,13 +161,20 @@
                     description: ''
                 },
                 notify: true
+            },
+            showSavePrompt: {
+                type: Boolean,
+                value: false,
+                notify: true
             }
         },
         observers: [
             '_onAddedPartsChanged(addedParts.splices)'
         ],
         listeners: {
-            'parts-changed': '_partsChanged'
+            'parts-changed': '_partsChanged',
+            'share-successful': '_deactivateSavePrompt',
+            'share-attempted': '_deactivateSavePrompt'
         },
         attached () {
             this._onDragover = this._onDragover.bind(this);
@@ -400,10 +422,6 @@
             return modeFromQs ? modeFromQs : 'normal';
         },
         ready () {
-            Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-            Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-            Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
-
             this.loaded = false;
             this.editor = this.$.editor;
             this.editor.addEventListener('change', this.save.bind(this));
@@ -443,14 +461,24 @@
                 }, 3000);
             }
         },
-        /**
-         * When the current code changes, save it in the components store
-         * @param  {Event} e  Informations about the code updated
-         */
-        codeChanged (e) {
-            let data = e.detail;
-            // Add the new code and its rule to the components store
-            Kano.MakeApps.components.setCode(data.id, data.emitter, data.event, data.code);
+        _activateSavePrompt () {
+            this.showSavePrompt = true;
+        },
+        _deactivateSavePrompt () {
+            this.showSavePrompt = false;
+        },
+        _confirmExit () {
+            this.fire('exit-confirmed');
+        },
+        _launchShare () {
+            this.$.editor.share();
+        },
+        _exit () {
+            if (this.showSavePrompt) {
+                this.$['save-prompt'].open();
+            } else {
+                this.fire('exit-confirmed');
+            }
         }
     });
 </script>

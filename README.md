@@ -99,7 +99,9 @@ Functional tests are located in `tests/` and can be run with `cucumber-js test/`
 You can choose the target browser by setting the env variable `TARGET_BROWSER` to `chrome`, `firefox` or `safari`, will default to `chrome` (WIP)
 
 ### Staging
+
 Master is automatically deployed by Jenkins. Can be found here: http://apps-staging.kano.me/
 
 ### Production
+
 Production is served from S3. Can be found here: http://apps.kano.me
