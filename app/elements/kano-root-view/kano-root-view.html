@@ -311,6 +311,10 @@
             // Only update if the splices changes (part added or removed) or if the name of the part changes
             if (e.path === 'parts' || e.path === 'parts.splices' || idChanged) {
                 this.computeToolboxDebounced();
+                if (Blockly.Blocks && Blockly.Blocks.collision_event) {
+                    // Update the collision block with the new parts
+                    Blockly.Blocks.collision_event.setParts(this.parts);
+                }
                 // If the id changed, we nee to upgrade the blocks already added
                 if (idChanged) {
                     this.debounce('reloadAfterIdChanged', () => {

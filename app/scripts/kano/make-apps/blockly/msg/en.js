@@ -23,7 +23,9 @@
 
     Blockly.Msg.LOOP_IN = "In %1 %2";
 
-    Blockly.Msg.GLOBAL_EVENT = "When %1";
+    Blockly.Msg.WHEN = "When";
+    Blockly.Msg.GLOBAL_EVENT = Blockly.Msg.WHEN + " %1";
+    Blockly.Msg.COLLIDES_WITH = "collides with";
     Blockly.Msg.APP_STARTS = "app starts";
 
     Blockly.Msg.KEY_EVENT = "When key %1 is %2";
