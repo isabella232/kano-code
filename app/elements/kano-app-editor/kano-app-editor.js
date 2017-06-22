@@ -459,6 +459,9 @@ Polymer({
             this.notifyChange('open-part-settings', { part: this.selected });
         }
     },
+    _closePartSettings () {
+        this.$['edit-part-dialog'].close();
+    },
     _toggleFullscreenModal (isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;

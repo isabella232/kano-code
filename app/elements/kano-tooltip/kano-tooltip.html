@@ -32,16 +32,15 @@
     :host .tooltip {
         @apply --layout-vertical;
         @apply --layout-center-justified;
+        @apply --layout-center;
         position: relative;
         background-color: var(--kano-tooltip-background-color, white);
         border-radius: 4px;
         border: solid;
-        min-height: calc(var(--kano-tooltip-caret-width) + 8px);
         border-color: var(--kano-tooltip-border-color);
         border-width: var(--kano-tooltip-border-width);
         font-size: 16px;
         line-height: 16px;
-        padding: 16px 26px 16px;
         @apply --kano-tooltip;
     }
     :host([position="top"]) .tooltip {
@@ -64,34 +63,34 @@
         @apply --kano-tooltip-caret;
     }
     :host([position="top"]) .tooltip .caret-shadow {
-        top: 100%;
+        top: 99%;
         left: 50%;
-        border-bottom-right-radius: 3px;
+        border-bottom-right-radius: 2px;
         box-shadow: 2px 2px 2px -1px rgba(0, 0, 0, 0.1);
         margin-left: calc(-var(--kano-tooltip-caret-width) / 2);
         margin-top: calc(-var(--kano-tooltip-caret-width) / 2);
     }
     :host([position="right"]) .tooltip .caret-shadow {
         top: 50%;
-        right: 100%;
-        border-bottom-left-radius: 3px;
-        box-shadow: -2px 2px 2px -1px rgba(0, 0, 0, 0.1);
+        right: 99%;
+        border-bottom-left-radius: 2px;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
         margin-top: calc(-var(--kano-tooltip-caret-width) / 2);
         margin-right: calc(-var(--kano-tooltip-caret-width) / 2);
     }
     :host([position="bottom"]) .tooltip .caret-shadow {
-        bottom: 100%;
+        bottom: 99%;
         left: 50%;
-        border-top-left-radius: 3px;
-        box-shadow: -3px -3px 2px -3px rgba(0, 0, 0, 0.1);
+        border-top-left-radius: 2px;
+        box-shadow: -4px -4px 4px -4px rgba(0, 0, 0, 0.1);
         margin-left: calc(-var(--kano-tooltip-caret-width) / 2);
         margin-bottom: calc(-var(--kano-tooltip-caret-width) / 2);
     }
     :host([position="left"]) .tooltip .caret-shadow {
         top: 50%;
-        left: 100%;
-        border-top-right-radius: 3px;
-        box-shadow: 2px -2px 2px -1px rgba(0, 0, 0, 0.1);
+        left: 99%;
+        border-top-right-radius: 2px;
+        box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
         margin-top: calc(-var(--kano-tooltip-caret-width) / 2);
         margin-left: calc(-var(--kano-tooltip-caret-width) / 2);
     }
@@ -129,6 +128,10 @@
             zIndex: {
                 type: Number,
                 value: null
+            },
+            offset: {
+                type: Number,
+                value: 20
             },
             autoClose: {
                 type: Boolean,
@@ -221,13 +224,13 @@
                 }
 
                 if (this.position === 'top') {
-                    style.top = `${tRect.top - rect.height - this.contextOffset.top - 20}px`;
+                    style.top = `${tRect.top - rect.height - this.contextOffset.top - this.offset}px`;
                 } else if (this.position === 'bottom') {
-                    style.top = `${tRect.bottom - this.contextOffset.top + 20}px`;
+                    style.top = `${tRect.bottom - this.contextOffset.top + this.offset}px`;
                 } else if (this.position === 'right') {
-                    style.left = `${tRect.right - this.contextOffset.left + 20}px`;
+                    style.left = `${tRect.right - this.contextOffset.left + this.offset}px`;
                 } else if (this.position === 'left') {
-                    style.left = `${tRect.left - this.contextOffset.left - rect.width - 20}px`;
+                    style.left = `${tRect.left - this.contextOffset.left - rect.width - this.offset}px`;
                 }
 
                 if (this.zIndex !== null) {
