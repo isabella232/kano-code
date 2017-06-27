@@ -132,12 +132,12 @@
                     this.updateDevices().then(() => {
                         this.networkSocket.on('device-added', (info) => {
                             const device = HardwareAPI.instanciateDevice(info, this);
-                            this.hwapi.addDevice(device);
+                            this.addDevice(device);
                         });
 
                         this.networkSocket.on('device-removed', (info) => {
                             let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
-                            this.hwapi.removeDevice(device);
+                            this.removeDevice(device);
                         });
                     });
 
@@ -180,6 +180,26 @@
                             return HardwareAPI.instanciateDevice(d, this);
                         });
                     });
+                }
+            }
+
+            /**
+             * Add and try to find an existing match for the device
+             */
+            addDevice (device) {
+                this.devices.push(device);
+                this.hwapi.findOrCreatePartForDevice(device);
+            }
+
+            /**
+             * Unbinds and remove a device
+             */
+            removeDevice (device) {
+                const index = this.devices.indexOf(device);
+                this.hwapi.unbindPartFromDevice(device);
+                device.tearDown();
+                if (index !== -1) {
+                    this.devices.splice(index, 1);
                 }
             }
 
@@ -405,7 +425,7 @@
             }
 
             /**
-             * Ask a socket the connected devices. Times out after 4 seconds
+             * Ask a socket the connected devices. Times out after 6 seconds
              */
             static getTopDevices (socket) {
                 return new Promise((resolve, reject) => {
@@ -418,16 +438,17 @@
                     socket.on('device-update', deviceUpdateCallback);
                     timeoutId = setTimeout(() => {
                         socket.removeListener('device-update', deviceUpdateCallback);
-                        throw new Error('Could not get devices over web sockets after 4 seconds');
-                    }, 4000);
+                        throw new Error('Could not get devices over web sockets after 6 seconds');
+                    }, 6000);
                     socket.emit('request-device-update');
                 });
             }
 
             getDeviceById (id) {
-                for (let i = 0; i < this.devices.length; i++) {
-                    if (this.devices[i].id === id) {
-                        return this.devices[i];
+                const devices = this._doGetAllDevices(this.devices);
+                for (let i = 0; i < devices.length; i++) {
+                    if (devices[i].id === id) {
+                        return devices[i];
                     }
                 }
             }
@@ -579,7 +600,6 @@
                 }
                 this.debounce('reassign-devices', () => {
                     this._cleanupDeviceMap();
-
                     this._doGetAllDevices(this.devices).forEach((dev) => {
                         this.findOrCreatePartForDevice(dev);
                     });
