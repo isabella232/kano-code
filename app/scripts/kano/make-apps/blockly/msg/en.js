@@ -23,6 +23,8 @@
 
     Blockly.Msg.LOOP_IN = "In %1 %2";
 
+    Blockly.Msg.RESTART_CODE = "Restart code";
+
     Blockly.Msg.GLOBAL_EVENT = "When %1";
     Blockly.Msg.APP_STARTS = "app starts";
 

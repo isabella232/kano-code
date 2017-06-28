@@ -826,7 +826,7 @@ Polymer({
     getWorkspace () {
         return this.$.workspace;
     },
-    _resetAppState () {
+    resetAppState () {
         this.running = false;
 
         setTimeout(() => {

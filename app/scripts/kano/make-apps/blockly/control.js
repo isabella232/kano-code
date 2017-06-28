@@ -185,6 +185,26 @@
             return code;
         };
 
+        Blockly.Blocks.restart_code = {
+            init: function () {
+                let json = {
+                    id: 'restart_code',
+                    colour: COLOR,
+                    message0: Blockly.Msg.RESTART_CODE,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+                this.jsonInit(json);
+            }
+        };
+
+        Blockly.JavaScript.restart_code = (block) => {
+            return 'global.restartCode();';
+        };
+        Blockly.Pseudo.restart_code = (block) => {
+            return 'global.restartCode();';
+        };
+
         category.blocks.forEach((category) => {
             Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
         });
@@ -206,7 +226,8 @@
             {
                 id: 'in_x_time',
                 defaults: ['DELAY']
-            }
+            },
+            'restart_code'
         ]
     });
 
