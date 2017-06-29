@@ -1,0 +1,293 @@
+<link rel="import" href="./parts.html">
+<link rel="import" href="./hardware.html">
+<script>
+    (function (Kano) {
+
+        let synth;
+
+        const COLOUR = '#C93E6A';
+
+        synth = {
+            partType: 'hardware',
+            type: 'synth',
+            label: Kano.MakeApps.Msg.PART_SYNTH_NAME,
+            image: '/assets/part/osc.svg',
+            colour: COLOUR,
+            component: 'kano-part-synth',
+            experiments: {},
+            blocks: []
+        };
+
+
+        // Check Web Audio support
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+        try {
+            synth.ctx = new window.AudioContext();
+            synth.webAudioSupported = true;
+        } catch (e) {
+            synth.webAudioSupported = false;
+        }
+
+        // Add synth blocks if supported
+        if (synth.webAudioSupported) {
+            synth.blocks = synth.blocks.concat([{
+               block: (part) => {
+                   return {
+                       id: 'synth_set_volume',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SPEAKER_VOLUME}`,
+                       args0: [{
+                           type: 'input_value',
+                           name: 'VOLUME',
+                           check: 'Number'
+                       }],
+                       previousStatement: null,
+                       nextStatement: null,
+                       shadow: {
+                           'VOLUME': '<shadow type="math_number"><field name="NUM">100</field></shadow>'
+                       }
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let volume = Blockly.JavaScript.valueToCode(block, 'VOLUME') || 100,
+                           code = `parts.get('${part.id}').setVolume(${volume});\n`;
+                       return code;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let volume = Blockly.Pseudo.valueToCode(block, 'VOLUME') || 100,
+                           code = `parts.get('${part.id}').setVolume(${volume});\n`;
+                       return code;
+                   };
+               }
+           },{
+                block: (part) => {
+                    return {
+                        id: 'synth_play_frequency_for',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SYNTH_PLAY_FREQUENCY_FOR}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'FREQUENCY',
+                            check: 'Number'
+                        }, {
+                            type: 'input_value',
+                            name: 'DURATION',
+                            check: 'Number'
+                        }],
+                        previousStatement: null,
+                        nextStatement: null,
+                        shadow: {
+                            'FREQUENCY': '<shadow type="math_number"><field name="NUM">25</field></shadow>',
+                            'DURATION': '<shadow type="math_number"><field name="NUM">100</field></shadow>'
+                        }
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25,
+                            duration = Blockly.Pseudo.valueToCode(block, 'DURATION') || 100,
+                            code;
+
+                        if (freq > 100) {
+                            freq = 100;
+                        }
+
+                        if (freq < 0) {
+                            freq = 0;
+                        }
+
+                        if (duration > 1000 * 60 * 5) {
+                            duration = 1000 * 60 * 5;
+                        }
+
+                        if (duration < 0) {
+                            duration = 0;
+                        }
+
+                        code = `parts.get('${part.id}').playFrequency(${freq}, ${duration});\n`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25,
+                            duration = Blockly.Pseudo.valueToCode(block, 'DURATION') || 100,
+                            code;
+
+                        if (freq > 100) {
+                            freq = 100;
+                        }
+
+                        if (freq < 0) {
+                            freq = 0;
+                        }
+
+                        if (duration > 1000 * 60 * 5) {
+                            duration = 1000 * 60 * 5;
+                        }
+
+                        if (duration < 0) {
+                            duration = 0;
+                        }
+
+                        code = `parts.get('${part.id}').playFrequency(${freq}, ${duration});\n`;
+                        return code;
+                    };
+                }
+            }, {
+               block: (part) => {
+                   return {
+                       id: 'synth_start',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SYNTH_START}`,
+                       previousStatement: null,
+                       nextStatement: null
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let code = `parts.get('${part.id}').startSynth();\n`;
+                       return code;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let code = `parts.get('${part.id}').startSynth();\n`;
+                       return code;
+                   };
+               }
+           }, {
+                block: (part) => {
+                    return {
+                        id: 'synth_stop',
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_SYNTH_STOP}`,
+                        previousStatement: null,
+                        nextStatement: null
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let code = `parts.get('${part.id}').stop();\n`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let code = `parts.get('${part.id}').stop();\n`;
+                        return code;
+                    };
+                }
+            }, {
+               block: (part) => {
+                   return {
+                       id: 'synth_set_frequency',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SYNTH_SET_FREQUENCY}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'FREQUENCY',
+                            check: 'Number'
+                        }],
+                       previousStatement: null,
+                       nextStatement: null,
+                       shadow: {
+                           'FREQUENCY': '<shadow type="math_number"><field name="NUM">25</field></shadow>'
+                       }
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25;
+
+                       if (freq > 100) {
+                           freq = 100;
+                       }
+
+                       if (freq < 0) {
+                           freq = 0;
+                       }
+
+                       return `parts.get('${part.id}').setSynthFrequency(${freq});\n`;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let freq = Blockly.Pseudo.valueToCode(block, 'FREQUENCY') || 25;
+
+                       if (freq > 100) {
+                           freq = 100;
+                       }
+
+                       if (freq < 0) {
+                           freq = 0;
+                       }
+
+                       return `parts.get('${part.id}').setSynthFrequency(${freq});\n`;
+                   };
+               }
+           }, {
+               block: (part) => {
+                   return {
+                       id: 'synth_set_wave',
+                       message0: `${part.name}: ${Blockly.Msg.BLOCK_SYNTH_SET_WAVE}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'WAVE',
+                            check: 'Wave'
+                        }],
+                       previousStatement: null,
+                       nextStatement: null
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let wave = Blockly.Pseudo.valueToCode(block, 'WAVE') || 'sine';
+                       return `parts.get('${part.id}').setSynthWave(${wave});\n`;
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let wave = Blockly.Pseudo.valueToCode(block, 'WAVE') || 'sine';
+                       return `parts.get('${part.id}').setSynthWave(${wave});\n`;
+                   };
+               }
+           }, {
+               block: () => {
+                   return {
+                       id: 'synth_wave',
+                       message0: '%1',
+                       args0: [{
+                           type: 'field_dropdown',
+                           name: 'WAVE',
+                           options: [
+                               ['sine', 'sine'],
+                               ['square', 'square'],
+                               ['triangle', 'triangle'],
+                               ['sawtooth', 'sawtooth']
+                           ]
+                       }],
+                       inputsInline: true,
+                       output: "Wave"
+                   };
+               },
+               javascript: (part) => {
+                   return (block) => {
+                       let wave = block.getFieldValue('WAVE'),
+                           code = `'${wave}'`;
+                       return [code];
+                   };
+               },
+               pseudo: (part) => {
+                   return (block) => {
+                       let wave = block.getFieldValue('WAVE'),
+                           code = `'${wave}'`;
+                       return [code];
+                   };
+               }
+            }]);
+        };
+
+
+        Kano.MakeApps.Parts.registerPart(synth);
+    })(window.Kano = window.Kano || {});
+</script>

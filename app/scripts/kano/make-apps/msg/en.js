@@ -118,6 +118,7 @@
     Kano.MakeApps.Msg.PART_SCROLL_NAME = "Scroller";
     Kano.MakeApps.Msg.PART_SLIDER_NAME = "Slider";
     Kano.MakeApps.Msg.PART_SPEAKER_NAME = "Speaker";
+    Kano.MakeApps.Msg.PART_SYNTH_NAME = "Synth";
     Kano.MakeApps.Msg.PART_STICKER_NAME = "Sticker";
     Kano.MakeApps.Msg.PART_TEXT_NAME = "Text";
     Kano.MakeApps.Msg.PART_TEXT_INPUT_NAME = "Text input";
