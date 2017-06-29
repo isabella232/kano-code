@@ -164,6 +164,9 @@
                     root.removeChild(this.component);
                 }
                 this.component = c;
+
+                this.component.addEventListener('restart-code', this._reset.bind(this));
+
                 this.fire('app-ready');
                 this.async(() => {
                     this.component.$$('kano-ui-viewport').resizeView();
