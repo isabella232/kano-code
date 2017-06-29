@@ -37,17 +37,15 @@ Custom property | Description | Default
                 @apply --layout-center;
                 height: 110px;
                 position: relative;
+                box-sizing: border-box;
                 padding: 0;
+            }
+            .carousel-content {
+                @apply --layout-horizontal;
+                @apply --layout-center;
             }
             .animation-roll-padding {
                 @apply --layout-horizontal;
-            }
-            sortable-js {
-                @apply --layout-horizontal;
-                @apply --layout-end;
-                padding: 11px 4px;
-                max-width: 100%;
-                box-sizing: border-box;
             }
             .sortable-item,
             .padding-container {
@@ -61,11 +59,8 @@ Custom property | Description | Default
                 border-radius: 6px;
                 box-sizing: border-box;
             }
-            .sortable-item:not(:nth-child(2)),
+            .sortable-item,
             .padding-container {
-                margin-left: 22px;
-            }
-            .padding-container:nth-child(3) {
                 margin-right: 22px;
             }
             .sortable-item.sortable-ghost {
@@ -132,37 +127,36 @@ Custom property | Description | Default
             </div>
         <x-carousel id="carousel" keep-buttons-visible>
             <iron-icon icon="kano-icons:arrow" slot="left-button" carousel-control-left></iron-icon>
-            <div slot="content">
+            <div slot="content" class="carousel-content">
+                <div id="padding-left" class="animation-roll-padding" hidden$="[[!running]]">
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                </div>
                 <sortable-js id="frames"
                              group="frames"
                              animation="150"
                              on-start="_sortStart"
-                             on-end="_sortEnd"
-                             on-update="_sortUpdate">
-                    <div class="animation-roll-padding" hidden$="[[!running]]">
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                    </div>
-                    <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat" >
+                             on-end="_sortEnd">
+                    <template is="dom-repeat" items="[[bitmaps]]" as="bm" id="repeat">
                         <div class$="sortable-item [[_computeFrameSelectedClass(index, selectedIndex, running)]]">
                             <kano-bitmap-renderer width="[[width]]"
                                                   height="[[height]]"
@@ -173,30 +167,30 @@ Custom property | Description | Default
                             <div hidden$="[[!displayedIndex]]" class="index-number">[[displayedIndex]]</div>
                         </div>
                     </template>
-                    <div class="animation-roll-padding" hidden$="[[!running]]">
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                        <div class="padding-container">
-                            <kano-bitmap-renderer width="[[width]]"
-                                                  height="[[height]]"
-                                                  spacing="1"
-                                                  pixel-size="4"
-                                                  bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                        </div>
-                    </div>
                 </sortable-js>
+                <div class="animation-roll-padding" hidden$="[[!running]]">
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                    <div class="padding-container">
+                        <kano-bitmap-renderer width="[[width]]"
+                                              height="[[height]]"
+                                              spacing="1"
+                                              pixel-size="4"
+                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
+                    </div>
+                </div>
             </div>
             <iron-icon class="end-arrow" icon="kano-icons:arrow" slot="right-button" carousel-control-right></iron-icon>
         </x-carousel>
@@ -278,10 +272,8 @@ Custom property | Description | Default
             },
             _sortEnd (e) {
                 this.sorting = false;
-            },
-            _sortUpdate (e) {
-                if (e.detail) {
-                    this.selectedIndex = e.detail.newIndex;
+                if (typeof e.newIndex === 'number') {
+                    this.selectedIndex = e.newIndex;
                     this.selected = this.bitmaps[this.selectedIndex].slice(0);
                 }
             },
@@ -333,7 +325,8 @@ Custom property | Description | Default
             _moveToSelected () {
                 const target = Polymer.dom(this.root).querySelector('.selected');
                 if (target) {
-                    this.$.carousel.moveTo(target.offsetLeft + target.offsetWidth / 2, this.moveDelay);
+                    this.$.carousel.moveTo(this.$['padding-left'].offsetWidth + target.offsetLeft + target.offsetWidth / 2,
+                        this.moveDelay);
                 }
             },
             _onRunningChanged (running, wasRunning) {
