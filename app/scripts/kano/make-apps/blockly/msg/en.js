@@ -85,6 +85,11 @@
     Blockly.Msg.BLOCK_CLOCK_TIME = "Time";
 
     Blockly.Msg.BLOCK_MAP_MOVE_MARKER = "move marker to lat %1 long %2";
+    Blockly.Msg.BLOCK_MAP_MOVE_MARKER_RANDOM = "move marker to random";
+    Blockly.Msg.BLOCK_MAP_SET_VIEW = "set view to: %1";
+    Blockly.Msg.BLOCK_MAP_SET_ZOOM = "set zoom to: %1";
+    Blockly.Msg.BLOCK_MAP_MAP = "Map";
+    Blockly.Msg.BLOCK_MAP_SATELLITE = "Satellite";
 
     Blockly.Msg.BLOCK_MIC_VOLUME = "volume";
     Blockly.Msg.BLOCK_MIC_PITCH = "pitch";

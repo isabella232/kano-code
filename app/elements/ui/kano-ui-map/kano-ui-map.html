@@ -17,17 +17,16 @@
         <!-- Add the map only when the Api Key is set -->
         <template is="dom-if" if="[[apiKey]]" restamp>
             <google-map id="map"
-                disable-default-ui
-                zoom="4"
-                disable-zoom
-                additional-map-options="[[mapOptions]]"
-                latitude="{{position.latitude}}"
-                longitude="{{position.longitude}}"
-                style$="[[computeMapStyle(model.userStyle.*)]]"
-                api-key="[[apiKey]]"
-                map="{{map}}">
-                <google-map-marker latitude="{{position.latitude}}" longitude="{{position.longitude}}" draggable="true"></google-map-marker>
-        </google-map>
+                        zoom="4"
+                        additional-map-options="[[mapOptions]]"
+                        latitude="[[position.latitude]]"
+                        longitude="[[position.longitude]]"
+                        api-key="[[apiKey]]"
+                        map="[[map]]"
+                        disable-default-ui
+                        disable-zoom>
+                <google-map-marker latitude="[[position.latitude]]" longitude="[[position.longitude]]" draggable="true"></google-map-marker>
+            </google-map>
         </template>
     </template>
     <script type="text/javascript">
@@ -44,6 +43,9 @@
                     }
                 }
             },
+            observers: [
+                'resizeMap(model.userStyle.*, apiKey)'
+            ],
             ready () {
                 this.apiKey = Kano.MakeApps.config.GOOGLE_API_KEY;
                 this.mapOptions = {
@@ -71,8 +73,26 @@
                 this.push('coordinates', pos);
                 this.set('position', pos);
             },
-            computeMapStyle () {
-                return this.getPartialStyle(['width', 'height']);
+            moveToRandom () {
+                //random longitude between -180.00000 and 180.00000
+                this.$$('#map').longitude = (-18000000 + Math.floor(Math.random() * (36000001))) / 100000;
+                //random latitiude between -85.05115 and 85.00000
+                this.$$('#map').latitiude = (-85.05115 + Math.floor(Math.random() * (179.94885))) / 100000;
+            },
+            setMapType (type) {
+                this.$$('#map').mapType = type;
+            },
+            setMapZoom (zoom) {
+                zoom = Math.max(1, Math.min(zoom, 100));
+                //translate 1 - 100 to 1 - 20
+                zoom = Math.max(1, Math.round(zoom / 5));
+                this.$$('#map').zoom = zoom;
+            },
+            resizeMap () {
+                this.async(() => {
+                    this.$$('#map').style = this.getPartialStyle(['width', 'height']);
+                    this.$$('#map').resize();
+                });
             },
             renderOnCanvas (ctx) {
                 return Kano.Behaviors.UIBehavior.renderOnCanvas.apply(this, arguments).then(() => {
