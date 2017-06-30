@@ -271,7 +271,7 @@
                         this.fire('next-story');
                     } else {
                         const shareDetail = this.$.editor.compileApp();
-                        shareDetail.title = `${this.user.username}'s ${this.story.name}`;
+                        shareDetail.title = this.story.name;
                         shareDetail.autoshare = true;
                         this.scene.autoshareDisabled = true;
 
@@ -528,6 +528,9 @@
         },
         _notifyBanner () {
             this.$.banner.shakeButton();
+        },
+        resetAppState () {
+            this.$.editor.resetAppState();
         }
     });
 </script>

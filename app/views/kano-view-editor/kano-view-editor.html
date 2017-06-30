@@ -434,7 +434,12 @@
 
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Object.assign({ hardwareAPI: this.hardwareAPI }, Kano.MakeApps.config));
+            Kano.AppModules.init(Object.assign({
+                hardwareAPI: this.hardwareAPI,
+                restartCodeHandler: () => {
+                    this.$.editor.resetAppState();
+                }
+            }, Kano.MakeApps.config));
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
         },
