@@ -277,6 +277,7 @@ Polymer({
         if (!this.remixMode) {
             localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
+        this.unsavedChanges = false;
     },
     checkBlockDependency (part) {
         let xmlString, xml, parser, blocks, block, blockId, pieces;
@@ -438,6 +439,7 @@ Polymer({
         this.$['root-view'].computeBlocks();
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
+        this.unsavedChanges = false;
     },
     _formatCode (code) {
         code = code || {};
