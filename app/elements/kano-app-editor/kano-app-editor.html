@@ -207,6 +207,7 @@ Example:
                                     mode="[[mode]]"
                                     background="[[background.userStyle.background]]"
                                     parts-menu-open="[[partsMenuOpen]]"
+                                    on-close-settings="_closePartSettings"
                                     on-open-settings="onPartSettings"
                                     on-ui-ready="workspaceUiReady"
                                     on-change="_proxyChange"
@@ -267,7 +268,8 @@ Example:
         </kano-alert>
         <paper-dialog id="edit-part-dialog"t
                       entry-animation="from-big-animation"
-                      on-iron-overlay-closed="_partEditorDialogClosed">
+                      on-iron-overlay-closed="_partEditorDialogClosed"
+                      no-cancel-on-outside-click>
             <kano-part-editor
                 id="edit-part-dialog-content"
                 selected="{{selected}}"
