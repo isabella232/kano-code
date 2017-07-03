@@ -106,7 +106,7 @@
                 });
             }
             Blockly.Blocks.collision_event.applyCollisionFields = (prefix, target) => {
-                let firstDropdown, secondDropdown;
+                let firstDropdown, secondDropdown, input;
 
                 firstDropdown = new Blockly.FieldDropdown(() => target.getFirstPartOptions(), function (option) {
                     if (target.getFieldValue('PART2') === option) {
@@ -115,12 +115,14 @@
                     }
                 });
 
+                // Apply the field right away to let know the second dropdown the default selection
+                input = target.appendDummyInput()
+                    .appendField(prefix)
+                    .appendField(firstDropdown, 'PART1');
+
                 secondDropdown = new Blockly.FieldDropdown(() => target.getSecondPartOptions());
 
-                target.appendDummyInput()
-                    .appendField(prefix)
-                    .appendField(firstDropdown, 'PART1')
-                    .appendField(Blockly.Msg.COLLIDES_WITH)
+                input.appendField(Blockly.Msg.COLLIDES_WITH)
                     .appendField(secondDropdown, 'PART2');
             };
         }
