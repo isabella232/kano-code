@@ -31,7 +31,7 @@
                 fps: Number
             },
             observers: [
-                '_onBitmapChanged(bitmap)'
+                '_onBitmapChanged(bitmap.*)'
             ],
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
@@ -40,7 +40,7 @@
             _canvasSize (size, pixelSize, spacing) {
                 return size * pixelSize + (size * (spacing * 2));
             },
-            _onBitmapChanged (bitmap) {
+            _onBitmapChanged () {
                 if (!this.loop) {
                     this._renderCanvas();
                 }

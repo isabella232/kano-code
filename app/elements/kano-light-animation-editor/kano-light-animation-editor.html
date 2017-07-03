@@ -3,59 +3,20 @@
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
-<link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
-<link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
-<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
-<link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../kano-light-frame-editor-panel/kano-light-frame-editor-panel.html">
+<link rel="import" href="../kano-pixel-editor/kano-pixel-editor.html">
 <link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
 <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+<link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+<link rel="import" href="../behaviors/kano-light-bitmap-behavior.html">
 <dom-module id="kano-light-animation-editor">
     <style>
         :host {
             display: block;
-        }
-        .action-control {
-            @apply --layout-flex-auto;
-            @apply --layout-horizontal;
-            @apply --layout-end-justified;
-        }
-        .action-control button {
-            @apply --kano-button;
-            width: 32px;
-            height: 32px;
-            background: #54595d;
-            border-radius: 3px;
-            padding: 0;
-            margin-right: 12px;
-        }
-        .action-control button:hover {
-            background-color: #00d9c7;
-        }
-        .action-control button iron-icon {
-            --iron-icon-height: 28px;
-            --iron-icon-width: 28px;
-            fill: #8f9195;
-            transition: fill 300ms;
-        }
-        .action-control button:hover iron-icon {
-            fill: #fff;
-        }
-        .action-control button kano-animated-svg {
-            width: 28px;
-            height: 28px;
-            fill: #8f9195;
-            transition: fill ease-in-out 300ms;
-            margin: 0 auto;
-        }
-        .action-control button:hover kano-animated-svg {
-            fill: #fff;
         }
         .settings {
             @apply --layout-vertical;
@@ -140,32 +101,19 @@
         }
     </style>
     <template>
-        <kano-part-editor-topbar icon="light-animation" label="[[element.label]]" theme="[[theme]]">
-            <div class="action-control" slot="action">
-                <button id="reverse" type="button" on-tap="_resetPreview">
-                    <iron-icon icon="kc-ui:restart"></iron-icon>
-                </button>
-                <button id="preview-button" type="button" on-tap="_togglePreviewState">
-                    <kano-animated-svg width="64"
-                                       height="64"
-                                       paths="[[previewButtonIconPaths]]"
-                                       selected="[[_computeControlIcon(running)]]"></kano-animated-svg>
-                </button>
-            </div>
-        </kano-part-editor-topbar>
-        <kano-light-frame-editor-panel id="editor-panel"
-                                       bitmap="{{selectedFrame}}"
-                                       width="[[selected.userProperties.width]]"
-                                       height="[[selected.userProperties.height]]"
-                                       pen-color="{{penColor}}"
-                                       pen-type="{{penType}}">
-            <div slot="canvas" class="canvas">
+        <kano-pixel-editor id="pixel-editor"
+                           bitmap="{{selectedFrame}}"
+                           width="[[width]]"
+                           height="[[height]]"
+                           pen-color="{{penColor}}"
+                           pen-type="{{penType}}">
+            <div slot="bitmap">
                 <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
                     <kano-pixel-canvas id="canvas"
                                        name="stopped"
                                        bitmap="{{selectedFrame}}"
-                                       width="[[selected.userProperties.width]]"
-                                       height="[[selected.userProperties.height]]"
+                                       width="[[width]]"
+                                       height="[[height]]"
                                        pixel-size="22"
                                        spacing="1"
                                        pen-color="[[penColor]]"
@@ -178,26 +126,26 @@
                                           loop="[[running]]"
                                           pixel-size="22"
                                           spacing="1"
-                                          width="[[selected.userProperties.width]]"
-                                          height="[[selected.userProperties.height]]"
+                                          width="[[width]]"
+                                          height="[[height]]"
                                           fps="30"></kano-bitmap-renderer>
                 </iron-pages>
             </div>
             <div slot="settings" class="settings">
                 <div class="settings-controls">
-                    <kano-input-text value="{{selected.name}}"
+                    <kano-input-text value="{{label}}"
                                      theme="[[theme]]"></kano-input-text>
                     <div class="size-settings">
                         <kano-input-range id="width-slider"
                                           class="slider"
-                                          value="{{selected.userProperties.width}}"
+                                          value="{{width}}"
                                           label="Width"
                                           min="1"
                                           max="16"
                                           theme="[[theme]]"></kano-input-range>
                         <kano-input-range id="height-slider"
                                           class="slider"
-                                          value="{{selected.userProperties.height}}"
+                                          value="{{height}}"
                                           label="Height"
                                           min="1"
                                           max="8"
@@ -205,7 +153,7 @@
                     </div>
                     <kano-input-range id="speed-slider"
                                       class="slider"
-                                      value="{{selected.userProperties.speed}}"
+                                      value="{{speed}}"
                                       label="Speed"
                                       min="1"
                                       max="30"
@@ -213,15 +161,15 @@
                                       theme="[[theme]]"></kano-input-range>
                 </div>
             </div>
-        </kano-light-frame-editor-panel>
+        </kano-pixel-editor>
         <div class="bottom-panel">
             <kano-bitmap-list id="frames"
-                              bitmaps="{{selected.userProperties.bitmaps}}"
+                              bitmaps="{{bitmaps}}"
                               selected="{{selectedFrame}}"
                               selected-index="{{selectedIndex}}"
                               running="[[running]]"
-                              width="[[selected.userProperties.width]]"
-                              height="[[selected.userProperties.height]]">
+                              width="[[width]]"
+                              height="[[height]]">
                 <label id="bitmap-label" slot="label">Animate</label>
                 <button id="add-frame-button" type="button" slot="add-button" disabled$="[[running]]">
                     <iron-icon icon="kc-ui:add"></iron-icon>
@@ -245,11 +193,19 @@
                 PolymerFilters.FilterBehavior,
                 Kano.Behaviors.AppElementRegistryBehavior,
                 Kano.Behaviors.AppEditorBehavior,
-                Kano.MakeApps.PartsAPI['light-animation']
+                Kano.Behaviors.LightBitmapBehavior
             ],
             properties: {
-                selected: {
-                    type: Object,
+                bitmaps: {
+                    type: Array,
+                    notify: true
+                },
+                width: {
+                    type: Number,
+                    notify: true
+                },
+                height: {
+                    type: Number,
                     notify: true
                 },
                 selectedIndex: {
@@ -266,16 +222,27 @@
                 },
                 running: {
                     type: Boolean,
-                    value: false
+                    value: false,
+                    notify: true
+                },
+                label: {
+                    type: String,
+                    notify: true
+                },
+                speed: {
+                    type: Number,
+                    notify: true
                 },
                 selectedFrame: Array,
                 penColor: String,
                 penType: String
             },
             observers: [
-                '_onSelectedChanged(selected.*)',
+                '_onBitmapsSet(bitmaps)',
+                '_onBitmapsChanged(bitmaps.*)',
                 '_onFrameChanged(frame.*)',
-                '_onSelectedFrameChanged(selectedFrame.*)'
+                '_onSelectedFrameChanged(selectedFrame.*)',
+                '_sizeChanged(width, height)'
             ],
             created () {
                 this._onKeydown = this._onKeydown.bind(this);
@@ -284,20 +251,13 @@
             attached () {
                 let panelElements;
 
-                this.BOARD_WIDTH = 16;
-                this.BOARD_HEIGHT = 8;
-
                 document.addEventListener('keydown', this._onKeydown);
                 document.addEventListener('keyup', this._onKeyup);
 
-                this.previewButtonIconPaths = {
-                    stopped: 'M45.69,32.1a2.24,2.24,0,0,1-1.16,2L21.77,47.41a1.4,1.4,0,0,1-1.51,0,1.34,1.34,0,0,1-.74-1.33v-28a1.34,1.34,0,0,1,.74-1.33,1.4,1.4,0,0,1,1.51,0L44.54,30.06A2.24,2.24,0,0,1,45.69,32.1Z',
-                    running: 'M23.34,46a2.43,2.43,0,0,1-1.9-.78,2.69,2.69,0,0,1-.78-1.93V20.71a2.69,2.69,0,0,1,.78-1.93,2.44,2.44,0,0,1,1.9-.78h3.74a2.44,2.44,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24A2.69,2.69,0,0,1,29,45.17a2.43,2.43,0,0,1-1.9.78Zm13.51,0a2.49,2.49,0,0,1-1.9-.78,2.63,2.63,0,0,1-.81-1.93V20.71a2.63,2.63,0,0,1,.81-1.93,2.49,2.49,0,0,1,1.9-.78h3.74a2.43,2.43,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24a2.69,2.69,0,0,1-.78,1.93,2.43,2.43,0,0,1-1.9.78Z'
-                };
                 this.previewState = 'stopped';
 
                 this.async(() => {
-                    panelElements = this.$['editor-panel'].getElementsRegistry();
+                    panelElements = this.$['pixel-editor'].getElementsRegistry();
                     this._registerElement('animation-editor', this);
                     this._registerElement('animation-editor-width-slider', this.$['width-slider']);
                     this._registerElement('animation-editor-height-slider', this.$['height-slider']);
@@ -319,7 +279,6 @@
                 document.removeEventListener('keyup', this._onKeyup);
 
                 this._stopPreview();
-                this.appModule.stop();
             },
             _onKeydown (e) {
                 //disable key commands if event origin is an input, or when running and key is not 'space'
@@ -350,9 +309,6 @@
             _onKeyup (e) {
                 this.set('_isShiftPressed', e.shiftKey);
             },
-            _computeControlIcon (running) {
-                return running ? 'running' : 'stopped';
-            },
             _addFrame () {
                 this.$.frames.addFrame();
                 this.notifyChange('light-animation-add-frame');
@@ -362,33 +318,67 @@
                 this.notifyChange('light-animation-duplicate-frame');
             },
             _nextFrame () {
-                this.selectedIndex = Math.min(this.selected.userProperties.bitmaps.length - 1, this.selectedIndex + 1);
-                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+                this.selectedIndex = Math.min(this.bitmaps.length - 1, this.selectedIndex + 1);
+                this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
             },
             _previousFrame () {
                 this.selectedIndex = Math.max(0, this.selectedIndex - 1);
-                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+                this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
             },
-            _onSelectedChanged (e) {
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex] &&
-                            this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+            _onBitmapsSet (e) {
+                this.selectedFrame = this.bitmaps[this.selectedIndex] &&
+                        this.bitmaps[this.selectedIndex].slice(0);
 
-                    //merge bitmaps and compute colors for custom palette only once per session
-                    if (!this.colorsComputed) {
-                        let allColors = this.selected.userProperties.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
-                            if (bitmaps.indexOf(bitmap) === index) {
-                                return acc.concat(bitmap);
-                            }
-                        }, []);
-                        this.$['editor-panel']._computePalette(allColors);
-                        this.colorsComputed = true;
-                    }
+                //merge bitmaps and compute colors for custom palette
+                if (!this.colorsComputed) {
+                    let allColors = this.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
+                        if (bitmaps.indexOf(bitmap) === index) {
+                            return acc.concat(bitmap);
+                        }
+                    }, []);
+                    this.$['pixel-editor']._computePalette(allColors);
+                    this.colorsComputed = true;
+                }
+            },
+            _onBitmapsChanged (e) {
+                if (this.lock) {
+                    return;
+                }
+                //Lock observer while resetting the observed property
+                this.lock = true;
+
+                if (e.path.search(/splices/) !== -1) {
+                    this._setBitmaps();
+                }
+                this.async(() => this.lock = false);
+            },
+            _setBitmaps () {
+                this.set('storedBitmaps', this.storeBitmaps());
+                this.set('bitmaps', this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
+            },
+            storeBitmaps () {
+                return this.bitmaps.map(this._adjustForStorage.bind(this));
+            },
+            _sizeChanged () {
+                if (!this.bitmaps || this.bitmaps.length === 0) {
+                    this._generateEmptyFrame();
+                    return;
+                }
+                this.storedBitmaps = this.storedBitmaps || this.storeBitmaps();
+                this.set('bitmaps', this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
+            },
+            _generateEmptyFrame () {
+                let emptyFrame = [];
+                for (let i = 0; i < this.height * this.width; i++) {
+                    emptyFrame.push('#000000');
+                }
+                this.set('bitmaps', [emptyFrame]);
             },
             _resetPreview () {
                 clearTimeout(this.timeoutId);
                 this.previewState = 'stopped';
                 this.selectedIndex = 0;
-                this.selectedFrame = this.selected.userProperties.bitmaps[0].slice(0);
+                this.selectedFrame = this.bitmaps[0].slice(0);
                 this.running = false;
             },
             _togglePreviewState () {
@@ -401,7 +391,7 @@
                 } else {
                     clearTimeout(this.timeoutId);
                     this.selectedIndex = this.oldSelectedIndex;
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
+                    this.selectedFrame = this.bitmaps[this.oldSelectedIndex].slice(0);
                     this.async(() => this.$.frames.moveDelay = 350);
                     this.running = false;
                 }
@@ -411,23 +401,22 @@
                 clearTimeout(this.timeoutId);
             },
             _updatePreview () {
-                let bitmaps = this.selected.userProperties.bitmaps;
-                if (bitmaps) {
-                    this.frame = bitmaps[this.selectedIndex];
+                if (this.bitmaps) {
+                    this.frame = this.bitmaps[this.selectedIndex];
                     this.selectedIndex++;
-                    if (this.selectedIndex > bitmaps.length - 1) {
+                    if (this.selectedIndex > this.bitmaps.length - 1) {
                         this.selectedIndex = 0;
                     }
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
+                    this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
                 }
-                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
+                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.speed);
             },
             _onFrameChanged () {
-                this._renderOnRealDevice(this.frame);
+                this.fire('render-frame', this.frame);
             },
             _onSelectedFrameChanged () {
                 if (this.selectedFrame) {
-                    this._renderOnRealDevice(this.selectedFrame);
+                    this.fire('render-frame', this.selectedFrame);
                 }
             },
             _previewStateChanged () {
@@ -435,35 +424,6 @@
             },
             _onPaintAction () {
                 this.notifyChange('light-animation-paint', { tool: this.penType });
-            },
-            _renderOnRealDevice (frame) {
-                if (!this.deviceRenders) {
-                    const hw = Kano.AppModules.modules.lightboard.api;
-                    this.appModule = Kano.AppModules.createStandalone();
-                    this.appModule.config(Object.assign({}, Kano.MakeApps.config, { hardwareAPI: hw }));
-                    this.appModule.start();
-                    this.deviceRenders = true;
-                }
-
-                try {
-                    this.async(() => this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(frame), () => {}));
-                }
-                catch (e) {
-                   return;
-                }
-            },
-            getShape (frame) {
-                this.model = this.selected;
-                return {
-                    id: 'being-edited',
-                    x: this.getX(),
-                    y: this.getY(),
-                    width: this.getWidth(),
-                    height: this.getHeight(),
-                    visible: true,
-                    bitmap: frame,
-                    type: 'frame'
-                }
             }
         });
     </script>

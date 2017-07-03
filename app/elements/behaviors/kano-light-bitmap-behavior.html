@@ -1,0 +1,47 @@
+<script type="text/javascript">
+
+    (function (Kano){
+
+        Kano.Behaviors = Kano.Behaviors || {};
+        
+        // @polymerBehavior
+        Kano.Behaviors.LightBitmapBehavior = {
+            _adjustForStorage (bitmap) {
+                let newBitmap = [];
+
+                for (let i = 0; i < 128; i++) {
+                    newBitmap.push('#000000');
+                }
+
+                bitmap.forEach((color, i) => {
+                    let x = i % this.width,
+                        y = Math.floor(i / this.width),
+                        storedPos = x + y * 16;
+                    if (storedPos < 128) {
+                        newBitmap[storedPos] = color;
+                    }
+                });
+                return newBitmap;
+            },
+            _adjustForDisplay (bitmap) {
+                let newBitmap = [];
+
+                for (let i = 0; i < this.height * this.width; i++) {
+                    newBitmap.push('#000000');
+                }
+
+                bitmap.forEach((color, i) => {
+                    let x = i % 16,
+                        y = Math.floor(i / 16),
+                        realPos = x + y * this.width;
+                    if (realPos < newBitmap.length) {
+                        newBitmap[realPos] = color;
+                    }
+                });
+                return newBitmap;
+            }
+        };
+        
+    })(window.Kano = window.Kano || {});
+
+</script>
