@@ -36,7 +36,8 @@
     <template>
         <iron-lazy-pages class="scene" attr-for-selected="name" selected="[[name]]" restamp>
             <template is="iron-lazy-page" name="editor">
-                <kano-scene-editor user="[[user]]"
+                <kano-scene-editor id="scene-editor"
+                                   user="[[user]]"
                                    store="{{store}}"
                                    story="[[story]]"
                                    scene="[[sceneData]]"
@@ -182,6 +183,9 @@
             this.set('overlayScene', overlayConfig.data);
             this.set('overlayName', component.name);
             this.overlayHidden = false;
+        },
+        resetAppState () {
+            this.$['scene-editor'].resetAppState();
         }
     });
 </script>

@@ -1,5 +1,5 @@
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/icons.html">
+<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 
 <dom-module id="kano-app-player-toolbar">
     <style>
@@ -12,57 +12,62 @@
         }
         :host([layout="horizontal"]) .panel {
             @apply --layout-horizontal;
-            @apply --layout-around-justified;
+            @apply --layout-center-justified;
         }
         :host .panel {
             @apply --layout-center;
             border-radius: 5px;
             padding: 4px 4px;
-            color: #d0d3d9;
+            color: white;
         }
         :host .panel .icon iron-icon,
         :host .panel kano-animated-svg {
-            margin: 8px 16px;
+            color: var(--color-porcelain);
+            height: 20px;
+            margin: 10px 10px;
+            width: 20px;
         }
         .icon kano-animated-svg {
-            width: 17px;
-            height: 21px;
-
             --kano-animated-path: {
-                fill: #d0d3d9;
-                stroke: #d0d3d9;
+                fill: var(--color-porcelain);
+                stroke: var(--color-porcelain);
                 stroke-width: 2px;
                 stroke-linecap: round;
                 stroke-linejoin: round;
                 transition: all ease-in-out 200ms;
             }
         }
-        :host .panel .icon iron-icon:hover,
-        :host .panel .icon kano-animated-svg:hover {
-            transition: opacity .2s ease-in-out;
-            opacity: 0.5;
-        }
         :host .panel .icon {
             @apply --layout-center;
             @apply --layout-justified;
+            background-color: var(--color-abbey);
+            border-radius: 3px;
             cursor: pointer;
+            height: 40px;
+            transition: 0.2s background ease-in-out;
+            width: 40px;
         }
-        :host .panel .spacer {
-            flex: 1;
+        :host([layout="horizontal"]) .panel .icon:nth-child(n+2) {
+            margin-left: 16px;
+        }
+        :host([layout="vertical"]) .panel .icon:nth-child(n+2) {
+            margin-top: 16px;
+        }
+        :host .panel .icon:hover {
+            background-color: var(--color-grassland);
         }
     </style>
     <template>
         <div class="panel">
+            <div class="fullscreen icon" on-tap="fullscreenClicked">
+                <iron-icon icon="kano-icons:fullscreen"></iron-icon>
+            </div>
+            <div class="reset icon" on-tap="resetClicked">
+                <iron-icon icon="kano-icons:reset"></iron-icon>
+            </div>
             <div class="pause icon" on-tap="pauseClicked">
                 <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="{{_getRunningStatus(running)}}">
                 </kano-animated-svg>
-            </div>
-            <div class="reset icon" on-tap="resetClicked">
-                <iron-icon icon="kano-code-icons:reset-icon-grey"></iron-icon>
-            </div>
-            <div class="spacer"></div>
-            <div class="fullscreen icon" on-tap="fullscreenClicked">
-                <iron-icon icon="kano-code-icons:fullscreen-icon-grey"></iron-icon>
             </div>
         </div>
     </template>

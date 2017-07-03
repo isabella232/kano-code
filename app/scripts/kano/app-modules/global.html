@@ -7,8 +7,13 @@
                 super();
                 this.addMethod('when', '_when');
                 this.addMethod('emit', '_emit');
+                this.addMethod('restartCode', '_restartCode');
                 this.addLifecycleStep('stop', '_reset');
                 this._reset();
+            }
+
+            config (opts) {
+                this._restartCodeHandler = opts.restartCodeHandler;
             }
 
             _when (name, callback) {
@@ -32,6 +37,12 @@
 
             _reset () {
                 this._listeners = {};
+            }
+
+            _restartCode () {
+                if (this._restartCodeHandler) {
+                    this._restartCodeHandler();
+                }
             }
         }
 

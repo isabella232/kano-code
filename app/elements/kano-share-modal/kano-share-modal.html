@@ -466,7 +466,7 @@
                     <button type="button" name="button" class="save-button round" on-tap="_shareOnKW">[[localize('SAVE', 'Save')]]</button>
 
                     <div class="generate-url">
-                        <div class="social-share-container">
+                        <div class="social-share-container" hidden>
                             <button type="button" class="social" on-tap="_socialShareFacebook">
                                 <iron-image src="/assets/social-icons/facebook.png" sizing="contain"></iron-image>
                             </button>
@@ -507,7 +507,7 @@
                                 class="close round"
                                 type="button"
                                 on-tap="dismiss">[[localize('CLOSE', 'Close')]]</button>
-                        <div class="social-share-container">
+                        <div class="social-share-container" hidden>
                             <button type="button" class="social" on-tap="_socialShareFacebook">
                                 <iron-image src="/assets/social-icons/facebook.png" sizing="contain"></iron-image>
                             </button>
@@ -702,6 +702,8 @@
             }
         },
         attached () {
+            //FIXME social share buttons are hidden
+            //TODO implement social sharing in a way that would work in an Electron environment
             this.recording = false;
             this.addEventListener('app-ready', this._onAppReady);
         },

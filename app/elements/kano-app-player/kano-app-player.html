@@ -1,4 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../kano-app-player-toolbar/kano-app-player-toolbar.html">
 <dom-module id="kano-app-player">
@@ -20,7 +22,7 @@
             width: 100%;
         }
         :host(.fullscreen) {
-            padding: 20% 16px;
+            padding: 20vh 16px;
             position: fixed;
             top: 0px;
             left: 0px;
@@ -28,7 +30,7 @@
             width: 100%;
             height: 100%;
             z-index: 100;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: var(--color-chateau);
         }
         :host([layout="horizontal"].fullscreen) {
             @apply --layout-vertical-reverse;
@@ -43,6 +45,15 @@
         :host(.fullscreen) kano-app-player-toolbar {
             margin: 0 auto 40px auto;
             width: 40%;
+        }
+        :host(.fullscreen) .close {
+            cursor: pointer;
+            color: var(--color-porcelain);
+            height: 16px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 16px;
         }
         #container {
             @apply(--layout-vertical);
@@ -67,6 +78,9 @@
         :host([layout="horizontal"].fullscreen) kano-app-player-toolbar {
             position: relative;
         }
+        :host *[hidden] {
+            display: none !important;
+        }
     </style>
     <template>
         <div id="container">
@@ -76,6 +90,7 @@
             </template>
         </div>
         <template is="dom-if" if="{{showToolbar}}">
+            <iron-icon class="icon close" hidden$="[[!fullscreen]]" icon="kano-icons:close" on-tap="_toggleFullscreen"></iron-icon>
             <kano-app-player-toolbar layout="[[toolbarLayout]]"
                                      running="[[running]]"
                                      on-run-button-clicked="_toggleRunning"
@@ -164,6 +179,9 @@
                     root.removeChild(this.component);
                 }
                 this.component = c;
+
+                this.component.addEventListener('restart-code', this._reset.bind(this));
+
                 this.fire('app-ready');
                 this.async(() => {
                     this.component.$$('kano-ui-viewport').resizeView();

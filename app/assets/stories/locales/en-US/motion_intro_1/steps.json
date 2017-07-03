@@ -1,0 +1,298 @@
+{
+    "steps": [
+      {
+          "banner": {
+              "text": "Please plug in a Motion sensor for this challenge"
+          },
+          "validation": {
+              "add-part": {
+                  "type": "motion-sensor",
+                  "id": "motion_0"
+              }
+          }
+      },
+      {
+          "banner": {
+              "text": "The Motion Sensor detects anything above it and measures how far away it is. Let's see the raw value from the sensor",
+              "next_button": true
+          },
+          "beacon": {
+              "target": "banner-button",
+              "offset": 0
+          }
+      },
+        {
+            "banner": {
+                "text": "Let's add a loop to detect the value repeatedly, open the Control tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "control"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "control"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block repeats the code within it every second"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "every_x_seconds"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "every_x_seconds",
+                        "id": "block_0"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": null,
+                        "rawId": "default_part_event_id"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": null,
+                            "rawId": "default_part_event_id",
+                            "inputName": "DO"
+                        },
+                        "target": "block_0"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": null,
+                        "rawId": "default_part_event_id"
+                    }
+                },
+                "target": "DO"
+            }
+        },
+        {
+            "banner": {
+                "text": "We want to read the sensor faster than a second so change <kano-value-preview><span>seconds</span></kano-value-preview> to <kano-value-preview><span>frames</span></kano-value-preview>"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "id": "block_0"
+                        },
+                        "value": "frames"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "We can use a number to display the value, open the Text tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": "text"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": "text"
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Drag the block onto your code space"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "text#set_value"
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "text",
+                        "type": "text#set_value",
+                        "id": "block_1"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "%9]FaB([jV2etHb8!0Lp"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_0",
+                            "rawId": "%9]FaB([jV2etHb8!0Lp",
+                            "inputName": "DO"
+                        },
+                        "target": "block_1"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_0",
+                        "rawId": "%9]FaB([jV2etHb8!0Lp"
+                    }
+                },
+                "target": "DO"
+            }
+        },
+        {
+            "banner": {
+                "text": "Let's read our sensor value, open the Motion tray"
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "motion_0"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "motion_0"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "This block reads the sensor and converts the distance into a number from 0 to 100"
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "motion_0",
+                        "type": "motion_sensor_value"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "motion_0",
+                        "type": "motion_sensor_value",
+                        "id": "block_2"
+                    }
+                }
+            }
+        },
+        {
+            "banner": {
+                "text": "Connect it to this block"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": ")6Cuvap=+hk}Q*L[a$CW"
+                    }
+                }
+            },
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_1",
+                            "rawId": ")6Cuvap=+hk}Q*L[a$CW",
+                            "inputName": "INPUT"
+                        },
+                        "target": "block_2"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "id": "block_1",
+                        "rawId": ")6Cuvap=+hk}Q*L[a$CW"
+                    }
+                },
+                "target": "INPUT"
+            }
+        },
+        {
+            "banner": {
+                "text": "Move your hand over the sensor and see the value change from 0 when far away to 100 when close",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        },
+        {
+            "banner": {
+                "text": "Next we'll use the sensor value for some cool things!",
+                "next_button": true
+            },
+            "beacon": {
+                "target": "banner-button",
+                "offset": 0
+            }
+        }
+    ],
+    "parts": [
+        "text",
+        "motion-sensor"
+    ],
+    "modules": [
+        "control"
+    ],
+    "variables": [],
+    "filterBlocks": {
+        "control": [
+            "every_x_seconds"
+        ],
+        "text": [
+            "set_value"
+        ],
+        "motion": [
+            "motion_sensor_value"
+        ]
+    },
+    "mode": "normal",
+    "defaultApp": "{\"parts\":[{\"id\":\"text\",\"name\":\"Text\",\"type\":\"text\",\"tagName\":\"kano-ui-text\",\"userStyle\":{\"color\":\"#ffffff\",\"font-size\":\"9em\",\"font-family\":\"Bariol\"},\"userProperties\":{\"text\":\"0\"},\"nonvolatileProperties\":[],\"position\":{\"x\":142.49538461538464,\"y\":89.02576923076923},\"partType\":\"ui\",\"supportedHardware\":[],\"excludeDefaultBlocks\":false,\"showDefaultConfiguration\":true,\"customizable\":{\"properties\":[{\"key\":\"text\",\"type\":\"text\",\"label\":\"Text\"}],\"style\":[\"color\",\"font-size\",\"font-family\"]},\"rotation\":0,\"scale\":100,\"visible\":true}],\"code\":{\"snapshot\":{\"javascript\":\"global.when('start', function () {\\n});\\n\",\"pseudo\":\"global.when('start', function () {\\n});\\n\",\"blocks\":\"<xml xmlns=\\\"http:\/\/www.w3.org\/1999\/xhtml\\\"><block type=\\\"part_event\\\" id=\\\"default_part_event_id\\\" x=\\\"262\\\" y=\\\"104\\\"><field name=\\\"EVENT\\\">global.start<\/field><\/block><\/xml>\"}},\"background\":{\"name\":\"My app\",\"userStyle\":{\"background\":\"#59b3d0\"}},\"mode\":\"normal\"}"
+}

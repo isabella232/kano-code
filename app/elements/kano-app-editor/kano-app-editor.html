@@ -207,11 +207,12 @@ Example:
                                     mode="[[mode]]"
                                     background="[[background.userStyle.background]]"
                                     parts-menu-open="[[partsMenuOpen]]"
+                                    on-close-settings="_closePartSettings"
                                     on-open-settings="onPartSettings"
                                     on-ui-ready="workspaceUiReady"
                                     on-change="_proxyChange"
                                     on-run-button-clicked="_runButtonClicked"
-                                    on-reset-app-state="_resetAppState"
+                                    on-reset-app-state="resetAppState"
                                     on-toggle-parts-menu="toggleParts"></kano-workspace>
                     <kano-code-display id="code-display" code="[[_setCodeDisplay(code.snapshot.javascript, workspaceTab)]]" lang="javascript"></kano-code-display>
                 </iron-pages>
@@ -267,7 +268,8 @@ Example:
         </kano-alert>
         <paper-dialog id="edit-part-dialog"t
                       entry-animation="from-big-animation"
-                      on-iron-overlay-closed="_partEditorDialogClosed">
+                      on-iron-overlay-closed="_partEditorDialogClosed"
+                      no-cancel-on-outside-click>
             <kano-part-editor
                 id="edit-part-dialog-content"
                 selected="{{selected}}"

@@ -277,6 +277,7 @@ Polymer({
         if (!this.remixMode) {
             localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
+        this.unsavedChanges = false;
     },
     checkBlockDependency (part) {
         let xmlString, xml, parser, blocks, block, blockId, pieces;
@@ -438,6 +439,7 @@ Polymer({
         this.$['root-view'].computeBlocks();
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
+        this.unsavedChanges = false;
     },
     _formatCode (code) {
         code = code || {};
@@ -458,6 +460,9 @@ Polymer({
             this.$['edit-part-dialog'].open();
             this.notifyChange('open-part-settings', { part: this.selected });
         }
+    },
+    _closePartSettings () {
+        this.$['edit-part-dialog'].close();
     },
     _toggleFullscreenModal (isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
@@ -826,7 +831,7 @@ Polymer({
     getWorkspace () {
         return this.$.workspace;
     },
-    _resetAppState () {
+    resetAppState () {
         this.running = false;
 
         setTimeout(() => {

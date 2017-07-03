@@ -26,6 +26,8 @@
     Blockly.Msg.WHEN = "When";
     Blockly.Msg.GLOBAL_EVENT = Blockly.Msg.WHEN + " %1";
     Blockly.Msg.COLLIDES_WITH = "collides with";
+    Blockly.Msg.RESTART_CODE = "Restart code";
+
     Blockly.Msg.APP_STARTS = "app starts";
 
     Blockly.Msg.KEY_EVENT = "When key %1 is %2";
@@ -69,6 +71,7 @@
 
     Blockly.Msg.BLOCK_BOX_SET_STROKE_SIZE = "set stroke size to %1";
     Blockly.Msg.BLOCK_BOX_SET_STROKE_COLOR = "set stroke color to %1";
+    Blockly.Msg.BLOCK_BOX_SET_BACKGROUND_COLOR = "set background color %1";
 
     Blockly.Msg.BLOCK_BUTTON_LABEL = "label";
     Blockly.Msg.BLOCK_BUTTON_SET_LABEL = "set label to %1";
@@ -85,6 +88,11 @@
     Blockly.Msg.BLOCK_CLOCK_TIME = "Time";
 
     Blockly.Msg.BLOCK_MAP_MOVE_MARKER = "move marker to lat %1 long %2";
+    Blockly.Msg.BLOCK_MAP_MOVE_MARKER_RANDOM = "move marker to random";
+    Blockly.Msg.BLOCK_MAP_SET_VIEW = "set view to: %1";
+    Blockly.Msg.BLOCK_MAP_SET_ZOOM = "set zoom to: %1";
+    Blockly.Msg.BLOCK_MAP_MAP = "Map";
+    Blockly.Msg.BLOCK_MAP_SATELLITE = "Satellite";
 
     Blockly.Msg.BLOCK_MIC_VOLUME = "volume";
     Blockly.Msg.BLOCK_MIC_PITCH = "pitch";
@@ -121,9 +129,12 @@
     Blockly.Msg.BLOCK_SPEAKER_LOOP = "loop %1";
     Blockly.Msg.BLOCK_SPEAKER_VOLUME = "set volume %1";
     Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random sound %1";
-    Blockly.Msg.BLOCK_SPEAKER_PLAY_FREQUENCY_FOR = "Speaker: synthesize frequency %1 for %2 miliseconds";
-    Blockly.Msg.BLOCK_SPEAKER_START_SYNTH = "start synth";
-    Blockly.Msg.BLOCK_SPEAKER_SYNTH_SET_FREQUENCY = "synth set frequency %1";
+
+    Blockly.Msg.BLOCK_SYNTH_PLAY_FREQUENCY_FOR = "play frequency %1 for %2 miliseconds";
+    Blockly.Msg.BLOCK_SYNTH_START = "start";
+    Blockly.Msg.BLOCK_SYNTH_STOP = "stop";
+    Blockly.Msg.BLOCK_SYNTH_SET_FREQUENCY = "set frequency %1";
+    Blockly.Msg.BLOCK_SYNTH_SET_WAVE = "set wave %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
     Blockly.Msg.BLOCK_STICKER_RANDOM = "random sticker";

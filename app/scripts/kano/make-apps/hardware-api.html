@@ -1,4 +1,5 @@
 <script src="../../../bower_components/socket.io-client/dist/socket.io.js"></script>
+<script src="../../../bower_components/buffer/buffer.min.js"></script>
 <script>
     (function (Kano) {
 
@@ -95,6 +96,76 @@
             }
         }
 
+        class NativeWebSocket {
+            constructor (url) {
+                url = url.replace('http', 'ws');
+
+                this._socket = new WebSocket(url);
+                this._listeners = {};
+                this.connected = false;
+
+                this._socket.onopen = () => {
+                    this.connected = true;
+                    this._listeners['connect'].forEach(callback => {
+                        callback();
+                    });
+                };
+
+                this._socket.onclose = () => {
+                    this.connected = false;
+                    this._listeners['disconnect'].forEach(callback => {
+                        callback();
+                    });
+                };
+
+                this._socket.onmessage = (message) => {
+                    switch(message.data.type) {
+                        case 'rpc-response':
+                            this._listeners[message.id].forEach(cb => {
+                                cb(message.value);
+                            });
+                        case 'event':
+                            this._listeners[message.name].forEach(cb => {
+                                cb(message.detail);
+                            });
+                    }
+                };
+            }
+
+            on (event, callback) {
+                if (this._listeners[event]) {
+                    this._listeners[event].push(callback);
+                } else {
+                    this._listeners[event] = [callback];
+                }
+            }
+
+            emit (name, params) {
+                if (this.connected) {
+                    // TODO: Refactor!
+                    // RPC over websockets is not needed, we don't need to check if the frame appeared or not
+                    // because we don't have the power to restart any of the possible partrs which could fix the issue
+                    this._socket.send(JSON.stringify({
+                        "id": Math.floor(Math.random() * 1000).toString(),
+                        "method" : name,
+                        "params": [params],
+                        "type": "rpc-request"
+                    }));
+                }
+            }
+
+            removeListener (event, callback) {
+                let listenerIndex = (this._listeners[event]) ? this._listeners[event].indexOf(callback) : 0;
+                if (listenerIndex) {
+                    this._listeners[event].splice(listenerIndex, 1);
+                }
+            }
+
+            removeAllListeners () {
+                this._listeners = {};
+            }
+        }
+
         class KitDevice extends Device {
             constructor (options, hwapi) {
                 super(options);
@@ -111,7 +182,6 @@
             update (options) {
                 this.url = options.url || null;
                 this.serial = options.serial || false;
-                this.devices = [];
 
                 if (this.url || this.serial) {
                     if (this.socket) {
@@ -124,7 +194,7 @@
                         this.serialSocket = HardwareAPI.connect(this.hwapi.url);
                     }
                     if (this.url) {
-                        this.networkSocket = HardwareAPI.connect(this.url);
+                        this.networkSocket = HardwareAPI.connect(this.url, (this.product == 'RPK'));
                     }
                     this.socket = this.serial ? this.serialSocket : this.networkSocket;
                     this.powerUpSocket = this.networkSocket;
@@ -132,12 +202,12 @@
                     this.updateDevices().then(() => {
                         this.networkSocket.on('device-added', (info) => {
                             const device = HardwareAPI.instanciateDevice(info, this);
-                            this.hwapi.addDevice(device);
+                            this.addDevice(device);
                         });
 
                         this.networkSocket.on('device-removed', (info) => {
                             let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
-                            this.hwapi.removeDevice(device);
+                            this.removeDevice(device);
                         });
                     });
 
@@ -179,7 +249,28 @@
                         this.devices = devices.map(d => {
                             return HardwareAPI.instanciateDevice(d, this);
                         });
+                        this.hwapi.reassignDevices();
                     });
+                }
+            }
+
+            /**
+             * Add and try to find an existing match for the device
+             */
+            addDevice (device) {
+                this.devices.push(device);
+                this.hwapi.findOrCreatePartForDevice(device);
+            }
+
+            /**
+             * Unbinds and remove a device
+             */
+            removeDevice (device) {
+                const index = this.devices.indexOf(device);
+                this.hwapi.unbindPartFromDevice(device);
+                device.tearDown();
+                if (index !== -1) {
+                    this.devices.splice(index, 1);
                 }
             }
 
@@ -226,10 +317,52 @@
                 this.emit('lightboard:init', {
                     name: 'Make Apps'
                 });
+
+                this.NUMBER_OF_PIXELS = 128;
+                this.NUMBER_OF_CHANNELS = 2;
+            }
+
+            // TODO: this method should be added in some global object so that we can reuse it
+            isValidColourFormat (colour) {
+                return (typeof colour === "string" && colour.length === 7 && /#[0-9a-f]{6}/i.test(colour));
+            }
+
+            // TODO: this method should be added in some global object so that we can reuse it
+            colorHexToRGB565 (colour) {
+                let rgb888,
+                    rgb565,
+                    retBuf = new window.buffer.Buffer(2);
+
+                if (!this.isValidColourFormat(colour)) {
+                    retBuf.writeUInt16BE(0x0000, 0);
+                    return retBuf;
+                }
+                rgb888 = parseInt(colour.substring(1, 7), 16);
+                //                blue                 green                  red
+                rgb565 = (rgb888 & 0xF8) >> 3 | (rgb888 & 0xFC00) >> 5 | (rgb888 & 0xF80000) >> 8;
+
+                retBuf.writeUInt16BE(rgb565, 0);
+                return retBuf;
+            }
+
+            encodeBitmap (bitmap) {
+                let _colourBin,
+                    _internalRepresentation = new window.buffer.Buffer(this.NUMBER_OF_PIXELS * this.NUMBER_OF_CHANNELS);
+
+                for (var pxlIndex = 0; pxlIndex < bitmap.length; pxlIndex++) {
+                    _colourBin = this.colorHexToRGB565(bitmap[pxlIndex]);
+                    _colourBin.copy(_internalRepresentation, pxlIndex * this.NUMBER_OF_CHANNELS);
+                }
+
+                return _internalRepresentation.toString('base64');
             }
 
             drawBitmap (bitmap) {
-                this.emit('lightboard:on', { pixels: bitmap });
+                if (this.product == 'RPK') {
+                    this.emit('lightboard:on', { "map": this.encodeBitmap(bitmap) });
+                } else {
+                    this.emit('lightboard:on', { pixels: bitmap });
+                }
             }
         }
 
@@ -296,7 +429,8 @@
             lightboard: Lightboard,
             camera: Camera,
             'gyro-accelerometer': TiltSensor,
-            'motion-sensor': MotionSensor
+            'motion-sensor': MotionSensor,
+            'RPK': Lightboard
         };
 
         /**
@@ -321,9 +455,9 @@
             }
 
             // Returns an already opened connection if exists, otherwise creates a new one and returns it
-            static connect (url) {
+            static connect (url, nativeWS) {
                 if (!HardwareAPI.sockets[url]) {
-                    HardwareAPI.sockets[url] = io.connect(url);
+                    HardwareAPI.sockets[url] = nativeWS ? new NativeWebSocket(url) : io.connect(url);
                 }
                 return HardwareAPI.sockets[url];
             }
@@ -405,7 +539,7 @@
             }
 
             /**
-             * Ask a socket the connected devices. Times out after 2 second
+             * Ask a socket the connected devices. Times out after 20 seconds
              */
             static getTopDevices (socket) {
                 return new Promise((resolve, reject) => {
@@ -418,16 +552,17 @@
                     socket.on('device-update', deviceUpdateCallback);
                     timeoutId = setTimeout(() => {
                         socket.removeListener('device-update', deviceUpdateCallback);
-                        throw new Error('Could not get devices over web sockets after 4 seconds');
-                    }, 2000);
+                        throw new Error('Could not get devices over web sockets after 20 seconds');
+                    }, 20000);
                     socket.emit('request-device-update');
                 });
             }
 
             getDeviceById (id) {
-                for (let i = 0; i < this.devices.length; i++) {
-                    if (this.devices[i].id === id) {
-                        return this.devices[i];
+                const devices = this._doGetAllDevices(this.devices);
+                for (let i = 0; i < devices.length; i++) {
+                    if (devices[i].id === id) {
+                        return devices[i];
                     }
                 }
             }
@@ -481,6 +616,10 @@
              */
             _findFreeMatchingPartForDevice (dev) {
                 const preferredPart = HardwareAPI.bindingHistory[dev.serialNumber];
+                if (!this.parts) {
+                    return;
+                }
+
                 if (preferredPart && this._partIsFreeAndMatchesDevice(preferredPart, dev)) {
                     if (this.parts.indexOf(preferredPart) > -1) {
                         return preferredPart;
@@ -489,13 +628,10 @@
                     }
                 }
                 for (let i = 0; i < this.parts.length; i++) {
-                    let part = this.parts[i];
-
-                    if (this._partIsFreeAndMatchesDevice(part, dev)) {
-                        return part;
+                    if (this._partIsFreeAndMatchesDevice(this.parts[i], dev)) {
+                        return this.parts[i];
                     }
                 }
-
                 return null;
             }
 
@@ -574,12 +710,11 @@
              * Wipe all the bindings between parts and devices and rematch them all
              */
             reassignDevices () {
-                if (!this.parts) {
+                if (!this.parts || this.anyKitDeviceNotReady(this.devices)) {
                     return;
                 }
                 this.debounce('reassign-devices', () => {
                     this._cleanupDeviceMap();
-
                     this._doGetAllDevices(this.devices).forEach((dev) => {
                         this.findOrCreatePartForDevice(dev);
                     });
@@ -622,16 +757,26 @@
                 return null;
             }
 
+            /**
+             * Returns true if a device is a KitDevice and the slave devices are not setup yet
+             */
+            anyKitDeviceNotReady (devices) {
+                for (let i = 0; i < devices.length; i++) {
+                    if (devices[i] instanceof KitDevice && !devices[i].devices) {
+                        return true;
+                    }
+                }
+            }
+
             _doGetAllDevices (root) {
                 let result = [];
 
                 root.forEach((device) => {
                     result.push(device);
-
-                    if (device instanceof KitDevice) {
-                        this._doGetAllDevices(device.devices).forEach((slave) => {
-                            result.push(slave);
-                        });
+                    if (device instanceof KitDevice && device.devices) {
+                                this._doGetAllDevices(device.devices).forEach((slave) => {
+                                    result.push(slave);
+                                });
                     }
                 });
 
