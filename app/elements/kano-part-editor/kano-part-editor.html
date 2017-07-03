@@ -6,8 +6,8 @@
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../kano-light-shape-configuration/kano-light-shape-configuration.html">
-<link rel="import" href="../kano-light-animation-editor/kano-light-animation-editor.html">
-<link rel="import" href="../kano-light-frame-editor/kano-light-frame-editor.html">
+<link rel="import" href="../kano-light-animation-part-editor/kano-light-animation-part-editor.html">
+<link rel="import" href="../kano-light-frame-part-editor/kano-light-frame-part-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
@@ -58,10 +58,6 @@
             mode: {
                 type: Object
             },
-            hideHeader: {
-                type: Boolean,
-                computed: '_computeHideHeader(selected)'
-            },
             theme: {
                 type: String,
                 computed: '_computeTheme(selected)'
@@ -92,11 +88,7 @@
             template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]"></${tagName}>`
 
             this.templatize(template);
-            this.instance = this.stamp({
-                mode: this.mode,
-                selected: this.selected,
-                theme: this.theme
-            });
+            this.instance = this.stamp();
 
             this.scrollTarget = this.instance.root.firstChild;
 
@@ -130,10 +122,6 @@
         },
         _forwardInstanceProp (inst, prop, value) {
             this.set(prop, value);
-        },
-        _computeHideHeader (selected) {
-            return selected && (selected.configPanel === 'kano-light-animation-editor' ||
-                    selected.configPanel === 'kano-light-frame-editor');
         },
         enterQuitsInput () {
             if (event.keyCode == 13) {

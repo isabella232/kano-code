@@ -18,7 +18,6 @@
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../scripts/kano/make-apps/parts-api/index.html">
-        <link rel="import" href="../../part/kano-part-light-animation/kano-part-light-animation.html">
         <link rel="import" href="../kano-light-animation-editor.html">
         <link rel="import" href="../../../elements/kano-style/themes/dark.html">
 
@@ -46,30 +45,17 @@
         <h1>kano-light-animation-editor</h1>
             <demo-snippet>
                 <template is="dom-bind" id="bind">
-                    <kano-light-animation-editor selected="{{model}}"></kano-light-animation-editor>
-                    <kano-part-light-animation model={{model}} hidden></kano-part-light-animation>
+                    <kano-light-animation-editor id="editor"
+                                                 label="Animation_1"
+                                                 width="16"
+                                                 height="8"
+                                                 bitmaps="[[bitmaps]]"
+                                                 speed="10"></kano-light-animation-editor>
                 </template>
                 <script>
                     document.addEventListener('WebComponentsReady', () => {
                         const bind = document.getElementById('bind');
-
-                        bind.model = {
-                            userProperties: {
-                                speed: 7,
-                                width: 16,
-                                height: 8,
-                                bitmaps: [_generateEmptyFrame()]
-                            }
-                        };
-
-                        function _generateEmptyFrame () {
-                            const emptyFrame = [];
-                            for (let i = 0; i < 128; i++) {
-                                emptyFrame.push('#000000');
-                            }
-                            return emptyFrame;
-                        }
-
+                        bind.bitmaps = [Array.apply(null, Array(128)).map(String.prototype.valueOf,"#000000")];
                     });
                 </script>
             </demo-snippet>
