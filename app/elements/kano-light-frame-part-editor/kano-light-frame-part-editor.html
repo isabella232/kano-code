@@ -18,6 +18,11 @@
         .settings-controls>* {
             margin-bottom: 18px;
         }
+        kano-pixel-editor {
+            --kano-pixel-editor-bitmap-container: {
+                height: 364px;
+            };
+        }
         kano-pixel-canvas {
             @apply --layout-flex-auto;
             cursor: none;
@@ -84,8 +89,8 @@
             },
             observers: [
                 '_renderOnRealDevice(selected.userProperties.bitmap.*)',
-                '_onBitmapChanged(bitmap.*)',
-                '_sizeChanged(width, height)'
+                '_onBitmapChanged(selected.userProperties.bitmap.*)',
+                '_sizeChanged(selected.userProperties.width, selected.userProperties.height)'
             ],
             attached () {
                 this.BOARD_WIDTH = 16;
@@ -107,15 +112,14 @@
                 }
             },
             _setBitmap () {
-                this.set('storedBitmap', this._adjustBitmapForStorage(this.model.userProperties.bitmap));
-                this.set('model.userProperties.bitmap',
-                    this._adjustForDisplay(this.storedBitmap));
+                const props = this.selected.userProperties;
+                this.set('storedBitmap', this._adjustForStorage(props.bitmap, props.width));
+                this.set('selected.userProperties.bitmap', this._adjustForDisplay(this.storedBitmap, props.width, props.height));
             },
             _sizeChanged () {
-                this.storedBitmap = this.storedBitmap ||
-                        this._adjustBitmapForStorage(this.model.userProperties.bitmap);
-                this.set('model.userProperties.bitmap',
-                    this._adjustForDisplay(this.storedBitmap));
+                const props = this.selected.userProperties;
+                this.storedBitmap = this.storedBitmap || this._adjustForStorage(props.bitmap, props.width);
+                this.set('selected.userProperties.bitmap', this._adjustForDisplay(this.storedBitmap, props.width, props.height));
             },
             _renderOnRealDevice () {
                 if (!this.deviceRendering) {

@@ -6,7 +6,7 @@
         
         // @polymerBehavior
         Kano.Behaviors.LightBitmapBehavior = {
-            _adjustForStorage (bitmap) {
+            _adjustForStorage (bitmap, width) {
                 let newBitmap = [];
 
                 for (let i = 0; i < 128; i++) {
@@ -14,8 +14,8 @@
                 }
 
                 bitmap.forEach((color, i) => {
-                    let x = i % this.width,
-                        y = Math.floor(i / this.width),
+                    let x = i % width,
+                        y = Math.floor(i / width),
                         storedPos = x + y * 16;
                     if (storedPos < 128) {
                         newBitmap[storedPos] = color;
@@ -23,17 +23,17 @@
                 });
                 return newBitmap;
             },
-            _adjustForDisplay (bitmap) {
+            _adjustForDisplay (bitmap, width, height) {
                 let newBitmap = [];
 
-                for (let i = 0; i < this.height * this.width; i++) {
+                for (let i = 0; i < height * width; i++) {
                     newBitmap.push('#000000');
                 }
 
                 bitmap.forEach((color, i) => {
                     let x = i % 16,
                         y = Math.floor(i / 16),
-                        realPos = x + y * this.width;
+                        realPos = x + y * width;
                     if (realPos < newBitmap.length) {
                         newBitmap[realPos] = color;
                     }

@@ -354,10 +354,10 @@
             },
             _setBitmaps () {
                 this.set('storedBitmaps', this.storeBitmaps());
-                this.set('bitmaps', this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
+                this.set('bitmaps', this.storedBitmaps.map(bitmap => this._adjustForDisplay(bitmap, this.width, this.height)));
             },
             storeBitmaps () {
-                return this.bitmaps.map(this._adjustForStorage.bind(this));
+                return this.bitmaps.map(bitmap => this._adjustForStorage(bitmap, this.width));
             },
             _sizeChanged () {
                 if (!this.bitmaps || this.bitmaps.length === 0) {
@@ -365,7 +365,7 @@
                     return;
                 }
                 this.storedBitmaps = this.storedBitmaps || this.storeBitmaps();
-                this.set('bitmaps', this.storedBitmaps.map(this._adjustForDisplay.bind(this)));
+                this.set('bitmaps', this.storedBitmaps.map(bitmap => this._adjustForDisplay(bitmap, this.width, this.height)));
             },
             _generateEmptyFrame () {
                 let emptyFrame = [];
