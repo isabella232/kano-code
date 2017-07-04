@@ -1,21 +1,12 @@
 <link rel="import" href="../kano-ui-behavior.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
-<script src="../../../scripts/kano/make-apps/text-to-speech.js"></script>
-<link rel="import" href="../../../scripts/kano/make-apps/files/samples.html">
+<link rel="import" href="../../../scripts/kano/music/monotron/monotron.html">
 <dom-module id="kano-part-synth">
     <style>
     :host {
         display: block;
     }
     </style>
-    <template>
-        <div class="part">
-            <kano-ui-item model="[[model]]"
-                size="50"
-                id$="part-[[model.id]]"
-                instance></kano-ui-item>
-        </div>
-    </template>
 </dom-module>
 <script type="text/javascript">
     /* globals Polymer, Kano */
@@ -46,10 +37,6 @@
                     this.gainControl = this.ctx.createGain();
                     this.gainControl.connect(this.ctx.destination);
                     this.output = this.gainControl;
-
-                    this.oscillatorsGain = this.ctx.createGain();
-                    this.oscillatorsGain.connect(this.output);
-                    this.oscillatorsGain.gain.value = 0.2;
                 } catch (e) {
                     this.webAudioSupported = false;
                 }
@@ -63,7 +50,7 @@
                 this.sources.forEach(source => {
                     // Ignore sources not started
                     try {
-                        source.stop()
+                        source.stop();
                     } catch (e) {}
                 });
                 this.sources = [];
@@ -80,24 +67,26 @@
                     this.gainControl.gain.value = value;
                 }
             },
-            _createOscillator () {
-                let oscillator = this.ctx.createOscillator();
+            _createMonotron () {
+                let monotron = new Kano.Music.Monotron(this.ctx);
 
-                oscillator.type = 'sine';
-                oscillator.connect(this.oscillatorsGain);
+                monotron.lfo.frequency.value = 30;
+                monotron.lfoGain.gain.value = 100;
+                monotron.vcf.frequency.value = 2500;
 
-                return oscillator;
+                monotron.connect(this.output);
+
+                return monotron;
             },
             playFrequency (freq, length) {
-                let oscillator = this._createOscillator();
+                let monotron = this._createMonotron();
 
-                oscillator.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
-                                             ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
-                oscillator.start(0);
-                oscillator.stop(this.ctx.currentTime + length / 1000);
+                freq = OSCILLATOR_FREQ_RANGE_LOW + ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                monotron.noteOn(freq);
+                monotron.noteOff(this.ctx.currentTime + length / 1000);
 
-                oscillator.onended = () => {
-                    let index = this.sources.indexOf(oscillator);
+                monotron.vco.onended = () => {
+                    let index = this.sources.indexOf(monotron);
 
                     if (index >= 0) {
                         setTimeout(() => {
@@ -106,26 +95,24 @@
                     }
                 };
 
-                this.sources.push(oscillator);
+                this.sources.push(monotron);
             },
             startSynth () {
                 if (!this.synth) {
-                    this.synth = this._createOscillator();
-                    this.synth.type = 'sine';
-                    this.synth.frequency.value = DEFAULT_FREQ;
+                    this.synth = this._createMonotron();
+                    this.synth.noteOn(DEFAULT_FREQ);
                     this.sources.push(this.synth);
-                    this.synth.start(0);
                 }
             },
             setSynthFrequency (freq) {
                 if (this.synth) {
-                    this.synth.frequency.value = OSCILLATOR_FREQ_RANGE_LOW +
-                                                 ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                    freq = OSCILLATOR_FREQ_RANGE_LOW + ((freq) / 100) * OSCILLATOR_FREQ_RANGE_HI;
+                    this.synth.noteOn(freq);
                 }
             },
             setSynthWave (wave) {
                 if (this.synth) {
-                    this.synth.type = wave;
+                    this.synth.vco.type = wave;
                 }
             }
         });
