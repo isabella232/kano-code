@@ -8,6 +8,30 @@
 
     let register = (Blockly) => {
 
+        Blockly.Blocks.logic_compare = {
+            init: function () {
+                let options = [
+                    { label: "= equal", textLabel: "=", value: "EQ" },
+                    { label: "\u2260 not equal", textLabel: "\u2260", value: "NEQ" },
+                    { label: "< less than", textLabel: "<", value: "LT" },
+                    { label: "\u2264 less than or equal", textLabel: "\u2264", value: "LTE" },
+                    { label: "> greater than", textLabel: ">", value: "GT" },
+                    { label: "\u2265 greater than or equal", textLabel: "\u2265", value: "GTE" }
+                ]
+                this.appendValueInput('A');
+
+                this.appendDummyInput()
+                    .appendField(new Blockly.FieldCustomDropdown(options), 'OP');
+
+                this.appendValueInput('B');
+
+                this.setInputsInline(true);
+                this.setOutput('Boolean');
+                this.setColour('%{BKY_LOGIC_HUE}');
+                this.setHelpUrl('%{BKY_LOGIC_COMPARE_HELPURL}');
+            }
+        }
+
         Blockly.Pseudo.controls_if = (block) => {
             // If/elseif/else condition.
             let n = 0,
