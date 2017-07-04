@@ -23,9 +23,11 @@
 
     Blockly.Msg.LOOP_IN = "In %1 %2";
 
+    Blockly.Msg.WHEN = "When";
+    Blockly.Msg.GLOBAL_EVENT = Blockly.Msg.WHEN + " %1";
+    Blockly.Msg.COLLIDES_WITH = "collides with";
     Blockly.Msg.RESTART_CODE = "Restart code";
 
-    Blockly.Msg.GLOBAL_EVENT = "When %1";
     Blockly.Msg.APP_STARTS = "app starts";
 
     Blockly.Msg.KEY_EVENT = "When key %1 is %2";
@@ -69,6 +71,7 @@
 
     Blockly.Msg.BLOCK_BOX_SET_STROKE_SIZE = "set stroke size to %1";
     Blockly.Msg.BLOCK_BOX_SET_STROKE_COLOR = "set stroke color to %1";
+    Blockly.Msg.BLOCK_BOX_SET_BACKGROUND_COLOR = "set background color %1";
 
     Blockly.Msg.BLOCK_BUTTON_LABEL = "label";
     Blockly.Msg.BLOCK_BUTTON_SET_LABEL = "set label to %1";

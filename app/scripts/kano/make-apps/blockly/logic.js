@@ -44,6 +44,53 @@
             return [code, order];
         };
 
+        Blockly.Blocks.if_collides = {
+            init: function () {
+                Blockly.Blocks.collision_event.applyCollisionFields('', this);
+
+                this.setOutput('Boolean');
+
+                this.setColour(COLOR);
+            },
+            getFirstPartOptions: function () {
+                let options = Blockly.Blocks.collision_event.getParts()
+                    .map(this.formatPartOption);
+
+                if (!options.length) {
+                    options.push(['No available part', null]);
+                }
+
+                return options;
+            },
+            getSecondPartOptions: function () {
+                let options = Blockly.Blocks.collision_event.getParts()
+                    .filter(part => {
+                        return part.id !== this.getFieldValue('PART1');
+                    })
+                    .map(this.formatPartOption);
+
+                // The @ here is to make sure no part id will collide with this name
+                options.push(['Top Edge', "'@top-edge'"]);
+                options.push(['Right Edge', "'@right-edge'"]);
+                options.push(['Bottom Edge', "'@bottom-edge'"]);
+                options.push(['Left Edge', "'@left-edge'"]);
+
+                return options;
+            },
+            formatPartOption (part) {
+                return [part.name, `parts.get('${part.id}')`];
+            }
+        };
+
+        Blockly.JavaScript.if_collides = (block) => {
+            let part1Id = block.getFieldValue('PART1'),
+                part2Id = block.getFieldValue('PART2'),
+                code = `parts.collisionBetween(${part1Id}, ${part2Id})`;
+            return [code];
+        };
+
+        Blockly.Pseudo.if_collides = Blockly.JavaScript.if_collides;
+
         category.blocks.forEach((category) => {
             Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
         });
@@ -58,7 +105,8 @@
             'logic_compare',
             'logic_operation',
             'logic_negate',
-            'logic_boolean'
+            'logic_boolean',
+            'if_collides'
         ]
     });
 

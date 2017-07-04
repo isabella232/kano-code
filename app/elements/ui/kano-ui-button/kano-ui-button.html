@@ -1,5 +1,5 @@
 <link rel="import" href="../../part/kano-ui-behavior.html">
-<link rel="import" href="../../../scripts/kano/make-apps/parts-api/base.html">
+<link rel="import" href="../../../scripts/kano/make-apps/parts-api/web-collidable.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/button.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/typography.html">
 
@@ -31,7 +31,7 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-ui-button',
-        behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+        behaviors: [Kano.MakeApps.PartsAPI.WebCollidable, Kano.Behaviors.UIBehavior],
         buttonClicked () {
             this.fire('clicked');
         },
@@ -43,6 +43,8 @@
         },
         setLabel (label) {
             this.set('model.userProperties.label', label);
+            // The label change causes a size change, update the collision box
+            this._updateCollisionSize();
         },
         setBackgroundColour (color) {
             this.set('model.userStyle.background-color', color);
