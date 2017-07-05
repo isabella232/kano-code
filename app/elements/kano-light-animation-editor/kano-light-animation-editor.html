@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
@@ -16,7 +17,27 @@
 <dom-module id="kano-light-animation-editor">
     <style>
         :host {
-            display: block;
+            @apply --layout-vertical;
+            @apply --layout-justified;
+        }
+        #pixel-editor {
+            @apply --layout-flex-auto;
+        }
+        .bitmap-container {
+            @apply --layout-flex-auto;
+            @apply --layout-vertical;
+            position: relative;
+            width: 100%;
+        }
+        #canvas-area {
+            @apply --layout-flex-auto;
+            @apply --layout-vertical;
+            @apply --layout-center-justified;
+        }
+        #lightboard-body {
+            position: absolute;
+            top: calc(50% - 158px);
+            left: calc(50% - 212px);
         }
         .settings {
             @apply --layout-vertical;
@@ -35,8 +56,11 @@
         .settings-controls .size-settings kano-input-range:first-child {
             margin-right: 16px;
         }
+        kano-pixel-canvas,
+        kano-bitmap-renderer {
+            @apply --layout-self-center;
+        }
         kano-pixel-canvas {
-            @apply --layout-flex-auto;
             cursor: none;
             --kano-pixel-editor-background: var(--color-dark);
         }
@@ -73,6 +97,9 @@
             padding: 0;
             transition: color 300ms;
         }
+        kano-bitmap-list button:last-of-type {
+            margin: 7px 24px 7px 0;
+        }
         kano-bitmap-list label {
             color: white;
         }
@@ -89,7 +116,7 @@
         kano-bitmap-list button:hover iron-icon {
             fill: #00d9c7;
         }
-        kano-bitmap-list button#delete-frame-button:hover iron-icon {
+        kano-bitmap-list button.delete-frame-button:hover iron-icon {
             fill: var(--color-flame);
         }
         #bitmap-label {
@@ -99,6 +126,9 @@
             @apply --layout-flex;
             overflow: hidden;
         }
+        [hidden] {
+            display: none !important;
+        }
     </style>
     <template>
         <kano-pixel-editor id="pixel-editor"
@@ -107,7 +137,13 @@
                            height="[[height]]"
                            pen-color="{{penColor}}"
                            pen-type="{{penType}}">
-            <div slot="bitmap">
+            <div slot="bitmap" class="bitmap-container">
+                <iron-image id="lightboard-body"
+                            src="/assets/mode/lightboard/body-with-buttons.svg"
+                            sizing="contain"
+                            width="424"
+                            height="336"
+                            hidden$="[[!withDeviceOutline]]"></iron-image>
                 <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
                     <kano-pixel-canvas id="canvas"
                                        name="stopped"
@@ -162,6 +198,7 @@
                 </div>
             </div>
         </kano-pixel-editor>
+        <!-- TODO: localisation -->
         <div class="bottom-panel">
             <kano-bitmap-list id="frames"
                               bitmaps="{{bitmaps}}"
@@ -179,9 +216,13 @@
                     <iron-icon icon="kc-ui:duplicate"></iron-icon>
                     <span>Duplicate</span>
                 </button>
-                <button id="delete-frame-button" type="button" slot="delete-button" disabled$="[[running]]">
+                <button class="delete-frame-button" type="button" slot="delete-button" disabled$="[[running]]">
                     <iron-icon icon="kc-ui:close"></iron-icon>
                     <span>Delete</span>
+                </button>
+                <button class="delete-frame-button" type="button" slot="delete-all-button" disabled$="[[running]]">
+                    <iron-icon icon="kc-ui:close"></iron-icon>
+                    <span>Delete all</span>
                 </button>
             </kano-bitmap-list>
         </div>
@@ -232,6 +273,10 @@
                 speed: {
                     type: Number,
                     notify: true
+                },
+                withDeviceOutline: {
+                    type: Boolean,
+                    value: false
                 },
                 selectedFrame: Array,
                 penColor: String,

@@ -49,7 +49,7 @@
     }
     </style>
     <template>
-        <kano-part-editor-topbar icon="light-animation" label="Animation" theme="[[theme]]">
+        <kano-part-editor-topbar icon="light-animation" label="Animation" theme="#00d9c7">
             <div class="action-control" slot="action">
                 <button id="reverse" type="button" on-tap="_resetPreview">
                     <iron-icon icon="kc-ui:restart"></iron-icon>
@@ -100,6 +100,9 @@
         },
         _computeControlIcon (running) {
             return running ? 'running' : 'stopped';
+        },
+        _resetPreview () {
+            this.$.editor._resetPreview();
         },
         _togglePreviewState () {
             this.$.editor._togglePreviewState();

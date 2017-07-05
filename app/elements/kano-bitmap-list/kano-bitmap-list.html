@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/polymer-sortablejs/polymer-sortablejs.html">
 <link rel="import" href="../../bower_components/x-carousel/x-carousel.html">
+<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
@@ -32,6 +33,9 @@ Custom property | Description | Default
                 @apply --layout-horizontal;
                 @apply --kano-bitmaplist-action-container;
             }
+            #delete-slot {
+                @apply --layout-flex-auto;
+            }
             #frames {
                 @apply --layout-horizontal;
                 @apply --layout-center;
@@ -44,11 +48,7 @@ Custom property | Description | Default
                 @apply --layout-horizontal;
                 @apply --layout-center;
             }
-            .animation-roll-padding {
-                @apply --layout-horizontal;
-            }
-            .sortable-item,
-            .padding-container {
+            .sortable-item {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 @apply --layout-center-justified;
@@ -58,9 +58,6 @@ Custom property | Description | Default
                 border: 2px solid #8f9195;
                 border-radius: 6px;
                 box-sizing: border-box;
-            }
-            .sortable-item,
-            .padding-container {
                 margin-right: 22px;
             }
             .sortable-item.sortable-ghost {
@@ -106,7 +103,7 @@ Custom property | Description | Default
                 @apply --layout-center;
             }
             .disabled {
-                opacity: 0.7;
+                opacity: 0.6;
                 pointer-events: none;
             }
             [hidden] {
@@ -121,35 +118,17 @@ Custom property | Description | Default
                 <div on-tap="duplicateFrame" class$="[[_computeButtonClass(running)]]">
                     <slot name="duplicate-button"></slot>
                 </div>
-                <div on-tap="deleteFrame" class$="[[_computeButtonClass(running)]]">
+                <div id="delete-slot" on-tap="deleteFrame" class$="[[_computeButtonClass(running)]]">
                     <slot name="delete-button"></slot>
+                </div>
+                <div on-tap="deleteAllFrames" class$="[[_computeButtonClass(running)]]">
+                    <slot name="delete-all-button"></slot>
                 </div>
             </div>
         <x-carousel id="carousel" keep-buttons-visible>
             <iron-icon icon="kano-icons:arrow" slot="left-button" carousel-control-left></iron-icon>
             <div slot="content" class="carousel-content">
-                <div id="padding-left" class="animation-roll-padding" hidden$="[[!running]]">
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
+                <div id="padding-left" hidden$="[[!running]]">
                 </div>
                 <sortable-js id="frames"
                              group="frames"
@@ -168,32 +147,19 @@ Custom property | Description | Default
                         </div>
                     </template>
                 </sortable-js>
-                <div class="animation-roll-padding" hidden$="[[!running]]">
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
-                    <div class="padding-container">
-                        <kano-bitmap-renderer width="[[width]]"
-                                              height="[[height]]"
-                                              spacing="1"
-                                              pixel-size="4"
-                                              bitmap="[[getEmptyFrame(running)]]"></kano-bitmap-renderer>
-                    </div>
+                <div id="padding-right" hidden$="[[!running]]">
                 </div>
             </div>
             <iron-icon class="end-arrow" icon="kano-icons:arrow" slot="right-button" carousel-control-right></iron-icon>
         </x-carousel>
+        <kano-alert id="delete-all-alert"
+                    heading="Do you want to start again?"
+                    text="You are about to delete all your frames!">
+            <div slot="actions">
+                <button class="kano-alert-primary" on-tap="confirmDeleteAll" dialog-confirm>Confirm</button>
+                <button class="kano-alert-secondary" dialog-dismiss>Cancel</button>
+            </div>
+        </kano-alert>
     </template>
     <script>
         Polymer({
@@ -255,11 +221,15 @@ Custom property | Description | Default
                 if (e.path === 'selected.splices') {
                     const splices = e.value;
                     splices.indexSplices.forEach(splice => {
-                        this.splice(`bitmaps.${this.selectedIndex}`, splice.index, 1, this.selected[splice.index]);
+                        this.splice(`bitmaps.${this.selectedIndex}`,
+                                splice.index, 1, this.selected[splice.index]);
                     });
                 }
             },
             _bitmapsChanged () {
+                if (this.bitmaps.length === 0) {
+                    this.addFrame();
+                }
                 if (!this.selected) {
                     this.selected = this.bitmaps[0] && this.bitmaps[0].slice(0);
                 }
@@ -318,18 +288,44 @@ Custom property | Description | Default
                 if (this.bitmaps.length === 0) {
                     this.addFrame();
                 } else {
-                    this.selectedIndex = this.selectedIndex === 0 ? this.selectedIndex : this.selectedIndex - 1;
+                    this.selectedIndex = this.selectedIndex === 0 ?
+                            this.selectedIndex : this.selectedIndex - 1;
                     this.set('selected', this.bitmaps[this.selectedIndex].slice(0));
                 }
+            },
+            deleteAllFrames () {
+                if (this.bitmaps && this._bitmapsNotEmpty()) {
+                    this.$['delete-all-alert'].open();
+                }
+            },
+            _bitmapsNotEmpty () {
+                //returns true if there is more than an empty frame in the list
+                let allColors = this.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
+                    if (bitmaps.indexOf(bitmap) === index) {
+                        return acc.concat(bitmap);
+                    }
+                }, []);
+                return allColors.some((value) => {
+                    return value !== '#000000'
+                });
+            },
+            confirmDeleteAll () {
+                this.set('bitmaps', []);
             },
             _moveToSelected () {
                 const target = Polymer.dom(this.root).querySelector('.selected');
                 if (target) {
-                    this.$.carousel.moveTo(this.$['padding-left'].offsetWidth + target.offsetLeft + target.offsetWidth / 2,
-                        this.moveDelay);
+                    this.$.carousel.moveTo(this.$['padding-left'].offsetWidth +
+                            target.offsetLeft + target.offsetWidth / 2, this.moveDelay);
                 }
             },
             _onRunningChanged (running, wasRunning) {
+                //set a padding around the frames, so the playback doesn't jump
+                if (running) {
+                    this.$['padding-left'].style.width =
+                            this.$['padding-right'].style.width = `${this.offsetWidth / 2}px`;
+                }
+
                 if (!running && wasRunning) {
                     this._moveToSelected();
                 }
