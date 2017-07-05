@@ -211,7 +211,7 @@
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
 
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Generating Animation";
+    Kano.MakeApps.Msg.RECORDING = "Recording";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start generating your animated gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_MAKE_ANOTHER = "Make another gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_COPY = "copy";

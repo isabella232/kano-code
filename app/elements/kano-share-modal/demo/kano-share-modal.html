@@ -12,12 +12,20 @@
             window.Polymer = {
                 dom: 'shadow'
             };
+            window.Kano = {
+                MakeApps: {
+                    config: {}
+                }
+            };
         </script>
 
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
         <link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
         <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
-        <link rel="import" href="../../../scripts/kano/make-apps/parts-api/index.html">
+        <script src="../../../scripts/kano/make-apps/msg/en.js"></script>
+        <link rel="import" href="../../kano-workspace-lightboard/kano-workspace-lightboard.html">
+        <link rel="import" href="../../../scripts/kano/app-modules/index.html">
+        <link rel="import" href="../../ui/kano-ui-viewport/kano-ui-viewport.html">
         <link rel="import" href="../kano-share-modal.html">
 
         <style is="custom-style" include="demo-pages-shared-styles">
@@ -30,7 +38,6 @@
                 <template>
                     <template is="dom-bind" id="bind">
                         <paper-tabs id="tabs" selected="{{page}}" attr-for-selected="name">
-                            <paper-tab name="gif-creation">GIF Creation</paper-tab>
                             <paper-tab name="sharing-form">Sharing form</paper-tab>
                             <paper-tab name="saving">Saving</paper-tab>
                             <paper-tab name="failure">Failure</paper-tab>
@@ -42,30 +49,25 @@
                 <script>
                     document.addEventListener('WebComponentsReady', () => {
                         let bind = document.getElementById('bind'),
-                            slug = 'kano-blinky-the-ghost',
-                            mode = 'lightboard';
-                        fetch('https://s3-eu-west-1.amazonaws.com/world.kano.me.staging/share-items/attachments/59084e8ad0fda147604031d8.html')
-                            .then(r => r.text())
-                            .then(res => {
-                                let component = res;
-                                bind.page = 'gif-creation';
-                                bind.$.tabs.addEventListener('selected-changed', () => {
-                                    updateModal();
-                                });
-                                function updateModal () {
-                                    bind.$.modal.shareInfo = {
-                                        page: bind.page,
-                                        slug,
-                                        app: {
-                                            src: 'data:text/html;base64,' + window.btoa(component),
-                                            slug
-                                        },
-                                        mode,
-                                        description: ''
-                                    };
-                                }
-                                updateModal();
-                            });
+                            slug = 'blinky-the-ghost',
+                            mode = Kano.MakeApps.Mode.modes.lightboard;
+                        bind.page = 'sharing-form';
+                        bind.$.tabs.addEventListener('selected-changed', () => {
+                            updateModal();
+                        });
+                        function updateModal () {
+                            bind.$.modal.shareInfo = {
+                                page: bind.page,
+                                slug,
+                                app: {
+                                    src: 'https://s3-eu-west-1.amazonaws.com/world.kano.me.staging/share-items/attachments/59084e8ad0fda147604031d8.html',
+                                    slug
+                                },
+                                mode,
+                                description: ''
+                            };
+                        }
+                        updateModal();
                     });
                 </script>
             </demo-snippet>

@@ -1,4 +1,5 @@
 <script src="../../bower_components/gif.js/dist/gif.js"></script>
+<link rel="import" href="../../scripts/kano/gif-encoder/encoder.html">
 <script type="text/javascript">
 
     // GIF.js comes already minified with no ; at the end of the file. When bundled and minified this causes an issue in this file
@@ -40,15 +41,11 @@
                 return promise.then(() => {
                     let tmpCanvas = document.createElement('canvas'),
                         tmpCtx;
-                    tmpCanvas.width = (width * scale) + (padding * 2);
-                    tmpCanvas.height = (height * scale) + (padding * 2);
+                    tmpCanvas.width = width * scale;
+                    tmpCanvas.height = height * scale;
                     tmpCtx = tmpCanvas.getContext('2d');
-                    tmpCtx.fillStyle = background;
-                    tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
-                    tmpCtx.drawImage(canvas, padding, padding, tmpCanvas.width - (padding * 2), tmpCanvas.height - (padding * 2));
-                    image = new Image();
-                    image.src = tmpCanvas.toDataURL();
-                    return image;
+                    tmpCtx.drawImage(canvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
+                    return tmpCanvas;
                 });
             },
             generateSpriteSheet (workspace, fps, duration) {
@@ -141,13 +138,18 @@
             },
             _generateGifCover (workspace, parts, scale, padding, color, fps, length) {
                 this.interrupted = false;
+                let encoder = new Kano.GifEncoder({
+                    width: workspace.width * scale,
+                    height: workspace.height * scale,
+                    length,
+                    workerUrl: '/scripts/kano/gif-encoder/worker-rgb.js'
+                });
                 let wait = (delay) => {
                         return new Promise((resolve, reject) => {
                             setTimeout(resolve, delay);
                         });
                     },
-                    p = wait(300),
-                    images = [];
+                    p = wait(300);
 
                 let getFrame = () => {
                     return this.generateCover(workspace,
@@ -157,8 +159,8 @@
                                                 scale,
                                                 padding,
                                                 color)
-                        .then(image => {
-                            images.push(image);
+                        .then(canvas => {
+                            encoder.addFrame(canvas.getContext('2d'), 1000 / fps);
                             this.gifProgress += (100 / length);
                             if (!this.interrupted) {
                                 return wait(1000 / fps);
@@ -171,25 +173,10 @@
                     p = p.then(getFrame.bind(this));
                 }
                 return p.then(_ => {
-                    images.unshift(images[images.length - 1]);
-                    return new Promise((resolve, reject) => {
-                        let gif = new GIF({
-                            workers: 2,
-                            quality: 1,
-                            workerScript: '/bower_components/gif.js/dist/gif.worker.js'
-                        });
-                        images.forEach((image) => {
-                            gif.addFrame(image, { delay: 1000 / fps });
-                        });
-                        gif.on('progress', (p) => {
-                            this.gifRenderProgress = p * 100;
-                        });
-                        gif.on('finished', (blob) => {
-                            resolve(blob);
-                        });
-                        gif.render();
-                    })
-                }).then(blob => {
+                    return encoder.end();
+                })
+                .then(blob => {
+                    console.log(encoder.gif.end());
                     this.gifProgress = 0;
                     this.gifRenderProgress = 0;
                     return blob;
