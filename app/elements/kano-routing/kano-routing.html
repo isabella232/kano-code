@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
+<link rel="import" href="../../scripts/util/client.html">
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
@@ -160,14 +161,11 @@
       _exit () {
           this.leaveAlert = false;
           //TODO refactor this when Kano2App is able to restore selected device
-          if (this._runningOnElectron()) {
+          if (window.ClientUtil.runningInKanoApp()) {
               window.history.back();
           } else {
               location.href = Kano.MakeApps.config.PROJECTS_URL;
           }
-      },
-      _runningOnElectron () {
-          return navigator.userAgent.indexOf("Electron") > -1;
       }
   });
   </script>
