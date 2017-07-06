@@ -113,6 +113,7 @@
     Kano.MakeApps.Msg.PART_CLOCK_NAME = "Clock";
     Kano.MakeApps.Msg.PART_MAP_NAME = "Map";
     Kano.MakeApps.Msg.PART_MIC_NAME = "Mic";
+    Kano.MakeApps.Msg.PART_MOUSE_NAME = "Mouse";
     Kano.MakeApps.Msg.PART_OSC_NAME = "Osc";
     Kano.MakeApps.Msg.PART_PICTURE_LIST_NAME = "Picture List";
     Kano.MakeApps.Msg.PART_SCROLL_NAME = "Scroller";

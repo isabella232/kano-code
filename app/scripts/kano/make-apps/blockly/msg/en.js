@@ -213,6 +213,13 @@
     Blockly.Msg.BLOCK_MOTION_WHEN = "when";
     Blockly.Msg.BLOCK_MOTION_IS_TRIGGERED = "is triggered";
 
+    Blockly.Msg.BLOCK_MOUSE_X = "X position";
+    Blockly.Msg.BLOCK_MOUSE_Y = "Y position";
+    Blockly.Msg.BLOCK_MOUSE_EVENT = "when %1";
+    Blockly.Msg.BLOCK_MOUSE_SET_CURSOR = "set cursor %1";
+    Blockly.Msg.BLOCK_MOUSE_DOWN = "click";
+    Blockly.Msg.BLOCK_MOUSE_UP = "release";
+
     window.CustomBlocklyMsg = Blockly.Msg;
 
 })(window.Blockly = window.Blockly || {});

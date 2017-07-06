@@ -1,0 +1,123 @@
+<link rel="import" href="./parts.html">
+<link rel="import" href="./hardware.html">
+<script>
+    (function (Kano) {
+
+        let microphone = {
+            partType: 'hardware',
+            type: 'mouse',
+            label: Kano.MakeApps.Msg.PART_MOUSE_NAME,
+            component: 'kano-part-mouse',
+            image: '/assets/part/mouse.svg',
+            colour: '#FFB347',
+            globalBlocks: ['assets_get_sticker', 'assets_random_sticker', 'assets_random_sticker_from'],
+            blocks: [{
+                block: (ui) => {
+                    return {
+                        id: 'mouse_x',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MOUSE_X}`,
+                        output: 'Number'
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getX()`;
+                        return [code];
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getX()`;
+                        return [code];
+                    };
+                }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'mouse_y',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MOUSE_Y}`,
+                        output: 'Number'
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getY()`;
+                        return [code];
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let code = `devices.get('${part.id}').getY()`;
+                        return [code];
+                    };
+                }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'mouse_set_cursor',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MOUSE_SET_CURSOR}`,
+                        args0: [{
+                            type: 'input_value',
+                            name: 'CURSOR',
+                            check: 'String'
+                        }],
+                        previousStatement: null,
+                        nextStatement: null
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let cursor = Blockly.JavaScript.valueToCode(block, 'CURSOR'),
+                            code = `devices.get('${part.id}').setCursor(${cursor});\n`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let cursor = block.getFieldValue('CURSOR'),
+                            code = `devices.get('${part.id}').setCursor(${cursor});\n`;
+                        return code;
+                    };
+                }
+            }, {
+                block: (ui) => {
+                    return {
+                        id: 'mouse_event',
+                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MOUSE_EVENT}`,
+                        args0: [{
+                            type: 'field_dropdown',
+                            name: 'TYPE',
+                            options: [
+                                [Blockly.Msg.BLOCK_MOUSE_DOWN, 'down'],
+                                [Blockly.Msg.BLOCK_MOUSE_UP, 'up']
+                            ]
+                        }],
+                        message1: '%1',
+                        args1: [{
+                            type: 'input_statement',
+                            name: 'DO'
+                        }]
+                    };
+                },
+                javascript: (part) => {
+                    return (block) => {
+                        let type = block.getFieldValue('TYPE'),
+                            statement = Blockly.JavaScript.statementToCode(block, 'DO'),
+                            code = `devices.get('${part.id}').on('${type}', function (){\n${statement}});\n`;
+                        return code;
+                    };
+                },
+                pseudo: (part) => {
+                    return (block) => {
+                        let type = block.getFieldValue('TYPE'),
+                            statement = Blockly.Pseudo.statementToCode(block, 'DO'),
+                            code = `devices.get('${part.id}').on('${type}', function (){\n${statement}});\n`;
+                        return code;
+                    };
+                }
+            }]
+        };
+
+        Kano.MakeApps.Parts.registerPart(microphone);
+    })(window.Kano = window.Kano || {});
+</script>
