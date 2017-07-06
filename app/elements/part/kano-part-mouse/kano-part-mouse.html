@@ -9,12 +9,20 @@
         is: 'kano-part-mouse',
         behaviors: [Kano.MakeApps.PartsAPI.sticker, Kano.Behaviors.UIBehavior],
         attached () {
-            this.workspace = this.parentNode.getWorkspace();
+            let parent = this.parentNode;
+            // The parent if a workspace, use it
+            if (parent.tagName.toLowerCase().indexOf('kano-workspace') === 0) {
+                this.workspace = this.parentNode;
+            } else {
+                this.workspace = this.parentNode.getWorkspace();
+            }
             this._onMouseMove = this._onMouseMove.bind(this);
             this._onMouseDown = this._onMouseDown.bind(this);
             this._onMouseUp = this._onMouseUp.bind(this);
             this.mouseX = 0;
             this.mouseY = 0;
+            this.mouseDeltaX = 0;
+            this.mouseDeltaY = 0;
             this.listeners = [];
             this._imageCache = {};
         },
@@ -41,10 +49,15 @@
         },
         _onMouseMove (e) {
             let rect = this.workspace.getBoundingClientRect(),
-                scalingFactor = rect.width / this.workspace.width;
+                scalingFactor = rect.width / this.workspace.width,
+                x, y;
 
-            this.mouseX = Math.max(0, Math.min(this.workspace.width, parseInt(e.x - rect.left) / scalingFactor));
-            this.mouseY = Math.max(0, Math.min(this.workspace.height, parseInt(e.y - rect.top) / scalingFactor));
+            x = Math.max(0, Math.min(this.workspace.width, parseInt(e.x - rect.left) / scalingFactor));
+            y = Math.max(0, Math.min(this.workspace.height, parseInt(e.y - rect.top) / scalingFactor));
+            this.mouseDeltaX = x - this.mouseX;
+            this.mouseDeltaY = y - this.mouseY;
+            this.mouseX = x;
+            this.mouseY = y;
         },
         _onMouseDown () {
             this.fire('mouse-down');
@@ -87,6 +100,12 @@
         },
         getY () {
             return this.mouseY;
+        },
+        getXSpeed () {
+            return this.mouseDeltaX;
+        },
+        getYSpeed () {
+            return this.mouseDeltaY;
         }
     });
 </script>

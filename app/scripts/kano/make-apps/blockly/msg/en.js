@@ -215,6 +215,8 @@
 
     Blockly.Msg.BLOCK_MOUSE_X = "X position";
     Blockly.Msg.BLOCK_MOUSE_Y = "Y position";
+    Blockly.Msg.BLOCK_MOUSE_SPEED_X = "X speed";
+    Blockly.Msg.BLOCK_MOUSE_SPEED_Y = "Y speed";
     Blockly.Msg.BLOCK_MOUSE_EVENT = "when %1";
     Blockly.Msg.BLOCK_MOUSE_SET_CURSOR = "set cursor %1";
     Blockly.Msg.BLOCK_MOUSE_DOWN = "click";
