@@ -3,7 +3,11 @@ module.exports = (gulp, $) => {
 
     const WORKERS_SRC = [
         './app/bower_components/gif.js/dist/gif.worker.js',
-        './app/scripts/kano/make-apps/parts-api/canvas-filters.html'
+        './app/scripts/kano/make-apps/parts-api/canvas-filters.html',
+        './app/scripts/kano/gif-encoder/worker-neu.js',
+        './app/scripts/kano/gif-encoder/worker-rgb.js',
+        './app/assets/vendor/neuquant/NeuQuant.js',
+        './app/assets/vendor/rgbquant/RgbQuant.js'
     ];
 
     function generateWorkers(src) {
