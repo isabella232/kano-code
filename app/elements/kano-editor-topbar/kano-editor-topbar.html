@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
+
 <dom-module id="kano-editor-topbar">
     <template>
         <style>
@@ -62,7 +63,6 @@
             ul {
                 margin: 0px;
                 padding-left: 0px;
-                padding-bottom: 16px;
                 color: black;
                 min-width: 200px;
             }
@@ -91,6 +91,9 @@
             li.user .info .level {
                 font-size: 12px;
                 opacity: 0.6;
+            }
+            li.logout {
+                padding-bottom: 16px;
             }
             .inline {
                 @apply --layout-horizontal;
@@ -141,7 +144,7 @@
                             <div class="level">[[localize('LEVEL', 'Level')]] [[profile.levels.level]]</div>
                         </div>
                     </li>
-                    <li>
+                    <li class="logout" hidden$="[[disableLogout]]">
                         <a on-tap="_logoutTapped" class="inline">
                             <iron-icon src="/assets/icons/logout.svg"></iron-icon>
                             <div class="label">[[localize('LOGOUT', 'Log Out')]]</div>
@@ -165,6 +168,9 @@
                     type: String,
                     computed: '_computeAvatar(user)'
                 }
+            },
+            ready () {
+                this.disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
             },
             _computeAvatar(user) {
                 if (user && user.avatar && user.avatar.urls) {

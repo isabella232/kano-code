@@ -130,10 +130,10 @@
     Blockly.Msg.BLOCK_SPEAKER_VOLUME = "set volume %1";
     Blockly.Msg.BLOCK_SPEAKER_RANDOM_FROM = "random sound %1";
 
-    Blockly.Msg.BLOCK_SYNTH_PLAY_FREQUENCY_FOR = "play frequency %1 for %2 miliseconds";
+    Blockly.Msg.BLOCK_SYNTH_PLAY_FREQUENCY_FOR = "play pitch %1 for %2 miliseconds";
     Blockly.Msg.BLOCK_SYNTH_START = "start";
     Blockly.Msg.BLOCK_SYNTH_STOP = "stop";
-    Blockly.Msg.BLOCK_SYNTH_SET_FREQUENCY = "set frequency %1";
+    Blockly.Msg.BLOCK_SYNTH_SET_FREQUENCY = "set pitch %1";
     Blockly.Msg.BLOCK_SYNTH_SET_WAVE = "set wave %1";
 
     Blockly.Msg.BLOCK_STICKER_SET = "set to %1";
@@ -212,6 +212,15 @@
 
     Blockly.Msg.BLOCK_MOTION_WHEN = "when";
     Blockly.Msg.BLOCK_MOTION_IS_TRIGGERED = "is triggered";
+
+    Blockly.Msg.BLOCK_MOUSE_X = "X position";
+    Blockly.Msg.BLOCK_MOUSE_Y = "Y position";
+    Blockly.Msg.BLOCK_MOUSE_SPEED_X = "X speed";
+    Blockly.Msg.BLOCK_MOUSE_SPEED_Y = "Y speed";
+    Blockly.Msg.BLOCK_MOUSE_EVENT = "when %1";
+    Blockly.Msg.BLOCK_MOUSE_SET_CURSOR = "set cursor %1";
+    Blockly.Msg.BLOCK_MOUSE_DOWN = "click";
+    Blockly.Msg.BLOCK_MOUSE_UP = "release";
 
     window.CustomBlocklyMsg = Blockly.Msg;
 

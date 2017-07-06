@@ -14,7 +14,7 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../inputs/kano-input-text/kano-input-text.html">
 <link rel="import" href="../inputs/kano-input-color/kano-input-color.html">
-<link rel="import" href="../kano-media-query/kano-media-query.html">
+<link rel="import" href="../kano-color-wheel/kano-color-wheel.html">
 <link rel="import" href="../kano-icons/parts.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
@@ -35,8 +35,6 @@ Custom property | Description | Default
     <style include="kano-code-shared-styles">
         :host {
             @apply --layout-vertical;
-            @apply --layout-center-justified;
-            width: 880px;
             background-color: #292f35;
             --part-theme: #00d9c7;
         }
@@ -58,6 +56,7 @@ Custom property | Description | Default
         }
         .center-panel {
             @apply --layout-horizontal;
+            @apply --layout-flex-auto;
         }
         .side-menu {
             @apply --layout-vertical;
@@ -92,12 +91,10 @@ Custom property | Description | Default
             text-align: left;
         }
         .bitmap-container {
-            @apply --layout-flex-none;
+            @apply --layout-flex-auto;
             @apply --layout-vertical;
             @apply --layout-center-justified;
             @apply --layout-center;
-            width: 554px;
-            height: 340px;
             @apply --kano-pixel-editor-bitmap-container;
         }
         .bitmap-container iron-pages {
@@ -107,8 +104,8 @@ Custom property | Description | Default
             margin-left: -1px;
         }
         .control-container {
-            @apply --layout-flex-auto;
             @apply --layout-horizontal;
+            width: 268px;
             border-left: 1px solid var(--kano-app-part-editor-border);
         }
         .control-container label {
@@ -117,6 +114,7 @@ Custom property | Description | Default
         .control-content {
             @apply --layout-flex-auto;
             @apply --layout-horizontal;
+            height: 344px;
             padding: 0 28px;
         }
         .control-content>* {
@@ -159,6 +157,7 @@ Custom property | Description | Default
             fill: var(--part-theme);
         }
         .control-content kano-tooltip {
+            z-index: 10;
             --kano-tooltip-border-color: var(--color-dark);
             --kano-tooltip-background-color: var(--color-dark);
             --kano-tooltip-caret: {
@@ -179,7 +178,7 @@ Custom property | Description | Default
             margin-bottom: 38px;
         }
         #custom-palette {
-            height: 103px;
+            height: 105px;
             width: 97%;
             overflow: auto;
             margin-bottom: 0;
@@ -222,40 +221,39 @@ Custom property | Description | Default
                 <slot name="bitmap"></slot>
             </div>
             <div class="control-container">
-                    <iron-pages class="control-content" selected="[[controlPanel]]" attr-for-selected="name">
-                        <div name="palette">
-                            <label>Colors</label>
-                            <kano-input-color id="default-palette"
-                                              on-value-changed="_onColorChange"
-                                              idle="[[customPaletteActive]]"
-                                              row-size="6"></kano-input-color>
-                            <div class="custom-colour-header">
-                                <label>Custom</label>
-                                <kano-tooltip id="tooltip"
-                                              class="tooltip"
-                                              position="right"
-                                              target="[[tooltipTarget]]"
-                                              opened="{{wheelOpened}}"
-                                              auto-close>
-                                    <kano-color-wheel id="wheel"
-                                                      on-value-changed="_addCustomColor"
-                                                      render-later></kano-color-wheel>
-                                </kano-tooltip>
-                                <button id="custom-colour-add" type="button" on-tap="_openWheel">
-                                    <iron-icon class="add-icon" icon="kc-ui:add"></iron-icon>
-                                    <span >Add</span>
-                                </button>
-                            </div>
-                            <kano-input-color id="custom-palette"
-                                              on-value-changed="_onColorChange"
-                                              idle="[[!customPaletteActive]]"
-                                              row-size="6"></kano-input-color>
+                <iron-pages class="control-content" selected="[[controlPanel]]" attr-for-selected="name">
+                    <div name="palette">
+                        <label>Colors</label>
+                        <kano-input-color id="default-palette"
+                                          on-value-changed="_onColorChange"
+                                          idle="[[customPaletteActive]]"
+                                          row-size="6"></kano-input-color>
+                        <div class="custom-colour-header">
+                            <label>Custom</label>
+                            <kano-tooltip id="tooltip"
+                                          position="right"
+                                          target="[[tooltipTarget]]"
+                                          opened="{{wheelOpened}}"
+                                          auto-close>
+                                <kano-color-wheel id="wheel"
+                                                  on-value-changed="_addCustomColor"
+                                                  render-later></kano-color-wheel>
+                            </kano-tooltip>
+                            <button id="custom-colour-add" type="button" on-tap="_openWheel">
+                                <iron-icon class="add-icon" icon="kc-ui:add"></iron-icon>
+                                <span >Add</span>
+                            </button>
                         </div>
-                        <div name="settings" class="settings">
-                            <label>Settings</label>
-                            <slot name="settings"></slot>
-                        </div>
-                    </iron-pages>
+                        <kano-input-color id="custom-palette"
+                                          on-value-changed="_onColorChange"
+                                          idle="[[!customPaletteActive]]"
+                                          row-size="6"></kano-input-color>
+                    </div>
+                    <div name="settings" class="settings">
+                        <label>Settings</label>
+                        <slot name="settings"></slot>
+                    </div>
+                </iron-pages>
             </div>
         </div>
     </template>
@@ -353,7 +351,13 @@ Custom property | Description | Default
                 }, this)
             },
             _openWheel (e) {
-                const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget;
+                const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget,
+                    viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+                    editorWidth = this.offsetWidth;
+                // if editor is full screen, open color wheel to left
+                if (viewportWidth === editorWidth) {
+                    this.$.tooltip.position = 'left';
+                }
                 this._renderWheel();
                 this.async(() => {
                     this.$.tooltip.set('target', target.getBoundingClientRect());
