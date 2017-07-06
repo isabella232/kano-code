@@ -153,10 +153,22 @@
           }
       },
       _onPageChanged () {
+          let disableLogout;
+
           Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
           Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
           Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
           Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
+
+          disableLogout = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
+          if (disableLogout === null) {
+              disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
+          } else if (disableLogout === 'false' || disableLogout === '0') {
+              disableLogout = false;
+          }
+
+          Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
+          console.log("DIZ LOG", Kano.MakeApps.config.DISABLE_LOGOUT);
       },
       _exit () {
           this.leaveAlert = false;

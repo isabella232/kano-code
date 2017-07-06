@@ -145,7 +145,7 @@
                             <div class="level">[[localize('LEVEL', 'Level')]] [[profile.levels.level]]</div>
                         </div>
                     </li>
-                    <li class="logout" hidden$="[[!canLogout]]">
+                    <li class="logout" hidden$="[[disableLogout]]">
                         <a on-tap="_logoutTapped" class="inline">
                             <iron-icon src="/assets/icons/logout.svg"></iron-icon>
                             <div class="label">[[localize('LOGOUT', 'Log Out')]]</div>
@@ -171,7 +171,7 @@
                 }
             },
             ready () {
-                this.canLogout = !ClientUtil.runningInKanoApp();
+                this.disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
             },
             _computeAvatar(user) {
                 if (user && user.avatar && user.avatar.urls) {
