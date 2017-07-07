@@ -63,7 +63,7 @@ pipeline {
                         bucket = 'apps-lightboard.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
-                    } else if (env.BRANCH_NAME == "lightboard-rc") {
+                    } else if (env.BRANCH_NAME == "lightboard") {
                         bucket = 'apps-lightboard-staging.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
