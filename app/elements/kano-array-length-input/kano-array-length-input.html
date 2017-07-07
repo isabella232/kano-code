@@ -1,0 +1,33 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<dom-module id="kano-array-length-input">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <button type="button" on-tap="decr">-</button>
+        <span>[[value]]</span>
+        <button type="button" on-tap="incr">+</button>
+    </template>
+    <script>
+        Polymer({
+            is:'kano-array-length-input',
+            properties: {
+                value: {
+                    type: Number,
+                    notify: true
+                }
+            },
+            boundValue (value) {
+                return Math.max(1, value);
+            },
+            incr () {
+                this.value = this.boundValue(this.value + 1);
+            },
+            decr () {
+                this.value = this.boundValue(this.value - 1);
+            }
+        });
+    </script>
+</dom-module>
