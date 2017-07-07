@@ -57,6 +57,9 @@
                     return;
                 }
                 let x, y;
+                this.ctx.save();
+                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+                this.ctx.imageSmoothingEnabled = false;
                 this.bitmap.forEach((v, i) => {
                     x = (i % this.width);
                     y = Math.floor(i / this.width);
@@ -68,6 +71,7 @@
                 if (this.loop) {
                     this.timeoutId = setTimeout(this._renderCanvas.bind(this), (1000 / this.fps) || 0);
                 }
+                this.ctx.restore();
             }
         });
     </script>
