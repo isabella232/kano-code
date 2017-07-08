@@ -6,13 +6,25 @@
 
     let category,
         register = (Blockly) => {
+        Blockly.Blocks.colour_picker = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField(new Blockly.FieldCustomColor("#ff0000"), 'COLOUR');
+
+                this.setOutput('Colour');
+                this.setHelpUrl("%{BKY_COLOUR_PICKER_HELPURL}");
+                this.setColour("%{BKY_COLOUR_HUE}");
+                this.setTooltip("%{BKY_COLOUR_PICKER_TOOLTIP}");
+            }
+        };
+
         Blockly.Blocks.random_colour = {
             init: function () {
                 let json = {
-                    id: 'random_colour',
-                    colour: COLOR,
+                    id      : 'random_colour',
+                    colour  : COLOR,
                     message0: Blockly.Msg.COLOR_RANDOM,
-                    output: 'Colour'
+                    output  : 'Colour'
                 };
                 this.jsonInit(json);
             }
@@ -82,57 +94,57 @@
             },
             mutationToDom: function () {
                 let container = document.createElement('mutation'),
-                    type = this.getFieldValue('TYPE');
+                    type      = this.getFieldValue('TYPE');
                 container.setAttribute('color_type', type);
                 return container;
             }
         };
 
         Blockly.JavaScript.create_color = (block) => {
-            let type = block.getFieldValue('TYPE'),
-                one = Blockly.JavaScript.valueToCode(block, '1') || 0,
-                two = Blockly.JavaScript.valueToCode(block, '2'),
-                three = Blockly.JavaScript.valueToCode(block, '3'),
+            let type     = block.getFieldValue('TYPE'),
+                one      = Blockly.JavaScript.valueToCode(block, '1') || 0,
+                two      = Blockly.JavaScript.valueToCode(block, '2'),
+                three    = Blockly.JavaScript.valueToCode(block, '3'),
                 defaults = type === 'hsv' ? 100 : 0;
-            two = two || defaults;
-            three = three || defaults;
-            let code = `colour.create('${type}', ${one}, ${two}, ${three})`;
+                two      = two || defaults;
+                three    = three || defaults;
+            let code     = `colour.create('${type}', ${one}, ${two}, ${three})`;
             return [code];
         };
 
         Blockly.Pseudo.create_color = (block) => {
-            let type = block.getFieldValue('TYPE'),
-                one = Blockly.Pseudo.valueToCode(block, '1') || 0,
-                two = Blockly.Pseudo.valueToCode(block, '2'),
-                three = Blockly.Pseudo.valueToCode(block, '3'),
+            let type     = block.getFieldValue('TYPE'),
+                one      = Blockly.Pseudo.valueToCode(block, '1') || 0,
+                two      = Blockly.Pseudo.valueToCode(block, '2'),
+                three    = Blockly.Pseudo.valueToCode(block, '3'),
                 defaults = type === 'hsv' ? 100 : 0;
-            two = two || defaults;
-            three = three || defaults;
-            let code = `colour.create('${type}', ${one}, ${two}, ${three})`;
+                two      = two || defaults;
+                three    = three || defaults;
+            let code     = `colour.create('${type}', ${one}, ${two}, ${three})`;
             return [code];
         };
 
         Blockly.Blocks.color_lerp = {
             init: function () {
                 let json = {
-                    id: 'color_lerp',
-                    colour: COLOR,
+                    id      : 'color_lerp',
+                    colour  : COLOR,
                     message0: Blockly.Msg.COLOR_LERP,
-                    args0: [{
-                        type: "input_value",
-                        name: "FROM",
+                    args0   : [{
+                        type : "input_value",
+                        name : "FROM",
                         check: "Colour"
                     }, {
-                        type: "input_value",
-                        name: "TO",
+                        type : "input_value",
+                        name : "TO",
                         check: "Colour"
                     }, {
-                        type: 'input_value',
-                        name: 'PERCENT',
+                        type : 'input_value',
+                        name : 'PERCENT',
                         check: "Number"
                     }],
                     inputsInline: true,
-                    output: "Colour"
+                    output      : "Colour"
                 };
                 this.jsonInit(json);
             }
@@ -140,18 +152,18 @@
 
         Blockly.JavaScript.color_lerp = (block) => {
             Blockly.JavaScript.valueToCode(block, 'FROM') || '"#ffffff"'
-            let from = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
-                to = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
+            let from    = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
+                to      = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
                 percent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
-                code = `colour.lerp(${from}, ${to}, ${percent})`;
+                code    = `colour.lerp(${from}, ${to}, ${percent})`;
             return [code];
         };
 
         Blockly.Pseudo.color_lerp = (block) => {
-            let from = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
-                to = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
+            let from    = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
+                to      = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
                 percent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
-                code = `math.lerp(${from}, ${to}, ${percent})`;
+                code    = `math.lerp(${from}, ${to}, ${percent})`;
             return [code];
         };
 
@@ -160,15 +172,15 @@
         });
     };
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
-        name: Blockly.Msg.CATEGORY_COLOR,
-        id: 'color',
+        name  : Blockly.Msg.CATEGORY_COLOR,
+        id    : 'color',
         colour: COLOR,
         blocks: [
             'colour_picker',
             'create_color',
             'random_colour',
             {
-                id: 'color_lerp',
+                id      : 'color_lerp',
                 defaults: ['FROM', 'TO', 'PERCENT']
             }
         ]

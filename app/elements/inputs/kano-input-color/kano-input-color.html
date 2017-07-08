@@ -50,15 +50,17 @@ Custom property | Description | Default
         @apply --layout-center-justified;
         @apply --layout-center;
         position: absolute;
-        top: -1px;
-        left: -1px;
+        top: calc(var(--kano-input-color-margin, 0.5px) * -2);
+        left: calc(var(--kano-input-color-margin, 0.5px) * -2);
         width: var(--kano-input-color-size, 32px);
         height: var(--kano-input-color-size, 32px);
-        z-index: 2;
+        z-index: 3;
         outline: 3px solid #bbb;
         outline-offset: -1px;
-        transition: transform 200ms linear;
         margin: var(--kano-input-color-margin, 0.5px);
+    }
+    :host(.animate) #select-frame {
+        transition: transform 200ms linear;
     }
     #tick {
         transition: opacity 200ms linear;
@@ -143,18 +145,44 @@ Custom property | Description | Default
         ],
         attached () {
             if (!this.idle) {
-                this.set('selectedIndex', 0);
+                if (this.value) {
+                    this.set('selectedIndex', this.getIndexByValue(this.value));
+                } else {
+                    this.set('selectedIndex', 0);
+                }
             }
             this.frame = this.$['select-frame'];
         },
+        getIndexByValue (value) {
+            return Math.max(0, this.colors.indexOf(value));
+        },
+        getBrightness (hexCode) {
+            let r, g, b;
+            hexCode = hexCode.replace('#', '');
+
+            r = parseInt(hexCode.substr(0, 2),16);
+            g = parseInt(hexCode.substr(2, 2),16);
+            b = parseInt(hexCode.substr(4, 2),16);
+
+            return ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        },
         _highlight (index) {
             const target = this.$$(`#color-${index}`);
+            let brightness;
 
             if (target) {
                 this.transform(`translate(${target.offsetLeft}px, ${target.offsetTop}px)`, this.frame);
                 this._animateIcon();
-                this.frame.style['outline-color'] = this.$.tick.style.fill =
-                        this.colors[index] === '#ffffff' ? '#999' : '#fff';
+                brightness = this.getBrightness(this.colors[index]);
+                this.frame.style['outline-color'] = this.$.tick.style.fill = brightness > 230 ? '#bbb' : '#fff';
+                // The first value was just set, enable the frame animation from now on
+                if (!this.firstValueSet) {
+                    this.firstValueSet = true;
+                    // Let the current transform be applied before enabling animations
+                    Polymer.RenderStatus.afterNextRender(this, () => {
+                        this.toggleClass('animate', true);
+                    });
+                }
             }
         },
         _onIdleChanged (idle, wasIdle) {
@@ -170,7 +198,7 @@ Custom property | Description | Default
             if (!isAttached) {
                 return;
             }
-            const colorSize = this.getComputedStyleValue('--kano-input-color-size') || '26px',
+            const colorSize = this.getComputedStyleValue('--kano-input-color-size') || '32px',
                 margin = this.getComputedStyleValue('--kano-input-color-margin') || '0.5px';
             this.$['input-field'].style.width = `${(parseFloat(colorSize, 10) + 2 *
                     parseFloat(margin, 10)) * this.rowSize}px`;
@@ -186,11 +214,14 @@ Custom property | Description | Default
             const target = e.currentTarget ? e.currentTarget : Polymer.dom(e).rootTarget,
                 color = this.$.palette.modelForElement(target).get('color'),
                 index = this.$.palette.indexForElement(target);
+            
+            let brightness;
 
             if (index !== this.selectedIndex) {
+                brightness = this.getBrightness(color);
                 target.style.outline = '3px solid #fff';
                 target.style['z-index'] = '2';
-                target.style['outline-color'] = color === '#ffffff' ? '#bbb' : '#fff';
+                target.style['outline-color'] = brightness > 230 ? '#bbb' : '#fff';
             }
         },
         _hoverOff (e) {
