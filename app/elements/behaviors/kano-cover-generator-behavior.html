@@ -45,7 +45,7 @@
                     return tmpCanvas;
                 });
             },
-            generateSpriteSheet (workspace, fps, duration) {
+            generateAppSpriteSheet (workspace, fps, duration) {
                 /* Only works for the lightboard workspace */
                 if (!workspace || !workspace.bitmap) {
                     return Promise.resolve();
@@ -98,6 +98,29 @@
                     // To skip the first empty frames
                     setTimeout(renderSprite, 2000);
                 });
+            },
+            generateAnimationSpritesheet (frames) {
+                let sheet = document.createElement('canvas'),
+                    ctx = sheet.getContext('2d'),
+                    fw = 16,
+                    fh = 8,
+                    pixelSize = 1;
+
+                frames.forEach((bitmap, frameNumber) => {
+                    bitmap.forEach((pixel, i) => {
+                        let fX = i % fw,
+                            fY = Math.floor(i / fw),
+                            sX = fw * pixelSize * frameNumber + fX * pixelSize,
+                            sY = fY * pixelSize;
+
+                        ctx.beginPath();
+                        ctx.rect(sX, sY, pixelSize, pixelSize);
+                        ctx.fillStyle = pixel;
+                        ctx.fill();
+                    });
+                });
+
+                return sheet.toDataURL("image/png");
             },
             base64toBlob (b64Data, contentType, sliceSize) {
                 contentType = contentType || '';
