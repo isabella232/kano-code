@@ -28,8 +28,7 @@ var SharingBehavior = {
         }
     },
     listeners: {
-        'cover-generated': '_onCoverGenerated',
-        'change-gif': '_goToGifCreator'
+        'cover-generated': '_onCoverGenerated'
     },
     observers: [
         '_userChanged(user)'
@@ -38,17 +37,12 @@ var SharingBehavior = {
         this.set('shareInfo.page', page);
         this.modal.refit();
     },
-    _goToGifCreator () {
-        this._goToPage('gif-creation');
-    },
     _onCoverGenerated () {
         if (this.shareInfo.autoshare) {
             this._shareApp({
                 share: true
             });
             this._goToPage('saving');
-        } else {
-            this._goToPage('sharing-form');
         }
     },
     _shareApp (options) {
@@ -210,7 +204,7 @@ var SharingBehavior = {
                 slug
             },
             workspaceInfo: e.detail.workspaceInfo,
-            page: 'gif-creation',
+            page: 'sharing-form',
             title: e.detail.title || '',
             description: '',
             id: null,

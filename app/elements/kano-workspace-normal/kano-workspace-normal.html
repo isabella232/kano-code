@@ -91,11 +91,9 @@
                 this.setBackground('#ffffff');
             },
             renderOnCanvas (ctx, util, scaleFactor) {
-                let image = new Image();
                 ctx.fillStyle = this.style.background || '#ffffff';
                 ctx.fillRect(0, 0, this.$.canvas.width, this.$.canvas.height);
-                image.src = this.$.canvas.toDataURL();
-                ctx.drawImage(image, 0, 0);
+                ctx.drawImage(this.$.canvas, 0, 0);
                 return Promise.resolve();
             }
         });

@@ -76,10 +76,7 @@
             this.style.webkitTransform = this.style.transform = transform;
             this.style.visibility = visibility;
         },
-        renderOnCanvas (ctx) {
-            if (!this.model || this.model.partType !== 'ui') {
-                return Promise.resolve();
-            }
+        prepareRendering (ctx) {
             let position = this.model.position || { x: 0, y: 0 },
                 rotation = this.model.rotation || 0,
                 rad = rotation * Math.PI / 180,
@@ -91,25 +88,30 @@
 
             ctx.save();
 
+            // Move to part position
             ctx.transform(1, 0, 0, 1, position.x, position.y);
+            // Move to part center
             ctx.transform(1, 0, 0, 1, w / 2, h / 2);
+            // Apply rotation
             ctx.transform(cos, sin, -sin, cos, 0, 0);
+            // Apply scale
             ctx.transform(scale, 0, 0, scale, 0, 0);
+            // Move back to top left of part
             ctx.transform(1, 0, 0, 1, -w / 2, -h / 2);
+        },
+        finishRendering (ctx) {
+            ctx.restore();
+        },
+        renderOnCanvas (ctx) {
+            if (!this.model || this.model.partType !== 'ui') {
+                return Promise.resolve();
+            }
+            this.prepareRendering(ctx);
 
             return Promise.resolve();
         },
         renderFallback (ctx) {
-            let width = this.offsetWidth,
-                height = this.offsetHeight;
-            ctx.fillStyle = this.model.colour;
-            ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = 'white';
-            ctx.font = '24px Bariol';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(this.model.name, width / 2, height / 2);
-            ctx.restore();
+            this.finishRendering(ctx);
             return Promise.resolve();
         },
         getConnectable (property) {
