@@ -628,10 +628,6 @@
             return this.localize('SAVE', 'Save');
         },
         _pageChanged (page, prevPage) {
-            if (!prevPage) {
-                this._page = page;
-                return;
-            }
             let oldPageEl = this.$['options-pager'].querySelector('.iron-selected'),
                 animationPromise;
             if (oldPageEl) {
@@ -644,7 +640,8 @@
                     }).onfinish = resolve;
                 });
             } else {
-                animationPromise = Promise.resolve();
+                this._page = page;
+                return;
             }
             animationPromise.then(() => {
                 let newPageEl;
@@ -765,34 +762,39 @@
 
             if (sharingConfig.cover === 'still') {
                 if (sharingConfig.spritesheet) {
-                    this.generateAppSpriteSheet(workspace, FPS, 4)
-                        .then((url) => {
-                            let data = url.split(',').pop(),
-                                spriteSheetBlob = this.base64toBlob(data, 'image/png');
+                    if (this.shareInfo.animation) {
+                        p = this.generateAnimationSpriteSheet(this.shareInfo.animation);
+                    } else {
+                        p = this.generateAppSpriteSheet(workspace, FPS, 4)
+                    }
+                    p.then((url) => {
+                        let data = url.split(',').pop(),
+                            spriteSheetBlob = this.base64toBlob(data, 'image/png');
 
-                            this.shareInfo.spriteSheetBlob = spriteSheetBlob;
-                            this.spriteSrc = URL.createObjectURL(spriteSheetBlob);
+                        this.shareInfo.spriteSheetBlob = spriteSheetBlob;
+                        this.spriteSrc = URL.createObjectURL(spriteSheetBlob);
 
-                            return this.generateCover(workspace,
-                                        parts,
-                                        workspace.width,
-                                        workspace.height,
-                                        1,
-                                        sharingConfig.padding,
-                                        sharingConfig.color);
-                        }).then(canvas => {
-                            let image = new Image(),
-                                base64Data,
-                                blob;
-                            image.src = canvas.toDataURL();
-                            base64Data = image.src.split(',').pop(),
-                            blob = this.base64toBlob(base64Data, 'image/png');
-                            this.gifSrc = image.src;
-                            this.shareInfo.coverBlob = blob;
-                            this.fire('cover-generated');
-                            // Reset for potential future gif-creation
-                            this._resetCoverGenerator();
-                        });
+                        return this.generateCover(workspace,
+                                    parts,
+                                    workspace.width,
+                                    workspace.height,
+                                    1,
+                                    sharingConfig.padding,
+                                    sharingConfig.color);
+                    })
+                    .then(canvas => {
+                        let image = new Image(),
+                            base64Data,
+                            blob;
+                        image.src = canvas.toDataURL();
+                        base64Data = image.src.split(',').pop(),
+                        blob = this.base64toBlob(base64Data, 'image/png');
+                        this.gifSrc = image.src;
+                        this.shareInfo.coverBlob = blob;
+                        this.fire('cover-generated');
+                        // Reset for potential future gif-creation
+                        this._resetCoverGenerator();
+                    });
                 } else {
                     this.waitingFrame = 0;
                     this.gifRenderProgress = 0;

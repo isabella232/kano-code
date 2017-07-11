@@ -66,6 +66,46 @@
                                 mode,
                                 description: ''
                             };
+                            bind.$.modal.opened = true;
+                        }
+                        updateModal();
+                    });
+                </script>
+            </demo-snippet>
+            <h3>With a simple bitmap</h3>
+            <demo-snippet>
+                <template>
+                    <template is="dom-bind" id="bind2">
+                        <paper-tabs id="tabs" selected="{{page}}" attr-for-selected="name">
+                            <paper-tab name="sharing-form">Sharing form</paper-tab>
+                            <paper-tab name="saving">Saving</paper-tab>
+                            <paper-tab name="failure">Failure</paper-tab>
+                            <paper-tab name="success">Success</paper-tab>
+                        </paper-tabs>
+                        <kano-share-modal id="modal"></kano-share-modal>
+                    </template>
+                </template>
+                <script>
+                    document.addEventListener('WebComponentsReady', () => {
+                        let bind = document.getElementById('bind2'),
+                            slug = 'blinky-the-ghost',
+                            mode = Kano.MakeApps.Mode.modes.lightboard;
+                        bind.page = 'sharing-form';
+                        bind.$.tabs.addEventListener('selected-changed', () => {
+                            updateModal();
+                        });
+                        function updateModal () {
+                            bind.$.modal.shareInfo = {
+                                page: bind.page,
+                                slug,
+                                animation: {
+                                    bitmaps: [['#ff00ff']],
+                                    speed: 15
+                                },
+                                mode,
+                                description: ''
+                            };
+                            bind.$.modal.opened = true;
                         }
                         updateModal();
                     });
