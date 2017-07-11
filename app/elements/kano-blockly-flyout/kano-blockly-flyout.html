@@ -86,6 +86,9 @@
 
                     xmlString = toolbox.map(block => {
                         content = '';
+                        if (block.custom) {
+                            return block.custom;
+                        }
                         if (block.shadow) {
                             content = Object.keys(block.shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
                         }

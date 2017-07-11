@@ -1,0 +1,45 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<dom-module id="kano-function-definition-input">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <div>
+            <label for="else-ifs">Parameters</label>
+            <div id="else-ifs">
+                <button type="button" on-tap="_decr">-</button>
+                <span>[[value.parameters]]</span>
+                <button type="button" on-tap="_incr">+</button>
+            </div>
+        </div>
+        <div>
+            <label for="else">Returns</label>
+            <input id="else" type="checkbox" checked="{{value.returns::change}}">
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is:'kano-function-definition-input',
+            properties: {
+                value: {
+                    type: Object,
+                    value: () => {
+                        return { parameters: 0, returns: false }
+                    },
+                    notify: true
+                }
+            },
+            _decr () {
+                this.setBoundsParameters(this.value.parameters - 1);
+            },
+            _incr () {
+                this.setBoundsParameters(this.value.parameters + 1);
+            },
+            setBoundsParameters (value) {
+                this.set('value.parameters', Math.max(0, value));
+            }
+        });
+    </script>
+</dom-module>

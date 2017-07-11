@@ -143,10 +143,6 @@ Example:
                 type: Array,
                 value: () => []
             },
-            toolboxXml: {
-                type: String,
-                computed: 'computeToolboxXml(toolbox)'
-            },
             code: {
                 type: String,
                 notify: true
@@ -410,47 +406,6 @@ Example:
             Blockly.resizeSvgContents(this.workspace);
         },
         /**
-         * Takes a categories definition in JSON and generates the XML
-         * string blockly needs to display the toolbox.
-         * It will also update the current blockly workspace.
-         * @param  {Object} toolbox A JSON toolbox definition
-         * @return {String}         A XML toolbox definition
-         */
-        computeToolboxXml () {
-            // Force default toolbox if empty since blockly is not able
-            // to switch from empty to category mode
-            if (!this.toolbox || !this.toolbox.length) {
-                return '<xml><category name=""></category></xml>';
-            }
-            let xml,
-                categoriesXml = this.toolbox.map((category) => {
-                    if (category.type === 'separator') {
-                        return '<sep gap="8"></sep>';
-                    }
-                    let blocksXml = category.blocks.map((block) => {
-                        let shadow = block.shadow || {},
-                            content = Object.keys(shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
-                        return `<block type="${block.id}">${content}</block>`;
-                    }).join(''),
-                        colour = category.colour;
-
-                    if (colour && typeof colour.replace === 'function') {
-                        colour = colour.replace(/"/g, '&quot;');
-                    }
-                    return `<category name="${category.name}" colour="${colour}" id="${category.id}">
-                                ${blocksXml}
-                            </category>`;
-                }).join('');
-            xml = `<xml>${categoriesXml}</xml>`;
-            // Update the workspace if it exists
-            if (this.workspace) {
-                try {
-                    this.workspace.updateToolbox(xml);
-                } catch (e) {} // Ignore toolbox loading errors
-            }
-            return xml;
-        },
-        /**
          * Remove every block in the workspace
          */
         clearWorkspace () {
@@ -498,9 +453,43 @@ Example:
                     this.fire('block-move');
                 }
             }
+            this._updateFunctions(e);
             this.fire('change', e);
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
                 this.set('code', this.getCode(this.language));
+            }
+        },
+        _updateFunctions (e) {
+            let block = this.workspace.getBlockById(e.blockId),
+                functionsCat, definitions, callBlocks, cat, arg;
+            if (e.type === Blockly.Events.MOVE || !block || block.type !== 'function_definition') {
+                return;
+            }
+            if (e.type === Blockly.Events.CHANGE) {
+                definitions = Blockly.Functions.getAllDefinitions(this.workspace);
+                callBlocks = definitions.reduce((acc, def) => {
+                    let args = def.args.map(arg => `<arg name="${arg}"></arg>`),
+                        funCall = {
+                            custom: `<block type="function_call"><mutation name="${def.name}">${args.join('')}</mutation></block>`
+                        },
+                        blocks = [funCall];
+                    def.args.forEach(arg => {
+                        blocks.push({
+                            custom: `<block type="function_argument"><mutation name="${arg}"></mutation></block>`
+                        });
+                    });
+                    return acc.concat(blocks);
+                }, []);
+                for (let i = 0; i < this.toolbox.length; i++) {
+                    if (this.toolbox[i].id === 'functions') {
+                        functionsCat = i;
+                        break;
+                    }
+                }
+                callBlocks.unshift({
+                    id: 'function_definition'
+                });
+                this.set(`toolbox.${functionsCat}.blocks`, callBlocks);
             }
         },
         /**
@@ -522,6 +511,7 @@ Example:
             try {
                 return Blockly[type].workspaceToCode(this.workspace);
             } catch (e) {
+                console.log(e.stack);
                 return '';
             }
         },
