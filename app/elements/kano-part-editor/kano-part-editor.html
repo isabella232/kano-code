@@ -88,7 +88,10 @@
             template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]"></${tagName}>`
 
             this.templatize(template);
-            this.instance = this.stamp();
+            this.instance = this.stamp({
+                mode: this.mode,
+                theme: this.theme
+            });
 
             this.scrollTarget = this.instance.root.firstChild;
 

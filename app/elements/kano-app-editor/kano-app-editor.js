@@ -1,14 +1,5 @@
 /* globals Polymer, Kano, interact */
 
-function getDefaultBackground() {
-    return {
-        name: 'My app',
-        userStyle: {
-            background: '#ffffff'
-        }
-    };
-}
-
 Polymer({
     is: 'kano-app-editor',
     behaviors: [
@@ -63,7 +54,14 @@ Polymer({
         background: {
             type: Object,
             notify: true,
-            value: getDefaultBackground()
+            value: () => {
+                return {
+                    name: 'My app',
+                    userStyle: {
+                        background: '#ffffff'
+                    }
+                };
+            }
         },
         defaultCategories: {
             type: Object
@@ -110,7 +108,30 @@ Polymer({
         'open-parts-modal': '_openPartsModal',
         'edit-background': '_openBackgroundDialog',
         'iron-resize': '_refitPartModal',
-        'feature-not-available-offline': '_openOfflineDialog'
+        'feature-not-available-offline': '_openOfflineDialog',
+        //As opposed to 'iron-overlay-opened', 'opened-changed' will notify when an animation starts
+        'opened-changed': '_manageModals'
+    },
+     //Make sure that no conflicting modals are opened at the same time
+    _manageModals (e) {
+        const notifier = Polymer.dom(e).rootTarget.id,
+            nonConcurringModalIds = [
+                'parts-modal',
+                'edit-background-dialog',
+                'edit-part-dialog'
+            ];
+
+        //Check if the notifier is on the check list and if it's opened
+        if (nonConcurringModalIds.indexOf(notifier) < 0 || !this.$[notifier].opened) {
+            return;
+        }
+
+        //Close all non-concurring modals except the one that has just been opened
+        nonConcurringModalIds.forEach(modal => {
+            if (modal !== notifier && this.$[modal].opened) {
+                this.$[modal].close();
+            }
+        });
     },
     _openBackgroundDialog () {
         this.$['edit-background-dialog'].open();
@@ -270,7 +291,12 @@ Polymer({
     _dialogConfirmedReset () {
         this.set('addedParts', []);
         this.set('code', this._formatCode({}));
-        this.set('background', getDefaultBackground());
+        this.set('background', {
+            name: 'My app',
+            userStyle: {
+                background: '#ffffff'
+            }
+        });
         this.save();
         Kano.MakeApps.Parts.Part.clear();
         this.$.workspace.reset();
