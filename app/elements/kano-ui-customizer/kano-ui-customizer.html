@@ -24,7 +24,7 @@
                     label="{{property.label}}"
                     symbol="{{property.symbol}}"
                     on-value-changed="propertyChanged"
-                    value="[[computeValue(property.key)]]"
+                    value="[[computeValue(property.key, userValues)]]"
                     min="[[property.min]]"
                     max="[[property.max]]"
                     options="[[property.options]]"
@@ -73,7 +73,7 @@
             return value;
         },
         _needParsing (value) {
-            return /\d*\.?\d+(?:px|em)?/i.test(value);
+            return /\d*\.?\d+(?:px|em)/.test(value);
         }
     });
 </script>
