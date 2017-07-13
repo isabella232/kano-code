@@ -137,7 +137,6 @@ Example:
         #edit-part-dialog {
             @apply --layout-vertical;
             @apply --layout-flex-auto;
-            background-color: transparent;
             flex-shrink: 0;
             overflow: hidden;
             font-weight: bold;
@@ -153,6 +152,9 @@ Example:
         :host([small-screen]) #edit-background-dialog {
             width: 100%;
             left: -32px !important;
+        }
+        :host #background-editor {
+            background: #292f35;
         }
         :host #edit-part-dialog-content,
         :host #background-editor {
@@ -173,14 +175,15 @@ Example:
             border: 0px;
             cursor: pointer;
         }
-        paper-dialog#parts-modal {
-            padding: 0px;
+        paper-dialog {
+            background-color: transparent;
             border-radius: 6px;
-            background: #292f35;
+        }
+        paper-dialog > * {
+            border-radius: 6px;
         }
         kano-add-parts#add-parts {
             margin: 0px;
-            font-family: var(--font-body);
         }
     </style>
     <template>
@@ -266,7 +269,7 @@ Example:
                 <button class="kano-alert-primary" dialog-confirm>[[localize('GOT_IT', 'Got it')]]</button>
             </div>
         </kano-alert>
-        <paper-dialog id="edit-part-dialog"t
+        <paper-dialog id="edit-part-dialog"
                       entry-animation="from-big-animation"
                       on-iron-overlay-closed="_partEditorDialogClosed"
                       no-cancel-on-outside-click>

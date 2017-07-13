@@ -28,8 +28,7 @@ var SharingBehavior = {
         }
     },
     listeners: {
-        'cover-generated': '_onCoverGenerated',
-        'change-gif': '_goToGifCreator'
+        'cover-generated': '_onCoverGenerated'
     },
     observers: [
         '_userChanged(user)'
@@ -38,41 +37,64 @@ var SharingBehavior = {
         this.set('shareInfo.page', page);
         this.modal.refit();
     },
-    _goToGifCreator () {
-        this._goToPage('gif-creation');
-    },
     _onCoverGenerated () {
         if (this.shareInfo.autoshare) {
             this._shareApp({
                 share: true
             });
             this._goToPage('saving');
-        } else {
-            this._goToPage('sharing-form');
         }
     },
     _shareApp (options) {
         // Generates the standalone component
         let savedApp,
-        attachment,
-        appName = 'make-apps',
-        cover = this.shareInfo.coverBlob,
-        spritesheet = this.shareInfo.spriteSheetBlob,
-        workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' }),
-        files,
-        trackingData = {},
-        taggableParts = [
-            'gyro-accelerometer',
-            'motion-sensor',
-            'speaker',
-            'microphone'
-        ],
-        hardware = this.shareInfo.parts.filter(part => {
-            return part.partType === 'hardware' &&
-                   taggableParts.indexOf(part.type) >= 0;
-        }).map(part => {
-            return { product: part.type };
-        });
+            attachment,
+            appName = 'make-apps',
+            cover = this.shareInfo.coverBlob,
+            spritesheet = this.shareInfo.spriteSheetBlob,
+            files,
+            trackingData = {},
+            taggableParts = [
+                'gyro-accelerometer',
+                'motion-sensor',
+                'speaker',
+                'microphone'
+            ],
+            animationBlob,
+            workspaceInfo,
+            hardware = this.shareInfo.parts.filter(part => {
+                return part.partType === 'hardware' &&
+                    taggableParts.indexOf(part.type) >= 0;
+            }).map(part => {
+                return { product: part.type };
+            });
+
+        if (this.shareInfo.workspaceInfo) {
+            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+            workspaceInfo.filename = 'workspace_info.json';
+            if (!this.shareInfo.animation) {
+                let parts = this.shareInfo.parts,
+                    firstAnimationPart;
+                for (let i = 0; i < parts.length; i++) {
+                    if (parts[i].type === 'light-animation') {
+                        firstAnimationPart = parts[i];
+                        break;
+                    }
+                }
+                if (firstAnimationPart) {
+                    this.shareInfo.animation = {
+                        bitmaps: firstAnimationPart.userProperties.bitmaps,
+                        speed: firstAnimationPart.userProperties.speed
+                    }
+                }
+            }
+        }
+
+        // Eventually transform if needed
+        if (this.shareInfo.animation) {
+            animationBlob = new Blob([JSON.stringify(this.shareInfo.animation)], { type: 'application/json' });
+            animationBlob.filename = 'animation.json';
+        }
 
         if (this.shareInfo.mode.id === 'lightboard') {
             hardware.push({product: 'lightboard'});
@@ -88,15 +110,14 @@ var SharingBehavior = {
             cover.filename = 'cover.gif';
         }
 
-        workspaceInfo.filename = 'workspace_info.json';
-
         this.set('shareInfo.loading', true);
 
         trackingData.project_type = appName;
 
         files = {
             cover: cover,
-            workspace_info: workspaceInfo
+            workspace_info: workspaceInfo,
+            animation: animationBlob
         };
 
         if (this.shareInfo.mode.sharing.spritesheet && spritesheet) {
@@ -190,6 +211,103 @@ var SharingBehavior = {
             }
         });
     },
+    _generateAppFromAnimation (animation) {
+        let partModels = Kano.MakeApps.Parts.list,
+            part;
+        for (let i = 0; i < partModels.length; i++) {
+            if (partModels[i].type === 'light-animation') {
+                partModel = partModels[i];
+                break;
+            }
+        }
+        part = Kano.MakeApps.Parts.create(partModel);
+        part.userProperties.width = 16;
+        part.userProperties.height = 8;
+        part.userProperties.speed = animation.speed;
+        part.userProperties.bitmaps = animation.bitmaps;
+        Kano.MakeApps.Parts.create({ partType: 'ui', type: 'light-animation' });
+        return {
+            "parts": [part],
+            "code": {
+                "snapshot": {
+                    "javascript": `global.when('start', function () {\n  devices.get('${part.id}').play();\n});\n`,
+                    "pseudo":`global.when('start', function () {\n  devices.get('${part.id}').play();\n});\n`,
+                    "blocks": `<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" x=\"290\" y=\"120\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"${part.id}#animation_play\" id=\"8?f2Z?XEcG~%9dcJ=~i1\"></block></statement></block></xml>`
+                }
+            },
+            "background": {
+                "name": "My app",
+                "userStyle": {
+                    "background": "#ffffff"
+                }
+            },
+            "mode":"lightboard"
+        };
+    },
+    /**
+    * Opens the sharing modal and shares the app
+    */
+    shareAnimation (e) {
+        let animation = e.detail.animation,
+            mode = Kano.MakeApps.Mode.modes['lightboard'],
+            app = this._generateAppFromAnimation(animation),
+            shareInfo, component, slug, appData;
+        slug = Date.now().toString();
+        appData = this._generateAppFromAnimation(animation);
+        component = Kano.AppModules.generateStandaloneComponent(
+            slug,
+            appData.parts,
+            appData.background,
+            Kano.MakeApps.Mode.modes[appData.mode],
+            appData.code);
+        shareInfo = {
+            animation: animation,
+            page: 'sharing-form',
+            title: e.detail.title || '',
+            description: '',
+            id: null,
+            background: app.background,
+            parts: app.parts,
+            code: app.code,
+            app: {
+                slug,
+                src: 'data:text/html;base64,' + window.btoa(component)
+            },
+            workspaceInfo: JSON.stringify(app),
+            mode
+        };
+
+        this.set('shareInfo', shareInfo);
+        this.modal.animationConfig = {
+            entry: [{
+                name: 'transform-animation',
+                transformFrom: 'scale(1.5)',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            },{
+                name: 'fade-in-animation',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            }],
+            exit: {
+                name: 'fade-out-animation',
+                node: this.modal,
+                timing: {
+                    duration: 200
+                }
+            }
+        };
+        let onAppReady = () => {
+            this.modal.refit();
+            this.modal.removeEventListener('app-ready', onAppReady);
+        };
+        this.modal.addEventListener('app-ready', onAppReady);
+        this.modal.open();
+    },
     /**
     * Opens the sharing modal and shares the app
     */
@@ -210,7 +328,7 @@ var SharingBehavior = {
                 slug
             },
             workspaceInfo: e.detail.workspaceInfo,
-            page: 'gif-creation',
+            page: 'sharing-form',
             title: e.detail.title || '',
             description: '',
             id: null,

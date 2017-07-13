@@ -9,16 +9,17 @@
             @apply --layout-justified;
             @apply --layout-center;
             height: 59px;
-            padding: 0 8px;
+            padding: 0 16px;
             border-bottom: 1px solid var(--kano-app-part-editor-border);
         }
-        :host>* {
-            margin: 0 8px;
+        iron-icon {
+            margin-right: 8px;
+            --iron-icon-fill-color: var(--part-theme);
         }
         .title {
             font-size: 16px;
             font-weight: bold;
-            margin-right: 16px;
+            margin-left: 8px;
             color: #fff;
             cursor: default;
         }
@@ -33,7 +34,7 @@
             background: #54595d;
         }
         .action button:hover {
-            background-color: var(--part-theme);
+            background-color: var(--part-theme, #6E7377);
         }
         .action button#done {
             font-size: 14px;
@@ -41,12 +42,12 @@
             text-shadow: none;
             padding: 8px 24px;
         }
-        iron-icon {
-            --iron-icon-fill-color: var(--part-theme);
+        [hidden] {
+            display: none !important;
         }
     </style>
     <template>
-        <iron-icon id="part-icon" icon="parts:[[icon]]"></iron-icon>
+        <iron-icon id="part-icon" icon="parts:[[icon]]" hidden$="[[!icon]]"></iron-icon>
         <div class="title">[[label]]</div>
         <div class="action">
             <slot name="action"></slot>
@@ -60,7 +61,10 @@
                 Kano.Behaviors.AppElementRegistryBehavior
             ],
             properties: {
-                icon: String,
+                icon: {
+                    type: String,
+                    value: null
+                },
                 label: String,
                 theme: String,
             },
