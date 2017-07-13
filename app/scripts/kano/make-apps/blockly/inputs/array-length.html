@@ -1,4 +1,4 @@
-<link rel="import" href="../../../../../elements/kano-array-length-input/kano-array-length-input.html">
+<link rel="import" href="../../../../../elements/blockly-input/kano-array-length-input/kano-array-length-input.html">
 <script>
     Blockly.FieldArrayLength = function (value, opt_validator) {
         this._width = 16;
@@ -63,12 +63,11 @@
         // Record windowSize and scrollOffset before adding the palette.
         var windowSize = goog.dom.getViewportSize();
         var scrollOffset = goog.style.getViewportPageOffset(document);
-        var xy = this.getAbsoluteXY_();
+        var xy = goog.style.getPageOffset(this.sourceBlock_.svgGroup_);
         var borderBBox = this.getScaledBBox_();
         var div = Blockly.WidgetDiv.DIV;
         
         customEl = document.createElement('kano-array-length-input');
-        customEl.style.background = 'white';
         customEl.value = this.getValue();
 
         customEl.addEventListener('value-changed', (e) => {
@@ -79,26 +78,30 @@
 
         var size = customEl.getBoundingClientRect();
 
-        // Flip the palette vertically if off the bottom.
-        if (xy.y + size.height + borderBBox.height >= windowSize.height + scrollOffset.y) {
-            xy.y -= size.height - 1;
-        } else {
-            xy.y += borderBBox.height - 1;
-        }
+        xy.y -= size.height;
         if (this.sourceBlock_.RTL) {
             xy.x += borderBBox.width;
-            xy.x -= size.width;
+            xy.x -= size.height;
             // Don't go offscreen left.
             if (xy.x < scrollOffset.x) {
                 xy.x = scrollOffset.x;
             }
         } else {
             // Don't go offscreen right.
-            if (xy.x > windowSize.width + scrollOffset.x - size.width) {
-                xy.x = windowSize.width + scrollOffset.x - size.width;
+            if (xy.x > windowSize.width + scrollOffset.x - size.height) {
+                xy.x = windowSize.width + scrollOffset.x - size.height;
             }
         }
         Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset, this.sourceBlock_.RTL);
+        div.style.height = size.height + 'px';
+        if ('animate' in HTMLElement.prototype) {
+            div.animate({
+                opacity: [0, 1]
+            }, {
+                duration: 100,
+                easing: 'ease-out'
+            });
+        }
     };
 
     Blockly.FieldArrayLength.prototype.setValue = function (value) {

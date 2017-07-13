@@ -1,4 +1,4 @@
-<link rel="import" href="../../../../../elements/kano-function-definition-input/kano-function-definition-input.html">
+<link rel="import" href="../../../../../elements/blockly-input/kano-function-definition-input/kano-function-definition-input.html">
 <script>
     Blockly.FieldFunctionDefinition = function (value, opt_validator) {
         this._width = 16;
@@ -56,8 +56,14 @@
         return new goog.math.Size(bbox.width * this.sourceBlock_.workspace.scale, bbox.height * this.sourceBlock_.workspace.scale)
     };
 
+    Blockly.FieldFunctionDefinition.prototype.dispose = function() {
+        if (this.customEl) {
+            this.customEl = null;
+        }
+    };
+
     Blockly.FieldFunctionDefinition.prototype.showEditor_ = function () {
-        Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL, Blockly.FieldFunctionDefinition.widgetDispose_);
+        Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL, this.dispose.bind(this));
 
         // Position the palette to line up with the field.
         // Record windowSize and scrollOffset before adding the palette.
@@ -67,34 +73,55 @@
         var borderBBox = this.getScaledBBox_();
         var div = Blockly.WidgetDiv.DIV;
         
-        customEl = document.createElement('kano-function-definition-input');
-        customEl.style.background = 'white';
-        customEl.value = this.getValue();
+        this.customEl = document.createElement('kano-function-definition-input');
+        this.customEl.set('targetWorkspace', this.sourceBlock_.workspace);
+        this.customEl.set('toolbox', this.sourceBlock_.getToolbox());
+        this.customEl.renderToolbox();
+        this.customEl.style.width = '300px';
+        this.customEl.style.height = '300px';
+        this.customEl.style.borderRadius = '3px';
+        this.customEl.style.overflow = 'auto';
+        this.customEl.value = this.getValue();
 
-        customEl.addEventListener('value-changed', (e) => {
-            this.setValue(customEl.value);
+        this.customEl.addEventListener('value-changed', (e) => {
+            this.setValue(this.customEl.value);
         });
 
-        div.appendChild(customEl);
+        div.appendChild(this.customEl);
 
-        var size = customEl.getBoundingClientRect();
+        var size = this.customEl.getBoundingClientRect();
 
-        xy.y -= size.height;
+        xy.y -= 300;
         if (this.sourceBlock_.RTL) {
             xy.x += borderBBox.width;
-            xy.x -= size.width;
+            xy.x -= 300;
             // Don't go offscreen left.
             if (xy.x < scrollOffset.x) {
                 xy.x = scrollOffset.x;
             }
         } else {
             // Don't go offscreen right.
-            if (xy.x > windowSize.width + scrollOffset.x - size.width) {
-                xy.x = windowSize.width + scrollOffset.x - size.width;
+            if (xy.x > windowSize.width + scrollOffset.x - 300) {
+                xy.x = windowSize.width + scrollOffset.x - 300;
             }
         }
         Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset, this.sourceBlock_.RTL);
+        div.style.height = size.height + 'px';
+        if ('animate' in HTMLElement.prototype) {
+            div.animate({
+                opacity: [0, 1]
+            }, {
+                duration: 100,
+                easing: 'ease-out'
+            });
+        }
     };
+
+    Blockly.FieldFunctionDefinition.prototype.updateToolbox = function () {
+        if (this.customEl) {
+            this.customEl.set('toolbox', this.sourceBlock_.getToolbox());
+        }
+    }
 
     Blockly.FieldFunctionDefinition.prototype.setValue = function (value) {
         if (value === null) {

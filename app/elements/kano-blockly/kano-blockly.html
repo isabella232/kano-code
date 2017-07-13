@@ -279,6 +279,8 @@ Example:
             mainWorkspace.translate(0, 0);
             mainWorkspace.markFocused();
 
+            mainWorkspace.functionsRegistry = new Blockly.FunctionsRegistry(mainWorkspace);
+
             // The SVG is now fully assembled.
             Blockly.svgResize(mainWorkspace);
             Blockly.WidgetDiv.createDom();
@@ -453,43 +455,22 @@ Example:
                     this.fire('block-move');
                 }
             }
-            this._updateFunctions(e);
+            this.updateFunctions(e);
             this.fire('change', e);
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
                 this.set('code', this.getCode(this.language));
             }
         },
-        _updateFunctions (e) {
-            let block = this.workspace.getBlockById(e.blockId),
-                functionsCat, definitions, callBlocks, cat, arg;
-            if (e.type === Blockly.Events.MOVE || !block || block.type !== 'function_definition') {
-                return;
-            }
-            if (e.type === Blockly.Events.CHANGE) {
-                definitions = Blockly.Functions.getAllDefinitions(this.workspace);
-                callBlocks = definitions.reduce((acc, def) => {
-                    let args = def.args.map(arg => `<arg name="${arg}"></arg>`),
-                        funCall = {
-                            custom: `<block type="function_call"><mutation name="${def.name}">${args.join('')}</mutation></block>`
-                        },
-                        blocks = [funCall];
-                    def.args.forEach(arg => {
-                        blocks.push({
-                            custom: `<block type="function_argument"><mutation name="${arg}"></mutation></block>`
-                        });
-                    });
-                    return acc.concat(blocks);
-                }, []);
+        updateFunctions (e) {
+            let toolbox;
+            if (e.type === Blockly.Events.UPDATE_FUNCTIONS) {
                 for (let i = 0; i < this.toolbox.length; i++) {
                     if (this.toolbox[i].id === 'functions') {
-                        functionsCat = i;
+                        toolbox = this.workspace.functionsRegistry.getToolbox();
+                        this.set(`toolbox.${i}.blocks`, toolbox);
                         break;
                     }
                 }
-                callBlocks.unshift({
-                    id: 'function_definition'
-                });
-                this.set(`toolbox.${functionsCat}.blocks`, callBlocks);
             }
         },
         /**

@@ -7,6 +7,7 @@ Blockly.Events.SCROLL = 'scroll';
 Blockly.Events.DROP_BLOCK = 'drop-block';
 Blockly.Events.OPEN_FLYOUT = 'open-flyout';
 Blockly.Events.CLOSE_FLYOUT = 'close-flyout';
+Blockly.Events.UPDATE_FUNCTIONS = 'update-functions';
 
 /**
  * Class for a Scroll event.

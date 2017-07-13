@@ -1,0 +1,81 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../kano-blockly-flyout/kano-blockly-flyout.html">
+<link rel="import" href="../../../bower_components/web-components/kano-style/typography.html">
+<link rel="import" href="../kano-blockly-input-style/kano-blockly-input-style.html">
+<dom-module id="kano-function-definition-input">
+    <template>
+        <style include="kano-blockly-input-style"></style>
+        <style>
+            :host {
+                display: block;
+                color: white;
+                font-family: var(--font-body);
+                @apply --layout-vertical;
+                overflow: hidden;
+                @apply --shadow-elevation-8dp;
+            }
+            .blocks {
+                padding: 0px 0px 0px 12px;
+                background: var(--color-abbey);
+                @apply --layout-flex;
+            }
+        </style>
+        <header>Function</header>
+        <div class="controls">
+            <div>
+                <label for="else-ifs">Parameters</label>
+                <div id="else-ifs">
+                    <button type="button" on-tap="_decr">-</button>
+                    <span>[[value.parameters]]</span>
+                    <button type="button" on-tap="_incr">+</button>
+                </div>
+            </div>
+            <div>
+                <label for="else">Returns</label>
+                <input id="else" type="checkbox" checked="{{value.returns::change}}">
+            </div>
+        </div>
+        <div class="blocks">
+            <kano-blockly-flyout target-workspace="[[targetWorkspace]]"
+                                    toolbox="[[_toolbox]]"
+                                    padding-left="0"
+                                    min-width="300"></kano-blockly-flyout>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is:'kano-function-definition-input',
+            properties: {
+                value: {
+                    type: Object,
+                    value: () => {
+                        return { parameters: 0, returns: false }
+                    },
+                    notify: true
+                },
+                targetWorkspace: Object,
+                toolbox: {
+                    type: Array,
+                    observer: '_toolboxChanged'
+                }
+            },
+            _decr () {
+                this.setBoundsParameters(this.value.parameters - 1);
+            },
+            _incr () {
+                this.setBoundsParameters(this.value.parameters + 1);
+            },
+            setBoundsParameters (value) {
+                this.set('value.parameters', Math.max(0, value));
+            },
+            _toolboxChanged () {
+                this.debounce('updateToolbox', () => {
+                    this.renderToolbox();
+                }, 100);
+            },
+            renderToolbox () {
+                this._toolbox = this.toolbox;
+            }
+        });
+    </script>
+</dom-module>

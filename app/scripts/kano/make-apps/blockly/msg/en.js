@@ -37,10 +37,10 @@
 
     Blockly.Msg.MATH_LERP = "lerp from %1 to %2 % %3";
 
-    Blockly.Msg.FUNCTION_DEFINITION_NAME         = 'new function';
-    Blockly.Msg.FUNCTION_DEFINITION_DEFAULT_NAME = 'my function';
-    Blockly.Msg.FUNCTION_DEFINITION_DO           = 'do';
-    Blockly.Msg.FUNCTION_DEFINITION_RETURNS      = 'returns';
+    Blockly.Msg.FUNCTION_DEFINITION_NAME         = "function";
+    Blockly.Msg.FUNCTION_DEFINITION_DEFAULT_NAME = "my function";
+    Blockly.Msg.FUNCTION_DEFINITION_DO           = "do";
+    Blockly.Msg.FUNCTION_DEFINITION_RETURNS      = "returns";
 
     Blockly.Msg.BLOCK_VALUE                = "value";
     Blockly.Msg.BLOCK_SET_BACKGROUND_COLOR = "set background color to %1";
