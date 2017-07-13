@@ -1149,6 +1149,14 @@ class UserFunction {
     }
 
     updateParamsBlocks () {
+        let params = Object.keys(this.getParams());
+        // Delete blocks that used to point to a deleted param
+        this.params.forEach((block, index) => {
+            if (params.indexOf(block.paramName) === -1) {
+                block.dispose(false, false);
+                this.params.splice(index, 1);
+            }
+        });
         this.params.forEach(block => block.updateShape());
     }
 }

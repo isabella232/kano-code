@@ -325,8 +325,12 @@
         Blockly.JavaScript.function_argument = (block) => {
             let funcDef = block.getFunctionDefinition(),
                 params = funcDef.getParams(),
-                name = params[block.paramName];
-            return [Blockly.JavaScript.variableDB_.getName(name, Blockly.Functions.NAME_TYPE)];
+                name = params[block.paramName],
+                code = Blockly.JavaScript.variableDB_.getName(name, Blockly.Functions.NAME_TYPE);
+            if (!block.parentBlock_) {
+                code = '';
+            }
+            return [code];
         };
 
         Blockly.Pseudo.function_argument = () => {
