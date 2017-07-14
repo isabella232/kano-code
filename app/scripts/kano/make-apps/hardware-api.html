@@ -207,7 +207,9 @@
 
                         this.networkSocket.on('device-removed', (info) => {
                             let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
-                            this.removeDevice(device);
+                            if (device) {
+                                this.removeDevice(device);
+                            }
                         });
                     });
 
@@ -531,7 +533,9 @@
                     // Unbinds and delete a device when disconnected
                     this.socket.on('device-removed', (info) => {
                         let device = this.getDeviceById(info.id);
-                        this.removeDevice(device);
+                        if (device) {
+                            this.removeDevice(device);
+                        }
                     });
 
                 });

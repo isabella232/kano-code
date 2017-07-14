@@ -25,18 +25,30 @@
             is:'kano-ic-motion',
             properties: {
                 model: {
-                    type: Object,
-                    observer: '_modelChanged'
+                    type: Object
                 }
             },
+            observers: [
+                '_onConnectedChanged(model.connected)'
+            ],
             detached () {
-                clearInterval(this._updateInterval);
+                this._resetLoop();
             },
-            _modelChanged (model) {
-                clearInterval(this._updateInterval);
-                this._updateInterval = setInterval(() => {
-                    this.set('value', Math.round(this.model.lastProximityValue));
-                }, 100);
+            _onConnectedChanged (connected) {
+                if (connected) {
+                    this._resetLoop();
+                    this._updateInterval = setInterval(() => {
+                        this.set('value', Math.round(this.model.lastProximityValue));
+                    }, 100);
+                } else {
+                    this._resetLoop();
+                    this.set('value',  0);
+                }
+            },
+            _resetLoop () {
+                if (this._updateInterval) {
+                    clearInterval(this._updateInterval);
+                }
             }
         });
     </script>
