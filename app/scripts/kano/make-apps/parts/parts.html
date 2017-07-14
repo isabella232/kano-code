@@ -39,6 +39,11 @@
                 return this.Part.clear();
             },
             init (c) {
+                if (this._initialised) {
+                    return;
+                }
+
+                this._initialised = true;
                 let flags = c.getFlags();
                 this.config = c;
                 flags.experiments.forEach(exp => {

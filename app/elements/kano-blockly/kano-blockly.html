@@ -240,12 +240,15 @@ Example:
                 }
             });
 
-            document.body.style.overflow = 'hidden';
+            // TODO Removing this is possibly controversial.
+            // I moved it into the main CSS, but it would be good to find
+            // out why we need it.
+            // document.body.style.overflow = 'hidden';
             document.addEventListener('iron-overlay-opened', this._blurInput);
         },
         detached () {
             this.workspace.dispose();
-            document.body.style.overflow = undefined;
+            // document.body.style.overflow = undefined;
             document.removeEventListener('iron-overlay-opened', this._blurInput);
         },
         _setupDialogs () {

@@ -299,41 +299,13 @@ Polymer({
         }
         return false;
     },
-    setColorRange (hs, items = []) {
-        items.forEach((item, index) => {
-            // Higher index decreases lightness
-            const L = hs[2] - index * 2;
-            // Set the color
-            item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
-        });
-    },
     updateColors () {
         if (!this.defaultCategories) {
             return;
         }
         this.debounce('updateColors', () => {
-            this._updateColors();
+            Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         }, 10);
-    },
-    _updateColors () {
-        const colorMapHS = {
-                system: [206, 100],
-                ui: [175, 100, 39],
-                data: [278, 41, 56],
-                hardware: [341, 83, 63]
-            },
-            grouped = this.addedParts.reduce((acc, part) => {
-                acc[part.partType] = acc[part.partType] || [];
-                acc[part.partType].push(part);
-                return acc;
-            }, {});
-
-        grouped.ui = grouped.ui || [];
-
-        Object.keys(grouped).forEach((partType) => {
-            let parts = grouped[partType];
-            this.setColorRange(colorMapHS[partType], parts);
-        });
     },
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
@@ -840,5 +812,8 @@ Polymer({
     },
     _openOfflineDialog () {
         this.$['dialog-offline'].open();
+    },
+    isModeSimple (mode) {
+        return mode.id === "simple";
     }
 });

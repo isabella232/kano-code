@@ -103,6 +103,10 @@ the content out of proportions to make it fit inside the available space.
             debug: {
                 type: Boolean,
                 value: false
+            },
+            centered: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
@@ -171,7 +175,8 @@ the content out of proportions to make it fit inside the available space.
         scale (xScale, yScale) {
             var xOffset = (this.offsetWidth - this.viewWidth * xScale) / 2,
                 yOffset = (this.offsetHeight - this.viewHeight * yScale) / 2,
-                style = this.$.view.style;
+                style = this.$.view.style,
+                realViewHeight = this.viewHeight * yScale;
 
             /* Set the boundaries */
             style.width = this.viewWidth + 'px';
@@ -182,6 +187,12 @@ the content out of proportions to make it fit inside the available space.
 
             /* Transform the element to the appropriate scale */
             style.transform = 'scale(' + xScale + ', ' + yScale + ')';
+
+            if (this.centered && this.offsetHeight > realViewHeight) {
+                style.top = `${(this.offsetHeight - realViewHeight) / 2}px`;
+            } else {
+                style.top = null;
+            }
 
             this.fire('viewport-resize', this.$.view.getBoundingClientRect());
         },
