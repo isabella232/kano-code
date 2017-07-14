@@ -500,7 +500,6 @@
                     // Initialise the devices
                     return HardwareAPI.getTopDevices(this.socket);
                 }).then(devices => {
-
                     // Instanciate all the devices found
                     this.devices = devices.map(d => {
                         return HardwareAPI.instanciateDevice(d, this);
@@ -758,11 +757,14 @@
             }
 
             /**
-             * Returns true if a device is a KitDevice and the slave devices are not setup yet
+             * A KitDevice will have a devices property when it has finished setting up to
+             * list all its slave devices. Return true if that array is not present yet.
              */
             anyKitDeviceNotReady (devices) {
                 for (let i = 0; i < devices.length; i++) {
-                    if (devices[i] instanceof KitDevice && !devices[i].devices) {
+                    if (devices[i] instanceof KitDevice
+                            && devices[i].socket && devices[i].socket.connected
+                                    && !devices[i].devices) {
                         return true;
                     }
                 }
