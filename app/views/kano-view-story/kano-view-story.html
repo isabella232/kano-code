@@ -1,4 +1,3 @@
-<link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
@@ -66,7 +65,9 @@
                               </kano-share-modal>
         </paper-dialog>
         <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
-        <kano-reward-modal id="reward-modal" on-second-action="_openSignup"></kano-reward-modal>
+        <kano-reward-modal id="reward-modal"
+                           on-second-action="_openSignup"
+                           sound="/assets/audio/samples/challenge_complete.wav"></kano-reward-modal>
         <kano-alert id="leave-alert"
                     heading="[[localize('NOT_FINISHED', 'Oh oh.. not finished yet!')]]"
                     text="[[localize('LEAVE_CHALLENGE', 'Are you sure you want to leave the challenge?')]]"
@@ -88,7 +89,6 @@
             Kano.Behaviors.ViewBehavior,
             Kano.Behaviors.SharingBehavior,
             Kano.Behaviors.Tracking.GABehavior,
-            Kano.Behaviors.SoundPlayerBehavior,
             Kano.Behaviors.I18nBehavior
         ],
         properties: {
@@ -243,7 +243,6 @@
                         this.$['challenge-completed'].set('hints', hints);
                         this.$['challenge-completed'].open();
                     }
-                    this.playSound('/assets/audio/samples/challenge_complete.wav');
                 })
                 .catch(res => {
                     let fakeGamificationData = {
@@ -279,7 +278,6 @@
                         this.$['challenge-completed'].set('hints', hints);
                         this.$['challenge-completed'].open();
                     }
-                    this.playSound('/assets/audio/samples/challenge_complete.wav');
                 });
 
         },
