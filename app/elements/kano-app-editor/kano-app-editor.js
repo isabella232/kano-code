@@ -1,5 +1,3 @@
-/* globals Polymer, Kano, interact */
-
 Polymer({
     is: 'kano-app-editor',
     behaviors: [

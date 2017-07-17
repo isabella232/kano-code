@@ -68,7 +68,7 @@
             }
             let position = this.model.position || { x: 0, y: 0 },
                 rotation = this.model.rotation || 0,
-                scale = this.model.scale / 100 || 1,
+                scale = isNaN(this.model.scale / 100) ? 1 : this.model.scale / 100,
                 transform,
                 visibility;
             transform = `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale}, ${scale})`;
