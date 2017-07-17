@@ -31,7 +31,8 @@
     </style>
     <template>
         <kano-part-editor-topbar icon="light-frame" label="[[selected.label]]" theme="[[theme]]"></kano-part-editor-topbar>
-        <kano-pixel-editor bitmap="{{selected.userProperties.bitmap}}"
+        <kano-pixel-editor id="pixel-editor"
+                           bitmap="{{selected.userProperties.bitmap}}"
                            width="{{selected.userProperties.width}}"
                            height="{{selected.userProperties.height}}"
                            pen-color="{{penColor}}"
@@ -88,9 +89,10 @@
                 penType: String
             },
             observers: [
-                '_renderOnRealDevice(selected.userProperties.bitmap.*)',
+                '_onBitmapSet(selected.userProperties.bitmap)',
                 '_onBitmapChanged(selected.userProperties.bitmap.*)',
-                '_sizeChanged(selected.userProperties.width, selected.userProperties.height)'
+                '_sizeChanged(selected.userProperties.width, selected.userProperties.height)',
+                '_renderOnRealDevice(selected.userProperties.bitmap.*)'
             ],
             attached () {
                 this.BOARD_WIDTH = 16;
@@ -98,6 +100,13 @@
             },
             detached () {
                 this.appModule.stop();
+            },
+            _onBitmapSet (bitmap) {
+                //When bitmap is set, ask pixel-editor to compute the custom palette.
+                if (!this.colorsComputed) {
+                    this.$['pixel-editor']._computePalette(bitmap);
+                    this.colorsComputed = true;
+                }
             },
             _onBitmapChanged (e) {
                 //Lock observer as it's resetting the observed property

@@ -60,7 +60,7 @@ Custom property | Description | Default
     }
     #tick {
         opacity: 0;
-        transition: opacity 10ms linear;
+        transition: opacity 100ms linear;
     }
     #tick.visible {
         opacity: 1;
@@ -94,7 +94,7 @@ Custom property | Description | Default
         <label hidden$="[[!label]]">[[label]]</label>
         <div id="input-field">
             <div id="colors" data-animate="450">
-                <div id="select-frame" hidden$="[[_hideSelectFrame(colors.*, idle)]]">
+                <div id="select-frame" hidden$="[[_hideSelectFrame(colors.*, idle, firstHighlight)]]">
                     <iron-icon id="tick" icon="kc-ui:tick"></iron-icon>
                 </div>
                 <template id="palette" is="dom-repeat" items="{{colors}}" as="color">
@@ -150,7 +150,7 @@ Custom property | Description | Default
             },
             visible: {
                 type: Boolean,
-                observer: '_onVisibleChanged'
+                value: false
             }
         },
         observers: [
@@ -214,10 +214,8 @@ Custom property | Description | Default
                     left: frame.getBoundingClientRect().left -
                             this.$.colors.getBoundingClientRect().left
                 };
-            this.toggleClass('visible', false, this.$.tick);
             frame.style['outline-color'] = this.$.tick.style.fill =
                     brightness > 210 ? '#aaa' : '#fff';
-
             frame.animate({
                 transform: [
                     `translate(${currentFrameOffset.left}px, ${currentFrameOffset.top}px)`,
@@ -244,7 +242,7 @@ Custom property | Description | Default
             return `background-color: ${color};`;
         },
         _hideSelectFrame () {
-            return !this.colors || !this.colors.length || this.idle;
+            return !this.colors || !this.colors.length || !this.firstHighlight || this.idle;
         },
         getIndexByValue (value) {
             return Math.max(0, this.colors.indexOf(value));
@@ -278,20 +276,22 @@ Custom property | Description | Default
                 this.selectedIndex = this.value = null;
             }
         },
-        _onVisibleChanged (visible) {
-            if (visible && !this.idle) {
-                this._highlightSelected();
-            } else if (!visible) {
-                this.firstHighlight = false;
-            }
-        },
         _onResize () {
             //Iron-resize will call this function on resize, including when element has become hidden/unhidden.
             //We delay the clientRect reading as the css values will be applied in the next cycle.
             Polymer.RenderStatus.afterNextRender(this, () => {
-                this.visible = this.getBoundingClientRect().width !== 0 &&
-                        this.getBoundingClientRect().height !== 0;
+                this.resize();
             });
+        },
+        resize () {
+            this.visible = this.getBoundingClientRect().width !== 0 &&
+                    this.getBoundingClientRect().height !== 0;
+
+            if (this.visible && !this.idle) {
+                this._highlightSelected();
+            } else {
+                this.firstHighlight = false;
+            }
         },
         // Returns the color palette for outside access
         getColorField () {
