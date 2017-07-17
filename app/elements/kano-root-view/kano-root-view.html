@@ -39,9 +39,9 @@
                 on-change="saveCode"
                 default-blocks="[[mode.defaultBlocks]]"
                 on-blockly-ready="_onBlocklyReady"
-                no-trashcan="[[simpleMode]]"
-                no-zoom-control="[[simpleMode]]"
-                no-toolbox="[[simpleMode]]"></kano-blockly>
+                no-trashcan="[[simple]]"
+                no-zoom-control="[[simple]]"
+                no-toolbox="[[simple]]"></kano-blockly>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -49,7 +49,8 @@
 
     Polymer({
         is: 'kano-root-view',
-        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.AppElementRegistryBehavior],
+        behaviors: [Kano.Behaviors.AppEditorBehavior,
+                    Kano.Behaviors.AppElementRegistryBehavior],
         properties: {
             parts: {
                 type: Array,
@@ -69,9 +70,9 @@
             mode: {
                 type: Object
             },
-            simpleMode: {
+            simple: {
                 type: Boolean,
-                computed: 'isModeSimple(mode)'
+                value: false
             }
         },
         observers: [
@@ -81,11 +82,8 @@
             'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)'
         ],
-        isModeSimple (mode) {
-            return mode.id === "simple";
-        },
         _onBlocklyReady () {
-            if (!this.simpleMode) {
+            if (!this.simple) {
                 this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
                 this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
             }

@@ -89,6 +89,10 @@ the content out of proportions to make it fit inside the available space.
             aspectRatio: {
                 type: String,
                 value: 'auto'
+            },
+            centered: {
+                type: Boolean,
+                value: false
             }
         },
         observers: [
@@ -163,7 +167,8 @@ the content out of proportions to make it fit inside the available space.
                 x: 1,
                 y: 1
             };
-            const style = this.$.view.style;
+            let style = this.$.view.style,
+                realViewHeight = this.viewHeight * scale.y;
 
             /* Set the boundaries */
             style.width = width + 'px';
@@ -174,6 +179,12 @@ the content out of proportions to make it fit inside the available space.
 
             /* Transform the element to the appropriate scale */
             style.transform = 'scale(' + scale.x + ', ' + scale.y + ')';
+
+            if (this.centered && this.offsetHeight > realViewHeight) {
+                style.top = `${(this.offsetHeight - realViewHeight) / 2}px`;
+            } else {
+                style.top = null;
+            }
 
             this.fire('viewport-resize', this.$.view.getBoundingClientRect());
         },
