@@ -32,6 +32,10 @@
                     targetWorkspace: {
                         type: Object
                     },
+                    align: {
+                        type: String,
+                        value: 'left'
+                    },
                     paddingLeft: {
                         type: Number,
                         value: 20
@@ -47,6 +51,10 @@
                     noDrag: {
                         type: Boolean,
                         value: false
+                    },
+                    minWidth: {
+                        type: Number,
+                        value: 200
                     }
                 },
                 ready () {
@@ -86,6 +94,9 @@
 
                     xmlString = toolbox.map(block => {
                         content = '';
+                        if (block.custom) {
+                            return block.custom;
+                        }
                         if (block.shadow) {
                             content = Object.keys(block.shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
                         }
@@ -104,6 +115,7 @@
                 _render () {
                     this._createWorkspace();
                     this.ws.scale = this.targetWorkspace.scale;
+                    this.ws.parentWorkspace = this.targetWorkspace;
                     this._renderBlocks();
                 },
                 _updateDB () {
@@ -135,12 +147,12 @@
                     this.$.svg.style.height = '2000px';
 
                     this.ws.scale = this.targetWorkspace.scale;
-
+                    
                     this.blocks = [];
                     for (let i = 0; i < this.xmlList.length; i++) {
                         this.blocks.push(Blockly.Xml.domToBlock(this.xmlList[i], this.ws));
                     }
-
+                    
                     this.blocks.forEach(block => {
                         hw = block.getHeightWidth();
                         if (hw.width > maxWidth) {
@@ -148,18 +160,20 @@
                         }
                     });
 
-                    maxWidth = Math.max(maxWidth + this.paddingLeft + 20, 200);
-
+                    this.maxBlockWidth = maxWidth;
+                    
+                    maxWidth = Math.max(maxWidth + this.paddingLeft + 20, this.minWidth + Blockly.BlockSvg.TAB_WIDTH);
+                    
                     canvas = this.ws.getCanvas();
                     if (!canvas) {
                         return;
                     }
-
+                    
                     canvas.setAttribute('transform', `scale(${this.ws.scale})`);
-
+                    
                     for (let i = 0; i < this.blocks.length; i++) {
                         let block = this.blocks[i],
-                            hasOutputConnection = !!block.outputConnection;
+                        hasOutputConnection = !!block.outputConnection;
                         allBlocks = block.getDescendants();
                         allBlocks.forEach(child => {
                             child.isInFlyout = true;
@@ -170,11 +184,17 @@
                             canvas.insertBefore(sep, root);
                             this._separators.push(sep);
                         }
-
+                        
                         cursorY += BLOCK_SPACING_Y;
                         
                         hw = block.getHeightWidth();
+                        if (this.align === 'right') {
+                            cursorX = maxWidth - hw.width;
+                        }
+                        // Silence the MOVE event as this move is to set the initial position
+                        Blockly.Events.disable();
                         block.moveBy(cursorX, cursorY);
+                        Blockly.Events.enable();
                         rect = this._createRect({ 'fill-opacity': 0 });
                         rect.setAttribute('x', cursorX - (hasOutputConnection ? 6 : 0));
                         rect.setAttribute('y', cursorY);
@@ -189,8 +209,10 @@
                         cursorY += hw.height + 12;
                     }
                     height = (cursorY + 20) * this.ws.scale;
-                    this.$.svg.style.width = maxWidth;
-                    this.$.svg.style.height = height;
+                    this.width = maxWidth;
+                    this.height = height;
+                    this.$.svg.style.width = this.width;
+                    this.$.svg.style.height = this.height;
                     this.fire('size-changed', {
                         width: maxWidth,
                         height
@@ -334,6 +356,11 @@
                         x: this.paddingLeft + Blockly.BlockSvg.TAB_WIDTH,
                         y: BLOCK_SPACING_Y
                     };
+
+                    if (this.align === 'right') {
+                        let connectionOffset = (!originBlock.outputConnection ? 6 : 0);
+                        ownOffset.x = this.width - this.maxBlockWidth - connectionOffset;
+                    }
 
                     // Retrieve the absolute position of the target workspace
                     const targetWorkspaceRoot = targetWorkspace.getParentSvg();
