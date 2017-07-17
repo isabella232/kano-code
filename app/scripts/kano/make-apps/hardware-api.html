@@ -207,7 +207,9 @@
 
                         this.networkSocket.on('device-removed', (info) => {
                             let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
-                            this.removeDevice(device);
+                            if (device) {
+                                this.removeDevice(device);
+                            }
                         });
                     });
 
@@ -500,7 +502,6 @@
                     // Initialise the devices
                     return HardwareAPI.getTopDevices(this.socket);
                 }).then(devices => {
-
                     // Instanciate all the devices found
                     this.devices = devices.map(d => {
                         return HardwareAPI.instanciateDevice(d, this);
@@ -532,7 +533,9 @@
                     // Unbinds and delete a device when disconnected
                     this.socket.on('device-removed', (info) => {
                         let device = this.getDeviceById(info.id);
-                        this.removeDevice(device);
+                        if (device) {
+                            this.removeDevice(device);
+                        }
                     });
 
                 });
@@ -758,11 +761,15 @@
             }
 
             /**
-             * Returns true if a device is a KitDevice and the slave devices are not setup yet
+             * A KitDevice will have a devices property with all its
+             * slave devices when it has finished setting up.
+             * Return true if that array is not present yet.
              */
             anyKitDeviceNotReady (devices) {
                 for (let i = 0; i < devices.length; i++) {
-                    if (devices[i] instanceof KitDevice && !devices[i].devices) {
+                    if (devices[i] instanceof KitDevice
+                            && devices[i].socket && devices[i].socket.connected
+                                    && !devices[i].devices) {
                         return true;
                     }
                 }
