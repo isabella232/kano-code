@@ -16,7 +16,7 @@
                          * Block for creating a list with any number of elements of any type.
                          * @this Blockly.Block
                          */
-                        init: function() {
+                        init: function () {
                             this.setHelpUrl(Blockly.Msg.LISTS_CREATE_WITH_HELPURL);
                             this.setColour(Blockly.Blocks.lists.HUE);
                             this.itemCount_ = 3;
@@ -29,7 +29,7 @@
                          * @return {!Element} XML storage element.
                          * @this Blockly.Block
                          */
-                        mutationToDom: function() {
+                        mutationToDom: function () {
                             var container = document.createElement('mutation');
                             container.setAttribute('items', this.itemCount_);
                             return container;
@@ -39,32 +39,16 @@
                          * @param {!Element} xmlElement XML storage element.
                          * @this Blockly.Block
                          */
-                        domToMutation: function(xmlElement) {
+                        domToMutation: function (xmlElement) {
                             this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
                             this.updateShape_();
-                        },
-                        /**
-                         * Store pointers to any connected child blocks.
-                         * @param {!Blockly.Block} containerBlock Root block in mutator.
-                         * @this Blockly.Block
-                         */
-                        saveConnections: function(containerBlock) {
-                            var itemBlock = containerBlock.getInputTargetBlock('STACK');
-                            var i         = 0;
-                            while (itemBlock) {
-                            var input                      = this.getInput('ADD' + i);
-                                itemBlock.valueConnection_ = input && input.connection.targetConnection;
-                            i++;
-                            itemBlock = itemBlock.nextConnection &&
-                                itemBlock.nextConnection.targetBlock();
-                            }
                         },
                         /**
                          * Modify this block to have the correct number of inputs.
                          * @private
                          * @this Blockly.Block
                          */
-                        updateShape_: function() {
+                        updateShape_: function () {
                             if (this.itemCount_ && this.getInput('EMPTY')) {
                                 this.removeInput('EMPTY');
                             } else if (!this.itemCount_ && !this.getInput('EMPTY')) {

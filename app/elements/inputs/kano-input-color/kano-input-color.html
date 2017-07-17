@@ -11,9 +11,6 @@
 `kano-input-color` Display a color palette and allows selection by clicking on one of them
 Example:
     <kano-input-color value="{{value}}"></kano-input-color>
-@group Kano Elements
-@hero hero.svg
-@demo ./demo/kano-input-color.html
 ### Styling
 The following custom properties and mixins are available for styling:
 Custom property | Description | Default
@@ -22,6 +19,10 @@ Custom property | Description | Default
 `--kano-input-color-size` | Size of a single color field | 29px
 `--kano-input-color-margin` | Size of margin around a color field | 2px
 `--kano-input-color-background` | Background color on host | 'transparent'
+
+@group Kano Elements
+@hero hero.svg
+@demo demo/kano-input-color.html
 -->
 <dom-module id="kano-input-color">
     <style include="kano-code-shared-styles">
@@ -56,9 +57,6 @@ Custom property | Description | Default
         outline: 3px solid #aaa;
         outline-offset: -1px;
         margin: var(--kano-input-color-margin, 0.5px);
-    }
-    :host(.animate) #select-frame {
-        transition: transform 200ms linear;
     }
     #tick {
         opacity: 0;
@@ -161,57 +159,6 @@ Custom property | Description | Default
         ],
         listeners: {
             'iron-resize': '_onResize'
-        },
-        attached () {
-            if (!this.idle) {
-                if (this.value) {
-                    this.set('selectedIndex', this.getIndexByValue(this.value));
-                } else {
-                    this.set('selectedIndex', 0);
-                }
-            }
-            this.frame = this.$['select-frame'];
-        },
-        getIndexByValue (value) {
-            return Math.max(0, this.colors.indexOf(value));
-        },
-        getBrightness (hexCode) {
-            let r, g, b;
-            hexCode = hexCode.replace('#', '');
-
-            r = parseInt(hexCode.substr(0, 2),16);
-            g = parseInt(hexCode.substr(2, 2),16);
-            b = parseInt(hexCode.substr(4, 2),16);
-
-            return ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        },
-        _highlight (index) {
-            const target = this.$$(`#color-${index}`);
-            let brightness;
-
-            if (target) {
-                this.transform(`translate(${target.offsetLeft}px, ${target.offsetTop}px)`, this.frame);
-                this._animateIcon();
-                brightness = this.getBrightness(this.colors[index]);
-                this.frame.style['outline-color'] = this.$.tick.style.fill = brightness > 230 ? '#bbb' : '#fff';
-                // The first value was just set, enable the frame animation from now on
-                if (!this.firstValueSet) {
-                    this.firstValueSet = true;
-                    // Let the current transform be applied before enabling animations
-                    Polymer.RenderStatus.afterNextRender(this, () => {
-                        this.toggleClass('animate', true);
-                    });
-                }
-            }
-        },
-        _onIdleChanged (idle, wasIdle) {
-            if (idle) {
-                this.selectedIndex = this.value = null;
-                this.frame.style.transition = `none`;
-            } else if (!idle && wasIdle) {
-                //reapply transition only after the frame is visible again
-                this.async(() => this.frame.style.transition = `transform 200ms`, 10);
-            }
         },
         _setSize (rowSize, isAttached) {
             if (!isAttached) {
