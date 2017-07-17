@@ -157,9 +157,26 @@
             },
             _toolboxDomChanged () {
                 this._metrics = this.getBoundingClientRect();
+                this.targetWorkspace.resize();
             },
             getMetrics () {
+                if (!this._metrics) {
+                    this._metrics = this.getBoundingClientRect();
+                }
                 return this._metrics;
+            },
+            getWidth () {
+                return this.getMetrics().width;
+            },
+            getHeight () {
+                return this.getMetrics().height;
+            },
+            position () {},
+            addDeleteStyle () {},
+            removeDeleteStyle () {},
+            getClientRect () {
+                let rect = this.getMetrics();
+                return new goog.math.Rect(rect.left, rect.top, rect.width, rect.height);
             },
             close () {
                 let category, categoryEl, e;

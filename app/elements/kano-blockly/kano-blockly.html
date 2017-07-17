@@ -96,7 +96,6 @@ Example:
                 top: 0px;
                 left: 0px;
                 width: 100%;
-                height: 100%;
                 @apply(--layout-vertical);
                 @apply(--layout-center);
                 display: none;
@@ -116,7 +115,7 @@ Example:
             <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
-            <kano-blockly-omnibox id="omnibox" on-close="_closeOmnibox"></kano-blockly-omnibox>
+            <kano-blockly-omnibox id="omnibox" on-close="_closeOmnibox" on-confirm="_onOmniboxConfirm"></kano-blockly-omnibox>
         </div>
         <paper-dialog id="dialog" entry-animation="from-big-animation" fit-into="[[svg]]" with-backdrop>
             <div id="dialog-content">
@@ -182,6 +181,7 @@ Example:
         ready () {
             this.codeRelatedEvents = [Blockly.Events.CREATE, Blockly.Events.MOVE, Blockly.Events.CHANGE];
             this._blurInput = this._blurInput.bind(this);
+            this._onMouseWheel = this._onMouseWheel.bind(this);
         },
         /**
          * Inject blockly to the workspace div
@@ -209,6 +209,7 @@ Example:
                 }
             });
             this.svg = this.$.svg;
+            this.svg.addEventListener('mousewheel', this._onMouseWheel);
             defs = Blockly.utils.createSvgElement('defs', {}, this.svg);
             options.gridPattern = Blockly.utils.createSvgElement('pattern', {'id': 'blocklyGridPattern' + String(Math.random()).substring(2), 'patternUnits': 'userSpaceOnUse'}, defs);
             // Load CSS.
@@ -216,6 +217,7 @@ Example:
             this._setupDialogs();
             this.workspace = this._createWorkspace(this.$.svg, options);
             this.workspace.toolbox = this.$.toolbox;
+            this.workspace.toolbox_ = this.$.toolbox;
             this._initWorkspace();
             this.workspace.markFocused();
             Blockly.bindEvent_(this.$.svg, 'focus', this.workspace, this.workspace.markFocused);
@@ -244,9 +246,33 @@ Example:
             document.addEventListener('iron-overlay-opened', this._blurInput);
         },
         detached () {
+            this.svg.removeEventListener('mousewheel', this._onMouseWheel);
             this.workspace.dispose();
             document.body.style.overflow = undefined;
             document.removeEventListener('iron-overlay-opened', this._blurInput);
+        },
+        _onMouseWheel (e) {
+            let workspace = this.workspace,
+                metrics = workspace.getMetrics(),
+                x = e.deltaX * workspace.scale,
+                y = e.deltaY * workspace.scale,
+                // Magic number, help me figure out why this works
+                offset = 22;
+
+            x = (workspace.scrollbar.hScroll.handlePosition_ / workspace.scrollbar.hScroll.ratio_) + x;
+            y = (workspace.scrollbar.vScroll.handlePosition_ / workspace.scrollbar.vScroll.ratio_) + y;
+
+            console.log(y, workspace.scrollbar.vScroll.scrollViewSize_ * workspace.scrollbar.hScroll.ratio_);
+
+            x = Math.min(x, metrics.viewWidth - metrics.toolboxWidth - offset);
+            //y = Math.min(y, (metrics.viewHeight * workspace.scale) - offset);
+            x = Math.max(x, 0);
+            y = Math.max(y, 0);
+
+            // Move the scrollbars and the page will scroll automatically.
+            workspace.scrollbar.set(x, y);
+            e.stopPropagation();
+            e.preventDefault();
         },
         _setupDialogs () {
             Blockly.prompt = (message, defaultValue, callback) => {
@@ -363,6 +389,44 @@ Example:
             if (event.rootTarget === this.$['omnibox-wrapper']) {
                 this._closeOmnibox();
             }
+        },
+        _onOmniboxConfirm (e) {
+            let type = e.detail.selected.type,
+                block = this.workspace.newBlock(type),
+                svgRoot = block.getSvgRoot(),
+                metrics = this.workspace.getMetrics(),
+                workspaceRoot, workspaceRect, newPos, blockRect, blockPos, xy;
+
+            block.fromQuery(this.$.omnibox.query, this.workspace);
+            block.initSvg();
+            block.render();
+
+            workspaceRoot = this.workspace.getParentSvg();
+            workspaceRect = workspaceRoot.getBoundingClientRect();
+
+            newPos = {
+                x: workspaceRect.width / 2,
+                y: workspaceRect.height / 2
+            };
+
+            blockRect = svgRoot.getBoundingClientRect();
+            blockPos = {
+                x: (-blockRect.left + newPos.x + workspaceRect.left) * (1 / this.workspace.scale),
+                y: (-blockRect.top + newPos.y + workspaceRect.top) * (1 / this.workspace.scale)
+            };
+
+            block.moveBy(blockPos.x, blockPos.y);
+            xy = block.getRelativeToSurfaceXY();
+            if ('animate' in SVGElement.prototype) {
+                svgRoot.style.transformOrigin = 'center center';
+                svgRoot.animate({
+                    transform: [`translate(${xy.x}px, ${xy.y}px) scale(0, 0)`, `translate(${xy.x}px, ${xy.y}px) scale(1, 1)`]
+                }, {
+                    duration: 200,
+                    easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+                });
+            }
+            this._closeOmnibox();
         },
         _openDialog (message, defaultValue, opts) {
             let options = Object.assign({

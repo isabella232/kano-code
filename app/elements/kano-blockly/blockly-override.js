@@ -8,7 +8,7 @@ Blockly.Blocks.texts.HUE = '#9C27B0';
 Blockly.Blocks.lists.HUE = '#ffff00';
 Blockly.Blocks.procedures.HUE = '#ffff00';
 
-Blockly.Scrollbar.scrollbarThickness = 5;
+Blockly.Scrollbar.scrollbarThickness = 10;
 
 if (location.search.match('lookup=true')) {
     Blockly.SEARCH_PLUS_ENABLED = true;
@@ -593,12 +593,12 @@ Blockly.Field.prototype.matches = function (qs) {
 Blockly.Field.prototype.fromQuery = function () {};
 
 Blockly.FieldDropdown.prototype.getAPIText = function () {
-    let options = this.getOptions_().map(options => options[0]);
+    let options = this.getOptions().map(options => options[0]);
     return `[${options.join('|')}]`;
 };
 
 Blockly.FieldDropdown.prototype.matches = function (qs) {
-    let options = this.getOptions_().map(options => options[0]);
+    let options = this.getOptions().map(options => options[0]);
     // As soon as we find an option containing a piece of the query string
     return options.some(option => {
         return qs.split(' ').some(piece => Blockly.stringMatch(option, piece));
@@ -606,7 +606,7 @@ Blockly.FieldDropdown.prototype.matches = function (qs) {
 };
 
 Blockly.FieldDropdown.prototype.fromQuery = function (qs) {
-    let options = this.getOptions_();
+    let options = this.getOptions();
     // As soon as we find an option containing a piece of the query string
     return options.some(option => {
         return qs.split(' ').forEach(piece => {
