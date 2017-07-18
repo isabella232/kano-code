@@ -284,6 +284,7 @@ Polymer({
         }
     },
     _dialogConfirmedDelete () {
+        this._closePartSettings();
         this._deletePart(this.toBeRemoved);
     },
     _dialogConfirmedReset () {
