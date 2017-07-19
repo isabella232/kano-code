@@ -25,6 +25,14 @@ var SharingBehavior = {
         isChallenge: {
             type: Boolean,
             value: false
+        },
+        /**
+         * Holds the gamification engine response until it's time to bring the
+         * reward modal.
+         */
+        gamificationResponse: {
+            type: Object,
+            value: null
         }
     },
     listeners: {
@@ -70,7 +78,10 @@ var SharingBehavior = {
             });
 
         if (this.shareInfo.workspaceInfo) {
-            workspaceInfo = new Blob([this.shareInfo.workspaceInfo], { type: 'application/json' });
+            workspaceInfo = new Blob(
+                [this.shareInfo.workspaceInfo],
+                { type: 'application/json' }
+            );
             workspaceInfo.filename = 'workspace_info.json';
             if (!this.shareInfo.animation) {
                 let parts = this.shareInfo.parts,
@@ -92,7 +103,10 @@ var SharingBehavior = {
 
         // Eventually transform if needed
         if (this.shareInfo.animation) {
-            animationBlob = new Blob([JSON.stringify(this.shareInfo.animation)], { type: 'application/json' });
+            animationBlob = new Blob(
+                [JSON.stringify(this.shareInfo.animation)],
+                { type: 'application/json' }
+            );
             animationBlob.filename = 'animation.json';
         }
 
@@ -178,13 +192,24 @@ var SharingBehavior = {
             // Check if it's a creation you made from scratch or a challenge
             if (!this.isChallenge) {
                 // Hit the gamification engine
-                let payload = {
-                    name: 'share-creation',
-                    detail: {
-                        id: share.id
+                let payload = [
+                    {
+                        name: 'share-creation',
+                        detail: {
+                            id: share.id
+                        }
+                    },
+                    {
+                        name: 'xp',
+                        detail: {
+                            value: 10
+                        }
                     }
-                }
-                this._triggerGamificationEngine(payload);
+                ];
+                this._triggerGamificationEngine(payload)
+                    .then((response) => {
+                        this.set('gamificationResponse', response);
+                    });
             }
             return share;
         }).catch((e) => {
@@ -205,7 +230,9 @@ var SharingBehavior = {
                     headers,
                     body: JSON.stringify(payload)
                 }).then(r => r.json())
-                .then(resolve);
+                .then(r => {
+                    resolve(r);
+                });
             } else {
                 reject(new Error('No auth token found.'));
             }
@@ -399,6 +426,11 @@ var SharingBehavior = {
 
     dismissShare () {
         this.modal.close();
+        let rewardModal = this.$['reward-modal'];
+        if (rewardModal) {
+            rewardModal.process(this.gamificationResponse, this.user);
+            this.set('gamificationResponse', null);
+        }
     }
 };
 // @polymerBehavior
