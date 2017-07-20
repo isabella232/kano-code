@@ -8,8 +8,6 @@ Blockly.Blocks.texts.HUE = '#9C27B0';
 Blockly.Blocks.lists.HUE = '#ffff00';
 Blockly.Blocks.procedures.HUE = '#ffff00';
 
-Blockly.Scrollbar.scrollbarThickness = 10;
-
 if (location.search.match('lookup=true')) {
     Blockly.SEARCH_PLUS_ENABLED = true;
 }
