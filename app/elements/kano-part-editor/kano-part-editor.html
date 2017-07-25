@@ -66,22 +66,24 @@
             theme: {
                 type: String,
                 computed: '_computeTheme(selected)'
+            },
+            name: {
+                type: String,
+                value: ''
             }
         },
         _instanceProps: {
-            selected: true
+            selected: true,
+            name: true
         },
         observers: [
             '_configPanelChanged(selected.configPanel)',
-            '_selectedChanged(selected.*)'
+            '_selectedChanged(selected.*)',
+            '_updateName(selected)'
         ],
         _selectedChanged (e) {
             if (this.instance) {
                 this.instance.set(e.path, e.value);
-            }
-            // Let know the bindings that the `id` changed together with the name
-            if (e.path === 'selected.name') {
-                this.notifyPath('selected.id', this.selected.id);
             }
         },
         _configPanelChanged (panel, oldValue) {
@@ -89,13 +91,16 @@
                 container = Polymer.dom(this.$['config-panel-container']),
                 template = document.createElement('template');
 
+            this._updateName(this.selected);
+
             // Add `kano-part-editor` class to simulate CSS processing of ShadyDOM
-            template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]"></${tagName}>`
+            template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]" name="{{name}}"></${tagName}>`
 
             this.templatize(template);
             this.instance = this.stamp({
                 mode: this.mode,
-                theme: this.theme
+                theme: this.theme,
+                name: this.name
             });
 
             this.scrollTarget = this.instance.root.firstChild;
@@ -116,6 +121,12 @@
             }
             const theme = colorThemes[selected.partType];
             return theme;
+        },
+        _updateName (selected) {
+            if (!selected) {
+                return;
+            }
+            this.set('name', selected.name);
         },
         _onScroll () {
             let target = this.scrollTarget;
