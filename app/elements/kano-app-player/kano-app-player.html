@@ -211,6 +211,16 @@
                 this.running = false;
                 this.component.stop();
             },
+            detached () {
+                this.stop();
+                // Previous versions of the shares, didn't tear down the hardware once detached
+                // This detects these old versions and manually tears down thei hardware api
+                if (!this.component.hwAPI
+                    && this.component.appModules
+                    && this.component.appModules.modules.lightboard) {
+                    this.component.appModules.modules.lightboard.api.tearDown();
+                }
+            },
             getWorkspace () {
                 return this.component.workspace;
             },
