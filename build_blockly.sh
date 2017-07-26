@@ -26,6 +26,7 @@ echo 'Building blockly'
 ./build.py
 
 cp ./blockly_compressed.js ../../app/assets/vendor/google-blockly/blockly_compressed.js
+cp ./javascript_compressed.js ../../app/assets/vendor/google-blockly/javascript_compressed.js
 
 cd ../../
 
