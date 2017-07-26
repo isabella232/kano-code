@@ -208,9 +208,7 @@ Polymer({
         };
         part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
         this.push('addedParts', part);
-        this.notifyChange('add-part', {
-            part: model
-        });
+        this.notifyChange('add-part', { part });
     },
     _onModeReady () {
         this.modeReady = true;
