@@ -26,6 +26,7 @@ EDITOR_SELECTORS['Add Parts Dialog'] = ['#parts-modal'];
 EDITOR_SELECTORS['done in add parts dialog'] = ['kano-add-parts', 'header button'];
 EDITOR_SELECTORS['Confirm part deletion dialog'] = ['#dialog-confirm-delete'];
 EDITOR_SELECTORS['Default workspace'] = ['kano-workspace', 'kano-editor-normal', 'kano-default-workspace'];
+EDITOR_SELECTORS['Part editor'] = ['#edit-part-dialog-content'];
 
 user = USER;
 
@@ -105,6 +106,11 @@ class World {
                 return this.findElement(viewElement, selectors);
             });
     }
+    getPartEditor () {
+        return this.getEditorElement('Part editor').then(partEditorElement => {
+            return this.driver.executeScript(`return arguments[0].shadowRoot.querySelector('#config-panel-container').firstChild`, partEditorElement);
+        });
+    }
     waitForEditorReady () {
         return this.driver.wait(() => {
             return this.getCurrentViewElement()
@@ -159,6 +165,9 @@ class World {
     getPartById (editorEl, partId) {
         return this.driver.executeScript('return window.__getPartByIdFromEditor__(arguments[0], arguments[1]);', editorEl, partId);
     }
+    getBlocks (editorEl, blockType) {
+        return this.driver.executeScript('return window.__getBlockByTypeFromEditor__(arguments[0], arguments[1]);', editorEl, blockType);
+    }
     ensurePartDoesNotExist (editorEl, partId) {
         return this.getPartById(editorEl, partId)
             .then(part => should.not.exist(part));
@@ -167,11 +176,28 @@ class World {
         return this.getPartById(editorEl, partId)
             .then(part => should.exist(part));
     }
+    ensureBlockExists (editorEl, blockType) {
+        return this.getBlocks(editorEl, blockType).then(blocks => {
+            return blocks.length.should.be.greaterThanOrEqual(1);
+        });
+    }
     /**
      * Empty the localStorage
      */
     clearStorage () {
         return this.driver.executeScript(`localStorage.clear('KW_TOKEN', arguments[0]);`, this.user);
+    }
+    loadAppInStorage (filePath) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(filePath, (err, contents) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(contents);
+            });
+        }).then(contents => {
+            this.loadedApp = contents.toString();
+        });
     }
     /**
      * Open the app to a speficied route
@@ -189,11 +215,14 @@ class World {
         return this.driver.get(`http://localhost:${getPort()}${route}${ext}`)
             .then(() => this.clearStorage())
             .then(() => {
+                let tasks = [];
                 if (user) {
-                    return this.driver.executeScript(`
-                        localStorage.setItem('KW_TOKEN', '${user.token}');
-                        `);
+                    tasks.push(this.driver.executeScript(`localStorage.setItem('KW_TOKEN', '${user.token}');`));
                 }
+                if (this.loadedApp) {
+                    tasks.push(this.driver.executeScript(`return localStorage.setItem('savedApp-normal', arguments[0])`, this.loadedApp));
+                }
+                return Promise.all(tasks);
             })
             .then(() => this.setup())
             .then(() => this.waitForRouteLoad(viewPath))

@@ -58,7 +58,13 @@ window.__getPartByIdFromEditor__ = function (editorEl, partId) {
         }
     }
     return null;
-}
+};
+
+window.__getBlockByTypeFromEditor__ = function (editorEl, blockType) {
+    var blocks = editorEl.code.snapshot.blocks,
+        xmlRoot = (new DOMParser()).parseFromString(blocks, "text/xml");
+    return xmlRoot.querySelectorAll('[type="' + blockType + '"]');
+};
 
 
 Object.defineProperty(window, 'onbeforeunload', {

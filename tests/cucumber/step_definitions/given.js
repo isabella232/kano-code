@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = function () {
     this.World = require('../support/world').World;
 
@@ -27,6 +29,11 @@ module.exports = function () {
         return this.openAddPartsDialog()
             .then(dialog => this.addPart(dialog))
             .then(partId => this.store.addedPartId = partId);
+    });
+
+    this.Given(/^the loaded app is (.+)$/, function (arg0) {
+        let filePath = path.join(__dirname, '../../resources/apps', arg0);
+        return this.loadAppInStorage(filePath + '.kcode');
     });
 
 };

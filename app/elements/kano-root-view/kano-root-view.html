@@ -311,7 +311,8 @@
             }
         },
         _partsChanged (e) {
-            let idChanged = e.path.indexOf('id') === e.path.length - 2;
+            // If the name changes, the id will do as well
+            let idChanged = e.path.indexOf('name') === e.path.length - 4;
             if (e.path === 'parts' || e.path === 'parts.splices') {
                 // Update the id registry when the parts array is changed or if any item is added/removed
                 this._updateIdRegistry();
@@ -331,7 +332,8 @@
                             blocks = this.$['code-editor'].getBlocks(),
                             replaceRegexp = new RegExp(`type="${oldId}#`, 'g');
 
-                        blocks = blocks.replace(replaceRegexp, `type="${e.value}#`);
+                        blocks = blocks.replace(replaceRegexp, `type="${this.parts[key].id}#`);
+                        this.$['code-editor'].load({ blocks });
                         // Reflect the id change by updating the id registry
                         this._updateIdRegistry();
                     }, 200);

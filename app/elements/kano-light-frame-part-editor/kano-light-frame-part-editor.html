@@ -49,7 +49,7 @@
             </div>
             <div slot="settings" class="settings">
                 <div class="settings-controls">
-                    <kano-input-text value="{{selected.name}}"
+                    <kano-input-text value="{{name}}"
                                      theme="[[theme]]"></kano-input-text>
                     <kano-input-range id="width-slider"
                                       class="slider"
@@ -86,7 +86,11 @@
                     value: "#00d9c7"
                 },
                 penColor: String,
-                penType: String
+                penType: String,
+                name: {
+                    type: String,
+                    notify: true
+                }
             },
             observers: [
                 '_onBitmapSet(selected.userProperties.bitmap)',
