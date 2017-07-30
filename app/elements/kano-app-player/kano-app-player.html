@@ -209,10 +209,15 @@
             },
             stop () {
                 this.running = false;
-                this.component.stop();
+                if (this.component) {
+                    this.component.stop();
+                }
             },
             detached () {
                 this.stop();
+                if (!this.component) {
+                    return;
+                }
                 // Previous versions of the shares, didn't tear down the hardware once detached
                 // This detects these old versions and manually tears down thei hardware api
                 if (!this.component.hwAPI
