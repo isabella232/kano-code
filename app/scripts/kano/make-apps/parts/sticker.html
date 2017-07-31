@@ -28,7 +28,9 @@
                     key: 'size',
                     type: 'range',
                     label: Kano.MakeApps.Msg.SIZE,
-                    symbol: 'px'
+                    symbol: 'px',
+                    min: 0,
+                    max: 100
                 }],
                 style: []
             },
@@ -53,7 +55,10 @@
                             check: 'String'
                         }],
                         previousStatement: null,
-                        nextStatement: null
+                        nextStatement: null,
+                        shadow: {
+                            'PICTURE': '<shadow type="assets_get_sticker"></shadow>'
+                        }
                     };
                 },
                 javascript: (ui) => {
@@ -70,7 +75,12 @@
                         return code;
                     };
                 }
-            },{
+            },
+            'assets_get_sticker',
+            'assets_random_sticker',
+            'assets_random_sticker_from'
+            ],
+            legacyBlocks: [{
                 block: (part) => {
                     let stickerSet = Object.keys(Kano.MakeApps.Files.stickers),
                         id = 'sticker';

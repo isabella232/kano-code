@@ -1,6 +1,28 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
 <dom-module id="kano-blockly-style">
     <template>
         <style>
+            svg.blocklyMainWorkspaceScrollbar, ::slotted(svg.blocklyMainWorkspaceScrollbar) {
+                z-index: 0;
+                cursor: pointer;
+            }
+            svg.blocklyMainWorkspaceScrollbar .blocklyScrollbarHandle,
+            ::slotted(svg.blocklyMainWorkspaceScrollbar .blocklyScrollbarHandle) {
+                fill: var(--kano-blockly-scrollbars-color);
+                rx: 3;
+                ry: 3;
+                opacity: 0.5;
+            }
+            svg.blocklyMainWorkspaceScrollbar .blocklyScrollbarBackground:hover+.blocklyScrollbarHandle,
+            svg.blocklyMainWorkspaceScrollbar:hover .blocklyScrollbarHandle,
+            ::slotted(svg.blocklyMainWorkspaceScrollbar .blocklyScrollbarBackground:hover+.blocklyScrollbarHandle),
+            ::slotted(svg.blocklyMainWorkspaceScrollbar:hover .blocklyScrollbarHandle) {
+                fill: var(--kano-blockly-scrollbars-color);
+                rx: 3;
+                ry: 3;
+                opacity: 1;
+            }
             .blocklyTrash, ::slotted(*.blocklyTrash),
             .blocklyZoom, ::slotted(*.blocklyZoom) {
                 fill: white;
@@ -73,7 +95,7 @@
                 stroke-width: 2px !important;
             }
             text.blocklyText, ::slotted(* text.blocklyText) {
-                font-family: bariol;
+                font-family: var(--font-body);
                 font-size: 1em;
                 fill: white;
             }

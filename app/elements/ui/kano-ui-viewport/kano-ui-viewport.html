@@ -1,3 +1,4 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
 <!--
 
 ## kano-ui-viewport component usage
@@ -49,33 +50,24 @@ the content out of proportions to make it fit inside the available space.
             position: relative;
             overflow: hidden;
         }
-
         #view {
             position: absolute;
             top: 0;
+            left: 0;
             transform-origin: 0 0 0;
             background-color: transparent;
             @apply(--kano-ui-viewport);
         }
-
         :host([no-overflow]) #view {
             overflow: hidden;
         }
-
-        .debug {
-            background-color: red;
-            box-sizing: border-box;
-            border: 1px solid red;
-        }
     </style>
-
     <template>
         <div id="view">
             <slot></slot>
         </div>
     </template>
 </dom-module>
-
 <script>
     /* globals Polymer */
 
@@ -84,13 +76,11 @@ the content out of proportions to make it fit inside the available space.
         properties: {
             viewWidth: {
                 type: Number,
-                value: 0,
-                reflectToAttribute: true
+                value: 0
             },
             viewHeight: {
                 type: Number,
-                value: 0,
-                reflectToAttribute: true
+                value: 0
             },
             mode: {
                 type: String,
@@ -100,15 +90,18 @@ the content out of proportions to make it fit inside the available space.
                 type: String,
                 value: 'auto'
             },
-            debug: {
+            centered: {
                 type: Boolean,
                 value: false
             }
         },
         observers: [
-            'resizeView(mode, viewWidth, viewHeight, aspectRatio)'
+            'resizeView(mode, viewWidth, viewHeight, aspectRatio, isAttached)'
         ],
         resizeView () {
+            if (!this.viewWidth || !this.viewHeight) {
+                return;
+            }
             window.requestAnimationFrame(() => {
                 switch (this.mode) {
                     case "responsive":
@@ -117,8 +110,8 @@ the content out of proportions to make it fit inside the available space.
                     case "stretched":
                     case "scaled":
                     case "zoomed":
-                        let s = this.getScale();
-                        this.scale(s.x, s.y);
+                        let scale = this.getScale();
+                        this.calculateView(this.viewWidth, this.viewHeight, scale);
                         break;
                     default:
                         console.log('Mode "' + this.mode + '" not supported.');
@@ -126,30 +119,31 @@ the content out of proportions to make it fit inside the available space.
             });
         },
         resize () {
-            var scale = this.parseAspectRatio(this.aspectRatio);
+            let scale = this.parseAspectRatio(this.aspectRatio),
+                width = this.viewWidth,
+                height = this.viewHeight;
 
             if (scale >= 1) {
-                this.viewWidth = this.offsetWidth;
-                this.viewHeight = this.offsetWidth * (1 / scale);
+                width = this.offsetWidth;
+                height = this.offsetWidth * (1 / scale);
             } else {
-                this.viewHeight = this.offsetHeight;
-                this.viewWidth = this.offsetHeight * scale;
+                width = this.offsetHeight * scale;
+                height = this.offsetHeight;
             }
 
             var s = this.getScale();
             scale = Math.min(s.x, s.y);
 
-            this.viewHeight = this.viewHeight * scale;
-            this.viewWidth = this.viewWidth * scale;
+            height = height * scale;
+            width = width * scale;
 
             /* Resize the view without scaling it */
-            this.scale(1, 1);
+            this.calculateView(width, height);
         },
         getScale () {
             var xScale = this.offsetWidth / this.viewWidth,
                 yScale = this.offsetHeight / this.viewHeight,
                 s;
-
             switch (this.mode) {
                 case "responsive":
                 case "stretched":
@@ -168,45 +162,39 @@ the content out of proportions to make it fit inside the available space.
                     return {x: 1, y: 1};
             }
         },
-        scale (xScale, yScale) {
-            var xOffset = (this.offsetWidth - this.viewWidth * xScale) / 2,
-                yOffset = (this.offsetHeight - this.viewHeight * yScale) / 2,
-                style = this.$.view.style;
+        calculateView (width, height, scale) {
+            scale = scale || {
+                x: 1,
+                y: 1
+            };
+            let style = this.$.view.style,
+                realViewHeight = this.viewHeight * scale.y;
 
             /* Set the boundaries */
-            style.width = this.viewWidth + 'px';
-            style.height = this.viewHeight + 'px';
+            style.width = width + 'px';
+            style.height = height + 'px';
 
             /* Align the view to top center */
-            style.left = xOffset + 'px';
+            style.left = (this.offsetWidth - width * scale.x) / 2 + 'px';
 
             /* Transform the element to the appropriate scale */
-            style.transform = 'scale(' + xScale + ', ' + yScale + ')';
+            style.transform = 'scale(' + scale.x + ', ' + scale.y + ')';
+
+            if (this.centered && this.offsetHeight > realViewHeight) {
+                style.top = `${(this.offsetHeight - realViewHeight) / 2}px`;
+            } else {
+                style.top = null;
+            }
 
             this.fire('viewport-resize', this.$.view.getBoundingClientRect());
         },
         parseAspectRatio (aspect) {
             if (aspect === 'auto') {
-                return this.offsetWidth / this.offsetHeight;
+                return this.viewHeight / this.viewWidth;
             } else {
-                var numbers = aspect.split(':');
+                const numbers = aspect.split(':');
                 return parseInt(numbers[0]) / parseInt(numbers[1]);
             }
-        },
-        attached () {
-            /* If not set, initialise the view dimensions to max possible. */
-            this.viewWidth = this.viewWidth || this.offsetWidth;
-            this.viewHeight = this.viewHeight || this.offsetHeight;
-
-            if (this.debug) {
-                this.toggleClass('debug', true, this.$.view);
-            }
-
-            window.addEventListener('resize', this.resizeView.bind(this));
-            this.resizeView();
-        },
-        detached () {
-            window.addEventListener('resize', this.resizeView.bind(this));
         }
     });
 </script>

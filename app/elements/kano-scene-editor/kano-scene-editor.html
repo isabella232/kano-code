@@ -271,7 +271,7 @@
                         this.fire('next-story');
                     } else {
                         const shareDetail = this.$.editor.compileApp();
-                        shareDetail.title = `${this.user.username}'s ${this.story.name}`;
+                        shareDetail.title = this.story.name;
                         shareDetail.autoshare = true;
                         this.scene.autoshareDisabled = true;
 
@@ -348,8 +348,14 @@
                             return;
                         }
                         part.blocks = part.blocks.filter((block, index) => {
-                            let definition = block.block(part),
-                                remove = this.scene.filterBlocks[key].indexOf(definition.id) === -1;
+                            let id, definition, remove;
+                            if (typeof block === 'string') {
+                                id = block;
+                            } else {
+                                definition = block.block(part);
+                                id = definition.id
+                            }
+                            remove = this.scene.filterBlocks[key].indexOf(id) === -1;
                             // We're about to remove the block from the part. Save it under another object to
                             // be able to inject it back later
                             if (remove) {
@@ -528,6 +534,9 @@
         },
         _notifyBanner () {
             this.$.banner.shakeButton();
+        },
+        resetAppState () {
+            this.$.editor.resetAppState();
         }
     });
 </script>

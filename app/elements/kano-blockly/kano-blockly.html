@@ -12,7 +12,6 @@
 <link rel="import" href="./kano-blockly-style.html">
 
 <!--
-
 `kano-blockly`
 
 Example:
@@ -26,7 +25,7 @@ Example:
 
 @group Kano Elements
 @hero hero.svg
-@demo ./demo/index.html
+@demo demo/index.html
 -->
 <dom-module id="kano-blockly">
     <template>
@@ -96,7 +95,6 @@ Example:
                 top: 0px;
                 left: 0px;
                 width: 100%;
-                height: 100%;
                 @apply(--layout-vertical);
                 @apply(--layout-center);
                 display: none;
@@ -116,7 +114,7 @@ Example:
             <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
-            <kano-blockly-omnibox id="omnibox" on-close="_closeOmnibox"></kano-blockly-omnibox>
+            <kano-blockly-omnibox id="omnibox" on-close="_closeOmnibox" on-confirm="_onOmniboxConfirm"></kano-blockly-omnibox>
         </div>
         <paper-dialog id="dialog" entry-animation="from-big-animation" fit-into="[[svg]]" with-backdrop>
             <div id="dialog-content">
@@ -142,10 +140,6 @@ Example:
             toolbox: {
                 type: Array,
                 value: () => []
-            },
-            toolboxXml: {
-                type: String,
-                computed: 'computeToolboxXml(toolbox)'
             },
             code: {
                 type: String,
@@ -182,6 +176,7 @@ Example:
         ready () {
             this.codeRelatedEvents = [Blockly.Events.CREATE, Blockly.Events.MOVE, Blockly.Events.CHANGE];
             this._blurInput = this._blurInput.bind(this);
+            this._onMouseWheel = this._onMouseWheel.bind(this);
         },
         /**
          * Inject blockly to the workspace div
@@ -209,6 +204,7 @@ Example:
                 }
             });
             this.svg = this.$.svg;
+            this.svg.addEventListener('mousewheel', this._onMouseWheel);
             defs = Blockly.utils.createSvgElement('defs', {}, this.svg);
             options.gridPattern = Blockly.utils.createSvgElement('pattern', {'id': 'blocklyGridPattern' + String(Math.random()).substring(2), 'patternUnits': 'userSpaceOnUse'}, defs);
             // Load CSS.
@@ -216,6 +212,7 @@ Example:
             this._setupDialogs();
             this.workspace = this._createWorkspace(this.$.svg, options);
             this.workspace.toolbox = this.$.toolbox;
+            this.workspace.toolbox_ = this.$.toolbox;
             this._initWorkspace();
             this.workspace.markFocused();
             Blockly.bindEvent_(this.$.svg, 'focus', this.workspace, this.workspace.markFocused);
@@ -240,13 +237,46 @@ Example:
                 }
             });
 
-            document.body.style.overflow = 'hidden';
+            // TODO Removing this is possibly controversial.
+            // I moved it into the main CSS, but it would be good to find
+            // out why we need it.
+            // document.body.style.overflow = 'hidden';
             document.addEventListener('iron-overlay-opened', this._blurInput);
         },
         detached () {
+            this.svg.removeEventListener('mousewheel', this._onMouseWheel);
             this.workspace.dispose();
-            document.body.style.overflow = undefined;
+            // document.body.style.overflow = undefined;
             document.removeEventListener('iron-overlay-opened', this._blurInput);
+        },
+        _onMouseWheel (e) {
+            let workspace = this.workspace,
+                metrics = workspace.getMetrics(),
+                x = e.deltaX * workspace.scale,
+                y = e.deltaY * workspace.scale;
+
+            x = (workspace.scrollbar.hScroll.handlePosition_ / workspace.scrollbar.hScroll.ratio_) + x;
+            y = (workspace.scrollbar.vScroll.handlePosition_ / workspace.scrollbar.vScroll.ratio_) + y;
+
+            // Remove the ratio to compute max position
+            x *= workspace.scrollbar.hScroll.ratio_;
+            y *= workspace.scrollbar.vScroll.ratio_;
+
+            // Apply max poisition based on scrollbar length and scrollview
+            x = Math.min(x, workspace.scrollbar.hScroll.scrollViewSize_ - workspace.scrollbar.hScroll.handleLength_);
+            y = Math.min(y, workspace.scrollbar.vScroll.scrollViewSize_ - workspace.scrollbar.vScroll.handleLength_);
+
+            // Reapply ratio
+            x /= workspace.scrollbar.hScroll.ratio_;
+            y /= workspace.scrollbar.vScroll.ratio_;
+
+            x = Math.max(x, 0);
+            y = Math.max(y, 0);
+
+            // Move the scrollbars and the page will scroll automatically.
+            workspace.scrollbar.set(x, y);
+            e.stopPropagation();
+            e.preventDefault();
         },
         _setupDialogs () {
             Blockly.prompt = (message, defaultValue, callback) => {
@@ -282,6 +312,8 @@ Example:
             // A null translation will also apply the correct initial scale.
             mainWorkspace.translate(0, 0);
             mainWorkspace.markFocused();
+
+            mainWorkspace.functionsRegistry = new Blockly.FunctionsRegistry(mainWorkspace);
 
             // The SVG is now fully assembled.
             Blockly.svgResize(mainWorkspace);
@@ -364,6 +396,44 @@ Example:
                 this._closeOmnibox();
             }
         },
+        _onOmniboxConfirm (e) {
+            let type = e.detail.selected.type,
+                block = this.workspace.newBlock(type),
+                svgRoot = block.getSvgRoot(),
+                metrics = this.workspace.getMetrics(),
+                workspaceRoot, workspaceRect, newPos, blockRect, blockPos, xy;
+
+            block.fromQuery(this.$.omnibox.query, this.workspace);
+            block.initSvg();
+            block.render();
+
+            workspaceRoot = this.workspace.getParentSvg();
+            workspaceRect = workspaceRoot.getBoundingClientRect();
+
+            newPos = {
+                x: workspaceRect.width / 2,
+                y: workspaceRect.height / 2
+            };
+
+            blockRect = svgRoot.getBoundingClientRect();
+            blockPos = {
+                x: (-blockRect.left + newPos.x + workspaceRect.left) * (1 / this.workspace.scale),
+                y: (-blockRect.top + newPos.y + workspaceRect.top) * (1 / this.workspace.scale)
+            };
+
+            block.moveBy(blockPos.x, blockPos.y);
+            xy = block.getRelativeToSurfaceXY();
+            if ('animate' in SVGElement.prototype) {
+                svgRoot.style.transformOrigin = 'center center';
+                svgRoot.animate({
+                    transform: [`translate(${xy.x}px, ${xy.y}px) scale(0, 0)`, `translate(${xy.x}px, ${xy.y}px) scale(1, 1)`]
+                }, {
+                    duration: 200,
+                    easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+                });
+            }
+            this._closeOmnibox();
+        },
         _openDialog (message, defaultValue, opts) {
             let options = Object.assign({
                 noInput: false,
@@ -410,54 +480,20 @@ Example:
             Blockly.resizeSvgContents(this.workspace);
         },
         /**
-         * Takes a categories definition in JSON and generates the XML
-         * string blockly needs to display the toolbox.
-         * It will also update the current blockly workspace.
-         * @param  {Object} toolbox A JSON toolbox definition
-         * @return {String}         A XML toolbox definition
-         */
-        computeToolboxXml () {
-            // Force default toolbox if empty since blockly is not able
-            // to switch from empty to category mode
-            if (!this.toolbox || !this.toolbox.length) {
-                return '<xml><category name=""></category></xml>';
-            }
-            let xml,
-                categoriesXml = this.toolbox.map((category) => {
-                    if (category.type === 'separator') {
-                        return '<sep gap="8"></sep>';
-                    }
-                    let blocksXml = category.blocks.map((block) => {
-                        let shadow = block.shadow || {},
-                            content = Object.keys(shadow).map(field => `<value name="${field}">${block.shadow[field]}</value>`);
-                        return `<block type="${block.id}">${content}</block>`;
-                    }).join(''),
-                        colour = category.colour;
-
-                    if (colour && typeof colour.replace === 'function') {
-                        colour = colour.replace(/"/g, '&quot;');
-                    }
-                    return `<category name="${category.name}" colour="${colour}" id="${category.id}">
-                                ${blocksXml}
-                            </category>`;
-                }).join('');
-            xml = `<xml>${categoriesXml}</xml>`;
-            // Update the workspace if it exists
-            if (this.workspace) {
-                try {
-                    this.workspace.updateToolbox(xml);
-                } catch (e) {} // Ignore toolbox loading errors
-            }
-            return xml;
-        },
-        /**
          * Remove every block in the workspace
          */
         clearWorkspace () {
             if (!this.workspace) {
                 return;
             }
+            /**
+            * Temporarily disable events to prevent profusion of deletion
+            * events being fired
+            */
+            Blockly.Events.disable();
             this.workspace.clear();
+            /** Re-enable events */
+            Blockly.Events.enable();
         },
         /**
          * Update the code on any blockly change and
@@ -466,6 +502,9 @@ Example:
          * @return {[type]}   [description]
          */
         onBlocklyChange (e) {
+            let block,
+                blockTypeAvailabe,
+                blockType;
             if (e.type === Blockly.Events.OPEN_SEARCHBOX) {
                 this._openOmnibox();
                 return;
@@ -478,10 +517,22 @@ Example:
             }
             if (e.type === Blockly.Events.CREATE) {
                 this.lastCreated = e.blockId;
+                block = this.workspace.getBlockById(e.blockId);
+                if (block) {
+                    blockType = block.type;
+                }
+            }
+            if (e.type === Blockly.Events.DELETE) {
+                blockTypeAvailabe = e.oldXml &&
+                                    e.oldXml.attributes &&
+                                    e.oldXml.attributes.type;
+                if (blockTypeAvailabe) {
+                    blockType = e.oldXml.attributes.type.value;
+                }
             }
             if ((e.type === Blockly.Events.MOVE || e.type === Blockly.Events.UI && e.element === 'click')) {
-                let block = this.workspace.getBlockById(e.blockId),
-                    coord, dimensions, toolboxRect;
+                let coord, dimensions, toolboxRect;
+                block = this.workspace.getBlockById(e.blockId);
                 // If there is a move event or a click event, we check if it matches the last block created
                 if (this.lastCreated === e.blockId) {
                     // The block targetted by the last event matches the last created,
@@ -497,10 +548,28 @@ Example:
                     // The event type is `move` and the block concerned was not just created
                     this.fire('block-move');
                 }
+                if (block) {
+                    blockType = block.type;
+                }
             }
+            this.updateFunctions(e);
+            /** Enrich the event for tracking purposes */
+            e.blockType = blockType;
             this.fire('change', e);
             if (this.codeRelatedEvents.indexOf(e.type) !== -1) {
                 this.set('code', this.getCode(this.language));
+            }
+        },
+        updateFunctions (e) {
+            let toolbox;
+            if (e.type === Blockly.Events.UPDATE_FUNCTIONS) {
+                for (let i = 0; i < this.toolbox.length; i++) {
+                    if (this.toolbox[i].id === 'functions') {
+                        toolbox = this.workspace.functionsRegistry.getToolbox();
+                        this.set(`toolbox.${i}.blocks`, toolbox);
+                        break;
+                    }
+                }
             }
         },
         /**
@@ -549,7 +618,7 @@ Example:
             this.clearWorkspace();
             try {
                 Blockly.Xml.domToWorkspace(xml, this.workspace);
-            } catch (e) {console.log(e)} // Ignore loading errors
+            } catch (e) {} // Ignore loading errors
             this._checkDefaultBlocks();
         },
         _checkDefaultBlocks () {

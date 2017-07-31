@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
+<script src="../../scripts/util/client.js"></script>
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
@@ -124,12 +125,12 @@
        */
       _showPageThunk (name) {
           return (ctx) => {
-              this.context = ctx;
+              this.set('context', ctx);
               // Set the page to null, before the real value to force a restamp of the view
               if (this.page === name) {
-                  this.page = null;
+                  this.set('page', null);
               }
-              this.page = name;
+              this.set('page', name);
           };
       },
       _computeLoadingClass (loading) {
@@ -152,22 +153,30 @@
           }
       },
       _onPageChanged () {
+          let disableLogout;
+
           Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
           Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
           Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
           Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
+
+          disableLogout = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
+          if (disableLogout === null) {
+              disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
+          } else if (disableLogout === 'false' || disableLogout === '0') {
+              disableLogout = false;
+          }
+
+          Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
       },
       _exit () {
           this.leaveAlert = false;
           //TODO refactor this when Kano2App is able to restore selected device
-          if (this._runningOnElectron()) {
+          if (window.ClientUtil.runningInKanoApp()) {
               window.history.back();
           } else {
               location.href = Kano.MakeApps.config.PROJECTS_URL;
           }
-      },
-      _runningOnElectron () {
-          return navigator.userAgent.indexOf("Electron") > -1;
       }
   });
   </script>

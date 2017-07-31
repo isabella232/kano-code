@@ -113,11 +113,13 @@
     Kano.MakeApps.Msg.PART_CLOCK_NAME = "Clock";
     Kano.MakeApps.Msg.PART_MAP_NAME = "Map";
     Kano.MakeApps.Msg.PART_MIC_NAME = "Mic";
+    Kano.MakeApps.Msg.PART_MOUSE_NAME = "Mouse";
     Kano.MakeApps.Msg.PART_OSC_NAME = "Osc";
     Kano.MakeApps.Msg.PART_PICTURE_LIST_NAME = "Picture List";
     Kano.MakeApps.Msg.PART_SCROLL_NAME = "Scroller";
     Kano.MakeApps.Msg.PART_SLIDER_NAME = "Slider";
     Kano.MakeApps.Msg.PART_SPEAKER_NAME = "Speaker";
+    Kano.MakeApps.Msg.PART_SYNTH_NAME = "Synth";
     Kano.MakeApps.Msg.PART_STICKER_NAME = "Sticker";
     Kano.MakeApps.Msg.PART_TEXT_NAME = "Text";
     Kano.MakeApps.Msg.PART_TEXT_INPUT_NAME = "Text input";
@@ -136,6 +138,7 @@
     Kano.MakeApps.Msg.PART_TALKING_FACE_NAME = "Talking face";
     Kano.MakeApps.Msg.PART_GYRO_ACCELEROMETER_NAME = "Tilt";
     Kano.MakeApps.Msg.PART_MOTION_SENSOR_NAME = "Motion";
+    Kano.MakeApps.Msg.PART_TERMINAL_NAME = "Terminal";
 
     Kano.MakeApps.Msg.BLOCK_TEXT_INPUT_TYPE_IN = "Type in here...";
 
@@ -210,7 +213,7 @@
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_NEXT = "Next";
     Kano.MakeApps.Msg.KANO_SCENE_EDITOR_HINTS = "Hints";
 
-    Kano.MakeApps.Msg.KANO_SHARE_MODAL_RECORDING = "Generating Animation";
+    Kano.MakeApps.Msg.RECORDING = "Recording";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_START_RECORDING = "Start generating your animated gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_MAKE_ANOTHER = "Make another gif";
     Kano.MakeApps.Msg.KANO_SHARE_MODAL_COPY = "copy";

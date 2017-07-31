@@ -6,11 +6,17 @@
 <link rel="import" href="../kano-ui-editor/kano-ui-editor.html">
 <link rel="import" href="../kano-data-editor/kano-data-editor.html">
 <link rel="import" href="../kano-light-shape-configuration/kano-light-shape-configuration.html">
-<link rel="import" href="../kano-light-animation-editor/kano-light-animation-editor.html">
-<link rel="import" href="../kano-light-frame-editor/kano-light-frame-editor.html">
+<link rel="import" href="../kano-light-animation-part-editor/kano-light-animation-part-editor.html">
+<link rel="import" href="../kano-light-frame-part-editor/kano-light-frame-part-editor.html">
+<link rel="import" href="../kano-motion-sensor-part-editor/kano-motion-sensor-part-editor.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../behaviors/kano-media-query-behavior.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
+<!--
+@group Kano Elements
+@hero hero.svg
+@demo demo/kano-part-editor.html
+-->
 <dom-module id="kano-part-editor">
     <style include="kano-code-shared-styles">
         :host {
@@ -41,7 +47,6 @@
         'data': '#9b61bd',
         'hardware': '#ef5285'
     }
-    /* globals Polymer */
     Polymer({
         is: 'kano-part-editor',
         behaviors: [
@@ -58,29 +63,27 @@
             mode: {
                 type: Object
             },
-            hideHeader: {
-                type: Boolean,
-                computed: '_computeHideHeader(selected)'
-            },
             theme: {
                 type: String,
                 computed: '_computeTheme(selected)'
+            },
+            name: {
+                type: String,
+                value: ''
             }
         },
         _instanceProps: {
-            selected: true
+            selected: true,
+            name: true
         },
         observers: [
             '_configPanelChanged(selected.configPanel)',
-            '_selectedChanged(selected.*)'
+            '_selectedChanged(selected.*)',
+            '_updateName(selected)'
         ],
         _selectedChanged (e) {
             if (this.instance) {
                 this.instance.set(e.path, e.value);
-            }
-            // Let know the bindings that the `id` changed together with the name
-            if (e.path === 'selected.name') {
-                this.notifyPath('selected.id', this.selected.id);
             }
         },
         _configPanelChanged (panel, oldValue) {
@@ -88,14 +91,16 @@
                 container = Polymer.dom(this.$['config-panel-container']),
                 template = document.createElement('template');
 
+            this._updateName(this.selected);
+
             // Add `kano-part-editor` class to simulate CSS processing of ShadyDOM
-            template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]"></${tagName}>`
+            template.innerHTML = `<${tagName} class="kano-part-editor" id="${tagName.replace('kano-', '')}" mode="[[mode]]" selected="{{selected}}" element="{{selected}}" theme="[[theme]]" name="{{name}}"></${tagName}>`
 
             this.templatize(template);
             this.instance = this.stamp({
                 mode: this.mode,
-                selected: this.selected,
-                theme: this.theme
+                theme: this.theme,
+                name: this.name
             });
 
             this.scrollTarget = this.instance.root.firstChild;
@@ -117,6 +122,12 @@
             const theme = colorThemes[selected.partType];
             return theme;
         },
+        _updateName (selected) {
+            if (!selected) {
+                return;
+            }
+            this.set('name', selected.name);
+        },
         _onScroll () {
             let target = this.scrollTarget;
 
@@ -130,10 +141,6 @@
         },
         _forwardInstanceProp (inst, prop, value) {
             this.set(prop, value);
-        },
-        _computeHideHeader (selected) {
-            return selected && (selected.configPanel === 'kano-light-animation-editor' ||
-                    selected.configPanel === 'kano-light-frame-editor');
         },
         enterQuitsInput () {
             if (event.keyCode == 13) {

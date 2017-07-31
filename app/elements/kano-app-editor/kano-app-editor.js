@@ -1,14 +1,3 @@
-/* globals Polymer, Kano, interact */
-
-function getDefaultBackground() {
-    return {
-        name: 'My app',
-        userStyle: {
-            background: '#ffffff'
-        }
-    };
-}
-
 Polymer({
     is: 'kano-app-editor',
     behaviors: [
@@ -41,7 +30,8 @@ Polymer({
         },
         workspaceTab: {
             type: String,
-            value: 'workspace'
+            value: 'workspace',
+            observer: '_workspaceTabChanged'
         },
         remixMode: {
             type: Boolean,
@@ -63,7 +53,14 @@ Polymer({
         background: {
             type: Object,
             notify: true,
-            value: getDefaultBackground()
+            value: () => {
+                return {
+                    name: 'My app',
+                    userStyle: {
+                        background: '#ffffff'
+                    }
+                };
+            }
         },
         defaultCategories: {
             type: Object
@@ -110,7 +107,30 @@ Polymer({
         'open-parts-modal': '_openPartsModal',
         'edit-background': '_openBackgroundDialog',
         'iron-resize': '_refitPartModal',
-        'feature-not-available-offline': '_openOfflineDialog'
+        'feature-not-available-offline': '_openOfflineDialog',
+        //As opposed to 'iron-overlay-opened', 'opened-changed' will notify when an animation starts
+        'opened-changed': '_manageModals'
+    },
+     //Make sure that no conflicting modals are opened at the same time
+    _manageModals (e) {
+        const notifier = Polymer.dom(e).rootTarget.id,
+            nonConcurringModalIds = [
+                'parts-modal',
+                'edit-background-dialog',
+                'edit-part-dialog'
+            ];
+
+        //Check if the notifier is on the check list and if it's opened
+        if (nonConcurringModalIds.indexOf(notifier) < 0 || !this.$[notifier].opened) {
+            return;
+        }
+
+        //Close all non-concurring modals except the one that has just been opened
+        nonConcurringModalIds.forEach(modal => {
+            if (modal !== notifier && this.$[modal].opened) {
+                this.$[modal].close();
+            }
+        });
     },
     _openBackgroundDialog () {
         this.$['edit-background-dialog'].open();
@@ -188,10 +208,7 @@ Polymer({
         };
         part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
         this.push('addedParts', part);
-        this.fire('change', {
-            type: 'add-part',
-            part
-        });
+        this.notifyChange('add-part', { part });
     },
     _onModeReady () {
         this.modeReady = true;
@@ -200,6 +217,9 @@ Polymer({
     _partEditorDialogClosed (e) {
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-part-dialog']) {
+            // Ensure the id will update
+            this.set('selected.id', null);
+            this.set('selected.name', this.$['edit-part-dialog-content'].name);
             this.toggleClass('open', false, this.$['code-overlay']);
             this.notifyChange('close-part-settings', { part: this.selected });
             this.editableLayout = false;
@@ -240,6 +260,9 @@ Polymer({
     },
     _removePartInitiated (part) {
         this.toBeRemoved = part;
+        this.fire('tracking-event', {
+            name: 'part_remove_dialog_opened'
+        })
         if (this.checkBlockDependency(part)) {
             this.$['dialog-external-use'].open();
         } else {
@@ -262,15 +285,42 @@ Polymer({
                     break;
                 }
             }
+        } else {
+            switch (Polymer.dom(e).rootTarget.id) {
+                case 'dialog-confirm-delete': {
+                    this.fire('tracking-event', {
+                        name: 'part_remove_dialog_closed'
+                    });
+                    break;
+                }
+                case 'dialog-reset-warning': {
+                    this.fire('tracking-event', {
+                        name: 'workspace_reset_dialog_closed'
+                    });
+                    break;
+                }
+            }
         }
     },
     _dialogConfirmedDelete () {
+        this._closePartSettings();
         this._deletePart(this.toBeRemoved);
+        this.notifyChange('remove-part', {
+            part: this.toBeRemoved
+        });
     },
     _dialogConfirmedReset () {
         this.set('addedParts', []);
         this.set('code', this._formatCode({}));
-        this.set('background', getDefaultBackground());
+        this.set('background', {
+            name: 'My app',
+            userStyle: {
+                background: '#ffffff'
+            }
+        });
+        this.fire('tracking-event', {
+            name: 'workspace_reset_dialog_confirmed'
+        });
         this.save();
         Kano.MakeApps.Parts.Part.clear();
         this.$.workspace.reset();
@@ -299,41 +349,13 @@ Polymer({
         }
         return false;
     },
-    setColorRange (hs, items = []) {
-        items.forEach((item, index) => {
-            // Higher index decreases lightness
-            const L = hs[2] - index * 2;
-            // Set the color
-            item.colour = `hsl(${hs[0]}, ${hs[1]}%, ${L}%)`;
-        });
-    },
     updateColors () {
         if (!this.defaultCategories) {
             return;
         }
         this.debounce('updateColors', () => {
-            this._updateColors();
+            Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         }, 10);
-    },
-    _updateColors () {
-        const colorMapHS = {
-                system: [206, 100],
-                ui: [175, 100, 39],
-                data: [278, 41, 56],
-                hardware: [341, 83, 63]
-            },
-            grouped = this.addedParts.reduce((acc, part) => {
-                acc[part.partType] = acc[part.partType] || [];
-                acc[part.partType].push(part);
-                return acc;
-            }, {});
-
-        grouped.ui = grouped.ui || [];
-
-        Object.keys(grouped).forEach((partType) => {
-            let parts = grouped[partType];
-            this.setColorRange(colorMapHS[partType], parts);
-        });
     },
     isPartDeletionDisabled () {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
@@ -415,7 +437,8 @@ Polymer({
      */
     load (savedApp, parts) {
         let addedParts,
-            part;
+            part,
+            partsDict;
         if (!savedApp) {
             return;
         }
@@ -433,9 +456,14 @@ Polymer({
         });
         savedApp.code = this._formatCode(savedApp.code);
         this.set('addedParts', addedParts);
+
+        // Update AppModules
+        partsDict = this.$.workspace.getPartsDict();
+        Kano.AppModules.loadParts(partsDict);
+
         // Force a color update and a register block to make sure the loaded code will be
         // rendered with the right colors
-        this._updateColors();
+        Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         this.$['root-view'].computeBlocks();
         this.set('code', savedApp.code);
         this.set('background', savedApp.background);
@@ -600,6 +628,9 @@ Polymer({
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        this.fire('tracking-event', {
+            name: 'app_exported'
+        });
     },
     _importApp () {
         this.fileInput = document.createElement('input');
@@ -622,6 +653,9 @@ Polymer({
         });
         document.body.appendChild(this.fileInput);
         this.fileInput.click();
+        this.fire('tracking-event', {
+            name: 'app_imported'
+        });
     },
     _setCodeDisplay(code, workspaceTab) {
         if (workspaceTab === 'workspace') {
@@ -677,6 +711,9 @@ Polymer({
         };
     },
     _runButtonClicked () {
+        this.fire('tracking-event', {
+            name: this.running ? 'app_paused' : 'app_played'
+        })
         this.toggleRunning();
     },
     toggleRunning (state) {
@@ -713,8 +750,7 @@ Polymer({
                 onmove: this.getDragMoveListener(true),
                 onend: (e) => {
                     let model = e.target.model;
-                    this.fire('change', {
-                        type: 'move-part',
+                    this.notifyChange('move-part', {
                         part: model
                     });
                 },
@@ -749,9 +785,6 @@ Polymer({
     },
     applyHiddenClass () {
         return this.running ? '' : 'hidden';
-    },
-    _getRunningStatus (running) {
-        return running ? 'running' : 'stopped';
     },
     getMakeButtonLabel () {
         if (this.running) {
@@ -831,14 +864,31 @@ Polymer({
     getWorkspace () {
         return this.$.workspace;
     },
-    _resetAppState () {
+    resetAppState () {
         this.running = false;
 
         setTimeout(() => {
             this.running = true;
         }, 0);
+
+        this.fire('tracking-event', {
+            name: 'app_restarted'
+        });
     },
     _openOfflineDialog () {
         this.$['dialog-offline'].open();
+    },
+    isModeSimple (mode) {
+        return mode.id === "simple";
+    },
+    _workspaceTabChanged (current, previous) {
+        if (current && previous) {
+            this.fire('tracking-event', {
+                name: 'workspace_view_changed',
+                data: {
+                    view: current
+                }
+            });
+        }
     }
 });

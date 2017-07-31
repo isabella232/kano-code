@@ -1,470 +1,520 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
-<link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
-<link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
-<link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
-<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
-<link rel="import" href="../kano-icons/kc-ui.html">
-<link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../kano-light-frame-editor-panel/kano-light-frame-editor-panel.html">
-<link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
-<link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
-<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
-<link rel="import" href="../behaviors/kano-app-editor-behavior.html">
-<dom-module id="kano-light-animation-editor">
-    <style>
-        :host {
-            display: block;
-        }
-        .action-control {
-            @apply --layout-flex-auto;
-            @apply --layout-horizontal;
-            @apply --layout-end-justified;
-        }
-        .action-control button {
-            @apply --kano-button;
-            width: 32px;
-            height: 32px;
-            background: #54595d;
-            border-radius: 3px;
-            padding: 0;
-            margin-right: 12px;
-        }
-        .action-control button:hover {
-            background-color: #00d9c7;
-        }
-        .action-control button iron-icon {
-            --iron-icon-height: 28px;
-            --iron-icon-width: 28px;
-            fill: #8f9195;
-            transition: fill 300ms;
-        }
-        .action-control button:hover iron-icon {
-            fill: #fff;
-        }
-        .action-control button kano-animated-svg {
-            width: 28px;
-            height: 28px;
-            fill: #8f9195;
-            transition: fill ease-in-out 300ms;
-            margin: 0 auto;
-        }
-        .action-control button:hover kano-animated-svg {
-            fill: #fff;
-        }
-        .settings {
-            @apply --layout-vertical;
-            @apply --layout-flex-auto;
-        }
-        .settings-controls {
-            @apply --layout-flex-auto;
-            @apply --layout-vertical;
-        }
-        .settings-controls>* {
-            margin-bottom: 18px;
-        }
-        .settings-controls .size-settings {
-            @apply --layout-horizontal;
-        }
-        .settings-controls .size-settings kano-input-range:first-child {
-            margin-right: 16px;
-        }
-        kano-pixel-canvas {
-            @apply --layout-flex-auto;
-            cursor: none;
-            --kano-pixel-editor-background: var(--color-dark);
-        }
-        .bottom-panel {
-            max-width: 100%;
-            z-index: 2;
-            background-color: #252b31;
-        }
-        .bottom-panel-header {
-            border-top: 1px solid var(--kano-app-part-editor-border);
-            border-bottom: 1px solid var(--kano-app-part-editor-border);
-        }
-        kano-bitmap-list {
-            --kano-bitmaplist-action-container: {
-                border-top: 1px solid var(--kano-app-part-editor-border);
-                border-bottom: 1px solid var(--kano-app-part-editor-border);
-            };
-        }
-        kano-bitmap-list button {
-            @apply --kano-button;
-            color: #8f9195;
-        }
-        kano-bitmap-list button,
-        kano-bitmap-list label {
-            @apply --layout-horizontal;
-            @apply --layout-center;
-            text-transform: uppercase;
-            font-family: var(--font-body);
-            font-size: 12px;
-            line-height: 16px;
-            font-weight: bold;
-            background-color: transparent;
-            margin: 7px 40px 7px 0;
-            padding: 0;
-            transition: color 300ms;
-        }
-        kano-bitmap-list label {
-            color: white;
-        }
-        kano-bitmap-list iron-icon {
-            --iron-icon-height: 18px;
-            --iron-icon-width: 18px;
-            margin-right: 8px;
-            fill: #8f9195;
-            transition: fill 300ms;
-        }
-        kano-bitmap-list button:hover {
-            color: #fff;
-        }
-        kano-bitmap-list button:hover iron-icon {
-            fill: #00d9c7;
-        }
-        kano-bitmap-list button#delete-frame-button:hover iron-icon {
-            fill: var(--color-flame);
-        }
-        #bitmap-label {
-            margin: 7px 40px;
-        }
-        #frames {
-            @apply --layout-flex;
-            overflow: hidden;
-        }
-    </style>
-    <template>
-        <kano-part-editor-topbar icon="light-animation" label="[[element.label]]" theme="[[theme]]">
-            <div class="action-control" slot="action">
-                <button id="reverse" type="button" on-tap="_resetPreview">
-                    <iron-icon icon="kc-ui:restart"></iron-icon>
-                </button>
-                <button id="preview-button" type="button" on-tap="_togglePreviewState">
-                    <kano-animated-svg width="64"
-                                       height="64"
-                                       paths="[[previewButtonIconPaths]]"
-                                       selected="[[_computeControlIcon(running)]]"></kano-animated-svg>
-                </button>
-            </div>
-        </kano-part-editor-topbar>
-        <kano-light-frame-editor-panel id="editor-panel"
-                                       bitmap="{{selectedFrame}}"
-                                       width="[[selected.userProperties.width]]"
-                                       height="[[selected.userProperties.height]]"
-                                       pen-color="{{penColor}}"
-                                       pen-type="{{penType}}">
-            <div slot="canvas" class="canvas">
-                <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
-                    <kano-pixel-canvas id="canvas"
-                                       name="stopped"
-                                       bitmap="{{selectedFrame}}"
-                                       width="[[selected.userProperties.width]]"
-                                       height="[[selected.userProperties.height]]"
-                                       pixel-size="22"
-                                       spacing="1"
-                                       pen-color="[[penColor]]"
-                                       pen-type="[[penType]]"
-                                       on-paint-action="_onPaintAction"></kano-pixel-canvas>
-                    <kano-bitmap-renderer id="renderer"
-                                          class="preview-renderer"
-                                          name="running"
-                                          bitmap="[[frame]]"
-                                          loop="[[running]]"
-                                          pixel-size="22"
-                                          spacing="1"
-                                          width="[[selected.userProperties.width]]"
-                                          height="[[selected.userProperties.height]]"
-                                          fps="30"></kano-bitmap-renderer>
-                </iron-pages>
-            </div>
-            <div slot="settings" class="settings">
-                <div class="settings-controls">
-                    <kano-input-text value="{{selected.name}}"
-                                     theme="[[theme]]"></kano-input-text>
-                    <div class="size-settings">
-                        <kano-input-range id="width-slider"
-                                          class="slider"
-                                          value="{{selected.userProperties.width}}"
-                                          label="Width"
-                                          min="1"
-                                          max="16"
-                                          theme="[[theme]]"></kano-input-range>
-                        <kano-input-range id="height-slider"
-                                          class="slider"
-                                          value="{{selected.userProperties.height}}"
-                                          label="Height"
-                                          min="1"
-                                          max="8"
-                                          theme="[[theme]]"></kano-input-range>
-                    </div>
-                    <kano-input-range id="speed-slider"
-                                      class="slider"
-                                      value="{{selected.userProperties.speed}}"
-                                      label="Speed"
-                                      min="1"
-                                      max="30"
-                                      symbol="fps"
-                                      theme="[[theme]]"></kano-input-range>
-                </div>
-            </div>
-        </kano-light-frame-editor-panel>
-        <div class="bottom-panel">
-            <kano-bitmap-list id="frames"
-                              bitmaps="{{selected.userProperties.bitmaps}}"
-                              selected="{{selectedFrame}}"
-                              selected-index="{{selectedIndex}}"
-                              running="[[running]]"
-                              width="[[selected.userProperties.width]]"
-                              height="[[selected.userProperties.height]]">
-                <label id="bitmap-label" slot="label">Animate</label>
-                <button id="add-frame-button" type="button" slot="add-button" disabled$="[[running]]">
-                    <iron-icon icon="kc-ui:add"></iron-icon>
-                    <span>Add cell</span>
-                </button>
-                <button type="button" slot="duplicate-button" disabled$="[[running)]]">
-                    <iron-icon icon="kc-ui:duplicate"></iron-icon>
-                    <span>Duplicate</span>
-                </button>
-                <button id="delete-frame-button" type="button" slot="delete-button" disabled$="[[running]]">
-                    <iron-icon icon="kc-ui:close"></iron-icon>
-                    <span>Delete</span>
-                </button>
-            </kano-bitmap-list>
-        </div>
-    </template>
-    <script type="text/javascript">
-        Polymer({
-            is: 'kano-light-animation-editor',
-            behaviors: [
-                PolymerFilters.FilterBehavior,
-                Kano.Behaviors.AppElementRegistryBehavior,
-                Kano.Behaviors.AppEditorBehavior,
-                Kano.MakeApps.PartsAPI['light-animation']
-            ],
-            properties: {
-                selected: {
-                    type: Object,
-                    notify: true
-                },
-                selectedIndex: {
-                    type: Number,
-                    value: 0
-                },
-                previewState: {
-                    type: String,
-                    observer: '_previewStateChanged'
-                },
-                theme: {
-                    type: String,
-                    value: "#00d9c7"
-                },
-                running: {
-                    type: Boolean,
-                    value: false
-                },
-                selectedFrame: Array,
-                penColor: String,
-                penType: String
-            },
-            observers: [
-                '_onSelectedChanged(selected.*)',
-                '_onFrameChanged(frame.*)',
-                '_onSelectedFrameChanged(selectedFrame.*)'
-            ],
-            created () {
-                this._onKeydown = this._onKeydown.bind(this);
-                this._onKeyup = this._onKeyup.bind(this);
-            },
-            attached () {
-                let panelElements;
+  <link rel="import" href="../../bower_components/polymer/polymer.html">
+  <link rel="import" href="../../bower_components/polymer-filters/polymer-filters.html">
+  <link rel="import" href="../../bower_components/polymer-filters/filters/compare.html">
+  <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+  <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+  <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+  <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+  <link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+  <link rel="import" href="../kano-icons/kc-ui.html">
+  <link rel="import" href="../kano-pixel-editor/kano-pixel-editor.html">
+  <link rel="import" href="../kano-bitmap-list/kano-bitmap-list.html">
+  <link rel="import" href="../kano-pixel-canvas/kano-pixel-canvas.html">
+  <link rel="import" href="../inputs/kano-input-range/kano-input-range.html">
+  <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
+  <link rel="import" href="../behaviors/kano-light-bitmap-behavior.html">
+  <!--
+  @group Kano Elements
+  @hero hero.svg
+  @demo demo/kano-light-animation-editor.html
+  -->
+  <dom-module id="kano-light-animation-editor">
+      <style>
+          :host {
+              @apply --layout-vertical;
+              @apply --layout-justified;
+          }
+          #pixel-editor {
+              @apply --layout-flex-auto;
+          }
+          .bitmap-container {
+              @apply --layout-flex-auto;
+              @apply --layout-vertical;
+              position: relative;
+              width: 100%;
+          }
+          #canvas-area {
+              @apply --layout-flex-auto;
+              @apply --layout-vertical;
+              @apply --layout-center-justified;
+          }
+          #lightboard-body {
+              position: absolute;
+              top: calc(50% - 158px);
+              left: calc(50% - 212px);
+          }
+          .settings {
+              @apply --layout-vertical;
+              @apply --layout-flex-auto;
+          }
+          .settings-controls {
+              @apply --layout-flex-auto;
+              @apply --layout-vertical;
+          }
+          .settings-controls>* {
+              margin-bottom: 18px;
+          }
+          .settings-controls .size-settings {
+              @apply --layout-horizontal;
+          }
+          .settings-controls .size-settings kano-input-range:first-child {
+              margin-right: 16px;
+          }
+          kano-pixel-canvas,
+          kano-bitmap-renderer {
+              @apply --layout-self-center;
+          }
+          kano-pixel-canvas {
+              cursor: none;
+              --kano-pixel-editor-background: var(--color-dark);
+          }
+          .bottom-panel {
+              max-width: 100%;
+              z-index: 2;
+              background-color: #252b31;
+          }
+          .bottom-panel-header {
+              border-top: 1px solid var(--kano-app-part-editor-border);
+              border-bottom: 1px solid var(--kano-app-part-editor-border);
+          }
+          kano-bitmap-list {
+              --kano-bitmaplist-action-container: {
+                  border-top: 1px solid var(--kano-app-part-editor-border);
+                  border-bottom: 1px solid var(--kano-app-part-editor-border);
+              };
+          }
+          kano-bitmap-list button {
+              @apply --kano-button;
+              color: #8f9195;
+          }
+          kano-bitmap-list button,
+          kano-bitmap-list label {
+              @apply --layout-horizontal;
+              @apply --layout-center;
+              text-transform: uppercase;
+              font-family: var(--font-body);
+              font-size: 12px;
+              line-height: 16px;
+              font-weight: bold;
+              background-color: transparent;
+              margin: 7px 40px 7px 0;
+              padding: 0;
+              transition: color 300ms;
+          }
+          kano-bitmap-list button:last-of-type {
+              margin: 7px 24px 7px 0;
+          }
+          kano-bitmap-list label {
+              color: white;
+          }
+          kano-bitmap-list iron-icon {
+              --iron-icon-height: 18px;
+              --iron-icon-width: 18px;
+              margin-right: 8px;
+              fill: #8f9195;
+              transition: fill 300ms;
+          }
+          kano-bitmap-list button:hover {
+              color: #fff;
+          }
+          kano-bitmap-list button:hover iron-icon {
+              fill: #00d9c7;
+          }
+          kano-bitmap-list button.delete-frame-button:hover iron-icon {
+              fill: var(--color-flame);
+          }
+          #bitmap-label {
+              margin: 7px 40px;
+          }
+          #frames {
+              @apply --layout-flex;
+              overflow: hidden;
+          }
+          [hidden] {
+              display: none !important;
+          }
+      </style>
+      <template>
+          <kano-pixel-editor id="pixel-editor"
+                             bitmap="{{selectedFrame}}"
+                             width="[[width]]"
+                             height="[[height]]"
+                             pen-color="{{penColor}}"
+                             pen-type="{{penType}}">
+              <div slot="bitmap" class="bitmap-container">
+                  <iron-image id="lightboard-body"
+                              src="/assets/mode/lightboard/body-with-buttons.svg"
+                              sizing="contain"
+                              width="424"
+                              height="336"
+                              hidden$="[[!withDeviceOutline]]"></iron-image>
+                  <iron-pages selected="[[previewState]]" attr-for-selected="name" id="canvas-area">
+                      <kano-pixel-canvas id="canvas"
+                                         name="stopped"
+                                         bitmap="{{selectedFrame}}"
+                                         width="[[width]]"
+                                         height="[[height]]"
+                                         pixel-size="22"
+                                         spacing="1"
+                                         pen-color="[[penColor]]"
+                                         pen-type="[[penType]]"
+                                         on-paint-action="_onPaintAction"></kano-pixel-canvas>
+                      <kano-bitmap-renderer id="renderer"
+                                            class="preview-renderer"
+                                            name="running"
+                                            bitmap="[[frame]]"
+                                            loop="[[running]]"
+                                            pixel-size="22"
+                                            spacing="1"
+                                            width="[[width]]"
+                                            height="[[height]]"
+                                            fps="30"></kano-bitmap-renderer>
+                  </iron-pages>
+              </div>
+              <div slot="settings" class="settings">
+                  <div class="settings-controls">
+                      <kano-input-text value="{{label}}"
+                                       theme="[[theme]]"></kano-input-text>
+                      <div class="size-settings">
+                          <kano-input-range id="width-slider"
+                                            class="slider"
+                                            value="{{width}}"
+                                            label="Width"
+                                            min="1"
+                                            max="16"
+                                            theme="[[theme]]"
+                                            on-slider-changed="_trackWidth">
+                                            </kano-input-range>
+                          <kano-input-range id="height-slider"
+                                            class="slider"
+                                            value="{{height}}"
+                                            label="Height"
+                                            min="1"
+                                            max="8"
+                                            theme="[[theme]]"
+                                            on-slider-changed="_trackHeight">
+                                            </kano-input-range>
+                      </div>
+                      <kano-input-range id="speed-slider"
+                                        class="slider"
+                                        value="{{speed}}"
+                                        label="Speed"
+                                        min="1"
+                                        max="30"
+                                        symbol="fps"
+                                        theme="[[theme]]"
+                                        on-slider-changed="_trackSpeed">
+                                        </kano-input-range>
+                  </div>
+              </div>
+          </kano-pixel-editor>
+          <!-- TODO: localisation -->
+          <div class="bottom-panel">
+              <kano-bitmap-list id="frames"
+                                bitmaps="{{bitmaps}}"
+                                selected="{{selectedFrame}}"
+                                selected-index="{{selectedIndex}}"
+                                running="[[running]]"
+                                width="[[width]]"
+                                height="[[height]]">
+                  <label id="bitmap-label" slot="label">Animate</label>
+                  <button id="add-frame-button" type="button" slot="add-button" disabled$="[[running]]">
+                      <iron-icon icon="kc-ui:add"></iron-icon>
+                      <span>Add cell</span>
+                  </button>
+                  <button type="button" slot="duplicate-button" disabled$="[[running)]]">
+                      <iron-icon icon="kc-ui:duplicate"></iron-icon>
+                      <span>Duplicate</span>
+                  </button>
+                  <button class="delete-frame-button" type="button" slot="delete-button" disabled$="[[running]]">
+                      <iron-icon icon="kc-ui:close"></iron-icon>
+                      <span>Delete</span>
+                  </button>
+                  <button class="delete-frame-button" type="button" slot="delete-all-button" disabled$="[[running]]">
+                      <iron-icon icon="kc-ui:close"></iron-icon>
+                      <span>Delete all</span>
+                  </button>
+              </kano-bitmap-list>
+          </div>
+      </template>
+      <script type="text/javascript">
+          Polymer({
+              is: 'kano-light-animation-editor',
+              behaviors: [
+                  PolymerFilters.FilterBehavior,
+                  Kano.Behaviors.AppEditorBehavior,
+                  Kano.Behaviors.LightBitmapBehavior
+              ],
+              properties: {
+                  bitmaps: {
+                      type: Array,
+                      notify: true
+                  },
+                  width: {
+                      type: Number,
+                      notify: true
+                  },
+                  height: {
+                      type: Number,
+                      notify: true
+                  },
+                  selectedIndex: {
+                      type: Number,
+                      value: 0
+                  },
+                  previewState: {
+                      type: String,
+                      observer: '_previewStateChanged'
+                  },
+                  theme: {
+                      type: String,
+                      value: "#00d9c7"
+                  },
+                  running: {
+                      type: Boolean,
+                      value: false,
+                      notify: true
+                  },
+                  label: {
+                      type: String,
+                      notify: true,
+                      observer: '_trackLabel'
+                  },
+                  speed: {
+                      type: Number,
+                      notify: true
+                  },
+                  withDeviceOutline: {
+                      type: Boolean,
+                      value: false
+                  },
+                  selectedFrame: Array,
+                  penColor: String,
+                  penType: String,
+                  toolsUsed: {
+                      type: Object,
+                      value: () => {
+                          return {};
+                      }
+                  }
+              },
+              observers: [
+                  '_onBitmapsSet(bitmaps)',
+                  '_onBitmapsChanged(bitmaps.*)',
+                  '_onFrameChanged(frame.*)',
+                  '_onSelectedFrameChanged(selectedFrame.*)',
+                  '_sizeChanged(width, height)'
+              ],
+              created () {
+                  this._onKeydown = this._onKeydown.bind(this);
+                  this._onKeyup = this._onKeyup.bind(this);
+              },
+              attached () {
+                  let panelElements;
 
-                this.BOARD_WIDTH = 16;
-                this.BOARD_HEIGHT = 8;
+                  document.addEventListener('keydown', this._onKeydown);
+                  document.addEventListener('keyup', this._onKeyup);
 
-                document.addEventListener('keydown', this._onKeydown);
-                document.addEventListener('keyup', this._onKeyup);
+                  this.previewState = 'stopped';
+              },
+              detached () {
+                  document.removeEventListener('keydown', this._onKeydown);
+                  document.removeEventListener('keyup', this._onKeyup);
 
-                this.previewButtonIconPaths = {
-                    stopped: 'M45.69,32.1a2.24,2.24,0,0,1-1.16,2L21.77,47.41a1.4,1.4,0,0,1-1.51,0,1.34,1.34,0,0,1-.74-1.33v-28a1.34,1.34,0,0,1,.74-1.33,1.4,1.4,0,0,1,1.51,0L44.54,30.06A2.24,2.24,0,0,1,45.69,32.1Z',
-                    running: 'M23.34,46a2.43,2.43,0,0,1-1.9-.78,2.69,2.69,0,0,1-.78-1.93V20.71a2.69,2.69,0,0,1,.78-1.93,2.44,2.44,0,0,1,1.9-.78h3.74a2.44,2.44,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24A2.69,2.69,0,0,1,29,45.17a2.43,2.43,0,0,1-1.9.78Zm13.51,0a2.49,2.49,0,0,1-1.9-.78,2.63,2.63,0,0,1-.81-1.93V20.71a2.63,2.63,0,0,1,.81-1.93,2.49,2.49,0,0,1,1.9-.78h3.74a2.43,2.43,0,0,1,1.9.78,2.69,2.69,0,0,1,.78,1.93V43.24a2.69,2.69,0,0,1-.78,1.93,2.43,2.43,0,0,1-1.9.78Z'
-                };
-                this.previewState = 'stopped';
+                  this._stopPreview();
+              },
+              _onKeydown (e) {
+                  //disable key commands if event origin is an input, or when running and key is not 'space'
+                  if (/INPUT/.test(Polymer.dom(e).rootTarget.tagName) || (this.running && e.key !== ' ')) {
+                      return;
+                  }
 
-                this.async(() => {
-                    panelElements = this.$['editor-panel'].getElementsRegistry();
-                    this._registerElement('animation-editor', this);
-                    this._registerElement('animation-editor-width-slider', this.$['width-slider']);
-                    this._registerElement('animation-editor-height-slider', this.$['height-slider']);
-                    this._registerElement('animation-editor-speed-slider', this.$['speed-slider']);
-                    this._registerElement('animation-editor-canvas', this.$['canvas-area']);
-                    this._registerElement('animation-editor-preview-button', this.$['preview-button']);
-                    this._registerElement('animation-editor-add-frame-button', this.$['add-frame-button']);
-                    this._registerElement('animation-editor-frames', this.$['frames']);
-                    this._registerElement('animation-editor-palette', panelElements['palette']);
-                    this._registerElement('animation-editor-draw-button', panelElements['draw-button']);
-                    this._registerElement('animation-editor-fill-button', panelElements['fill-button']);
-                    this._registerElement('animation-editor-colors', panelElements['colors']);
-                    this._registerElement('animation-editor-add-color-button', panelElements['add-color-button']);
-                    this._registerElement('animation-editor-color-wheel', panelElements['color-wheel']);
-                });
-            },
-            detached () {
-                document.removeEventListener('keydown', this._onKeydown);
-                document.removeEventListener('keyup', this._onKeyup);
+                  this.set('_isShiftPressed', e.shiftKey);
+                  switch (e.key) {
+                      case 'd':
+                          this._duplicateFrame();
+                          break;
+                      case 'n':
+                          this._addFrame();
+                          break;
+                      case 'ArrowRight':
+                          this._nextFrame();
+                          break;
+                      case 'ArrowLeft':
+                          this._previousFrame();
+                          break;
+                      case ' ':
+                          e.preventDefault();
+                          this._togglePreviewState();
+                          break;
+                  }
+              },
+              _onKeyup (e) {
+                  this.set('_isShiftPressed', e.shiftKey);
+              },
+              _addFrame () {
+                  this.$.frames.addFrame();
+                  this.notifyChange('light-animation-add-frame');
+              },
+              _duplicateFrame () {
+                  this.$.frames.duplicateFrame();
+                  this.notifyChange('light-animation-duplicate-frame');
+              },
+              _nextFrame () {
+                  this.selectedIndex = Math.min(this.bitmaps.length - 1, this.selectedIndex + 1);
+                  this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
+              },
+              _previousFrame () {
+                  this.selectedIndex = Math.max(0, this.selectedIndex - 1);
+                  this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
+              },
+              _onBitmapsSet (e) {
+                  this.selectedFrame = this.bitmaps[this.selectedIndex] &&
+                          this.bitmaps[this.selectedIndex].slice(0);
 
-                this._stopPreview();
-                this.appModule.stop();
-            },
-            _onKeydown (e) {
-                //disable key commands if event origin is an input, or when running and key is not 'space'
-                if (/INPUT/.test(Polymer.dom(e).rootTarget.tagName) || (this.running && e.key !== ' ')) {
-                    return;
-                }
+                  //merge bitmaps and compute colors for custom palette
+                  if (!this.colorsComputed) {
+                      let allColors = this.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
+                          if (bitmaps.indexOf(bitmap) === index) {
+                              return acc.concat(bitmap);
+                          }
+                      }, []);
+                      this.$['pixel-editor']._computePalette(allColors);
+                      this.colorsComputed = true;
+                  }
+              },
+              _onBitmapsChanged (e) {
+                  if (this.lock) {
+                      return;
+                  }
+                  //Lock observer while resetting the observed property
+                  this.lock = true;
 
-                this.set('_isShiftPressed', e.shiftKey);
-                switch (e.key) {
-                    case 'd':
-                        this._duplicateFrame();
-                        break;
-                    case 'n':
-                        this._addFrame();
-                        break;
-                    case 'ArrowRight':
-                        this._nextFrame();
-                        break;
-                    case 'ArrowLeft':
-                        this._previousFrame();
-                        break;
-                    case ' ':
-                        e.preventDefault();
-                        this._togglePreviewState();
-                        break;
-                }
-            },
-            _onKeyup (e) {
-                this.set('_isShiftPressed', e.shiftKey);
-            },
-            _computeControlIcon (running) {
-                return running ? 'running' : 'stopped';
-            },
-            _addFrame () {
-                this.$.frames.addFrame();
-                this.notifyChange('light-animation-add-frame');
-            },
-            _duplicateFrame () {
-                this.$.frames.duplicateFrame();
-                this.notifyChange('light-animation-duplicate-frame');
-            },
-            _nextFrame () {
-                this.selectedIndex = Math.min(this.selected.userProperties.bitmaps.length - 1, this.selectedIndex + 1);
-                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
-            },
-            _previousFrame () {
-                this.selectedIndex = Math.max(0, this.selectedIndex - 1);
-                this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
-            },
-            _onSelectedChanged (e) {
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex] &&
-                            this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
-
-                    //merge bitmaps and compute colors for custom palette only once per session
-                    if (!this.colorsComputed) {
-                        let allColors = this.selected.userProperties.bitmaps.reduce((acc, bitmap, index, bitmaps) => {
-                            if (bitmaps.indexOf(bitmap) === index) {
-                                return acc.concat(bitmap);
-                            }
-                        }, []);
-                        this.$['editor-panel']._computePalette(allColors);
-                        this.colorsComputed = true;
-                    }
-            },
-            _resetPreview () {
-                clearTimeout(this.timeoutId);
-                this.previewState = 'stopped';
-                this.selectedIndex = 0;
-                this.selectedFrame = this.selected.userProperties.bitmaps[0].slice(0);
-                this.running = false;
-            },
-            _togglePreviewState () {
-                this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
-                if (this.previewState === 'running') {
-                    this.oldSelectedIndex = this.selectedIndex;
-                    this._updatePreview();
-                    this.$.frames.moveDelay = 0;
-                    this.running = true;
-                } else {
-                    clearTimeout(this.timeoutId);
-                    this.selectedIndex = this.oldSelectedIndex;
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.oldSelectedIndex].slice(0);
-                    this.async(() => this.$.frames.moveDelay = 350);
-                    this.running = false;
-                }
-            },
-            _stopPreview () {
-                this.set('previewState', 'stopped');
-                clearTimeout(this.timeoutId);
-            },
-            _updatePreview () {
-                let bitmaps = this.selected.userProperties.bitmaps;
-                if (bitmaps) {
-                    this.frame = bitmaps[this.selectedIndex];
-                    this.selectedIndex++;
-                    if (this.selectedIndex > bitmaps.length - 1) {
-                        this.selectedIndex = 0;
-                    }
-                    this.selectedFrame = this.selected.userProperties.bitmaps[this.selectedIndex].slice(0);
-                }
-                this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.selected.userProperties.speed);
-            },
-            _onFrameChanged () {
-                this._renderOnRealDevice(this.frame);
-            },
-            _onSelectedFrameChanged () {
-                if (this.selectedFrame) {
-                    this._renderOnRealDevice(this.selectedFrame);
-                }
-            },
-            _previewStateChanged () {
-                this.notifyChange('light-animation-preview-changed', { value: this.previewState });
-            },
-            _onPaintAction () {
-                this.notifyChange('light-animation-paint', { tool: this.penType });
-            },
-            _renderOnRealDevice (frame) {
-                if (!this.deviceRenders) {
-                    const hw = Kano.AppModules.modules.lightboard.api;
-                    this.appModule = Kano.AppModules.createStandalone();
-                    this.appModule.config(Object.assign({}, Kano.MakeApps.config, { hardwareAPI: hw }));
-                    this.appModule.start();
-                    this.deviceRenders = true;
-                }
-
-                try {
-                    this.async(() => this.appModule.getModule('lightboard').updateOrCreateShape('drawing', this.getShape(frame), () => {}));
-                }
-                catch (e) {
-                   return;
-                }
-            },
-            getShape (frame) {
-                this.model = this.selected;
-                return {
-                    id: 'being-edited',
-                    x: this.getX(),
-                    y: this.getY(),
-                    width: this.getWidth(),
-                    height: this.getHeight(),
-                    visible: true,
-                    bitmap: frame,
-                    type: 'frame'
-                }
-            }
-        });
-    </script>
-</dom-module>
+                  if (e.path.search(/splices/) !== -1) {
+                      this._setBitmaps();
+                  }
+                  this.async(() => this.lock = false);
+              },
+              _setBitmaps () {
+                  this.set('storedBitmaps', this.storeBitmaps());
+                  this.set('bitmaps', this.storedBitmaps.map(bitmap => this._adjustForDisplay(bitmap, this.width, this.height)));
+              },
+              storeBitmaps () {
+                  return this.bitmaps.map(bitmap => this._adjustForStorage(bitmap, this.width));
+              },
+              _sizeChanged () {
+                  if (!this.bitmaps || this.bitmaps.length === 0) {
+                      this._generateEmptyFrame();
+                      return;
+                  }
+                  this.storedBitmaps = this.storedBitmaps || this.storeBitmaps();
+                  this.set('bitmaps', this.storedBitmaps.map(bitmap => this._adjustForDisplay(bitmap, this.width, this.height)));
+              },
+              _generateEmptyFrame () {
+                  let emptyFrame = [];
+                  for (let i = 0; i < this.height * this.width; i++) {
+                      emptyFrame.push('#000000');
+                  }
+                  this.set('bitmaps', [emptyFrame]);
+              },
+              _resetPreview () {
+                  clearTimeout(this.timeoutId);
+                  this.previewState = 'stopped';
+                  this.selectedIndex = 0;
+                  this.selectedFrame = this.bitmaps[0].slice(0);
+                  this.running = false;
+              },
+              _togglePreviewState () {
+                  this.set('previewState', this.previewState === 'running' ? 'stopped' : 'running');
+                  if (this.previewState === 'running') {
+                      this.oldSelectedIndex = this.selectedIndex;
+                      this._updatePreview();
+                      this.$.frames.moveDelay = 0;
+                      this.running = true;
+                  } else {
+                      clearTimeout(this.timeoutId);
+                      this.selectedIndex = this.oldSelectedIndex;
+                      this.selectedFrame = this.bitmaps[this.oldSelectedIndex].slice(0);
+                      this.async(() => this.$.frames.moveDelay = 350);
+                      this.running = false;
+                  }
+              },
+              _stopPreview () {
+                  this.set('previewState', 'stopped');
+                  clearTimeout(this.timeoutId);
+              },
+              _updatePreview () {
+                  if (this.bitmaps) {
+                      this.frame = this.bitmaps[this.selectedIndex];
+                      this.selectedIndex++;
+                      if (this.selectedIndex > this.bitmaps.length - 1) {
+                          this.selectedIndex = 0;
+                      }
+                      this.selectedFrame = this.bitmaps[this.selectedIndex].slice(0);
+                  }
+                  this.timeoutId = setTimeout(this._updatePreview.bind(this), 1000 / this.speed);
+              },
+              _onFrameChanged () {
+                  this.fire('render-frame', this.frame);
+              },
+              _onSelectedFrameChanged () {
+                  if (this.selectedFrame) {
+                      this.fire('render-frame', this.selectedFrame);
+                  }
+              },
+              _previewStateChanged () {
+                  this.notifyChange('light-animation-preview-changed', { value: this.previewState });
+              },
+              _onPaintAction () {
+                  this.notifyChange('light-animation-paint', { tool: this.penType });
+                  if (!this.toolsUsed[this.penType]) {
+                      this.fire('tracking-event', {
+                            name: `${this.penType}_tool_used`
+                      });
+                      this.toolsUsed[this.penType] = true;
+                  }
+              },
+              getElementsRegistry () {
+                  const panelElements = this.$['pixel-editor'].getElementsRegistry();
+                  return {
+                      'width-slider': this.$['width-slider'],
+                      'height-slider': this.$['height-slider'],
+                      'speed-slider': this.$['speed-slider'],
+                      'add-frame-button': this.$['add-frame-button'],
+                      'canvas': this.$.canvas,
+                      'frames': this.$.frames,
+                      'palette': panelElements['palette'],
+                      'draw-button': panelElements['draw-button'],
+                      'fill-button': panelElements['fill-button'],
+                      'colors': panelElements['colors'],
+                      'add-color-button': panelElements['add-color-button'],
+                      'color-wheel': panelElements['color-wheel']
+                  }
+              },
+              _trackHeight () {
+                  this.fire('tracking-event', {
+                        name: 'animation_height_changed'
+                  });
+              },
+              _trackLabel (current, previous) {
+                  this.debounce('track-label', () => {
+                      if (previous && current !== previous) {
+                          this.fire('tracking-event', {
+                                name: 'animation_name_changed'
+                          });
+                      }
+                  }, 1500);
+              },
+              _trackSpeed () {
+                  this.fire('tracking-event', {
+                        name: 'animation_speed_changed'
+                  });
+              },
+              _trackWidth () {
+                  this.fire('tracking-event', {
+                        name: 'animation_width_changed'
+                  });
+              }
+          });
+      </script>
+  </dom-module>

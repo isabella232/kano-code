@@ -115,8 +115,11 @@
             font-family: var(--font-body);
             font-size: 16px;
         }
-        button[disabled] {
+        button[disabled],
+        button:hover[disabled] {
             opacity: 0.7;
+            background: transparent;
+            cursor: default;
         }
         button.change-gif {
             color: white;
@@ -297,7 +300,7 @@
         }
         .preview iron-image.cover {
             width: 420px;
-            height: 280px;
+            height: 100%;
         }
         .success,
         .success .actions {
@@ -393,6 +396,7 @@
             @apply --layout-center-justified;
             margin: auto;
             position: relative;
+            height: 100%;
         }
         .change-gif-container {
             position: absolute;
@@ -417,6 +421,13 @@
             margin: 4px;
             border: 0px;
         }
+        .generate-url-container[hidden] {
+            display: block !important;
+            visibility: hidden;
+        }
+        .app-player-container {
+            height: 100%;
+        }
     </style>
     <template>
         <button class="dismiss" on-tap="dismiss">
@@ -429,24 +440,22 @@
         </div>
         <section class="options">
             <iron-pages id="options-pager" selected="[[_page]]" attr-for-selected="name">
-                <div class="gif-creation-header" name="gif-creation">
-                    <div class="blocks" id="gif-creation-blocks"></div>
-                    <span>[[localize('RECORDING', 'Generating Animation')]]</span>
-                </div>
                 <form class="form" name="sharing-form">
                     <input type="text"
                             id="title_input"
                             value="{{shareInfo.title::change}}"
                             placeholder="Title"
+                            disabled$="[[autosharing]]"
                             autofocus />
                     <textarea rows="4"
                             cols="40"
                             value="{{shareInfo.description::change}}"
-                            placeholder="Description"></textarea>
+                            placeholder="Description"
+                            disabled$="[[autosharing]]"></textarea>
 
                     <hr>
 
-                    <div class="generate-url-container">
+                    <div class="generate-url-container" hidden$="[[recording]]">
                         <button hidden$="[[shareInfo.slug]]" disabled$="[[loading]]" on-tap="_socialShareLink" class="share-button" type="button">
                             <img src="/assets/get-share-link.svg"/>
                             <span>[[localize('GET_SHARE_LINK', 'Get share link')]]</span>
@@ -457,13 +466,13 @@
                     </div>
 
                     <div class="composed-button" hidden$="[[!shareInfo.slug]]">
-                        <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
+                        <input type="text" id="shareurl" value="[[playUrl(shareInfo.slug)]]">
                         <button on-tap="copyToClipboard" type="button">[[localize('COPY', 'copy')]]</button>
                     </div>
 
                     <hr>
 
-                    <button type="button" name="button" class="save-button round" on-tap="_shareOnKW">[[localize('SAVE', 'Save')]]</button>
+                    <button type="button" name="button" class="save-button round" on-tap="_shareOnKW" disabled$="[[recording]]">[[_computeSaveButtonLabel(recording)]]</button>
 
                     <div class="generate-url">
                         <div class="social-share-container" hidden>
@@ -495,7 +504,7 @@
                         <span>[[localize('WANT_TO_SHARE', 'Want to share it with your friends?')]]</span>
                     </div>
                     <div class="composed-button" hidden$="[[!shareInfo.slug]]">
-                        <input type="text" id="shareurl" value="{{playUrl(shareInfo.slug)}}">
+                        <input type="text" id="shareurl" value="[[playUrl(shareInfo.slug)]]">
                         <button on-tap="copyToClipboard" type="button">[[localize('COPY', 'copy')]]</button>
                     </div>
                     <div class="actions">
@@ -520,37 +529,19 @@
             </iron-pages>
         </section>
         <section class="preview">
-            <iron-pages selected="[[shareInfo.page]]" attr-for-selected="name">
-                <div class="gif-creation" name="gif-creation">
+            <iron-pages selected="[[previewPage]]" attr-for-selected="name">
+                <div class="gif-creation" name="app-preview">
                     <kano-app-player id="app-preview" class="app-preview" src="[[shareInfo.app.src]]" slug="[[shareInfo.app.slug]]"></kano-app-player>
                 </div>
-                <div name="sharing-form">
+                <div name="cover">
                     <div class="app-player-container">
                         <div class="preview-wrapper">
-                            <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
+                            <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="contain" hidden$="[[spriteSrc]]"></iron-image>
                             <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
                             <div class="change-gif-container" on-tap="_changeGif">
                                 <button class="change-gif" type="button">&larr; [[localize('MAKE_ANOTHER', 'Make another gif')]]</button>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div name="saving">
-                    <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
-                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
-                    </div>
-                </div>
-                <div name="failure">
-                    <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
-                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
-                    </div>
-                </div>
-                <div name="success">
-                    <div class="app-player-container">
-                        <iron-image class="cover" src="[[gifSrc]]" preload fade sizing="cover" hidden$="[[spriteSrc]]"></iron-image>
-                        <kano-lightboard-preview class="cover" width="420" src="[[spriteSrc]]" hidden$="[[!spriteSrc]]"></kano-lightboard-preview>
                     </div>
                 </div>
             </iron-pages>
@@ -603,20 +594,49 @@
             opened: {
                 type: Boolean,
                 observer: '_openChanged'
+            },
+            previewPage: {
+                type: String,
+                computed: '_computePreviewPage(gifSrc, spriteSrc)'
+            },
+            gifSrc: {
+                type: String,
+                value: null
+            },
+            spriteSrc: {
+                type: String,
+                value: null
+            },
+            recording: {
+                type: Boolean,
+                value: true
             }
         },
         observers: [
             '_shareSlugChanged(shareInfo.slug)',
             '_pageChanged(shareInfo.page)',
-            '_updateUI(shareInfo.*, inChallenge)'
+            '_updateUI(shareInfo.*, inChallenge)',
+            '_shareAttributesChanged(shareInfo.*)'
         ],
         _isHeaderHidden (page) {
             return page === 'success';
         },
-        _pageChanged (page) {
+        _computePreviewPage (gif, sprite) {
+            if (!!gif || !!sprite) {
+                return 'cover';
+            }
+            return 'app-preview';
+        },
+        _computeSaveButtonLabel (recording) {
+            if (recording) {
+                return this.localize('RECORDING', 'Recording') + '...';
+            }
+            return this.localize('SAVE', 'Save');
+        },
+        _pageChanged (page, prevPage) {
             let oldPageEl = this.$['options-pager'].querySelector('.iron-selected'),
                 animationPromise;
-            if (page !== 'gif-creation' && oldPageEl) {
+            if (oldPageEl) {
                 animationPromise = new Promise((resolve, reject) => {
                     oldPageEl.animate({
                         opacity: [1, 0]
@@ -626,7 +646,8 @@
                     }).onfinish = resolve;
                 });
             } else {
-                animationPromise = Promise.resolve();
+                this._page = page;
+                return;
             }
             animationPromise.then(() => {
                 let newPageEl;
@@ -634,7 +655,7 @@
                 if (this.splash) {
                     this.splash.cancel();
                 }
-                if (page === 'gif-creation' || page === 'saving') {
+                if (page === 'saving') {
                     let container = this.$['options-pager'].querySelector(`.iron-selected #gif-creation-blocks`);
                     this.splash = new Kano.BlockAnimation(container);
                     this.splash.init();
@@ -704,11 +725,13 @@
         attached () {
             //FIXME social share buttons are hidden
             //TODO implement social sharing in a way that would work in an Electron environment
-            this.recording = false;
             this.addEventListener('app-ready', this._onAppReady);
         },
         dismiss () {
             this.fire('dismiss');
+            this.fire('tracking-event', {
+                name: 'share_dialog_closed'
+            });
         },
         loadingChanged () {
             this.toggleClass('loading', this.loading);
@@ -717,12 +740,9 @@
             return `${this.worldUrl}/shared/${this.shareInfo.slug}`;
         },
         _changeGif () {
-            let appPreview = this.$['app-preview'],
-                onAppReady = () => {
-                    this.fire('change-gif');
-                    appPreview.removeEventListener('app-ready', onAppReady);
-                };
-            appPreview.addEventListener('app-ready', onAppReady);
+            let appPreview = this.$['app-preview'];
+            this.gifSrc = null;
+            this.spriteSrc = null;
             // Force a change on the src to reload the app from the beginning
             appPreview.src = null;
             appPreview.src = this.shareInfo.app.src;
@@ -742,37 +762,48 @@
                     return this.$['app-preview'].component.parts[key];
                 }),
                 sharingConfig = this.shareInfo.mode.sharing,
-                FPS = 4,
-                LENGTH = 10;
+                FPS = 9,
+                LENGTH = 30;
 
             this.recording = true;
 
+            this.spriteSrc = null;
+
             if (sharingConfig.cover === 'still') {
                 if (sharingConfig.spritesheet) {
-                    this.generateSpriteSheet(workspace, FPS, 4)
-                        .then((url) => {
-                            let data = url.split(',').pop(),
-                                spriteSheetBlob = this.base64toBlob(data, 'image/png');
+                    if (this.shareInfo.animation) {
+                        p = this.generateAnimationSpriteSheet(this.shareInfo.animation);
+                    } else {
+                        p = this.generateAppSpriteSheet(workspace, FPS, 4)
+                    }
+                    p.then((url) => {
+                        let data = url.split(',').pop(),
+                            spriteSheetBlob = this.base64toBlob(data, 'image/png');
 
-                            this.shareInfo.spriteSheetBlob = spriteSheetBlob;
-                            this.spriteSrc = URL.createObjectURL(spriteSheetBlob);
+                        this.shareInfo.spriteSheetBlob = spriteSheetBlob;
+                        this.spriteSrc = URL.createObjectURL(spriteSheetBlob);
 
-                            return this.generateCover(workspace,
-                                        parts,
-                                        workspace.width,
-                                        workspace.height,
-                                        1,
-                                        sharingConfig.padding,
-                                        sharingConfig.color);
-                        }).then(image => {
-                            let base64Data = image.src.split(',').pop(),
-                                blob = this.base64toBlob(base64Data, 'image/png');
-                            this.gifSrc = image.src;
-                            this.shareInfo.coverBlob = blob;
-                            this.fire('cover-generated');
-                            // Reset for potential future gif-creation
-                            this._resetCoverGenerator();
-                        });
+                        return this.generateCover(workspace,
+                                    parts,
+                                    workspace.width,
+                                    workspace.height,
+                                    1,
+                                    sharingConfig.padding,
+                                    sharingConfig.color);
+                    })
+                    .then(canvas => {
+                        let image = new Image(),
+                            base64Data,
+                            blob;
+                        image.src = canvas.toDataURL();
+                        base64Data = image.src.split(',').pop(),
+                        blob = this.base64toBlob(base64Data, 'image/png');
+                        this.gifSrc = image.src;
+                        this.shareInfo.coverBlob = blob;
+                        this.fire('cover-generated');
+                        // Reset for potential future gif-creation
+                        this._resetCoverGenerator();
+                    });
                 } else {
                     this.waitingFrame = 0;
                     this.gifRenderProgress = 0;
@@ -797,9 +828,13 @@
                                         1,
                                         sharingConfig.padding,
                                         sharingConfig.color)
-                                .then(image => {
-                                    let base64Data = image.src.split(',').pop(),
-                                        blob = this.base64toBlob(base64Data, 'image/png');
+                                .then(canvas => {
+                                    let image = new Image(),
+                                        base64Data,
+                                        blob;
+                                    image.src = canvas.toDataURL();
+                                    base64Data = image.src.split(',').pop(),
+                                    blob = this.base64toBlob(base64Data, 'image/png');
                                     this.gifSrc = image.src;
                                     this.shareInfo.coverBlob = blob;
                                     this.fire('cover-generated');
@@ -810,7 +845,7 @@
                     }, 1000 / FPS);
                 }
             } else {
-                this._generateGifCover(workspace, parts, 0.6, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
+                this._generateGifCover(workspace, parts, 0.75, sharingConfig.padding, sharingConfig.color, FPS, LENGTH).then(blob => {
                     let url = URL.createObjectURL(blob);
                     this.gifSrc = url;
                     this.shareInfo.coverBlob = blob;
@@ -848,6 +883,9 @@
             }
             input.select();
             document.execCommand('copy');
+            this.fire('tracking-event', {
+                name: 'share_link_copied'
+            });
         },
         _socialShareTwitter () {
             this._socialShare('twitter');
@@ -857,6 +895,9 @@
         },
         _socialShareLink () {
             this._socialShare('link');
+            this.fire('tracking-event', {
+                name: 'share_link_clicked'
+            });
         },
         _socialShare (socialTarget) {
             if (!this._checkTitleInput()) {
@@ -891,8 +932,8 @@
             this.popup.document.write("<p>Fetching your link...</p>")
         },
         _updateUI () {
-            const autoshare = this.shareInfo.autoshare;
-            this.nextHidden = typeof autoshare === 'undefined' || !autoshare || !this.inChallenge;
+            this.autosharing = this.shareInfo && this.shareInfo.autoshare;
+            this.nextHidden = !this.autosharing || !this.inChallenge;
         },
         _nextStory () {
             this.fire('next-story');
@@ -902,9 +943,26 @@
                 // Force a change on the src to reload the app from the beginning
                 this.$['app-preview'].src = null;
                 this.$['app-preview'].src = this.shareInfo.app.src;
+                this.fire('tracking-event', {
+                    name: 'share_dialog_opened'
+                });
             } else if (!opened && wasOpened) {
                 this.interrupted = true;
+                this.gifSrc = null;
+                this.spriteSrc = null;
+                this.loading = false;
                 this._resetCoverGenerator();
+            }
+        },
+        _shareAttributesChanged (shareInfo) {
+            let changesToTrack = {
+                'shareInfo.title': 'share_title_changed',
+                'shareInfo.description': 'share_description_changed'
+            }
+            if (shareInfo && shareInfo.path && changesToTrack[shareInfo.path]) {
+                this.fire('tracking-event', {
+                      name: changesToTrack[shareInfo.path]
+                });
             }
         }
     });

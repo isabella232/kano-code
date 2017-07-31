@@ -157,9 +157,26 @@
             },
             _toolboxDomChanged () {
                 this._metrics = this.getBoundingClientRect();
+                this.targetWorkspace.resize();
             },
             getMetrics () {
+                if (!this._metrics) {
+                    this._metrics = this.getBoundingClientRect();
+                }
                 return this._metrics;
+            },
+            getWidth () {
+                return this.getMetrics().width;
+            },
+            getHeight () {
+                return this.getMetrics().height;
+            },
+            position () {},
+            addDeleteStyle () {},
+            removeDeleteStyle () {},
+            getClientRect () {
+                let rect = this.getMetrics();
+                return new goog.math.Rect(rect.left, rect.top, rect.width, rect.height);
             },
             close () {
                 let category, categoryEl, e;
@@ -182,6 +199,7 @@
                 if (this.targetWorkspace) {
                     this.targetWorkspace.fireChangeListener(e);
                 }
+                this.targetWorkspace.setResizesEnabled(false);
                 this.set('opened', false);
             },
             _targetWorkspaceChanged (ws) {
@@ -263,6 +281,7 @@
                     this.customStyle['--selected-color'] = category.colour;
                     this.updateStyles();
                     this.targetWorkspace.fireChangeListener(e);
+                    this.targetWorkspace.setResizesEnabled(false);
                     this.set('opened', true);
                 } else {
                     let e = {
@@ -276,6 +295,7 @@
                     if (this.targetWorkspace) {
                         this.targetWorkspace.fireChangeListener(e);
                     }
+                    this.targetWorkspace.setResizesEnabled(true);
                     this.set('opened', false);
                 }
             },

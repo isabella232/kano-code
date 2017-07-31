@@ -50,6 +50,9 @@
         <template id="speaker">
             <kano-ic-speaker id="inline-controls" muted="{{model.muted}}"></kano-ic-speaker>
         </template>
+        <template id="synth">
+            <kano-ic-speaker id="inline-controls" muted="{{model.muted}}"></kano-ic-speaker>
+        </template>
     </template>
     <script>
         var themeColors = {
@@ -64,6 +67,7 @@
                 model: Object
             },
             observers: [
+                '_mutedChanged(model.muted)',
                 '_typeChanged(model.type)'
             ],
             listeners: {
@@ -95,6 +99,12 @@
                 } else if (this.model.partType === 'hardware') {
                     return connected === false ? '(disconnected)' : '';
                 }
+            },
+            _mutedChanged (muted) {
+                this.fire('change', {
+                    type: 'change-part-volume',
+                    part: this.model
+                });
             },
             _typeChanged (type) {
                 let template = this.$[type];

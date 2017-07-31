@@ -21,6 +21,9 @@ Custom property | Description | Default
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
+            /*We use padding so we can capture click events outside the bar*/
+            padding: 5px 0;
+            cursor: pointer;
         }
         input[type=range]:focus {
             outline: none;
@@ -105,7 +108,13 @@ Custom property | Description | Default
 
     </style>
     <template>
-        <input type="range" min="[[min]]" max="[[max]]" value-as-number="{{value::input}}" id="fader" step="1">
+        <input type="range"
+               min="[[min]]"
+               max="[[max]]"
+               value-as-number="{{value::input}}"
+               id="fader"
+               step="1"
+               on-change="_handleChange">
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -122,6 +131,9 @@ Custom property | Description | Default
               type: String,
               observer: '_onThemeChanged'
             }
+        },
+        _handleChange () {
+            this.fire('slider-changed');
         },
         _onThemeChanged (theme) {
             this.updateStyles({

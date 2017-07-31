@@ -24,41 +24,17 @@
                 right: 10px;
                 top: 10px;
             }
-            :host .fullscreen-close {
-                position: fixed;
-                top: 0px;
-                right: 0px;
-                color: #fff;
-                background-color: transparent;
-                z-index: 101;
-                border: none;
-                width: 56px;
-                height: 56px;
-                font-size: 50px;
-                outline: none;
-                cursor: pointer;
-            }
-            :host .fullscreen-close div {
-                transition: all 0.2s ease;
-                transform: translate(0, -7px);
-            }
-            :host .fullscreen-close div:hover {
-                transform: translate(0, -9px);
-                color: #eaeaea;
-            }
             :host(.fullscreen) #content {
                 position: fixed;
-                top: 200px;
-                left: 0px;
-                width: 100%;
-                height: calc(100% - 400px);
+                top: 0;
+                left: 0;
                 z-index: 101;
-                padding: 0;
+                margin: 0;
             }
             :host #content {
                 position: relative;
                 width: auto;
-                margin: 14px 40px 0;
+                margin-top: 14px;
                 transition: background linear 150ms;
             }
             :host.running #content {
@@ -88,7 +64,7 @@
                 animation: fade-in 200ms linear;
             }
             kano-workspace-toolbar {
-                padding: 32px 40px;
+                padding: 32px 0;
             }
             .controls {
                 @apply --layout-vertical;
@@ -119,7 +95,6 @@
                 height: 46px;
                 border-top: 1px solid #202428;
                 border-bottom: 1px solid #202428;
-                margin: 0 40px;
             }
             .add-parts .label {
                 text-transform: uppercase;
@@ -144,28 +119,34 @@
                 cursor: pointer;
                 transition: color 0.2s;
             }
-            .add-parts button {
+            button#add-part-button,
+            button#fullscreen-close {
                 @apply --layout-horizontal;
                 @apply --layout-center;
                 @apply --layout-center-justified;
                 @apply --layout-self-end;
                 @apply --kano-button;
-                text-shadow: none;
-                padding: 0px;
-                font-size: 18px;
-                font-family: monospace;
-                font-weight: bold;
-                width: 24px;
-                height: 24px;
                 background: rgba(255, 255, 255, 0.25);
                 color: rgba(255, 255, 255, 0.75);
+                border-radius: 3px;
+            }
+            button#add-part-button {
+                width: 24px;
+                height: 24px;
+                padding: 0px;
+            }
+            button#fullscreen-close {
+                position: fixed;
+                top: 16px;
+                right: 16px;
+                padding: 6px;
+            }
+            .add-parts .action:hover button#add-part-button,
+            button#fullscreen-close:hover {
+                background: rgba(255, 255, 255, 0.5);
             }
             .add-parts .action:hover label {
                 color: #fff;
-            }
-            .add-parts .action:hover button {
-                color: #fff;
-                background: rgba(255, 255, 255, 0.5);
             }
             paper-dialog {
                 background: transparent;
@@ -181,7 +162,7 @@
                 @apply --layout-flex;
                 @apply --layout-vertical;
                 overflow: auto;
-                padding: 0 40px 40px;
+                padding-bottom: 40px;
             }
             .part, ::slotted(.part) {
                 @apply --layout-flex-none;
@@ -208,6 +189,22 @@
                 --iron-icon-height: 27px;
                 --iron-icon-fill-color: #8F9195;
             }
+            button#add-part-button iron-icon,
+            button#fullscreen-close iron-icon {
+                fill: rgba(255, 255, 255, 0.75);
+            }
+            button#add-part-button:hover iron-icon,
+            button#fullscreen-close:hover iron-icon {
+                fill: rgba(255, 255, 255, 1);
+            }
+            button#add-part-button iron-icon {
+                --iron-icon-width: 18px;
+                --iron-icon-height: 18px;
+            }
+            button#fullscreen-close iron-icon {
+                --iron-icon-width: 20px;
+                --iron-icon-height: 20px;
+            }
             .handle {
                 cursor: move;
             }
@@ -228,10 +225,10 @@
                 display: none !important;
             }
         </style>
-        <kano-ui-viewport mode="scaled"
-                    view-width="[[width]]"
-                    view-height="[[height]]"
-                    id="content">
+        <kano-ui-viewport id="content"
+                          mode="scaled"
+                          view-width="[[width]]"
+                          view-height="[[height]]">
             <div id="workspace-placeholder">
                 <slot name="workspace"></slot>
             </div>
@@ -250,7 +247,9 @@
                 <div class="label">[[localize('PARTS', 'Parts')]]</div>
                 <div class="action" on-tap="_addPartsTapped">
                     <label for="add-part-button">[[localize('ADD_PART', 'Add Part')]]</label>
-                    <button id="add-part-button" type="button">+</button>
+                    <button id="add-part-button" type="button">
+                        <iron-icon icon="kc-ui:add"></iron-icon>
+                    </button>
                 </div>
             </div>
             <div class="part-list">
@@ -269,7 +268,7 @@
             </div>
         </div>
         <div class="overlay">
-            <button class="fullscreen-close" on-tap="_toggleFullscreen">
+            <button id="fullscreen-close" on-tap="_toggleFullscreen">
                 <iron-icon icon="kc-ui:close"></iron-icon>
             </button>
             <kano-workspace-toolbar running="[[running]]"
@@ -386,10 +385,32 @@
                 this._partsToAnimateIn = [];
             },
             _setViewportHeight () {
-                const aspectRatio = this.height / this.width;
-                window.requestAnimationFrame(() => this.$.content.style['height'] =
-                        `${(this.offsetWidth - 80) * aspectRatio}px`);
-                        this.$.content.resizeView();
+                window.requestAnimationFrame(() => {
+                    let aspectRatio = this.height / this.width,
+                        style = '';
+                    if (this.fullscreen) {
+                        //Set the width first only there's enough height not to crop
+                        if (window.innerHeight > window.innerWidth * aspectRatio) {
+                            style += 'width: 70vw;';
+                            style += `height: calc(70vw * ${aspectRatio});`;
+                            style += `top: calc(50% - (70vw * ${aspectRatio} / 2));`;
+                            style += `left: calc(50% - 35vw);`;
+                        } else {
+                            //Else set the height first
+                            aspectRatio = 1 / aspectRatio;
+                            style += 'height: 70vh;';
+                            style += `width: calc(70vh * ${aspectRatio});`;
+                            style += `top: calc(50% - 35vh);`;
+                            style += `left: calc(50% - (70vh * ${aspectRatio} / 2));`;
+                        }
+                    } else {
+                        //We are not fullscreen so set the viewport height relative to the width of the workspace
+                        style += 'width: auto;';
+                        style += `height: ${this.offsetWidth * aspectRatio}px;`;
+                    }
+                    this.$.content.style = style;
+                });
+                this.$.content.resizeView();
             },
             created () {
                 this._partsToAnimateIn = [];
@@ -401,8 +422,14 @@
             },
             _toggleFullscreen () {
                 this.toggleClass('fullscreen');
-                this.$.content.resizeView();
+                this.fire('tracking-event', {
+                    name: 'app_size_toggled',
+                    data: {
+                        size: this.fullscreen ? 'normal' : 'fullscreen'
+                    }
+                });
                 this.fullscreen = !this.fullscreen;
+                this._setViewportHeight();
             },
             _resetAppState () {
                 this.fire('reset-app-state');

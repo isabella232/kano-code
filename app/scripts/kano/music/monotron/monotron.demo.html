@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="import" href="./monotron.html">
+        <link rel="import" href="../note.html">
+    </head>
+    <body>
+        <script>
+            let context = new AudioContext(),
+                monotron = new Kano.Music.Monotron(context);
+
+            monotron.connect(context.destination);
+
+            monotron.lfo.frequency.value = 30;
+            monotron.lfoGain.gain.value = 100;
+            monotron.vcf.frequency.value = 2500;
+            monotron.vcf.Q.value = 0;
+
+            monotron.noteOn((new Kano.Music.Note('C', 4)).frequency);
+        </script>
+    </body>
+</html>

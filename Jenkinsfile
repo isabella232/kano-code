@@ -41,9 +41,12 @@ pipeline {
         stage('test') {
             steps {
                 sh "gulp validate-challenges"
+                sh "mkdir -p test-results"
                 sh "xvfb-run --auto-servernum gulp wct"
+                junit allowEmptyResults: true, testResults: 'test-results/wct.xml'
+                cucumber 'test-results/cucumber.json'
                 // Remove the test folder
-                sh "rm -rf www"
+                sh "rm -rf www test-results"
             }
         }
 
@@ -63,8 +66,12 @@ pipeline {
                         bucket = 'apps-lightboard.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
-                    } else if (env.BRANCH_NAME == "lightboard-rc") {
+                    } else if (env.BRANCH_NAME == "lightboard") {
                         bucket = 'apps-lightboard-staging.kano.me'
+                        deploy('./www', bucket)
+                        archive(bucket)
+                    } else if (env.BRANCH_NAME == "lightboard-rc") {
+                        bucket = 'apps-lightboard-rc.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
                     } else if (env.NODE_ENV=="staging") {

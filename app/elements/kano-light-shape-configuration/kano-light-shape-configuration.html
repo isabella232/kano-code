@@ -35,7 +35,7 @@
     <template>
         <kano-part-editor-topbar icon="[[element.type]]" label="[[element.label]]" theme="[[theme]]"></kano-part-editor-topbar>
         <div class="config">
-            <kano-input type="text" label="Name" value="{{element.name}}" theme="[[theme]]"></kano-input>
+            <kano-input type="text" label="Name" value="{{name}}" theme="[[theme]]"></kano-input>
             <kano-ui-customizer id="properties"
                                 customizable="{{element.customizable.properties}}"
                                 user-values="{{element.userProperties}}"
@@ -94,7 +94,11 @@
                 computed: '_computeMaxY(element.userProperties.*)',
                 value: 8
             },
-            theme: String
+            theme: String,
+            name: {
+                type: String,
+                notify: true
+            }
         },
         observers: [
             'computeRoundPosition(element.position.*)',

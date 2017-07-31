@@ -52,6 +52,14 @@
                     type: String,
                     value: 'white',
                     observer: '_updateColor'
+                },
+                textAlign: {
+                    type: String,
+                    value: 'center'
+                },
+                textBaseline: {
+                    type: String,
+                    value: 'middle'
                 }
             },
             attached () {
@@ -84,9 +92,9 @@
                     value = '';
                 }
                 ctx.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'center';
-                ctx.fillText(value, this._canvasWidth / 2, this._canvasHeight / 2 + this.offsetX);
+                ctx.textAlign = this.textAlign;
+                ctx.textBaseline = this.textBaseline;
+                ctx.fillText(value, this._canvasWidth / 2 + this.offsetX, this._canvasHeight / 2 + this.offsetY);
             }
         });
     </script>

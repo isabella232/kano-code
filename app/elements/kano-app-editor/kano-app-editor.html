@@ -22,16 +22,13 @@
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
 <link rel="import" href="../kano-code-display/kano-code-display.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <!--
 `kano-app-editor`
-Example:
-    <kano-app-editor></kano-app-editor>
- The following custom properties and mixins are also available for styling:
- Custom property | Description | Default
- ----------------|-------------|----------
+
 @group Kano Elements
 @hero hero.svg
-@demo ./demo/index.html
+@demo demo/index.html
 -->
 <dom-module id="kano-app-editor">
     <style>
@@ -137,7 +134,6 @@ Example:
         #edit-part-dialog {
             @apply --layout-vertical;
             @apply --layout-flex-auto;
-            background-color: transparent;
             flex-shrink: 0;
             overflow: hidden;
             font-weight: bold;
@@ -153,6 +149,9 @@ Example:
         :host([small-screen]) #edit-background-dialog {
             width: 100%;
             left: -32px !important;
+        }
+        :host #background-editor {
+            background: #292f35;
         }
         :host #edit-part-dialog-content,
         :host #background-editor {
@@ -173,14 +172,15 @@ Example:
             border: 0px;
             cursor: pointer;
         }
-        paper-dialog#parts-modal {
-            padding: 0px;
+        paper-dialog {
+            background-color: transparent;
             border-radius: 6px;
-            background: #292f35;
+        }
+        paper-dialog > * {
+            border-radius: 6px;
         }
         kano-add-parts#add-parts {
             margin: 0px;
-            font-family: var(--font-body);
         }
     </style>
     <template>
@@ -212,7 +212,7 @@ Example:
                                     on-ui-ready="workspaceUiReady"
                                     on-change="_proxyChange"
                                     on-run-button-clicked="_runButtonClicked"
-                                    on-reset-app-state="_resetAppState"
+                                    on-reset-app-state="resetAppState"
                                     on-toggle-parts-menu="toggleParts"></kano-workspace>
                     <kano-code-display id="code-display" code="[[_setCodeDisplay(code.snapshot.javascript, workspaceTab)]]" lang="javascript"></kano-code-display>
                 </iron-pages>
@@ -228,7 +228,8 @@ Example:
                         mode="[[mode]]"
                         on-change="_proxyChange"
                         default-categories="{{defaultCategories}}"
-                        loading$="[[!modeReady]]"></kano-root-view>
+                        loading$="[[!modeReady]]"
+                        simple="{{isModeSimple(mode)}}"></kano-root-view>
                     <slot name="under-code"></slot>
                     <div id="code-overlay" class="code-overlay"></div>
                 </div>
@@ -266,7 +267,7 @@ Example:
                 <button class="kano-alert-primary" dialog-confirm>[[localize('GOT_IT', 'Got it')]]</button>
             </div>
         </kano-alert>
-        <paper-dialog id="edit-part-dialog"t
+        <paper-dialog id="edit-part-dialog"
                       entry-animation="from-big-animation"
                       on-iron-overlay-closed="_partEditorDialogClosed"
                       no-cancel-on-outside-click>
@@ -287,7 +288,7 @@ Example:
                 name="background"></kano-background-editor>
         </paper-dialog>
         <paper-dialog id="parts-modal" entry-animation="from-big-animation" on-iron-overlay-closed="_partsModalClosed" with-backdrop>
-            <kano-add-parts id="add-parts" class="no-padding" available-parts="[[parts]]" on-cancel="_closePartsModal" on-confirm="_addParts"></kano-add-parts>
+            <kano-add-parts id="add-parts" class="no-padding" available-parts="[[parts]]" used-parts="[[addedParts]]" on-cancel="_closePartsModal" on-confirm="_addParts"></kano-add-parts>
         </paper-dialog>
         <iron-signals on-iron-signal-export-app="_exportApp">
         <iron-signals on-iron-signal-import-app="_importApp">

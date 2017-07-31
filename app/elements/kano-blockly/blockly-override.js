@@ -8,8 +8,6 @@ Blockly.Blocks.texts.HUE = '#9C27B0';
 Blockly.Blocks.lists.HUE = '#ffff00';
 Blockly.Blocks.procedures.HUE = '#ffff00';
 
-Blockly.Scrollbar.scrollbarThickness = 5;
-
 if (location.search.match('lookup=true')) {
     Blockly.SEARCH_PLUS_ENABLED = true;
 }
@@ -54,25 +52,6 @@ if (window.CustomBlocklyMsg) {
 Blockly.isAnimationsDisabled = function () {
     return false;
 };
-
-function lightenColor (hex, lum) {
-
-	// validate hex string
-	hex = String(hex).replace(/[^0-9a-f]/gi, '');
-	if (hex.length < 6) {
-		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-	}
-	lum = lum || 0;
-
-	// convert to decimal and change luminosity
-	var rgb = "#", c, i;
-	for (i = 0; i < 3; i++) {
-		c = parseInt(hex.substr(i*2,2), 16);
-		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-		rgb += ("00"+c).substr(c.length);
-	}
-	return rgb;
-}
 
 function hslToRgb(h, s, l) {
     var r, g, b;
@@ -349,17 +328,15 @@ Blockly.setPhantomBlock = function (connection, targetBlock) {
         phantomSvgText = document.createElementNS(Blockly.SVG_NS, 'text'),
         xy = sourceBlock.getRelativeToSurfaceXY(),
         position = {},
-        breathingAnimation, dx, dy;
+        breathingAnimation;
 
     if (Blockly.dragMode_ !== 0) {
-        dx = connection.x_ - (targetConnection.x_ - targetBlock.dragStartXY_.x);
-        dy = connection.y_ - (targetConnection.y_ - targetBlock.dragStartXY_.y);
+        position.x = connection.x_ - xy.x - (targetConnection.x_ - targetBlock.initialXY_.x);
+        position.y = connection.y_ - xy.y - (targetConnection.y_ - targetBlock.initialXY_.y);
     } else {
-        dx = connection.x_ - (targetConnection.x_ - targetBlock.getBoundingRectangle().topLeft.x) + 8;
-        dy = connection.y_ - (targetConnection.y_ - targetBlock.getBoundingRectangle().topLeft.y);
+        position.x = xy.x - connection.x_ - (targetConnection.x_ - targetBlock.getBoundingRectangle().topLeft.x) + 8;
+        position.y = xy.y - connection.y_ - (targetConnection.y_ - targetBlock.getBoundingRectangle().topLeft.y);
     }
-    position.x = dx - xy.x;
-    position.y = dy - xy.y;
 
     phantomSvgPath.setAttribute('d', targetBlock.svgPath_.getAttribute('d'));
     phantomSvgPath.setAttribute('fill', targetBlock.getColour());
@@ -593,12 +570,12 @@ Blockly.Field.prototype.matches = function (qs) {
 Blockly.Field.prototype.fromQuery = function () {};
 
 Blockly.FieldDropdown.prototype.getAPIText = function () {
-    let options = this.getOptions_().map(options => options[0]);
+    let options = this.getOptions().map(options => options[0]);
     return `[${options.join('|')}]`;
 };
 
 Blockly.FieldDropdown.prototype.matches = function (qs) {
-    let options = this.getOptions_().map(options => options[0]);
+    let options = this.getOptions().map(options => options[0]);
     // As soon as we find an option containing a piece of the query string
     return options.some(option => {
         return qs.split(' ').some(piece => Blockly.stringMatch(option, piece));
@@ -606,7 +583,7 @@ Blockly.FieldDropdown.prototype.matches = function (qs) {
 };
 
 Blockly.FieldDropdown.prototype.fromQuery = function (qs) {
-    let options = this.getOptions_();
+    let options = this.getOptions();
     // As soon as we find an option containing a piece of the query string
     return options.some(option => {
         return qs.split(' ').forEach(piece => {
@@ -771,136 +748,6 @@ Blockly.Workspace.prototype.search = function (qs) {
         });
 };
 
-Blockly.FieldLookup = function (text, c) {
-    this._text = text;
-    this._c = c || '';
-    this.size_ = new goog.math.Size(0, Blockly.BlockSvg.MIN_BLOCK_Y);
-};
-goog.inherits(Blockly.FieldLookup, Blockly.Field);
-Blockly.FieldLookup.prototype.init = function () {
-    if (this._container) {
-        // Field has already been initialized once.
-        return;
-    }
-    // Build the DOM.
-    this._container = Blockly.utils.createSvgElement('g', {
-        class: 'blocklyLookupField ' + this._c
-    }, null);
-    this._textEl = Blockly.utils.createSvgElement('text', {
-        transform: `translate(0, 12)`
-    }, this._container);
-    this._textEl.appendChild(document.createTextNode(this._text));
-    this.sourceBlock_.getSvgRoot().appendChild(this._container);
-    Blockly.bindEvent_(this._container, 'mousedown', this, this._onMouseDown);
-};
-
-/**
- * Draws the border with the correct width.
- * Saves the computed width in a property.
- * @private
- */
-Blockly.FieldLookup.prototype.render_ = function() {
-  if (!this.visible_) {
-    this.size_.width = 0;
-    return;
-  }
-  // Replace the text.
-  goog.dom.removeChildren(/** @type {!Element} */ (this._textEl));
-  var textNode = document.createTextNode(this._text);
-  this._textEl.appendChild(textNode);
-
-  var width = Blockly.Field.getCachedWidth(this._textEl);
-  this.size_.width = width;
-};
-
-Blockly.FieldLookup.prototype._onMouseDown = function (e) {
-    if (Blockly.WidgetDiv.isVisible()) {
-        Blockly.WidgetDiv.hide();
-    } else if (!this.sourceBlock_.isInFlyout) {
-        this.showEditor_();
-        e.preventDefault();
-        e.stopPropagation();
-    }
-};
-Blockly.FieldLookup.prototype.getSvgRoot = function () {
-    return this._container;
-};
-Blockly.FieldLookup.prototype.showEditor_ = function () {
-    var block = this.sourceBlock_;
-    var xy = Blockly.getSvgXY_(block.svgGroup_, block.workspace);
-    var connection = block.outputConnection ? block.outputConnection : block.previousConnection;
-    var targetConnection = connection.targetConnection;
-    var workspace = this.sourceBlock_.workspace;
-
-    var omnibox = workspace.openOmnibox();
-    omnibox.style.top = `${xy.y}px`;
-    omnibox.style.left = `${xy.x}px`;
-
-    omnibox.filter = (block) => {
-        let blockConnection;
-        if (targetConnection.type === Blockly.NEXT_STATEMENT) {
-            blockConnection = block.previousConnection;
-        } else if (targetConnection.type === Blockly.INPUT_VALUE) {
-            blockConnection = block.outputConnection;
-        }
-        // The connection exists on the block found and it matches the type of the input
-        return blockConnection  && (!targetConnection.check_ || !blockConnection.check_
-                || targetConnection.check_.some(inputCheck => blockConnection.check_.indexOf(inputCheck) !== -1));
-    };
-    var onConfirm = (e) => {
-        let type;
-        omnibox.removeEventListener('confirm', onConfirm);
-        omnibox.removeEventListener('close', onConfirm);
-        if (e.detail && e.detail.selected) {
-            type = e.detail.selected.type;
-            if (type) {
-                let block = workspace.newBlock(type),
-                    searchBlock;
-                block.fromQuery(omnibox.query, workspace);
-                block.initSvg();
-                block.render();
-                if (targetConnection.type === Blockly.NEXT_STATEMENT) {
-                    targetConnection.connect(block.previousConnection);
-                } else if (targetConnection.type === Blockly.INPUT_VALUE) {
-                    targetConnection.connect(block.outputConnection);
-                }
-                setTimeout(() => {
-                    // Focus on the first available search block of the inserted block
-                    searchBlock = block.getFirstAvailableSearch();
-                    if (searchBlock) {
-                        searchBlock.getField('SEARCH').focus();
-                    }
-                });
-            }
-        }
-        workspace.closeOmnibox(true);
-    };
-    omnibox.addEventListener('confirm', onConfirm);
-    omnibox.addEventListener('close', onConfirm);
-    if ('animate' in HTMLElement.prototype) {
-        let rect = omnibox.getBoundingClientRect(),
-            hw = block.getHeightWidth();
-        omnibox.style.transformOrigin = '0 0';
-        omnibox.animate({
-            transform: [`scale(${hw.width / rect.width}, ${hw.height / rect.height})`, 'scale(1, 1)']
-        }, {
-            duration: 170,
-            easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-        });
-    }
-};
-
-Blockly.FieldLookup.prototype.focus = function () {
-    let onKeyDown = (e) => {
-        window.removeEventListener('keydown', onKeyDown);
-        if (e.keyCode === 13) {
-            this.showEditor_();
-        }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    this._container.classList.add('selected');
-};
-
 Blockly.Blocks.search_statement = {
     init: function () {
         let searchField = new Blockly.FieldLookup('Type: __________', 'blocklySearchStatement');
@@ -937,105 +784,3 @@ Blockly.JavaScript.search_output = function () {
 Blockly.JavaScript.search_statement = function () {
     return '';
 };
-
-
-/**
- * Set the workspace to have focus in the browser.
- * @private
- */
-Blockly.WorkspaceSvg.prototype.setBrowserFocus = function() {
-  // Blur whatever was focused since explcitly grabbing focus below does not
-  // work in Edge.
-//   if (document.activeElement) {
-//     document.activeElement.blur();
-//   }
-  try {
-    // Focus the workspace SVG - this is for Chrome and Firefox.
-    this.getParentSvg().focus();
-  }  catch (e) {
-    // IE and Edge do not support focus on SVG elements. When that fails
-    // above, get the injectionDiv (the workspace's parent) and focus that
-    // instead.  This doesn't work in Chrome.
-    try {
-      // In IE11, use setActive (which is IE only) so the page doesn't scroll
-      // to the workspace gaining focus.
-      this.getParentSvg().parentNode.setActive();
-    } catch (e) {
-      // setActive support was discontinued in Edge so when that fails, call
-      // focus instead.
-      this.getParentSvg().parentNode.focus();
-    }
-  }
-};
-
-/**
- * Class for an editable dropdown field.
- * @param {(!Array.<!Array>|!Function)} menuGenerator An array of options
- *     for a dropdown list, or a function which generates these options.
- * @param {Function=} opt_validator A function that is executed when a new
- *     option is selected, with the newly selected value as its sole argument.
- *     If it returns a value, that value (which must be one of the options) will
- *     become selected in place of the newly selected option, unless the return
- *     value is null, in which case the change is aborted.
- * @extends {Blockly.Field}
- * @constructor
- */
-Blockly.FieldCustomDropdown = function(menuGenerator, opt_validator) {
-  let options = menuGenerator.map(item => {
-      return [item.label, item.value];
-  });
-  this.textLabels = menuGenerator.reduce((acc, item) => {
-    acc[Blockly.utils.replaceMessageReferences(item.label)] = Blockly.utils.replaceMessageReferences(item.textLabel);
-    return acc;
-  }, {});
-
-  // Call parent's constructor.
-  Blockly.FieldCustomDropdown.superClass_.constructor.call(this, options, opt_validator);
-};
-goog.inherits(Blockly.FieldCustomDropdown, Blockly.FieldDropdown);
-
-/**
- * Set the text in this field.  Trigger a rerender of the source block.
- * @param {*} newText New text.
- */
-Blockly.FieldCustomDropdown.prototype.setText = function(newText) {
-    let text = this.textLabels[newText];
-    if (!text) {
-        return;
-    }
-    Blockly.FieldCustomDropdown.superClass_.setText.call(this, text);
-};
-
-/**
- * Get the text from this field.
- * @return {string} Current text.
- */
-Blockly.FieldCustomDropdown.prototype.getText = function() {
-    let labels = Object.keys(this.textLabels);
-    for (let i = 0; i < labels.length; i++) {
-        if (this.text_ === this.textLabels[labels[i]]) {
-            return labels[i];
-        }
-    }
-};
-
-/**
- * Install this dropdown on a block.
- */
-Blockly.FieldCustomDropdown.prototype.init = function() {
-  if (this.fieldGroup_) {
-    // Dropdown has already been initialized once.
-    return;
-  }
-  // Add dropdown arrow: "option ▾" (LTR) or "▾ אופציה" (RTL)
-  this.arrow_ = Blockly.utils.createSvgElement('tspan', {}, null);
-  this.arrow_.appendChild(document.createTextNode(this.sourceBlock_.RTL ?
-      Blockly.FieldDropdown.ARROW_CHAR + ' ' :
-      ' ' + Blockly.FieldDropdown.ARROW_CHAR));
-
-  Blockly.FieldDropdown.superClass_.init.call(this);
-  // Force a reset of the text to add the arrow.
-  var text = this.getText();
-  this.text_ = null;
-  this.setText(text);
-}

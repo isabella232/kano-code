@@ -3,6 +3,11 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
+<!--
+@group Kano Elements
+@hero hero.svg
+@demo demo/kano-editor-topbar.html
+-->
 <dom-module id="kano-editor-topbar">
     <template>
         <style>
@@ -62,7 +67,6 @@
             ul {
                 margin: 0px;
                 padding-left: 0px;
-                padding-bottom: 16px;
                 color: black;
                 min-width: 200px;
             }
@@ -91,6 +95,9 @@
             li.user .info .level {
                 font-size: 12px;
                 opacity: 0.6;
+            }
+            li.logout {
+                padding-bottom: 16px;
             }
             .inline {
                 @apply --layout-horizontal;
@@ -130,9 +137,9 @@
         <div class="user-profile" id="profile-container">
             <button id="user-button" type="button" on-tap="_userOptionsTapped">
                 <iron-image src="[[avatar]]" sizing="contain" hidden$="[[!user]]"></iron-image>
-                <div class="login" hidden$="[[user]]">[[localize('LOGIN', 'login')]]</div>
+                <div class="login" hidden$="[[loggedIn]]">[[localize('LOGIN', 'login')]]</div>
             </button>
-            <kano-tooltip id="tooltip" target="[[tooltipTarget]]" position="bottom" auto-close>
+            <kano-tooltip id="tooltip" position="bottom" auto-close>
                 <ul>
                     <li class="user">
                         <iron-image src="[[avatar]]" sizing="contain" hidden$="[[!user]]"></iron-image>
@@ -141,7 +148,7 @@
                             <div class="level">[[localize('LEVEL', 'Level')]] [[profile.levels.level]]</div>
                         </div>
                     </li>
-                    <li>
+                    <li class="logout" hidden$="[[disableLogout]]">
                         <a on-tap="_logoutTapped" class="inline">
                             <iron-icon src="/assets/icons/logout.svg"></iron-icon>
                             <div class="label">[[localize('LOGOUT', 'Log Out')]]</div>
@@ -161,25 +168,38 @@
                     type: Object,
                     value: null
                 },
+                loggedIn: {
+                    type: Boolean,
+                    computed: '_computeLoggedIn(user)'
+                },
                 avatar: {
                     type: String,
                     computed: '_computeAvatar(user)'
                 }
             },
-            _computeAvatar(user) {
+            ready () {
+                this.disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
+            },
+            _computeLoggedIn (user) {
+                return !!user;
+            },
+            _computeAvatar (user) {
                 if (user && user.avatar && user.avatar.urls) {
                     return user.avatar.urls.circle || '/assets/avatar/judoka-face.svg';
                 }
                 return '/assets/avatar/judoka-face.svg';
             },
             _exitButtonTapped () {
+                this.fire('tracking-event', {
+                    name: 'ide_exited'
+                });
                 this.fire('exit');
             },
             _closeTooltip () {
                 this.$.tooltip.close();
             },
             _openTooltip () {
-                this.tooltipTarget = this.$['user-button'];
+                this.$.tooltip.target = this.$['user-button'].getBoundingClientRect();
                 this.$.tooltip.open();
             },
             _userOptionsTapped () {

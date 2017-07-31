@@ -39,9 +39,9 @@
                 on-change="saveCode"
                 default-blocks="[[mode.defaultBlocks]]"
                 on-blockly-ready="_onBlocklyReady"
-                no-trashcan="[[simpleMode]]"
-                no-zoom-control="[[simpleMode]]"
-                no-toolbox="[[simpleMode]]"></kano-blockly>
+                no-trashcan="[[simple]]"
+                no-zoom-control="[[simple]]"
+                no-toolbox="[[simple]]"></kano-blockly>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -49,7 +49,8 @@
 
     Polymer({
         is: 'kano-root-view',
-        behaviors: [Kano.Behaviors.AppEditorBehavior, Kano.Behaviors.AppElementRegistryBehavior],
+        behaviors: [Kano.Behaviors.AppEditorBehavior,
+                    Kano.Behaviors.AppElementRegistryBehavior],
         properties: {
             parts: {
                 type: Array,
@@ -69,9 +70,9 @@
             mode: {
                 type: Object
             },
-            simpleMode: {
+            simple: {
                 type: Boolean,
-                computed: 'isModeSimple(mode)'
+                value: false
             }
         },
         observers: [
@@ -81,11 +82,8 @@
             'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)'
         ],
-        isModeSimple (mode) {
-            return mode.id === "simple";
-        },
         _onBlocklyReady () {
-            if (!this.simpleMode) {
+            if (!this.simple) {
                 this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
                 this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
             }
@@ -171,11 +169,15 @@
             this.parts
                 .forEach((part) => {
                     part.blocks.forEach((definition) => {
-                        this._registerBlock(part, definition);
+                        if (typeof definition === 'object') {
+                            this._registerBlock(part, definition);
+                        }
                     });
                     // Also register the legacy blocks to support shares made with previous block API
                     part.legacyBlocks.forEach((definition) => {
-                        this._registerBlock(part, definition);
+                        if (typeof definition === 'object') {
+                            this._registerBlock(part, definition);
+                        }
                     });
                     part.events.forEach((ev) => {
                         events.push(ev);
@@ -244,6 +246,12 @@
             categories = parts
                 .map((ui) => {
                     blocks = ui.blocks.map((definition) => {
+                        if (typeof definition === 'string') {
+                            return {
+                                id: definition,
+                                colour: ui.colour
+                            }
+                        }
                         let block = definition.block(ui);
                         block.colour = ui.colour;
                         block.id = `${ui.id}#${block.id}`;
@@ -303,7 +311,8 @@
             }
         },
         _partsChanged (e) {
-            let idChanged = e.path.indexOf('id') === e.path.length - 2;
+            // If the name changes, the id will do as well
+            let idChanged = e.path.indexOf('name') === e.path.length - 4;
             if (e.path === 'parts' || e.path === 'parts.splices') {
                 // Update the id registry when the parts array is changed or if any item is added/removed
                 this._updateIdRegistry();
@@ -311,6 +320,10 @@
             // Only update if the splices changes (part added or removed) or if the name of the part changes
             if (e.path === 'parts' || e.path === 'parts.splices' || idChanged) {
                 this.computeToolboxDebounced();
+                if (Blockly.Blocks && Blockly.Blocks.collision_event) {
+                    // Update the collision block with the new parts
+                    Blockly.Blocks.collision_event.setParts(this.parts);
+                }
                 // If the id changed, we nee to upgrade the blocks already added
                 if (idChanged) {
                     this.debounce('reloadAfterIdChanged', () => {
@@ -319,7 +332,8 @@
                             blocks = this.$['code-editor'].getBlocks(),
                             replaceRegexp = new RegExp(`type="${oldId}#`, 'g');
 
-                        blocks = blocks.replace(replaceRegexp, `type="${e.value}#`);
+                        blocks = blocks.replace(replaceRegexp, `type="${this.parts[key].id}#`);
+                        this.$['code-editor'].load({ blocks });
                         // Reflect the id change by updating the id registry
                         this._updateIdRegistry();
                     }, 200);

@@ -232,7 +232,7 @@
         <kano-part-editor-topbar icon="[[element.type]]" label="[[element.label]]" theme="[[theme]]"></kano-part-editor-topbar>
         <div class="content">
             <div class="config">
-                <kano-input-text label="Name" value="{{selected.name}}" theme="[[theme]]"></kano-input-text>
+                <kano-input-text label="Name" value="{{name}}" theme="[[theme]]"></kano-input-text>
                 <template is="dom-repeat" items="[[selected.parameters]]" as="param">
                             <kano-input id="[[param.key]]"
                                         type="[[param.type]]"
@@ -290,6 +290,10 @@
             theme: {
                 type: String,
                 value: "#9b61bd"
+            },
+            name: {
+                type: String,
+                notify: true
             }
         },
         observers: [

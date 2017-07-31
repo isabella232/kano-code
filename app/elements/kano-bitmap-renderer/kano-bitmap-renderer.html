@@ -31,7 +31,7 @@
                 fps: Number
             },
             observers: [
-                '_onBitmapChanged(bitmap)'
+                '_onBitmapChanged(bitmap.*)'
             ],
             attached () {
                 this.ctx = this.$.canvas.getContext('2d');
@@ -40,7 +40,7 @@
             _canvasSize (size, pixelSize, spacing) {
                 return size * pixelSize + (size * (spacing * 2));
             },
-            _onBitmapChanged (bitmap) {
+            _onBitmapChanged () {
                 if (!this.loop) {
                     this._renderCanvas();
                 }
@@ -57,6 +57,9 @@
                     return;
                 }
                 let x, y;
+                this.ctx.save();
+                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+                this.ctx.imageSmoothingEnabled = false;
                 this.bitmap.forEach((v, i) => {
                     x = (i % this.width);
                     y = Math.floor(i / this.width);
@@ -68,6 +71,7 @@
                 if (this.loop) {
                     this.timeoutId = setTimeout(this._renderCanvas.bind(this), (1000 / this.fps) || 0);
                 }
+                this.ctx.restore();
             }
         });
     </script>

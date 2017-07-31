@@ -1,4 +1,5 @@
 <script src="../../../bower_components/socket.io-client/dist/socket.io.js"></script>
+<script src="../../../bower_components/buffer/buffer.min.js"></script>
 <script>
     (function (Kano) {
 
@@ -95,6 +96,107 @@
             }
         }
 
+        class NativeWebSocket {
+            constructor (url) {
+                url = url.replace('http', 'ws');
+
+                this._socket = new WebSocket(url);
+                this._listeners = {};
+                this.connected = false;
+
+                this._socket.onopen = () => {
+                    this.connected = true;
+                    this._startHeartbeat();
+                    this._listeners['connect'].forEach(callback => {
+                        callback();
+                    });
+                };
+
+                this._socket.onclose = () => {
+                    this.connected = false;
+                    this._listeners['disconnect'].forEach(callback => {
+                        callback();
+                    });
+                };
+
+                this._socket.onmessage = (message) => {
+                    let messageData = message.data;
+                    if (typeof messageData === 'string') {
+                        messageData = JSON.parse(message.data.toString().replace(/\0/g, ""));
+                    }
+                    switch(messageData.type) {
+                        case 'rpc-response':
+                            if (this._listeners[message.id]) {
+                                this._listeners[message.id].forEach(cb => {
+                                    cb(message.value);
+                                });
+                            }
+                            break;
+                        case 'event':
+                            if (this._listeners[messageData.name]) {
+                                this._listeners[messageData.name].forEach(cb => {
+                                    cb(messageData.detail);
+                                });
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                };
+            }
+
+            on (event, callback) {
+                if (this._listeners[event]) {
+                    this._listeners[event].push(callback);
+                } else {
+                    this._listeners[event] = [callback];
+                }
+            }
+
+            emit (name, params) {
+                if (this.connected) {
+                    // TODO: Refactor!
+                    // RPC over websockets is not needed, we don't need to check if the frame appeared or not
+                    // because we don't have the power to restart any of the possible partrs which could fix the issue
+                    this._socket.send(JSON.stringify({
+                        "id": Math.floor(Math.random() * 1000).toString(),
+                        "method" : name,
+                        "params": [params],
+                        "type": "rpc-request"
+                    }));
+                }
+            }
+
+            removeListener (event, callback) {
+                let listenerIndex = (this._listeners[event]) ? this._listeners[event].indexOf(callback) : 0;
+                if (listenerIndex) {
+                    this._listeners[event].splice(listenerIndex, 1);
+                }
+            }
+
+            removeAllListeners () {
+                this._listeners = {};
+            }
+
+            _stopHeartbeat () {
+                clearInterval(this._rpkHeartbeat);
+            }
+
+            _startHeartbeat () {
+                this._stopHeartbeat();
+                this._rpkHeartbeat = setInterval(() => {
+                    // TODO find a way to have this specific to the rpk
+                    // and not global to every native ws connection
+                    this.emit('lightboard:init');
+                }, 9000);
+            }
+
+            close () {
+                this._socket.close();
+                this._stopHeartbeat();
+            }
+        }
+
         class KitDevice extends Device {
             constructor (options, hwapi) {
                 super(options);
@@ -123,7 +225,7 @@
                         this.serialSocket = HardwareAPI.connect(this.hwapi.url);
                     }
                     if (this.url) {
-                        this.networkSocket = HardwareAPI.connect(this.url);
+                        this.networkSocket = HardwareAPI.connect(this.url, (this.product == 'RPK'));
                     }
                     this.socket = this.serial ? this.serialSocket : this.networkSocket;
                     this.powerUpSocket = this.networkSocket;
@@ -136,13 +238,21 @@
 
                         this.networkSocket.on('device-removed', (info) => {
                             let device = this.hwapi.getDeviceById(this.id + '-' + info.id);
-                            this.removeDevice(device);
+                            if (device) {
+                                this.removeDevice(device);
+                            }
                         });
                     });
 
                     this.networkSocket.on('volume', (volume) => {
                         this.volume = volume;
                     });
+
+                    // Volume events from the RPK
+                    this.networkSocket.on('mic-clap', mic => {
+                        this.volume = mic.value;
+                    });
+
                     this.networkSocket.on('disconnect', () => {});
 
                     // Tells the Kano Code App to enable OTG control on the Kit
@@ -237,6 +347,15 @@
                     socket.removeAllListeners(name);
                 }
             }
+
+            tearDown () {
+                if (this.networkSocket) {
+                    this.networkSocket.close();
+                }
+                if (this.serialSocket) {
+                    this.serialSocket.close();
+                }
+            }
         }
 
         class Lightboard extends KitDevice {
@@ -246,10 +365,52 @@
                 this.emit('lightboard:init', {
                     name: 'Make Apps'
                 });
+
+                this.NUMBER_OF_PIXELS = 128;
+                this.NUMBER_OF_CHANNELS = 2;
+            }
+
+            // TODO: this method should be added in some global object so that we can reuse it
+            isValidColourFormat (colour) {
+                return (typeof colour === "string" && colour.length === 7 && /#[0-9a-f]{6}/i.test(colour));
+            }
+
+            // TODO: this method should be added in some global object so that we can reuse it
+            colorHexToRGB565 (colour) {
+                let rgb888,
+                    rgb565,
+                    retBuf = new window.buffer.Buffer(2);
+
+                if (!this.isValidColourFormat(colour)) {
+                    retBuf.writeUInt16BE(0x0000, 0);
+                    return retBuf;
+                }
+                rgb888 = parseInt(colour.substring(1, 7), 16);
+                //                blue                 green                  red
+                rgb565 = (rgb888 & 0xF8) >> 3 | (rgb888 & 0xFC00) >> 5 | (rgb888 & 0xF80000) >> 8;
+
+                retBuf.writeUInt16BE(rgb565, 0);
+                return retBuf;
+            }
+
+            encodeBitmap (bitmap) {
+                let _colourBin,
+                    _internalRepresentation = new window.buffer.Buffer(this.NUMBER_OF_PIXELS * this.NUMBER_OF_CHANNELS);
+
+                for (var pxlIndex = 0; pxlIndex < bitmap.length; pxlIndex++) {
+                    _colourBin = this.colorHexToRGB565(bitmap[pxlIndex]);
+                    _colourBin.copy(_internalRepresentation, pxlIndex * this.NUMBER_OF_CHANNELS);
+                }
+
+                return _internalRepresentation.toString('base64');
             }
 
             drawBitmap (bitmap) {
-                this.emit('lightboard:on', { pixels: bitmap });
+                if (this.product == 'RPK') {
+                    this.emit('lightboard:on', { "map": this.encodeBitmap(bitmap) });
+                } else {
+                    this.emit('lightboard:on', { pixels: bitmap });
+                }
             }
         }
 
@@ -316,7 +477,8 @@
             lightboard: Lightboard,
             camera: Camera,
             'gyro-accelerometer': TiltSensor,
-            'motion-sensor': MotionSensor
+            'motion-sensor': MotionSensor,
+            'RPK': Lightboard
         };
 
         /**
@@ -341,9 +503,9 @@
             }
 
             // Returns an already opened connection if exists, otherwise creates a new one and returns it
-            static connect (url) {
-                if (!HardwareAPI.sockets[url]) {
-                    HardwareAPI.sockets[url] = io.connect(url);
+            static connect (url, nativeWS) {
+                if (!HardwareAPI.sockets[url] || !HardwareAPI.sockets[url].connected) {
+                    HardwareAPI.sockets[url] = nativeWS ? new NativeWebSocket(url) : io.connect(url);
                 }
                 return HardwareAPI.sockets[url];
             }
@@ -386,7 +548,6 @@
                     // Initialise the devices
                     return HardwareAPI.getTopDevices(this.socket);
                 }).then(devices => {
-
                     // Instanciate all the devices found
                     this.devices = devices.map(d => {
                         return HardwareAPI.instanciateDevice(d, this);
@@ -418,9 +579,11 @@
                     // Unbinds and delete a device when disconnected
                     this.socket.on('device-removed', (info) => {
                         let device = this.getDeviceById(info.id);
-                        this.removeDevice(device);
+                        if (device) {
+                            this.removeDevice(device);
+                        }
                     });
-
+                    this.emit('ready');
                 });
             }
 
@@ -644,11 +807,15 @@
             }
 
             /**
-             * Returns true if a device is a KitDevice and the slave devices are not setup yet
+             * A KitDevice will have a devices property with all its
+             * slave devices when it has finished setting up.
+             * Return true if that array is not present yet.
              */
             anyKitDeviceNotReady (devices) {
                 for (let i = 0; i < devices.length; i++) {
-                    if (devices[i] instanceof KitDevice && !devices[i].devices) {
+                    if (devices[i] instanceof KitDevice
+                            && devices[i].socket && devices[i].socket.connected
+                                    && !devices[i].devices) {
                         return true;
                     }
                 }
@@ -679,6 +846,13 @@
                 } else {
                     return c.HARDWARE_API_URL;
                 }
+            }
+
+            tearDown () {
+                this.getAllDevices().forEach((device) => {
+                    device.tearDown();
+                });
+                this.socket.close();
             }
         }
 
