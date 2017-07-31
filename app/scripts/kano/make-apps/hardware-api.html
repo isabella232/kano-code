@@ -106,6 +106,7 @@
 
                 this._socket.onopen = () => {
                     this.connected = true;
+                    this._startHeartbeat();
                     this._listeners['connect'].forEach(callback => {
                         callback();
                     });
@@ -119,15 +120,27 @@
                 };
 
                 this._socket.onmessage = (message) => {
-                    switch(message.data.type) {
+                    let messageData = message.data;
+                    if (typeof messageData === 'string') {
+                        messageData = JSON.parse(message.data.toString().replace(/\0/g, ""));
+                    }
+                    switch(messageData.type) {
                         case 'rpc-response':
-                            this._listeners[message.id].forEach(cb => {
-                                cb(message.value);
-                            });
+                            if (this._listeners[message.id]) {
+                                this._listeners[message.id].forEach(cb => {
+                                    cb(message.value);
+                                });
+                            }
+                            break;
                         case 'event':
-                            this._listeners[message.name].forEach(cb => {
-                                cb(message.detail);
-                            });
+                            if (this._listeners[messageData.name]) {
+                                this._listeners[messageData.name].forEach(cb => {
+                                    cb(messageData.detail);
+                                });
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 };
             }
@@ -165,8 +178,22 @@
                 this._listeners = {};
             }
 
+            _stopHeartbeat () {
+                clearInterval(this._rpkHeartbeat);
+            }
+
+            _startHeartbeat () {
+                this._stopHeartbeat();
+                this._rpkHeartbeat = setInterval(() => {
+                    // TODO find a way to have this specific to the rpk
+                    // and not global to every native ws connection
+                    this.emit('lightboard:init');
+                }, 9000);
+            }
+
             close () {
                 this._socket.close();
+                this._stopHeartbeat();
             }
         }
 
@@ -220,6 +247,12 @@
                     this.networkSocket.on('volume', (volume) => {
                         this.volume = volume;
                     });
+
+                    // Volume events from the RPK
+                    this.networkSocket.on('mic-clap', mic => {
+                        this.volume = mic.value;
+                    });
+
                     this.networkSocket.on('disconnect', () => {});
 
                     // Tells the Kano Code App to enable OTG control on the Kit

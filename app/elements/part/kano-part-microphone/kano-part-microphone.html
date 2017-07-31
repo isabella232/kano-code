@@ -19,6 +19,7 @@
             this.reset();
         },
         attached () {
+            this.remote = false;
             this.lightboard = this.appModules.getModule('lightboard');
             this._pollRemoteMic = this._pollRemoteMic.bind(this);
             Kano.MicrophoneProxy.start().catch(error => {
@@ -47,8 +48,8 @@
         _pollRemoteMic () {
             let lightboards = this.lightboard.getAllLightboards(),
                 remote = lightboards.length && lightboards.some(lightboard => {
-                return lightboard.networkSocket && lightboard.networkSocket.connected;
-            });
+                    return lightboard.networkSocket && lightboard.networkSocket.connected && lightboard.product !== 'RPK';
+                });
             if (!this.remote && remote) {
                 Kano.MicrophoneProxy.setVolumeMethod(() => {
                     return this.lightboard.getVolume();
