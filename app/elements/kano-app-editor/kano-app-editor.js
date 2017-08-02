@@ -93,6 +93,7 @@ Polymer({
     observers: [
         'selectedPartChanged(selected.*)',
         'backgroundChanged(background.*)',
+        'resetAppState(addedParts.splices)',
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
         '_codeChanged(code.*)',
@@ -108,7 +109,6 @@ Polymer({
         'edit-background': '_openBackgroundDialog',
         'iron-resize': '_refitPartModal',
         'feature-not-available-offline': '_openOfflineDialog',
-        //As opposed to 'iron-overlay-opened', 'opened-changed' will notify when an animation starts
         'opened-changed': '_manageModals'
     },
      //Make sure that no conflicting modals are opened at the same time
