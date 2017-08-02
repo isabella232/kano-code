@@ -36,21 +36,23 @@ function buildDriver(capability) {
         .build();
 }
 
-if (process.env.CAPABILITY) {
-    try {
-        capability = JSON.parse(process.env.CAPABILITY);
-    } catch (e) {
-        capability = webdriver.Capabilities[process.env.CAPABILITY]();
+function init() {
+    driver = buildDriver(capability);
+    if (process.env.CAPABILITY) {
+        try {
+            capability = JSON.parse(process.env.CAPABILITY);
+        } catch (e) {
+            capability = webdriver.Capabilities[process.env.CAPABILITY]();
+        }
+    } else {
+        capability = webdriver.Capabilities.chrome();
     }
-} else {
-    capability = webdriver.Capabilities.chrome();
-}
 
-driver = buildDriver(capability);
-if (capability.browserName !== 'safari') {
-    driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
-    driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
-    driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
+    if (capability.browserName !== 'safari') {
+        driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
+        driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
+        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
+    }
 }
 
 function getDriver() {
@@ -275,3 +277,4 @@ module.exports.getDriver = getDriver;
 module.exports.getPort = getPort;
 module.exports.loginUser = loginUser;
 module.exports.logoutUser = logoutUser;
+module.exports.init = init;

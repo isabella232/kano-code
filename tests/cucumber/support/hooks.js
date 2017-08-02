@@ -2,17 +2,40 @@
 
 let world = require('./world'),
     server = require('../../server'),
+    libCoverage = require('istanbul-lib-coverage'),
+    reports = require('istanbul-reports'),
+    libReport = require('istanbul-lib-report'),
+    prepareCoverage = require('../../coverage'),
+    coverageEnv = !!process.env.COVERAGE,
     hooks;
 
+const SRC = './app';
+
+function generateCoverageReport() {
+    return world.getDriver().executeScript('return window.__coverage__')
+        .then(coverage => {
+            let map = libCoverage.createCoverageMap(coverage);
+            let context = libReport.createContext();
+
+            let tree = libReport.summarizers.pkg(map);
+            tree.visit(reports.create('lcov'), context);
+        });
+}
+
 hooks = function () {
+    // Instumentalise code if in coverage mode
+    let prepare = coverageEnv ? prepareCoverage(SRC) : Promise.resolve(SRC);
 
     // Start a server to deliver make-apps files
     this.BeforeFeatures((e, callback) => {
-        if (!process.env.EXTERNAL_SERVER) {
-            server.listen(world.getPort(), callback);
-        } else {
-            callback();
-        }
+        prepare.then(loc => {
+            world.init();
+            if (!process.env.EXTERNAL_SERVER) {
+                server(loc).listen(world.getPort(), callback);
+            } else {
+                callback();
+            }
+        });
     });
 
     this.Before({ order: 1 }, () => {
@@ -49,9 +72,11 @@ hooks = function () {
 
     // Close the browser
     this.AfterFeatures((e, callback) => {
-        world.getDriver().quit().then(() => {
-            callback();
-        });
+        let finalise = coverageEnv ? generateCoverageReport() : Promise.resolve();
+        return finalise
+                .then(() => world.getDriver().quit())
+                .then(() => callback())
+                .catch(callback);
     });
 };
 

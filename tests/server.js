@@ -1,11 +1,10 @@
 'use strict';
 let connect = require('connect'),
     serveStatic = require('serve-static'),
-    history = require('connect-history-api-fallback'),
-    server;
+    history = require('connect-history-api-fallback');
 
-server = connect()
+module.exports = rootDir => {
+    return connect()
         .use(history())
-        .use(serveStatic(__dirname + '/../app'));
-
-module.exports = server;
+        .use(serveStatic(rootDir));
+};
