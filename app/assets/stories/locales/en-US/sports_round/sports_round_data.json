@@ -1,364 +1,308 @@
 {
     "steps": [
-       {
-			"tooltips": [
-				{
-					"location": "add-part-button",
-					"position": "top",
-					"text": "This app needs two parts:<br />scrolling text and sports news data"
-				}
-			],
-			"validation": {
-				"open-parts": true
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "parts-panel-part-sports",
-					"position": "right",
-					"text": "Drag the sports data<br />part to your app"
-				}
-			],
-			"highlight": "parts-panel-part-sports",
-			"arrow": {
-				"source": "parts-panel-part-sports",
-				"target": "workspace-panel",
-				"size": 120
-			},
-			"validation": {
-				"add-part": {
-					"type": "sports",
-					"id": "part_0"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "parts-panel-part-scrolling-text",
-					"position": "right",
-					"text": "Add a scroller too"
-				}
-			],
-			"highlight": "parts-panel-part-scrolling-text",
-			"arrow": {
-				"source": "parts-panel-part-scrolling-text",
-				"target": "workspace-panel",
-				"size": 120
-			},
-			"validation": {
-				"add-part": {
-					"type": "scrolling-text",
-					"id": "part_1"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "add-part-button",
-					"position": "top",
-					"text": "Close the parts drawer"
-				}
-			],
-			"validation": {
-				"close-parts": true
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"rawId": "default_part_event_id"
-						}
-					},
-					"position": "top",
-					"text": "This is your event block.<br />Change <kano-value-preview><span>‘app starts’</span></kano-value-preview> to <kano-value-preview><span>‘Sports updated’</span></kano-value-preview>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"value": {
-						"target": {
-							"rawId": "default_part_event_id"
-						},
-						"value": {
-							"event_from": "part_0",
-							"event": "update"
-						}
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_0"
-						}
-					},
-					"position": "right",
-					"text": "Open the Sports tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_0"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_0",
-							"type": "for_each"
-						}
-					},
-					"position": "right",
-					"text": "Grab a<br /><kano-blockly-block type=\"part_0#for_each\"></kano-blockly-block> block"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_0",
-						"type": "for_each"
-					}
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_0",
-						"type": "for_each",
-						"id": "block_0"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"rawId": "default_part_event_id"
-						}
-					},
-					"position": "right",
-					"text": "Connect it to your event block"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"rawId": "default_part_event_id",
-							"inputName": "DO"
-						},
-						"target": "block_0"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": {
-						"rawId": "default_part_event_id"
-					}
-				},
-				"target": "DO"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_1"
-						}
-					},
-					"position": "right",
-					"text": "Open the Scroller tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_1",
-							"type": "scroll"
-						}
-					},
-					"position": "right",
-					"text": "Drag the <kano-blockly-block type=\"part_1#scroll\"></kano-blockly-block> block onto your code space"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_1",
-						"type": "scroll"
-					}
-				},
-				"angle": 90,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_1",
-						"type": "scroll",
-						"id": "block_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_0"
-						}
-					},
-					"position": "right",
-					"text": "Connect the blocks"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_0",
-							"inputName": "DO"
-						},
-						"target": "block_1"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_0"
-				},
-				"target": "DO"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_0"
-						}
-					},
-					"position": "right",
-					"text": "Open the Sports tray again"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_0"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_0",
-							"type": "get_value_at"
-						}
-					},
-					"position": "right",
-					"text": "Drag out the <kano-blockly-block type=\"part_0#get_value_at\"></kano-blockly-block> block"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_0",
-						"type": "get_value_at"
-					}
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_0",
-						"type": "get_value_at",
-						"id": "block_2"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_1"
-						}
-					},
-					"position": "right",
-					"text": "Connect the blocks"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_1",
-							"inputName": "TEXT"
-						},
-						"target": "block_2"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_1"
-				},
-				"target": "TEXT"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "workspace-panel",
-					"position": "left",
-					"text": "<strong>You did it!</strong><br />Your text scroller shows the latest sports news.<br /> Click the 'edit layout' button to change the layout.",
-					"next_button": true
-				}
-			]
-		}
-	],
-	"parts": [
-		"sports",
-		"scrolling-text"
-	],
-	"modules": [],
-	"variables": [],
-	"mode": "normal"
+        {
+            "validation": {
+                "open-parts": true
+            },
+            "beacon": {
+                "target": "add-part-button"
+            },
+            "banner": {
+                "text": "This app needs two parts:<br />scrolling text and sports news data"
+            }
+        },
+        {
+            "validation": {
+                "add-part": {
+                    "type": "sports",
+                    "id": "part_0"
+                }
+            },
+            "beacon": {
+                "target": "parts-panel-sports"
+            },
+            "tooltips": [{
+                "text": "Add the sports data",
+                "position": "top",
+                "location": "parts-panel"
+            }]
+        },
+        {
+            "validation": {
+                "open-parts": true
+            },
+            "beacon": {
+                "target": "add-part-button"
+            },
+            "banner": {
+                "text": "Now let's add the scrolling text"
+            }
+        },
+        {
+            "validation": {
+                "add-part": {
+                    "type": "scrolling-text",
+                    "id": "part_1"
+                }
+            },
+            "beacon": {
+                "target": "parts-panel-scrolling-text"
+            },
+            "tooltips": [{
+                "text": "Add a scroller too",
+                "position": "top",
+                "location": "parts-panel"
+            }]
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": {
+                            "rawId": "default_part_event_id"
+                        },
+                        "value": {
+                            "event_from": "part_0",
+                            "event": "update"
+                        }
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "rawId": "default_part_event_id"
+                    }
+                }
+            },
+            "banner": {
+                "text": "This is your event block.<br />Change <kano-value-preview><span>‘app starts’</span></kano-value-preview> to <kano-value-preview><span>‘Sports updated’</span></kano-value-preview>"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Open the Sports tray"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_0",
+                        "type": "for_each",
+                        "id": "block_0"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "for_each"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Grab a<br /><kano-blockly-block type=\"part_0#for_each\"></kano-blockly-block> block"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "rawId": "default_part_event_id",
+                            "inputName": "DO"
+                        },
+                        "target": "block_0"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "rawId": "default_part_event_id"
+                    }
+                },
+                "target": "DO"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "rawId": "default_part_event_id"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Connect it to your event block"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Open the Scroller tray"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_1",
+                        "type": "scroll",
+                        "id": "block_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_1",
+                        "type": "scroll"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drag the <kano-blockly-block type=\"part_1#scroll\"></kano-blockly-block> block onto your code space"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_0",
+                            "inputName": "DO"
+                        },
+                        "target": "block_1"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_0"
+                },
+                "target": "DO"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Connect the blocks"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Open the Sports tray again"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_0",
+                        "type": "get_value_at",
+                        "id": "block_2"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "get_value_at"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drag out the <kano-blockly-block type=\"part_0#get_value_at\"></kano-blockly-block> block"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_1",
+                            "inputName": "TEXT"
+                        },
+                        "target": "block_2"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_1"
+                },
+                "target": "TEXT"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_1"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Connect the blocks"
+            }
+        },
+        {
+            "banner": {
+                "text": "<strong>You did it!</strong><br />Your text scroller shows the latest sports news.<br /> Click the 'edit layout' button to change the layout.",
+                "next_button": true
+            }
+        }
+    ],
+    "parts": [
+        "sports",
+        "scrolling-text"
+    ],
+    "modules": [],
+    "variables": [],
+    "mode": "normal"
 }

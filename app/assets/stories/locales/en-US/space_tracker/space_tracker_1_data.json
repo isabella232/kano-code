@@ -1,591 +1,502 @@
 {
-	"steps": [
-		{
-			"tooltips": [
-				{
-					"location": "add-part-button",
-					"position": "top",
-					"text": "This app needs a map<br />and the Space Station data parts"
-				}
-			],
-			"validation": {
-				"open-parts": true
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "parts-panel-part-map",
-					"position": "right",
-					"text": "Drag the Map to your app"
-				}
-			],
-			"highlight": "parts-panel-part-map",
-			"arrow": {
-				"source": "parts-panel-part-map",
-				"target": "workspace-panel",
-				"size": 120
-			},
-			"validation": {
-				"add-part": {
-					"type": "map",
-					"id": "part_0"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "parts-panel-part-iss",
-					"position": "right",
-					"text": "Drag the ISS (International Space Station)<br />data in too"
-				}
-			],
-			"highlight": "parts-panel-part-iss",
-			"arrow": {
-				"source": "parts-panel-part-iss",
-				"target": "workspace-panel",
-				"size": 120
-			},
-			"validation": {
-				"add-part": {
-					"type": "iss",
-					"id": "part_1"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "add-part-button",
-					"position": "top",
-					"text": "That's all the parts!<br />Close the drawer to start coding."
-				}
-			],
-			"validation": {
-				"close-parts": true
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": "control"
-					},
-					"position": "right",
-					"text": "We want to grab data every second.<br>Open the Control tray so we can get a <em>loop</em>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": "control"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": "every_x_seconds"
-					},
-					"position": "right",
-					"text": "Drag in this <em>loop</em>"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": "every_x_seconds"
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"type": "every_x_seconds",
-						"id": "block_0"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"rawId": "default_part_event_id"
-						}
-					},
-					"position": "right",
-					"text": "Connect it here so the loop is triggered when the app starts"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"rawId": "default_part_event_id",
-							"inputName": "DO"
-						},
-						"target": "block_0"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": {
-						"rawId": "default_part_event_id"
-					}
-				},
-				"target": "DO"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_1"
-						}
-					},
-					"position": "right",
-					"text": "Next we need to refresh the data<br>The code to control it is in the ISS tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_1",
-							"type": "refresh"
-						}
-					},
-					"position": "right",
-					"text": "Drag in this block to refresh the data"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_1",
-						"type": "refresh"
-					}
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_1",
-						"type": "refresh",
-						"id": "block_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_0"
-						}
-					},
-					"position": "right",
-					"text": "Drop it inside the loop so it runs every second"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_0",
-							"inputName": "DO"
-						},
-						"target": "block_1"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_0"
-				},
-				"target": "DO"
-			}
-		},
+    "steps": [
         {
+            "validation": {
+                "open-parts": true
+            },
+            "beacon": {
+                "target": "add-part-button"
+            },
+            "banner": {
+                "text": "This app needs a map<br />and the Space Station data parts"
+            }
+        },
+        {
+            "validation": {
+                "add-part": {
+                    "type": "map",
+                    "id": "part_0"
+                }
+            },
+            "beacon": {
+                "target": "parts-panel-map"
+            },
             "tooltips": [{
-                "location": {
-                    "path": "workspace",
-                    "part": "part_1"
-                },
-                "position": "left",
-                "next_button": true,
-                "text": "You've made the data refresh every second."
+				"text": "Add the Map",
+				"position": "top",
+				"location": "parts-panel"
+            }]
+		},
+		{
+            "validation": {
+                "open-parts": true
+            },
+            "beacon": {
+                "target": "add-part-button"
+            },
+            "banner": {
+                "text": "We also need a data part"
+            }
+        },
+        {
+            "validation": {
+                "add-part": {
+                    "type": "iss",
+                    "id": "part_1"
+                }
+            },
+            "beacon": {
+                "target": "parts-panel-iss"
+            },
+            "tooltips": [{
+				"text": "Drag the ISS (International Space Station)<br />data in too",
+				"position": "top",
+				"location": "parts-panel"
             }]
         },
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": "events"
-					},
-					"position": "right",
-					"text": "Finally let's update the map when the data is updated<br>Open the Events tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": "events"
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": "part_event"
-					},
-					"position": "right",
-					"text": "Drag in this block to trigger the map update"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": "part_event"
-				},
-				"angle": 45,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"type": "part_event",
-						"id": "block_2"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "blocks-panel",
-					"position": "right",
-					"text": "Drop the block anywhere on your code space"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"drop": {
-						"target": "block_2"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": "block_2"
-					},
-					"position": "top",
-					"text": "We want it to trigger when the data is updated<br>Change <kano-value-preview><span>app starts</span></kano-value-preview> to <kano-value-preview><span>ISS updated</span></kano-value-preview>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"value": {
-						"target": "block_2",
-						"value": "iss.update"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_0"
-						}
-					},
-					"position": "right",
-					"text": "Now to tell the map to move..."
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_0"
-					}
-				}
-			}
-		},
-		{
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_0",
-						"type": "show_marker"
-					}
-				},
-				"angle": 45,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_0",
-						"type": "show_marker",
-						"id": "block_3"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_2"
-						}
-					},
-					"position": "right",
-					"text": "Drop it inside the event so it triggers<br>when the latest data arrives"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_2",
-							"inputName": "DO"
-						},
-						"target": "block_3"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_2"
-				},
-				"target": "DO"
-			}
-		},
         {
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_1"
-						}
-					},
-					"position": "right",
-					"text": "Next we want to move it to the ISS's position<br>Let's grab the data from the ISS tray"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_1",
-							"type": "get_value"
-						}
-					},
-					"position": "right",
-					"text": "Drag out the latitude block"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_1",
-						"type": "get_value"
-					}
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_1",
-						"type": "get_value",
-						"id": "block_4"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_3"
-						}
-					},
-					"position": "right",
-					"text": "Move the map's latitude to the ISS's latitude"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_3",
-							"inputName": "LATITUDE"
-						},
-						"target": "block_4"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_3"
-				},
-				"target": "LATITUDE"
-			}
-		},
+            "validation": {
+                "blockly": {
+                    "open-flyout": "control"
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": "control"
+                }
+            },
+            "banner": {
+                "text": "We want to grab data every second.<br>Open the Control tray so we can get a <em>loop</em>"
+            }
+        },
         {
-			"tooltips": [
-				{
-					"location": {
-						"category": {
-							"part": "part_1"
-						}
-					},
-					"position": "right",
-					"text": "Open the ISS tray again"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"open-flyout": {
-						"part": "part_1"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"flyout_block": {
-							"part": "part_1",
-							"type": "get_value"
-						}
-					},
-					"position": "right",
-					"text": "Let’s grab another of those blocks: <br /><kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block>"
-				}
-			],
-			"arrow": {
-				"target": {
-					"flyout_block": {
-						"part": "part_1",
-						"type": "get_value"
-					}
-				},
-				"angle": 120,
-				"size": 80
-			},
-			"validation": {
-				"blockly": {
-					"create": {
-						"target": "part_1",
-						"type": "get_value",
-						"id": "block_5"
-					}
-				}
-			}
-		},
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "every_x_seconds",
+                        "id": "block_0"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "every_x_seconds"
+                }
+            },
+            "banner": {
+                "text": "Drag in this <em>loop</em>"
+            }
+        },
         {
-			"tooltips": [
-				{
-					"location": {
-						"block": {
-							"id": "block_3"
-						}
-					},
-					"position": "right",
-					"text": "Plug it in here"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"connect": {
-						"parent": {
-							"id": "block_3",
-							"inputName": "LONGITUDE"
-						},
-						"target": "block_5"
-					}
-				}
-			},
-			"phantom_block": {
-				"location": {
-					"block": "block_3"
-				},
-				"target": "LONGITUDE"
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": {
-						"block": "block_5"
-					},
-					"position": "top",
-					"text": "Change <kano-value-preview><span>latitude</span></kano-value-preview> to <kano-value-preview><span>longitude</span></kano-value-preview>"
-				}
-			],
-			"validation": {
-				"blockly": {
-					"value": {
-						"target": "block_5",
-						"value": "longitude"
-					}
-				}
-			}
-		},
-		{
-			"tooltips": [
-				{
-					"location": "workspace-panel",
-					"position": "left",
-					"text": "<strong>You did it!</strong> The space station is 400km<br />above the marker. You can make the map bigger<br />by clicking 'edit layout', then clicking on the map.",
-					"next_button": true
-				}
-			]
-		}
-	],
-	"parts": [
-		"map",
-		"iss"
-	],
-	"modules": [
-		"control",
-		"events"
-	],
-	"variables": [],
-	"mode": "normal"
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "rawId": "default_part_event_id",
+                            "inputName": "DO"
+                        },
+                        "target": "block_0"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": {
+                        "rawId": "default_part_event_id"
+                    }
+                },
+                "target": "DO"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "rawId": "default_part_event_id"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Connect it here so the loop is triggered when the app starts"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Next we need to refresh the data<br>The code to control it is in the ISS tray"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_1",
+                        "type": "refresh",
+                        "id": "block_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_1",
+                        "type": "refresh"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drag in this block to refresh the data"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_0",
+                            "inputName": "DO"
+                        },
+                        "target": "block_1"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_0"
+                },
+                "target": "DO"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_0"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drop it inside the loop so it runs every second"
+            }
+        },
+        {
+            "banner": {
+                "text": "You've made the data refresh every second.",
+                "next_button": true
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": "events"
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": "events"
+                }
+            },
+            "banner": {
+                "text": "Finally let's update the map when the data is updated<br>Open the Events tray"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "type": "part_event",
+                        "id": "block_2"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": "part_event"
+                }
+            },
+            "banner": {
+                "text": "Drag in this block to trigger the map update"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "drop": {
+                        "target": "block_2"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drop the block anywhere on your code space"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": "block_2",
+                        "value": "iss.update"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "block": "block_2"
+                }
+            },
+            "banner": {
+                "text": "We want it to trigger when the data is updated<br>Change <kano-value-preview><span>app starts</span></kano-value-preview> to <kano-value-preview><span>ISS updated</span></kano-value-preview>"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_0"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Now to tell the map to move..."
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_0",
+                        "type": "show_marker",
+                        "id": "block_3"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_0",
+                        "type": "show_marker"
+                    }
+                }
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_2",
+                            "inputName": "DO"
+                        },
+                        "target": "block_3"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_2"
+                },
+                "target": "DO"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_2"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drop it inside the event so it triggers<br>when the latest data arrives"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Next we want to move it to the ISS's position<br>Let's grab the data from the ISS tray"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_1",
+                        "type": "get_value",
+                        "id": "block_4"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_1",
+                        "type": "get_value"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Drag out the latitude block"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_3",
+                            "inputName": "LATITUDE"
+                        },
+                        "target": "block_4"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_3"
+                },
+                "target": "LATITUDE"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_3"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Move the map's latitude to the ISS's latitude"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "open-flyout": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "category": {
+                        "part": "part_1"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Open the ISS tray again"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "create": {
+                        "target": "part_1",
+                        "type": "get_value",
+                        "id": "block_5"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "flyout_block": {
+                        "part": "part_1",
+                        "type": "get_value"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Let’s grab another of those blocks: <br /><kano-blockly-block type=\"part_1#get_value\"></kano-blockly-block>"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "connect": {
+                        "parent": {
+                            "id": "block_3",
+                            "inputName": "LONGITUDE"
+                        },
+                        "target": "block_5"
+                    }
+                }
+            },
+            "phantom_block": {
+                "location": {
+                    "block": "block_3"
+                },
+                "target": "LONGITUDE"
+            },
+            "beacon": {
+                "target": {
+                    "block": {
+                        "id": "block_3"
+                    }
+                }
+            },
+            "banner": {
+                "text": "Plug it in here"
+            }
+        },
+        {
+            "validation": {
+                "blockly": {
+                    "value": {
+                        "target": "block_5",
+                        "value": "longitude"
+                    }
+                }
+            },
+            "beacon": {
+                "target": {
+                    "block": "block_5"
+                }
+            },
+            "banner": {
+                "text": "Change <kano-value-preview><span>latitude</span></kano-value-preview> to <kano-value-preview><span>longitude</span></kano-value-preview>"
+            }
+        },
+        {
+            "banner": {
+                "text": "<strong>You did it!</strong> The space station is 400km<br />above the marker. You can make the map bigger<br />by clicking 'edit layout', then clicking on the map.",
+                "next_button": true
+            }
+        }
+    ],
+    "parts": [
+        "map",
+        "iss"
+    ],
+    "modules": [
+        "control",
+        "events"
+    ],
+    "variables": [],
+    "mode": "normal"
 }

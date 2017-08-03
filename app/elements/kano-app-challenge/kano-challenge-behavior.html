@@ -147,7 +147,8 @@
             //Inject variables to markdown syntax
             processedText = Object.keys(this.sceneVariables).reduce((acc, key) => {
                 return acc.replace(new RegExp('\\$\\{' + key + '\\}', 'g'), this.sceneVariables[key] || '');
-            }, text);
+            }, processedText);
+
 
             /* Replace native emoji and return */
             return twemoji.parse(processedText);
