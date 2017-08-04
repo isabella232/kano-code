@@ -202,13 +202,30 @@ Polymer({
                 break;
             }
         }
-        model.position = {
-            x: viewportRect.width / 2,
-            y: viewportRect.height / 2
-        };
+        model.position = this._getNewPartPosition(viewportRect);
         part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
         this.push('addedParts', part);
+        this._addedPartsCount++;
         this.notifyChange('add-part', { part });
+    },
+    _getNewPartPosition (viewportRect) {
+        let layoutIndex = this._addedPartsCount % 9,
+            layoutIterationIndex = Math.floor(this._addedPartsCount / 9),
+            x, y;
+
+        // Position the part on a 3x3 grid in the workspace
+        x = (((layoutIndex % 3) * viewportRect.width / 3) + viewportRect.width / 6);
+        y = ((Math.floor(layoutIndex / 3) * viewportRect.height / 3)  + viewportRect.height / 6);
+
+        // Make sure the 10th part and so on have an offset
+        x += layoutIterationIndex * 20;
+        y += layoutIterationIndex * 20;
+
+        // Finally, restrict the position of the part to the workspace
+        x = Math.min(x, viewportRect.width - 20);
+        y = Math.min(y, viewportRect.height - 20);
+
+        return { x, y };
     },
     _onModeReady () {
         this.modeReady = true;
@@ -328,6 +345,7 @@ Polymer({
             localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
         this.unsavedChanges = false;
+        this._addedPartsCount = 0;
     },
     checkBlockDependency (part) {
         let xmlString, xml, parser, blocks, block, blockId, pieces;
@@ -603,6 +621,7 @@ Polymer({
         this.modeReady = false;
     },
     attached () {
+        this._addedPartsCount = 0;
         this.target = document.body;
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
