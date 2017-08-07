@@ -186,7 +186,16 @@
             },
             updateShape () {
                 let connectionHistory = {},
-                    input, fieldName, funcDef;
+                    input, funcDef, updateConnections;
+
+                // Retrieve the function definition from the definitions workspace's registry
+                funcDef = this.getFunctionDefinition();
+
+                // When loading blocks, this one can be empty. The definition will
+                // retrigger an update shape once ready
+                if (!funcDef.definitionBlock) {
+                    return;
+                }
 
                 // Remove all params, but keep track of the connected blocks
                 Object.keys(this.params).forEach(param => {
@@ -197,31 +206,33 @@
                     this.removeInput(param);
                 });
 
-                // Retrieve the function definition from the definitions workspace's registry
-                funcDef = this.getFunctionDefinition();
                 // Update all the inputs and fields
                 this.setFieldValue(funcDef.getName(), 'NAME');
                 this.params = funcDef.getParams();
+                updateConnections = this.returns !== funcDef.getReturns();
                 this.returns = funcDef.getReturns();
 
                 Object.keys(this.params).forEach(param => {
                     this.appendValueInput(param)
                         .setAlign(Blockly.ALIGN_RIGHT)
                         .appendField(this.params[param], param);
-                    if (connectionHistory[fieldName]) {
+                    if (connectionHistory[param]) {
                         input = this.getInput(param);
                         input.connection.connect(connectionHistory[param]);
                     }
                 });
                 this.setInputsInline(Object.keys(this.params).length <= 2);
-                if (this.returns) {
-                    this.setOutput(true);
-                    this.setPreviousStatement(false);
-                    this.setNextStatement(false);
-                } else {
-                    this.setOutput(false);
-                    this.setPreviousStatement(true);
-                    this.setNextStatement(true);
+                if (updateConnections) {
+                    this.unplug();
+                    if (this.returns) {
+                        this.setOutput(true);
+                        this.setPreviousStatement(false);
+                        this.setNextStatement(false);
+                    } else {
+                        this.setOutput(false);
+                        this.setPreviousStatement(true);
+                        this.setNextStatement(true);
+                    }
                 }
             },
             getFunctionDefinition () {

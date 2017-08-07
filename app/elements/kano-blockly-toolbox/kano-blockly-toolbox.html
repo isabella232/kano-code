@@ -192,7 +192,11 @@
                 this.$.flyout.style.display = 'none';
                 this.set(`toolbox.${this.currentSelected}.selected`, false);
                 e = { type: Blockly.Events.CLOSE_FLYOUT };
-                this.prevSelected = this.currentSelected;
+                // Do not save the previous state if a force render was asked
+                if (!this.forceRender) {
+                    this.prevSelected = this.currentSelected;
+                    this.forceRender = false;
+                }
                 this.currentSelected = undefined;
                 this.customStyle['--selected-color'] = null;
                 this.updateStyles();
@@ -287,7 +291,11 @@
                     let e = {
                         type: Blockly.Events.CLOSE_FLYOUT
                     };
-                    this.prevSelected = this.currentSelected;
+                    // Do not save the previous state if a force render was asked
+                    if (!this.forceRender) {
+                        this.prevSelected = this.currentSelected;
+                        this.forceRender = false;
+                    }
                     this.currentSelected = undefined;
                     this.currentToolbox = undefined;
                     this.customStyle['--selected-color'] = null;
@@ -316,6 +324,11 @@
                 if (flyout) {
                     return flyout.getBlockByType(type);
                 }
+            },
+            render () {
+                // Ensures the next opened flyout will be re-rendered
+                this.prevSelected = null;
+                this.forceRender = true;
             }
         });
     </script>
