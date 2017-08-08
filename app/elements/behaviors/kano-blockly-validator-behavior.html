@@ -16,6 +16,9 @@
                     }
                 }
             },
+            observers: [
+                '_stepChanged(step)'
+            ],
             ready () {
                 this.eventsMap = {
                     move: 'connect',
@@ -37,6 +40,10 @@
                 this._addMatchFallback('connect', '_wrongConnection');
                 this._addMatchFallback('create', '_wrongCreate');
                 this._addMatchFallback('open-flyout', '_wrongCategory');
+            },
+            _stepChanged () {
+                // On validation or step change, force close the widget div
+                Blockly.WidgetDiv.hide();
             },
             _wrongCategory (validation, detail) {
                 let step = this.steps[this.step];
