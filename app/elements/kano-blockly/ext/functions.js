@@ -5,20 +5,35 @@ Blockly.Functions = {};
 Blockly.Functions.NAME_TYPE = 'FUNCTION';
 
 class UserFunction {
-    constructor (definitionBlock) {
-        let onDelete;
-        this.definitionBlock = definitionBlock;
+    constructor (definitionBlock, registry) {
+        this.registry = registry;
         this.params = [];
         this.calls = [];
+        if (typeof definitionBlock !== 'string') {
+            this.definitionBlock = definitionBlock;
+            this.setDefinitionBlock(definitionBlock);
+        } else {
+            this.blockId = definitionBlock;
+        }
+    }
+
+    setDefinitionBlock (definitionBlock) {
+        let onDelete;
+        this.definitionBlock = definitionBlock;
 
         onDelete = (e) => {
             if (e.type === Blockly.Events.DELETE && e.blockId === this.definitionBlock.id) {
                 this.deleteCalls();
                 this.deleteParams();
                 Blockly.Workspace.getById(e.workspaceId).removeChangeListener(onDelete);
+                this.registry.deleteFunction(this.getBlockId());
             }
         }
         this.definitionBlock.workspace.addChangeListener(onDelete);
+        // A late registration of the function can leave calls and params
+        // in an unfinished state. This ensures they are rendered properly
+        this.updateCallBlocks();
+        this.updateParamsBlocks();
     }
 
     addCall (callBlock) {
@@ -73,17 +88,23 @@ class UserFunction {
         this.params.forEach(block => block.dispose(false, false));
     }
 
+    getBlockId () {
+        return this.definitionBlock ? this.definitionBlock.id : this.blockId;
+    }
+
     getCallXml () {
-        return `<block type="function_call"><mutation definition="${this.definitionBlock.id}"></mutation></block>`;
+        let blockId = this.getBlockId();
+        return `<block type="function_call"><mutation definition="${blockId}"></mutation></block>`;
     }
 
     getParamsXml () {
-        let params = this.getParams();
-        return Object.keys(params).map(param => `<block type="function_argument"><mutation param="${param}" definition="${this.definitionBlock.id}"></mutation></block>`);
+        let blockId = this.getBlockId(),
+            params = this.getParams();
+        return Object.keys(params).map(param => `<block type="function_argument"><mutation param="${param}" definition="${blockId}"></mutation></block>`);
     }
 
     getName () {
-        return this.definitionBlock.getFieldValue('NAME');
+        return this.definitionBlock ? this.definitionBlock.getFieldValue('NAME') : this.blockId;
     }
 
     getParams () {
@@ -124,15 +145,47 @@ Blockly.FunctionsRegistry = function (workspace) {
 };
 
 Blockly.FunctionsRegistry.prototype.createFunction = function (definitionBlock) {
-    this.functions[definitionBlock.id] = new UserFunction(definitionBlock);
+    let id = typeof definitionBlock === 'string' ? definitionBlock : definitionBlock.id,
+        currentDefinition = this.functions[id];
+    if (currentDefinition) {
+        currentDefinition.setDefinitionBlock(definitionBlock);
+    } else {
+        currentDefinition = new UserFunction(definitionBlock, this);
+    }
+    this.workspace.fireChangeListener({
+        type: Blockly.Events.UPDATE_FUNCTIONS
+    });
+    return this.functions[id] = currentDefinition;
+};
+
+Blockly.FunctionsRegistry.prototype.reset = function () {
+    this.functions = {};
+    this.workspace.fireChangeListener({
+        type: Blockly.Events.UPDATE_FUNCTIONS
+    });
+};
+
+Blockly.FunctionsRegistry.prototype.deleteFunction = function (id) {
+    delete this.functions[id];
+    this.workspace.fireChangeListener({
+        type: Blockly.Events.UPDATE_FUNCTIONS
+    });
 };
 
 Blockly.FunctionsRegistry.prototype.createCall = function (id, callBlock) {
-    this.getFunction(id).addCall(callBlock);
+    let funcDef = this.getFunction(id);
+    if (!funcDef) {
+        funcDef = this.createFunction(id);
+    }
+    funcDef.addCall(callBlock);
 };
 
 Blockly.FunctionsRegistry.prototype.createParam = function (id, paramBlock) {
-    this.getFunction(id).addParam(paramBlock);
+    let funcDef = this.getFunction(id);
+    if (!funcDef) {
+        funcDef = this.createFunction(id);
+    }
+    funcDef.addParam(paramBlock);
 };
 
 Blockly.FunctionsRegistry.prototype.getFunction = function (definitionId) {

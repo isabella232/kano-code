@@ -3,59 +3,48 @@
 <link rel="import" href="../../kano-blockly-flyout/kano-blockly-flyout.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/typography.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/color.html">
-<link rel="import" href="../kano-blockly-input-style/kano-blockly-input-style.html">
+<link rel="import" href="../kano-block-config-wrapper/kano-block-config-wrapper.html">
+<link rel="import" href="../../inputs/kano-input-incr/kano-input-incr.html">
 <dom-module id="kano-function-definition-input">
     <template>
-        <style include="kano-blockly-input-style"></style>
         <style>
+            :host {
+                display: block;
+            }
             .blocks {
                 padding: 0px 0px 0px 12px;
                 background: var(--color-abbey);
                 @apply --layout-flex;
             }
+            label {
+                font-weight: 600;
+                font-size: 14px;
+            }
             label[for=rtn]{
+                @apply --layout-horizontal;
+                @apply --layout-center;
                 text-transform: capitalize;
                 color: white;
-                position: relative;
-                top: -2px;
+                cursor: pointer;
+                margin-top: 10px;
             }
-            #params {
-                width: 62px;
-                height: 20px;
-                padding: 5px;
+            kano-input-incr {
+                margin-top: 10px;
                 background: #464C51;
-                border-radius: 5px;
-                margin: 5px 0 5px 0;
-            }
-            #params button {
-                background-color: #464C51;
-                border-color: #464C51;
-                color: #A4A7AA;
-                border-style: none;
                 font-size: 14px;
-                height: 20px;
-            }
-            #params span {
-                color: white;
-                font-size: 14px;
-                display: inline-block;
-                width: 10px;
-            }
-            #params button span {
-                color: #A4A7AA;
             }
             label input {
                 display: none;/* <-- hide the default checkbox */
             }
             label span {/* <-- style the artificial checkbox */
-                    height: 12px;
-                    width: 12px;
-                    border: 1px solid #464C51;
-                    background-color: #464C51;
-                    border-radius: 3px;
-                    display: inline-block;
-                    margin-right: 5px;
-                    position: relative;
+                height: 12px;
+                width: 12px;
+                border: 1px solid #464C51;
+                background-color: #464C51;
+                border-radius: 3px;
+                display: inline-block;
+                margin-right: 5px;
+                position: relative;
             }
             [type=checkbox]:checked + span:before {/* <-- style its checked state..with a ticked icon */
                 content: '\2714';
@@ -63,54 +52,40 @@
                 top: -2px;
                 left: 2px;
             }
-            #cb-label{
+            #cb-label {
                 position: relative;
-                top: -2px;
                 text-transform: capitalize;
                 display: inline-block;
                 color: white;
             }
-            .arrow-down {
-                width: 0;
-                height: 0;
-                border-left: 12px solid transparent;
-                border-right: 12px solid transparent;
-                border-top: 12px solid var(--color-abbey);
-                position: absolute;
-                top: 300px;
-                left: 11px;
+            kano-block-config-wrapper {
+                --kano-block-config-wrapper-caret-color: var(--color-abbey);
             }
-
+            [slot="content"] {
+                min-width: 220px;
+                max-width: 325px;
+                max-height: 325px;
+                overflow: auto;
+            }
         </style>
-
-        <div class="func-header">
-            <header>Function</header>
-            <a class="boxclose" id="boxclose" on-tap="_close"></a>
-        </div>
-
-        <div class="controls">
-            <div>
-                <label for="params">Parameters</label>
-                <div id="params">
-                    <button type="button" on-tap="_decr"><span>-</span></button>
-                    <span>[[value.parameters]]</span>
-                    <button type="button" on-tap="_incr"><span>+</span></button>
+        <kano-block-config-wrapper title="Functions" on-close="_close">
+            <div slot="content">
+                <div class="controls">
+                    <label for="params">Parameters</label>
+                    <kano-input-incr value="{{value.parameters}}" min="0"></kano-input-incr>
+                    <label for="rtn">
+                        <input id="rtn" type="checkbox" checked="{{value.returns::change}}">
+                        <span></span><div id="cb-label">Returns</div>
+                    </label>
+                </div>
+                <div class="blocks">
+                    <kano-blockly-flyout target-workspace="[[targetWorkspace]]"
+                                            toolbox="[[_toolbox]]"
+                                            padding-left="0"
+                                            min-width="100"></kano-blockly-flyout>
                 </div>
             </div>
-            <div>
-                <label>
-                    <input id="rtn" type="checkbox" checked="{{value.returns::change}}">
-                    <span></span><div id="cb-label">Returns</div>
-                </label>
-            </div>
-        </div>
-        <div class="blocks">
-            <kano-blockly-flyout target-workspace="[[targetWorkspace]]"
-                                    toolbox="[[_toolbox]]"
-                                    padding-left="0"
-                                    min-width="300"></kano-blockly-flyout>
-        </div>
-        <div class="arrow-down"></div>
+        </kano-block-config-wrapper>
     </template>
     <script>
         Polymer({
@@ -129,17 +104,8 @@
                     observer: '_toolboxChanged'
                 }
             },
-            _decr () {
-                this.setBoundsParameters(this.value.parameters - 1);
-            },
-            _incr () {
-                this.setBoundsParameters(this.value.parameters + 1);
-            },
             _close () {
-                this.fire( 'close-tapped' );
-            },
-            setBoundsParameters (value) {
-                this.set('value.parameters', Math.max(0, value));
+                this.fire('close-tapped');
             },
             _toolboxChanged () {
                 this.debounce('updateToolbox', () => {

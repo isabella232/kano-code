@@ -16,16 +16,18 @@
                 Blockly.Blocks.controls_if = {
                     init: function () {
 
+                        this.stackField = new Blockly.FieldIfStack({ elseIfs: 0, else: false }, (newValue) => {
+                            this.elseifCount_ = newValue.elseIfs;
+                            this.elseCount_   = newValue.else;
+                            this.updateShape_();
+                        });
+
                         this.appendValueInput('IF0')
                             .setCheck('Boolean')
-                            .appendField(new Blockly.FieldIfStack({ elseIfs: 0, else: false }, (newValue) => {
-                                this.elseifCount_ = newValue.elseIfs;
-                                this.elseCount_   = newValue.else;
-                                this.updateShape_();
-                            }))
+                            .appendField(this.stackField)
                             .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF);
 
-                        this.appendStatementInput('DO')
+                        this.appendStatementInput('DO0')
                             .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
 
                         this.setPreviousStatement(true);
@@ -90,6 +92,10 @@
                     domToMutation: function (xmlElement) {
                         this.elseifCount_ = parseInt(xmlElement.getAttribute('elseif'), 10) || 0;
                         this.elseCount_   = parseInt(xmlElement.getAttribute('else'), 10) || 0;
+                        this.stackField.setValue({
+                            elseIfs: this.elseifCount_,
+                            else: this.elseCount_
+                        });
                         this.updateShape_();
                     }
                 };

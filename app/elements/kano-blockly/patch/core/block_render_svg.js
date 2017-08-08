@@ -694,7 +694,7 @@ Blockly.BlockSvg.prototype.renderDrawRight_ = function(steps, highlightSteps,
       // END
       steps.push('H', cursorX);
       steps.push(Blockly.BlockSvg.INNER_TOP_LEFT_CORNER);
-      steps.push('v', (row.height - 2 * Blockly.BlockSvg.CORNER_RADIUS) + Blockly.BlockSvg.STATEMENT_SPACING);
+      steps.push('v', (row.height - 2 * Blockly.BlockSvg.CORNER_RADIUS) + Blockly.BlockSvg.STATEMENT_SPACING - 4);
       steps.push(Blockly.BlockSvg.INNER_BOTTOM_LEFT_CORNER);
       // CUSTOM CODE
       var h = inputRows.rightEdge;

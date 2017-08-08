@@ -275,6 +275,7 @@
                             return;
                         }
                         var gesture = this.targetWorkspace.getGesture(e);
+                        this._rect = this.ws.svgGroup_.getBoundingClientRect();
                         if (gesture) {
                             gesture.setStartBlock(block);
                             gesture.handleFlyoutStart(e, this);
@@ -331,8 +332,7 @@
                     const targetWorkspaceRect = targetWorkspaceRoot.getBoundingClientRect();
 
                     // Retrieve the absolute position of the current workspace
-                    const workspaceRoot = this.ws.svgGroup_;
-                    const workspaceRect = workspaceRoot.getBoundingClientRect();
+                    const workspaceRect = this._rect;
 
                     // Compute the offset between the two workspaces
                     const offset = {

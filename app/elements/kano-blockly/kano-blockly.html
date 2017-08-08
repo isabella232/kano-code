@@ -494,6 +494,7 @@ Example:
             this.workspace.clear();
             /** Re-enable events */
             Blockly.Events.enable();
+            this.workspace.functionsRegistry.reset();
         },
         /**
          * Update the code on any blockly change and
@@ -570,6 +571,8 @@ Example:
                         break;
                     }
                 }
+                // Force a render of the box in case the shapes of the blocks changed
+                this.$.toolbox.render();
             }
         },
         /**
@@ -596,11 +599,9 @@ Example:
         },
         save () {
             let javascript = this.getCode(this.language),
-                pseudo = this.getCode('Pseudo'),
                 blocks = this.getBlocks(),
                 snapshot = {
                     javascript,
-                    pseudo,
                     blocks
                 };
             this.set('snapshot', snapshot);
