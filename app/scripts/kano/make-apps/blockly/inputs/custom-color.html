@@ -60,12 +60,6 @@
     Blockly.FieldCustomColor.prototype.showEditor_ = function () {
         Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL, Blockly.FieldCustomColor.widgetDispose_);
 
-        // Position the palette to line up with the field.
-        // Record windowSize and scrollOffset before adding the palette.
-        var windowSize = goog.dom.getViewportSize();
-        var scrollOffset = goog.style.getViewportPageOffset(document);
-        var xy = this.getAbsoluteXY_();
-        var borderBBox = this.getScaledBBox_();
         var div = Blockly.WidgetDiv.DIV;
         
         customEl = document.createElement('kano-input-color');
@@ -86,14 +80,38 @@
 
         div.appendChild(customEl);
 
+        let isUnder = this.position();
+        if ('animate' in HTMLElement.prototype) {
+            div.style.transformOrigin = isUnder ? '0 bottom' : '0 0';
+            div.animate({
+                transform: ['scale(0, 0)', 'scale(1, 1)'],
+                opacity: [0, 1]
+            }, {
+                duration: 100,
+                easing: 'ease-out'
+            }).onfinish = function () {
+                customEl.resize();
+            };
+        }
+    };
 
-        var size = customEl.getBoundingClientRect();
+    Blockly.FieldCustomColor.prototype.position = function () {
+        // Position the palette to line up with the field.
+        // Record windowSize and scrollOffset before adding the palette.
+        var windowSize = goog.dom.getViewportSize();
+        var scrollOffset = goog.style.getViewportPageOffset(document);
+        var xy = this.getAbsoluteXY_();
+        var borderBBox = this.getScaledBBox_();
+        var div = Blockly.WidgetDiv.DIV;
+        var size = { width: 442, height: 266 };
+        var isUnder = true;
 
         // Flip the palette vertically if off the bottom.
         if (xy.y + size.height + borderBBox.height >= windowSize.height + scrollOffset.y) {
             xy.y -= size.height - 1;
         } else {
             xy.y += borderBBox.height - 1;
+            isUnder = false;
         }
         if (this.sourceBlock_.RTL) {
             xy.x += borderBBox.width;
@@ -110,18 +128,7 @@
         }
         Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset, this.sourceBlock_.RTL);
         div.style.height = size.height + 'px';
-        if ('animate' in HTMLElement.prototype) {
-            div.style.transformOrigin = '0 0';
-            div.animate({
-                transform: ['scale(0, 0)', 'scale(1, 1)'],
-                opacity: [0, 1]
-            }, {
-                duration: 100,
-                easing: 'ease-out'
-            }).onfinish = function () {
-                customEl.resize();
-            };
-        }
+        return isUnder;
     };
 
 </script>
