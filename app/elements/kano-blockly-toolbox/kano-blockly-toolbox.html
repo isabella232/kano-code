@@ -192,11 +192,7 @@
                 this.$.flyout.style.display = 'none';
                 this.set(`toolbox.${this.currentSelected}.selected`, false);
                 e = { type: Blockly.Events.CLOSE_FLYOUT };
-                // Do not save the previous state if a force render was asked
-                if (!this.forceRender) {
-                    this.prevSelected = this.currentSelected;
-                    this.forceRender = false;
-                }
+                this.prevSelected = this.currentSelected;
                 this.currentSelected = undefined;
                 this.customStyle['--selected-color'] = null;
                 this.updateStyles();
@@ -273,6 +269,11 @@
                             this.$.mask.style.display = 'none';
                         };
                     };
+                    if (this.forceRender) {
+                        this.currentToolbox = undefined;
+                        this.prevSelected = undefined;
+                        this.forceRender = false;
+                    }
                     if (this.prevSelected !== index) {
                         this.$.flyout.addEventListener('size-changed', onSizeChanged);
                     } else {
@@ -291,11 +292,7 @@
                     let e = {
                         type: Blockly.Events.CLOSE_FLYOUT
                     };
-                    // Do not save the previous state if a force render was asked
-                    if (!this.forceRender) {
-                        this.prevSelected = this.currentSelected;
-                        this.forceRender = false;
-                    }
+                    this.prevSelected = this.currentSelected;
                     this.currentSelected = undefined;
                     this.currentToolbox = undefined;
                     this.customStyle['--selected-color'] = null;
