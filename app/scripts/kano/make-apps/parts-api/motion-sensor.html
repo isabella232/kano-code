@@ -52,6 +52,9 @@
             },
             _onGestureChanged (e) {
                 if (e.type) {
+                    this.set('model.gestureValue', e.type);
+                    //reset the value to trigger observers on identical gesture values
+                    setTimeout(() => this.set('model.gestureValue', null), 0);
                     let fireString = 'gesture-' + e.type;
                     this.fire(fireString);
                 }
