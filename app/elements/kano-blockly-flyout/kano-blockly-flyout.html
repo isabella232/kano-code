@@ -284,7 +284,8 @@
                     };
                 },
                 createBlock (originBlock) {
-                    let block;
+                    let block,
+                        onChange;
                     if (originBlock.disabled) {
                         return;
                     }
@@ -299,6 +300,20 @@
                         Blockly.Events.fire(new Blockly.Events.Create(block));
                     }
                     this.fire('block-created');
+
+
+                    /* Add a class with elevated z-index when dragging
+                       the block out of the toolbox and register a listener to
+                       remove it when the dragging is over. */
+                    onChange = (e) => {
+                        if (e.type === Blockly.Events.MOVE && e.blockId === block.id) {
+                            Blockly.utils.removeClass(block.svgGroup_, 'initialDrag');
+                            block.workspace.removeChangeListener(onChange);
+                        }
+                    };
+                    Blockly.utils.addClass(block.svgGroup_, 'initialDrag');
+                    block.workspace.addChangeListener(onChange);
+
                     return block;
                 },
                 _placeNewBlock (originBlock) {
