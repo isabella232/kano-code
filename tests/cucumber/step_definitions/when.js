@@ -1,7 +1,9 @@
-module.exports = function () {
+const {defineSupportCode} = require('cucumber');
+
+defineSupportCode(({When}) => {
     this.World = require('../support/world').World;
 
-    this.When(/^I click on (the )?(.+)$/, function (arg0, arg1) {
+    When(/^I click on (the )?(.+)$/, function (arg0, arg1) {
         let p, m;
         if (arg1.endsWith(' of the added part')) {
             let partId = this.store.addedPartId;
@@ -71,24 +73,24 @@ module.exports = function () {
         return p.then(el => el.click());
     });
 
-    this.When(/^I type '(.+)' in (the )?(.+)$/, function (arg0, arg1, arg2) {
+    When(/^I type '(.+)' in (the )?(.+)$/, function (arg0, arg1, arg2) {
         let p = Promise.resolve(),
             m;
         if (m = arg2.match(/part editor name input/)) {
             p = this.getPartEditor().then(editorElement => {
-                    return this.driver.executeScript(`return arguments[0].shadowRoot.querySelector('[label="Name"]')`, editorElement);
-                });
+                return this.driver.executeScript(`return arguments[0].shadowRoot.querySelector('[label="Name"]')`, editorElement);
+            });
         }
         return p.then(inputElement => {
             return inputElement.sendKeys(arg0);
         });
     });
 
-    this.When(/^I wait (\d+)(ms)$/, function (arg0, arg1) {
+    When(/^I wait (\d+)(ms)$/, function (arg0, arg1) {
         let delay = parseInt(arg0);
         if (arg1 === 's') {
             delay *= 1000;
         }
         return this.wait(delay);
     });
-};
+});

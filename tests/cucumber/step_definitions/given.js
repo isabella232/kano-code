@@ -1,9 +1,8 @@
 const path = require('path');
+const {defineSupportCode} = require('cucumber');
 
-module.exports = function () {
-    this.World = require('../support/world').World;
-
-    this.Given(/^that a user is logged (out|in)$/, function (arg0, callback) {
+defineSupportCode(({Given}) => {
+    Given(/^that a user is logged (out|in)$/, function (arg0, callback) {
         let p;
         if (arg0 === 'in') {
             p = this.loginUser();
@@ -15,7 +14,7 @@ module.exports = function () {
         }).catch(callback);
     });
 
-    this.Given(/^the (story )?(.+) page is opened$/, function (arg0, arg1) {
+    Given(/^the (story )?(.+) page is opened$/, function (arg0, arg1) {
         let openApp;
         if (arg0) {
             openApp = this.openStory(arg1);
@@ -25,15 +24,14 @@ module.exports = function () {
         return openApp;
     });
 
-    this.Given(/^I add a part$/, function () {
+    Given(/^I add a part$/, function () {
         return this.openAddPartsDialog()
             .then(dialog => this.addPart(dialog))
             .then(partId => this.store.addedPartId = partId);
     });
 
-    this.Given(/^the loaded app is (.+)$/, function (arg0) {
+    Given(/^the loaded app is (.+)$/, function (arg0) {
         let filePath = path.join(__dirname, '../../resources/apps', arg0);
         return this.loadAppInStorage(filePath + '.kcode');
     });
-
-};
+});
