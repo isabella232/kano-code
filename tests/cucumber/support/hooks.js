@@ -1,18 +1,17 @@
-'use strict';
 
-let world = require('./world'),
+let {defineSupportCode} = require('cucumber'),
+    World = require('./world'),
     server = require('../../server'),
     libCoverage = require('istanbul-lib-coverage'),
     reports = require('istanbul-reports'),
     libReport = require('istanbul-lib-report'),
     prepareCoverage = require('../../coverage'),
-    coverageEnv = !!process.env.COVERAGE,
-    hooks;
+    coverageEnv = !!process.env.COVERAGE;
 
 const SRC = './app';
 
 function generateCoverageReport() {
-    return world.getDriver().executeScript('return window.__coverage__')
+    return World.driver.executeScript('return window.__coverage__')
         .then(coverage => {
             let map = libCoverage.createCoverageMap(coverage);
             let context = libReport.createContext();
@@ -22,62 +21,33 @@ function generateCoverageReport() {
         });
 }
 
-hooks = function () {
+defineSupportCode(({BeforeAll, AfterAll, Before, After}) => {
     // Instumentalise code if in coverage mode
     let prepare = coverageEnv ? prepareCoverage(SRC) : Promise.resolve(SRC);
 
     // Start a server to deliver make-apps files
-    this.BeforeFeatures((e, callback) => {
+    BeforeAll(function (e, callback) {
         prepare.then(loc => {
-            world.init();
+            World.createDriver();
             if (!process.env.EXTERNAL_SERVER) {
-                server(loc).listen(world.getPort(), callback);
+                server(loc).listen(World.getPort(), callback);
             } else {
                 callback();
             }
         });
     });
 
-    this.Before({ order: 1 }, () => {
-        world.loginUser();
+    Before({ order: 1 }, function () {
+        this.loginUser();
     });
     // Logout the user on the the tagged scenarios
-    this.Before({ tags: ["@loggedout"], order: 2 }, () => {
-        world.logoutUser();
-    });
-
-    // Take a screeshot if the scenario failed and attach it to the scenario report
-    this.After((scenario, callback) => {
-        if (scenario.isFailed()) {
-            world.getDriver().takeScreenshot().then((stream) => {
-                scenario.attach(stream, 'image/png', callback);
-            }).catch(callback);
-        } else {
-            callback();
-        }
-    });
-
-    this.After((scenario, callback) => {
-        let driver = world.getDriver();
-        if (scenario.isFailed()) {
-            driver.manage().logs().get('browser')
-                .then((logs) => {
-                    logs.forEach((log) => console.log(`${log.level.name_}: ${log.message}`));
-                    callback();
-                }).catch(callback);
-        } else {
-            callback();
-        }
+    Before({ tags: "@loggedout", order: 2 }, function () {
+        this.logoutUser();
     });
 
     // Close the browser
-    this.AfterFeatures((e, callback) => {
+    AfterAll(function () {
         let finalise = coverageEnv ? generateCoverageReport() : Promise.resolve();
-        return finalise
-                .then(() => world.getDriver().quit())
-                .then(() => callback())
-                .catch(callback);
+        return finalise.then(() => World.driver.quit());
     });
-};
-
-module.exports = hooks;
+});
