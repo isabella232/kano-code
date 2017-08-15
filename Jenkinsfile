@@ -17,12 +17,6 @@ pipeline {
             }
         }
 
-        stage('clean') {
-            steps {
-                clean()
-            }
-        }
-
         stage('install dependencies') {
             steps {
                 install_dep()
@@ -34,7 +28,6 @@ pipeline {
                 node('win-test') {
                     prepare_env()
                     checkout scm
-                    clean()
                     install_dep()
                     sh "./node_modules/.bin/gulp validate-challenges"
                     run_tests()
@@ -117,13 +110,10 @@ def prepare_env () {
     env.NODE_ENV = "${env.DEV_ENV}"
 }
 
-def clean () {
-    sh "rm -rf app/bower_components"
-    sh "./node_modules/.bin/bower cache clean"
-}
-
 def install_dep () {
     sh "npm install --ignore-scripts"
+    sh "rm -rf app/bower_components"
+    sh "./node_modules/.bin/bower cache clean"
     sh "./node_modules/.bin/bower install"
 }
 
