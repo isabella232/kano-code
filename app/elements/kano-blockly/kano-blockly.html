@@ -110,7 +110,7 @@ Example:
             }
         </style>
         <div id="workspace" class="injectionDiv">
-            <kano-blockly-toolbox id="toolbox" toolbox="[[toolbox]]" on-block-created="_onToolboxBlockCreated" auto-close hidden$="{{noToolbox}}"></kano-blockly-toolbox>
+            <kano-blockly-toolbox id="toolbox" toolbox="[[toolbox]]" auto-close hidden$="{{noToolbox}}"></kano-blockly-toolbox>
             <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
         <div class="omnibox-wrapper" id="omnibox-wrapper" on-tap="_omniboxWrapperTapped">
@@ -297,12 +297,6 @@ Example:
         _preventSubmit (e) {
             e.preventDefault();
             e.stopPropagation();
-        },
-        _onToolboxBlockCreated () {
-            this.$.svg.style.zIndex = 1;
-        },
-        _onToolboxEndDrag () {
-            this.$.svg.style.zIndex = '';
         },
         _createWorkspace (svg, options) {
             options.parentWorkspace = null;
@@ -544,7 +538,6 @@ Example:
                     };
                     this.workspace.fireChangeListener(ev);
                     this.lastCreated = null;
-                    this._onToolboxEndDrag();
                 } else if (e.type === Blockly.Events.MOVE) {
                     // The event type is `move` and the block concerned was not just created
                     this.fire('block-move');

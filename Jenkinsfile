@@ -7,14 +7,7 @@ pipeline {
     stages {
         stage('check environment') {
             steps {
-                script {
-                    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard" || env.BRANCH_NAME=="lightboard-rc") {
-                        env.DEV_ENV = "staging"
-                    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
-                        env.DEV_ENV = "production"
-                    }
-                    env.NODE_ENV = "${env.DEV_ENV}"
-                }
+                prepare_env()
             }
         }
 
@@ -24,29 +17,21 @@ pipeline {
             }
         }
 
-        stage('clean') {
-            steps {
-                sh "rm -rf app/bower_components"
-                sh "bower cache clean"
-            }
-        }
-
         stage('install dependencies') {
             steps {
-                sh "npm install --ignore-scripts"
-                sh "bower install"
+                install_dep()
             }
         }
 
         stage('test') {
             steps {
-                sh "gulp validate-challenges"
-                sh "mkdir -p test-results"
-                sh "xvfb-run --auto-servernum gulp wct"
-                junit allowEmptyResults: true, testResults: 'test-results/wct.xml'
-                cucumber 'test-results/cucumber.json'
-                // Remove the test folder
-                sh "rm -rf www test-results"
+                node('win-test') {
+                    prepare_env()
+                    checkout scm
+                    install_dep()
+                    sh "./node_modules/.bin/gulp validate-challenges"
+                    run_tests()
+                }
             }
         }
 
@@ -99,9 +84,46 @@ pipeline {
             notify_failure_to_committers()
         }
         success {
-            release_archive(env)
+            script {
+                if (env.BRANCH_NAME == "jenkins") {
+                    echo 'archive skipped'
+                } else {
+                    release_archive(env)
+                }
+            }
         }
     }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+
+        timeout(time: 60, unit: 'MINUTES')
+    }
+}
+
+def prepare_env () {
+    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard" || env.BRANCH_NAME=="lightboard-rc") {
+        env.DEV_ENV = "staging"
+    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
+        env.DEV_ENV = "production"
+    }
+    env.NODE_ENV = "${env.DEV_ENV}"
+}
+
+def install_dep () {
+    sh "npm install --ignore-scripts"
+    sh "rm -rf app/bower_components"
+    sh "./node_modules/.bin/bower cache clean"
+    sh "./node_modules/.bin/bower install"
+}
+
+def run_tests () {
+    sh "mkdir -p test-results"
+    sh "./node_modules/.bin/gulp wct"
+    sh "./node_modules/.bin/cucumberjs tests --format=json > test-results/cucumber.json"
+    junit allowEmptyResults: true, testResults: 'test-results/wct.xml'
+    cucumber 'test-results/cucumber.json'
+    sh "rm -rf www test-results"
 }
 
 def release_archive (env) {

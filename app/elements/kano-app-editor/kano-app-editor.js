@@ -511,7 +511,7 @@ Polymer({
         this.$['edit-part-dialog'].close();
     },
     _toggleFullscreenModal (isFullScreen) {
-        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['root-view'];
+        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['blocks-panel'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
         this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
         //If modal is not fullscreen, use a custom overlay
@@ -538,6 +538,16 @@ Polymer({
         this.async(() => {
             let product,
                 partTypes;
+
+            // Unqueue any parts that have been set already
+            this.addedParts.forEach((p) => {
+                for (var i = 0; i < this.queuedHardware.length; i++) {
+                    if (this.queuedHardware[i].product === p.type) {
+                        this.splice('queuedHardware', i, 1);
+                    }
+                }
+            });
+
             for (var i = 0; i < this.queuedHardware.length; i++) {
                 product = this.queuedHardware[i].product;
                 partTypes = this.parts.map(p => p.type);

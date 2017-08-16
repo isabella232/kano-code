@@ -1,7 +1,7 @@
-module.exports = function () {
-    this.World = require('../support/world').World;
+const {defineSupportCode} = require('cucumber');
 
-    this.Then(/^(the )?(.+) should (not )?be visible$/, function (arg0, arg1, arg2) {
+defineSupportCode(({Then}) => {
+    Then(/^(the )?(.+) should (not )?be visible$/, function (arg0, arg1, arg2) {
         return this.getEditorElement(arg1)
             .then((dialog) => {
                 if (arg2) {
@@ -12,14 +12,14 @@ module.exports = function () {
             });
     });
 
-    this.Then(/^the part ('(.+)' )?should (not )?exist$/, function (arg0, arg1, arg2) {
-        let partId = arg1 || this.store.addedPartId;
+    Then(/^the part '?([a-zA-Z0-9_.-]+)?'? ?should (not )?exist$/, function (arg0, arg1) {
+        let partId = arg0 || this.store.addedPartId;
         if (!partId) {
             return Promise.reject('Could not retrieve added part');
         }
         return this.getEditorElement()
             .then(editor => {
-                if (arg2) {
+                if (arg1) {
                     return this.ensurePartDoesNotExist(editor, partId);
                 } else {
                     return this.ensurePartExists(editor, partId);
@@ -27,7 +27,7 @@ module.exports = function () {
             });
     });
 
-    this.Then(/^the block '(.+)' should (not )?exist$/, function (arg0, arg1) {
+    Then(/^the block '(.+)' should (not )?exist$/, function (arg0, arg1) {
         let blockType = arg0;
         return this.getEditorElement()
             .then(editor => {
@@ -38,5 +38,4 @@ module.exports = function () {
                 }
             });
     });
-
-};
+});

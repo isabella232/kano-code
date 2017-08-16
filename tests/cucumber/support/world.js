@@ -1,21 +1,20 @@
 'use strict';
 
 let webdriver = require('selenium-webdriver'),
+    {defineSupportCode} = require('cucumber'),
     fs = require('fs'),
     path = require('path'),
     should = require('should'),
-    user = null,
-    capability = webdriver.Capabilities.chrome(),
-    driver;
+    user = null;
 
 const DEFAULT_TIMEOUT = process.env.EXTERNAL_SERVER ? 20000 : 10000,
-      // testing user creating in staging env
-      USER = {
-            token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAa2Fuby5tZSIsInVzZXJuYW1lIjoiYXV0b21hdGVkLXRlc3QiLCJpYXQiOjE0NjMyMjkxMDR9.-wowXt2oF7iCSuyxxfcJJoirsYsT0-dwbbe9FxhIusU'
-        },
-      INIT_SCRIPT = fs.readFileSync(path.join(__dirname, '../../scripts/init.js')).toString(),
-      ELEMENTS_SELECTORS = {},
-      EDITOR_SELECTORS = {};
+    // testing user creating in staging env
+    USER = {
+        token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAa2Fuby5tZSIsInVzZXJuYW1lIjoiYXV0b21hdGVkLXRlc3QiLCJpYXQiOjE0NjMyMjkxMDR9.-wowXt2oF7iCSuyxxfcJJoirsYsT0-dwbbe9FxhIusU'
+    },
+    INIT_SCRIPT = fs.readFileSync(path.join(__dirname, '../../scripts/init.js')).toString(),
+    ELEMENTS_SELECTORS = {},
+    EDITOR_SELECTORS = {};
 
 ELEMENTS_SELECTORS.editor = {
     editor: ['kano-app-editor']
@@ -30,66 +29,49 @@ EDITOR_SELECTORS['Part editor'] = ['#edit-part-dialog-content'];
 
 user = USER;
 
-function buildDriver(capability) {
+function buildDriver(capabilities) {
     return new webdriver.Builder()
-        .withCapabilities(capability)
+        .withCapabilities(capabilities)
         .build();
 }
 
-function init() {
-    driver = buildDriver(capability);
-    if (process.env.CAPABILITY) {
-        try {
-            capability = JSON.parse(process.env.CAPABILITY);
-        } catch (e) {
-            capability = webdriver.Capabilities[process.env.CAPABILITY]();
-        }
-    } else {
-        capability = webdriver.Capabilities.chrome();
-    }
-
-    if (capability.browserName !== 'safari') {
-        driver.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT);
-        driver.manage().timeouts().pageLoadTimeout(DEFAULT_TIMEOUT);
-        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT);
-    }
-}
-
-function getDriver() {
-    return driver;
-}
-
-function getPort() {
-    return process.env.TEST_PORT || 4444;
-}
-
-function logoutUser() {
-    user = null;
-    return Promise.resolve();
-}
-function loginUser() {
-    user = USER;
-    return Promise.resolve();
-}
-
-class World {
+class CustomWorld {
     constructor () {
-        this.webdriver = webdriver;
-        this.driver = driver;
-
         this.shadowEnabled = false;
         this.routeMap = {
             'editor': '/',
             'story': '/story'
         };
 
-        this.loginUser = loginUser;
-        this.logoutUser = logoutUser;
+        this.driver = CustomWorld.createDriver();
 
         this.store = {};
     }
+    static createDriver () {
+        if (!CustomWorld.driver) {
+            let capabilities = webdriver.Capabilities.chrome(),
+                chromeOptions = {
+                'args': ['--test-type', '--start-maximized', '--disable-popup-blocking']
+            };
+            capabilities.set('build', `${process.env.JOB_NAME}__${process.env.BUILD_NUMBER}`);
+            capabilities.set('chromeOptions', chromeOptions);
+            CustomWorld.driver = buildDriver(capabilities);
+        }
+        return CustomWorld.driver;
+    }
+    static getPort () {
+        return process.env.TEST_PORT || 4444;
+    }
     setup () {
         this.driver.executeScript(INIT_SCRIPT);
+    }
+    loginUser () {
+        user = USER;
+        return Promise.resolve();
+    }
+    logoutUser () {
+        user = null;
+        return Promise.resolve();
     }
     getLogs () {
         return this.driver.manage().logs().get('browser');
@@ -127,14 +109,15 @@ class World {
         return this.driver.executeScript(`return window.__routeLoaded__;`);
     }
     waitForRouteLoad () {
-        driver.wait(() => {
+        this.driver.wait(() => {
             return this.isRouteLoaded();
         }, 8000, `Page didn't load`);
     }
     waitForPage (page, timeout=2000) {
-        return driver.wait(() => {
+        return this.driver.wait(() => {
             return this.driver.executeScript(`return window.__currentPage__ === '${page}';`);
-        }, timeout, `Page '${page}' not displayed`);
+        }, timeout, `Page '${page}' not displayed`)
+            .then(() => this.wait(500));
     }
     getCurrentViewElement () {
         let element;
@@ -144,7 +127,9 @@ class World {
                     element = e;
                     return !!element;
                 });
-        }, 2000).then(() => element);
+        }, 2000)
+            .then(() => this.wait(500))
+            .then(() => element);
     }
     findElement (root, selectors) {
         return this.driver.executeScript('return window.__findElement__(arguments[0], arguments[1])', root, selectors);
@@ -214,7 +199,7 @@ class World {
             return Promise.reject(new Error(`Tried to open a non registered page: ${page}`));
         }
         this.page = page;
-        return this.driver.get(`http://localhost:${getPort()}${route}${ext}`)
+        return this.driver.get(`http://localhost:${CustomWorld.getPort()}${route}${ext}`)
             .then(() => this.clearStorage())
             .then(() => {
                 let tasks = [];
@@ -272,9 +257,8 @@ class World {
     }
 }
 
-module.exports.World = World;
-module.exports.getDriver = getDriver;
-module.exports.getPort = getPort;
-module.exports.loginUser = loginUser;
-module.exports.logoutUser = logoutUser;
-module.exports.init = init;
+defineSupportCode(({setWorldConstructor}) => {
+    setWorldConstructor(CustomWorld);
+});
+
+module.exports = CustomWorld;
