@@ -102,7 +102,8 @@ module.exports = (gulp, $) => {
             'copy-all',
             'shards',
             'split',
-            ['copy-index', 'blockly-media', 'assets', 'workers', 'i18n', 'kano-code-lib'],
+            ['blockly-media', 'assets', 'workers', 'i18n', 'kano-code-lib'],
+            'copy-index',
             'compress',
             'sw',
             'external-play-bundle', done);
