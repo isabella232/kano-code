@@ -47,16 +47,16 @@ pipeline {
                     def bucket = ''
                     if (env.BRANCH_NAME == "jenkins") {
                         echo 'deploy skipped'
-                    } else if (env.BRANCH_NAME == "prod-lightboard") {
-                        bucket = 'apps-lightboard.kano.me'
+                    } else if (env.BRANCH_NAME == "prod") {
+                        bucket = 'make-apps-prod-site.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
-                    } else if (env.BRANCH_NAME == "lightboard") {
-                        bucket = 'apps-lightboard-staging.kano.me'
-                        deploy('./www', bucket)
-                        archive(bucket)
-                    } else if (env.BRANCH_NAME == "lightboard-rc") {
-                        bucket = 'apps-lightboard-rc.kano.me'
+                        // Rebuild the config of the index with the kit's target env
+                        env.TARGET = "osonline"
+                        sh 'gulp copy-index'
+                        deploy('./www', 'make-apps-kit-site.kano.me')
+                    } else if (env.BRANCH_NAME == "rc") {
+                        bucket = 'apps-rc.kano.me'
                         deploy('./www', bucket)
                         archive(bucket)
                     } else if (env.NODE_ENV=="staging") {
@@ -65,14 +65,6 @@ pipeline {
                         archive(bucket)
                         sh 'gulp doc'
                         deploy('./www-doc', 'make-apps-doc')
-                    } else if (env.NODE_ENV=="production") {
-                        bucket = 'make-apps-prod-site.kano.me'
-                        deploy('./www', bucket)
-                        archive(bucket)
-                        // Rebuild the config of the index with the kit's target env
-                        env.TARGET = "osonline"
-                        sh 'gulp copy-index'
-                        deploy('./www', 'make-apps-kit-site.kano.me')
                     }
                 }
             }
@@ -102,9 +94,9 @@ pipeline {
 }
 
 def prepare_env () {
-    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="lightboard" || env.BRANCH_NAME=="lightboard-rc") {
+    if (env.BRANCH_NAME=="master" || env.BRANCH_NAME=="jenkins" || env.BRANCH_NAME=="rc") {
         env.DEV_ENV = "staging"
-    } else if (env.BRANCH_NAME=="prod" || env.BRANCH_NAME=="prod-lightboard" || env.BRANCH_NAME=="pre-release") {
+    } else if (env.BRANCH_NAME=="prod") {
         env.DEV_ENV = "production"
     }
     env.NODE_ENV = "${env.DEV_ENV}"
