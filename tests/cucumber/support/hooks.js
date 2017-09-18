@@ -50,4 +50,5 @@ defineSupportCode(({BeforeAll, AfterAll, Before, After}) => {
         let finalise = coverageEnv ? generateCoverageReport() : Promise.resolve();
         return finalise.then(() => World.driver.quit());
     });
+
 });

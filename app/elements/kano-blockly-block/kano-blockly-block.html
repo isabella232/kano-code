@@ -47,7 +47,16 @@
                 if (!this.ws) {
                     this._createWorskspace();
                 }
-                let xml = Blockly.Xml.textToDom(`<xml><block type="${type}"></block></xml>`);
+                let catId = Kano.MakeApps.Blockly.Defaults.categoryMap[type],
+                    cat, colour, xml, extraArgs = '';
+                if (catId) {
+                    cat = Kano.MakeApps.Blockly.modules[catId];
+                    if (cat) {
+                        colour = cat.category.colour;
+                        extraArgs += `colour="${colour}"`;
+                    }
+                }
+                xml = Blockly.Xml.textToDom(`<xml><block type="${type}" ${extraArgs}></block></xml>`);
                 this.ws.clear();
                 this.ws.scale = 0.9;
                 this.async(() => {

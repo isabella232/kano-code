@@ -26,6 +26,7 @@ EDITOR_SELECTORS['done in add parts dialog'] = ['kano-add-parts', 'header button
 EDITOR_SELECTORS['Confirm part deletion dialog'] = ['#dialog-confirm-delete'];
 EDITOR_SELECTORS['Default workspace'] = ['kano-workspace', 'kano-editor-normal', 'kano-default-workspace'];
 EDITOR_SELECTORS['Part editor'] = ['#edit-part-dialog-content'];
+EDITOR_SELECTORS['flyout'] = ['kano-root-view', 'kwc-blockly', 'kwc-blockly-toolbox', 'kwc-blockly-flyout'];
 
 user = USER;
 
@@ -250,6 +251,12 @@ class CustomWorld {
                 }, 2000);
             });
     }
+    getCategoryButton (id) {
+        return this.getEditorElement()
+            .then(el => {
+                return this.driver.executeScript(`return arguments[0].getBlocklyWorkspace().toolbox.getCategoryElement(arguments[1])`, el, id);
+            });
+    }
     wait (duration) {
         return new Promise((resolve) => {
             setTimeout(resolve, duration);
@@ -257,7 +264,8 @@ class CustomWorld {
     }
 }
 
-defineSupportCode(({setWorldConstructor}) => {
+defineSupportCode(({setWorldConstructor, setDefaultTimeout}) => {
+    setDefaultTimeout(60 * 10000);
     setWorldConstructor(CustomWorld);
 });
 
