@@ -70,13 +70,6 @@
                             code = `'${field}'`;
                         return [code];
                     };
-                },
-                pseudo: () => {
-                    return (block) => {
-                        let field = block.getFieldValue('FIELD'),
-                            code = `'${field}'`;
-                        return [code];
-                    };
                 }
             }, {
                 block: (ui) => {
@@ -94,13 +87,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let src = Blockly.JavaScript.valueToCode(block, 'SRC') || `'headlines'`,
-                            code = `devices.get('${part.id}').setConfig('src', ${src});\n`;
-                        return code;
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let src = Blockly.JavaScript.valueToCode(block, 'SRC') || `'headlines'`,
                             code = `devices.get('${part.id}').setConfig('src', ${src});\n`;

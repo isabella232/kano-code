@@ -39,11 +39,6 @@
                     return function () {
                         return [`devices.get('${ui.id}').getLabel()`];
                     };
-                },
-                pseudo: (ui) => {
-                    return function () {
-                        return [`${ui.id}.label`];
-                    };
                 }
             },{
                 block: (ui) => {
@@ -63,12 +58,6 @@
                     return function (block) {
                         let label = Blockly.JavaScript.valueToCode(block, 'LABEL');
                         return `devices.get('${ui.id}').setLabel(${label});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let label = Blockly.Pseudo.valueToCode(block, 'LABEL') || `''`;
-                        return `${ui.id}.setLabel(${label});\n`;
                     };
                 }
             },{
@@ -91,12 +80,6 @@
                         let colour = Blockly.JavaScript.valueToCode(block, 'COLOUR');
                         return `devices.get('${ui.id}').setBackgroundColour(${colour});`;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let colour = Blockly.Pseudo.valueToCode(block, 'COLOUR') || `'orange'`;
-                        return `${ui.id}.setBackgroundColour(${colour});\n`;
-                    };
                 }
             },{
                 block: (ui) => {
@@ -117,12 +100,6 @@
                     return function (block) {
                         let colour = Blockly.JavaScript.valueToCode(block, 'COLOUR');
                         return `devices.get('${ui.id}').setColour(${colour});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let colour = Blockly.Pseudo.valueToCode(block, 'COLOUR') || `'orange'`;
-                        return `${ui.id}.setColour(${colour});\n`;
                     };
                 }
             }]

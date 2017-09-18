@@ -7,18 +7,6 @@
     let category,
         register = (Blockly) => {
 
-        Blockly.Blocks.colour_picker = {
-            init: function () {
-                this.appendDummyInput()
-                    .appendField(new Blockly.FieldCustomColor("#ff0000"), 'COLOUR');
-
-                this.setOutput('Colour');
-                this.setHelpUrl("%{BKY_COLOUR_PICKER_HELPURL}");
-                this.setColour("%{BKY_COLOUR_HUE}");
-                this.setTooltip("%{BKY_COLOUR_PICKER_TOOLTIP}");
-            }
-        };
-
         Blockly.Blocks.random_colour = {
             init: function () {
                 let json = {
@@ -167,10 +155,6 @@
                 code    = `math.lerp(${from}, ${to}, ${percent})`;
             return [code];
         };
-
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
     };
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name  : Blockly.Msg.CATEGORY_COLOR,

@@ -204,10 +204,6 @@
         Blockly.Pseudo.restart_code = (block) => {
             return 'global.restartCode();';
         };
-
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
     };
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_CONTROL,

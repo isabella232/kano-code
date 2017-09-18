@@ -41,14 +41,6 @@
                             code = `devices.get('${ui.id}').showMarker(${latitude}, ${longitude});\n`;
                         return code;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let latitude = Blockly.Pseudo.valueToCode(block, 'LATITUDE') || 51,
-                            longitude = Blockly.Pseudo.valueToCode(block, 'LONGITUDE') || 0,
-                            code = `${ui.id}.moveMarkerTo(${latitude}, ${longitude});\n`;
-                        return code;
-                    };
                 }
             }, {
                 block: (ui) => {
@@ -80,13 +72,6 @@
                             code = `devices.get('${ui.id}').setMapType("${mapType}");\n`;
                         return code;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let mapType = block.getFieldValue('MAPTYPE'),
-                            code = `${ui.id}.setMapType("${mapType}");\n`;
-                        return code;
-                    };
                 }
             }, {
                 block: (ui) => {
@@ -108,13 +93,6 @@
                             code = `devices.get('${ui.id}').setMapZoom(${zoom});\n`;
                         return code;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let zoom = Blockly.JavaScript.valueToCode(block, 'ZOOM') || 20,
-                            code = `${ui.id}.setMapZoom(${zoom});\n`;
-                        return code;
-                    };
                 }
             }, {
                 block: (ui) => {
@@ -129,12 +107,6 @@
                 javascript: (ui) => {
                     return function (block) {
                         code = `devices.get('${ui.id}').moveToRandom();\n`;
-                        return code;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        code = `${ui.id}.moveToRandom();\n`;
                         return code;
                     };
                 }

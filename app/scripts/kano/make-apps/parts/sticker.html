@@ -45,10 +45,10 @@
                 id: 'clicked'
             }],
             blocks: [{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'set_sticker',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_STICKER_SET}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_STICKER_SET}`,
                         args0: [{
                             type: "input_value",
                             name: "PICTURE",
@@ -57,21 +57,14 @@
                         previousStatement: null,
                         nextStatement: null,
                         shadow: {
-                            'PICTURE': '<shadow type="assets_get_sticker"></shadow>'
+                            'PICTURE': `<shadow type="assets_get_sticker" colour="${part.colour}"></shadow>`
                         }
                     };
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let pic = Blockly.JavaScript.valueToCode(block, 'PICTURE'),
-                            code = `devices.get('${ui.id}').setSticker(${pic});\n`;
-                        return code;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let pic = Blockly.Pseudo.valueToCode(block, 'PICTURE'),
-                            code = `${ui.id}.setSticker(${pic});\n`;
+                            code = `devices.get('${part.id}').setSticker(${pic});\n`;
                         return code;
                     };
                 }
@@ -135,12 +128,6 @@
                             set = block.getFieldValue('SET');
                         return [`parts.get('${part.id}').getSticker('${set}', '${sticker}')`];
                     };
-                },
-                pseudo: () => {
-                    return (block) => {
-                        let sample = block.getFieldValue('STICKER') || 'amen';
-                        return [`'${sample}'`];
-                    };
                 }
             }, {
                 block: (ui) => {
@@ -151,12 +138,6 @@
                     };
                 },
                 javascript: (ui) => {
-                    return function (block) {
-                        let code = [`parts.get('${ui.id}').randomSticker()`];
-                        return code;
-                    };
-                },
-                pseudo: (ui) => {
                     return function (block) {
                         let code = [`parts.get('${ui.id}').randomSticker()`];
                         return code;
@@ -177,13 +158,6 @@
                     };
                 },
                 javascript: (ui) => {
-                    return function (block) {
-                        let set = block.getFieldValue('SET') || 'animals',
-                            code = [`parts.get('${ui.id}').randomSticker('${set}')`];
-                        return code;
-                    };
-                },
-                pseudo: (ui) => {
                     return function (block) {
                         let set = block.getFieldValue('SET') || 'animals',
                             code = [`parts.get('${ui.id}').randomSticker('${set}')`];

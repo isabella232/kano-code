@@ -40,11 +40,6 @@
                     return function () {
                         return [`devices.get('${ui.id}').getValue()`];
                     };
-                },
-                pseudo: (ui) => {
-                    return function () {
-                        return [`${ui.id}.value`];
-                    };
                 }
             },{
                 block: (ui) => {
@@ -57,11 +52,6 @@
                 javascript: (ui) => {
                     return function () {
                         return [`devices.get('${ui.id}').getPlaceholder()`];
-                    };
-                },
-                pseudo: (ui) => {
-                    return function () {
-                        return [`${ui.id}.placeholder`];
                     };
                 }
             },{
@@ -82,12 +72,6 @@
                         let value = Blockly.JavaScript.valueToCode(block, 'INPUT');
                         return `devices.get('${ui.id}').setValue(${value});`;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let value = Blockly.Pseudo.valueToCode(block, 'INPUT') || `''`;
-                        return `${ui.id}.setValue(${value});\n`;
-                    };
                 }
             },{
                 block: (ui) => {
@@ -106,12 +90,6 @@
                     return function (block) {
                         let placeholder = Blockly.JavaScript.valueToCode(block, 'PLACEHOLDER');
                         return `devices.get('${ui.id}').setPlaceholder(${placeholder});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let placeholder = Blockly.Pseudo.valueToCode(block, 'PLACEHOLDER') || `''`;
-                        return `${ui.id}.setPlaceholder(${placeholder});\n`;
                     };
                 }
             }]

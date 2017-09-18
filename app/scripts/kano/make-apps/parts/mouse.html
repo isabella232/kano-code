@@ -31,14 +31,6 @@
                             code = `devices.get('${part.id}').on('${type}', function (){\n${statement}});\n`;
                         return code;
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let type = block.getFieldValue('TYPE'),
-                            statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                            code = `devices.get('${part.id}').on('${type}', function (){\n${statement}});\n`;
-                        return code;
-                    };
                 }
             },
             mouseX: {
@@ -50,12 +42,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getX()`;
-                        return [code];
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let code = `devices.get('${part.id}').getX()`;
                         return [code];
@@ -75,12 +61,6 @@
                         let code = `devices.get('${part.id}').getY()`;
                         return [code];
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getY()`;
-                        return [code];
-                    };
                 }
             },
             speedX: {
@@ -96,12 +76,6 @@
                         let code = `devices.get('${part.id}').getXSpeed()`;
                         return [code];
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getXSpeed()`;
-                        return [code];
-                    };
                 }
             },
             speedY: {
@@ -113,12 +87,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getYSpeed()`;
-                        return [code];
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let code = `devices.get('${part.id}').getYSpeed()`;
                         return [code];
@@ -148,18 +116,11 @@
                             code = `devices.get('${part.id}').setCursor(${cursor});\n`;
                         return code;
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let cursor = block.getFieldValue('CURSOR'),
-                            code = `devices.get('${part.id}').setCursor(${cursor});\n`;
-                        return code;
-                    };
                 }
             }
         };
 
-        let microphone = {
+        let mouse = {
             partType: 'hardware',
             type: 'mouse',
             label: Kano.MakeApps.Msg.PART_MOUSE_NAME,
@@ -179,6 +140,6 @@
             ]
         };
 
-        Kano.MakeApps.Parts.registerPart(microphone);
+        Kano.MakeApps.Parts.registerPart(mouse);
     })(window.Kano = window.Kano || {});
 </script>
