@@ -42,28 +42,23 @@
             },
             colour: '#E73544',
             blocks: [{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'length',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_LENGTH}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_LENGTH}`,
                         output: 'Number'
                     };
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
-                        return [`devices.get('${ui.id}').pictures.length`];
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        return [`devices.get('${ui.id}').pictures.length`];
+                        return [`devices.get('${part.id}').pictures.length`];
                     };
                 }
             },{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'add_picture',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_ADD_PICTURE}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_ADD_PICTURE}`,
                         args0: [{
                             type: 'input_value',
                             name: 'PICTURE'
@@ -72,23 +67,17 @@
                         nextStatement: null
                     };
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let picture = Blockly.JavaScript.valueToCode(block, 'PICTURE') || "''";
-                        return `devices.get('${ui.id}').addPicture(${picture});\n`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let picture = Blockly.Pseudo.valueToCode(block, 'PICTURE') || "''";
-                        return `devices.get('${ui.id}').addPicture(${picture});\n`;
+                        return `devices.get('${part.id}').addPicture(${picture});\n`;
                     };
                 }
             },{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'get_nth_picture',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_GET_PICTURE}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_PICTURE_LIST_GET_PICTURE}`,
                         args0: [{
                             type: "input_value",
                             name: "INDEX",
@@ -96,20 +85,14 @@
                         }],
                         output: true,
                         shadow: {
-                            'INDEX': '<shadow type="math_number"><field name="NUM">0</field></shadow>'
+                            'INDEX': `<shadow type="math_number" colour="${part.colour}"><field name="NUM">0</field></shadow>`
                         }
                     };
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let index = Blockly.JavaScript.valueToCode(block, 'INDEX') || 0;
-                        return [`devices.get('${ui.id}').pictures[${index}] || ''`];
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let index = Blockly.Pseudo.valueToCode(block, 'INDEX') || 0;
-                        return [`devices.get('${ui.id}').pictures[${index}] || ''`];
+                        return [`devices.get('${part.id}').pictures[${index}] || ''`];
                     };
                 }
             },{
@@ -132,13 +115,6 @@
                             code = `devices.get('${part.id}').pictures.forEach(function (picture) {\n${statement}});\n`;
                         return code;
                     };
-                },
-                pseudo: (part) => {
-                    return function (block) {
-                        let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                            code = `devices.get('${part.id}').pictures.forEach(function (picture) {\n${statement}});\n`;
-                        return code;
-                    };
                 }
             },{
                 block: (part) => {
@@ -149,15 +125,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return function (block) {
-                        let code = `picture`;
-                        if (!checkAncestor(block, `${part.id}#for_each_picture`)) {
-                            code = `devices.get('${part.id}').topPicture`;
-                        }
-                        return [code];
-                    };
-                },
-                pseudo: (part) => {
                     return function (block) {
                         let code = `picture`;
                         if (!checkAncestor(block, `${part.id}#for_each_picture`)) {
@@ -180,12 +147,6 @@
                         let code = `devices.get('${part.id}').play();\n`;
                         return code;
                     };
-                },
-                pseudo: (part) => {
-                    return function (block) {
-                        let code = `devices.get('${part.id}').play();\n`;
-                        return code;
-                    };
                 }
             },{
                 block: (part) => {
@@ -197,12 +158,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return function (block) {
-                        let code = `devices.get('${part.id}').pause();\n`;
-                        return code;
-                    };
-                },
-                pseudo: (part) => {
                     return function (block) {
                         let code = `devices.get('${part.id}').pause();\n`;
                         return code;
@@ -222,18 +177,11 @@
                         previousStatement: null,
                         nextStatement: null,
                         shadow: {
-                            'SPEED': '<shadow type="math_number"><field name="NUM">15</field></shadow>'
+                            'SPEED': `<shadow type="math_number" colour="${part.colour}"><field name="NUM">15</field></shadow>`
                         }
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || 15,
-                            code = `devices.get('${part.id}').setSpeed(${speed});\n`;
-                        return code;
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || 15,
                             code = `devices.get('${part.id}').setSpeed(${speed});\n`;
@@ -250,12 +198,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').saveGif();\n`;
-                        return code;
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let code = `devices.get('${part.id}').saveGif();\n`;
                         return code;

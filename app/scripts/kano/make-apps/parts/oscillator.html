@@ -67,12 +67,6 @@
                         let code = `devices.get('${part.id}').getValue()`;
                         return [code];
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getValue()`;
-                        return [code];
-                    };
                 }
             }, {
                 block: (part) => {
@@ -93,12 +87,6 @@
                         let speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || 50;
                         return `devices.get('${part.id}').setSpeed(${speed});\n`;
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || 50;
-                        return `devices.get('${part.id}').setSpeed(${speed});\n`;
-                    };
                 }
             }, {
                 block: (part) => {
@@ -109,11 +97,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return () => {
-                        return [`devices.get('${part.id}').getSpeed()`];
-                    };
-                },
-                pseudo: (part) => {
                     return () => {
                         return [`devices.get('${part.id}').getSpeed()`];
                     };
@@ -137,12 +120,6 @@
                         let delay = Blockly.JavaScript.valueToCode(block, 'DELAY') || 0;
                         return `devices.get('${part.id}').setDelay(${delay});\n`;
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let delay = Blockly.Pseudo.valueToCode(block, 'DELAY') || 0;
-                        return `devices.get('${part.id}').setDelay(${delay});\n`;
-                    };
                 }
             }, {
                 block: (part) => {
@@ -153,11 +130,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return () => {
-                        return [`devices.get('${part.id}').getDelay()`];
-                    };
-                },
-                pseudo: (part) => {
                     return () => {
                         return [`devices.get('${part.id}').getDelay()`];
                     };

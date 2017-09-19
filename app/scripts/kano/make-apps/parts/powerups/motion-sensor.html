@@ -88,14 +88,6 @@
                             code = `devices.get('${part.id}').whenEntersZone(${zone}, function () {\n${statement}\n})`;
                         return code;
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let zone = block.getFieldValue('ZONE'),
-                            statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                            code = `devices.get('${part.id}').whenEntersZone(${zone}, function () {\n${statement}\n})`;
-                        return code;
-                    };
                 }
             },{
                 block: (part) => {
@@ -107,12 +99,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return (block) => {
-                        let code = `devices.get('${part.id}').getValue()`;
-                        return [code];
-                    };
-                },
-                pseudo: (part) => {
                     return (block) => {
                         let code = `devices.get('${part.id}').getValue()`;
                         return [code];

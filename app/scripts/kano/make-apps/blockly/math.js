@@ -25,7 +25,7 @@
 
                 this.setInputsInline(true);
                 this.setOutput('Number');
-                this.setColour('%{BKY_MATH_HUE}');
+                this.setColour(COLOR);
                 this.setHelpUrl('%{BKY_MATH_ARITHMETIC_HELPURL}');
             }
         }
@@ -451,10 +451,6 @@
         Blockly.Pseudo.math_round = Blockly.Pseudo.math_single;
         Blockly.Pseudo.math_number_property = Blockly.JavaScript.math_number_property;
         Blockly.Pseudo.math_modulo = Blockly.JavaScript.math_modulo;
-
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
     };
 
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({

@@ -4,12 +4,7 @@
     const COLOR = '#ffc100';
 
     let category,
-        register = (Blockly) => {
-
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
-    };
+        register = () => {};
 
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_VARIABLES,

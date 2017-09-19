@@ -5,11 +5,11 @@
         Kano.MakeApps.Parts.Canvas = Kano.MakeApps.Parts.Canvas || {};
 
         Kano.MakeApps.Parts.Canvas.general = [{
-            block: (ui) => {
+            block: (part) => {
                 return {
                     id: 'set_background_color',
                     lookup: 'setBackgroundColor(color)',
-                    message0: `${ui.name}: ${Blockly.Msg.BLOCK_CANVAS_SETBACKGROUND_COLOR}`,
+                    message0: `${part.name}: ${Blockly.Msg.BLOCK_CANVAS_SETBACKGROUND_COLOR}`,
                     args0: [{
                         type: "input_value",
                         name: "COLOR",
@@ -18,20 +18,14 @@
                     previousStatement: null,
                     nextStatement: null,
                     shadow: {
-                        'COLOR': '<shadow type="colour_picker"><field name="COLOUR">#FFF</field></shadow>'
+                        'COLOR': `<shadow type="colour_picker" colour="${part.colour}"><field name="COLOUR">#FFF</field></shadow>`
                     }
                 };
             },
-            javascript: (ui) => {
+            javascript: (part) => {
                 return function (block) {
                     let color = Blockly.JavaScript.valueToCode(block, 'COLOR');
-                    return `devices.get('${ui.id}').setBackgroundColor(${color});\n`;
-                };
-            },
-            pseudo: (ui) => {
-                return function (block) {
-                    let color = Blockly.Pseudo.valueToCode(block, 'COLOR');
-                    return `devices.get('${ui.id}').setBackgroundColor(${color});\n`;
+                    return `devices.get('${part.id}').setBackgroundColor(${color});\n`;
                 };
             }
         }];

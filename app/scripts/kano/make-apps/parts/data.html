@@ -68,12 +68,6 @@
                                 let code = `devices.get('${part.id}').refresh();`;
                                 return code;
                             };
-                        },
-                        pseudo: (part) => {
-                            return () => {
-                                let code = `${part.id}.refresh();\n`;
-                                return code;
-                            };
                         }
                     });
                 }
@@ -100,14 +94,6 @@
                                 let value = Blockly.JavaScript.valueToCode(block, 'VALUE'),
                                 param = block.getFieldValue('PARAM'),
                                 code = `devices.get('${part.id}').setConfig('${param}', ${value});\n`;
-                                return code;
-                            };
-                        },
-                        pseudo: (part) => {
-                            return function (block) {
-                                let value = Blockly.Pseudo.valueToCode(block, 'VALUE'),
-                                param = block.getFieldValue('PARAM'),
-                                code = `${part.id}.${param} = ${value};\n`;
                                 return code;
                             };
                         }
@@ -138,13 +124,6 @@
                                     }
                                     return [code];
                                 };
-                            },
-                            pseudo: (part) => {
-                                return function (block) {
-                                    let key = block.getFieldValue('KEY'),
-                                    code = `item.${key}`;
-                                    return [code];
-                                };
                             }
                         });
                     } else {
@@ -165,13 +144,6 @@
                                 return function (block) {
                                     let key = block.getFieldValue('KEY'),
                                     code = `devices.get('${part.id}').getValue('${key}')`;
-                                    return [code];
-                                };
-                            },
-                            pseudo: (part) => {
-                                return function (block) {
-                                    let key = block.getFieldValue('KEY'),
-                                    code = `${part.id}.${key}`;
                                     return [code];
                                 };
                             }
@@ -199,13 +171,6 @@
                                     code = `devices.get('${part.id}').getData().forEach(function (item) {
                                         ${statement}
                                     });\n`;
-                                return code;
-                            };
-                        },
-                        pseudo: (part) => {
-                            return function (block) {
-                                let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                                    code = `for(let item in ${part.id}) {\n${statement}\n}\n`;
                                 return code;
                             };
                         }

@@ -67,6 +67,9 @@ defineSupportCode(({When}) => {
                     return this.findElement(editorElement, ['kano-part-editor-topbar', '#done']);
                 });
             }
+        } else if (m = arg1.match(/ category$/)) {
+            arg1 = arg1.replace(/ category$/, '');
+            p = this.getCategoryButton(arg1);
         } else {
             p = this.getEditorElement(arg1);
         }
