@@ -44,20 +44,6 @@
             return code;
         };
 
-        Blockly.Pseudo.part_event = (block) => {
-            let ev = block.getFieldValue('EVENT'),
-                statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-                pieces = ev.split('.'),
-                emitter = pieces[0],
-                eventId = pieces[1],
-                code = `devices.get('${emitter}')`;
-            if (emitter === 'global') {
-                code = 'global';
-            }
-            code += `.when('${eventId}', function () {\n${statement}});\n`;
-            return code;
-        };
-
         // Create a block shell of the collision event if not there yet
         if (!Blockly.Blocks.collision_event) {
             Blockly.Blocks.collision_event = {
@@ -134,13 +120,7 @@
             return code;
         };
 
-        Blockly.Pseudo.collision_event = (block) => {
-            let part1Id = block.getFieldValue('PART1'),
-                part2Id = block.getFieldValue('PART2'),
-                statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                code = `parts.whenCollisionBetween(${part1Id ? part1Id : null}, ${part2Id}, function () {\n${statement}});\n`;
-            return code;
-        };
+        Kano.MakeApps.Blockly.Defaults.upgradeCategoryColours('events', COLOR);
 
     };
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
@@ -152,8 +132,6 @@
             'collision_event'
         ]
     });
-
-    Kano.MakeApps.Blockly.setLookupString('part_event', 'when(event, action)');
 
     Kano.MakeApps.Blockly.addModule('events', {
         register,

@@ -48,6 +48,15 @@
             return shadow;
         };
 
+        /**
+         * Goes through all the blocks of the category and enforce a color
+         */
+        Defaults.upgradeCategoryColours = function (id, color) {
+            Kano.MakeApps.Blockly.modules[id].category.blocks.forEach(block => {
+                Blockly.Blocks[block.id].customColor = color;
+            });
+        };
+
         Defaults.createCategory = function (opts) {
             var shadow,
                 blocks = opts.blocks.map(block => {

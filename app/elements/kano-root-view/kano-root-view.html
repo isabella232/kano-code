@@ -192,24 +192,16 @@
             }
         },
         _registerBlock (part, definition) {
-            let block = definition.block(part),
-                lookups,
-                lookupString;
-
-            block.lookup = block.lookup || [];
-            lookups = Array.isArray(block.lookup) ? block.lookup : [block.lookup];
+            let block = definition.block(part);
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
-            lookups.forEach(lookup => {
-                lookupString = `${part.id}.${lookup}`;
-                Kano.MakeApps.Blockly.setLookupString(block.id, lookupString);
-            });
             if (!block.doNotRegister) {
                 Blockly.Blocks[block.id] = {
                     init: function () {
                         this.jsonInit(block);
                     }
                 };
+                Blockly.Blocks[block.id].customColor = block.colour;
             }
             Blockly.JavaScript[block.id] = definition.javascript(part);
             // Hack to register blocks from the normal mode under the dropzone id to support older shares
@@ -221,6 +213,7 @@
                             this.jsonInit(block);
                         }
                     };
+                    Blockly.Blocks[block.id].customColor = block.colour;
                 }
                 Blockly.JavaScript[block.id] = definition.javascript(part);
             }

@@ -4,7 +4,9 @@
     const COLOR = '#ffc100';
 
     let category,
-        register = () => {};
+        register = () => {
+            Kano.MakeApps.Blockly.Defaults.upgradeCategoryColours('variables', COLOR);
+        };
 
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_VARIABLES,
@@ -18,13 +20,6 @@
             'variables_get'
         ]
     });
-
-    Kano.MakeApps.Blockly.setLookupString('math_number', 'number');
-    Kano.MakeApps.Blockly.setLookupString('text', 'text');
-    Kano.MakeApps.Blockly.setLookupString('text_join', 'textJoin(a, b, ...)');
-    Kano.MakeApps.Blockly.setLookupString('variables_get', 'get');
-    Kano.MakeApps.Blockly.setLookupString('variables_set', 'set');
-    Kano.MakeApps.Blockly.setLookupString('variables_set', '=');
 
     Kano.MakeApps.Blockly.addModule('variables', {
         register,

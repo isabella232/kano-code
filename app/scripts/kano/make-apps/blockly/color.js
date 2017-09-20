@@ -24,11 +24,6 @@
             return [code];
         };
 
-        Blockly.Pseudo.random_colour  = () => {
-            let code = `randomColour()`;
-            return [code];
-        };
-
         Blockly.Blocks.create_color = {
             inputs: {
                 rgb: {
@@ -101,18 +96,6 @@
             return [code];
         };
 
-        Blockly.Pseudo.create_color = (block) => {
-            let type     = block.getFieldValue('TYPE'),
-                one      = Blockly.Pseudo.valueToCode(block, '1') || 0,
-                two      = Blockly.Pseudo.valueToCode(block, '2'),
-                three    = Blockly.Pseudo.valueToCode(block, '3'),
-                defaults = type === 'hsv' ? 100 : 0;
-                two      = two || defaults;
-                three    = three || defaults;
-            let code     = `colour.create('${type}', ${one}, ${two}, ${three})`;
-            return [code];
-        };
-
         Blockly.Blocks.color_lerp = {
             init: function () {
                 let json = {
@@ -148,13 +131,7 @@
             return [code];
         };
 
-        Blockly.Pseudo.color_lerp = (block) => {
-            let from    = Blockly.JavaScript.valueToCode(block, 'FROM') || '"#000000"',
-                to      = Blockly.JavaScript.valueToCode(block, 'TO') || '"#ffffff"',
-                percent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
-                code    = `math.lerp(${from}, ${to}, ${percent})`;
-            return [code];
-        };
+        Kano.MakeApps.Blockly.Defaults.upgradeCategoryColours('color', COLOR);
     };
     category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name  : Blockly.Msg.CATEGORY_COLOR,
@@ -170,10 +147,6 @@
             }
         ]
     });
-
-    Kano.MakeApps.Blockly.setLookupString('colour_picker', 'colorPicker()');
-    Kano.MakeApps.Blockly.setLookupString('create_color', 'createColor(type, 1, 2, 3)');
-    Kano.MakeApps.Blockly.setLookupString('random_colour', 'randomColor()');
 
     Kano.MakeApps.Blockly.addModule('color', {
         register,

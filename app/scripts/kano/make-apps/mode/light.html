@@ -52,14 +52,6 @@
                         code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
                     return code;
                 };
-            },
-            pseudo: (part) => {
-                return (block) => {
-                    let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
-                        color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '""',
-                        code = `devices.get('${part.id}').turnOn(${target}, ${color});\n`;
-                    return code;
-                };
             }
         },{
             block: () => {
@@ -79,13 +71,6 @@
             javascript: (part) => {
                 return (block) => {
                     let target = Blockly.JavaScript.valueToCode(block, 'TARGET') || '',
-                        code = `devices.get('${part.id}').turnOff(${target});\n`;
-                    return code;
-                };
-            },
-            pseudo: (part) => {
-                return (block) => {
-                    let target = Blockly.Pseudo.valueToCode(block, 'TARGET') || '',
                         code = `devices.get('${part.id}').turnOff(${target});\n`;
                     return code;
                 };
@@ -145,20 +130,6 @@
                 return (block) => {
                     let x = Blockly.JavaScript.valueToCode(block, 'X') || 0,
                         y = Blockly.JavaScript.valueToCode(block, 'Y') || 0;
-                    if (block.parentBlock_) {
-                        return [`{
-                            type: 'single',
-                            x: ${x}-1,
-                            y: ${y}-1
-                        }`];
-                    }
-                    return;
-                };
-            },
-            pseudo: () => {
-                return (block) => {
-                    let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                        y = Blockly.Pseudo.valueToCode(block, 'Y') || 0;
                     if (block.parentBlock_) {
                         return [`{
                             type: 'single',
@@ -309,15 +280,6 @@
                         code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
                     return code;
                 };
-            },
-            pseudo: (part) => {
-                return (block) => {
-                    let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '""',
-                        color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
-                        backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
-                        code = `devices.get('${part.id}').text(${text}, ${color}, ${backgroundColor});\n`;
-                    return code;
-                };
             }
         },{
             block: () => {
@@ -359,16 +321,6 @@
                         color = Blockly.JavaScript.valueToCode(block, 'COLOR') || '"#ffffff"',
                         backgroundColor = Blockly.JavaScript.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
                         speed = Blockly.JavaScript.valueToCode(block, 'SPEED') || '50',
-                        code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
-                    return code;
-                };
-            },
-            pseudo: (part) => {
-                return (block) => {
-                    let text = Blockly.Pseudo.valueToCode(block, 'TEXT') || '""',
-                        color = Blockly.Pseudo.valueToCode(block, 'COLOR') || '"#ffffff"',
-                        backgroundColor = Blockly.Pseudo.valueToCode(block, 'BACKGROUND_COLOR') || '"#000000"',
-                        speed = Blockly.Pseudo.valueToCode(block, 'SPEED') || '50',
                         code = `devices.get('${part.id}').scroll(${text}, ${color}, ${backgroundColor}, ${speed});\n`;
                     return code;
                 };
