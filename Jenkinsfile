@@ -60,7 +60,7 @@ pipeline {
                         deploy("staging", true)
 
                         sh "gulp doc"
-                        sh "kart archive ./www-doc -a releases.kano.me -r . --name kano-code-doc --channel main --release"
+                        sh "./node_modules/.bin/kart archive ./www-doc -a releases.kano.me -r . --name kano-code-doc --channel main --release"
                     }
                 }
             }
@@ -106,7 +106,7 @@ def run_tests () {
 }
 
 def deploy(branch, release) {
-    def cmd = "kart archive ./www -a releases.kano.me -r . --channel ${branch}"
+    def cmd = "./node_modules/.bin/kart archive ./www -a releases.kano.me -r . --channel ${branch}"
 
     if (release) {
         cmd = cmd + " --release"
