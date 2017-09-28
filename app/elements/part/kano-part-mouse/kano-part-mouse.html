@@ -41,6 +41,7 @@
                 this.removeEventListener(listener.eventName, listener.cb);
             });
             this.listeners = [];
+            this.workspace.style.cursor = 'initial';
         },
         on (type, cb) {
             let eventName = `mouse-${type}`;
@@ -72,7 +73,7 @@
             this.loadImage(cursor)
                 .then((url) => {
                     this.workspace.style.cursor = `url('${url}'), auto`;
-                })
+                });
         },
         loadImage (url) {
             if (this._imageCache[url]) {
