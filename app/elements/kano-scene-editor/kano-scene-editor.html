@@ -9,6 +9,7 @@
 <link rel="import" href="../kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../kano-editor-banner/kano-editor-banner.html">
 <link rel="import" href="../kano-editor-topbar/kano-editor-topbar.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <dom-module id="kano-scene-editor">
     <style>
         :host {
@@ -474,18 +475,9 @@
             }
             this.categories = cats;
         },
-        copy(o) {
-            var _out, v, _key;
-            _out = Array.isArray(o) ? [] : {};
-            for (_key in o) {
-                v = o[_key];
-                _out[_key] = (typeof v === "object") ? this.copy(v) : v;
-            }
-            return _out;
-        },
         _computeMode () {
             // Deep clone and reset the mode
-            const mode = this.copy(this.mode);
+            const mode = Kano.MakeApps.Utils.deepCopy(this.mode);
             // In case we filter blocks in the categories of the mode
             if (this.scene.filterBlocks) {
                 const whitelist = this.scene.filterBlocks[mode.id];
