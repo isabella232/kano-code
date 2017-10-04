@@ -4,7 +4,8 @@
         Kano.MakeApps.Store.addMutator(function (action) {
             switch (action.type) {
                 case 'LOAD_EDITOR_APP': {
-                    this.set('state.editor.app', action.data);
+                    const app = action.data || { mode: 'normal', parts: [] };
+                    this.set('state.editor.app', app);
                     break;
                 }
                 case 'LOAD_APP_FROM_STORY': {
