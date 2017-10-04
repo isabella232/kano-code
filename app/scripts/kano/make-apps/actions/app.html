@@ -1,0 +1,17 @@
+<link rel="import" href="../store.html">
+<script>
+    (() => {
+        Kano.MakeApps.Store.addMutator(function (action) {
+            switch (action.type) {
+                case 'LOAD_EDITOR_APP': {
+                    this.set('state.editor.app', action.data);
+                    break;
+                }
+                case 'LOAD_APP_FROM_STORY': {
+                    this.set('state.story.loadingApp', action.data);
+                    break;
+                }
+            }
+        });
+    })()
+</script>

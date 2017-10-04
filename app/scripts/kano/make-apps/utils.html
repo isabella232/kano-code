@@ -175,5 +175,16 @@
                 Utils.setColorRange(colorMapHS[partType], parts);
             });
         };
+
+        Utils.deepCopy = function (o) {
+            var _out, v, _key;
+            _out = Array.isArray(o) ? [] : {};
+            for (_key in o) {
+                v = o[_key];
+                _out[_key] = (typeof v === "object") ? Utils.deepCopy(v) : v;
+            }
+            return _out;
+        };
+        
     })(window.Kano = window.Kano || {});
 </script>

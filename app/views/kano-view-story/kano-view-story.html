@@ -8,6 +8,7 @@
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../scripts/kano/make-apps/stories.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-view-drop-file-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-code-ga-tracking-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
@@ -18,6 +19,8 @@
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
+<link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
 
 <dom-module id="kano-view-story">
     <style>
@@ -76,6 +79,15 @@
             <button class="kano-alert-primary" on-tap="_confirmExit" dialog-confirm slot="actions">[[localize('CONFIRM', 'Confirm')]]</button>
             <button class="kano-alert-secondary" dialog-dismiss slot="actions">[[localize('CANCEL', 'Cancel')]]</button>
         </kano-alert>
+        <kano-alert id="load-app-alert"
+            heading="[[localize('NOT_FINISHED', 'Oh oh.. not finished yet!')]]"
+            text="[[localize('LEAVE_CHALLENGE', 'Are you sure you want to leave the challenge?')]]"
+            entry-animation="from-big-animation"
+            opened="[[loadingApp]]"
+            with-backdrop>
+            <button class="kano-alert-primary" on-tap="_confirmLoadApp" dialog-confirm slot="actions">[[localize('CONFIRM', 'Load app')]]</button>
+            <button class="kano-alert-secondary" dialog-dismiss slot="actions">[[localize('CANCEL', 'Cancel')]]</button>
+        </kano-alert>
     </template>
 </dom-module>
 
@@ -87,7 +99,9 @@
             Kano.Behaviors.ViewBehavior,
             Kano.Behaviors.SharingBehavior,
             Kano.Behaviors.Tracking.GABehavior,
-            Kano.Behaviors.I18nBehavior
+            Kano.Behaviors.ViewDropFileBehavior,
+            Kano.Behaviors.I18nBehavior,
+            Kano.MakeApps.Store.ReceiverBehavior
         ],
         properties: {
             selected: {
@@ -102,7 +116,16 @@
             addedParts: {
                 type: Array
             },
-            customAlert: Boolean
+            customAlert: Boolean,
+            loadingApp: {
+                type: Object,
+                linkState: 'story.loadingApp'
+            },
+            editorApp: {
+                type: Object,
+                linkState: 'editor.app',
+                observer: '_editorAppChanged'
+            }
         },
         listeners: {
             'parts-changed': '_partsChanged',
@@ -162,6 +185,25 @@
                     }
                 })
                 .then((progress) => this.updateExtensions(progress));
+        },
+        _onFileDropped (contents) {
+            let app;
+            try {
+                app = JSON.parse(contents);
+                this.dispatch({ type: 'LOAD_APP_FROM_STORY', data: app });
+            } catch (e) {}
+            
+        },
+        _confirmLoadApp () {
+            const state = this.getState();
+            this.dispatch({ type: 'LOAD_EDITOR_APP', data: state.story.loadingApp });
+        },
+        _editorAppChanged () {
+            if (!this.editorApp) {
+                return;
+            }
+            // TODO replace this when routing is based on flow-down
+            page.redirect('/');
         },
         _setupHardwareParts () {
             if (this.hardwareAPI) {

@@ -1,4 +1,8 @@
 <link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
+
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
+<link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
+
 <link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
@@ -12,6 +16,7 @@
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
 <link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
+<link rel="import" href="../../elements/behaviors/kano-view-drop-file-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-reward-modal/kano-reward-modal.html">
 
@@ -66,7 +71,7 @@
         #overlay-text {
             opacity: 0;
             font-size: 32px;
-            font-weight: 200;
+            font-weight: 400;
         }
     </style>
     <template>
@@ -131,7 +136,9 @@
         behaviors: [
             Kano.Behaviors.SharingBehavior,
             Kano.Behaviors.EditorViewBehavior,
-            Kano.Behaviors.I18nBehavior
+            Kano.Behaviors.ViewDropFileBehavior,
+            Kano.Behaviors.I18nBehavior,
+            Kano.MakeApps.Store.ReceiverBehavior
         ],
         properties: {
             context: Object,
@@ -166,6 +173,11 @@
                 type: Boolean,
                 value: false,
                 notify: true
+            },
+            app: {
+                type: Object,
+                linkState: 'editor.app',
+                observer: '_appChanged'
             }
         },
         observers: [
@@ -200,28 +212,14 @@
 
             this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
         },
-        attached () {
-            this._onDragover = this._onDragover.bind(this);
-            this._onDrop = this._onDrop.bind(this);
-            this._onDragenter = this._onDragenter.bind(this);
-            this._onDragleave = this._onDragleave.bind(this);
-            this._bindEvents();
-            this.enterCount = 0;
-        },
-        detached () {
-            this._unbindEvents();
-        },
-        _bindEvents () {
-            this.addEventListener('dragover', this._onDragover, false);
-            this.addEventListener('drop', this._onDrop, false);
-            this.addEventListener('dragenter', this._onDragenter, false);
-            this.addEventListener('dragleave', this._onDragleave, false);
-        },
-        _unbindEvents () {
-            this.removeEventListener('dragover', this._onDragover);
-            this.removeEventListener('drop', this._onDrop);
-            this.removeEventListener('dragenter', this._onDragenter);
-            this.removeEventListener('dragleave', this._onDragleave);
+        _appChanged () {
+            if (!this.app || !this.loaded) {
+                return;
+            }
+            Kano.MakeApps.Parts.clear();
+            this.set('mode', Kano.MakeApps.Mode.modes[this.app.mode]);
+            this._filterParts();
+            this.editor.load(this.app, Kano.MakeApps.Parts.list);
         },
         _pauseApp(modalOpen) {
             if (modalOpen) {
@@ -232,75 +230,12 @@
                 this._wasRunning = undefined;
             }
         },
-        _onDragover (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.dataTransfer.dropEffect = 'copy';
-        },
-        _onDrop (e) {
-            let file;
-            e.preventDefault();
-            e.stopPropagation();
-            this.toggleClass('dragging', false);
-            this._animateDrop().then(() => {
-                this.$['dropoverlay'].style.display = 'none';
-            });
-            file = e.dataTransfer.files[0];
-            if (file) {
-                this._readFile(file)
-                    .then(content => {
-                        return JSON.parse(content);
-                    })
-                    .then(app => {
-                        Kano.MakeApps.Parts.clear();
-                        this.set('mode', Kano.MakeApps.Mode.modes[app.mode]);
-                        this._filterParts();
-                        this.editor.load(app, Kano.MakeApps.Parts.list);
-                    })
-                    .catch(e => {
-                        console.log(e);
-                    });
-            }
-        },
-        _readFile (f) {
-            return new Promise((resolve, reject) => {
-                var reader = new FileReader();
-
-                reader.onload = () => {
-                    resolve(reader.result);
-                };
-
-                reader.onerror = reject;
-
-                reader.readAsText(f);
-            });
-        },
-        _onDragenter (e) {
-            let target = e.path ? e.path[0] : e.target;
-            if (e.dataTransfer.effectAllowed === 'move') {
-                return;
-            }
-            if (target !== this) {
-                this.toggleClass('dragging', true);
-            } else {
-                this.$['dropoverlay'].style.display = 'flex';
-                this._animateDragEnter();
-            }
-        },
-        _onDragleave (e) {
-            let target = e.path ? e.path[0] : e.target;
-            if (target === this) {
-                this.toggleClass('dragging', false);
-                this._animateDragLeave().then(() => {
-                    this.$['dropoverlay'].style.display = 'none';
-                });
-            }
-        },
         _animateDragEnter () {
             let overlay = this.$['dropoverlay'],
                 character = this.$['overlay-character'],
                 text = this.$['overlay-text'];
 
+            overlay.style.display = 'flex';
             overlay.animate([{
                 opacity: 0
             }, {
@@ -353,7 +288,9 @@
             }];
 
             text.animate.apply(text, fadeOutConfig);
-            overlay.animate.apply(overlay, fadeOutConfig);
+            overlay.animate.apply(overlay, fadeOutConfig).onfinish = () => {
+                overlay.style.display = 'none';
+            };
 
             return character.animate([{
                 transform: 'translateY(0%)'
@@ -382,7 +319,9 @@
             }];
 
             text.animate.apply(text, fadeOutConfig);
-            overlay.animate.apply(overlay, fadeOutConfig);
+            overlay.animate.apply(overlay, fadeOutConfig).onfinish = () => {
+                overlay.style.display = 'none';
+            };
 
             character.style.transformOrigin = 'center center';
 
@@ -396,10 +335,19 @@
             }).finished;
 
         },
+        _onFileDropped (contents) {
+            let app;
+            try {
+                app = JSON.parse(contents);
+            } catch (e) {
+                app = null;
+            }
+            this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
+        },
         _onModeReady () {
             let appToLoad,
-                slug = this.context.params.slug,
-                modeId;
+            slug = this.context.params.slug,
+            modeId;
             Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
 
             if (this.loaded) {
@@ -409,7 +357,13 @@
             modeId = this.mode.id;
 
             this.set('defaultCategories', Kano.MakeApps.Blockly.categories);
-
+            
+            // App already in memory, load it
+            if (this.app) {
+                this._appChanged();
+                return;
+            }
+            
             if (slug) {
                 this.remixMode = true;
                 //loading component for remixing, we need to get data from the slug
@@ -420,9 +374,7 @@
                         .then(response => {
                             return response.json();
                         }).then(json => {
-                            this.set('mode', Kano.MakeApps.Mode.modes[json.mode]);
-                            this._filterParts();
-                            this.editor.load(json, Kano.MakeApps.Parts.list);
+                            this.dispatch({ type: 'LOAD_EDITOR_APP', data: json });
                             this.remixedShare = res.body.item;
                         }).catch(err => {
                             console.error('loading failed', err);
@@ -434,8 +386,7 @@
                 });
             } else {
                 appToLoad = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
-                this._filterParts();
-                this.editor.load(appToLoad, Kano.MakeApps.Parts.list);
+                this.dispatch({ type: 'LOAD_EDITOR_APP', data: appToLoad });
             }
         },
         _filterParts () {
