@@ -1,6 +1,26 @@
-## Validator
+## Definition
 
-### Definition
+This document will define the features expected from a challenge engine library that will be used across the Kano platforms to define challenges.
+
+### Challenge
+
+A challenge is a series of steps, each of these steps expect an action from the user to progress to the next step. Once every step were validated, the challenge is completed.
+
+### Step
+
+A step of a challenge contains the information for the application to display UI hints to the user and to know what to wait for until going to the next step.
+
+```json
+{
+    "banner": { "text": "Click on the button" },
+    "tooltip": { "position": "top" },
+    "validation": { "button-clicked": true }
+}
+```
+
+The `validation` property is reserved for the engine, but every other property is free to be defined.
+
+### Validation
 
 A validation is defined under the `validation` key in a step. Each key under this object will make the step listen to an event. If multiple events are defined, they will be treated as a logic `OR`
 
@@ -8,7 +28,7 @@ A validation is defined under the `validation` key in a step. Each key under thi
 {
     "validation": {
         "button-tapped": true,
-        "dialo-opened": true
+        "dialog-opened": true
     }
 }
 ```
@@ -29,11 +49,83 @@ Setting the event to true, will make the engine just listen to the event and val
 More data can be defined in an event validation. This space is free to customise since the validation definition
 will make use of this data or not.
 
-### API
+### UI tools
 
- - `Validator#add`
- - `Validator#addMatchFallback`
- - `Validator#addOppositeAction`
+It is very likely that during a challenge some UI hints will need to be positioned next to on screen elements. To provide an easy access to these elements, an element registry is available.
+
+The element registry would store references to DOM elements that could then be easily accessed from a challenge step definition or a validator.
+
+## API
+
+### Challenge
+
+A challenge needs to have its steps behaviors and shorthands defined before the steps are processed, this is why, the steps are only expanded when the challenge starts
+
+#### `Challenge#start`
+
+Expand the steps, start the challenge with the first step. Before starting, the challenge is in an idle state.
+
+#### `Challenge#getStep`
+
+Returns the current step object.
+
+#### `Challenge#nextStep`
+
+Moves to the next step.
+
+#### `Challenge#addStep`
+
+Adds a step at a provided index in the challenge. if the step is a shorthand, it will expand it in place. If the step is added after the challenge started, the engine must shift the current step by the number of added steps to keep the current step the same.
+
+#### `Challenge#defineBehavior`
+
+Defines a callback that will run every time a custom property in a step changes. This can be used to display UI hints to the user.
+
+```js
+Challenge.defineBehavior('banner', data => {
+    // data will be the contents of the `banner` property
+    // You can use this to customise your UI
+    myBannerEl.textContent = data.text;
+});
+```
+
+#### `Challenge#defineShorthand`
+
+Some parts of the challenges will be very similar, you can define shorthands for groups of steps in your challenges that will be expanded by the engine before running the challenge.
+
+```json
+{
+    "type": "button-and-dialog",
+    "buttonCopy": "Click on the button",
+    "dialogCopy": "open the dialog"
+}
+```
+
+```js
+// This would define a shortcut with static validations but flexible copies
+Challenge.defineShorthand('button-and-dialog', data => {
+    //data: { type: 'button-and-dialog', buttonCopy: 'Click on the button', dialogCopy: 'open the dialog' }
+    return [{
+        banner: buttonCopy,
+        validation: {/* ... */}
+    }, {
+        banner: dialogCopy,
+        validation: {/* ... */}
+    }]
+});
+```
+
+#### `Challenge#triggerEvent`
+
+Notifies the engine of an event. This will make the engine checks for the current validation
+
+```js
+Challenge.triggerEvent('button-tapped', { rightClick: true });
+```
+
+### Validator
+
+#### `Validator#add`
 
 Adds a validation for a specific event. When this event is triggered, the engine will run the function
 to know if the event matches the validation.
@@ -50,6 +142,8 @@ Validator.add('button-tapped', (validation, event) => {
 
 ```
 
+#### `Validator#addMatchFallback`
+
 If the event was triggered, but didn't pass the validation, the match fallback will run.
 This allows you to define UI actions to help the user get back on track if needed
 
@@ -63,7 +157,10 @@ Validator.addMatchFallback('button-tapped', (validation, event) => {
 
 ```
 
+#### `Validator#addOppositeAction`
+
 When waiting for an event, but a different one is triggered some actions can be performed using `addOppositeAction`
+
 ```js
 // Previously `addOppositeAction`
 Validator.addOppositeAction('button-tapped', 'dialog-opened', (validation, event) => {
@@ -73,54 +170,36 @@ Validator.addOppositeAction('button-tapped', 'dialog-opened', (validation, event
 });
 ```
 
-## StepDefinition
+### ElementsRegistry
 
-A step defines a validation that will define when to go to the next step, as well as free data that can define custom behaviors or UI details.
+#### `ElementsRegistry#add`
 
-
-```json
-{
-    "banner": { "text": "Click on the button" },
-    "tooltip": { "position": "top" },
-    "validation": { "button-clicked": true }
-}
-```
-
-All of this data will be interpreted by the StepDefinition. Every behavior you add to the definition will be interpreted when the step is activated.
+Adds an element to the regitry with an id.
 
 ```js
-StepDefinition.defineBehavior('banner', data => {
-    // data will be the contents of the `banner` property
-    // You can use this to customise your UI
-    myBannerEl.textContent = data.text;
+// This would make the element available globally from the id `next-button`
+ElementsRegistry.add('next-button', document.getElementById('nxt-btn'));
+```
+
+#### `ElementsRegistry#get`
+
+Get an element from the regitry.
+
+```js
+// In a step behavior for example
+Challenge.defineBehavior('bouncing-arrow', data => {
+    // Get the element defined in the step
+    const target = ElementsRegistry.get(data.target);
+    // Create a bouncing arrow to show the user where to click
+    const arrow = new BouncingArrow();
+    // Set the target of the arrow to the element
+    arrow.setTarget(target);
+    // Bounce
+    arrow.bounce();
 });
 ```
 
-Some parts of the challenges will be very similar, you can define shorthands for groups of steps in your challenges that will be expanded by the engine before running the challenge.
-
-```json
-{
-    "type": "button-and-dialog",
-    "buttonCopy": "Click on the button",
-    "dialogCopy": "open the dialog"
-}
-```
-
-```js
-// This would define a shortcut with static validations but flexible copies
-StepDefinition.defineShorthand('button-and-dialog', data => {
-    //data: { type: 'button-and-dialog', buttonCopy: 'Click on the button', dialogCopy: 'open the dialog' }
-    return [{
-        banner: buttonCopy,
-        validation: {/* ... */}
-    }, {
-        banner: dialogCopy,
-        validation: {/* ... */}
-    }]
-});
-```
-
-## Kano Code integration
+## Example: Kano Code integration
 
 Here are a few examples of how this could be integrated to Kano Code and help with challenge creation:
 
@@ -289,6 +368,33 @@ Create a block from a part and connect to a previous block (custom copy)
     "connectTo": {
         "id": "block_0",
         "inputName": "PICTURE"
+    }
+}
+```
+
+### API style
+
+```js
+
+// Can extend class for challenge abstraction and resusability
+// Here we only define behaviors and validations spcific to blockly challenges
+class BlocklyChallenge extends Challenge {
+    constructor (elementsRegistry) {
+        super(elementsRegistry);
+        this.defineBehavior('phantom_block', data => {
+            displayPhantomBlock(data);
+        });
+    }
+}
+
+// A Kano Code challenge would be an extension of a blockly challenge as it also contains its own UI
+class KanoCodeChallenge extends BlocklyChallenge {
+    constructor (elementsRegistry) {
+        super(elementsRegistry);
+        this.beacon = document.createElement('kano-beacon');
+        this.defineBehavior('beacon', data => {
+            this.beacon.target = this.elementsRegistry.get(data.target);
+        });
     }
 }
 ```
