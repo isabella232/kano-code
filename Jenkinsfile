@@ -99,7 +99,7 @@ def install_dep () {
 def run_tests () {
     sh "mkdir -p test-results"
     sh "./node_modules/.bin/gulp wct"
-    sh "./node_modules/.bin/cucumberjs tests --format=json > test-results/cucumber.json"
+    sh "TEST_PORT=4445 ./node_modules/.bin/cucumberjs tests --format=json > test-results/cucumber.json"
     junit allowEmptyResults: true, testResults: 'test-results/wct.xml'
     cucumber 'test-results/cucumber.json'
     sh "rm -rf www test-results"
