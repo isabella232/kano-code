@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/kwc-file-picker/kwc-file-manager-behavior.html">
+<link rel="import" href="../../bower_components/kwc-file-picker/kwc-file-breadcrumbs.html">
+<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/color.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/typography.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="kc-asset-picker">
+    <template>
+        <style>
+            :host {
+                display: block;
+                background: var(--color-chateau);
+                padding: 36px;
+                font-family: var(--font-body);
+                font-size: 16px;
+            }
+            iron-icon {
+                width: 8px;
+                height: 8px;
+                fill: rgba(255, 255, 255, 0.4);
+                --iron-icon-fill-color: rgba(116, 39, 39, 0.4);
+            }
+            .bread-item {
+                color: white;
+                opacity: 0.5;
+            }
+            .bread-item:last-of-type {
+                opacity: 1;
+            }
+            kwc-file-breadcrumbs {
+                margin: 12px 0px;
+                font-weight: bold;
+            }
+            button {
+                border: 0px;
+                background: none;
+                font-size: 14px;
+                font-family: var(--font-body);
+                color: white;
+                font-weight: bold;
+                text-align: left;
+                cursor: pointer;
+                padding: 6px 0px;
+                display: block;
+            }
+            [hidden] {
+                display: none !important;
+            }
+        </style>
+        <kwc-file-breadcrumbs parts="[[breadcrumbs]]">
+            <template>
+                <iron-icon hidden$="[[!index]]" icon="kano-icons:link-arrow"></iron-icon>
+                <span path-index$="[[index]]" class="bread-item">[[item]]</span>
+            </template>
+        </kwc-file-breadcrumbs>
+        <template is="dom-repeat" items="[[fileList]]" as="item">
+            <button path-name$="[[item.name]]" hidden$="[[!item.children]]">[[item.name]]</button>
+            <button hidden$="[[item.children]]">[[item.name]]</button>
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'kc-asset-picker',
+            behaviors: [
+                Kano.KwcFileManagerBehavior
+            ]
+        });
+    </script>
+</dom-module>
