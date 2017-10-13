@@ -41,8 +41,9 @@ module.exports = (gulp, $) => {
             file.path.indexOf('assets/vendor/') === -1) ||
             file.path.indexOf('web-components') !== -1 ||
             file.path.indexOf('lazy-imports') !== -1 ||
+            // file.path.indexOf('kano-shared-storage-client') !== -1 ||
             file.path.indexOf('flow-down') !== -1 ||
-            file.path.indexOf('kwc-') !== -1 ||
+            (file.path.indexOf('kwc-') !== -1 && file.path.indexOf('blockly_built') === -1) ||
             file.path.indexOf('Sortable') !== -1) ||
             file.path.indexOf('polymer-sortablejs') !== -1;
         return needTranspile;
@@ -146,19 +147,17 @@ module.exports = (gulp, $) => {
             .pipe(gulp.dest('www'));
     });
 
-    gulp.task('compress', () => {
-        return gulp.src(['www/**/*.{js,html}', '!www/scripts/kano/scripts/kano-code-lib.js'])
-            .pipe($.if('*.html', $.htmlmin({
+    gulp.task('compress', (cb) => {
+        $.pump([
+            gulp.src(['www/**/*.{js,html}', '!www/scripts/kano/scripts/kano-code-lib.js']),
+            $.if('*.html', $.htmlmin({
                 collapseWhitespace: true,
                 minifyCSS: true,
                 removeComments: true
-            })))
-            .pipe($.if('*.js', $.uglify()))
-            .on('error', (e) => {
-                $.utils.notifyError(e);
-                throw e;
-            })
-            .pipe(gulp.dest('www'));
+            })),
+            $.if('*.js', $.uglify()),
+            gulp.dest('www')
+        ], cb);
     });
 
     gulp.task('default', ['build']);
