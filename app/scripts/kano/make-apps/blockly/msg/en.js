@@ -236,6 +236,7 @@
     Blockly.Msg.BLOCK_MOUSE_SET_CURSOR = "set cursor %1";
     Blockly.Msg.BLOCK_MOUSE_DOWN       = "click";
     Blockly.Msg.BLOCK_MOUSE_UP         = "release";
+    Blockly.Msg.BLOCK_MOUSE_MOVE       = "move";
 
     window.CustomBlocklyMsg = Blockly.Msg;
 
