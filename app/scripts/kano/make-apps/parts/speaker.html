@@ -245,8 +245,9 @@
                 },
                 javascript: () => {
                     return (block) => {
-                        let sample = block.getFieldValue('SAMPLE') || 'amen';
-                        return [`'${sample}'`];
+                        const field = block.getField('SAMPLE');
+                        const value = field.getExtendedValue();
+                        return [`'${value ? value.item.filename : 'amen'}'`];
                     };
                 }
             },{
