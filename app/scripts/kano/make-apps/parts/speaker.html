@@ -171,7 +171,7 @@
 
                             this.setInputsInline(true);
 
-                            this.updateShape_('drum machine');
+                            this.updateShape_('Drum Machine');
                         },
                         updateShape_: function (option) {
                             this.removeInput('SAMPLE');
@@ -192,6 +192,48 @@
                             let container = document.createElement('mutation'),
                                 type = this.getFieldValue('SET');
                             container.setAttribute('set', type);
+                            return container;
+                        }
+                    };
+                    return {
+                        id,
+                        colour: COLOUR,
+                        doNotRegister: true
+                    };
+                },
+                javascript: () => {
+                    return (block) => {
+                        let sample = block.getFieldValue('SAMPLE') || 'amen';
+                        return [`'${sample}'`];
+                    };
+                }
+            },{
+                block: (part) => {
+                    let samples = Kano.MakeApps.Files.samplesDir,
+                        id = 'speaker_sample_picker';
+                    Blockly.Blocks[`${part.id}#${id}`] = {
+                        init: function () {
+                            const defaultCat = samples.children[0]
+
+                            let setDropdown = new Blockly.FieldAssetPicker(Blockly.Msg.BLOCK_SPEAKER_PICKER_HEADING, 'samples', samples, { path: `${samples.name}/${defaultCat.name}`, item: defaultCat.children[0] });
+
+                            this.setColour(part.colour);
+
+                            this.appendDummyInput()
+                                .appendField(setDropdown, 'SAMPLE');
+
+                            this.setOutput('Sample');
+
+                            this.setInputsInline(true);
+                        },
+                        domToMutation: function (xmlElement) {
+                            const field = this.getField('SAMPLE');
+                            field.load(xmlElement);
+                        },
+                        mutationToDom: function () {
+                            const container = document.createElement('mutation');
+                            const field = this.getField('SAMPLE');
+                            field.save(container);
                             return container;
                         }
                     };
