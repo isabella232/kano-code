@@ -54,6 +54,9 @@
             _getPlayingStatus (playing, index, paused) {
                 return !paused && playing === index ? 'running' : 'stopped'; 
             },
+            preloadSample (filename) {
+                return Kano.MakeApps.Files.Cache.getFile('samples', filename);
+            },
             _previewSample (e) {
                 const item = e.model.get('item');
                 const index = e.model.get('index');
@@ -63,7 +66,7 @@
                     this._player.toggle();
                     return;
                 }
-                Kano.MakeApps.Files.Cache.getFile('samples', item.filename)
+                this.preloadSample(item.filename)
                     .then(data => {
                         return new Promise((resolve, reject) => {
                             Kano.Music.AudioPlayer.context.decodeAudioData(data, (buffer) => {

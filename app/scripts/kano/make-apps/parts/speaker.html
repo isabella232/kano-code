@@ -173,6 +173,10 @@
 
                             this.updateShape_('Drum Machine');
                         },
+                        preloadSample () {
+                            const value = this.getFieldValue('SAMPLE');
+                            Kano.MakeApps.Files.Cache.getFile('samples', value);
+                        },
                         updateShape_: function (option) {
                             this.removeInput('SAMPLE');
                             this.createInputs_(option);
@@ -180,9 +184,13 @@
                         createInputs_: function (option) {
                             let samples = Kano.MakeApps.Files.samples,
                                 options = Object.keys(samples[option]).map(key => [samples[option][key], key]),
-                                dropdown = new Blockly.FieldDropdown(options);
+                                dropdown = new Blockly.FieldDropdown(options, () => {
+                                    // Preload the cache with the sample
+                                    this.preloadSample();
+                                });
                             this.appendDummyInput('SAMPLE')
                                 .appendField(dropdown, 'SAMPLE');
+                            this.preloadSample();
                         },
                         domToMutation: function (xmlElement) {
                             let type = xmlElement.getAttribute('set');
