@@ -56,7 +56,7 @@
                         <iron-icon icon="kano-icons:link-arrow"></iron-icon>
                     </button>
                     <iron-pages selected="[[type]]" attr-for-selected="name" hidden$="[[hasChildren(item)]]" fallback-selection="file">
-                        <div class="dir file" name="samples" on-tap="_selectAsset" selected$="[[isSelected(index, selectedIndex, selectedPath)]]">
+                        <div class="dir file" name="samples" on-tap="_selectAsset" selected$="[[isSelected(index, selectedIndex, selectedPath, item)]]">
                             <button class="play" on-tap="_previewSample">
                                 <kano-animated-svg width="19" height="21" paths="[[playButtonIcons]]" selected="[[_getPlayingStatus(playing, index, paused)]]"></kano-animated-svg>
                             </button>
@@ -65,7 +65,7 @@
                                 <iron-icon icon="kano-icons:plus"></iron-icon>
                             </button>
                         </div>
-                        <button class="dir file" name="file" on-tap="_selectAsset" selected$="[[isSelected(index, selectedIndex, selectedPath)]]">[[item.name]]</button>
+                        <button class="dir file" name="file" on-tap="_selectAsset" selected$="[[isSelected(index, selectedIndex, selectedPath, item)]]">[[item.name]]</button>
                     </iron-pages>
                 </template>
             </div>
