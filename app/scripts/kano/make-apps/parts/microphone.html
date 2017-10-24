@@ -11,10 +11,10 @@
             image: '/assets/part/microphone.svg',
             colour: '#FFB347',
             blocks: [{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'get_volume',
-                        message0: `${ui.name}: %1`,
+                        message0: `${part.name}: %1`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'TYPE',
@@ -32,19 +32,12 @@
                             code = `devices.get('${part.id}').${type}`;
                         return [code];
                     };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let type = block.getFieldValue('TYPE'),
-                            code = `devices.get('${part.id}').${type}`;
-                        return [code];
-                    };
                 }
             }, {
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'threshold',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_MIC_WHEN_VOLUME}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_MIC_WHEN_VOLUME}`,
                         args0: [{
                             type: 'field_dropdown',
                             name: 'OVER',
@@ -65,7 +58,7 @@
                         previousStatement: true,
                         nextStatement: true,
                         shadow: {
-                            'VALUE': '<shadow type="math_number"><field name="NUM">70</field></shadow>'
+                            'VALUE': `<shadow type="math_number"><field name="NUM">70</field></shadow>`
                         }
                     };
                 },
@@ -74,15 +67,6 @@
                         let over = block.getFieldValue('OVER'),
                             value = Blockly.JavaScript.valueToCode(block, 'VALUE') || 70,
                             statement = Blockly.JavaScript.statementToCode(block, 'DO'),
-                            code = `devices.get('${part.id}').onVolumeThreshold(${value}, ${over}, function (){\n${statement}});\n`;
-                        return code;
-                    };
-                },
-                pseudo: (part) => {
-                    return (block) => {
-                        let over = block.getFieldValue('OVER'),
-                            value = Blockly.Pseudo.valueToCode(block, 'VALUE') || 70,
-                            statement = Blockly.Pseudo.statementToCode(block, 'DO'),
                             code = `devices.get('${part.id}').onVolumeThreshold(${value}, ${over}, function (){\n${statement}});\n`;
                         return code;
                     };

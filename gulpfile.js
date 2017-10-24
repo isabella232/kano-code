@@ -108,6 +108,7 @@ utils = {
     }
 };
 
+$.pump = require('pump');
 $.utils = utils;
 $.source = source;
 $.watchify = watchify;

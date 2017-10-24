@@ -33,12 +33,6 @@
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
                         return `devices.get('${part.id}').say(${flag});`;
                     };
-                },
-                pseudo: (part) => {
-                    return function (block) {
-                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG');
-                        return `devices.get('${part.id}').say(${flag});`;
-                    };
                 }
             }, {
                 block: (part) => {
@@ -49,11 +43,6 @@
                     };
                 },
                 javascript: (part) => {
-                    return function (block) {
-                        return [`true`];
-                    };
-                },
-                pseudo: (part) => {
                     return function (block) {
                         return [`true`];
                     };
@@ -101,13 +90,6 @@
                 javascript: (part) => {
                     return function (block) {
                         let flag = Blockly.JavaScript.valueToCode(block, 'FLAG') || false,
-                            language = block.getFieldValue('language');
-                        return `devices.get('${part.id}').say(${flag}, '${language}');`;
-                    };
-                },
-                pseudo: (part) => {
-                    return function (block) {
-                        let flag = Blockly.JavaScript.valueToCode(block, 'FLAG'),
                             language = block.getFieldValue('language');
                         return `devices.get('${part.id}').say(${flag}, '${language}');`;
                     };

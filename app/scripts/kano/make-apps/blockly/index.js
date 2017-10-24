@@ -1,8 +1,21 @@
 (function (Kano) {
+    /**
+     * Set the widget div's position and height.  This function does nothing clever:
+     * it will not ensure that your widget div ends up in the visible window.
+     * @param {number} x Horizontal location (window coordinates, not body).
+     * @param {number} y Vertical location (window coordinates, not body).
+     * @param {number} height The height of the widget div (pixels).
+     * @private
+     */
+    Blockly.WidgetDiv.positionInternal_ = function(x, y, height) {
+        const windowSize = goog.dom.getViewportSize();
+        Blockly.WidgetDiv.DIV.style.left = x + 'px';
+        Blockly.WidgetDiv.DIV.style.top = Math.max(0, y) + 'px';
+        Blockly.WidgetDiv.DIV.style.height = Math.min(height, windowSize.height) + 'px';
+    };
     Kano.MakeApps = Kano.MakeApps || {};
     Kano.MakeApps.Blockly = Kano.MakeApps.Blockly || {};
 
-    Kano.MakeApps.Blockly.lookupStrings = {};
     Kano.MakeApps.Blockly.modules = {};
     Kano.MakeApps.Blockly.categories = {};
 
@@ -58,43 +71,5 @@
             this.available = this.available.concat(Object.keys(module.experiments));
         }
     };
-
-    Kano.MakeApps.Blockly.setLookupString = function (blockType, lookupString) {
-        this.lookupStrings[lookupString] = this.lookupStrings[lookupString] || [];
-        if (this.lookupStrings[lookupString].indexOf(blockType) === -1) {
-            this.lookupStrings[lookupString].push(blockType);
-        }
-    };
-
-    Kano.MakeApps.Blockly.removeLookupString = function (blockType) {
-        Object.keys(this.lookupStrings).forEach((key) => {
-            let index = this.lookupStrings[key].indexOf(blockType);
-            if (index >= 0) {
-                delete this.lookupStrings[key];
-            }
-        });
-    };
-
-    Kano.MakeApps.Blockly.lookupBlock = function (query) {
-        let keys = Object.keys(this.lookupStrings),
-            blocks,
-            match;
-        if (query.length) {
-            keys = keys.filter(lookupString => lookupString.indexOf(query) !== -1);
-        }
-        blocks = keys.reduce((acc, key, index) => {
-            if (index === 0) {
-                match = key;
-            }
-            return acc.concat(this.lookupStrings[key]);
-        }, [])
-        .map(key => {
-            return {
-                id: key,
-                shadow: this.Defaults.shadowMap[key]
-            };
-        });
-        return { blocks, match };
-    }
 
 })(window.Kano = window.Kano || {});

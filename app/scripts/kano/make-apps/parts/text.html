@@ -43,12 +43,6 @@
                         let value = Blockly.JavaScript.valueToCode(block, 'INPUT');
                         return `devices.get('${ui.id}').setValue(${value});`;
                     };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let value = Blockly.Pseudo.valueToCode(block, 'INPUT');
-                        return `${ui.id}.setText(${value});\n`;
-                    };
                 }
             },
             {
@@ -62,11 +56,6 @@
                 javascript: (ui) => {
                     return function (block) {
                         return [`devices.get('${ui.id}').getValue()`];
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        return [`${ui.id}.text`];
                     };
                 }
             }],

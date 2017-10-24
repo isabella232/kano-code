@@ -1,47 +1,48 @@
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
-<link rel="import" href="../kano-blockly/kano-blockly.html">
+<link rel="import" href="../blockly.html">
+<link rel="import" href="../../bower_components/kwc-blockly/kwc-blockly.html">
 
 <dom-module id="kano-root-view">
-    <style>
-    :host {
-        display: block;
-        position: relative;
-        background-color: var(--color-grey-darker, grey);
-    }
-    :host kano-blockly,
-    :host kano-code-editor,
-    .shell {
-        @apply(--layout-fit);
-        transition: opacity 200ms linear;
-    }
-    .shell {
-        background-color: var(--kano-blockly-background, white);
-    }
-    .shell .toolbox {
-        content: ' ';
-        position: absolute;
-        @apply --kano-blockly-toolbox;
-        top: 0px;
-        bottom: 0px;
-        width: 130px;
-    }
-    :host([loading]) kano-blockly {
-        opacity: 0;
-    }
-    </style>
     <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: var(--color-grey-darker, grey);
+            }
+            :host kwc-blockly,
+            :host kano-code-editor,
+            .shell {
+                @apply(--layout-fit);
+                transition: opacity 200ms linear;
+            }
+            .shell {
+                background-color: var(--kwc-blockly-background, white);
+            }
+            .shell .toolbox {
+                content: ' ';
+                position: absolute;
+                @apply --kwc-blockly-toolbox;
+                top: 0px;
+                bottom: 0px;
+                width: 130px;
+            }
+            :host([loading]) kwc-blockly {
+                opacity: 0;
+            }
+        </style>
         <div class="shell">
             <div class="toolbox"></div>
         </div>
-        <kano-blockly id="code-editor"
+        <kwc-blockly id="code-editor"
                 toolbox="[[toolbox]]"
                 on-change="_onBlocklyChanged"
                 default-blocks="[[mode.defaultBlocks]]"
                 on-blockly-ready="_onBlocklyReady"
                 no-trashcan="[[simple]]"
                 no-zoom-control="[[simple]]"
-                no-toolbox="[[simple]]"></kano-blockly>
+                no-toolbox="[[simple]]"></kwc-blockly>
     </template>
 </dom-module>
 <script type="text/javascript">
@@ -191,24 +192,16 @@
             }
         },
         _registerBlock (part, definition) {
-            let block = definition.block(part),
-                lookups,
-                lookupString;
-
-            block.lookup = block.lookup || [];
-            lookups = Array.isArray(block.lookup) ? block.lookup : [block.lookup];
+            let block = definition.block(part);
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
-            lookups.forEach(lookup => {
-                lookupString = `${part.id}.${lookup}`;
-                Kano.MakeApps.Blockly.setLookupString(block.id, lookupString);
-            });
             if (!block.doNotRegister) {
                 Blockly.Blocks[block.id] = {
                     init: function () {
                         this.jsonInit(block);
                     }
                 };
+                Blockly.Blocks[block.id].customColor = block.colour;
             }
             Blockly.JavaScript[block.id] = definition.javascript(part);
             // Hack to register blocks from the normal mode under the dropzone id to support older shares
@@ -220,6 +213,7 @@
                             this.jsonInit(block);
                         }
                     };
+                    Blockly.Blocks[block.id].customColor = block.colour;
                 }
                 Blockly.JavaScript[block.id] = definition.javascript(part);
             }

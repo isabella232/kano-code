@@ -118,13 +118,6 @@
                                 code = `devices.get('${ui.id}').moveAlong(${x});\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let x = Blockly.Pseudo.valueToCode(block, 'pixels') || 0,
-                                code = `${ui.id}.move(${x});\n`;
-                            return code;
-                        };
                     }
                 });
                 if (!this.rotationDisabled) {
@@ -165,18 +158,6 @@
                                 code = `devices.get('${ui.id}').${method}(${deg});\n`;
                                 return code;
                             };
-                        },
-                        pseudo: (ui) => {
-                            return function (block) {
-                                let dir = block.getFieldValue('DIR'),
-                                    deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
-                                    code;
-                                if (dir === 'ccw') {
-                                    deg *= -1;
-                                }
-                                code = `devices.get('${ui.id}').rotate(${deg});\n`;
-                                return code;
-                            };
                         }
                     });
                 }
@@ -201,14 +182,6 @@
                             code = `devices.get('${ui.id}').rotate(${deg});\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
-                                code;
-                            code = `${ui.id}.turnClockwise(${deg});\n`;
-                            return code;
-                        };
                     }
                 });
                 this.legacyBlocks.push({
@@ -230,14 +203,6 @@
                             let deg = Blockly.JavaScript.valueToCode(block, 'DEG') || 0,
                                 code;
                             code = `devices.get('${ui.id}').rotate(-1 * ${deg});\n`;
-                            return code;
-                        };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
-                                code;
-                            code = `${ui.id}.turnCounterClockwise(${deg});\n`;
                             return code;
                         };
                     }
@@ -265,14 +230,6 @@
                             }
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let deg = Blockly.Pseudo.valueToCode(block, 'DEG') || 0,
-                                code;
-                            code = `${ui.id}.turnClockwise(${deg});\n`;
-                            return code;
-                        };
                     }
                 });
                 if (!this.scaleDisabled) {
@@ -297,14 +254,6 @@
                                 code = `devices.get('${ui.id}').scale(${factor});\n`;
                                 return code;
                             };
-                        },
-                        pseudo: (ui) => {
-                            return function (block) {
-                                let factor = Blockly.Pseudo.valueToCode(block, 'FACTOR') || 100,
-                                    code;
-                                code = `${ui.id}.setSizeTo(${factor});\n`;
-                                return code;
-                            };
                         }
                     });
                 }
@@ -327,14 +276,6 @@
                             let factor = Blockly.JavaScript.valueToCode(block, 'FACTOR') || 0,
                                 code;
                             code = `devices.get('${ui.id}').resize(${factor});\n`;
-                            return code;
-                        };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let factor = Blockly.Pseudo.valueToCode(block, 'FACTOR') || 0,
-                                code;
-                            code = `${ui.id}.changeSizeBy(${factor});\n`;
                             return code;
                         };
                     }
@@ -364,14 +305,6 @@
                                 code = `devices.get('${ui.id}').setXY(${x}-1,${y}-1);\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                                y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                                code = `${ui.id}.moveTo(${x}-1, ${y}-1);\n`;
-                            return code;
-                        };
                     }
                 });
                 this.legacyBlocks.push({
@@ -394,13 +327,6 @@
                                 code = `devices.get('${ui.id}').setX(${x});\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let x = Blockly.Pseudo.valueToCode(block, 'X') || 0,
-                                code = `${ui.id}.setX(${x});\n`;
-                            return code;
-                        };
                     }
                 });
                 this.legacyBlocks.push({
@@ -421,13 +347,6 @@
                         return function (block) {
                             let y = Blockly.JavaScript.valueToCode(block, 'Y') || 0,
                                 code = `devices.get('${ui.id}').setY(${y});\n`;
-                            return code;
-                        };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let y = Blockly.Pseudo.valueToCode(block, 'Y') || 0,
-                                code = `${ui.id}.setY(${y});\n`;
                             return code;
                         };
                     }
@@ -464,14 +383,6 @@
                             code = `devices.get('${ui.id}').show(${visibility});\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function (block) {
-                            let visibility = block.getFieldValue('VISIBILITY'),
-                                code;
-                            code = `${ui.id}.${visibility}();\n`;
-                            return code;
-                        };
                     }
                 });
                 this.legacyBlocks.push({
@@ -488,12 +399,6 @@
                             let code = `devices.get('${ui.id}').toggleVisibility();\n`;
                             return code;
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function () {
-                            let code = `${ui.id}.toggleVisibility();\n`;
-                            return code;
-                        };
                     }
                 });
                 this.blocks.push({
@@ -508,11 +413,6 @@
                         return function () {
                             return [`devices.get('${ui.id}').getX()+1`];
                         };
-                    },
-                    pseudo: (ui) => {
-                        return function () {
-                            return [`${ui.id}.x+1`];
-                        };
                     }
                 });
                 this.blocks.push({
@@ -526,11 +426,6 @@
                     javascript: (ui) => {
                         return function () {
                             return [`devices.get('${ui.id}').getY()+1`];
-                        };
-                    },
-                    pseudo: (ui) => {
-                        return function () {
-                            return [`${ui.id}.y+1`];
                         };
                     }
                 });
@@ -547,11 +442,6 @@
                             return function () {
                                 return [`devices.get('${ui.id}').getSize()`];
                             };
-                        },
-                        pseudo: (ui) => {
-                            return function () {
-                                return [`${ui.id}.size`];
-                            };
                         }
                     });
                 }
@@ -567,11 +457,6 @@
                         javascript: (ui) => {
                             return function () {
                                 return [`devices.get('${ui.id}').getRotation()`];
-                            };
-                        },
-                        pseudo: (ui) => {
-                            return function () {
-                                return [`${ui.id}.rotation`];
                             };
                         }
                     });

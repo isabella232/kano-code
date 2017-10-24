@@ -18,10 +18,10 @@
                 style: []
             },
             blocks: [{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'toggle_on_off',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TERMINAL_TOGGLE}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_TERMINAL_TOGGLE}`,
                         args0: [{
                             type: "field_dropdown",
                             options: [
@@ -34,25 +34,18 @@
                         previousStatement: null,
                     }
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let toggle = block.getFieldValue('TOGGLE') || 'on',
                             value = toggle === 'on' ? true : false;
-                        return `devices.get('${ui.id}').toggle(${value});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let toggle = block.getFieldValue('TOGGLE') || 'on',
-                            value = toggle === 'on' ? true : false;
-                        return `devices.get('${ui.id}').toggle(${value});`;
+                        return `devices.get('${part.id}').toggle(${value});`;
                     };
                 }
             },{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'print_line',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TERMINAL_PRINT_LINE}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_TERMINAL_PRINT_LINE}`,
                         args0: [{
                             type: "input_value",
                             name: "MESSAGE"
@@ -60,27 +53,21 @@
                         nextStatement: null,
                         previousStatement: null,
                         shadow: {
-                            'MESSAGE': '<shadow type="text"></shadow>'
+                            'MESSAGE': `<shadow type="text"></shadow>`
                         }
                     }
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let value = Blockly.JavaScript.valueToCode(block, 'MESSAGE');
-                        return `devices.get('${ui.id}').printLine(${value});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let value = Blockly.JavaScript.valueToCode(block, 'MESSAGE');
-                        return `devices.get('${ui.id}').printLine(${value});`;
+                        return `devices.get('${part.id}').printLine(${value});`;
                     };
                 }
             },{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'print',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TERMINAL_PRINT}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_TERMINAL_PRINT}`,
                         args0: [{
                             type: "input_value",
                             name: "MESSAGE"
@@ -88,39 +75,28 @@
                         nextStatement: null,
                         previousStatement: null,
                         shadow: {
-                            'MESSAGE': '<shadow type="text"></shadow>'
+                            'MESSAGE': `<shadow type="text"></shadow>`
                         }
                     }
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function (block) {
                         let value = Blockly.JavaScript.valueToCode(block, 'MESSAGE');
-                        return `devices.get('${ui.id}').print(${value});`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function (block) {
-                        let value = Blockly.JavaScript.valueToCode(block, 'MESSAGE');
-                        return `devices.get('${ui.id}').print(${value});`;
+                        return `devices.get('${part.id}').print(${value});`;
                     };
                 }
             },{
-                block: (ui) => {
+                block: (part) => {
                     return {
                         id: 'clear',
-                        message0: `${ui.name}: ${Blockly.Msg.BLOCK_TERMINAL_CLEAR}`,
+                        message0: `${part.name}: ${Blockly.Msg.BLOCK_TERMINAL_CLEAR}`,
                         nextStatement: null,
                         previousStatement: null
                     }
                 },
-                javascript: (ui) => {
+                javascript: (part) => {
                     return function () {
-                        return `devices.get('${ui.id}').clear();`;
-                    };
-                },
-                pseudo: (ui) => {
-                    return function () {
-                        return `devices.get('${ui.id}').clear();`;
+                        return `devices.get('${part.id}').clear();`;
                     };
                 }
             }]

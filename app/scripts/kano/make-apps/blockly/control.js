@@ -33,12 +33,6 @@
             return code;
         };
 
-        Blockly.Pseudo.loop_forever = (block) => {
-            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                code = `repeat forever {\n${statement}}\n`;
-            return code;
-        };
-
 
         Blockly.Blocks.every_x_seconds = {
             init: function () {
@@ -86,13 +80,6 @@
                 code = `time.every(${interval}, '${unit}', function () {\n${statement}});\n`;
             return code;
         };
-        Blockly.Pseudo.every_x_seconds = (block) => {
-            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                interval = Blockly.Pseudo.valueToCode(block, 'INTERVAL') || 5,
-                unit = block.getFieldValue('UNIT') || 'seconds',
-                code = `every ${interval} ${unit}, do {\n${statement}}\n`;
-            return code;
-        };
 
         Blockly.Blocks.in_x_time = {
             init: function () {
@@ -136,13 +123,6 @@
                 code = `time.later(${delay}, '${unit}', function () {\n${statement}});\n`;
             return code;
         };
-        Blockly.Pseudo.in_x_time = (block) => {
-            let statement = Blockly.Pseudo.statementToCode(block, 'DO'),
-                delay = Blockly.Pseudo.valueToCode(block, 'DELAY') || 1,
-                unit = block.getFieldValue('UNIT') || 'seconds',
-                code = `time.later(${delay}, '${unit}', function () {\n${statement}});\n`;
-            return code;
-        };
 
         Blockly.Blocks.repeat_x_times = {
             init: function () {
@@ -175,15 +155,6 @@
             code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
             return code;
         };
-        Blockly.Pseudo.repeat_x_times = (block) => {
-            let n = Blockly.JavaScript.valueToCode(block, 'N') || 2,
-                code,
-                branch = Blockly.JavaScript.statementToCode(block, 'DO'),
-                loopVar = Blockly.JavaScript.variableDB_.getDistinctName('i', Blockly.Variables.NAME_TYPE);
-            branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
-            code = `for (var ${loopVar} = 0; ${loopVar} < ${n}; ${loopVar}++) {\n${branch}}\n`;
-            return code;
-        };
 
         Blockly.Blocks.restart_code = {
             init: function () {
@@ -201,13 +172,9 @@
         Blockly.JavaScript.restart_code = (block) => {
             return 'global.restartCode();';
         };
-        Blockly.Pseudo.restart_code = (block) => {
-            return 'global.restartCode();';
-        };
 
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
+        Kano.MakeApps.Blockly.Defaults.upgradeCategoryColours('control', COLOR);
+        
     };
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_CONTROL,
@@ -230,10 +197,6 @@
             'restart_code'
         ]
     });
-
-    Kano.MakeApps.Blockly.setLookupString('repeat_x_times', 'loop(times, action)');
-    Kano.MakeApps.Blockly.setLookupString('loop_forever', 'loopForever(action)');
-    Kano.MakeApps.Blockly.setLookupString('in_x_time', 'doLater(action)');
 
     Kano.MakeApps.Blockly.addModule('control', {
         register,

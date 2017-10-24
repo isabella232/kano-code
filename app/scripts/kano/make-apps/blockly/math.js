@@ -7,25 +7,32 @@
 
         Blockly.Blocks.math_arithmetic = {
             init: function () {
-                let options = [
-                    { label: "%{BKY_MATH_ADDITION_SYMBOL} add", textLabel: "%{BKY_MATH_ADDITION_SYMBOL}", value: "ADD" },
-                    { label: "%{BKY_MATH_SUBTRACTION_SYMBOL} substract", textLabel: "%{BKY_MATH_SUBTRACTION_SYMBOL}", value: "MINUS" },
-                    { label: "%{BKY_MATH_MULTIPLICATION_SYMBOL} multiply", textLabel: "%{BKY_MATH_MULTIPLICATION_SYMBOL}", value: "MULTIPLY" },
-                    { label: "%{BKY_MATH_DIVISION_SYMBOL} divide", textLabel: "%{BKY_MATH_DIVISION_SYMBOL}", value: "DIVIDE" },
-                    { label: "%{BKY_MATH_POWER_SYMBOL} to the power of", textLabel: "%{BKY_MATH_POWER_SYMBOL}", value: "POWER" }
-                ]
+                const options = [
+                    ["%{BKY_MATH_ADDITION_SYMBOL}", "ADD"],
+                    ["%{BKY_MATH_SUBTRACTION_SYMBOL}", "MINUS"],
+                    ["%{BKY_MATH_MULTIPLICATION_SYMBOL}", "MULTIPLY"],
+                    ["%{BKY_MATH_DIVISION_SYMBOL}", "DIVIDE"],
+                    ["%{BKY_MATH_POWER_SYMBOL}", "POWER"]
+                ];
+                const labels = {
+                    "ADD": "%{BKY_MATH_ADDITION_SYMBOL} add",
+                    "MINUS": "%{BKY_MATH_SUBTRACTION_SYMBOL} substract",
+                    "MULTIPLY": "%{BKY_MATH_MULTIPLICATION_SYMBOL} multiply",
+                    "DIVIDE": "%{BKY_MATH_DIVISION_SYMBOL} divide",
+                    "POWER": "%{BKY_MATH_POWER_SYMBOL} to the power of"
+                };
                 this.appendValueInput('A')
                     .setCheck('Number');
 
                 this.appendDummyInput()
-                    .appendField(new Blockly.FieldCustomDropdown(options), 'OP');
+                    .appendField(new Blockly.FieldCustomDropdown(options, labels), 'OP');
 
                 this.appendValueInput('B')
                     .setCheck('Number');
 
                 this.setInputsInline(true);
                 this.setOutput('Number');
-                this.setColour('%{BKY_MATH_HUE}');
+                this.setColour(COLOR);
                 this.setHelpUrl('%{BKY_MATH_ARITHMETIC_HELPURL}');
             }
         }
@@ -68,14 +75,6 @@
             return [code];
         };
 
-        Blockly.Pseudo.math_min_max = (block) => {
-            let arg1 = Blockly.Pseudo.valueToCode(block, 'ARG1') || 0,
-                arg2 = Blockly.Pseudo.valueToCode(block, 'ARG2') || 0,
-                minmax = block.getFieldValue('MINMAX') || 'min',
-                code = `Math.${minmax}(${arg1}, ${arg2})`;
-            return [code];
-        };
-
         /* --- max(x, y) */
         Blockly.Blocks.math_max = {
             init: function () {
@@ -103,13 +102,6 @@
             let arg1 = Blockly.JavaScript.valueToCode(block, 'ARG1') || 0,
                 arg2 = Blockly.JavaScript.valueToCode(block, 'ARG2') || 0,
                 code = `Math.max(${arg1}, ${arg2})`;
-            return [code];
-        };
-
-        Blockly.Pseudo.math_max = (block) => {
-            let arg1 = Blockly.Pseudo.valueToCode(block, 'ARG1') || 0,
-                arg2 = Blockly.Pseudo.valueToCode(block, 'ARG2') || 0,
-                code = `maximum(${arg1}, ${arg2})`;
             return [code];
         };
 
@@ -143,13 +135,6 @@
             return [code];
         };
 
-        Blockly.Pseudo.math_min = (block) => {
-            let arg1 = Blockly.Pseudo.valueToCode(block, 'ARG1') || 0,
-                arg2 = Blockly.Pseudo.valueToCode(block, 'ARG2') || 0,
-                code = `minimum(${arg1}, ${arg2})`;
-            return [code];
-        };
-
         /* --- sign(x) */
         Blockly.Blocks.math_sign = {
             init: function () {
@@ -172,12 +157,6 @@
         Blockly.JavaScript.math_sign = (block) => {
             let arg = Blockly.JavaScript.valueToCode(block, 'ARG'),
                 code = `math.sign(${arg}})`;
-            return [code];
-        };
-
-        Blockly.Pseudo.math_sign = (block) => {
-            let arg = Blockly.Pseudo.valueToCode(block, 'ARG'),
-                code = `sign(${arg})`;
             return [code];
         };
 
@@ -207,13 +186,6 @@
         Blockly.JavaScript.math_random = (block) => {
             let min = Blockly.JavaScript.valueToCode(block, 'MIN') || 0,
                 max = Blockly.JavaScript.valueToCode(block, 'MAX') || 0,
-                code = `math.random(${min}, ${max})`;
-            return [code];
-        };
-
-        Blockly.Pseudo.math_random = (block) => {
-            let min = Blockly.Pseudo.valueToCode(block, 'MIN') || 0,
-                max = Blockly.Pseudo.valueToCode(block, 'MAX') || 100,
                 code = `math.random(${min}, ${max})`;
             return [code];
         };
@@ -250,117 +222,6 @@
                 percent = Blockly.JavaScript.valueToCode(block, 'PERCENT') || 50,
                 code = `math.lerp(${from}, ${to}, ${percent})`;
             return [code];
-        };
-
-        Blockly.Pseudo.math_lerp = (block) => {
-            let from = Blockly.Pseudo.valueToCode(block, 'FROM') || 0,
-                to = Blockly.Pseudo.valueToCode(block, 'TO') || 200,
-                percent = Blockly.Pseudo.valueToCode(block, 'PERCENT') || 50,
-                code = `math.lerp(${from}, ${to}, ${percent})`;
-            return [code];
-        };
-
-        Blockly.Pseudo.math_single = (block) => {
-            // Math operators with single operand.
-            let operator = block.getFieldValue('OP'),
-                code,
-                arg;
-            if (operator == 'NEG') {
-                // Negation is a special case given its different operator precedence.
-                arg = Blockly.Pseudo.valueToCode(block, 'NUM', Blockly.JavaScript.ORDER_UNARY_NEGATION) || '0';
-                if (arg[0] == '-') {
-                    // --3 is not legal in JS.
-                    arg = ' ' + arg;
-                }
-                code = '-' + arg;
-                return [code, Blockly.JavaScript.ORDER_UNARY_NEGATION];
-            }
-            if (operator == 'SIN' || operator == 'COS' || operator == 'TAN') {
-                arg = Blockly.Pseudo.valueToCode(block, 'NUM', Blockly.JavaScript.ORDER_DIVISION) || '0';
-            } else {
-                arg = Blockly.Pseudo.valueToCode(block, 'NUM', Blockly.JavaScript.ORDER_NONE) || '0';
-            }
-            // First, handle cases which generate values that don't need parentheses
-            // wrapping the code.
-            switch (operator) {
-                case 'ABS':
-                    code = 'absolute(' + arg + ')';
-                    break;
-                case 'ROOT':
-                    code = 'squareroot(' + arg + ')';
-                    break;
-                case 'LN':
-                    code = 'logarithm(' + arg + ')';
-                    break;
-                case 'EXP':
-                    code = 'exponential(' + arg + ')';
-                    break;
-                case 'POW10':
-                    code = 'power(10,' + arg + ')';
-                    break;
-                case 'ROUND':
-                    code = 'round(' + arg + ')';
-                    break;
-                case 'ROUNDUP':
-                    code = 'ceiling(' + arg + ')';
-                    break;
-                case 'ROUNDDOWN':
-                    code = 'floor(' + arg + ')';
-                    break;
-                case 'SIN':
-                    code = 'sine(' + arg + ')';
-                    break;
-                case 'COS':
-                    code = 'cosine(' + arg + ')';
-                    break;
-                case 'TAN':
-                    code = 'tangent(' + arg + ')';
-                    break;
-            }
-            if (code) {
-                return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
-            }
-            // Second, handle cases which generate values that may need parentheses
-            // wrapping the code.
-            switch (operator) {
-                case 'LOG10':
-                    code = 'logarithm10(' + arg + ')';
-                    break;
-                case 'ASIN':
-                    code = 'asine(' + arg + ')';
-                    break;
-                case 'ACOS':
-                    code = 'acosine(' + arg + ')';
-                    break;
-                case 'ATAN':
-                    code = 'atangent(' + arg + ')';
-                    break;
-                default:
-                    throw 'Unknown math operator: ' + operator;
-            }
-            return [code, Blockly.JavaScript.ORDER_DIVISION];
-        };
-
-        Blockly.Pseudo.math_constrain = (block) => {
-            // Constrain a number between two limits.
-            let argument0 = Blockly.Pseudo.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_COMMA) || '0';
-            let argument1 = Blockly.Pseudo.valueToCode(block, 'LOW', Blockly.JavaScript.ORDER_COMMA) || '0';
-            let argument2 = Blockly.Pseudo.valueToCode(block, 'HIGH', Blockly.JavaScript.ORDER_COMMA) || 'Infinity';
-            let code = `constrain(${argument0}, ${argument1}, ${argument2})`;
-            return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
-        };
-
-        Blockly.Pseudo.math_constant = (block) => {
-            // Constants: PI, E, the Golden Ratio, sqrt(2), 1/sqrt(2), INFINITY.
-            const CONSTANTS = {
-                'PI': ['PI', Blockly.JavaScript.ORDER_MEMBER],
-                'E': ['E', Blockly.JavaScript.ORDER_MEMBER],
-                'GOLDEN_RATIO': ['GOLDEN_RATIO', Blockly.JavaScript.ORDER_DIVISION],
-                'SQRT2': ['SQRT2', Blockly.JavaScript.ORDER_MEMBER],
-                'SQRT1_2': ['SQRT1_2', Blockly.JavaScript.ORDER_MEMBER],
-                'INFINITY': ['Infinity', Blockly.JavaScript.ORDER_ATOMIC]
-            };
-            return CONSTANTS[block.getFieldValue('CONSTANT')];
         };
 
         Blockly.JavaScript.math_arithmetic = (block) => {
@@ -438,23 +299,8 @@
             code = `${leftHand} ${op} ${rightHand};\n`;
             return code;
         };
-        Blockly.Pseudo.unary = (block) => {
-            let leftHand = block.getFieldValue('LEFT_HAND'),
-                op = block.getFieldValue('OPERATOR') || '+=',
-                rightHand = Blockly.JavaScript.valueToCode(block, 'RIGHT_HAND'),
-                code = `${leftHand} ${op} ${rightHand};\n`;
-            return code;
-        };
 
-        Blockly.Pseudo.math_arithmetic = Blockly.JavaScript.math_arithmetic;
-        Blockly.Pseudo.math_trig = Blockly.Pseudo.math_single;
-        Blockly.Pseudo.math_round = Blockly.Pseudo.math_single;
-        Blockly.Pseudo.math_number_property = Blockly.JavaScript.math_number_property;
-        Blockly.Pseudo.math_modulo = Blockly.JavaScript.math_modulo;
-
-        category.blocks.forEach((category) => {
-            Kano.Util.Blockly.updateBlockColour(Blockly.Blocks[category.id], COLOR);
-        });
+        Kano.MakeApps.Blockly.Defaults.upgradeCategoryColours('math', COLOR);
     };
 
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
@@ -485,28 +331,6 @@
             'math_sign'
         ]
     });
-
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'add(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'substract(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'multiply(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'divide(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '+');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '-');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', '/');
-    Kano.MakeApps.Blockly.setLookupString('math_arithmetic', 'x');
-    Kano.MakeApps.Blockly.setLookupString('unary', 'addTo(variable, value)');
-    Kano.MakeApps.Blockly.setLookupString('unary', 'substractTo(variable, value)');
-    Kano.MakeApps.Blockly.setLookupString('math_random', 'randomNumberBetween(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_single', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_trig', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_constant', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_number_property', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_round', 'round(a)');
-    Kano.MakeApps.Blockly.setLookupString('math_modulo', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_constrain', 'math');
-    Kano.MakeApps.Blockly.setLookupString('math_min_max', 'min(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_min_max', 'max(a, b)');
-    Kano.MakeApps.Blockly.setLookupString('math_sign', 'math');
 
     Kano.MakeApps.Blockly.addModule('math', {
         register,

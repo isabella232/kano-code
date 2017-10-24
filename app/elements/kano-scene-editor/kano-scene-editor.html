@@ -9,6 +9,7 @@
 <link rel="import" href="../kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../kano-editor-banner/kano-editor-banner.html">
 <link rel="import" href="../kano-editor-topbar/kano-editor-topbar.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <dom-module id="kano-scene-editor">
     <style>
         :host {
@@ -452,11 +453,13 @@
             if (this.remix) {
                 cats = Kano.MakeApps.Blockly.categories;
             } else {
-                this.scene.modules.forEach(id => {
+                cats.events = Object.assign({}, Kano.MakeApps.Blockly.categories.events);
+                Object.keys(Kano.MakeApps.Blockly.categories).filter(key => {
+                    return this.scene.modules.indexOf(key) >= 0;
+                }).forEach(id => {
                     // Clone the object, because we might change its blocks
                     cats[id] = Object.assign({}, Kano.MakeApps.Blockly.categories[id]);
                 });
-                cats.events = Object.assign({}, Kano.MakeApps.Blockly.categories.events);
 
                 // Do not filter blocks if the list is not defined
                 if (this.scene.filterBlocks) {
@@ -473,27 +476,25 @@
             this.categories = cats;
         },
         _computeMode () {
-            let mode = this.mode;
-            if (this.remix) {
-                if (mode.originalCategories) {
-                    this.set('mode.categories', mode.originalCategories);
-                    delete mode.originalCategories;
+            if (this.remix && this._originalModeCategories) {
+                this.set('mode.categories', this._originalModeCategories);
+            } else {
+                const mode = this.mode;
+                // In case we filter blocks in the categories of the mode
+                if (this.scene.filterBlocks) {
+                    const whitelist = this.scene.filterBlocks[mode.id];
+                    if (whitelist) {
+                        this._originalModeCategories = Kano.MakeApps.Utils.deepCopy(this.mode.categories);
+                        mode.categories.forEach((category, index) => {
+                            // Filter the blocks of this category to the one whitelisted
+                            category.blocks = category.blocks.filter(block => {
+                                let definition = block.block(mode);
+                                return whitelist.indexOf(definition.id) !== -1;
+                            });
+                        });
+                    }
                 }
-            } else if (this.scene.filterBlocks) {
-                let whitelist = this.scene.filterBlocks[mode.id];
-                if (whitelist) {
-                    this.set('mode.originalCategories', mode.categories.slice(0));
-                    this.mode.categories.forEach((category, index) => {
-                        /* Poor man's way of deep-copying categories into originalCategories */
-                        this.set(`mode.originalCategories.${index}`, Object.assign({}, category));
-                        this.set(`mode.originalCategories.${index}.blocks`, category.blocks.slice(0));
-
-                        this.set(`mode.categories.${index}.blocks`, category.blocks.filter(block => {
-                            let definition = block.block(mode);
-                            return whitelist.indexOf(definition.id) !== -1;
-                        }));
-                    });
-                }
+                this.set('mode', mode);
             }
         },
         saveApp (e) {

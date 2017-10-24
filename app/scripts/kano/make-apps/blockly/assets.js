@@ -54,12 +54,6 @@
             return [`assets.getSticker('${set}', '${sticker}')`];
         };
 
-        Blockly.Pseudo.assets_get_sticker = function (block) {
-            let sticker = block.getFieldValue('STICKER'),
-                set     = block.getFieldValue('SET');
-            return [`assets.getSticker('${set}', '${sticker}')`];
-        };
-
         Blockly.Blocks.assets_random_sticker = {
             init: function () {
                 this.jsonInit({
@@ -72,11 +66,6 @@
         };
 
         Blockly.JavaScript.assets_random_sticker = function (block) {
-            let code = ['assets.randomSticker()'];
-            return code;
-        };
-
-        Blockly.Pseudo.assets_random_sticker = function (block) {
             let code = ['assets.randomSticker()'];
             return code;
         };
@@ -98,12 +87,6 @@
         };
 
         Blockly.JavaScript.assets_random_sticker_from = function (block) {
-            let set  = block.getFieldValue('SET') || 'animals',
-                code = [`assets.randomSticker('${set}')`];
-            return code;
-        };
-
-        Blockly.Pseudo.assets_random_sticker_from = function (block) {
             let set  = block.getFieldValue('SET') || 'animals',
                 code = [`assets.randomSticker('${set}')`];
             return code;

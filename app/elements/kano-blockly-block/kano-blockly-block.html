@@ -1,9 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../kano-blockly/import.html">
-<link rel="import" href="../kano-blockly/kano-blockly-style.html">
+<link rel="import" href="../../bower_components/kwc-blockly/kwc-blockly-style.html">
+<link rel="import" href="../blockly.html">
 <dom-module id="kano-blockly-block">
     <template>
-        <style include="kano-blockly-style"></style>
+        <style include="kwc-blockly-style"></style>
         <style>
             :host {
                 display: block;
@@ -46,7 +46,16 @@
                 if (!this.ws) {
                     this._createWorskspace();
                 }
-                let xml = Blockly.Xml.textToDom(`<xml><block type="${type}"></block></xml>`);
+                let catId = Kano.MakeApps.Blockly.Defaults.categoryMap[type],
+                    cat, colour, xml, extraArgs = '';
+                if (catId) {
+                    cat = Kano.MakeApps.Blockly.modules[catId];
+                    if (cat) {
+                        colour = cat.category.colour;
+                        extraArgs += `colour="${colour}"`;
+                    }
+                }
+                xml = Blockly.Xml.textToDom(`<xml><block type="${type}" ${extraArgs}></block></xml>`);
                 this.ws.clear();
                 this.ws.scale = 0.9;
                 this.async(() => {

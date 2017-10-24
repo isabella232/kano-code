@@ -21,11 +21,6 @@
             let code = `cat.random()`;
             return [code];
         };
-
-        Blockly.Pseudo.random_cat  = () => {
-            let code = `randomCat()`;
-            return [code];
-        };
     };
     let category = Kano.MakeApps.Blockly.Defaults.createCategory({
         name: Blockly.Msg.CATEGORY_FUN,

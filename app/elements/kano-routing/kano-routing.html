@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
-<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
@@ -9,191 +8,174 @@
 <script src="../../bower_components/page/page.js"></script>
 
 <dom-module id="kano-routing">
-  <link rel="lazy-import" href="/views/kano-view-story/kano-view-story.html">
-  <link rel="lazy-import" href="/views/kano-view-tutorial/kano-view-tutorial.html">
-  <link rel="lazy-import" href="/views/kano-view-editor/kano-view-editor.html">
-  <link rel="lazy-import" href="/views/kano-view-onboarding/kano-view-onboarding.html">
-  <link rel="lazy-import" href="/views/kano-view-flags/kano-view-flags.html">
-  <link rel="lazy-import" href="/views/kano-view-demo/kano-view-demo.html">
-  <template>
-    <style>
-      :host {
-          display: block;
-          @apply(--layout-vertical);
-      }
-      :host iron-lazy-pages {
-          @apply(--layout-vertical);
-          @apply(--layout-flex);
-      }
-      :host iron-lazy-pages>* {
-          @apply(--layout-flex);
-          overflow: auto;
-      }
-      paper-progress {
-          --paper-progress-active-color: var(--color-orange);
-          --paper-progress-transition-duration: 0.05s;
-          position: fixed;
-          top: -2px;
-          opacity: 0;
-          width: 100%;
-          transition: top linear 100ms;
-          transition: opacity linear 100ms;
-          height: 2px;
-      }
-      :host paper-progress.loading {
-          top: 0px;
-          opacity: 1;
-      }
-    </style>
-    <kano-alert id="mobile-info-dialog"
-                heading="Kano Code is best with lots of room to code."
-                text="We recommend using a tablet, laptop, or desktop."
-                entry-animation="from-big-animation"
-                with-backdrop>
-        <button class="kano-alert-primary" dialog-confirm slot="actions">Got it</button>
-    </kano-alert>
-    <iron-lazy-pages selected="[[page]]" attr-for-selected="name" loading="{{loading}}" restamp>
-        <template is="iron-lazy-page" name="story" path="/views/kano-view-story/kano-view-story.html">
-            <kano-view-story context="[[context]]" user="{{user}}" show-save-prompt={{leaveAlert}}></kano-view-story>
-        </template>
-        <template is="iron-lazy-page" name="tutorial" path="/views/kano-view-tutorial/kano-view-tutorial.html">
-            <kano-view-tutorial context="[[context]]" user="{{user}}"></kano-view-tutorial>
-        </template>
-        <template is="iron-lazy-page" name="editor" path="/views/kano-view-editor/kano-view-editor.html">
-            <kano-view-editor context="[[context]]" user="{{user}}"></kano-view-editor>
-        </template>
-        <template is="iron-lazy-page" name="onboarding" path="/views/kano-view-onboarding/kano-view-onboarding.html">
-            <kano-view-onboarding context="[[context]]" user="{{user}}"></kano-view-onboarding>
-        </template>
-        <template is="iron-lazy-page" name="flags" path="/views/kano-view-flags/kano-view-flags.html">
-            <kano-view-flags context="[[context]]" user="{{user}}"></kano-view-flags>
-        </template>
-        <template is="iron-lazy-page" name="demo" path="/views/kano-view-demo/kano-view-demo.html">
-            <kano-view-demo context="[[context]]"></kano-view-demo>
-        </template>
-    </iron-lazy-pages>
-    <paper-progress indeterminate class$="[[_computeLoadingClass(loading)]]"></paper-progress>
-  </template>
-  <script>
-  /* globals Polymer, page, Kano */
-  Polymer({
-      is: 'kano-routing',
-      properties: {
-          context: {
-              type: Object
-          },
-          user: {
-              type: Object
-          },
-          page: {
-              type: String,
-              reflectToAttribute: true,
-              observer: '_onPageChanged',
-              notify: true
-          },
-          loading: {
-              type: Boolean,
-              observer: '_loadingChanged'
-          },
-          leaveAlert: {
-              type: Boolean,
-              value: true,
-              observer: '_onLeaveAlertChanged'
-          }
-      },
-      listeners: {
-        'exit-confirmed': '_exit'
-      },
-      /**
-       * Initialize the views
-       */
-      ready () {
-          page('/',                  this._showPageThunk('editor'));
-          page('/remix/:slug',       this._showPageThunk('editor'));
-          page('/demo',              this._showPageThunk('demo'));
-          page('/story/:id',         this._showPageThunk('story'));
-          page('/tutorial',          this._showPageThunk('tutorial'));
-          page('/onboarding', this._showPageThunk('onboarding'));
-          page('/app/:slug', (ctx) => {
-              window.location = Kano.MakeApps.config.WORLD_URL + "/shared/" + ctx.params.slug;
-          });
-          // Add the flags page when not in production
-          if (Kano.MakeApps.config.ENV !== 'production') {
-              page('/flags', this._showPageThunk('flags'));
-          }
-          // Fallback to /make if no match is found
-          page('*', () => {
-              page.redirect('/' + document.location.search);
-          });
-          page(); // force trigger the initial root page
-      },
-      /**
-       * Creates a function to be used by page.js
-       * @param  {String} name  Name of the view component to load
-       * @return {Function}     A function ready to be used in page.js
-       */
-      _showPageThunk (name) {
-          return (ctx) => {
-              this.set('context', ctx);
-              // Set the page to null, before the real value to force a restamp of the view
-              if (this.page === name) {
-                  this.set('page', null);
-              }
-              this.set('page', name);
-          };
-      },
-      _computeLoadingClass (loading) {
-          return loading ? 'loading' : '';
-      },
-      _isMobile () {
-          let viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-          return viewportWidth < 600;
-      },
-      _loadingChanged (newValue, oldValue) {
-          // When loading goes from true to false, trigger an event to notify a page load end
-          if (oldValue === true && newValue === false) {
-              this.fire('kano-routing-load-finish');
-              if (this._isMobile()) {
-                  this.$['mobile-info-dialog'].open();
-              }
-          }
-      },
-      _onLeaveAlertChanged (alert) {
-          if (alert) {
-              window.onbeforeunload = () => {
-                  return 'Any unsaved changes to your app will be lost. Continue?';
-                  return false;
-              }
-          } else {
-              window.onbeforeunload = null;
-          }
-      },
-      _onPageChanged () {
-          let disableLogout;
+    <link rel="lazy-import" href="/views/kano-view-story/kano-view-story.html">
+    <link rel="lazy-import" href="/views/kano-view-tutorial/kano-view-tutorial.html">
+    <link rel="lazy-import" href="/views/kano-view-editor/kano-view-editor.html">
+    <link rel="lazy-import" href="/views/kano-view-onboarding/kano-view-onboarding.html">
+    <link rel="lazy-import" href="/views/kano-view-flags/kano-view-flags.html">
+    <link rel="lazy-import" href="/views/kano-view-demo/kano-view-demo.html">
+    <template>
+        <style>
+            :host {
+                display: block;
+                @apply(--layout-vertical);
+            }
 
-          Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-          Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-          Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
-          Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
+            :host iron-lazy-pages {
+                @apply(--layout-vertical);
+                @apply(--layout-flex);
+            }
 
-          disableLogout = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
-          if (disableLogout === null) {
-              disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
-          } else if (disableLogout === 'false' || disableLogout === '0') {
-              disableLogout = false;
-          }
+            :host iron-lazy-pages>* {
+                @apply(--layout-flex);
+                overflow: auto;
+            }
+        </style>
+        <kano-alert id="mobile-info-dialog" heading="Kano Code is best with lots of room to code." text="We recommend using a tablet, laptop, or desktop."
+            entry-animation="from-big-animation" with-backdrop>
+            <button class="kano-alert-primary" dialog-confirm slot="actions">Got it</button>
+        </kano-alert>
+        <iron-lazy-pages selected="[[page]]" attr-for-selected="name" loading="{{loading}}" restamp>
+            <template is="iron-lazy-page" name="story" path="/views/kano-view-story/kano-view-story.html">
+                <kano-view-story context="[[context]]" user="{{user}}" show-save-prompt={{leaveAlert}}></kano-view-story>
+            </template>
+            <template is="iron-lazy-page" name="tutorial" path="/views/kano-view-tutorial/kano-view-tutorial.html">
+                <kano-view-tutorial context="[[context]]" user="{{user}}"></kano-view-tutorial>
+            </template>
+            <template is="iron-lazy-page" name="editor" path="/views/kano-view-editor/kano-view-editor.html">
+                <kano-view-editor context="[[context]]" user="{{user}}"></kano-view-editor>
+            </template>
+            <template is="iron-lazy-page" name="onboarding" path="/views/kano-view-onboarding/kano-view-onboarding.html">
+                <kano-view-onboarding context="[[context]]" user="{{user}}"></kano-view-onboarding>
+            </template>
+            <template is="iron-lazy-page" name="flags" path="/views/kano-view-flags/kano-view-flags.html">
+                <kano-view-flags context="[[context]]" user="{{user}}"></kano-view-flags>
+            </template>
+            <template is="iron-lazy-page" name="demo" path="/views/kano-view-demo/kano-view-demo.html">
+                <kano-view-demo context="[[context]]"></kano-view-demo>
+            </template>
+        </iron-lazy-pages>
+    </template>
+    <script>
+        /* globals Polymer, page, Kano */
+        Polymer({
+            is: 'kano-routing',
+            properties: {
+                context: {
+                    type: Object
+                },
+                user: {
+                    type: Object
+                },
+                page: {
+                    type: String,
+                    reflectToAttribute: true,
+                    observer: '_onPageChanged',
+                    notify: true
+                },
+                loading: {
+                    type: Boolean,
+                    observer: '_loadingChanged'
+                },
+                leaveAlert: {
+                    type: Boolean,
+                    value: true,
+                    observer: '_onLeaveAlertChanged'
+                }
+            },
+            listeners: {
+                'exit-confirmed': '_exit'
+            },
+            /**
+             * Initialize the views
+             */
+            ready() {
+                page('/', this._showPageThunk('editor'));
+                page('/remix/:slug', this._showPageThunk('editor'));
+                page('/demo', this._showPageThunk('demo'));
+                page('/story/:id', this._showPageThunk('story'));
+                page('/tutorial', this._showPageThunk('tutorial'));
+                page('/onboarding', this._showPageThunk('onboarding'));
+                page('/app/:slug', (ctx) => {
+                    window.location = Kano.MakeApps.config.WORLD_URL + "/shared/" + ctx.params.slug;
+                });
+                // Add the flags page when not in production
+                if (Kano.MakeApps.config.ENV !== 'production') {
+                    page('/flags', this._showPageThunk('flags'));
+                }
+                // Fallback to / if no match is found
+                page('*', () => {
+                    page.redirect('/' + document.location.search);
+                });
+                page(); // force trigger the initial root page
+            },
+            /**
+             * Creates a function to be used by page.js
+             * @param  {String} name  Name of the view component to load
+             * @return {Function}     A function ready to be used in page.js
+             */
+            _showPageThunk(name) {
+                return (ctx) => {
+                    this.set('context', ctx);
+                    // Set the page to null, before the real value to force a restamp of the view
+                    if (this.page === name) {
+                        this.set('page', null);
+                    }
+                    this.set('page', name);
+                };
+            },
+            _computeLoadingClass(loading) {
+                return loading ? 'loading' : '';
+            },
+            _isMobile() {
+                let viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                return viewportWidth < 600;
+            },
+            _loadingChanged(newValue, oldValue) {
+                // When loading goes from true to false, trigger an event to notify a page load end
+                if (oldValue === true && newValue === false) {
+                    this.fire('kano-routing-load-finish');
+                    if (this._isMobile()) {
+                        this.$['mobile-info-dialog'].open();
+                    }
+                }
+            },
+            _onLeaveAlertChanged(alert) {
+                if (alert) {
+                    window.onbeforeunload = () => {
+                        return 'Any unsaved changes to your app will be lost. Continue?';
+                        return false;
+                    }
+                } else {
+                    window.onbeforeunload = null;
+                }
+            },
+            _onPageChanged() {
+                let disableLogout;
 
-          Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
-      },
-      _exit () {
-          this.leaveAlert = false;
-          //TODO refactor this when Kano2App is able to restore selected device
-          if (window.ClientUtil.runningInKanoApp()) {
-              window.history.back();
-          } else {
-              location.href = Kano.MakeApps.config.PROJECTS_URL;
-          }
-      }
-  });
-  </script>
+                Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
+                Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
+                Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
+                Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
+
+                disableLogout = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
+                if (disableLogout === null) {
+                    disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
+                } else if (disableLogout === 'false' || disableLogout === '0') {
+                    disableLogout = false;
+                }
+
+                Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
+            },
+            _exit() {
+                this.leaveAlert = false;
+                //TODO refactor this when Kano2App is able to restore selected device
+                if (window.ClientUtil.runningInKanoApp()) {
+                    window.history.back();
+                } else {
+                    location.href = Kano.MakeApps.config.PROJECTS_URL;
+                }
+            }
+        });
+    </script>
 </dom-module>

@@ -15,7 +15,7 @@
         Defaults.labels = {};
         Defaults.labels.category = {};
 
-        Defaults.getShadowForBlock = function (type, inputs) {
+        Defaults.getShadowForBlock = function (type, inputs, colour) {
             var values = Defaults.values[type],
                 shadow = {};
             if (!values) {
@@ -24,13 +24,13 @@
             inputs.forEach(input => {
                 switch (typeof values[input]) {
                     case 'number': {
-                        shadow[input] = `<shadow type="math_number"><field name="NUM">${values[input]}</field></shadow>`;
+                        shadow[input] = `<shadow type="math_number" colour="${colour}"><field name="NUM">${values[input]}</field></shadow>`;
                         break;
                     }
                     case 'string': {
                         // Check if it is a color
                         if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(values[input])) {
-                            shadow[input] = `<shadow type="colour_picker"><field name="COLOUR">${values[input]}</field></shadow>`;
+                            shadow[input] = `<shadow type="colour_picker" colour="${colour}"><field name="COLOUR">${values[input]}</field></shadow>`;
                         }
                         break;
                     }
@@ -48,6 +48,15 @@
             return shadow;
         };
 
+        /**
+         * Goes through all the blocks of the category and enforce a color
+         */
+        Defaults.upgradeCategoryColours = function (id, color) {
+            Kano.MakeApps.Blockly.modules[id].category.blocks.forEach(block => {
+                Blockly.Blocks[block.id].customColor = color;
+            });
+        };
+
         Defaults.createCategory = function (opts) {
             var shadow,
                 blocks = opts.blocks.map(block => {
@@ -60,7 +69,7 @@
                 }
                 // Map the block id to its category
                 Defaults.categoryMap[block.id] = opts.id;
-                shadow = Defaults.getShadowForBlock(block.id, block.defaults);
+                shadow = Defaults.getShadowForBlock(block.id, block.defaults, opts.colour);
                 Defaults.shadowMap[block.id] = shadow;
                 return {
                     id: block.id,

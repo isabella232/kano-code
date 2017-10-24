@@ -1,8 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
 <link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../kano-app-player-toolbar/kano-app-player-toolbar.html">
+<link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <!--
 @group Kano Elements
 @hero hero.svg
@@ -226,16 +226,6 @@
                     this.component.appModules.modules.lightboard.api.tearDown();
                 }
             },
-            detached () {
-                this.stop();
-                // Previous versions of the shares, didn't tear down the hardware once detached
-                // This detects these old versions and manually tears down thei hardware api
-                if (!this.component.hwAPI
-                    && this.component.appModules
-                    && this.component.appModules.modules.lightboard) {
-                    this.component.appModules.modules.lightboard.api.tearDown();
-                }
-            },
             getWorkspace () {
                 return this.component.workspace;
             },
@@ -255,6 +245,8 @@
                 this.toggleClass('fullscreen');
                 this.component.$$('kano-ui-viewport').resizeView();
                 this.fullscreen = !this.fullscreen;
+
+                Kano.MakeApps.Utils.triggerResize();
             },
             _toolbarLayout  (layout, fullscreen) {
                 return layout === 'vertical' || fullscreen ? 'horizontal' : 'vertical';

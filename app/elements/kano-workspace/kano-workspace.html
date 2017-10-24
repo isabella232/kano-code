@@ -439,6 +439,9 @@
             let model = this.get(`parts.${key}`),
                 tagName,
                 element;
+            if (!this.dropzone) {
+                return;
+            }
             tagName = model.tagName;
             element = document.createElement(tagName);
             element.setAttribute('id', model.id);
@@ -478,9 +481,11 @@
                 acc[model.id] = this.elements[key];
                 return acc;
             }, {});
-            dict[this.mode.id] = this.dropzone.getViewport();
-            // Support legacy apps
-            dict['dropzone'] = this.dropzone.getViewport();
+            if (this.dropzone) {
+                dict[this.mode.id] = this.dropzone.getViewport();
+                // Support legacy apps
+                dict['dropzone'] = this.dropzone.getViewport();
+            }
             return dict;
         },
         runningChanged () {
