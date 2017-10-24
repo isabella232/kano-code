@@ -476,22 +476,26 @@
             this.categories = cats;
         },
         _computeMode () {
-            // Deep clone and reset the mode
-            const mode = Kano.MakeApps.Utils.deepCopy(this.mode);
-            // In case we filter blocks in the categories of the mode
-            if (this.scene.filterBlocks) {
-                const whitelist = this.scene.filterBlocks[mode.id];
-                if (whitelist) {
-                    mode.categories.forEach((category, index) => {
-                        // Filter the blocks of this category to the one whitelisted
-                        category.blocks = category.blocks.filter(block => {
-                            let definition = block.block(mode);
-                            return whitelist.indexOf(definition.id) !== -1;
+            if (this.remix && this._originalModeCategories) {
+                this.set('mode.categories', this._originalModeCategories);
+            } else {
+                const mode = this.mode;
+                // In case we filter blocks in the categories of the mode
+                if (this.scene.filterBlocks) {
+                    const whitelist = this.scene.filterBlocks[mode.id];
+                    if (whitelist) {
+                        this._originalModeCategories = Kano.MakeApps.Utils.deepCopy(this.mode.categories);
+                        mode.categories.forEach((category, index) => {
+                            // Filter the blocks of this category to the one whitelisted
+                            category.blocks = category.blocks.filter(block => {
+                                let definition = block.block(mode);
+                                return whitelist.indexOf(definition.id) !== -1;
+                            });
                         });
-                    });
+                    }
                 }
+                this.set('mode', mode);
             }
-            this.set('_mode', mode);
         },
         saveApp (e) {
             let id = e.detail.id || 'current',
