@@ -14,7 +14,9 @@
                 let cachedPromise = this.get(url);
                 if (!cachedPromise) {
                     cachedPromise = this.load(Kano.MakeApps.Files.types[type], url);
-                    this.set(url, cachedPromise);
+                    cachedPromise.then(() => {
+                        this.set(url, cachedPromise);
+                    });
                 }
                 return cachedPromise;
             },
