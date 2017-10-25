@@ -5,431 +5,430 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/web-components/kano-lightboard-preview/kano-lightboard-preview.html">
-<link rel="import" href="../../bower_components/web-components/kano-style/kano-style.html">
+<link rel="import" href="../../bower_components/kwc-style/input.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-app-player/kano-app-player.html">
 <script src="../../scripts/splash.js"></script>
 
 <dom-module id="kano-share-modal">
-    <style is="custom-style" include="input-text"></style>
-    <style>
-        :host {
-            position: relative;
-            @apply --layout-horizontal;
-            font-family: var(--font-body);
-            background: var(--color-black);
-            color: white;
-            --section-padding: 32px;
-            width: 1000px;
-            height: 500px;
-        }
-        .header {
-            position: absolute;
-            @apply --layout-horizontal;
-            @apply --layout-center;
-            color: white;
-            top: 32px;
-            left: 32px;
-            font-size: 14px;
-            letter-spacing: 0.3px;
-        }
-        .header iron-icon {
-            --iron-icon-fill-color: var(--color-chateau);
-            --iron-icon-width: 32px;
-            --iron-icon-height: 32px;
-            transform: scale(-1, 1);
-        }
-        .dismiss {
-            position: absolute;
-            @apply --layout-horizontal;
-            @apply --layout-center;
-            top: 28px;
-            right: 28px;
-            background: transparent;
-            color: var(--color-chateau);
-            font-size: 14px;
-            z-index: 1;
-        }
-        .dismiss iron-icon {
-            background: var(--color-chateau);
-            border-radius: 4px;
-            --iron-icon-fill-color: white;
-            --iron-icon-width: 16px;
-            --iron-icon-height: 16px;
-            margin-left: 12px;
-            padding: 10px;
-        }
-        .options {
-            @apply --layout-vertical;
-            background: var(--color-abbey);
-            padding: var(--section-padding);
-            width: 40%;
-        }
-        .options>iron-pages {
-            @apply --layout-flex;
-            @apply --layout-vertical;
-        }
-        .options>iron-pages>* {
-            @apply --layout-flex;
-        }
-        .gif-creation-header {
-            @apply --layout-flex;
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-        }
-        .gif-creation-header span,
-        .saving span {
-            margin: 16px 0px;
-            font-size: 20px;
-        }
-        .preview {
-            position: relative;
-            background: var(--color-black);
-            width: 60%;
-        }
-        .preview iron-pages,
-        .preview iron-pages>* {
-            height: 100%;
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-        }
-        .preview iron-pages>* {
-            height: 100%;
-            width: 100%;
-        }
-        .app-preview {
-            margin: var(--section-padding);
-            width: 420px;
-            height: 280px;
-        }
-        button {
-            border: none;
-            outline: none;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            color: white;
-            font-family: var(--font-body);
-            font-size: 16px;
-        }
-        button[disabled],
-        button:hover[disabled] {
-            opacity: 0.7;
-            background: transparent;
-            cursor: default;
-        }
-        button.change-gif {
-            color: white;
-            padding: 12px;
-            border-radius: 24px;
-            margin-bottom: 12px;
-            background: var(--color-abbey);
-        }
-
-        form {
-            @apply --layout-vertical;
-            @apply --layout-center-justified;
-            padding-top: 64px;
-        }
-
-        form textarea {
-            @apply --layout-flex;
-            margin-bottom: 8px;
-        }
-
-        form input[type="text"],
-        form textarea {
-            color: white;
-            border: 1px solid transparent;
-            background: var(--color-chateau);
-            box-shadow: none;
-            width: 100%;
-        }
-
-        .share-button {
-            width: 100%;
-            text-transform: uppercase;
-            border-radius: 4px;
-            padding: 9px;
-            background: var(--color-chateau);
-        }
-
-        button.round {
-            border-radius: 50px;
-            padding: 9px 25px;
-            margin-bottom: 24px;
-        }
-
-        .save-button,
-        .next,
-        .close {
-            background: var(--color-grassland);
-            @apply --layout-self-center;
-            transition: background 150ms;
-        }
-
-        .save-button:hover,
-        .next:hover,
-        .close:hover {
-            background: var(--color-apple);
-        }
-
-        form hr {
-            width: 100%;
-            border: 0px;
-            height: 1px;
-            background: var(--color-black);
-            margin: 14px 0px 14px;
-        }
-
-        .composed-button {
-            @apply --layout-horizontal;
-        }
-
-        .composed-button button {
-            border: 0px;
-            border-radius: 4px;
-            border-bottom-left-radius: 0px;
-            border-top-left-radius: 0px;
-            background: var(--color-black);
-            text-transform: none;
-            padding: 7px 20px;
-        }
-
-        .composed-button input[type="text"] {
-            @apply --layout-flex;
-            border: 0px;
-            border-radius: 4px;
-            border-top-right-radius: 0px;
-            border-bottom-right-radius: 0px;
-            margin-bottom: 0px;
-            color: white;
-            background: var(--color-black);
-            padding-right: 0px;
-            font-family: var(--font-body);
-        }
-
-        .saving {
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-        }
-
-        .blocks {
-            width: 80px;
-            height: 80px;
-
-            display: flex;
-            flex-direction: column;
-
-            animation: fade-in .3s;
-            transition-timing-function: ease-in;
-        }
-
-        .line {
-            width: 100%;
-
-            transform-origin: center;
-
-            display: flex;
-        }
-
-        .block {
-            opacity: 1;
-            border-radius: 1px;
-
-            background-color: rgba(0,0,0,0.5);
-
-            margin: 2px;
-            width: 10px;
-            height: 8px;
-        }
-
-        @keyframes splash-block-pop-in {
-            0% { transform: scale(0, 1); opacity: 0.5; }
-            90% { transform: scale(1.1, 1); opacity: 1.0; }
-            100% { transform: scale(1, 1); }
-        }
-
-        .last {
-            animation: splash-block-pop-in .2s;
-            transform-origin: left;
-            transition-timing-function: ease-in;
-        }
-
-        .dialog button {
-            @apply --kano-button;
-        }
-        button {
-            cursor: pointer;
-        }
-        button.share {
-            text-transform: none;
-            background-color: #ff842a;
-            border: none;
-            outline: none;
-            color: white;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 24px;
-            margin-bottom: 12px;
-        }
-        .social-share-container {
-            @apply --layout-horizontal;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-            margin-right: 8px;
-        }
-        .social-share-container a,
-        .social-share-container iron-image {
-            width: 25px;
-            height: 25px;
-            border-radius: 2px;
-        }
-        .social-share-container a {
-            margin-left: 6px;
-        }
-        :host button .button-img {
-            width: 25px;
-            vertical-align: middle;
-            margin-right: 10px;
-            text-shadow: 0px 1.5px rgba(0, 0, 0, 0.25);
-        }
-        .preview iron-image.cover {
-            width: 420px;
-            height: 100%;
-        }
-        .success,
-        .success .actions {
-            @apply --layout-vertical;
-            @apply --layout-center;
-        }
-        .success {
-            @apply --layout-around-justified;
-        }
-        .success iron-icon {
-            --iron-icon-width: 62px;
-            --iron-icon-height: 62px;
-        }
-        .success .title, .fail .title {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-        .instructions span {
-            color: var(--color-stone);
-            font-size: 16px;
-            line-height: 21px;
-        }
-        .success .composed-button {
-            @apply --layout-self-stretch;
-        }
-        .fail {
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-        }
-        .fail .title {
-            text-transform: uppercase;
-        }
-        .fail button {
-            background: var(--color-cinnabar);
-            border-radius: 50px;
-            padding: 9px 32px;
-            font-weight: bold;
-            transition: background 150ms;
-        }
-        .fail button:hover {
-            background: var(--color-flamingo);
-        }
-        .instructions {
-            @apply --layout-vertical;
-            @apply --layout-center;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-        .success .instructions {
-            margin: 0px;
-        }
-        label {
-            font-size: 20px;
-            display: block;
-            margin-bottom: 2px;
-            color: #6e6e6e;
-        }
-        .gif-creation {
-            @apply --layout-vertical;
-            @apply --layout-center;
-            position: relative;
-        }
-        *[hidden] {
-            display: none !important;
-        }
-        .cover-preview {
-            @apply --layout-vertical;
-            @apply --layout-start;
-        }
-        .generate-url button {
-            padding: 12px;
-            background-color: var(--color-blue, blue);
-            text-transform: none;
-            border-radius: 24px;
-        }
-        :host .loading-overlay {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            width: 100%;
-            height: 100%;
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-        }
-        paper-spinner-lite {
-            --paper-spinner-color: white;
-        }
-        .preview-wrapper {
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-            margin: auto;
-            position: relative;
-            height: 100%;
-        }
-        .change-gif-container {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
-            @apply --layout-vertical;
-            @apply --layout-center;
-            @apply --layout-center-justified;
-            opacity: 0;
-            transition: opacity ease-in-out 70ms;
-            cursor: pointer;
-        }
-        .change-gif-container:hover {
-            opacity: 1;
-        }
-        .social-share-container button.social {
-            background-color: transparent;
-            padding: 0px;
-            border-radius: 0px;
-            margin: 4px;
-            border: 0px;
-        }
-        .generate-url-container[hidden] {
-            display: block !important;
-            visibility: hidden;
-        }
-        .app-player-container {
-            height: 100%;
-        }
-    </style>
     <template>
+        <style include="input-text">
+            :host {
+                position: relative;
+                @apply --layout-horizontal;
+                font-family: var(--font-body);
+                background: var(--color-black);
+                color: white;
+                --section-padding: 32px;
+                width: 1000px;
+                height: 500px;
+            }
+            .header {
+                position: absolute;
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                color: white;
+                top: 32px;
+                left: 32px;
+                font-size: 14px;
+                letter-spacing: 0.3px;
+            }
+            .header iron-icon {
+                --iron-icon-fill-color: var(--color-chateau);
+                --iron-icon-width: 32px;
+                --iron-icon-height: 32px;
+                transform: scale(-1, 1);
+            }
+            .dismiss {
+                position: absolute;
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                top: 28px;
+                right: 28px;
+                background: transparent;
+                color: var(--color-chateau);
+                font-size: 14px;
+                z-index: 1;
+            }
+            .dismiss iron-icon {
+                background: var(--color-chateau);
+                border-radius: 4px;
+                --iron-icon-fill-color: white;
+                --iron-icon-width: 16px;
+                --iron-icon-height: 16px;
+                margin-left: 12px;
+                padding: 10px;
+            }
+            .options {
+                @apply --layout-vertical;
+                background: var(--color-abbey);
+                padding: var(--section-padding);
+                width: 40%;
+            }
+            .options>iron-pages {
+                @apply --layout-flex;
+                @apply --layout-vertical;
+            }
+            .options>iron-pages>* {
+                @apply --layout-flex;
+            }
+            .gif-creation-header {
+                @apply --layout-flex;
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+            }
+            .gif-creation-header span,
+            .saving span {
+                margin: 16px 0px;
+                font-size: 20px;
+            }
+            .preview {
+                position: relative;
+                background: var(--color-black);
+                width: 60%;
+            }
+            .preview iron-pages,
+            .preview iron-pages>* {
+                height: 100%;
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+            }
+            .preview iron-pages>* {
+                height: 100%;
+                width: 100%;
+            }
+            .app-preview {
+                margin: var(--section-padding);
+                width: 420px;
+                height: 280px;
+            }
+            button {
+                border: none;
+                outline: none;
+                font-weight: bold;
+                cursor: pointer;
+                text-transform: uppercase;
+                color: white;
+                font-family: var(--font-body);
+                font-size: 16px;
+            }
+            button[disabled],
+            button:hover[disabled] {
+                opacity: 0.7;
+                background: transparent;
+                cursor: default;
+            }
+            button.change-gif {
+                color: white;
+                padding: 12px;
+                border-radius: 24px;
+                margin-bottom: 12px;
+                background: var(--color-abbey);
+            }
+
+            form {
+                @apply --layout-vertical;
+                @apply --layout-center-justified;
+                padding-top: 64px;
+            }
+
+            form textarea {
+                @apply --layout-flex;
+                margin-bottom: 8px;
+            }
+
+            form input[type="text"],
+            form textarea {
+                color: white;
+                border: 1px solid transparent;
+                background: var(--color-chateau);
+                box-shadow: none;
+                width: 100%;
+            }
+
+            .share-button {
+                width: 100%;
+                text-transform: uppercase;
+                border-radius: 4px;
+                padding: 9px;
+                background: var(--color-chateau);
+            }
+
+            button.round {
+                border-radius: 50px;
+                padding: 9px 25px;
+                margin-bottom: 24px;
+            }
+
+            .save-button,
+            .next,
+            .close {
+                background: var(--color-grassland);
+                @apply --layout-self-center;
+                transition: background 150ms;
+            }
+
+            .save-button:hover,
+            .next:hover,
+            .close:hover {
+                background: var(--color-apple);
+            }
+
+            form hr {
+                width: 100%;
+                border: 0px;
+                height: 1px;
+                background: var(--color-black);
+                margin: 14px 0px 14px;
+            }
+
+            .composed-button {
+                @apply --layout-horizontal;
+            }
+
+            .composed-button button {
+                border: 0px;
+                border-radius: 4px;
+                border-bottom-left-radius: 0px;
+                border-top-left-radius: 0px;
+                background: var(--color-black);
+                text-transform: none;
+                padding: 7px 20px;
+            }
+
+            .composed-button input[type="text"] {
+                @apply --layout-flex;
+                border: 0px;
+                border-radius: 4px;
+                border-top-right-radius: 0px;
+                border-bottom-right-radius: 0px;
+                margin-bottom: 0px;
+                color: white;
+                background: var(--color-black);
+                padding-right: 0px;
+                font-family: var(--font-body);
+            }
+
+            .saving {
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+            }
+
+            .blocks {
+                width: 80px;
+                height: 80px;
+
+                display: flex;
+                flex-direction: column;
+
+                animation: fade-in .3s;
+                transition-timing-function: ease-in;
+            }
+
+            .line {
+                width: 100%;
+
+                transform-origin: center;
+
+                display: flex;
+            }
+
+            .block {
+                opacity: 1;
+                border-radius: 1px;
+
+                background-color: rgba(0,0,0,0.5);
+
+                margin: 2px;
+                width: 10px;
+                height: 8px;
+            }
+
+            @keyframes splash-block-pop-in {
+                0% { transform: scale(0, 1); opacity: 0.5; }
+                90% { transform: scale(1.1, 1); opacity: 1.0; }
+                100% { transform: scale(1, 1); }
+            }
+
+            .last {
+                animation: splash-block-pop-in .2s;
+                transform-origin: left;
+                transition-timing-function: ease-in;
+            }
+
+            .dialog button {
+                @apply --kano-button;
+            }
+            button {
+                cursor: pointer;
+            }
+            button.share {
+                text-transform: none;
+                background-color: #ff842a;
+                border: none;
+                outline: none;
+                color: white;
+                padding: 12px;
+                cursor: pointer;
+                border-radius: 24px;
+                margin-bottom: 12px;
+            }
+            .social-share-container {
+                @apply --layout-horizontal;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+                margin-right: 8px;
+            }
+            .social-share-container a,
+            .social-share-container iron-image {
+                width: 25px;
+                height: 25px;
+                border-radius: 2px;
+            }
+            .social-share-container a {
+                margin-left: 6px;
+            }
+            :host button .button-img {
+                width: 25px;
+                vertical-align: middle;
+                margin-right: 10px;
+                text-shadow: 0px 1.5px rgba(0, 0, 0, 0.25);
+            }
+            .preview iron-image.cover {
+                width: 420px;
+                height: 100%;
+            }
+            .success,
+            .success .actions {
+                @apply --layout-vertical;
+                @apply --layout-center;
+            }
+            .success {
+                @apply --layout-around-justified;
+            }
+            .success iron-icon {
+                --iron-icon-width: 62px;
+                --iron-icon-height: 62px;
+            }
+            .success .title, .fail .title {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+            .instructions span {
+                color: var(--color-stone);
+                font-size: 16px;
+                line-height: 21px;
+            }
+            .success .composed-button {
+                @apply --layout-self-stretch;
+            }
+            .fail {
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+            }
+            .fail .title {
+                text-transform: uppercase;
+            }
+            .fail button {
+                background: var(--color-cinnabar);
+                border-radius: 50px;
+                padding: 9px 32px;
+                font-weight: bold;
+                transition: background 150ms;
+            }
+            .fail button:hover {
+                background: var(--color-flamingo);
+            }
+            .instructions {
+                @apply --layout-vertical;
+                @apply --layout-center;
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+            .success .instructions {
+                margin: 0px;
+            }
+            label {
+                font-size: 20px;
+                display: block;
+                margin-bottom: 2px;
+                color: #6e6e6e;
+            }
+            .gif-creation {
+                @apply --layout-vertical;
+                @apply --layout-center;
+                position: relative;
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .cover-preview {
+                @apply --layout-vertical;
+                @apply --layout-start;
+            }
+            .generate-url button {
+                padding: 12px;
+                background-color: var(--color-blue, blue);
+                text-transform: none;
+                border-radius: 24px;
+            }
+            :host .loading-overlay {
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                width: 100%;
+                height: 100%;
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+            }
+            paper-spinner-lite {
+                --paper-spinner-color: white;
+            }
+            .preview-wrapper {
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+                margin: auto;
+                position: relative;
+                height: 100%;
+            }
+            .change-gif-container {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                @apply --layout-vertical;
+                @apply --layout-center;
+                @apply --layout-center-justified;
+                opacity: 0;
+                transition: opacity ease-in-out 70ms;
+                cursor: pointer;
+            }
+            .change-gif-container:hover {
+                opacity: 1;
+            }
+            .social-share-container button.social {
+                background-color: transparent;
+                padding: 0px;
+                border-radius: 0px;
+                margin: 4px;
+                border: 0px;
+            }
+            .generate-url-container[hidden] {
+                display: block !important;
+                visibility: hidden;
+            }
+            .app-player-container {
+                height: 100%;
+            }
+        </style>
         <button class="dismiss" on-tap="dismiss">
             <span>[[localize('CLOSE', 'Close')]]</span>
             <iron-icon icon="clear"></iron-icon>
