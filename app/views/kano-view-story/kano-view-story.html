@@ -265,8 +265,10 @@
                 type: 'complete',
                 data: trackingData
             });
+            this.$['story-scene'].disableBannerButton();
             this.triggerGamificationEngine(payload)
                 .then(res => {
+                    this.$['story-scene'].enableBannerButton();
                     this._trackRewards(res.update);
                     this.$['reward-modal'].open(res, this.user);
                     this.fire('update-user-progress', res.update);
