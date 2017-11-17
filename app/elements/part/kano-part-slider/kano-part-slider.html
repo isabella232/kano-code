@@ -31,6 +31,9 @@
                 observer: '_valueChanged'
             }
         },
+        start () {
+            this.setValue(this.model.userProperties.default);
+        },
         stop () {
             Kano.MakeApps.PartsAPI.Base.stop.apply(this, arguments);
             this.target = null;
@@ -38,6 +41,11 @@
         getValue () {
             let rawValue = this.get('value');
             return parseInt(rawValue);
+        },
+        setValue (value) {
+            let props = this.model.userProperties;
+
+            this.set('value', Math.min(Math.max(value, props.min), props.max));
         },
         _valueChanged () {
             let value = parseInt(this.value);
