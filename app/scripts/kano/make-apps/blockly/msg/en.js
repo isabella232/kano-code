@@ -167,6 +167,7 @@
     Blockly.Msg.BLOCK_CANVAS_LINE_TO             = "line to x %1 y %2";
     Blockly.Msg.BLOCK_CANVAS_LINE_ALONG          = "line along %1 down %2";
     Blockly.Msg.BLOCK_CANVAS_FILL_COLOR          = "fill color %1";
+    Blockly.Msg.BLOCK_CANVAS_NO_FILL             = "no fill";
     Blockly.Msg.BLOCK_CANVAS_STROKE              = "stroke color %1 thickness %2";
     Blockly.Msg.BLOCK_CANVAS_CIRCLE              = "circle radius %1";
     Blockly.Msg.BLOCK_CANVAS_ELIPSE              = "ellipse width %1 height %2";
