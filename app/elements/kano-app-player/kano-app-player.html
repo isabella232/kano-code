@@ -157,7 +157,7 @@
             },
             _onAppFileLoad () {
                 let root = Polymer.dom(this.root),
-                    c;
+                    c, styleElm;
                 // Create the component. Older shares were generated with the tagName `kano-user-component`
                 try {
                     c = this.create(`kano-${this.slug}`);
@@ -175,7 +175,14 @@
                     }
                     return Polymer.dom(this.root).querySelector(id);
                 };
+                /** Inject app styles on old shares */
                 root.appendChild(c);
+                styleElm = c.$$('style');
+                if (!styleElm) {
+                    let styleElm = document.createElement('style');
+                    styleElm.innerHTML = c.appModules.componentStyles;
+                    c.root.appendChild(styleElm);
+                }
                 if (this.$.container) {
                     root.removeChild(this.$.container);
                     this.$.container = null;
