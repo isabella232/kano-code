@@ -27,7 +27,10 @@
                 width: Number,
                 height: Number,
                 pixelSize: Number,
-                bitmap: Array,
+                bitmap: {
+                    type: Array,
+                    observer: '_onBitmapSet'
+                },
                 fps: Number
             },
             observers: [
@@ -39,6 +42,11 @@
             },
             _canvasSize (size, pixelSize, spacing) {
                 return size * pixelSize + (size * (spacing * 2));
+            },
+            _onBitmapSet (newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    this._renderCanvas();
+                }
             },
             _onBitmapChanged () {
                 if (!this.loop) {
