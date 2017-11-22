@@ -28,7 +28,22 @@
                     return `devices.get('${part.id}').modules.setters.color(${color});\n`;
                 };
             }
-        },{
+        }, {
+            block: (part) => {
+                return {
+                    id: 'no_fill',
+                    lookup: 'noFill',
+                    message0: `${part.name}: ${Blockly.Msg.BLOCK_CANVAS_NO_FILL}`,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (part) => {
+                return function (block) {
+                    return `devices.get('${part.id}').modules.setters.color('transparent');\n`;
+                };
+            }
+        }, {
             block: (part) => {
                 return {
                     id: 'stroke',
