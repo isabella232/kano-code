@@ -12,11 +12,15 @@
             }
 
             _on () {
-                this.api.on.apply(this.api, arguments);
+                if (this.api) {
+                    this.api.on.apply(this.api, arguments);
+                }
             }
 
             _removeListener () {
-                this.api.removeListener.apply(this.api, arguments);
+                if (this.api) {
+                    this.api.removeListener.apply(this.api, arguments);
+                }
             }
 
             config (opts) {

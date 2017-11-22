@@ -16,11 +16,15 @@
             }
 
             _getAudioStream () {
-                return this.api.microphone.getAudioStream();
+                if (this.api) {
+                    return this.api.microphone.getAudioStream();
+                }
             }
 
             _getVolume () {
-                return this.api.microphone.getVolume();
+                if (this.api) {
+                    return this.api.microphone.getVolume();
+                }
             }
 
             _getPitch () {
@@ -28,11 +32,15 @@
             }
 
             _on () {
-                this.api.on.apply(this.api, arguments);
+                if (this.api) {
+                    this.api.on.apply(this.api, arguments);
+                }
             }
 
             _removeListener () {
-                this.api.removeListener.apply(this.api, arguments);
+                if (this.api) {
+                    this.api.removeListener.apply(this.api, arguments);
+                }
             }
 
             _stop () {
