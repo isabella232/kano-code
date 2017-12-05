@@ -113,13 +113,6 @@
                              code="{{code}}"
                              mode="[[mode]]"
                              on-share="_pauseAndShare">
-                <div class="progress" slot="under-code">
-                    <div class="bar" id="bar"></div>
-                    <div class="bar-content">
-                        <iron-icon class="bolt" src="/assets/icons/lightning.svg"></iron-icon>
-                        <div class="story-name">[[story.name]]</div>
-                    </div>
-                </div>
             </kano-app-editor>
         </kano-app-challenge>
         <paper-dialog id="share-modal" opened={{shareOpened}} modal>
@@ -234,8 +227,7 @@
             },
             progress: {
                 type: Number,
-                computed: 'computeProgress(currentStepIndex, scene)',
-                observer: '_progressChanged'
+                computed: 'computeProgress(currentStepIndex, scene)'
             },
             history: {
                 type: Object,
@@ -621,15 +613,6 @@
         saveToStorage () {
             let app = this.$.editor.save();
             localStorage.setItem('savedApp', JSON.stringify(app));
-        },
-        _progressChanged (progress) {
-            this.transform(`translateX(-${100 - progress * 100}%)`, this.$.bar);
-            this.$.bar.animate({
-                opacity: [0.4, 1, 0.4]
-            }, {
-                duration: 1200,
-                easing: 'ease-in-out'
-            });
         },
         computeProgress (currentStepIndex, scene) {
             if (currentStepIndex < 0) {
