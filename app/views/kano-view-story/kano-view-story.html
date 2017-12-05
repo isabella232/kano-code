@@ -88,6 +88,7 @@
     </style>
     <template>
         <kano-app-challenge id="challenge"
+                            story="[[story]]"
                             steps="[[scene.steps]]"
                             mode-ready="[[modeReady]]"
                             step="{{currentStepIndex}}"
@@ -531,11 +532,11 @@
                 data: trackingData
             });
             this.bannerButtonInactive = true;
-            this.computeBanner(this.currentStep);
+            this.$.challenge.computeBanner(this.currentStep);
             this.triggerGamificationEngine(payload)
                 .then(res => {
                     this.bannerButtonInactive = false;
-                    this.computeBanner(this.currentStep);
+                    this.$.challenge.computeBanner(this.currentStep);
                     this._trackRewards(res.update);
                     this.$['reward-modal'].open(res, this.user);
                     this.fire('update-user-progress', res.update);

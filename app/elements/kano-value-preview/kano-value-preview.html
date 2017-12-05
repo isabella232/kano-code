@@ -3,6 +3,7 @@
         <style>
             :host {
                 display: inline-block;
+                vertical-align: middle;
             }
             :host .color-value {
                 border-radius: 3px;
@@ -19,7 +20,7 @@
             }
         </style>
         <div id="display" class$="[[type]]">
-            <div id="input">
+            <div id="input" hidden$="[[_isType(type, 'color-value')]]">
                 <slot></slot>
             </div>
         </div>
@@ -46,6 +47,9 @@
                 } else {
                     this.type = "simple-value";
                 }
+            },
+            _isType (actual, expected) {
+                return actual === expected;
             }
         });
     </script>
