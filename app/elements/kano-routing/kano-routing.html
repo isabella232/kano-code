@@ -151,7 +151,8 @@
                 }
             },
             _onPageChanged() {
-                let disableLogout;
+                let disableLogout,
+                    hardware;
 
                 Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
                 Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
@@ -166,6 +167,19 @@
                 }
 
                 Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
+
+                /* For compatibility with old Kano2 App we enable the Hardware API when
+                 * Kano Code runs within electron.
+                 *
+                 * WARNING: This will be removed in the future. For future applications,
+                 *          always explicitely use the query string to enable hardware support.
+                 */
+                Kano.MakeApps.config.USE_HARDWARE_API = ClientUtil.runningInKanoApp() || Kano.MakeApps.config.USE_HARDWARE_API;
+
+                hardware = Kano.Util.Router.parseQsParam(this.context.querystring, 'hardware');
+                if (hardware) {
+                    Kano.MakeApps.config.USE_HARDWARE_API = !(hardware === 'false');
+                }
             },
             _goToTapcode () {
                 this.leaveAlert = false;
