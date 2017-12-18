@@ -26,7 +26,7 @@ EDITOR_SELECTORS['done in add parts dialog'] = ['kano-add-parts', 'header button
 EDITOR_SELECTORS['Confirm part deletion dialog'] = ['#dialog-confirm-delete'];
 EDITOR_SELECTORS['Default workspace'] = ['kano-workspace', 'kano-editor-normal', 'kano-default-workspace'];
 EDITOR_SELECTORS['Part editor'] = ['#edit-part-dialog-content'];
-EDITOR_SELECTORS['flyout'] = ['kano-root-view', 'kwc-blockly', 'kwc-blockly-toolbox', 'kwc-blockly-flyout'];
+EDITOR_SELECTORS['flyout'] = ['kc-blockly-editor', 'kwc-blockly', 'kwc-blockly-toolbox', 'kwc-blockly-flyout'];
 
 user = USER;
 
