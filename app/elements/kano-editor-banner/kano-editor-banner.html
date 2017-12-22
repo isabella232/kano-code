@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/web-components/kano-glint-animation/kano-glint-animation.html">
 <link rel="import" href="../../bower_components/web-components/kano-circle-progress/kano-circle-progress.html">
+<link rel="import" href="../../bower_components/web-components/kano-style/color.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
 <dom-module id="kano-editor-banner">
@@ -143,6 +144,28 @@
             button, kano-glint-animation {
                 @apply --layout-self-center;
             }
+            .undo-redo button {
+                border: none;
+                outline: none;
+                cursor: no-drop;
+                padding: 3px 5px;
+                transition: all 300ms;
+                color: #d2d6d8;
+            }
+            .undo-redo iron-icon {
+                --iron-icon-width: 30px;
+                --iron-icon-height: 30px;
+            }
+            .undo-redo button.active {
+                color: #9fa4a8;
+                cursor: pointer;
+            }
+            .undo-redo button.active:hover {
+                color: var(--color-orange, #ff2800);
+            }
+            .undo-redo {
+                margin: auto;
+            }
         </style>
         <div class="avatar">
             <kano-circle-progress radius="40" stroke-width="7" value="[[progress]]"></kano-circle-progress>
@@ -175,9 +198,16 @@
                 <span hidden$="[[!_buttonActive(buttonState)]]">
                     [[buttonLabel]]
                 </span>
-                </template>
             </button>
         </kano-glint-animation>
+        <div class="undo-redo" hidden$="[[_undoRedoHidden(buttonState, showSaveButton)]]">
+            <button id="undo-button" type="button" on-tap="_undoTapped" class$="[[_computeUndoRedoClass(canGoBack)]]">
+                <iron-icon icon="kc-ui:undo"></iron-icon>
+            </button>
+            <button id="redo-button" type="button" on-tap="_redoTapped" class$="[[_computeUndoRedoClass(canGoForward)]]">
+                <iron-icon icon="kc-ui:redo"></iron-icon>
+            </button>
+        </div>
     </template>
 </dom-module>
 
@@ -222,6 +252,12 @@
             progress: {
                 type: Number,
                 value: 0
+            },
+            canGoBack: {
+                type: Boolean
+            },
+            canGoForward: {
+                type: Boolean
             }
         },
         attached () {
@@ -332,6 +368,18 @@
             //FIXME this should consider localization
             return buttonState !== "inactive" &&
                    (label === 'Next' || this.showSaveButton || label === 'Hints');
+        },
+        _undoRedoHidden (buttonState, showSaveButton) {
+            return showSaveButton || buttonState !== 'hidden';
+        },
+        _undoTapped () {
+            this.fire('undo');
+        },
+        _redoTapped () {
+            this.fire('redo');
+        },
+        _computeUndoRedoClass(flag) {
+            return flag ? 'active' : '';
         }
     });
 </script>
