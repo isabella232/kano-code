@@ -69,10 +69,14 @@ Example:
                 img-src="[[banner.icon]]"
                 img-page="[[banner.imgPage]]"
                 button-label="[[banner.buttonLabel]]"
+                button-state="[[banner.buttonState]]"
+                show-save-button="[[banner.showSaveButton]]"
                 progress="[[progress]]"
                 on-button-tapped="_bannerButtonTapped"
                 on-save-button-clicked="_transmitRequestShare"
-                hidden$="[[_isBannerHidden(banner)]]"></kano-editor-banner>
+                hidden$="[[_isBannerHidden(banner)]]"
+                can-go-back="[[canGoBack]]"
+                can-go-forward="[[canGoForward]]"></kano-editor-banner>
         </div>
     </template>
 </dom-module>
@@ -84,7 +88,7 @@ Example:
     };
 
     const BANNER_SOUND = '/assets/audio/sounds/card_set.wav';
-    
+
     Polymer({
         is: 'kano-app-challenge',
         behaviors: [
@@ -110,6 +114,12 @@ Example:
             modeReady: {
                 type: Boolean,
                 value: false
+            },
+            canGoBack: {
+                type: Boolean
+            },
+            canGoForward: {
+                type: Boolean
             }
         },
         listeners: {
@@ -139,12 +149,12 @@ Example:
 
                     if (this.banner.buttonLabel) {
                         if (this.bannerButtonInactive) {
-                            this.$.banner.buttonState = 'inactive';
+                            this.set('banner.buttonState', 'inactive');
                         } else {
-                            this.$.banner.buttonState = 'active';
+                            this.set('banner.buttonState', 'active');
                         }
                     } else {
-                        this.$.banner.buttonState = 'hidden';
+                        this.set('banner.buttonState', 'hidden');
                     }
                 } else {
                     this.banner = null;
@@ -156,11 +166,11 @@ Example:
                     this.set('banner.head', bannerProps.head || null);
                     this.set('banner.text', bannerProps.text);
                     this.set('banner.buttonLabel', this.localize('HINTS', 'Hints'));
-                    
+
                     // Show hint button with delay
-                    this.$.banner.buttonState = 'hidden';
+                    this.set('banner.buttonState', 'hidden');
                     this.showButtonTimeout = setTimeout(() => {
-                        this.$.banner.buttonState = 'active';
+                        this.set('banner.buttonState', 'active');
                     }, 6000);
                 } else {
                     this.banner = null;
@@ -170,7 +180,7 @@ Example:
                 if (step.banner) {
 
                     this.editor.set('lockdown', step.banner.lockdown);    //disable click events if true
-                    this.$.banner.showSaveButton = step.isLast;
+                    this.set('banner.showSaveButton', !!step.isLast);
 
                     if (step.isLast) {
                         this.set('banner.icon', null);

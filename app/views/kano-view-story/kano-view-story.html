@@ -98,13 +98,17 @@
                             state="{{state}}"
                             scene-variables="{{sceneVariables}}"
                             progress="[[progress]]"
+                            can-go-back="[[canGoBack]]"
+                            can-go-forward="[[canGoForward]]"
                             on-scene-done="sceneCompleted"
                             on-next-story="goToNextStory"
                             on-save="saveApp"
                             on-exit="_exit"
                             on-save-to-storage="saveToStorage"
                             on-load="loadApp"
-                            on-request-share="askEditorToShare">
+                            on-request-share="askEditorToShare"
+                            on-undo="historyBack"
+                            on-redo="historyForward">
             <kano-app-editor id="editor"
                              added-parts="{{addedParts}}"
                              parts="[[parts]]"
@@ -201,7 +205,7 @@
                 value: false
             },
             mode: {
-                type: Object  
+                type: Object
             },
             addedParts: {
                 type: Array
@@ -283,7 +287,7 @@
             }, Kano.MakeApps.config));
             Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
             Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            
+
             this.modal = this.$['share-modal'];
             this.editor = this.$.editor;
             this.debounce('saveApp', () => {
@@ -442,7 +446,7 @@
                 app = JSON.parse(contents);
                 this.dispatch({ type: 'LOAD_APP_FROM_STORY', data: app });
             } catch (e) {}
-            
+
         },
         _confirmLoadApp () {
             const state = this.getState();
@@ -470,7 +474,7 @@
             this.fire('ga-tracking-event', {
                 event: 'worldTutorialCompleted'
             });
-            
+
             this.trackUserProgress(this.story.id);
             if (this.selected < this.story.scenes.length - 1) {
                 this.selected++;
