@@ -770,6 +770,7 @@
                 let currentState = this.pop('history.backBuffer'),
                     history = this.history.backBuffer[this.history.backBuffer.length - 1];
                 this.push('history.forwardBuffer', currentState);
+                Kano.MakeApps.Parts.clear();
                 this.$.editor.load(history.editorState, Kano.MakeApps.Parts.list);
                 this.set('history.ignoreNextStepChange', true);
                 this.set('currentStepIndex', history.stepNumber);
@@ -779,6 +780,7 @@
             if (this.canGoForward) {
                 let history = this.pop('history.forwardBuffer');
                 this.push('history.backBuffer', history);
+                Kano.MakeApps.Parts.clear();
                 this.$.editor.load(history.editorState, Kano.MakeApps.Parts.list);
                 this.set('history.ignoreNextStepChange', true);
                 this.set('currentStepIndex', history.stepNumber);
