@@ -204,6 +204,10 @@ Example:
                     this.set('banner.icon', null);
                     this.set('banner.imgPage', 'judoka');
                 }
+                // No animation or sound if the challenge has finished
+                if (this.step === this.steps.length - 1) {
+                    return;
+                }
                 this.playSound(BANNER_SOUND);
                 if ('animate' in HTMLElement.prototype) {
                     this.$.banner.animate({
