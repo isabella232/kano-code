@@ -285,6 +285,7 @@ Example:
                 this.setWorkspace(workspace);
                 this.blocksPanel = this._getElement('blocks-panel');
                 workspace.addChangeListener(this._onFlyoutStateChanged);
+                this._fitBanner();
             });
         },
         attached () {
@@ -306,6 +307,9 @@ Example:
         },
         _fitBanner () {
             const workspace = this._blocklyWorkspace;
+            if (!workspace) {
+                return;
+            }
             const metrics = workspace.getMetrics();
             const flyout = workspace.getFlyout_();
             const width = workspace.toolbox_ && workspace.toolbox_.opened ? flyout.getWidth() + 44 : metrics.toolboxWidth;
