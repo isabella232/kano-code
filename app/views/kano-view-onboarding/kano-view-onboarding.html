@@ -2,6 +2,7 @@
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
+<link rel="import" href="../../scripts/kano/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 
@@ -59,7 +60,8 @@
         is: 'kano-view-onboarding',
         behaviors: [
             Kano.Behaviors.EditorViewBehavior,
-            Kano.Behaviors.ViewBehavior
+            Kano.Behaviors.ViewBehavior,
+            Kano.Behaviors.ReceiverBehavior,
         ],
         properties: {
             context: Object,
@@ -201,7 +203,7 @@
             'onStageChanged(stageNo)'
         ],
         _onModeReady () {
-            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
+            Kano.Behaviors.EditorViewBehaviorImpl._onModeReady.apply(this, arguments);
 
             if (this.loaded) {
                 return;
@@ -221,15 +223,17 @@
             }
         },
         ready () {
+            const { config } = this.getState();
+            this.progress = new Kano.MakeApps.Progress(config);
             this.loaded = false;
 
             this.editor = this.$.editor;
 
-            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Object.assign({}, Kano.MakeApps.config));
-            Kano.MakeApps.Progress.recordOnboarding();
+            Kano.MakeApps.Mode.init(config);
+            Kano.MakeApps.Blockly.init(config);
+            Kano.MakeApps.Parts.init(config);
+            Kano.AppModules.init(Object.assign({}, config));
+            this.progress.recordOnboarding();
 
             this.stageNo = 0;
         },
@@ -272,6 +276,7 @@
             return reward;
         },
         _handleModalAction (e) {
+            const { config } = this.getState();
             if (e.detail.trackingEvent) {
                 this.fire('ga-tracking-event', e.detail.trackingEvent);
             }
@@ -279,15 +284,15 @@
                 this.alertDisabled = true;
                 this.fire('signup', {
                     onSuccess: () => {
-                        location.href = Kano.MakeApps.config.PROJECTS_URL;
+                        location.href = config.PROJECTS_URL;
                     },
                     onCancel: () => {
-                        location.href = Kano.MakeApps.config.PROJECTS_URL;
+                        location.href = config.PROJECTS_URL;
                     }
                 });
             } else if (e.detail.type === 'progress' && this.stageNo === (this.stages.length - 1)) {
                 this.alertDisabled = true;
-                location.href = Kano.MakeApps.config.PROJECTS_URL;
+                location.href = config.PROJECTS_URL;
             } else {
                 if (this.stageNo < this.stages.length - 1) {
                     this.stageNo++;

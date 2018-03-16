@@ -1,18 +1,17 @@
-<link rel="import" href="../../config/config.html">
-<link rel="import" href="../../../bower_components/flow-down/flow-down.html">
 <script>
     Kano.MakeApps = Kano.MakeApps || {};
 
     Kano.MakeApps.Store = FlowDown.createStore({
         editor: {
             app: null,
-            logoutEnabled: !Kano.MakeApps.config.DISABLE_LOGOUT
+            logoutEnabled: !Kano.MakeApps.config.DISABLE_LOGOUT,
+            remixLoadingAlertOpened: false,
         },
         story: {},
         routing: {},
-        user: null
+        user: null,
+        config: Kano.MakeApps.config,
     });
-
 
     Kano.MakeApps.Store.types = function types (constants) {
         return Object.freeze(constants.reduce((acc, constant) => {
@@ -20,5 +19,26 @@
             return acc;
         }, {}))
     };
+
+    const { getStoreId } = Kano.MakeApps.Store.ReceiverBehavior;
+
+    // If a store id is declared in the element, it is used as a library and the store is managed by the library API
+    const EnhancedBehavior = {
+        properties: {
+            storeId: Number,
+        },
+        getStoreId() {
+            return this.storeId || getStoreId();
+        }
+    };
+
+    Kano.MakeApps.Store.ReceiverBehavior = [Kano.MakeApps.Store.ReceiverBehavior, EnhancedBehavior];
+
+    const KanoCodeStoreElement = Polymer({ is: 'kc-store', behaviors: [Kano.MakeApps.Store.ProviderBehavior] });
+
+    Kano.MakeApps.Store.storeElement = new KanoCodeStoreElement();
+    Kano.MakeApps.Store.getState = () => Kano.MakeApps.Store.storeElement.getState();
+
+    document.body.appendChild(Kano.MakeApps.Store.storeElement);
 
 </script>

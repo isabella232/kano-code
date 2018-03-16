@@ -15,10 +15,11 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
-<link rel="import" href="../../elements/behaviors/kano-editor-view-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-view-drop-file-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-reward-modal/kano-reward-modal.html">
+
+<script src="../../scripts/kano/vm.js"></script>
 
 <dom-module id="kano-view-editor">
     <style>
@@ -75,7 +76,7 @@
         }
     </style>
     <template>
-        <kano-app-editor
+        <!-- <kano-app-editor
             id="editor"
             running="{{running}}"
             parts="{{parts}}"
@@ -88,7 +89,7 @@
             on-share="share"
             on-exit="_exit"
             show-share-button>
-        </kano-app-editor>
+        </kano-app-editor> -->
         <kano-alert id="save-prompt"
                     heading="[[localize('DO_YOU_SAVE', 'Do you want to save your creation?')]]"
                     text="[[localize('ABOUT_TO_RESET', 'You\'ll lose any unsaved changes')]]"
@@ -97,6 +98,11 @@
                 <button class="kano-alert-primary" on-tap="_launchShare" dialog-confirm slot="actions">[[localize('SAVE_IT', 'Save it!')]]</button>
                 <button class="kano-alert-secondary" on-tap="_confirmExit" dialog-dismiss slot="actions">[[localize('NO_THANKS', 'No\, thanks')]]</button>
                 <button class="kano-alert-secondary" dialog-dismiss slot="actions">[[localize('CANCEL', 'Cancel')]]</button>
+        </kano-alert>
+        <kano-alert opened="[[remixLoadingAlertOpened]]"
+                    heading="[[localize('LOADING_REMIX', 'Loading creation for remixing')]]"
+                    text="[[localize('PLEASE_WAIT', 'Please wait...')]]"
+                    modal>
         </kano-alert>
         <paper-dialog id="error-dialog" with-backdrop>
             <h2 class="title">{{error.title}}</h2>
@@ -131,10 +137,9 @@
         is: 'kano-view-editor',
         behaviors: [
             Kano.Behaviors.SharingBehavior,
-            Kano.Behaviors.EditorViewBehavior,
             Kano.Behaviors.ViewDropFileBehavior,
             Kano.Behaviors.I18nBehavior,
-            Kano.MakeApps.Store.ReceiverBehavior
+            Kano.MakeApps.Store.ReceiverBehavior,
         ],
         properties: {
             context: Object,
@@ -174,6 +179,10 @@
                 type: Object,
                 linkState: 'editor.app',
                 observer: '_appChanged'
+            },
+            remixLoadingAlertOpened: {
+                type: Boolean,
+                linkState: 'editor.remixLoadingAlertOpened',
             }
         },
         observers: [
@@ -187,42 +196,134 @@
             'share-attempted': '_deactivateSavePrompt'
         },
         ready () {
-            this.loaded = false;
-            this.editor = this.$.editor;
-            this.editor.addEventListener('change', this.save.bind(this));
+            const { config } = this.getState();
             this.modal = this.$['share-modal'];
 
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(config);
             this.hardwareAPI.on('new-part-request', (e) => {
                 this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
             });
 
-            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
+            Kano.MakeApps.Mode.init(config);
+            Kano.MakeApps.Blockly.init(config);
             Kano.AppModules.init(Object.assign({
                 hardwareAPI: this.hardwareAPI,
                 restartCodeHandler: () => {
                     this.$.editor.resetAppState();
                 }
-            }, Kano.MakeApps.config));
+            }, config));
+        },
+        loadRemix(slug) {
+            this.dispatch({ type: 'LOAD_REMIX' });
+            this.remixMode = true;
+            const { config } = this.getState();
+            const sdk = new Kano.MakeApps.SDK(config);
+            //loading component for remixing, we need to get data from the slug
+            return sdk.getShareBySlug(slug)
+                .then(res => {
+                    //getting the workspace info from the share
+                    if (res.item.workspace_info_url) {
+                        return fetch(res.item.workspace_info_url)
+                    }
+                    throw new Error('Missing workspace information in share');
+                })
+                .then(r => r.json())
+                .then((share) => {
+                    this.dispatch({ type: 'REMIX_LOADED' });
+                    return share;               
+                })
+                .catch(err => {
+                    console.error('loading failed', err);
+                    this.set('error.title', 'Loading failed');
+                    this.set('error.description', 'Couldn\'t load share');
+                    this.$['error-dialog'].open();
+                });
+        },
+        attached() {
+            const slug = this.context.params.slug;
+            let p;
+            let app;
+            if (slug) {
+                p = this.loadRemix(slug).then(share => {
+                    app = share;
+                    return this.loadMode(share.mode);
+                });
+            } else {
+                p = this.loadMode(this._getMode(this.context));
+                app = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
+            }
+            const { config } = this.getState();
+            this.editor = new Kano.Code.Editor(config);
+            p.then((mode) => {
+                    this.editor.setMode(mode);
+                    this.setupEditor();
+                    this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
+                });
+        },
+        loadMode(id) {
+            const mode = Kano.MakeApps.Mode.modes[id];
+            return Kano.Code.Mode.load(mode)
+                .then(() => mode);
+        },
+        setupEditor () {
+            const { config } = this.getState();
+            Kano.MakeApps.Parts.init(config);
+            Kano.MakeApps.Blockly.register(window.Blockly);
+            this.editor.setToolbox(Kano.MakeApps.Blockly.categories);
+            this.editor.on('share', (shareInfo) => this.share({ detail: shareInfo }));
+            this.editor.on('exit', () => this._exit());
+            this.editor.on('change', () => this.save());
+            this.editor.on('running-state-changed', () => {
+                if (!this.modeReady) {
+                    return;
+                }
+                const running = this.editor.getRunningState();
+                this.debounce('runningChanged', () => {
+                    if (running) {
+                        if (!this.mode) {
+                            return;
+                        }
+                        Kano.AppModules.stop();
+                        
+                        // Get the parts elements from the workspace
+                        const parts = this.editor.getWorkspace().getPartsDict();
+                        // Tell AppModules where to find the parts
+                        Kano.AppModules.loadParts(parts);
+                        const code = this.editor.getCode();
+                        // Generate the code
+                        const appCode = Kano.AppModules.createAppCode('AppModules', code);
+                        // Start all the modules. Will also trigger the `start` event from `global`
+                        Kano.AppModules.start();
+                        // Prepare a sandbox exposing AppModules
+                        const vm = new Kano.VM({ AppModules: Kano.AppModules });
+                        // Run the code
+                        vm.runInContext(appCode);
 
-            this.mode = Kano.MakeApps.Mode.modes[this._getMode(this.context)];
+                    } else {
+                        Kano.AppModules.stop();
+                    }
+                });
+            });
+            this.editor.setRunningState(true);
+            this.editor.inject(this.root, this.root.firstChild);
         },
         _appChanged () {
-            if (!this.app || !this.loaded) {
+            if (!this.app) {
                 return;
             }
             Kano.MakeApps.Parts.clear();
-            this.set('mode', Kano.MakeApps.Mode.modes[this.app.mode]);
-            this._filterParts();
+            this.editor.setParts(Kano.MakeApps.Parts.list);
             this.editor.load(this.app, Kano.MakeApps.Parts.list);
         },
         _pauseApp(modalOpen) {
+            if (!this.editor) {
+                return;
+            }
             if (modalOpen) {
-                this._wasRunning = this.running;
-                this.running = false;
+                this._wasRunning = this.editor.getRunningState();
+                this.editor.setRunningState(false);
             } else {
-                this.running = this._wasRunning;
+                this.editor.setRunningState(this._wasRunning);
                 this._wasRunning = undefined;
             }
         },
@@ -340,65 +441,12 @@
             }
             this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
         },
-        _onModeReady () {
-            let appToLoad,
-            slug = this.context.params.slug,
-            modeId;
-            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
-
-            if (this.loaded) {
-                return;
-            }
-            this.loaded = true;
-            modeId = this.mode.id;
-
-            this.set('defaultCategories', Kano.MakeApps.Blockly.categories);
-            
-            // App already in memory, load it
-            if (this.app) {
-                this._appChanged();
-                return;
-            }
-            
-            if (slug) {
-                this.remixMode = true;
-                //loading component for remixing, we need to get data from the slug
-                Kano.MakeApps.sdk.api.share.get.bySlug({ slug }).then(res => {
-                    //getting the workspace info from the share
-                    if (res.body.item.workspace_info_url) {
-                        fetch(res.body.item.workspace_info_url)
-                        .then(response => {
-                            return response.json();
-                        }).then(json => {
-                            this.dispatch({ type: 'LOAD_EDITOR_APP', data: json });
-                            this.remixedShare = res.body.item;
-                        }).catch(err => {
-                            console.error('loading failed', err);
-                            this.set('error.title', 'Loading failed');
-                            this.set('error.description', 'Couldn\'t load share');
-                            this.$['error-dialog'].open();
-                        });
-                    }
-                });
-            } else {
-                appToLoad = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
-                this.dispatch({ type: 'LOAD_EDITOR_APP', data: appToLoad, mode: modeId });
-            }
-        },
-        _filterParts () {
-            // Only include the parts defined in the mode
-            if (this.mode.parts) {
-                this.set('parts', Kano.MakeApps.Parts.list.filter((part) => {
-                    return this.mode.parts.indexOf(part.type) !== -1;
-                }));
-            }
-        },
         _getMode (context) {
             var modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
         },
         _setupHardwareParts () {
-            if (this.hardwareAPI && this.loaded) {
+            if (this.hardwareAPI) {
                 this.hardwareAPI.setParts(this.addedParts);
             }
         },
@@ -410,13 +458,12 @@
             }, 300);
         },
         save () {
-            let modeId = this.mode.id;
             // Save after 3secs without changes
             if (!this.remixMode) {
                 this.debounce('save', () => {
-                    let editor = this.$.editor,
-                        savedApp = editor.save();
-                    localStorage.setItem(`savedApp-${modeId}`, JSON.stringify(savedApp));
+                    const savedApp = this.editor.save();
+                    const { id } = this.editor.getMode();
+                    localStorage.setItem(`savedApp-${id}`, JSON.stringify(savedApp));
                 }, 3000);
             }
         },
@@ -433,7 +480,7 @@
             });
         },
         _launchShare () {
-            this.$.editor.share();
+            this.editor.share();
         },
         _exit () {
             if (this.showSavePrompt) {

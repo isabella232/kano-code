@@ -42,7 +42,7 @@
         this.registered = true;
     };
     Kano.MakeApps.Blockly.init = function (c) {
-        let flags = c.getFlags();
+        let flags = Kano.MakeApps.experiments.getFlags();
         flags.experiments.forEach(exp => {
             if (this.experiments[exp]) {
                 this.experiments[exp].forEach(m => {
@@ -55,7 +55,7 @@
                 }
             });
         });
-        c.addExperiments('blocks', this.available.concat(Object.keys(this.experiments)));
+        Kano.MakeApps.experiments.addExperiments('blocks', this.available.concat(Object.keys(this.experiments)));
     };
 
     Kano.MakeApps.Blockly.addModule = function (name, module, experiment) {

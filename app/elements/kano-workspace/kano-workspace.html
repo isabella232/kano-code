@@ -1,17 +1,13 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/lazy-imports/lazy-imports.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../ui/kano-ui/kano-ui.html">
 
 <dom-module id="kano-workspace">
-    <link rel="lazy-import" href="../kano-editor-lightboard/kano-editor-lightboard.html" group="lightboard">
-    <link rel="lazy-import" href="../kano-editor-camera/kano-editor-camera.html" group="camera">
-    <link rel="lazy-import" href="../kano-editor-normal/kano-editor-normal.html" group="normal">
-    <link rel="lazy-import" href="../kano-editor-simple/kano-editor-simple.html" group="simple">
     <style>
     @keyframes fade-in {
         from { opacity: 0 },
@@ -65,19 +61,19 @@
             Kano.Behaviors.CoverGeneratorBehavior,
             Kano.Behaviors.SoundPlayerBehavior,
             Kano.Behaviors.AppElementRegistryBehavior,
-            Polymer.LazyImportsBehavior,
-            Polymer.Templatizer
+            Polymer.Templatizer,
+            Kano.MakeApps.Store.ReceiverBehavior,
         ],
         properties: {
             parts: {
                 type: Array,
-                notify: true
+                linkState: 'addedParts',
             },
             running: {
                 type: Boolean,
                 value: false,
                 observer: 'runningChanged',
-                notify: true
+                linkState: 'running',
             },
             editableLayout: {
                 type: Boolean,
@@ -94,12 +90,10 @@
                 type: Object,
                 value: null
             },
-            code: {
-                type: Object
-            },
             mode: {
                 type: Object,
-                observer: '_modeChanged'
+                observer: '_modeChanged',
+                linkState: 'mode',
             },
             background: {
                 type: String
@@ -157,10 +151,10 @@
             }
             if (this.editableLayout) {
                 this.prevRunningState = this.running;
-                this.set('running', false);
+                this.dispatch({ type: 'SET_RUNNING_STATE', state: false });
                 this.fire('open-settings');
             } else {
-                this.set('running', this.prevRunningState);
+                this.dispatch({ type: 'SET_RUNNING_STATE', state: this.prevRunningState });
                 this.fire('close-settings');
             }
         },
@@ -259,58 +253,49 @@
 
             modeId = mode.id;
 
-            this.async(() => {
-                if (importedWorkspaces[modeId]) {
-                    importPromise = Promise.resolve();
-                } else {
-                    importPromise = this.importLazyGroup(modeId);
-                }
-                importPromise.then(() => {
-                    let template,
-                        tagName;
-                    importedWorkspaces[modeId] = true;
-                    tagName = `kano-editor-${modeId}`;
-                    template = document.createElement('template');
+            let template,
+                tagName;
+            importedWorkspaces[modeId] = true;
+            tagName = `kano-editor-${modeId}`;
+            template = document.createElement('template');
 
-                    // We add 'kano-workspace' class manually to preserve shady DOM styling scope
-                    template.innerHTML = `<${tagName} id$="[[mode.id]]"
-                                                        class="dropzone kano-workspace"
-                                                        width="[[mode.workspace.viewport.width]]"
-                                                        height="[[mode.workspace.viewport.height]]"
-                                                        running="[[running]]"
-                                                        editable-layout="[[editableLayout]]"
-                                                        parts-menu-open="[[partsMenuOpen]]"
-                                                        parts="{{parts}}">
-                                                        </${tagName}>`;
+            // We add 'kano-workspace' class manually to preserve shady DOM styling scope
+            template.innerHTML = `<${tagName} id$="[[mode.id]]"
+                                                class="dropzone kano-workspace"
+                                                width="[[mode.workspace.viewport.width]]"
+                                                height="[[mode.workspace.viewport.height]]"
+                                                running="[[running]]"
+                                                editable-layout="[[editableLayout]]"
+                                                parts-menu-open="[[partsMenuOpen]]"
+                                                parts="{{parts}}">
+                                                </${tagName}>`;
 
-                    this.templatize(template);
+            this.templatize(template);
 
-                    this.instance = this.stamp({
-                        mode: this.mode,
-                        parts: this.parts,
-                    });
-
-                    newDropzone = this.instance.root;
-
-                    /* Remove old dropzone and add new one */
-                    if (this.dropzone) {
-                        placeholder.removeChild(this.dropzone);
-                    }
-                    placeholder.appendChild(newDropzone);
-
-                    /* Update dropzone reference */
-                    this.dropzone = this.$$(`#${this.mode.id}`);
-
-                    if (this.dropzone.setBackground) {
-                        this.dropzone.setBackground(this.background);
-                    }
-
-                    this.parts.forEach((model, index) => {
-                        this.insertPart(`#${index}`);
-                    });
-                    this.fire('mode-ready');
-                });
+            this.instance = this.stamp({
+                mode: this.mode,
+                parts: this.parts,
             });
+
+            newDropzone = this.instance.root;
+
+            /* Remove old dropzone and add new one */
+            if (this.dropzone) {
+                placeholder.removeChild(this.dropzone);
+            }
+            placeholder.appendChild(newDropzone);
+
+            /* Update dropzone reference */
+            this.dropzone = this.$$(`#${this.mode.id}`);
+
+            if (this.dropzone.setBackground) {
+                this.dropzone.setBackground(this.background);
+            }
+
+            this.parts.forEach((model, index) => {
+                this.insertPart(`#${index}`);
+            });
+            this.fire('mode-ready');
         },
         onTap (e) {
             let target;

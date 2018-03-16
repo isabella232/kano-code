@@ -28,6 +28,7 @@
 <link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
+<link rel="import" href="../../scripts/kano/make-apps/experiments.html">
 
 <dom-module id="kano-view-story">
     <style>
@@ -274,7 +275,9 @@
             '_addedPartsChanged(addedParts.splices)'
         ],
         ready () {
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+            const { config } = this.getState();
+            this.progress = new Kano.MakeApps.Progress(config);
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(config);
             this.hardwareAPI.on('new-part-request', (e) => {
                 this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
             });
@@ -284,9 +287,9 @@
                 restartCodeHandler: () => {
                     this.resetAppState();
                 }
-            }, Kano.MakeApps.config));
-            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+            }, config));
+            Kano.MakeApps.Blockly.init(config);
+            Kano.MakeApps.Mode.init(config);
 
             this.modal = this.$['share-modal'];
             this.editor = this.$.editor;
@@ -325,7 +328,7 @@
                         data: trackingData
                     });
                     if (story.progress) {
-                        return Kano.MakeApps.Progress.loadProgress(story.progress.group);
+                        return this.progress.loadProgress(story.progress.group);
                     }
                 })
         },
@@ -353,7 +356,7 @@
             page.redirect('/');
         },
         _onModeReady () {
-            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this, arguments);
+            Kano.Behaviors.EditorViewBehaviorImpl._onModeReady.apply(this, arguments);
             this._computeMode();
             this._computeCategories();
             this._computeParts();
@@ -485,7 +488,7 @@
                 //story completed
                 let progress = this.story.progress,
                     extension = this.story.extension ? this.story.id : null;
-                Kano.MakeApps.Progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id);
+                this.progress.updateProgress(progress.group, progress.storyNo, extension, this.story.id);
                 this.customAlert = false;
                 this._displayUserReward();
             }
@@ -512,7 +515,7 @@
         },
         _displayUserReward () {
             let headers = new Headers(),
-                flags = Kano.MakeApps.config.getFlags(),
+                flags = Kano.MakeApps.experiments.getFlags(),
                 fakeGamificationData,
                 payload = {
                     name: 'kano-code-challenge-completed',
@@ -592,7 +595,7 @@
             if (!this.scene || !this.scene.started) {
                 return;
             }
-            Kano.Behaviors.EditorViewBehavior._runningChanged.apply(this, arguments);
+            Kano.Behaviors.EditorViewBehaviorImpl._runningChanged.apply(this, arguments);
         },
         loadApp (e) {
             let id = e.detail,

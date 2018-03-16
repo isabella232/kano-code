@@ -141,40 +141,38 @@ var SharingBehavior = {
         }
 
         //Share by calling the API
-        return Kano.MakeApps.sdk.api.share.post({
+        return Kano.MakeApps.sdk.postShare({
             app: appName,
             title: this.shareInfo.title,
             description: this.shareInfo.description,
             files: files,
             is_private: this.shareInfo.is_private || false,
             hardware: hardware
-        }).then((res) => {
-            if (res.status == 200) {
-                let share = res.body.item;
-                // Generate the html file with the slug as component name
-                savedApp = Kano.AppModules.generateStandaloneComponent(
-                    share.slug,
-                    this.shareInfo.parts,
-                    this.shareInfo.background,
-                    this.shareInfo.mode,
-                    this.shareInfo.code
-                );
-                // Create the attachment
-                attachment = new Blob([savedApp], { type: 'text/html' });
-                attachment.filename = 'code.html';
-                // Attach the file to the share
-                return Kano.MakeApps.sdk.api.share.attach({ id: share.id, files: { attachment } }).then((res) => {
-                    if (res.status == 200) {
-                        trackingData.project_id = share.id;
-                        return res.body.item;
-                    } else {
-                        throw new Error('Could not share the app');
-                    }
-                });
-            } else {
-                throw new Error('Could not share the app');
-            }
-        }).then((share) => {
+        })
+        .then((res) => {
+            let share = res.item;
+            // Generate the html file with the slug as component name
+            savedApp = Kano.AppModules.generateStandaloneComponent(
+                share.slug,
+                this.shareInfo.parts,
+                this.shareInfo.background,
+                this.shareInfo.mode,
+                this.shareInfo.code
+            );
+            // Create the attachment
+            attachment = new Blob([savedApp], { type: 'text/html' });
+            attachment.filename = 'code.html';
+            // Attach the file to the share
+            return Kano.MakeApps.sdk.attachToShare({ id: share.id, files: { attachment } });
+        })
+        .then((res) => {
+            trackingData.project_id = share.id;
+            return res.item;
+        })
+        .catch((err) => {
+            throw new Error(err);
+        })
+        .then((share) => {
             this.fire('share-successful');
             this.set('shareInfo.id', share.id);
             this.set('shareInfo.slug', share.slug);
@@ -189,7 +187,8 @@ var SharingBehavior = {
                 this._goToPage('success');
             }
             return share;
-        }).then((share) => {
+        })
+        .then((share) => {
             // Check if it's a creation you made from scratch or a challenge
             if (!this.isChallenge) {
                 // Hit the gamification engine

@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
 <link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
+<link rel="import" href="../../scripts/kano/make-apps/actions/config.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/editor.html">
@@ -61,6 +63,7 @@
         /* globals Polymer, page, Kano */
         Polymer({
             is: 'kano-routing',
+            behaviors: [Kano.MakeApps.Store.ReceiverBehavior],
             properties: {
                 context: {
                     type: Object
@@ -82,6 +85,10 @@
                     type: Boolean,
                     value: true,
                     observer: '_onLeaveAlertChanged'
+                },
+                config: {
+                    type: Object,
+                    linkState: 'config',
                 }
             },
             listeners: {
@@ -90,7 +97,8 @@
             /**
              * Initialize the views
              */
-            ready() {
+            attached() {
+                const { config } = this;
                 page('/', this._showPageThunk('editor'));
                 page('/remix/:slug', this._showPageThunk('editor'));
                 page('/demo', this._showPageThunk('demo'));
@@ -98,10 +106,10 @@
                 page('/tutorial', this._showPageThunk('tutorial'));
                 page('/onboarding', this._showPageThunk('onboarding'));
                 page('/app/:slug', (ctx) => {
-                    window.location = Kano.MakeApps.config.WORLD_URL + "/shared/" + ctx.params.slug;
+                    window.location = config.WORLD_URL + "/shared/" + ctx.params.slug;
                 });
                 // Add the flags page when not in production
-                if (Kano.MakeApps.config.ENV !== 'production') {
+                if (config.ENV !== 'production') {
                     page('/flags', this._showPageThunk('flags'));
                 }
                 // Fallback to / if no match is found
@@ -152,44 +160,52 @@
                 }
             },
             _onPageChanged() {
-                let disableLogout,
-                    hardware;
+                let disableLogout;
 
-                Kano.MakeApps.config.HOST = Kano.Util.Router.parseQsParam(this.context.querystring, 'host') || Kano.MakeApps.config.HOST;
-                Kano.MakeApps.config.PORT = Kano.Util.Router.parseQsParam(this.context.querystring, 'port') || Kano.MakeApps.config.PORT;
-                Kano.MakeApps.config.WORLD_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl') || Kano.MakeApps.config.WORLD_URL;
-                Kano.MakeApps.config.PROJECTS_URL = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl') || Kano.MakeApps.config.PROJECTS_URL;
+                const { config, editor } = this.getState();
 
-                disableLogout = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
-                if (disableLogout === null) {
-                    disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
-                } else if (disableLogout === 'false' || disableLogout === '0') {
+                const host = Kano.Util.Router.parseQsParam(this.context.querystring, 'host');
+                const port = Kano.Util.Router.parseQsParam(this.context.querystring, 'port');
+                const worldUrl = Kano.Util.Router.parseQsParam(this.context.querystring, 'worldUrl');
+                const projectsUrl = Kano.Util.Router.parseQsParam(this.context.querystring, 'projectsUrl');
+                const disableLogoutQuery = Kano.Util.Router.parseQsParam(this.context.querystring, 'disableLogout');
+
+                Kano.MakeApps.Actions.Config.updateConfigKey('HOST', host, config.HOST);
+                Kano.MakeApps.Actions.Config.updateConfigKey('PORT', port, config.PORT);
+                Kano.MakeApps.Actions.Config.updateConfigKey('WORLD_URL', worldUrl, config.WORLD_URL);
+                Kano.MakeApps.Actions.Config.updateConfigKey('PROJECTS_URL', projectsUrl, config.PROJECTS_URL);
+                
+                
+                if (disableLogoutQuery === null) {
+                    disableLogout = !editor.logoutEnabled;
+                } else if (disableLogoutQuery === 'false' || disableLogoutQuery === '0') {
                     disableLogout = false;
                 }
-
-                Kano.MakeApps.config.DISABLE_LOGOUT = !!disableLogout;
-                Kano.MakeApps.Actions.Editor.updateLogoutEnabled(!Kano.MakeApps.config.DISABLE_LOGOUT);
-
+                
+                Kano.MakeApps.Actions.Editor.updateLogoutEnabled(!disableLogout);
+                
                 /* For compatibility with old Kano2 App we enable the Hardware API when
-                 * Kano Code runs within electron.
-                 *
-                 * WARNING: This will be removed in the future. For future applications,
-                 *          always explicitely use the query string to enable hardware support.
-                 */
-                Kano.MakeApps.config.USE_HARDWARE_API = ClientUtil.runningInKanoApp() || Kano.MakeApps.config.USE_HARDWARE_API;
-
-                hardware = Kano.Util.Router.parseQsParam(this.context.querystring, 'hardware');
-                if (hardware) {
-                    Kano.MakeApps.config.USE_HARDWARE_API = hardware !== 'false';
+                * Kano Code runs within electron.
+                *
+                * WARNING: This will be removed in the future. For future applications,
+                *          always explicitely use the query string to enable hardware support.
+                */
+                Kano.MakeApps.Actions.Config.updateConfigKey('USE_HARDWARE_API', ClientUtil.runningInKanoApp(), config.USE_HARDWARE_API);
+               
+                const hardwareQuery = Kano.Util.Router.parseQsParam(this.context.querystring, 'hardware');
+                if (hardwareQuery) {
+                    Kano.MakeApps.Actions.Config.updateConfigKey('USE_HARDWARE_API', hardware !== 'false', config.USE_HARDWARE_API);
                 }
             },
             _goToTapcode () {
+                const { config } = this.getState();
                 this.leaveAlert = false;
-                location.href = `${Kano.MakeApps.config.TAPCODE_URL}/challenge/line_burst`;
+                location.href = `${config.TAPCODE_URL}/challenge/line_burst`;
             },
             _exit() {
+                const { config } = this.getState();
                 this.leaveAlert = false;
-                location.href = Kano.MakeApps.config.PROJECTS_URL;
+                location.href = config.PROJECTS_URL;
             }
         });
     </script>

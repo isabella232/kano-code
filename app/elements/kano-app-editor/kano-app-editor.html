@@ -21,6 +21,7 @@
 <link rel="import" href="../kano-code-display/kano-code-display.html">
 <link rel="import" href="../kano-add-parts/kano-add-parts.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <!--
 `kano-app-editor`
 
@@ -188,7 +189,7 @@
         <iron-overlay-backdrop id="backdrop" on-click="_onLockdownClicked"></iron-overlay-backdrop>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
-                <template is="dom-if" if="[[modeReady]]">
+                <template is="dom-if" if="[[mode]]">
                     <paper-tabs class="tab-selector" attr-for-selected="id" selected="{{workspaceTab}}" autoselect>
                         <paper-tab id="workspace" class="tab">Canvas</paper-tab>
                         <paper-tab id="code-display" class="tab">JavaScript</paper-tab>
@@ -196,13 +197,10 @@
                 </template>
                 <iron-pages class="workspace-pages" attr-for-selected="id" selected="[[workspaceTab]]">
                     <kano-workspace id="workspace"
+                                    store-id="[[storeId]]"
                                     class="visible-when-running"
-                                    parts="{{addedParts}}"
                                     selected="{{selected}}"
-                                    running="{{running}}"
                                     editable-layout="{{editableLayout}}"
-                                    code="[[code]]"
-                                    mode="[[mode]]"
                                     background="[[background.userStyle.background]]"
                                     parts-menu-open="[[partsMenuOpen]]"
                                     on-close-settings="_closePartSettings"
@@ -212,7 +210,7 @@
                                     on-run-button-clicked="_runButtonClicked"
                                     on-reset-app-state="resetAppState"
                                     on-toggle-parts-menu="toggleParts"></kano-workspace>
-                    <kano-code-display id="code-display" code="[[_setCodeDisplay(code.snapshot.javascript, workspaceTab)]]" lang="javascript"></kano-code-display>
+                    <kano-code-display id="code-display" code="[[_setCodeDisplay(code, workspaceTab)]]" lang="javascript"></kano-code-display>
                 </iron-pages>
             </div>
             <div name="code" class="editor" id="blocks-panel">
@@ -220,15 +218,13 @@
                 <div main class="main">
                     <slot name="above-code"></slot>
                     <kc-blockly-editor
+                        store-id="[[storeId]]"
                         id="root-view"
-                        parts="{{addedParts}}"
-                        code="{{code}}"
-                        mode="[[mode]]"
                         on-change="_proxyChange"
                         on-exit-tapped="_exitTapped"
                         default-categories="{{defaultCategories}}"
-                        loading$="[[!modeReady]]"
-                        simple="{{isModeSimple(mode)}}"></kc-blockly-editor>
+                        loading$="[[!mode]]"
+                        simple="[[isModeSimple(mode)]]"></kc-blockly-editor>
                     <slot name="under-code"></slot>
                     <div id="code-overlay" class="code-overlay"></div>
                 </div>

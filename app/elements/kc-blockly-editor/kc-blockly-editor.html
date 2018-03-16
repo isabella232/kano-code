@@ -3,6 +3,7 @@
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../blockly.html">
 <link rel="import" href="../../bower_components/kwc-blockly/kwc-blockly.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../kc-user-options/kc-user-options.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
@@ -125,6 +126,7 @@
                 toolbox="[[toolbox]]"
                 on-change="_onBlocklyChanged"
                 default-blocks="[[mode.defaultBlocks]]"
+                on-code-changed="_onCodeChanged"
                 on-blockly-ready="_onBlocklyReady"
                 no-trashcan="[[simple]]"
                 no-zoom-control="[[simple]]"
@@ -160,12 +162,12 @@
             Kano.Behaviors.AppEditorBehavior,
             Kano.Behaviors.AppElementRegistryBehavior,
             Kano.Behaviors.I18nBehavior,
-            Kano.MakeApps.Store.ReceiverBehavior
+            Kano.MakeApps.Store.ReceiverBehavior,
             ],
         properties: {
             parts: {
                 type: Array,
-                notify: true
+                linkState: 'addedParts',
             },
             toolbox: {
                 type: Array
@@ -175,11 +177,16 @@
             },
             code: {
                 type: Object,
-                notify: true,
-                observer: 'codeChanged'
+                linkState: 'code',
+            },
+            blocks: {
+                type: Object,
+                observer: 'blocksChanged',
+                linkState: 'blocks',
             },
             mode: {
-                type: Object
+                type: Object,
+                linkState: 'mode',
             },
             simple: {
                 type: Boolean,
@@ -239,11 +246,14 @@
                 this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
             }
         },
-        codeChanged () {
-            if (!this.code) {
+        _onCodeChanged(e) {
+            this.dispatch({ type: 'UPDATE_CODE', code: e.detail.value });
+        },
+        blocksChanged () {
+            if (!this.blocks) {
                 return;
             }
-            this.$['code-editor'].load(this.code.snapshot);
+            this.$['code-editor'].loadBlocks(this.blocks);
         },
         computeTriggerOptions () {
             let options = [[Blockly.Msg.APP_STARTS, 'global.start']];
@@ -275,14 +285,6 @@
                 }
                 this.notifyChange('blockly', { event: e.detail });
             }
-            this.debounce('saveCode', () => {
-                this.saveCode();
-            }, 300);
-        },
-        saveCode () {
-            this.$['code-editor'].save().then(snapshot => {
-                this.set('code.snapshot', snapshot);
-            });
         },
         ready () {
             this.toolboxReady = false;
@@ -448,7 +450,7 @@
             this.set('toolbox', toolbox);
             if (!this.toolboxReady) {
                 this.toolboxReady = true;
-                this.$['code-editor'].load(this.code.snapshot);
+                this.$['code-editor'].loadBlocks(this.blocks);
             }
         },
         _partsChanged (e) {

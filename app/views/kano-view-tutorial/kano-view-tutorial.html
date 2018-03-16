@@ -17,6 +17,7 @@
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
 <link rel="import" href="../../scripts/kano/make-apps/debug/challenge.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 
 <dom-module id="kano-view-tutorial">
     <style>
@@ -182,7 +183,7 @@
         behaviors: [
             Kano.Behaviors.ModalAnimatorBehavior,
             Kano.Behaviors.EditorViewBehavior,
-            Kano.Behaviors.AppElementRegistryBehavior
+            Kano.Behaviors.AppElementRegistryBehavior,
         ],
         listeners: {
             'challenge-ui-error': '_onChallengeUIError'
@@ -217,7 +218,7 @@
             }
         },
         _onModeReady () {
-            Kano.Behaviors.EditorViewBehavior._onModeReady.apply(this);
+            Kano.Behaviors.EditorViewBehaviorImpl._onModeReady.apply(this);
             this.async(() => {
                 this.initialContext = this._getCurrentEditorContext();
                 this._updateContext();
@@ -302,18 +303,19 @@
             this.$['block-highlighter'].removeAttribute('transform');
         },
         ready () {
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config);
+            const { config } = this.getState();
+            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(config);
 
             Kano.AppModules.init(Object.assign({
                 hardwareAPI: this.hardwareAPI,
                 restartCodeHandler: () => {
                     this.$.editor.resetAppState();
                 }
-            }, Kano.MakeApps.config));
+            }, config));
 
-            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
+            Kano.MakeApps.Parts.init(config);
+            Kano.MakeApps.Blockly.init(config);
+            Kano.MakeApps.Mode.init(config);
 
             this.configureModal(this.$['end-modal'], 'scale-down');
             this.configureModal(this.$['end-modal'], 'fade-out');

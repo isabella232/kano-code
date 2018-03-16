@@ -1,5 +1,6 @@
 <link rel="import" href="../../part/kano-ui-behavior.html">
 <link rel="import" href="../../../scripts/kano/make-apps/parts-api/web-collidable.html">
+<link rel="import" href="../../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../../bower_components/google-map/google-map.html">
 <link rel="import" href="../../../bower_components/web-components/kano-style/part.html">
 
@@ -47,7 +48,8 @@
                 'resizeMap(model.userStyle.*, apiKey)'
             ],
             ready () {
-                this.apiKey = Kano.MakeApps.config.GOOGLE_API_KEY;
+                const { config } = Kano.MakeApps.Store.getState();
+                this.apiKey = config.GOOGLE_API_KEY;
                 this.mapOptions = {
                     draggable: false,
                     scrollWheel: false

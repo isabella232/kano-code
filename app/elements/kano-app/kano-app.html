@@ -1,6 +1,6 @@
 <script src="../../scripts/util/client.js"></script>
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
-<link rel="import" href="../../scripts/config/config.html">
+<link rel="import" href="../../scripts/kano/make-apps/experiments.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -110,7 +110,7 @@ Example:
         behaviors: [
             Kano.Behaviors.KanoCode.GABehavior,
             Kano.Behaviors.KanoCode.TrackingBehavior,
-            Kano.MakeApps.Store.ProviderBehavior,
+            Kano.MakeApps.Store.ReceiverBehavior,
             Kano.Behaviors.GamificationBehavior
         ],
         properties: {
@@ -149,16 +149,19 @@ Example:
         },
         ready () {
             this.editor = null;
-            this.offline = Kano.MakeApps.config.TARGET === 'osonline' && ClientUtil.isPi();
-            this.worldUrl = Kano.MakeApps.config.WORLD_URL;
-            this.apiUrl = Kano.MakeApps.config.API_URL;
+            const { config } = this.getState();
+            this.sdk = new Kano.MakeApps.SDK(config);
+            this.progress = new Kano.MakeApps.Progress(config);
+            this.offline = config.TARGET === 'osonline' && ClientUtil.isPi();
+            this.worldUrl = config.WORLD_URL;
+            this.apiUrl = config.API_URL;
             let initialiseSDK = () => {
-                Kano.MakeApps.sdk.auth.initSession((err, user) => {
+                this.sdk.initSession().then((user) => {
                     /**
                      * Set the token to allow this to be used by the tracking
                      * behavior
                      */
-                    this.token = Kano.MakeApps.sdk.auth.getToken();
+                    this.token = this.sdk.getToken();
                     if (user) {
                         Kano.MakeApps.Actions.User.authenticate(user);
                         this.set('user', user);
@@ -177,10 +180,13 @@ Example:
                             path: window.location.pathname
                         }
                     });
+                })
+                .catch(() => {
+                    this.trackVisitType('Logged out');
                 });
             };
             if (this.offline) {
-                fetch(Kano.MakeApps.config.TOKEN_ENDPOINT, {method: 'POST'})
+                fetch(config.TOKEN_ENDPOINT, {method: 'POST'})
                 .then((response) => {
                     if (response.ok) {
                         // The API has responded, need to set the token
@@ -189,7 +195,7 @@ Example:
                 })
                 .then((retObj) => {
                     if (retObj.hasOwnProperty('token')) {
-                        Kano.MakeApps.sdk.auth.setToken(retObj.token);
+                        this.sdk.setToken(retObj.token);
                     }
 
                     initialiseSDK();
@@ -202,7 +208,7 @@ Example:
             } else {
                 initialiseSDK();
             }
-            Kano.MakeApps.config.addExperiments('ui', ['gamification_modal']);
+            Kano.MakeApps.experiments.addExperiments('ui', ['gamification_modal']);
         },
         _showErrorOnToast (e) {
             this.message = e.detail;
@@ -221,7 +227,9 @@ Example:
                 return;
             }
 
-            fetch(Kano.MakeApps.config.SHUTDOWN_ENDPOINT)
+            const state = this.getState();
+
+            fetch(state.config.SHUTDOWN_ENDPOINT)
             .then((response) => {
                 if (!response.ok) {
                     console.log("Failed to shutdown.");
@@ -233,11 +241,11 @@ Example:
         },
         _logout (e) {
             e.preventDefault();
-            Kano.MakeApps.sdk.auth.logout(false);
+            this.sdk.logout();
             Kano.MakeApps.Actions.User.logout();
             this.user = null;
             this.$.auth.reset();
-            Kano.MakeApps.Progress.reset();
+            this.progress.reset();
             clearInterval(this._pollingIntervalId);
             /**
              * Attach the token to the event to allow this to be associated with
@@ -278,15 +286,15 @@ Example:
             }
         },
         _fetchUserProgress () {
-            Kano.MakeApps.sdk.api.progress.get()
+            this.sdk.getProgress()
                 .then((res) => {
-                    Kano.MakeApps.Actions.User.updateLevels(res.body.progress.levels);
-                    this.set('user.profile.levels', res.body.progress.levels);
+                    Kano.MakeApps.Actions.User.updateLevels(res.progress.levels);
+                    this.set('user.profile.levels', res.progress.levels);
                 });
         },
         _onLogin (e) {
             let data = e.detail;
-            Kano.MakeApps.sdk.auth.setToken(data.token);
+            this.sdk.setToken(data.token);
             this.token = data.token;
             Kano.MakeApps.Actions.User.authenticate(data.user);
             this.user = data.user;
@@ -302,10 +310,10 @@ Example:
             this._updateProfile();
         },
         _updateProfile () {
-            Kano.MakeApps.sdk.api.users.get.byUsername({ username: this.user.username })
+            this.sdk.getUserByUsername(this.user.username)
                 .then((res) => {
-                    Kano.MakeApps.Actions.User.updateProfile(res.body.user.profile);
-                    this.set('user.profile', res.body.user.profile);
+                    Kano.MakeApps.Actions.User.updateProfile(res.user.profile);
+                    this.set('user.profile', res.user.profile);
                     this._fetchUserProgress();
                 });
         },
