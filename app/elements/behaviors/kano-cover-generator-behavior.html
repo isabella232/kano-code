@@ -23,10 +23,16 @@
                 canvas.width  = width;
                 canvas.height = height;
 
+                let renderWorkspace = workspace;
+
+                if ('getWorkspace' in workspace) {
+                    renderWorkspace = workspace.getWorkspace();
+                }
+
                 //setting background color
-                ctx.fillStyle = workspace.getBackgroundColor();
+                ctx.fillStyle = renderWorkspace.getBackgroundColor();
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                promise = this.renderOnCanvas(workspace, ctx, util, scaleFactor);
+                promise = this.renderOnCanvas(renderWorkspace, ctx, util, scaleFactor);
                 parts.forEach((part) => {
                     let el = workspace.querySelector(`#${part.id}`);
                     if (typeof el.renderOnCanvas === 'function') {

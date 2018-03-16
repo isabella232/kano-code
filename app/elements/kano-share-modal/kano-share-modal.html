@@ -949,12 +949,24 @@
         },
         _openChanged (opened, wasOpened) {
             if (opened) {
-                // Force a change on the src to reload the app from the beginning
                 this.$['app-preview'].src = null;
-                this.$['app-preview'].src = this.shareInfo.app.src;
-                this.fire('tracking-event', {
-                    name: 'share_dialog_opened'
-                });
+                if (this.shareInfo.image) {
+                    this._resetCoverGenerator();
+                    const img = new Image();
+                    img.src = this.shareInfo.image.toDataURL();
+                    const base64Data = img.src.split(',').pop();
+                    const blob = this.base64toBlob(base64Data, 'image/png');
+                    this.shareInfo.coverBlob = blob;
+                    this.gifSrc = img.src;
+                    this.fire('cover-generated');
+                } else {
+                    // Force a change on the src to reload the app from the beginning
+                    this.$['app-preview'].src = null;
+                    this.$['app-preview'].src = this.shareInfo.app.src;
+                    this.fire('tracking-event', {
+                        name: 'share_dialog_opened',
+                    });
+                }
             } else if (!opened && wasOpened) {
                 this.interrupted = true;
                 this.gifSrc = null;

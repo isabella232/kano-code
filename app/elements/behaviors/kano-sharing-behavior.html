@@ -325,61 +325,72 @@ var SharingBehavior = {
         let app = e.detail.app,
             slug = Date.now().toString(),
             mode = Kano.MakeApps.Mode.modes[app.mode],
-            shareInfo, component;
-        component = Kano.AppModules.generateStandaloneComponent(
-            slug,
-            app.parts,
-            app.background,
-            mode,
-            app.code);
-        shareInfo = {
-            app: {
-                src: 'data:text/html;base64,' +
-                     window.btoa(unescape(encodeURIComponent(component))),
-                slug
-            },
-            workspaceInfo: e.detail.workspaceInfo,
-            page: 'sharing-form',
-            title: e.detail.title || '',
-            description: '',
-            id: null,
-            background: e.detail.background,
-            parts: e.detail.parts,
-            code: e.detail.code,
-            mode,
-            autoshare: e.detail.autoshare
-        };
+            shareInfo;
 
-        this.set('shareInfo', shareInfo);
-        this.modal.animationConfig = {
-            entry: [{
-                name: 'transform-animation',
-                transformFrom: 'scale(1.5)',
-                node: this.modal,
-                timing: {
-                    duration: 200
+        let p = Promise.resolve();
+        
+        if (Kano.MakeApps.config.PREVIEW_TYPE === 'image') {
+            const workspace = this.editor.getWorkspace();
+            p = workspace.generateCover();
+        }
+
+        p.then((image) => {
+            const component = Kano.AppModules.generateStandaloneComponent(
+                slug,
+                app.parts,
+                app.background,
+                mode,
+                app.code);
+            shareInfo = {
+                app: {
+                    src: 'data:text/html;base64,' +
+                        window.btoa(unescape(encodeURIComponent(component))),
+                    slug
+                },
+                workspaceInfo: e.detail.workspaceInfo,
+                page: 'sharing-form',
+                title: e.detail.title || '',
+                description: '',
+                id: null,
+                background: e.detail.background,
+                parts: e.detail.parts,
+                code: e.detail.code,
+                mode,
+                autoshare: e.detail.autoshare,
+                image
+            };
+
+            this.set('shareInfo', shareInfo);
+            this.modal.animationConfig = {
+                entry: [{
+                    name: 'transform-animation',
+                    transformFrom: 'scale(1.5)',
+                    node: this.modal,
+                    timing: {
+                        duration: 200
+                    }
+                },{
+                    name: 'fade-in-animation',
+                    node: this.modal,
+                    timing: {
+                        duration: 200
+                    }
+                }],
+                exit: {
+                    name: 'fade-out-animation',
+                    node: this.modal,
+                    timing: {
+                        duration: 200
+                    }
                 }
-            },{
-                name: 'fade-in-animation',
-                node: this.modal,
-                timing: {
-                    duration: 200
-                }
-            }],
-            exit: {
-                name: 'fade-out-animation',
-                node: this.modal,
-                timing: {
-                    duration: 200
-                }
-            }
-        };
-        let onAppReady = () => {
-            this.modal.refit();
-            this.modal.removeEventListener('app-ready', onAppReady);
-        };
-        this.modal.addEventListener('app-ready', onAppReady);
-        this.modal.open();
+            };
+            let onAppReady = () => {
+                this.modal.refit();
+                this.modal.removeEventListener('app-ready', onAppReady);
+            };
+            this.modal.addEventListener('app-ready', onAppReady);
+            this.modal.open();
+        });
     },
 
     _userChanged (user) {
