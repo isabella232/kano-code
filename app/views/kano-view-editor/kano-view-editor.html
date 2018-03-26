@@ -249,16 +249,17 @@
                     return this.loadMode(share.mode);
                 });
             } else {
-                p = this.loadMode(this._getMode(this.context));
+                const modeId = this._getMode(this.context);
+                p = this.loadMode(modeId);
                 app = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
             }
             const { config } = this.getState();
             this.editor = new Kano.Code.Editor(config);
             p.then((mode) => {
-                    this.editor.setMode(mode);
-                    this.setupEditor();
-                    this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
-                });
+                this.editor.setMode(mode);
+                this.setupEditor();
+                this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
+            });
         },
         loadMode(id) {
             const mode = Kano.MakeApps.Mode.modes[id];
