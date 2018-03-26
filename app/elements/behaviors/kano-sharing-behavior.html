@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/neon-animation/animations/transform-animation.html">
 <link rel="import" href="./kano-view-behavior.html">
 <link rel="import" href="./kano-gamification-behavior.html">
 <script src="./file_utils.js"></script>
@@ -34,7 +35,8 @@ var SharingBehavior = {
         gamificationResponse: {
             type: Object,
             value: null
-        }
+        },
+        shareContent: Object
     },
     listeners: {
         'cover-generated': '_onCoverGenerated'
@@ -279,8 +281,7 @@ var SharingBehavior = {
             code: app.code,
             app: {
                 slug,
-                src: 'data:text/html;base64,' +
-                     window.btoa(unescape(encodeURIComponent(component)))
+                component
             },
             workspaceInfo: JSON.stringify(app),
             mode
@@ -333,9 +334,8 @@ var SharingBehavior = {
             app.code);
         shareInfo = {
             app: {
-                src: 'data:text/html;base64,' +
-                     window.btoa(unescape(encodeURIComponent(component))),
-                slug
+                slug,
+                component
             },
             workspaceInfo: e.detail.workspaceInfo,
             page: 'sharing-form',
@@ -388,7 +388,7 @@ var SharingBehavior = {
         }
         // The user logged in and the sharing was waiting authentication, trigger the share
         if (this.waitingAuth && !this.shareInfo.is_private) {
-            this.confirmShare();
+            this.confirmShare(this.shareContent);
         }
     },
 
@@ -397,6 +397,7 @@ var SharingBehavior = {
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
             this.waitingAuth = true;
+            this.shareContent = e.detail;
             return this.fire('login');
         }
         this._shareApp(e.detail);
