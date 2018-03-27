@@ -79,11 +79,6 @@ Polymer({
             value: false,
             notify: true,
         },
-        lockdown: {
-            type: Boolean,
-            reflectToAttribute: true,
-            observer: '_onLockdownChanged',
-        },
     },
     observers: [
         'selectedPartChanged(selected.*)',
@@ -798,14 +793,6 @@ Polymer({
                 }
             });
         });
-    },
-    _onLockdownChanged(value) {
-        //Catch click events with backdrop
-        if (value) {
-            this.$.backdrop.open();
-        } else {
-            this.$.backdrop.close();
-        }
     },
     _refitPartModal() {
         this.$['edit-part-dialog'].refit();

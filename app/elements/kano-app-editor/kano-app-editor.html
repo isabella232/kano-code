@@ -37,13 +37,6 @@
                 position: relative;
                 max-width: 100vw;
             }
-            :host([lockdown]) {
-                pointer-events: none;
-            }
-            /*Don't apply lockdown on topbar*/
-            :host([lockdown]) ::slotted(*) {
-                pointer-events: auto;
-            }
             :host section {
                 @apply --layout-horizontal-reverse;
                 @apply --layout-flex;
@@ -185,8 +178,6 @@
         </style>
         <kano-media-query small-screen="{{smallScreen}}" medium-screen="{{mediumScreen}}" large-screen="{{largeScreen}}">
         </kano-media-query>
-
-        <iron-overlay-backdrop id="backdrop" on-click="_onLockdownClicked"></iron-overlay-backdrop>
         <section id="section" on-mousemove="mouseMoved" on-mouseup="completedResizing">
             <div class="ui-edition" id="workspace-panel">
                 <template is="dom-if" if="[[mode]]">

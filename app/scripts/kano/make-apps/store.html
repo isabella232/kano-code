@@ -7,6 +7,14 @@
             logoutEnabled: !Kano.MakeApps.config.DISABLE_LOGOUT,
             remixLoadingAlertOpened: false,
         },
+        challenge: {
+            banner: null,
+            history: {
+                backBuffer: [],
+                forwardBuffer: [],
+                ignoreNextStepChange: false,
+            },
+        },
         story: {},
         routing: {},
         user: null,
@@ -32,7 +40,17 @@
         }
     };
 
+
+    const EnhancedMixin = parent => class extends parent {
+        getStoreId() {
+            return this.storeId || getStoreId();
+        }
+    };
+
+    const { StateReceiver } = Kano.MakeApps.Store;
+
     Kano.MakeApps.Store.ReceiverBehavior = [Kano.MakeApps.Store.ReceiverBehavior, EnhancedBehavior];
+    Kano.MakeApps.Store.StateReceiver = parent => EnhancedMixin(StateReceiver(parent));
 
     const KanoCodeStoreElement = Polymer({ is: 'kc-store', behaviors: [Kano.MakeApps.Store.ProviderBehavior] });
 

@@ -41,7 +41,7 @@
         Object.keys(this.modules).forEach(key => this.modules[key].register(Blockly));
         this.registered = true;
     };
-    Kano.MakeApps.Blockly.init = function (c) {
+    Kano.MakeApps.Blockly.init = function () {
         let flags = Kano.MakeApps.experiments.getFlags();
         flags.experiments.forEach(exp => {
             if (this.experiments[exp]) {

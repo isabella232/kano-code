@@ -21,7 +21,8 @@ var GamificationBehavior = {
     },
     triggerGamificationEngine (payload) {
         const { config } = Kano.MakeApps.Store.getState();
-        const token = Kano.MakeApps.sdk.getToken();
+        sdk = new Kano.MakeApps.SDK(config);
+        const token = sdk.getToken();
 
         if (token) {
             let headers = new Headers();
@@ -53,7 +54,9 @@ var GamificationBehavior = {
         }
     },
     syncCachedProgress () {
-        const token = Kano.MakeApps.sdk.getToken();
+        const { config } = Kano.MakeApps.Store.getState();
+        sdk = new Kano.MakeApps.SDK(config);
+        const token = sdk.getToken();
 
         // Is logged in?
         if (token) {

@@ -39,14 +39,13 @@
             clear () {
                 return this.Part.clear();
             },
-            init (c) {
+            init () {
                 if (this._initialised) {
                     return;
                 }
 
                 this._initialised = true;
                 let flags = Kano.MakeApps.experiments.getFlags();
-                this.config = c;
                 flags.experiments.forEach(exp => {
                     if (this.experiments[exp]) {
                         this.list = this.list.concat(this.experiments[exp]);

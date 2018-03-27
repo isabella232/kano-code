@@ -1,13 +1,8 @@
-import FlowDown from '../../bower_components/flow-down/flow-down.js';
+import FlowDown from '../../flow-down/flow-down.js';
 
 const Store = {
-    create(config) {
-        const store = FlowDown.createStore({
-            running: false,
-            config,
-            addedParts: [],
-            workspaceTab: 'workspace',
-        });
+    create(initState) {
+        const store = FlowDown.createStore(initState);
 
         // If a store id is declared in the element,
         // it is used as a library and the store is managed by the library API
@@ -20,7 +15,17 @@ const Store = {
             },
         };
 
+        const EnhancedMixin = parent => class extends parent {
+            getStoreId() {
+                console.log('getStoreId');
+                return this.storeId || store.ReceiverBehavior.getStoreId();
+            }
+        };
+
+        const { StateReceiver } = store;
+
         store.ReceiverBehavior = [store.ReceiverBehavior, EnhancedBehavior];
+        store.StateReceiver = parent => EnhancedMixin(StateReceiver(parent));
 
         const StoreElement = Polymer({
             is: `kc-store-${store.id}`,

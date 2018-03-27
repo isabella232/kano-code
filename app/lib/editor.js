@@ -6,7 +6,7 @@ import PartsActions from './actions/parts.js';
 import EditorActions from './actions/editor.js';
 
 // FIXME
-import FlowDown from '../../bower_components/flow-down/flow-down.js';
+import FlowDown from '../../flow-down/flow-down.js';
 
 window.FlowDown = FlowDown;
 
@@ -15,7 +15,13 @@ class Editor extends EventEmitter {
         super();
         this.config = Config.merge(opts);
         this.rootEl = document.createElement('kano-app-editor');
-        this.store = Store.create(this.config);
+        this.rootEl.editor = this;
+        this.store = Store.create({
+            running: false,
+            config: this.config,
+            addedParts: [],
+            workspaceTab: 'workspace',
+        });
         this.modeActions = ModeActions(this.store);
         this.partsActions = PartsActions(this.store);
         this.editorActions = EditorActions(this.store);
@@ -27,6 +33,12 @@ class Editor extends EventEmitter {
         this.rootEl.addEventListener('change', this.onChange.bind(this));
 
         this.store.providerElement.addEventListener('running-changed', this.onRunningChange.bind(this));
+
+        // Legacy APIs wrapped here
+        // TODO: Interface these API better with a OO pattern
+        Kano.MakeApps.Blockly.init();
+        Kano.MakeApps.Blockly.register(window.Blockly);
+        Kano.MakeApps.Parts.init();
     }
 
     inject(element = document.body, before = null) {
@@ -51,8 +63,9 @@ class Editor extends EventEmitter {
         this.rootEl.defaultCategories = this._toolbox;
     }
 
-    load(app, parts) {
-        this.rootEl.load(app, parts);
+    load(app) {
+        Kano.MakeApps.Parts.clear();
+        this.rootEl.load(app, Kano.MakeApps.Parts.list);
         this.editorActions.loadBlocks(app.code.snapshot.blocks);
     }
 
@@ -64,8 +77,8 @@ class Editor extends EventEmitter {
         this.emit('exit');
     }
 
-    onChange() {
-        this.emit('change');
+    onChange(e) {
+        this.emit('change', e.detail);
     }
 
     onRunningChange() {
@@ -101,6 +114,19 @@ class Editor extends EventEmitter {
 
     getWorkspace() {
         return this.rootEl.getWorkspace();
+    }
+
+    getBlocklyWorkspace() {
+        return this.rootEl.getBlocklyWorkspace();
+    }
+
+    loadVariables(variables) {
+        const workspace = this.getBlocklyWorkspace();
+        if (variables && workspace) {
+            variables.forEach((v) => {
+                Blockly.Variables.addVariable(v, workspace);
+            });
+        }
     }
 }
 

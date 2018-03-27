@@ -1,37 +1,73 @@
-<link rel="import" href="./mode.html">
+<link rel="import" href="../elements/kano-editor-camera/kano-editor-camera.html">
 <link rel="import" href="./common/background-blocks.html">
 <link rel="import" href="./common/filters.html">
-
-<link rel="import" href="../parts/button.html">
-<link rel="import" href="../parts/box.html">
-<link rel="import" href="../parts/text-input.html">
-<link rel="import" href="../parts/text.html">
-<link rel="import" href="../parts/map.html">
-<link rel="import" href="../parts/sticker.html">
-<link rel="import" href="../parts/scrolling-text.html">
-<link rel="import" href="../parts/picture-list.html">
-<link rel="import" href="../parts/slider.html">
-<link rel="import" href="../parts/oscillator.html">
-
-<link rel="import" href="../parts/data/space/iss.html">
-<link rel="import" href="../parts/data/weather/weather.html">
-<link rel="import" href="../parts/data/kano/share.html">
-<link rel="import" href="../parts/data/rss.html">
-<link rel="import" href="../parts/data/sports.html">
-<link rel="import" href="../parts/clock.html">
-
-<link rel="import" href="../parts/speaker.html">
-<link rel="import" href="../parts/synth.html">
-<link rel="import" href="../parts/microphone.html">
-<link rel="import" href="../parts/mouse.html">
-<link rel="import" href="../parts/terminal.html">
-
-<link rel="import" href="../parts/powerups/gyro-accelerometer.html">
-<link rel="import" href="../parts/powerups/motion-sensor.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/button.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/box.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/text-input.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/text.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/map.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/sticker.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/scrolling-text.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/picture-list.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/slider.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/oscillator.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/space/iss.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/weather/weather.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/kano/share.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/rss.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/sports.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/clock.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/speaker.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/synth.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/microphone.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/mouse.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/terminal.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/powerups/gyro-accelerometer.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/powerups/motion-sensor.html">
 
 <script>
-    (function (Kano) {
-        let blocks = [{
+    ((Kano) => {
+        const COLOR = '#82C23D';
+        const definition = {
+            id: 'camera',
+            name: 'Camera',
+            allowBackground: true,
+            workspace: {
+                viewport: {
+                    width: 512,
+                    height: 384
+                },
+                component: 'kano-workspace-camera'
+            },
+            sharing: {
+                cover: 'still'
+            },
+            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="60" y="120" id="default_event_part_id"><field name="EVENT">camera.camera-shutter-button</field><statement name="DO"><block type="camera#take_picture" id="default_take_picture_id"></block></statement></block></xml>`,
+            colour: COLOR,
+            parts: ['clock', 'microphone', 'mouse', 'speaker', 'synth', 'button',
+                        'box', 'sticker', 'map', 'picture-list',
+                        'scrolling-text', 'slider', 'text-input', 'text',
+                        'rss', 'sports', 'weather', 'iss', 'share', 'canvas',
+                        'motion-sensor', 'gyro-accelerometer', 'oscillator',
+                        'terminal'],
+            events: [{
+                label: 'takes picture',
+                id: 'picture-taken'
+            }, {
+                label: 'shutter pushed',
+                id: 'camera-shutter-button'
+            }, {
+                label: 'timer turns left',
+                id: 'camera-timer-cw'
+            }, {
+                label: 'timer turns right',
+                id: 'camera-timer-ccw'
+            }]
+        };
+
+        const categories = [];
+
+        const blocks = [{
             block: () => {
                 return {
                     id: 'take_picture',
@@ -141,6 +177,16 @@
             }
         }])
         .concat(Kano.MakeApps.Parts.Common.background);
-        Kano.MakeApps.Mode.setBlocks('camera', blocks);
-    })(window.Kano = window.Kano || {});
+
+        categories.push({
+            name: definition.name,
+            id: definition.id,
+            colour: COLOR,
+            blocks,
+        });
+
+        definition.categories = categories;
+
+        Kano.Code.Mode.define(definition.id, definition);
+    })(window.Kano);
 </script>

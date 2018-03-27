@@ -140,6 +140,8 @@ $.startServer = (lr) => {
     return server
         .use($.history())
         .use($.serveStatic(__dirname + '/app'))
+        .use($.serveStatic(__dirname + '/node_modules'))
+        .use($.serveStatic(__dirname + '/lib'))
         .listen(4000);
 };
 
