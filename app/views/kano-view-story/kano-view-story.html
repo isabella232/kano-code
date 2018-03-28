@@ -10,7 +10,6 @@
 <link rel="import" href="../../elements/kano-challenge-completed-modal/kano-challenge-completed-modal.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <!-- App behaviors -->
-<link rel="import" href="../../elements/behaviors/kano-view-drop-file-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-code-ga-tracking-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
@@ -104,14 +103,13 @@
         Kano.Behaviors.ViewBehavior,
         Kano.Behaviors.SharingBehavior,
         Kano.Behaviors.KanoCode.GABehavior,
-        Kano.Behaviors.ViewDropFileBehavior,
         Kano.Behaviors.I18nBehavior,
         Kano.Behaviors.SoundPlayerBehavior,
     ];
 
     class KanoViewStory extends Kano.MakeApps.Store.StateReceiver(
         Polymer.mixinBehaviors(behaviors, Polymer.Element)
-        ) {
+    ) {
         static get is() { return 'kano-view-story'; }
         static get properties() {
             return {
@@ -251,6 +249,9 @@
             this.editor.on('save', () => this.saveApp());
             this.runner = new Kano.Code.Runner(this.editor);
             this.runner.start();
+            this.fileUpload = new Kano.Code.FileUpload(this.editor, this);
+            this.fileUpload.on('upload', this._onFileDropped.bind(this));
+            this.fileUpload.start();
             this.editor.setRunningState(true);
         }
         _editorAppChanged () {

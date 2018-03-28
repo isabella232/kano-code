@@ -14,9 +14,9 @@
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
-<link rel="import" href="../../elements/behaviors/kano-view-drop-file-behavior.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
 <link rel="import" href="../../bower_components/web-components/kano-reward-modal/kano-reward-modal.html">
+<link rel="import" href="../../elements/kc-file-upload-overlay/kc-file-upload-overlay.html">
 
 <dom-module id="kano-view-editor">
     <template>
@@ -46,32 +46,6 @@
             :host(.dragging) * {
                 pointer-events: none;
             }
-            .dragoverlay {
-                @apply(--layout-vertical);
-                @apply(--layout-center);
-                @apply(--layout-center-justified);
-                position: fixed;
-                top: 0px;
-                left: 0px;
-                width: 100%;
-                height: 100%;
-                display: none;
-                background-color: rgba(255, 255, 255, 0.75);
-                box-sizing: border-box;
-                overflow: hidden;
-                text-align: center;
-            }
-            .dragoverlay * {
-                pointer-events: none;
-            }
-            #overlay-character {
-                transform-origin: center bottom;
-            }
-            #overlay-text {
-                opacity: 0;
-                font-size: 32px;
-                font-weight: 400;
-            }
         </style>
         <kano-alert id="save-prompt"
                     heading="[[localize('DO_YOU_SAVE', 'Do you want to save your creation?')]]"
@@ -100,17 +74,8 @@
                               world-url="[[config.WORLD_URL]]"
                               is-authenticated="[[user]]"></kano-share-modal>
         </paper-dialog>
-        <div class="dragoverlay" id="dropoverlay">
-            <p id="overlay-text">Drop a file here to load the app</p>
-            <iron-image
-                id="overlay-character"
-                src="/assets/stories/locales/en-US/background_color/color-character.png"
-                preload
-                sizing="contain"
-                width="300"
-                height="400"></iron-image>
-        </div>
         <kano-reward-modal id="reward-modal" on-second-action="_openSignup"></kano-reward-modal>
+        <kc-file-upload-overlay id="file-upload-overlay"></kc-file-upload-overlay>
     </template>
 </dom-module>
 
@@ -118,13 +83,12 @@
 
     const behaviors = [
         Kano.Behaviors.SharingBehavior,
-        Kano.Behaviors.ViewDropFileBehavior,
         Kano.Behaviors.I18nBehavior,
     ];
 
     class KanoViewEditor extends Kano.MakeApps.Store.StateReceiver(
         Polymer.mixinBehaviors(behaviors, Polymer.Element)
-        ) {
+    ) {
         static get is() { return 'kano-view-editor'; }
         static get properties() {
             return {
@@ -265,7 +229,7 @@
             const url = `/mode/${id}.html`;
             return Kano.Code.Mode.load(id, url);
         }
-        setupEditor () {
+        setupEditor() {
             this.editor.inject(this.root, this.root.firstChild);
             const { config } = this.getState();
             this.editor.setToolbox(Kano.MakeApps.Blockly.categories);
@@ -274,9 +238,12 @@
             this.editor.on('change', () => this.save());
             this.runner = new Kano.Code.Runner(this.editor);
             this.runner.start();
+            this.fileUpload = new Kano.Code.FileUpload(this.editor, this, this.$['file-upload-overlay']);
+            this.fileUpload.on('upload', this._onFileDropped.bind(this));
+            this.fileUpload.start();
             this.editor.setRunningState(true);
         }
-        _appChanged () {
+        _appChanged() {
             if (!this.app) {
                 return;
             }
@@ -295,110 +262,6 @@
                 this._wasRunning = undefined;
             }
         }
-        _animateDragEnter () {
-            let overlay = this.$['dropoverlay'],
-                character = this.$['overlay-character'],
-                text = this.$['overlay-text'];
-
-            overlay.style.display = 'flex';
-            overlay.animate([{
-                opacity: 0
-            }, {
-                opacity: 1
-            }], {
-                duration: 300,
-                fill: 'forwards',
-                easing: 'ease-in-out'
-            });
-
-            character.style.transformOrigin = 'center bottom';
-
-            character.animate([{
-                transform: 'translateY(100%) rotate(4deg)'
-            },{
-                transform: 'translateY(0%) rotate(0deg)'
-            }], {
-                duration: 400,
-                fill: 'forwards',
-                easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-            });
-
-            text.animate([{
-                transform: 'translateY(100%)',
-                opacity: 0
-            },{
-                transform: 'translateY(0%)',
-                opacity: 1
-            }], {
-                duration: 400,
-                delay: 600,
-                easing: 'ease-out',
-                fill: 'forwards'
-            });
-        }
-        _animateDragLeave () {
-            let overlay = this.$['dropoverlay'],
-                character = this.$['overlay-character'],
-                text = this.$['overlay-text'],
-                fadeOutConfig;
-
-            fadeOutConfig = [[{
-                opacity: 1
-            },{
-                opacity: 0
-            }], {
-                duration: 400,
-                easing: 'ease-out',
-                fill: 'forwards'
-            }];
-
-            text.animate.apply(text, fadeOutConfig);
-            overlay.animate.apply(overlay, fadeOutConfig).onfinish = () => {
-                overlay.style.display = 'none';
-            };
-
-            return character.animate([{
-                transform: 'translateY(0%)'
-            },{
-                transform: 'translateY(100%)'
-            }], {
-                duration: 400,
-                easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-            }).finished;
-
-        }
-        _animateDrop () {
-            let overlay = this.$['dropoverlay'],
-                character = this.$['overlay-character'],
-                text = this.$['overlay-text'],
-                fadeOutConfig;
-
-            fadeOutConfig = [[{
-                opacity: 1
-            },{
-                opacity: 0
-            }], {
-                duration: 400,
-                fill: 'forwards',
-                easing: 'ease-out'
-            }];
-
-            text.animate.apply(text, fadeOutConfig);
-            overlay.animate.apply(overlay, fadeOutConfig).onfinish = () => {
-                overlay.style.display = 'none';
-            };
-
-            character.style.transformOrigin = 'center center';
-
-            return character.animate([{
-                transform: 'scale(1, 1)'
-            },{
-                transform: 'scale(0, 0)'
-            }], {
-                duration: 400,
-                easing: 'cubic-bezier(0.6, -0.28, 0.735, 0.045)'
-            }).finished;
-        }
         _onFileDropped(contents) {
             let app;
             try {
@@ -412,19 +275,19 @@
             var modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
         }
-        _setupHardwareParts () {
+        _setupHardwareParts() {
             if (this.hardwareAPI) {
                 this.hardwareAPI.setParts(this.addedParts);
             }
         }
-        _partsChanged () {
+        _partsChanged() {
             this.debounce('parts-changed', () => {
                 if (this.hardwareAPI) {
                     this.hardwareAPI.requestDeviceUpdate();
                 }
             }, 300);
         }
-        save () {
+        save() {
             // Save after 3secs without changes
             if (!this.remixMode) {
                 this.debounce('save', () => {
@@ -434,22 +297,22 @@
                 }, 3000);
             }
         }
-        _activateSavePrompt () {
+        _activateSavePrompt() {
             this.showSavePrompt = true;
         }
-        _deactivateSavePrompt () {
+        _deactivateSavePrompt() {
             this.showSavePrompt = false;
         }
-        _confirmExit () {
+        _confirmExit() {
             this.fire('exit-confirmed');
             this.fire('tracking-event', {
                 name: 'ide_exit_confirmed'
             });
         }
-        _launchShare () {
+        _launchShare() {
             this.editor.share();
         }
-        _exit () {
+        _exit() {
             if (this.showSavePrompt) {
                 this.$['save-prompt'].open();
                 this.fire('tracking-event', {
@@ -459,7 +322,7 @@
                 this.fire('exit-confirmed');
             }
         }
-        _openSignup () {
+        _openSignup() {
             this.fire('signup');
         }
     }

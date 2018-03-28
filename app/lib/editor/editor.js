@@ -1,12 +1,12 @@
-import EventEmitter from './util/event-emitter.js';
-import Config from './config.js';
-import Store from './store.js';
-import ModeActions from './actions/mode.js';
-import PartsActions from './actions/parts.js';
-import EditorActions from './actions/editor.js';
+import EventEmitter from '../util/event-emitter.js';
+import Config from '../config.js';
+import Store from '../store.js';
+import ModeActions from '../actions/mode.js';
+import PartsActions from '../actions/parts.js';
+import EditorActions from '../actions/editor.js';
 
 // FIXME
-import FlowDown from '../../flow-down/flow-down.js';
+import FlowDown from '../../../flow-down/flow-down.js';
 
 window.FlowDown = FlowDown;
 
