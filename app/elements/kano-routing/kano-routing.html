@@ -1,8 +1,9 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
 <link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
 <link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/config.html">
+<link rel="import" href="../../scripts/kano/make-apps/actions/routing.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/editor.html">
@@ -14,7 +15,6 @@
     <link rel="lazy-import" href="/views/kano-view-story/kano-view-story.html">
     <link rel="lazy-import" href="/views/kano-view-tutorial/kano-view-tutorial.html">
     <link rel="lazy-import" href="/views/kano-view-editor/kano-view-editor.html">
-    <link rel="lazy-import" href="/views/kano-view-onboarding/kano-view-onboarding.html">
     <link rel="lazy-import" href="/views/kano-view-flags/kano-view-flags.html">
     <link rel="lazy-import" href="/views/kano-view-demo/kano-view-demo.html">
     <template>
@@ -40,62 +40,55 @@
         </kano-alert>
         <iron-lazy-pages selected="[[page]]" attr-for-selected="data-route" loading="{{loading}}" hide-immediately>
             <template is="dom-if" data-route="story" data-path="/views/kano-view-story/kano-view-story.html" restamp>
-                <kano-view-story context="[[context]]" user="{{user}}" show-save-prompt={{leaveAlert}}></kano-view-story>
+                <kano-view-story show-save-prompt={{leaveAlert}}></kano-view-story>
             </template>
             <template is="dom-if" data-route="tutorial" data-path="/views/kano-view-tutorial/kano-view-tutorial.html" restamp>
-                <kano-view-tutorial context="[[context]]" user="{{user}}"></kano-view-tutorial>
+                <kano-view-tutorial ></kano-view-tutorial>
             </template>
             <template is="dom-if" data-route="editor" data-path="/views/kano-view-editor/kano-view-editor.html" restamp>
-                <kano-view-editor context="[[context]]" user="{{user}}"></kano-view-editor>
+                <kano-view-editor show-save-prompt={{leaveAlert}}></kano-view-editor>
             </template>
             <template is="dom-if" data-route="flags" data-path="/views/kano-view-flags/kano-view-flags.html" restamp>
-                <kano-view-flags context="[[context]]" user="{{user}}"></kano-view-flags>
+                <kano-view-flags ></kano-view-flags>
             </template>
             <template is="dom-if" data-route="demo" data-path="/views/kano-view-demo/kano-view-demo.html" restamp>
-                <kano-view-demo context="[[context]]"></kano-view-demo>
+                <kano-view-demo></kano-view-demo>
             </template>
         </iron-lazy-pages>
     </template>
     <script>
-        /* globals Polymer, page, Kano */
-        Polymer({
-            is: 'kano-routing',
-            behaviors: [Kano.MakeApps.Store.ReceiverBehavior],
-            properties: {
-                context: {
-                    type: Object
-                },
-                user: {
-                    type: Object
-                },
-                page: {
-                    type: String,
-                    reflectToAttribute: true,
-                    observer: '_onPageChanged',
-                    notify: true
-                },
-                loading: {
-                    type: Boolean,
-                    observer: '_loadingChanged'
-                },
-                leaveAlert: {
-                    type: Boolean,
-                    value: true,
-                    observer: '_onLeaveAlertChanged'
-                },
-                config: {
-                    type: Object,
-                    linkState: 'config',
-                }
-            },
-            listeners: {
-                'exit-confirmed': '_exit'
-            },
-            /**
-             * Initialize the views
-             */
-            attached() {
-                const { config } = this;
+        class KanoRouting extends Kano.MakeApps.Store.StateReceiver(Polymer.Element) {
+            static get is() { return 'kano-routing'; }
+            static get properties() {
+                return {
+                    context: {
+                        type: Object,
+                        linkState: 'routing.context',
+                    },
+                    user: {
+                        type: Object
+                    },
+                    page: {
+                        type: String,
+                        reflectToAttribute: true,
+                        observer: '_onPageChanged',
+                        linkState: 'routing.page',
+                    },
+                    loading: {
+                        type: Boolean,
+                        observer: '_loadingChanged'
+                    },
+                    leaveAlert: {
+                        type: Boolean,
+                        value: true,
+                        observer: '_onLeaveAlertChanged'
+                    },
+                };
+            }
+            constructor() {
+                super();
+                this._exit = this._exit.bind(this);
+                const { config } = this.getState();
                 page('/', this._showPageThunk('editor'));
                 page('/remix/:slug', this._showPageThunk('editor'));
                 page('/demo', this._showPageThunk('demo'));
@@ -112,8 +105,16 @@
                 page('*', () => {
                     page.redirect('/' + document.location.search);
                 });
+            }
+            connectedCallback() {
+                super.connectedCallback();
+                this.addEventListener('exit-confirmed', this._exit);
                 page(); // force trigger the initial root page
-            },
+            }
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                this.removeEventListener('exit-confirmed', this._exit);
+            }
             /**
              * Creates a function to be used by page.js
              * @param  {String} name  Name of the view component to load
@@ -121,30 +122,30 @@
              */
             _showPageThunk(name) {
                 return (ctx) => {
-                    this.set('context', ctx);
+                    this.dispatch({ type: 'UPDATE_CONTEXT', context: ctx });
                     // Set the page to null, before the real value to force a restamp of the view
                     if (this.page === name) {
-                        this.set('page', null);
+                        this.dispatch({ type: 'UPDATE_PAGE', page: null });
                     }
-                    this.set('page', name);
+                    this.dispatch({ type: 'UPDATE_PAGE', page: name });
                 };
-            },
+            }
             _computeLoadingClass(loading) {
                 return loading ? 'loading' : '';
-            },
+            }
             _isMobile() {
                 let viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
                 return viewportWidth < 600;
-            },
+            }
             _loadingChanged(newValue, oldValue) {
                 // When loading goes from true to false, trigger an event to notify a page load end
                 if (oldValue === true && newValue === false) {
-                    this.fire('kano-routing-load-finish');
+                    this.dispatchEvent(new CustomEvent('kano-routing-load-finish', { bubbles: true, composed: true }));
                     if (this._isMobile()) {
                         this.$['mobile-info-dialog'].open();
                     }
                 }
-            },
+            }
             _onLeaveAlertChanged(alert) {
                 if (alert) {
                     window.onbeforeunload = () => {
@@ -154,7 +155,7 @@
                 } else {
                     window.onbeforeunload = null;
                 }
-            },
+            }
             _onPageChanged() {
                 let disableLogout;
 
@@ -192,17 +193,18 @@
                 if (hardwareQuery) {
                     Kano.MakeApps.Actions.Config.updateConfigKey('USE_HARDWARE_API', hardware !== 'false', config.USE_HARDWARE_API);
                 }
-            },
-            _goToTapcode () {
+            }
+            _goToTapcode() {
                 const { config } = this.getState();
                 this.leaveAlert = false;
                 location.href = `${config.TAPCODE_URL}/challenge/line_burst`;
-            },
+            }
             _exit() {
                 const { config } = this.getState();
                 this.leaveAlert = false;
                 location.href = config.PROJECTS_URL;
             }
-        });
+        }
+        customElements.define(KanoRouting.is, KanoRouting);
     </script>
 </dom-module>

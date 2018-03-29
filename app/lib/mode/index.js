@@ -11,19 +11,27 @@ function htmlImport(href) {
     });
 }
 
+const loadedModules = new Map();
+
+const importPromises = new Map();
+
 const Mode = {
-    _loadedModules: new Map(),
     define(id, definition) {
-        this._loadedModules.set(id, definition);
+        loadedModules.set(id, definition);
     },
     load(id, url) {
-        return htmlImport(url)
+        if (importPromises.has(url)) {
+            return importPromises.get(url);
+        }
+        const promise = htmlImport(url)
             .then(() => {
-                if (!this._loadedModules.has(id)) {
+                if (!loadedModules.has(id)) {
                     throw new Error(`Could not find mode '${id}' after loading`);
                 }
-                return this._loadedModules.get(id);
+                return loadedModules.get(id);
             });
+        importPromises.set(url, promise);
+        return promise;
     },
 };
 

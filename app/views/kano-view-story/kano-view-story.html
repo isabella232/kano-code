@@ -15,7 +15,6 @@
 <link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
 <!-- App scripts -->
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
-<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/app-modules/index.html">
@@ -61,17 +60,17 @@
         </style>
         <paper-dialog id="share-modal" opened={{shareOpened}} modal>
             <kano-share-modal id="share-modal-content"
-                              on-confirm="confirmShare"
-                              on-dismiss="dismissShare"
-                              on-share-attempted="_setUserShared"
-                              on-share-successful="_setUserShared"
-                              opened="[[shareOpened]]"
-                              on-next-story="goToNextStory"
-                              share-info="{{shareInfo}}"
-                              world-url="[[config.WORLD_URL]]"
-                              is-authenticated="[[user]]"
-                              in-challenge>
-                              </kano-share-modal>
+                            on-confirm="confirmShare"
+                            on-dismiss="dismissShare"
+                            on-share-attempted="_setUserShared"
+                            on-share-successful="_setUserShared"
+                            opened="[[shareOpened]]"
+                            on-next-story="goToNextStory"
+                            share-info="{{shareInfo}}"
+                            world-url="[[config.WORLD_URL]]"
+                            is-authenticated="[[user]]"
+                            in-challenge>
+                            </kano-share-modal>
         </paper-dialog>
         <kano-challenge-completed-modal id="challenge-completed"></kano-challenge-completed-modal>
         <kano-reward-modal id="reward-modal"
@@ -153,7 +152,6 @@
         }
         static get observers() {
             return [
-                '_setupHardwareParts(addedParts.splices)',
                 '_completedChanged(scene.completed)',
                 '_addedPartsChanged(addedParts.splices)'
             ];
@@ -162,20 +160,6 @@
             super();
             const { config } = this.getState();
             this.progress = new Kano.MakeApps.Progress(config);
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(config);
-            this.hardwareAPI.on('new-part-request', (e) => {
-                this.dispatchEvent(new CustomEvent('iron-signal', {
-                    detail: { name: 'new-part-request', data: e.detail },
-                }));
-            });
-
-            Kano.AppModules.init(Object.assign({
-                hardwareAPI: this.hardwareAPI,
-                restartCodeHandler: () => {
-                    this.resetAppState();
-                }
-            }, config));
-            Kano.MakeApps.Blockly.init(config);
         }
         connectedCallback() {
             super.connectedCallback();
@@ -187,10 +171,8 @@
             this.challenge = new Kano.Code.Challenge(this.editor);
             this.challenge.on('completed', this.challengeCompleted.bind(this));
 
-            this._partsChanged = this._partsChanged.bind(this);
             this._onModalChanged = this._onModalChanged.bind(this);
 
-            this.addEventListener('parts-changed', this._partsChanged);
             this.addEventListener('opened-changed', this._onModalChanged);
 
             // Load challenge data
@@ -221,18 +203,14 @@
                             return this.loadMode(story.scene.mode || 'normal');
                         })
                         .then((mode) => {
-                            Kano.MakeApps.Parts.init(config);
-                            Kano.MakeApps.Blockly.register(window.Blockly);
                             this.setupEditor();
                             this.challenge.load(story, mode, Kano.MakeApps.Blockly.categories);
-                            this._setupHardwareParts();
                             this.$['share-modal-content'].set('nextButtonLabel', Boolean(this.story.next) ? this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
                         });
                 });
         }
         disconnectedCallback() {
             super.disconnectedCallback();
-            this.removeEventListener('parts-changed', this._partsChanged);
             this.removeEventListener('opened-changed', this._onModalChanged);
         }
         loadMode(id) {
@@ -247,11 +225,17 @@
             this.editor.on('exit', () => this._exit());
             this.editor.on('change', () => this.save());
             this.editor.on('save', () => this.saveApp());
+
+            this.hardware = new Kano.Code.Hardware(this.editor);
+            this.hardware.start();
+
             this.runner = new Kano.Code.Runner(this.editor);
             this.runner.start();
+
             this.fileUpload = new Kano.Code.FileUpload(this.editor, this);
             this.fileUpload.on('upload', this._onFileDropped.bind(this));
             this.fileUpload.start();
+
             this.editor.setRunningState(true);
         }
         _editorAppChanged () {
@@ -276,16 +260,6 @@
         _confirmLoadApp() {
             const state = this.getState();
             this.dispatch({ type: 'LOAD_EDITOR_APP', data: state.story.loadingApp });
-        }
-        _setupHardwareParts() {
-            if (this.hardwareAPI) {
-                this.hardwareAPI.setParts(this.addedParts);
-            }
-        }
-        _partsChanged () {
-            if (this.hardwareAPI) {
-                this.hardwareAPI.requestDeviceUpdate();
-            }
         }
         challengeCompleted() {
             const challenge = this.challenge.store.getState();

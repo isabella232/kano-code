@@ -36,7 +36,11 @@ var SharingBehavior = {
             type: Object,
             value: null
         },
-        shareContent: Object
+        shareContent: Object,
+        user: {
+            type: Object,
+            linkState: 'user',
+        }
     },
     listeners: {
         'cover-generated': '_onCoverGenerated'
@@ -44,11 +48,11 @@ var SharingBehavior = {
     observers: [
         '_userChanged(user)'
     ],
-    _goToPage (page) {
+    _goToPage(page) {
         this.set('shareInfo.page', page);
         this.modal.refit();
     },
-    _onCoverGenerated () {
+    _onCoverGenerated() {
         if (this.shareInfo.autoshare) {
             this._shareApp({
                 share: true
@@ -56,7 +60,7 @@ var SharingBehavior = {
             this._goToPage('saving');
         }
     },
-    _shareApp (options) {
+    _shareApp(options) {
         // Generates the standalone component
         let savedApp,
             attachment,
@@ -142,8 +146,10 @@ var SharingBehavior = {
             files.lightboard_spritesheet = spritesheet;
         }
 
+        const sdk = new Kano.MakeApps.SDK(this.config);
+
         //Share by calling the API
-        return Kano.MakeApps.sdk.postShare({
+        return sdk.postShare({
             app: appName,
             title: this.shareInfo.title,
             description: this.shareInfo.description,
@@ -165,9 +171,10 @@ var SharingBehavior = {
             attachment = new Blob([savedApp], { type: 'text/html' });
             attachment.filename = 'code.html';
             // Attach the file to the share
-            return Kano.MakeApps.sdk.attachToShare({ id: share.id, files: { attachment } });
+            return sdk.attachToShare({ id: share.id, files: { attachment } });
         })
         .then((res) => {
+            const share = res.item;
             trackingData.project_id = share.id;
             return res.item;
         })
@@ -256,7 +263,7 @@ var SharingBehavior = {
     /**
     * Opens the sharing modal and shares the app
     */
-    shareAnimation (e) {
+    shareAnimation(e) {
         let animation = e.detail.animation,
             mode = Kano.MakeApps.Mode.modes['lightboard'],
             app = this._generateAppFromAnimation(animation),
@@ -321,18 +328,16 @@ var SharingBehavior = {
     /**
     * Opens the sharing modal and shares the app
     */
-    share (e) {
-        let app = e.detail.app,
-            slug = Date.now().toString(),
-            mode = Kano.MakeApps.Mode.modes[app.mode],
-            shareInfo, component;
-        component = Kano.AppModules.generateStandaloneComponent(
+    share(e) {
+        const { app, mode } = e.detail;
+        const slug = Date.now().toString();
+        const component = Kano.AppModules.generateStandaloneComponent(
             slug,
             app.parts,
             app.background,
             mode,
             app.code);
-        shareInfo = {
+        const shareInfo = {
             app: {
                 slug,
                 component
@@ -346,7 +351,7 @@ var SharingBehavior = {
             parts: e.detail.parts,
             code: e.detail.code,
             mode,
-            autoshare: e.detail.autoshare
+            autoshare: e.detail.autoshare,
         };
 
         this.set('shareInfo', shareInfo);
@@ -381,7 +386,7 @@ var SharingBehavior = {
         this.modal.open();
     },
 
-    _userChanged (user) {
+    _userChanged(user) {
         // user just logged out, nothing to do
         if (!user) {
             return;
@@ -392,7 +397,7 @@ var SharingBehavior = {
         }
     },
 
-    confirmShare (e) {
+    confirmShare(e) {
         // The user is not authenticated
         if (!this.user) {
             // Flag the sharing as waiting authentication and trigger a login event
@@ -408,7 +413,7 @@ var SharingBehavior = {
 
     },
 
-    dismissShare () {
+    dismissShare() {
         this.modal.close();
         let rewardModal = this.$['reward-modal'];
         if (rewardModal) {

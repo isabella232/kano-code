@@ -31,50 +31,24 @@ Custom property | Description | Default
 
     Polymer({
         is: 'kano-input',
-        behaviors: [Polymer.Templatizer,
-                    Kano.Behaviors.Input,
+        behaviors: [Kano.Behaviors.Input,
                     Kano.Behaviors.AppEditorBehavior],
         observers: [
             '_typeChanged(type)',
-            '_valueChanged(value, instance)',
-            '_themeChanged(theme, instance)'
         ],
-        _instanceProps: {
-            value: true,
-            theme: true
-        },
-        _typeChanged () {
+        _typeChanged() {
             let inputTagName = this._getTagName(),
                 root = Polymer.dom(this.root);
-            let template = document.createElement('template');
-            template.innerHTML = `<${inputTagName} class="kano-input" label="[[label]]" value="{{value}}" symbol="[[symbol]]" min="[[min]]" max="[[max]]" options="[[options]]" theme="[[theme]]"></${inputTagName}>`;
+            const tpl = document.createElement('template');
+            tpl.innerHTML = `<${inputTagName} class="kano-input" label="[[label]]" value="{{value}}" symbol="[[symbol]]" min="[[min]]" max="[[max]]" options="[[options]]" theme="[[theme]]"></${inputTagName}>`;
 
-            this.templatize(template);
-            this.instance = this.stamp({
-                label: this.label,
-                symbol: this.symbol,
-                min: this.min,
-                max: this.max,
-                options: this.options,
-                theme: this.theme
-            });
+            const template = Polymer.html`${tpl}`;
 
-            this.$['input-container'].appendChild(this.instance.root);
+            this.instance = this._stampTemplate(template);
+
+            this.$['input-container'].appendChild(this.instance);
         },
-        _forwardInstanceProp (inst, prop, value) {
-            this.set(prop, value);
-        },
-        _themeChanged (theme, instance) {
-            if (theme && instance) {
-                this.instance.set('theme', theme);
-            }
-        },
-        _valueChanged (value, instance) {
-            if (value && instance) {
-                this.instance.set('value', value);
-            }
-        },
-        _getTagName () {
+        _getTagName() {
             return `kano-input-${this.type}`;
         }
     });

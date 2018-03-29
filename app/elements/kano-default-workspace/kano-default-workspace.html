@@ -267,15 +267,10 @@
                 Kano.Behaviors.I18nBehavior,
                 Kano.Behaviors.AppEditorBehavior,
                 Kano.Behaviors.AppElementRegistryBehavior,
-                Polymer.IronResizableBehavior
+                Polymer.IronResizableBehavior,
             ],
             properties: {
                 running: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
-                },
-                editableLayout: {
                     type: Boolean,
                     value: false,
                     notify: true
@@ -432,14 +427,8 @@
             _runButtonClicked () {
                 this.fire('run-button-clicked');
             },
-            _isPauseOverlayHidden (running, editableLayout) {
-                return running || editableLayout;
-            },
             getViewportScale () {
                 return this.$.content.getScale();
-            },
-            _editLayoutClicked () {
-                this.fire('editable-layout-clicked');
             },
             _addPartsTapped () {
                 this._openPartsModal();

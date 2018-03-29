@@ -1,19 +1,16 @@
 import EventEmitter from '../util/event-emitter.js';
 import Config from '../config.js';
-import Store from '../store.js';
+import Store from './store.js';
 import ModeActions from '../actions/mode.js';
 import PartsActions from '../actions/parts.js';
 import EditorActions from '../actions/editor.js';
-
-// FIXME
-import FlowDown from '../../../flow-down/flow-down.js';
-
-window.FlowDown = FlowDown;
+import StoreObserver from './store-observer.js';
 
 class Editor extends EventEmitter {
     constructor(opts) {
         super();
         this.config = Config.merge(opts);
+        this.config.restartCodeHandler = this.restartApp.bind(this);
         this.rootEl = document.createElement('kano-app-editor');
         this.rootEl.editor = this;
         this.store = Store.create({
@@ -22,6 +19,7 @@ class Editor extends EventEmitter {
             addedParts: [],
             workspaceTab: 'workspace',
         });
+        this.storeObserver = new StoreObserver(this.store, this);
         this.modeActions = ModeActions(this.store);
         this.partsActions = PartsActions(this.store);
         this.editorActions = EditorActions(this.store);
@@ -32,8 +30,6 @@ class Editor extends EventEmitter {
         this.rootEl.addEventListener('exit', this.onExit.bind(this));
         this.rootEl.addEventListener('change', this.onChange.bind(this));
 
-        this.store.providerElement.addEventListener('running-changed', this.onRunningChange.bind(this));
-
         // Legacy APIs wrapped here
         // TODO: Interface these API better with a OO pattern
         Kano.MakeApps.Blockly.init();
@@ -43,6 +39,7 @@ class Editor extends EventEmitter {
 
     inject(element = document.body, before = null) {
         element.appendChild(this.store.providerElement);
+        element.appendChild(this.storeObserver.rootEl);
         if (before) {
             element.insertBefore(this.rootEl, before);
             return;
@@ -52,6 +49,7 @@ class Editor extends EventEmitter {
 
     setParts(parts) {
         this.partsActions.updatePartsList(parts);
+        this.trigger('parts-changed');
     }
 
     setMode(modeDefinition) {
@@ -69,6 +67,11 @@ class Editor extends EventEmitter {
         this.editorActions.loadBlocks(app.code.snapshot.blocks);
     }
 
+    restartApp() {
+        this.editorActions.setRunningState(false);
+        this.editorActions.setRunningState(true);
+    }
+
     onShare(e) {
         this.emit('share', e.detail);
     }
@@ -79,10 +82,6 @@ class Editor extends EventEmitter {
 
     onChange(e) {
         this.emit('change', e.detail);
-    }
-
-    onRunningChange() {
-        this.emit('running-state-changed');
     }
 
     save() {
@@ -127,6 +126,10 @@ class Editor extends EventEmitter {
                 Blockly.Variables.addVariable(v, workspace);
             });
         }
+    }
+    get addedParts() {
+        const { addedParts } = this.store.getState();
+        return addedParts;
     }
 }
 

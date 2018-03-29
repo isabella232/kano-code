@@ -1,63 +1,49 @@
-<link rel="import" href="../behaviors/kano-media-query-behavior.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
-<link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
+<link rel="import" href="../kc-dialog-topbar/kc-dialog-topbar.html">
+<link rel="import" href="../../bower_components/kwc-color-picker/kwc-color-picker.html">
+<link rel="import" href="../../bower_components/kwc-color-picker/palettes/material.html">
 <dom-module id="kano-background-editor">
     <template>
         <style include="kano-code-shared-styles">
             :host {
                 display: block;
+                --kwc-color-picker-margin: 0px;
+                --kc-dialog-topbar-icon-color: var(--color-orange);
             }
-            .editor {
-                padding: var(--kano-part-editor-padding);
+            kc-dialog-topbar {
+                border-bottom: 1px solid var(--kano-app-part-editor-border);
+            }
+            #picker {
+                padding: 32px;
             }
         </style>
-        <kano-part-editor-topbar label="Background"></kano-part-editor-topbar>
-        <div class="editor">
-            <template is="dom-if" if="{{isNormalMode}}">
-                <div name="background" class="background" id="background">
-                    <kano-ui-customizer id="background_style" customizable="{{backgroundOptions}}" user-values="{{background.userStyle}}"></kano-ui-customizer>
-                </div>
-            </template>
-            <template is="dom-if" if="{{!isNormalMode}}">
-                <h3>Select a part to change its settings.</h3>
-            </template>
-        </div>
+        <kc-dialog-topbar label="Background" icon="aspect-ratio">
+            <button slot="action" type="button" dialog-dismiss>Done</button>
+        </kc-dialog-topbar>
+        <kwc-color-picker id="picker" value="{{value}}"></kwc-color-picker>
     </template>
 
 </dom-module>
-<script type="text/javascript">
-    /* globals Polymer */
+<script>
 
-    Polymer({
-        is: 'kano-background-editor',
-        behaviors: [
-            Kano.Behaviors.MediaQueryBehavior
-        ],
-        properties: {
-            background: {
-                type: Object,
-                notify: true
-            },
-            mode: {
-                type: Object,
-                observer: '_modeChanged'
-            },
-            isNormalMode: {
-                type: Boolean,
-                notify: true
-            }
-        },
-        _modeChanged (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                this.isNormalMode = (newValue === 'normal');
-            }
-        },
-        attached () {
-            this.set('backgroundOptions', [{
-                key: 'background',
-                type: 'color',
-                label: 'Color'
-            }]);
+    class KanoBackgroundEditor extends Polymer.Element {
+        static get is() { return 'kano-background-editor' }
+        static get properties() {
+            return {
+                value: {
+                    type: String,
+                    notify: true,
+                },
+            };
         }
-    });
+        connectedCallback() {
+            super.connectedCallback();
+            this.$.picker.colors = window.KwcColorPickerPalette.Material.colors;
+            this.$.picker.rowSize = window.KwcColorPickerPalette.Material.rowSize;
+        }
+    }
+
+    customElements.define(KanoBackgroundEditor.is, KanoBackgroundEditor);
+
 </script>

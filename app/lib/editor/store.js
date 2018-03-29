@@ -1,4 +1,4 @@
-import GlobalStore from './global-store.js';
+import GlobalStore from '../global-store.js';
 
 const Store = {
     create(initState) {
@@ -7,10 +7,6 @@ const Store = {
         const StoreElement = Polymer({
             is: `kc-store-${store.id}`,
             behaviors: [store.ProviderBehavior],
-            observers: ['_runningChanged(state.running)'],
-            _runningChanged() {
-                this.fire('running-changed');
-            },
         });
 
         const storeElement = new StoreElement();

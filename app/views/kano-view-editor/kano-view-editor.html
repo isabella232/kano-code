@@ -3,7 +3,6 @@
 <link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
 
-<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
@@ -92,7 +91,10 @@
         static get is() { return 'kano-view-editor'; }
         static get properties() {
             return {
-                context: Object,
+                context: {
+                    type: Object,
+                    linkState: 'routing.context',
+                },
                 addedParts: {
                     type: Array,
                     value: () => {
@@ -138,27 +140,14 @@
         }
         static get observers() {
             return [
-                '_setupHardwareParts(addedParts.splices)',
-                '_setupHardwareParts(hardwareAPI)',
                 '_pauseApp(shareOpened)'
             ];
         }
         constructor() {
             super();
             const { config } = this.getState();
-            const enhancedConfig = Object.assign({
-                hardwareAPI: this.hardwareAPI,
-                restartCodeHandler: () => {
-                    this.$.editor.resetAppState();
-                }
-            }, config);
             this.editor = new Kano.Code.Editor(config);
 
-            this.hardwareAPI = new Kano.MakeApps.HardwareAPI(config);
-            this.hardwareAPI.on('new-part-request', (e) => {
-                this.fire('iron-signal', { name: 'new-part-request', data: e.detail });
-            });
-            this._partsChanged = this._partsChanged.bind(this);
             this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);
             this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);
         }
@@ -190,12 +179,10 @@
             this.removeListeners();
         }
         setupListeners() {
-            this.addEventListener('parts-changed', this._partsChanged);
             this.addEventListener('share-successful', this._deactivateSavePrompt);
             this.addEventListener('share-attempted', this._deactivateSavePrompt);
         }
         removeListeners() {
-            this.removeEventListener('parts-changed', this._partsChanged);
             this.removeEventListener('share-successful', this._deactivateSavePrompt);
             this.removeEventListener('share-attempted', this._deactivateSavePrompt);
         }
@@ -233,14 +220,20 @@
             this.editor.inject(this.root, this.root.firstChild);
             const { config } = this.getState();
             this.editor.setToolbox(Kano.MakeApps.Blockly.categories);
-            this.editor.on('share', (shareInfo) => this.share({ detail: shareInfo }));
+            this.editor.on('share', shareInfo => this.share({ detail: shareInfo }));
             this.editor.on('exit', () => this._exit());
             this.editor.on('change', () => this.save());
+
+            this.hardware = new Kano.Code.Hardware(this.editor);
+            this.hardware.start();
+
             this.runner = new Kano.Code.Runner(this.editor);
             this.runner.start();
+
             this.fileUpload = new Kano.Code.FileUpload(this.editor, this, this.$['file-upload-overlay']);
             this.fileUpload.on('upload', this._onFileDropped.bind(this));
             this.fileUpload.start();
+
             this.editor.setRunningState(true);
         }
         _appChanged() {
@@ -248,7 +241,7 @@
                 return;
             }
             this.editor.setParts(Kano.MakeApps.Parts.list);
-            this.editor.load(this.app, Kano.MakeApps.Parts.list);
+            this.editor.load(this.app);
         }
         _pauseApp(modalOpen) {
             if (!this.editor) {
@@ -274,18 +267,6 @@
         _getMode(context) {
             var modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
-        }
-        _setupHardwareParts() {
-            if (this.hardwareAPI) {
-                this.hardwareAPI.setParts(this.addedParts);
-            }
-        }
-        _partsChanged() {
-            this.debounce('parts-changed', () => {
-                if (this.hardwareAPI) {
-                    this.hardwareAPI.requestDeviceUpdate();
-                }
-            }, 300);
         }
         save() {
             // Save after 3secs without changes

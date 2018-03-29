@@ -46,10 +46,15 @@
     let token = null;
     let user = null;
 
+    const clients = new Map();
+
     class SDK {
         constructor(config) {
             this.config = config;
-            this.sharedStorage = new Kano.KanoSharedStorageClient({ sharedStorageURL: this.config.SHARED_STORAGE_URL });
+            if (!clients.has(this.config.SHARED_STORAGE_URL)) {
+                clients.set(this.config.SHARED_STORAGE_URL, new Kano.KanoSharedStorageClient({ sharedStorageURL: this.config.SHARED_STORAGE_URL }));
+            }
+            this.sharedStorage = clients.get(this.config.SHARED_STORAGE_URL);
         }
         getShareBySlug(slug) {
             return fetch(`${this.config.API_URL}/share/slug/${slug}`)

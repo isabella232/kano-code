@@ -27,19 +27,19 @@
             }
         },
         observers: [
-            'applyTransform(model.position.*)'
+            'applyTransform(model.position.*, model.rotation, model.scale)',
         ],
         listeners: {
             'down': 'onTap',
             'up': 'clearMoveCursor'
         },
-        onTap () {
+        onTap() {
             // Do not trigger `part-tapped` if no model is present i.e if this is a mode
             if (this.model) {
                 this.fire('part-tapped', this);
             }
         },
-        clearMoveCursor () {
+        clearMoveCursor() {
             let htmlStyle = document.documentElement.style;
 
             /* Interact sets cursor globally and sometimes it fails to
@@ -49,10 +49,10 @@
                 htmlStyle.cursor = '';
             }
         },
-        attached () {
+        attached() {
             this.fire('ui-ready', this);
         },
-        getPartialStyle (attrs) {
+        getPartialStyle(attrs) {
             if (!this.model) {
                 return '';
             }
@@ -62,7 +62,7 @@
                 return acc;
             }, '');
         },
-        applyTransform () {
+        applyTransform() {
             if (!this.model) {
                 return;
             }
@@ -76,7 +76,7 @@
             this.style.webkitTransform = this.style.transform = transform;
             this.style.visibility = visibility;
         },
-        prepareRendering (ctx) {
+        prepareRendering(ctx) {
             let position = this.model.position || { x: 0, y: 0 },
                 rotation = this.model.rotation || 0,
                 rad = rotation * Math.PI / 180,
@@ -99,10 +99,10 @@
             // Move back to top left of part
             ctx.transform(1, 0, 0, 1, -w / 2, -h / 2);
         },
-        finishRendering (ctx) {
+        finishRendering(ctx) {
             ctx.restore();
         },
-        renderOnCanvas (ctx) {
+        renderOnCanvas(ctx) {
             if (!this.model || this.model.partType !== 'ui') {
                 return Promise.resolve();
             }
@@ -110,11 +110,11 @@
 
             return Promise.resolve();
         },
-        renderFallback (ctx) {
+        renderFallback(ctx) {
             this.finishRendering(ctx);
             return Promise.resolve();
         },
-        getConnectable (property) {
+        getConnectable(property) {
             let connectable = {
                 node: this,
                 property

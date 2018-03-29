@@ -47,7 +47,7 @@
             },
             theme: String
         },
-        propertyChanged (e) {
+        propertyChanged(e) {
             if (e.composedPath()[0].tagName !== 'KANO-INPUT') {
                 return;
             }
@@ -63,7 +63,10 @@
             }
             this.set(`userValues.${propertyName}`, value);
         },
-        computeValue (propertyName) {
+        computeValue(propertyName) {
+            if (!this.userValues) {
+                return;
+            }
             let value = this.userValues[propertyName];
 
             if (this._needParsing(value)) {

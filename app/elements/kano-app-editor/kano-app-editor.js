@@ -5,11 +5,15 @@ Polymer({
         Kano.Behaviors.AppElementRegistryBehavior,
         Kano.Behaviors.MediaQueryBehavior,
         Kano.Behaviors.I18nBehavior,
-        Kano.MakeApps.Store.ReceiverBehavior,
+        Kano.Code.Store.ReceiverBehavior,
     ],
     properties: {
-        storeID: {
+        storeId: {
             type: Number,
+        },
+        background: {
+            type: String,
+            linkState: 'background',
         },
         parts: {
             type: Array,
@@ -34,6 +38,7 @@ Polymer({
         },
         selected: {
             type: Object,
+            linkState: 'selectedPart',
         },
         running: {
             type: Boolean,
@@ -44,27 +49,12 @@ Polymer({
             type: Boolean,
             value: false,
         },
-        background: {
-            type: Object,
-            notify: true,
-            value: () => {
-                return {
-                    name: 'My app',
-                    userStyle: {
-                        background: '#ffffff',
-                    },
-                };
-            },
-        },
         defaultCategories: {
             type: Object,
         },
         isResizing: {
             type: Boolean,
             value: false,
-        },
-        selectedParts: {
-            type: Array,
         },
         mode: {
             type: Object,
@@ -100,6 +90,9 @@ Polymer({
         'iron-resize': '_refitPartModal',
         'feature-not-available-offline': '_openOfflineDialog',
         'opened-changed': '_manageModals',
+    },
+    _backgroundChanged(e) {
+        this.dispatch({ type: 'UPDATE_BACKGROUND', value: e.detail.value });
     },
     _exitTapped() {
         this.fire('tracking-event', {
@@ -232,6 +225,7 @@ Polymer({
     _partEditorDialogClosed(e) {
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-part-dialog']) {
+            this.dispatch({ type: 'SELECT_PART', index: null });
             // Ensure the id will update
             this.set('selected.id', null);
             this.set('selected.name', this.$['edit-part-dialog-content'].name);
@@ -321,7 +315,6 @@ Polymer({
     },
     _dialogConfirmedReset() {
         this.dispatch({ type: 'RESET_EDITOR' });
-        this.set('background', this.properties.background.value());
         this.fire('tracking-event', {
             name: 'workspace_reset_dialog_confirmed',
         });
@@ -428,7 +421,7 @@ Polymer({
         return {
             app: this.save(false, false),
             workspaceInfo: JSON.stringify(this.save()),
-            background: this.background.userStyle.background,
+            background: this.background,
             mode: this.mode,
             code: this.code,
             parts: this.addedParts,
@@ -444,7 +437,6 @@ Polymer({
         if (!savedApp) {
             return;
         }
-        
         let part;
         const addedParts = savedApp.parts.map((savedPart) => {
             for (let i = 0, len = parts.length; i < len; i += 1) {
@@ -469,7 +461,7 @@ Polymer({
         this.$['root-view'].computeBlocks();
 
         // If there is no background, fall back to the default value
-        this.set('background', savedApp.background ? savedApp.background : this.properties.background.value());
+        this.dispatch({ type: 'UPDATE_BACKGROUND', value: savedApp.background });
         this.unsavedChanges = false;
     },
     _formatSnapshot(code) {
@@ -480,7 +472,7 @@ Polymer({
     reset() {
         this.$['dialog-reset-warning'].open();
     },
-    onPartSettings() {
+    onPartSettings(e) {
         // No part selected, show the background editor
         if (!this.selected) {
             this._toggleFullscreenModal(false);
@@ -882,10 +874,10 @@ Polymer({
         return this.$.workspace;
     },
     resetAppState() {
-        this.running = false;
+        this.dispatch({ type: 'SET_RUNNING_STATE', state: false });
 
         setTimeout(() => {
-            this.running = true;
+            this.dispatch({ type: 'SET_RUNNING_STATE', state: true });
         }, 0);
 
         this.fire('tracking-event', {
