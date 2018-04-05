@@ -196,7 +196,10 @@
 
                 this.fire('app-ready');
                 this.async(() => {
-                    this.component.$$('kano-ui-viewport').resizeView();
+                    const viewport = this.component.$$('kano-ui-viewport');
+                    if (viewport) {
+                        viewport.resizeView();
+                    }
                 });
 
                 this.running = true;
@@ -216,7 +219,7 @@
             },
             stop () {
                 this.running = false;
-                if (this.component) {
+                if (this.component && this.component.stop) {
                     this.component.stop();
                 }
             },
