@@ -144,14 +144,16 @@
                 }
             },
             _srcChanged () {
-                // Check that we are loading and html file. Bsing that on the extension is not the best solution
-                // as any server coulde return html content. This prevents loading of late setups bindings. For
-                // exanple, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
-
-                if (!this.src || !/(.*\.html)|(data:text\/html;base64,.*)/.test(this.src)) {
-                    return;
-                }
                 this.debounce('importApp', () => {
+                    // Check that we are loading and html file. Bsing that on the extension is not the best solution
+                    // as any server coulde return html content. This prevents loading of late setups bindings. For
+                    // exanple, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
+
+                    // This check needs to happen within the debounce otherwise an incorrect object may be loaded.
+                    if (!this.src || !/(.*\.html)|(data:text\/html;base64,.*)/.test(this.src)) {
+                        return;
+                    }
+
                     this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
                 });
             },
