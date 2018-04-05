@@ -25,14 +25,16 @@
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../../scripts/kano/make-apps/experiments.html">
 
-<link rel="import" href="../../scripts/kano/make-apps/actions/challenge.html">
-
 <dom-module id="kano-view-story">
     <template>
         <style>
             :host {
                 @apply --layout-vertical;
                 position: relative;
+                transition: opacity 200ms linear;
+            }
+            :host([loading]) {
+                opacity: 0;
             }
             :host kano-app-challenge {
                 @apply --layout-flex;
@@ -65,7 +67,7 @@
                             on-share-attempted="_setUserShared"
                             on-share-successful="_setUserShared"
                             opened="[[shareOpened]]"
-                            on-next-story="goToNextStory"
+                            on-next-story="goToNextChallenge"
                             share-info="{{shareInfo}}"
                             world-url="[[config.WORLD_URL]]"
                             is-authenticated="[[user]]"
@@ -112,6 +114,15 @@
         static get is() { return 'kano-view-story'; }
         static get properties() {
             return {
+                loading: {
+                    type: Boolean,
+                    value: true,
+                    reflectToAttribute: true,
+                },
+                context: {
+                    linkState: 'routing.context',
+                    observer: '_contextChanged',
+                },
                 store: {
                     type: Object,
                     value: () => {
@@ -160,6 +171,7 @@
             super();
             const { config } = this.getState();
             this.progress = new Kano.MakeApps.Progress(config);
+            this._nextChallenge = this._nextChallenge.bind(this);
         }
         connectedCallback() {
             super.connectedCallback();
@@ -174,7 +186,13 @@
             this._onModalChanged = this._onModalChanged.bind(this);
 
             this.addEventListener('opened-changed', this._onModalChanged);
-
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback();
+            this.removeEventListener('opened-changed', this._onModalChanged);
+        }
+        _contextChanged() {
+            this.loading = true;
             // Load challenge data
             Kano.MakeApps.Stories.getById(this.context.params.id)
                 .then((story) => {
@@ -206,19 +224,20 @@
                             this.setupEditor();
                             this.challenge.load(story, mode, Kano.MakeApps.Blockly.categories);
                             this.$['share-modal-content'].set('nextButtonLabel', Boolean(this.story.next) ? this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
+                            this.loading = false;
                         });
                 });
         }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            this.removeEventListener('opened-changed', this._onModalChanged);
-        }
         loadMode(id) {
-            const mode = Kano.MakeApps.Mode.modes[id];
-            return Kano.Code.Mode.load(mode).then(() => mode);
+            const url = `/mode/${id}.html`;
+            return Kano.Code.Mode.load(id, url);
         }
         save() {}
-        setupEditor () {
+        setupEditor() {
+            if (this.injected) {
+                return;
+            }
+            this.injected = true;
             this.challenge.inject(this.root, this.root.firstChild);
             const { config } = this.getState();
             this.editor.on('share', (shareInfo) => this.share({ detail: shareInfo }));
@@ -236,7 +255,12 @@
             this.fileUpload.on('upload', this._onFileDropped.bind(this));
             this.fileUpload.start();
 
+            this.challenge.on('next-challenge', this._nextChallenge);
+
             this.editor.setRunningState(true);
+        }
+        _nextChallenge() {
+            this.goToNextChallenge();
         }
         _editorAppChanged () {
             if (!this.editorApp) {
@@ -284,7 +308,7 @@
                 });
             }
         }
-        goToNextStory() {
+        goToNextChallenge() {
             let storyId;
             if (!this.story.next) {
                 this.fire('exit-confirmed');
@@ -292,8 +316,8 @@
             }
 
             if (this.story.next) {
-                window.history.pushState(null, null, `/story/${this.story}`);
-                page.redirect(`/story/${this.story.next}`);
+                window.history.pushState(null, null, `/story/${this.story.id}`);
+                page.redirect(`/story/${this.story.next.id}`);
             }
         }
         _displayUserReward() {
@@ -419,7 +443,7 @@
             Kano.MakeApps.Utils.onLine().then((isOnline) => {
                 if (!this.user || this.user.hasSharedInSession || this._userAlreadyShared(this.story) ||
                         this.scene.autoshareDisabled || !isOnline) {
-                    this.goToNextStory();
+                    this.goToNextChallenge();
                 } else {
                     const detail = this.$.editor.compileApp();
                     detail.title = this.story.name;

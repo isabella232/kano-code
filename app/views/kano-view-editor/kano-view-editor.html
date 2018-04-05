@@ -95,21 +95,6 @@
                     type: Object,
                     linkState: 'routing.context',
                 },
-                addedParts: {
-                    type: Array,
-                    value: () => {
-                        return [];
-                    }
-                },
-                code: {
-                    type: Object,
-                    value: () => {
-                        return {};
-                    }
-                },
-                usedBlocks: {
-                    type: Object
-                },
                 remixMode: {
                     type: Boolean,
                     value: false
@@ -140,7 +125,7 @@
         }
         static get observers() {
             return [
-                '_pauseApp(shareOpened)'
+                '_pauseApp(shareOpened)',
             ];
         }
         constructor() {
@@ -196,7 +181,7 @@
                 .then(res => {
                     //getting the workspace info from the share
                     if (res.item.workspace_info_url) {
-                        return fetch(res.item.workspace_info_url)
+                        return fetch(res.item.workspace_info_url);
                     }
                     throw new Error('Missing workspace information in share');
                 })

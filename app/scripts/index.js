@@ -26,13 +26,13 @@ const Bootstrap = {
      * Makes sure that the splash is displayed at least 1.5s to prevent flashing
      */
     onFirstPageLoaded() {
-        const duration = new Date() - this.started;
+        const duration = new Date() - Bootstrap.started;
         const splash = document.getElementById('splash');
+        document.removeEventListener('kano-routing-load-finish', Bootstrap.onFirstPageLoaded);
         if (duration < 1500) {
-            this.timeout = setTimeout(this.onFirstPageLoaded, 1500 - duration);
+            Bootstrap.timeout = setTimeout(Bootstrap.onFirstPageLoaded, 1500 - duration);
             return;
         }
-        document.removeEventListener('kano-routing-load-finish', this.onFirstPageLoaded);
 
         // Hide and delete splash animation
         splash.style.opacity = 0;
@@ -41,7 +41,7 @@ const Bootstrap = {
             splash.parentNode.removeChild(splash);
         }, 400);
 
-        this.loaded = true;
+        Bootstrap.loaded = true;
     },
     onElementsLoaded() {
         if (this.kanoAppInserted) {
@@ -51,7 +51,7 @@ const Bootstrap = {
         const splash = document.getElementById('splash');
         document.body.insertBefore(editor, splash);
         document.addEventListener('kano-routing-load-finish', Bootstrap.onFirstPageLoaded);
-        this.kanoAppInserted = true;
+        Bootstrap.kanoAppInserted = true;
     },
     /**
      * Imports the elements bundle and the messages depending on the locale

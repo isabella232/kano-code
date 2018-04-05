@@ -23,6 +23,9 @@ const EditorActions = (store) => {
             break;
         }
         case EDITOR_TYPES.LOAD_BLOCKS: {
+            // For performance reasons, we don't update the stringified blocks
+            // Force set value when loading blocks
+            this.set('state.blocks', null);
             this.set('state.blocks', action.blocks);
             break;
         }

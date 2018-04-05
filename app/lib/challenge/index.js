@@ -9,6 +9,7 @@ class Challenge extends EventEmitter {
         super();
         this.rootEl = document.createElement('kano-app-challenge');
         this.rootEl.addEventListener('next-step', this._nextStep.bind(this));
+        this.rootEl.addEventListener('save', this._save.bind(this));
         this.rootEl.challengeClass = this;
         this.store = Store.create({
             banner: null,
@@ -91,13 +92,15 @@ class Challenge extends EventEmitter {
         const isLastStep = this.isLastStep();
         const { hints } = this.store.getState();
         if (isLastStep) {
-            // TODO next-story
-            this.dispatchEvent(new CustomEvent('request-next-story'));
+            this.emit('next-challenge');
         } else if (hints.enabled) {
             this.engine.nextStep();
         } else {
             this.challengeActions.enableHints();
         }
+    }
+    _save() {
+        this.editor.share();
     }
     _editorChanged(e) {
         if (!this.engine) {
@@ -221,6 +224,9 @@ class Challenge extends EventEmitter {
     isLastStep() {
         return this.engine.stepIndex === this.engine.steps.length - 1;
     }
+    setDefaultApp(defaultApp) {
+        this.defaultApp = defaultApp;
+    }
     load(challenge, mode, categories) {
         this.originalMode = mode;
         // Filter Mode to get the challenge view of its features
@@ -236,6 +242,8 @@ class Challenge extends EventEmitter {
         this.editor.loadVariables(challenge.scene.variables);
         if (challenge.scene.defaultApp) {
             this.editor.load(JSON.parse(this.scene.defaultApp));
+        } else {
+            this.editor.loadDefault();
         }
         this.challengeActions.load(challenge);
     }
@@ -299,6 +307,10 @@ class Challenge extends EventEmitter {
         this.challengeActions.loadVariables(variables);
     }
     inject(element = document.body, before = null) {
+        if (this.injected) {
+            return;
+        }
+        this.injected = true;
         element.appendChild(this.store.providerElement);
         if (before) {
             element.insertBefore(this.rootEl, before);

@@ -38,6 +38,10 @@ class Editor extends EventEmitter {
     }
 
     inject(element = document.body, before = null) {
+        if (this.injected) {
+            return;
+        }
+        this.injected = true;
         element.appendChild(this.store.providerElement);
         element.appendChild(this.storeObserver.rootEl);
         if (before) {
@@ -59,6 +63,18 @@ class Editor extends EventEmitter {
     setToolbox(toolbox) {
         this._toolbox = toolbox;
         this.rootEl.defaultCategories = this._toolbox;
+    }
+
+    loadDefault() {
+        const { mode } = this.store.getState();
+        this.load({
+            parts: [],
+            code: {
+                snapshot: {
+                    blocks: mode.defaultBlocks,
+                },
+            },
+        });
     }
 
     load(app) {
