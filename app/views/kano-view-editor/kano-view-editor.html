@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
+<link rel="import" href="../../../../web-components/kano-alert/kano-alert.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
@@ -14,7 +14,7 @@
 <link rel="import" href="../../elements/kano-share-modal/kano-share-modal.html">
 <link rel="import" href="../../elements/kano-editor-topbar/kano-editor-topbar.html">
 <link rel="import" href="../../elements/behaviors/kano-sharing-behavior.html">
-<link rel="import" href="../../bower_components/web-components/kano-reward-modal/kano-reward-modal.html">
+<link rel="import" href="../../../../web-components/kano-reward-modal/kano-reward-modal.html">
 <link rel="import" href="../../elements/kc-file-upload-overlay/kc-file-upload-overlay.html">
 
 <dom-module id="kano-view-editor">
@@ -153,7 +153,12 @@
                 p = this.loadMode(modeId);
                 app = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
             }
-            p.then((mode) => {
+            Promise.all([
+                p,
+                this.loadLanguages(),
+            ])
+            .then((results) => {
+                const mode = results[0];
                 this.editor.setMode(mode);
                 this.setupEditor();
                 this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
@@ -170,6 +175,12 @@
         removeListeners() {
             this.removeEventListener('share-successful', this._deactivateSavePrompt);
             this.removeEventListener('share-attempted', this._deactivateSavePrompt);
+        }
+        loadLanguages() {
+            const lang = Kano.Code.I18n.getLang();
+            return Promise.all([
+                Kano.Code.I18n.load(`/locale/editor/${lang}.json`),
+            ]);
         }
         loadRemix(slug) {
             this.dispatch({ type: 'LOAD_REMIX' });
@@ -204,10 +215,12 @@
         setupEditor() {
             this.editor.inject(this.root, this.root.firstChild);
             const { config } = this.getState();
-            this.editor.setToolbox(Kano.MakeApps.Blockly.categories);
             this.editor.on('share', shareInfo => this.share({ detail: shareInfo }));
             this.editor.on('exit', () => this._exit());
             this.editor.on('change', () => this.save());
+
+            this.blockly = new Kano.Code.Blockly(this.editor, Kano.Code.BlocklyModules);
+            this.blockly.start();
 
             this.hardware = new Kano.Code.Hardware(this.editor);
             this.hardware.start();

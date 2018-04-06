@@ -1,26 +1,25 @@
-import FlowDown from '../../flow-down/flow-down.js';
-import { Editor, Mode } from '../lib/index.js';
-import { Store as ChallengeStore, Challenge } from '../lib/challenge/index.js';
-import VM from '../lib/vm.js';
-import Runner from '../lib/runner.js';
-import FileUpload from '../lib/editor/file-upload.js';
-import Hardware from '../lib/hardware/index.js';
-import GlobalStore from '../lib/global-store.js';
-import ShareRunner from '../lib/share-runner.js';
+import '../lib/legacy.js';
+import Blockly from '../lib/blockly/index.js';
+import BlocklyAssets from '../lib/blockly/modules/assets.js';
+import BlocklyColor from '../lib/blockly/modules/color.js';
+import BlocklyControl from '../lib/blockly/modules/control.js';
+import BlocklyEvents from '../lib/blockly/modules/events.js';
+import BlocklyLists from '../lib/blockly/modules/lists.js';
+import BlocklyLogic from '../lib/blockly/modules/logic.js';
+import BlocklyMath from '../lib/blockly/modules/math.js';
+import BlocklyVariables from '../lib/blockly/modules/variables.js';
 
 window.Kano = window.Kano || {};
 
 window.Kano.Code = window.Kano.Code || {};
-window.Kano.Code.Editor = Editor;
-window.Kano.Code.Mode = Mode;
-window.Kano.Code.Challenge = Challenge;
-window.Kano.Code.Challenge.Store = ChallengeStore;
-window.Kano.Code.VM = VM;
-window.Kano.Code.Runner = Runner;
-window.Kano.Code.FileUpload = FileUpload;
-window.Kano.Code.Hardware = Hardware;
-window.Kano.Code.ShareRunner = ShareRunner;
-
-window.FlowDown = FlowDown;
-
-window.Kano.Code.Store = GlobalStore.create();
+window.Kano.Code.Blockly = Blockly;
+window.Kano.Code.BlocklyModules = [
+    BlocklyEvents,
+    BlocklyControl,
+    BlocklyLogic,
+    BlocklyMath,
+    BlocklyVariables,
+    BlocklyColor,
+    BlocklyLists,
+    BlocklyAssets,
+];

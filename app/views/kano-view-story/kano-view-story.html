@@ -1,9 +1,9 @@
 <!-- External dependencies -->
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/web-components/kano-reward-modal/kano-reward-modal.html">
-<link rel="import" href="../../bower_components/web-components/kano-alert/kano-alert.html">
+<link rel="import" href="../../../../polymer/polymer-element.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../iron-icon/iron-icon.html">
+<link rel="import" href="../../../../web-components/kano-reward-modal/kano-reward-modal.html">
+<link rel="import" href="../../../../web-components/kano-alert/kano-alert.html">
 <!-- App components -->
 <link rel="import" href="../../elements/kano-app-challenge/kano-app-challenge.html">
 <link rel="import" href="../../elements/kano-app-editor/kano-app-editor.html">
@@ -222,7 +222,7 @@
                         })
                         .then((mode) => {
                             this.setupEditor();
-                            this.challenge.load(story, mode, Kano.MakeApps.Blockly.categories);
+                            this.challenge.load(story, mode, this.blockly.getToolbox());
                             this.$['share-modal-content'].set('nextButtonLabel', Boolean(this.story.next) ? this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
                             this.loading = false;
                         });
@@ -244,6 +244,9 @@
             this.editor.on('exit', () => this._exit());
             this.editor.on('change', () => this.save());
             this.editor.on('save', () => this.saveApp());
+
+            this.blockly = new Kano.Code.Blockly(this.editor, Kano.Code.BlocklyModules);
+            this.blockly.start();
 
             this.hardware = new Kano.Code.Hardware(this.editor);
             this.hardware.start();
@@ -481,7 +484,7 @@
         _remixChanged(remix) {
             if (remix) {
                 this.editor.setMode(this.originalMode);
-                this.editor.setToolbox(Kano.MakeApps.Blockly.categories);
+                this.editor.setToolbox(this.blockly.getToolbox());
                 this.editor.setParts(Kano.MakeApps.Parts.list);
                 // // Look for the previously removed blocks in the addedParts
                 // this.addedParts.forEach((part, i) => {

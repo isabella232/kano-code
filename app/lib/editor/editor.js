@@ -5,6 +5,7 @@ import ModeActions from '../actions/mode.js';
 import PartsActions from '../actions/parts.js';
 import EditorActions from '../actions/editor.js';
 import StoreObserver from './store-observer.js';
+import { getMessages } from '../i18n/index.js';
 
 class Editor extends EventEmitter {
     constructor(opts) {
@@ -32,8 +33,6 @@ class Editor extends EventEmitter {
 
         // Legacy APIs wrapped here
         // TODO: Interface these API better with a OO pattern
-        Kano.MakeApps.Blockly.init();
-        Kano.MakeApps.Blockly.register(window.Blockly);
         Kano.MakeApps.Parts.init();
     }
 
@@ -42,6 +41,7 @@ class Editor extends EventEmitter {
             return;
         }
         this.injected = true;
+        Editor.enableLegacyI18nSupport();
         element.appendChild(this.store.providerElement);
         element.appendChild(this.storeObserver.rootEl);
         if (before) {
@@ -49,6 +49,10 @@ class Editor extends EventEmitter {
             return;
         }
         element.appendChild(this.rootEl);
+    }
+    static enableLegacyI18nSupport() {
+        window.Kano.MakeApps = window.Kano.MakeApps || {};
+        window.Kano.MakeApps.Msg = getMessages();
     }
 
     setParts(parts) {

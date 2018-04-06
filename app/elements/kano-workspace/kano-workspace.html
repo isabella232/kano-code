@@ -1,8 +1,8 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../polymer/polymer-element.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
-<link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<link rel="import" href="../../../../web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
-<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../iron-a11y-keys/iron-a11y-keys.html">
 
 <dom-module id="kano-workspace">
     <template>
@@ -195,7 +195,7 @@
             _modeChanged(mode) {
                 const placeholder = this.$$('#workspace-placeholder');
                 const modeId = mode.id;
-                const tagName = `kano-editor-${modeId}`;
+                const tagName = mode.editorTagName || `kano-editor-${modeId}`;
                 const tpl = document.createElement('template');
 
                 tpl.innerHTML = `<${tagName} id$="[[mode.id]]"

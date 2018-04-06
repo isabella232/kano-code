@@ -277,12 +277,12 @@ class Challenge extends EventEmitter {
     static getChallengeCategories(challenge, categories) {
         const cats = {};
         let cat;
-        cats.events = Object.assign({}, Kano.MakeApps.Blockly.categories.events);
-        Object.keys(Kano.MakeApps.Blockly.categories)
+        cats.events = Object.assign({}, categories.events);
+        Object.keys(categories)
             .filter(key => challenge.scene.modules.indexOf(key) >= 0)
             .forEach((id) => {
                 // Clone the object, because we might change its blocks
-                cats[id] = Object.assign({}, Kano.MakeApps.Blockly.categories[id]);
+                cats[id] = Object.assign({}, categories[id]);
             });
 
         // Do not filter blocks if the list is not defined
