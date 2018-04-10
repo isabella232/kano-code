@@ -10,17 +10,17 @@ class BlocklyRegistry {
     }
     define(name, m, experiment = false) {
         this.modules.set(name, m);
+        if (m.defaults) {
+            Object.keys(m.defaults).forEach((blockId) => {
+                this.defaults.define(blockId, m.defaults[blockId]);
+            });
+        }
         if (experiment) {
             this.experiments.set(name, this.experiments.get(name) || []);
             this.experiments.get(name).push(m);
         } else if (m.category) {
             const category = this.defaults.createCategory(m.category);
             this.categories[name] = category;
-        }
-        if (m.defaults) {
-            Object.keys(m.defaults).forEach((blockId) => {
-                this.defaults.define(blockId, m.defaults[blockId]);
-            });
         }
         if (m.experiments) {
             this.available = this.available.concat(Object.keys(m.experiments));

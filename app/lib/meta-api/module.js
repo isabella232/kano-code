@@ -42,8 +42,15 @@ class Meta {
         return '';
     }
     getVerboseDisplay() {
-        return this.def.verbose || this.def.name;
+        if (typeof this.def.verbose === 'undefined') {
+            return this.def.name;
+        }
+        return this.def.verbose;
     }
+}
+
+class MetaParameter extends Meta {
+
 }
 
 class MetaVariable extends Meta {
@@ -57,11 +64,15 @@ class MetaModule extends Meta {
 }
 
 class MetaFunction extends Meta {
+    constructor(...args) {
+        super(...args);
+        this.parameters = (this.def.parameters || []).map(p => new MetaParameter(p, this));
+    }
     getReturnType() {
         return this.def.returnType;
     }
     getParameters() {
-        return this.def.parameters || [];
+        return this.parameters;
     }
 }
 

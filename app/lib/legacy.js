@@ -12,6 +12,7 @@ import I18n from '../lib/i18n/index.js';
 window.Kano = window.Kano || {};
 
 window.Kano.Code = window.Kano.Code || {};
+
 window.Kano.Code.Editor = Editor;
 window.Kano.Code.Mode = Mode;
 window.Kano.Code.Challenge = Challenge;

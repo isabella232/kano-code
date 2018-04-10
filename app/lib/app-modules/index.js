@@ -1,10 +1,18 @@
+import AppModules from './app-modules.js';
 
-class AppModules {
-    constructor(config) {
-        const appModules = window.Kano.AppModules.createStandalone();
-        appModules.init(config);
-        return appModules;
+class AppModulesLoader {
+    constructor(editor, modules) {
+        this.editor = editor;
+        this.appModules = new AppModules();
+        this.modules = modules;
+    }
+
+    start() {
+        this.appModules.init(this.editor.config);
+        this.modules.forEach((Mod) => {
+            this.appModules.define(Mod.name, Mod);
+        });
     }
 }
 
-export default AppModules;
+export default AppModulesLoader;

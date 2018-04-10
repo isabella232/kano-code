@@ -39,39 +39,90 @@ class BlocklyMetaRenderer {
         return { register, id: json.id };
     }
     static renderFunction(m) {
-        const json = BlocklyMetaRenderer.renderBaseBlock(m);
+        let json = BlocklyMetaRenderer.renderBaseBlock(m);
         if (typeof json.output === 'undefined') {
             json.nextStatement = null;
             json.previousStatement = null;
         }
         const params = m.getParameters();
-        json.message0 = `${json.message0} ${params.map((p, index) => `${p.name} %${index + 1}`).join(' ')}`;
-        json.args0 = params.map((p) => {
-            const input = BlocklyMetaRenderer.parseInputType(p.returnType);
-            input.name = p.name;
-            return input;
-        });
+        const argsMap = new Array(params.length);
+        json = params.reduce((acc, p, index) => {
+            // Get the input type and check
+            const input = BlocklyMetaRenderer.parseInputType(p.def.returnType, p);
+            // First Item includes the function name
+            if (index === 0) {
+                // Append the function name
+                acc[`message${index}`] = `${json.message0}`;
+                // If the parameter is a callback, force line break
+                if (input.type === 'input_statement') {
+                    acc[`message${index}`] += ' %1 %2';
+                } else {
+                    acc[`message${index}`] += ` ${p.getVerboseDisplay()} %1`;
+                }
+            } else if (input.type === 'input_statement') {
+                acc[`message${index}`] = ' %1 %2';
+            } else {
+                acc[`message${index}`] = ` ${p.getVerboseDisplay()} %1`;
+            }
+            input.name = p.def.name.toUpperCase();
+            argsMap[index] = input.name;
+            const args = [input];
+            if (input.type === 'input_statement') {
+                args.unshift({ type: 'input_dummy' });
+            }
+            acc[`args${index}`] = args;
+            return acc;
+        }, json);
+        json.inputsInline = params.length <= 2;
+        if (m.def.blockly && typeof m.def.blockly.postProcess === 'function') {
+            json = m.def.blockly.postProcess(json);
+        }
+        const defaults = params.filter(p => p.def.default).reduce((acc, p) => {
+            acc[p.def.name.toUpperCase()] = p.def.default;
+            return acc;
+        }, {});
         const register = (Blockly) => {
-            Blockly.Blocks[json.id] = {
-                init() {
-                    this.jsonInit(json);
-                },
-            };
-            Blockly.JavaScript[json.id] = (block) => {
-                const args = json.args0.map((arg, index) => {
-                    switch (arg.type) {
-                    case 'input_value': {
-                        return Blockly.JavaScript.valueToCode(block, arg.name) || params[index].default || 'null';
-                    }
-                    default: {
-                        return 'null';
-                    }
-                    }
-                });
-                return `${m.getNameChain('.')}(${args.join(', ')});\n`;
-            };
+            const aliases = m.def.blockly && m.def.blockly.aliases ? m.def.blockly.aliases : [];
+            aliases.push(json.id);
+            aliases.forEach((alias) => {
+                Blockly.Blocks[alias] = {
+                    init() {
+                        this.jsonInit(json);
+                    },
+                };
+                Blockly.JavaScript[alias] = (block) => {
+                    const values = argsMap.map((argName, index) => {
+                        const input = block.getInput(argName);
+                        const field = block.getField(argName);
+                        let value;
+                        if (field && !input) {
+                            value = block.getFieldValue(argName) || params[index].def.default || '';
+                            if (typeof value === 'string') {
+                                value = `'${value}'`;
+                            }
+                        } else {
+                            switch (input.type) {
+                            case Blockly.INPUT_VALUE: {
+                                value = Blockly.JavaScript.valueToCode(block, argName) || params[index].def.default || 'null';
+                                break;
+                            }
+                            case Blockly.NEXT_STATEMENT: {
+                                const statement = Blockly.JavaScript.statementToCode(block, argName) || params[index].def.default || '';
+                                value = `function() {\n${statement}\n}`;
+                                break;
+                            }
+                            default: {
+                                return 'null';
+                            }
+                            }
+                        }
+                        return value;
+                    });
+                    return `${m.getNameChain('.')}(${values.join(', ')});\n`;
+                };
+            });
         };
-        return { register, id: json.id };
+        return { register, id: json.id, defaults };
     }
     static renderBaseBlock(m) {
         const id = m.getNameChain();
@@ -82,8 +133,19 @@ class BlocklyMetaRenderer {
             output: BlocklyMetaRenderer.parseType(m.getReturnType()),
         };
     }
-    static parseInputType(type) {
+    static parseInputType(type, param) {
         switch (type) {
+        case Function: {
+            return {
+                type: 'input_statement',
+            };
+        }
+        case 'Enum': {
+            return {
+                type: 'field_dropdown',
+                options: param.def.enum || [],
+            };
+        }
         case Number:
         default: {
             return {
