@@ -1,25 +1,18 @@
-<script src="../../scripts/kano/make-apps/config.js"></script>
+<link rel="import" href="../../scripts/kano/make-apps/experiments.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../msg/en-US.html">
 <link rel="import" href="../play-bundle.html">
 <link rel="import" href="../kano-style/themes/dark.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
-<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
-<link rel="import" href="../../scripts/kano/app-modules/app-modules.html">
-<link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../scripts/config/development.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/normal.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/camera.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/light.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <link rel="import" href="../kc-blockly-editor/kc-blockly-editor.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-lazy-pages/iron-lazy-pages.html">
-<script src="../../scripts/kano/vm.js"></script>
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../iron-icons/iron-icons.html">
+<link rel="import" href="../../../../iron-lazy-pages/iron-lazy-pages.html">
 <script src="../../scripts/splash.js"></script>
 
 <!--
@@ -241,6 +234,7 @@ Example:
     <script>
         Polymer({
             is: 'kc-code-snippet',
+            behaviors: [Kano.MakeApps.Store.ReceiverBehavior],
             properties: {
                 running: {
                     type: Boolean
@@ -276,6 +270,7 @@ Example:
                 'loadFromURL(kcodeUrl)'
             ],
             ready () {
+                const { config } = this.getState();
                 this.makeButtonIconPaths = {
                     stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
                     running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
@@ -284,7 +279,7 @@ Example:
                 /* These functions have guards that prevent them
                  * from being called twice.
                  */
-                Kano.MakeApps.Parts.init(Kano.MakeApps.config);
+                Kano.MakeApps.Parts.init(config);
                 Kano.MakeApps.Blockly.register(window.Blockly);
 
                 /* Start the splash animation */
@@ -302,8 +297,9 @@ Example:
                     });
             },
             loadFromKcode (kcodeString) {
+                const { config } = this.getState();
                 let kcode = JSON.parse(kcodeString),
-                    hwAPI = new Kano.MakeApps.HardwareAPI(Kano.MakeApps.config),
+                    hwAPI = new Kano.MakeApps.HardwareAPI(config),
                     addedParts,
                     workspace;
 
@@ -316,7 +312,7 @@ Example:
                 this.appModules = Kano.AppModules.createStandalone();
                 this.appModules.init(Object.assign({
                     hardwareAPI: hwAPI
-                }, Kano.MakeApps.config));
+                }, config));
 
                 this._loadParts(kcode.parts);
                 hwAPI.setParts(this.parts);

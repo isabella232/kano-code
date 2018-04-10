@@ -1,5 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../inputs/kano-input/kano-input.html">
 <link rel="import" href="../inputs/kano-input/kano-input.html">
 <link rel="import" href="../kano-code-shared-styles/kano-code-shared-styles.html">
@@ -47,7 +47,7 @@
             },
             theme: String
         },
-        propertyChanged (e) {
+        propertyChanged(e) {
             if (e.composedPath()[0].tagName !== 'KANO-INPUT') {
                 return;
             }
@@ -63,7 +63,10 @@
             }
             this.set(`userValues.${propertyName}`, value);
         },
-        computeValue (propertyName) {
+        computeValue(propertyName) {
+            if (!this.userValues) {
+                return;
+            }
             let value = this.userValues[propertyName];
 
             if (this._needParsing(value)) {

@@ -1,5 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/kwc-blockly/kwc-blockly-style.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../kwc-blockly/kwc-blockly-style.html">
 <link rel="import" href="../blockly.html">
 <dom-module id="kano-blockly-block">
     <template>
@@ -35,26 +35,18 @@
                     observer: '_typeChanged'
                 }
             },
-            _createWorskspace () {
+            _createWorskspace() {
                 this.ws = new Blockly.WorkspaceSvg({});
                 this.ws.isFlyout = true;
                 this.wsDom = this.ws.createDom();
                 this.transform('translate(10px, 0px)', this.wsDom);
                 this.$.svg.appendChild(this.wsDom);
             },
-            _typeChanged (type) {
+            _typeChanged(type) {
                 if (!this.ws) {
                     this._createWorskspace();
                 }
-                let catId = Kano.MakeApps.Blockly.Defaults.categoryMap[type],
-                    cat, colour, xml, extraArgs = '';
-                if (catId) {
-                    cat = Kano.MakeApps.Blockly.modules[catId];
-                    if (cat) {
-                        colour = cat.category.colour;
-                        extraArgs += `colour="${colour}"`;
-                    }
-                }
+                let cat, colour, xml, extraArgs = '';
                 xml = Blockly.Xml.textToDom(`<xml><block type="${type}" ${extraArgs}></block></xml>`);
                 this.ws.clear();
                 this.ws.scale = 0.9;
@@ -65,15 +57,15 @@
                     this._updateSvgSize();
                 });
             },
-            _updateSvgSize () {
+            _updateSvgSize() {
                 let rect = this.wsDom.getBoundingClientRect();
                 this.$.svg.style.width = `${rect.width + 10}px`;
                 this.$.svg.style.height = `${rect.height}px`;
             },
-            getBlock () {
+            getBlock() {
                 return this.ws.getAllBlocks()[0];
             },
-            detached () {
+            detached() {
                 if (this.ws) {
                     this.ws.dispose();
                 }

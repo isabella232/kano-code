@@ -1,7 +1,7 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../scripts/kano/app-modules/lightboard.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-icon/iron-icon.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts-api/light-animation.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../kano-part-editor-topbar/kano-part-editor-topbar.html">
 <link rel="import" href="../kano-animated-svg/kano-animated-svg.html">
@@ -84,7 +84,8 @@
         is: 'kano-light-animation-part-editor',
         behaviors: [
             Kano.MakeApps.PartsAPI['light-animation'],
-            Kano.Behaviors.AppElementRegistryBehavior
+            Kano.Behaviors.AppElementRegistryBehavior,
+            Kano.MakeApps.Store.ReceiverBehavior,
         ],
         properties: {
             selected: {
@@ -139,9 +140,10 @@
         _renderOnRealDevice (e) {
             const frame = e.detail;
             if (!this.deviceRendering) {
+                const state = this.getState();
                 const hw = Kano.AppModules.modules.lightboard.api;
                 this.appModule = Kano.AppModules.createStandalone();
-                this.appModule.config(Object.assign({}, Kano.MakeApps.config, { hardwareAPI: hw }));
+                this.appModule.config(Object.assign({}, state.config, { hardwareAPI: hw }));
                 this.appModule.start();
                 this.deviceRendering = true;
             }

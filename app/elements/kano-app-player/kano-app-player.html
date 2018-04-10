@@ -1,6 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
-<link rel="import" href="../../scripts/kano/make-apps/hardware-api.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../web-components/kano-icons/kano-icons.html">
 <link rel="import" href="../kano-app-player-toolbar/kano-app-player-toolbar.html">
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
 <!--
@@ -147,7 +146,7 @@
                     computed: '_toolbarLayout(layout, fullscreen)'
                 }
             },
-            _srcChanged () {
+            _srcChanged() {
                 // Check that we are loading an html file. Inspecting the extension is not the best solution
                 // as any server could return html content. This prevents loading of late setups bindings. For
                 // example, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
@@ -158,8 +157,12 @@
                     this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
                 });
             },
-            _componentContentChanged () {
+            _componentContentChanged() {
+                const content = this.componentContent;
                 this.debounce('appendApp', () => {
+                    if (!this.componentContent) {
+                        return;
+                    }
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(this.componentContent, 'text/html');
 
@@ -172,7 +175,7 @@
                     this._onAppFileLoad();
                 });
             },
-            _onAppFileLoad () {
+            _onAppFileLoad() {
                 let root = Polymer.dom(this.root),
                     c, styleElm;
                 // Create the component. Older shares were generated with the tagName `kano-user-component`

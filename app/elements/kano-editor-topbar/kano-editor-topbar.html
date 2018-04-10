@@ -1,7 +1,8 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../bower_components/web-components/kano-icons/kano-icons.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../iron-image/iron-image.html">
+<link rel="import" href="../../../../web-components/kano-icons/kano-icons.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <!--
@@ -159,7 +160,7 @@
                             <div class="level">[[localize('LEVEL', 'Level')]] [[profile.levels.level]]</div>
                         </div>
                     </li>
-                    <li class="logout" hidden$="[[disableLogout]]">
+                    <li class="logout" hidden$="[[!disableLogout]]">
                         <a on-tap="_logoutTapped" class="inline">
                             <iron-icon src="/assets/icons/logout.svg"></iron-icon>
                             <div class="label">[[localize('LOGOUT', 'Log Out')]]</div>
@@ -172,7 +173,10 @@
     <script>
         Polymer({
             is: 'kano-editor-topbar',
-            behaviors: [Kano.Behaviors.I18nBehavior],
+            behaviors: [
+                Kano.Behaviors.I18nBehavior,
+                Kano.MakeApps.Store.ReceiverBehavior,
+            ],
             properties: {
                 profile: Object,
                 user: {
@@ -186,10 +190,11 @@
                 avatar: {
                     type: String,
                     computed: '_computeAvatar(user)'
+                },
+                disableLogout: {
+                    type: Boolean,
+                    linkState: 'editor.logoutEnabled'
                 }
-            },
-            ready () {
-                this.disableLogout = Kano.MakeApps.config.DISABLE_LOGOUT;
             },
             _computeLoggedIn (user) {
                 return !!user;

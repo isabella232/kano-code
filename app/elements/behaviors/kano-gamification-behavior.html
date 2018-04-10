@@ -1,6 +1,6 @@
-<link rel="import" href="../../bower_components/gamification-engine/gamification-engine.html">
-<link rel="import" href="../../scripts/kano/make-apps/shared-storage.html">
-<link rel="import" href="../../scripts/config/config.html">
+<link rel="import" href="../../../../kano-shared-storage-client/kano-shared-storage-client.html">
+<link rel="import" href="../../../../gamification-engine/gamification-engine.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 
 <script type="text/javascript">
 
@@ -11,51 +11,56 @@ window.Kano = window.Kano || {};
 window.Kano.Behaviors = window.Kano.Behaviors || {};
 
 var GamificationBehavior = {
-    triggerGamificationEngine (payload) {
-        let token = Kano.MakeApps.sdk.auth.getToken();
+    attached() {
+        const { config } = Kano.MakeApps.Store.getState();
+        this.sharedStorage = new Kano.KanoSharedStorageClient({ sharedStorageURL: config.SHARED_STORAGE_URL });
+        this.gamification = new Kano.GamificationEngine.Engine(
+            Kano.GamificationEngine.RULES,
+            new Kano.GamificationEngine.BrowserStorage({client: this.sharedStorage})
+        );
+    },
+    triggerGamificationEngine(payload) {
+        const { config } = Kano.MakeApps.Store.getState();
+        sdk = new Kano.MakeApps.SDK(config);
+        const token = sdk.getToken();
 
         if (token) {
             let headers = new Headers();
             headers.append('Content-Type', 'application/json');
             headers.append('Authorization', token);
 
-            return fetch(`${Kano.MakeApps.config.API_URL}/progress`, {
+            return fetch(`${config.API_URL}/progress`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload)
             }).then(r => r.json());
         } else {
-            let sharedStorage = Kano.MakeApps.SharedStorage,
-                gamification = new Kano.GamificationEngine.Engine(
-                    Kano.GamificationEngine.RULES,
-                    new Kano.GamificationEngine.BrowserStorage({client: sharedStorage})
-                );
-
             // Log the event so we can replay it later
-            sharedStorage.saveProgressEvent(payload);
+            this.sharedStorage.saveProgressEvent(payload);
 
             // Process it through the local gamification engine
-            return gamification.start({
-                staticUrlPrefix: Kano.MakeApps.config.GAMIFICATION_ASSETS_URL_PREFIX
+            return this.gamification.start({
+                staticUrlPrefix: config.GAMIFICATION_ASSETS_URL_PREFIX
             }).then(() => {
                 if (!Array.isArray(payload)) {
                     payload = [payload];
                 }
-                return gamification.transaction(payload);
+                return this.gamification.transaction(payload);
             }).then((res) => {
-                return gamification.save().then(() => {
-                    return {update: res};
+                return this.gamification.save().then(() => {
+                    return { update: res };
                 });
             });
         }
     },
-    syncCachedProgress () {
-        let sharedStorage = Kano.MakeApps.SharedStorage,
-            token = Kano.MakeApps.sdk.auth.getToken();
+    syncCachedProgress() {
+        const { config } = Kano.MakeApps.Store.getState();
+        sdk = new Kano.MakeApps.SDK(config);
+        const token = sdk.getToken();
 
         // Is logged in?
         if (token) {
-            return sharedStorage.getProgressEvents().then((events) => {
+            return this.sharedStorage.getProgressEvents().then((events) => {
                 try {
                     events = JSON.parse(events);
                 } catch (e) {
@@ -66,8 +71,8 @@ var GamificationBehavior = {
                 if (events.length > 0) {
                     return this.triggerGamificationEngine(events)
                         .then((res) => {
-                            sharedStorage.deleteProgressEvents();
-                            sharedStorage.deleteLocalGamificationState();
+                            this.sharedStorage.deleteProgressEvents();
+                            this.sharedStorage.deleteLocalGamificationState();
                         });
                 }
             });

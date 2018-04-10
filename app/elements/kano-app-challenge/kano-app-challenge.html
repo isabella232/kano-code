@@ -1,11 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/kwc-style/typography.html">
+<link rel="import" href="../../../../polymer/polymer-element.html">
+<link rel="import" href="../../../../polymer/lib/utils/flattened-nodes-observer.html">
+<link rel="import" href="../../../../kwc-style/typography.html">
 <link rel="import" href="./kano-challenge-ui.html">
-<link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-editor-banner/kano-editor-banner.html">
-<link rel="import" href="./kano-challenge-behavior.html">
-<link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<link rel="import" href="../../../../web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<script src="../../../../twemoji-min/2/twemoji.min.js"></script>
 
 <!--
 
@@ -55,13 +55,29 @@ Example:
                 font-family: var(--font-body);
                 pointer-events: all;
             }
+            #overlay {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            :host([lockdown]) #overlay {
+                display: block;
+            }
             [hidden] {
                 display: none !important;
             }
         </style>
-        <kano-challenge-ui id="ui" step="[[selectedStep]]" on-next-step="nextStep" blocks-panel="{{blocksPanel}}" state="{{state}}" mode-ready="[[modeReady]]" idle="[[idle]]">
+        <kano-challenge-ui id="ui"
+                            beacon="[[beacon]]"
+                            tooltips="[[tooltips]]"
+                            on-next-step="nextStep"
+                            idle="[[idle]]">
             <slot name="editor" slot="editor" id="content"></slot>
         </kano-challenge-ui>
+        <div id="overlay" on-tap="_onLockdownClick"></div>
         <div class="banner-container" id="banner-container">
             <kano-editor-banner id="banner"
                 head="[[banner.head]]"
@@ -75,230 +91,156 @@ Example:
                 on-button-tapped="_bannerButtonTapped"
                 on-save-button-clicked="_transmitRequestShare"
                 hidden$="[[_isBannerHidden(banner)]]"
-                can-go-back="[[canGoBack]]"
-                can-go-forward="[[canGoForward]]"></kano-editor-banner>
+                can-go-back="[[history.canGoBack]]"
+                can-go-forward="[[history.canGoForward]]"></kano-editor-banner>
         </div>
     </template>
 </dom-module>
 
 <script type="text/javascript">
     /* globals Polymer, Kano, page */
-    const BANNER_ICONS = {
-        'default': '/assets/avatar/judoka-face.svg'
-    };
 
     const BANNER_SOUND = '/assets/audio/sounds/card_set.wav';
 
-    Polymer({
-        is: 'kano-app-challenge',
-        behaviors: [
-            Kano.Behaviors.BlocklyValidatorBehavior,
-            Kano.Behaviors.AppElementRegistryBehavior,
-            Kano.Behaviors.SoundPlayerBehavior,
-            Kano.Behaviors.I18nBehavior
-        ],
-        properties: {
-            progress: {
-                type: Number,
-                value: 0
-            },
-            banner: {
-                type: Object,
-                value: null
-            },
-            state: {
-                type: Object,
-                notify: true
-            },
-            idle: Boolean,
-            modeReady: {
-                type: Boolean,
-                value: false
-            },
-            canGoBack: {
-                type: Boolean
-            },
-            canGoForward: {
-                type: Boolean
-            }
-        },
-        listeners: {
-            'change': '_editorChanged',
-            'selected-step-changed': '_selectedStepChanged'
-        },
-        _selectedStepChanged (e) {
-            if (!this.selectedStep || !this.modeReady) {
-                return;
-            }
-            this.computeBanner(this.selectedStep);
-        },
-        _isBannerHidden (banner) {
-            return !banner;
-        },
-        computeBanner (step) {
-            let iconId, animation;
-            clearTimeout(this.showButtonTimeout);
-            this.set('banner', null);
-            if (this.state.hints.enabled) {
-                if (step.banner) {
-                    let label = (step.banner.buttonLabel || this.localize('NEXT', 'Next'));
-                    this.banner = this.banner || {};
-                    this.set('banner.head', step.banner.head || null);
-                    this.set('banner.text', step.banner.text);
-                    this.set('banner.buttonLabel', step.banner.next_button ? label : null);
-
-                    if (this.banner.buttonLabel) {
-                        if (this.bannerButtonInactive) {
-                            this.set('banner.buttonState', 'inactive');
-                        } else {
-                            this.set('banner.buttonState', 'active');
-                        }
-                    } else {
-                        this.set('banner.buttonState', 'hidden');
-                    }
-                } else {
-                    this.banner = null;
+    class KanoAppChallenge extends Kano.Code.Store.StateReceiver(Polymer.mixinBehaviors([
+        Kano.Behaviors.SoundPlayerBehavior,
+        Kano.Behaviors.I18nBehavior,
+    ], Polymer.Element)) {
+        static get is() { return 'kano-app-challenge'; }
+        static get properties() {
+            return {
+                progress: {
+                    type: Number,
+                    linkState: 'userProgress',
+                },
+                banner: {
+                    type: Object,
+                    linkState: 'banner',
+                    observer: '_fitBanner',
+                },
+                beacon: {
+                    type: Object,
+                    linkState: 'beacon',
+                },
+                idle: {
+                    type: Boolean,
+                    linkState: 'idle',
+                },
+                lockdown: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    linkState: 'lockdown',
+                },
+                history: {
+                    type: Object,
+                    linkState: 'history',
+                },
+                challengeId: {
+                    linkState: 'id',
+                    observer: '_challengeChanged',
                 }
-            } else {
-                let bannerProps = this.state.hints['disabled-banner'];
-                if (bannerProps) {
-                    this.banner = this.banner || {};
-                    this.set('banner.head', bannerProps.head || null);
-                    this.set('banner.text', bannerProps.text);
-                    this.set('banner.buttonLabel', this.localize('HINTS', 'Hints'));
-
-                    // Show hint button with delay
-                    this.set('banner.buttonState', 'hidden');
-                    this.showButtonTimeout = setTimeout(() => {
-                        this.set('banner.buttonState', 'active');
-                    }, 6000);
-                } else {
-                    this.banner = null;
-                }
-            }
-            if (this.banner) {
-                if (step.banner) {
-
-                    this.editor.set('lockdown', step.banner.lockdown);    //disable click events if true
-                    this.set('banner.showSaveButton', !!step.isLast);
-
-                    if (step.isLast) {
-                        this.set('banner.icon', null);
-                        this.set('banner.imgPage', 'star');
-                        this.set('banner.buttonLabel', Boolean(this.story.next) ?
-                                this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
-                    } else if (step.banner.animation) {
-                        animation = step.banner.animation;
-                        this.set('banner.imgPage', animation);
-                        this.set('banner.icon', null);
-                    } else if (step.banner.icon) {
-                        iconId = step.banner.icon;
-                        this.set('banner.icon', BANNER_ICONS[iconId]);
-                        this.set('banner.imgPage', null);
-                    } else {
-                        this.set('banner.icon', null);
-                        this.set('banner.imgPage', 'judoka');
-                    }
-                } else {
-                    //TODO quickfix for demo. Needs to be removed.
-                    this.set('banner.icon', null);
-                    this.set('banner.imgPage', 'judoka');
-                }
-                // No animation or sound if the challenge has finished
-                if (this.step === this.steps.length - 1) {
-                    return;
-                }
-                this.playSound(BANNER_SOUND);
-                if ('animate' in HTMLElement.prototype) {
-                    this.$.banner.animate({
-                        opacity: [0, 1],
-                        transform: ['scale(0.5, 0.5)', 'scale(1, 1)']
-                    }, {
-                        duration: 150,
-                        easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
-                    });
-                }
-            }
-            this.set('banner.progress', this.progress);
-            this._fitBanner();
-        },
-        _bannerButtonTapped () {
-            if (this.selectedStep.isLast) {
-                this.fire('request-next-story');
-            } else if (this.state.hints && this.state.hints.enabled) {
-                this.nextStep();
-            } else {
-                this.showHints();
-            }
-        },
-        _onLockdownClick () {
-            this.$.banner.shakeButton();
-        },
-        _editorChanged (e) {
-            // Store current step object
-            let step = this.selectedStep,
-                detail = e.detail;
-
-            if (!step || !step.validation) {
-                return;
-            }
-            this._checkEvent(step.validation, detail);
-        },
-        /**
-         * Find the blockly element and listens to the change event
-         */
-        ready () {
-            this._addValidator('add-part', 'matchAddPart');
-            this._addValidator('background', 'matchProperty');
-            this._addValidator('select-part', 'matchPartTarget');
-            this._addValidator('selected-part-change', 'matchPartChange');
-            this._addValidator('trigger', 'matchTrigger');
-            this._addValidator('running', 'matchValue');
-            this._addValidator('select-new-part', 'matchPartType');
-            this._addValidator('enable-refresh', 'matchPartTarget');
-            this._addValidator('disable-refresh', 'matchPartTarget');
-            this._addValidator('manual-refresh', 'matchPartTarget');
-            this._addValidator('open-settings-tooltip', 'matchPartTarget');
-            this._addValidator('open-part-settings', 'matchPartTarget');
-            this._addValidator('settings-interaction', 'matchSettingsInteraction');
-            this._addValidator('light-animation-tool-changed', 'matchValue');
-            this._addValidator('light-animation-paint', 'matchTool');
-            this._addValidator('light-animation-preview-changed', 'matchValue');
-
-            this._addOppositeAction('add-part', 'close-parts', '_partsClosed');
+            };
+        }
+        constructor() {
+            super();
             this.changeCounts = {};
-            this._onFlyoutStateChanged = this._onFlyoutStateChanged.bind(this);
             this._onLockdownClick = this._onLockdownClick.bind(this);
-            this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
-            this.editor.addEventListener('lockdown-clicked', this._onLockdownClick);
-            this.editor.addEventListener('blockly-ready', (e) => {
-                const target = e.path ? e.path[0] : e.target;
-                const workspace = target.getWorkspace();
-                this.setWorkspace(workspace);
-                this.blocksPanel = this._getElement('blocks-panel');
-                workspace.addChangeListener(this._onFlyoutStateChanged);
-                this._fitBanner();
-            });
-        },
-        attached () {
-            this.addEventListener('mousewheel', this.updateTooltips, true);
-            window.addEventListener('resize', this.updateTooltips);
+        }
+        connectedCallback() {
+            super.connectedCallback();
+            this._processMarkdown = this._processMarkdown.bind(this);
             this.loadSound(BANNER_SOUND);
-        },
-        detached () {
-            this.removeEventListener('mousewheel', this.updateTooltips);
-            window.removeEventListener('resize', this.updateTooltips);
-        },
-        _onFlyoutStateChanged (e) {
+            this._observer = new Polymer.FlattenedNodesObserver(this.$.content, (info) => {
+                this._processNewNodes(info.addedNodes);
+            });
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback();
+            this._observer.disconnect();
+        }
+        _challengeChanged() {
+            this.initializeChallenge();
+        }
+        _processNewNodes(nodes) {
+            let editorEl;
+            for (let i = 0; i < nodes.length; i += 1){
+                if (nodes[i].assignedSlot === this.$.content) {
+                    editorEl = nodes[i];
+                }
+            }
+            if (!editorEl) {
+                return;
+            }
+            this.editor = editorEl.editor;
+            this.$.ui.workspace = editorEl.getBlocklyWorkspace();
+            this._fitBanner();
+        }
+        animateBannerIn() {
+            this.playSound(BANNER_SOUND);
+            if ('animate' in HTMLElement.prototype) {
+                this.$.banner.animate({
+                    opacity: [0, 1],
+                    transform: ['scale(0.5, 0.5)', 'scale(1, 1)']
+                }, {
+                    duration: 150,
+                    easing: 'cubic-bezier(0.2, 0, 0.13, 1.5)'
+                });
+            }
+        }
+        _isBannerHidden(banner) {
+            return !banner;
+        }
+        _processMarkdown(text) {
+            const { variables } = this.getState();
+            let processedText = text,
+                blockReg = /<kano-blockly-block(.*)type="(.+)"(.*)><\/kano-blockly-block>/g;
+
+            processedText = processedText.replace(blockReg, (match, before, type, after) => {
+                let pieces = type.split('#');
+                if (pieces.length > 1) {
+                    pieces[0] = this.stepIds[pieces[0]] || pieces[0];
+                }
+                type = pieces.join('#');
+                return `<kano-blockly-block${before}type="${type}"${after}></kano-blockly-block>`;
+            });
+
+            //Inject variables to markdown syntax
+            processedText = Object.keys(variables).reduce((acc, key) => {
+                return acc.replace(new RegExp('\\$\\{' + key + '\\}', 'g'), variables[key] || '');
+            }, processedText);
+
+
+            /* Replace native emoji and return */
+            return twemoji.parse(processedText);
+        }
+        _bannerButtonTapped() {
+            this.nextStep();
+        }
+        _onLockdownClick() {
+            this.$.banner.shakeButton();
+        }
+        initializeChallenge() {
+            this.challengeClass.initializeChallenge();
+        }
+        historyBack() {
+            this.dispatchEvent(new CustomEvent('history-back'));
+        }
+        historyForward() {
+            this.dispatchEvent(new CustomEvent('history-forward'));
+        }
+        _onFlyoutStateChanged(e) {
             if ([Blockly.Events.OPEN_FLYOUT, Blockly.Events.CLOSE_FLYOUT].indexOf(e.type) === -1) {
                 return;
             }
             this.async(() => {
                 this._fitBanner();
             });
-        },
-        _fitBanner () {
-            const workspace = this._blocklyWorkspace;
+        }
+        _fitBanner() {
+            if (!this.editor) {
+                return;
+            }
+            const workspace = this.editor.getBlocklyWorkspace();
             if (!workspace) {
                 return;
             }
@@ -308,114 +250,15 @@ Example:
             this.$['banner-container'].style.left = `${width}px`;
             this.$['banner-container'].style.top = `0px`;
             this.$['banner-container'].style.width = `${metrics.viewWidth + metrics.toolboxWidth - width}px`;
-        },
-        _partsClosed () {
-            return this._prevStep();
-        },
-        isNextHidden () {
-            let currentStep;
-            if (!this.steps) {
-                return true;
-            }
-            currentStep = this.steps[this.step];
-            if (!currentStep) {
-                return true;
-            }
-            return !currentStep.next_button;
-        },
-        matchTrigger (validation, event) {
-            let emitter = validation.emitter;
-            if (emitter.part) {
-                emitter = this.stepIds[emitter.part];
-            }
-            return emitter === event.trigger.emitter &&
-                    validation.event === event.trigger.event;
-        },
-        matchPartChange (validation, event) {
-            return this.matchProperty(validation, event);
-        },
-        matchPartTarget (validation, event) {
-            let target = this.stepIds[validation.target];
-            if (!event.part && validation.target) {
-                return false;
-            } else {
-                return target === event.part.id;
-            }
-        },
-        /**
-         * Will tell if a property defined in a validation and an event matches
-         * Example:
-         * The validation says: 'userStyle.background' and the event says
-         * 'userStyle.background', the properties match
-         * The story creator can define a step that just wait for a vague action
-         * to be made:
-         * validation: 'position.*' will match things like 'position.x' and
-         * 'position.y'
-         */
-        matchProperty (validation, event) {
-            // Split the properties paths
-            let validationParts = validation.property.split('.'),
-                eventParts = event.property.split('.'),
-                count = this.changeCounts[this.step];
-            // Loop through the smallest part
-            for (let i = 0, len = validationParts.length; i < len; i++) {
-                // If the validation used the joker, the remaining parts are accepted
-                if (validationParts[i] === '*') {
-                    break;
-                }
-                // If the part doesn't match, stop
-                if (validationParts[i] !== eventParts[i]) {
-                    return false;
-                }
-            }
-            if (validation.count) {
-                if (count < validation.count) {
-                    return false;
-                }
-            }
-            if (typeof validation.value !== 'undefined') {
-                return this.matchValue(validation, event);
-            }
-
-            return true;
-        },
-        matchValue (validation, event) {
-            return validation.value === event.value;
-        },
-        matchTool (validation, event) {
-            return validation.tool === event.tool;
-        },
-        matchAddPart (validation, event) {
-            // Check the type of the added part
-            if (!this.matchPartType(validation, event)) {
-                return false;
-            }
-            // If an id is provided, save the id of the added part
-            if (validation.id) {
-                this.stepIds[validation.id] = event.part.id;
-            }
-            return true;
-        },
-        matchPartType (validation, event) {
-            return validation.type === event.part.type;
-        },
-        matchSettingsInteraction (validation, event) {
-            return validation.setting === event.setting;
-        },
-        isStepTarget (validation, id) {
-            let target = this.stepIds[validation.target];
-            return target === id;
-        },
-        isStepEvent (step, type, event) {
-            return step[type] && event.type === type;
-        },
-        nextStep () {
-            //tell UI and validator separately that step has finished
-            this.$.ui.finishStep();
-            Kano.Behaviors.ChallengeBehavior.nextStep.call(this);
-        },
-        _transmitRequestShare () {
-            this.fire('request-share');
         }
-    });
+        nextStep() {
+            this.dispatchEvent(new CustomEvent('next-step'));
+        }
+        _transmitRequestShare () {
+            this.dispatchEvent(new CustomEvent('save'));
+        }
+    }
+
+    customElements.define(KanoAppChallenge.is, KanoAppChallenge);
+
 </script>

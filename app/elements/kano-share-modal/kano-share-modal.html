@@ -1,11 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/web-components/kano-lightboard-preview/kano-lightboard-preview.html">
-<link rel="import" href="../../bower_components/kwc-style/input.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-pages/iron-pages.html">
+<link rel="import" href="../../../../iron-image/iron-image.html">
+<link rel="import" href="../../../../paper-card/paper-card.html">
+<link rel="import" href="../../../../paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../web-components/kano-lightboard-preview/kano-lightboard-preview.html">
+<link rel="import" href="../../../../kwc-style/input.html">
 <link rel="import" href="../behaviors/kano-cover-generator-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
 <link rel="import" href="../kano-app-player/kano-app-player.html">
@@ -731,41 +731,41 @@
                 }
             }
         },
-        attached () {
+        attached() {
             //FIXME social share buttons are hidden
             //TODO implement social sharing in a way that would work in an Electron environment
             this.addEventListener('app-ready', this._onAppReady);
         },
-        dismiss () {
+        dismiss() {
             this.fire('dismiss');
             this.fire('tracking-event', {
                 name: 'share_dialog_closed'
             });
         },
-        loadingChanged () {
+        loadingChanged() {
             this.toggleClass('loading', this.loading);
         },
-        playUrl () {
+        playUrl() {
             return `${this.worldUrl}/shared/${this.shareInfo.slug}`;
         },
-        _changeGif () {
+        _changeGif() {
             let appPreview = this.$['app-preview'];
             this.gifSrc = null;
             this.spriteSrc = null;
             // Force a change on the src to reload the app from the beginning
-            appPreview.src = null;
-            appPreview.src = this.shareInfo.app.src;
+            appPreview.componentContent = null;
+            appPreview.componentContent = this.shareInfo.app.component;
         },
-        _resetCoverGenerator () {
+        _resetCoverGenerator() {
             this.$['app-preview'].stop();
             this.gifProgress = this.gifRenderProgress = this.waitingFrame = 0;
             this.recording = false;
         },
-        _onAppReady () {
+        _onAppReady() {
              /* setTimeout required on Safari */
             setTimeout(this._generateAppGif.bind(this), 0);
         },
-        _generateAppGif () {
+        _generateAppGif() {
             let workspace = this.$['app-preview'].getWorkspace(),
                 parts = Object.keys(this.$['app-preview'].component.parts).map(key => {
                     return this.$['app-preview'].component.parts[key];
@@ -947,11 +947,11 @@
         _nextStory () {
             this.fire('next-story');
         },
-        _openChanged (opened, wasOpened) {
+        _openChanged(opened, wasOpened) {
             if (opened) {
                 // Force a change on the src to reload the app from the beginning
-                this.$['app-preview'].src = null;
-                this.$['app-preview'].src = this.shareInfo.app.src;
+                this.$['app-preview'].componentContent = null;
+                this.$['app-preview'].componentContent = this.shareInfo.app.component;
                 this.fire('tracking-event', {
                     name: 'share_dialog_opened'
                 });

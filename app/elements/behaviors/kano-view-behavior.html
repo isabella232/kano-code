@@ -1,3 +1,4 @@
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <script type="text/javascript">
 
     window.Kano = window.Kano || {};
@@ -19,7 +20,8 @@
             this.notifyOnLoad = true;
         },
         attached () {
-            this.config = Kano.MakeApps.config;
+            const { config } = Kano.MakeApps.Store.getState();
+            this.config = config;
             if (this.notifyOnLoad) {
                 this.fire('view-loaded');
             }

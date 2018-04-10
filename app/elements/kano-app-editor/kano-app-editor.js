@@ -4,91 +4,71 @@ Polymer({
         Kano.Behaviors.AppEditorBehavior,
         Kano.Behaviors.AppElementRegistryBehavior,
         Kano.Behaviors.MediaQueryBehavior,
-        Kano.Behaviors.I18nBehavior
+        Kano.Behaviors.I18nBehavior,
+        Kano.Code.Store.ReceiverBehavior,
     ],
     properties: {
+        storeId: {
+            type: Number,
+        },
+        background: {
+            type: String,
+            linkState: 'background',
+        },
         parts: {
-            type: Array
+            type: Array,
+            linkState: 'parts',
         },
         addedParts: {
             type: Array,
-            value: () => {
-                return [];
-            },
-            notify: true
+            linkState: 'addedParts',
         },
         code: {
             type: Object,
-            notify: true,
-            value: () => {
-                return {
-                    snapshot: {
-                        blocks: ''
-                    }
-                };
-            }
+            linkState: 'code',
         },
         workspaceTab: {
             type: String,
-            value: 'workspace',
-            observer: '_workspaceTabChanged'
+            observer: '_workspaceTabChanged',
+            linkState: 'workspaceTab',
         },
         remixMode: {
             type: Boolean,
-            value: false
+            value: false,
         },
         selected: {
-            type: Object
+            type: Object,
+            linkState: 'selectedPart',
         },
         running: {
             type: Boolean,
-            value: false,
-            notify: true,
-            observer: '_runningChanged'
+            observer: '_runningChanged',
+            linkState: 'running',
         },
         editableLayout: {
             type: Boolean,
-            value: false
-        },
-        background: {
-            type: Object,
-            notify: true,
-            value: () => {
-                return {
-                    name: 'My app',
-                    userStyle: {
-                        background: '#ffffff'
-                    }
-                };
-            }
+            value: false,
         },
         defaultCategories: {
-            type: Object
+            type: Object,
         },
         isResizing: {
             type: Boolean,
-            value: false
-        },
-        selectedParts: {
-            type: Array
+            value: false,
         },
         mode: {
-            type: Object
+            type: Object,
+            linkState: 'mode',
         },
         partsMenuOpen: {
             type: Boolean,
-            value: false
+            value: false,
         },
         unsavedChanges: {
             type: Boolean,
             value: false,
-            notify: true
+            notify: true,
         },
-        lockdown: {
-            type: Boolean,
-            reflectToAttribute: true,
-            observer: '_onLockdownChanged'
-        }
     },
     observers: [
         'selectedPartChanged(selected.*)',
@@ -96,9 +76,9 @@ Polymer({
         'resetAppState(addedParts.splices)',
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
-        '_codeChanged(code.*)',
+        '_codeChanged(code)',
         '_partsChanged(parts.slices)',
-        '_onPartsSet(parts)'
+        '_onPartsSet(parts)',
     ],
     listeners: {
         'mode-ready': '_onModeReady',
@@ -109,77 +89,79 @@ Polymer({
         'edit-background': '_openBackgroundDialog',
         'iron-resize': '_refitPartModal',
         'feature-not-available-offline': '_openOfflineDialog',
-        'opened-changed': '_manageModals'
+        'opened-changed': '_manageModals',
     },
-    _exitTapped () {
+    _backgroundChanged(e) {
+        this.dispatch({ type: 'UPDATE_BACKGROUND', value: e.detail.value });
+    },
+    _exitTapped() {
         this.fire('tracking-event', {
-            name: 'ide_exited'
+            name: 'ide_exited',
         });
         this.fire('exit');
     },
-     //Make sure that no conflicting modals are opened at the same time
-    _manageModals (e) {
-        const notifier = Polymer.dom(e).rootTarget.id,
-            nonConcurringModalIds = [
-                'parts-modal',
-                'edit-background-dialog',
-                'edit-part-dialog'
-            ];
+    // Make sure that no conflicting modals are opened at the same time
+    _manageModals(e) {
+        const notifier = Polymer.dom(e).rootTarget.id;
+        const nonConcurringModalIds = [
+            'parts-modal',
+            'edit-background-dialog',
+            'edit-part-dialog',
+        ];
 
-        //Check if the notifier is on the check list and if it's opened
+        // Check if the notifier is on the check list and if it's opened
         if (nonConcurringModalIds.indexOf(notifier) < 0 || !this.$[notifier].opened) {
             return;
         }
 
-        //Close all non-concurring modals except the one that has just been opened
-        nonConcurringModalIds.forEach(modal => {
+        // Close all non-concurring modals except the one that has just been opened
+        nonConcurringModalIds.forEach((modal) => {
             if (modal !== notifier && this.$[modal].opened) {
                 this.$[modal].close();
             }
         });
     },
-    _openBackgroundDialog () {
+    _openBackgroundDialog() {
         this.$['edit-background-dialog'].open();
         this.toggleClass('open', true, this.$['code-overlay']);
     },
-    _backgroundEditorDialogClosed (e) {
-        let target = e.path ? e.path[0] : e.target;
+    _backgroundEditorDialogClosed(e) {
+        const target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-background-dialog']) {
             this.toggleClass('open', false, this.$['code-overlay']);
         }
     },
-    _openPartsModal () {
+    _openPartsModal() {
         this.$['parts-modal'].open();
         this.partsMenuOpen = true;
         this.async(() => {
             this.notifyChange('open-parts');
         }, 500);
     },
-    _closePartsModal () {
+    _closePartsModal() {
         this.$['parts-modal'].close();
     },
-    _partsModalClosed () {
+    _partsModalClosed() {
         this.$['add-parts'].reset();
         this.partsMenuOpen = false;
         this.notifyChange('close-parts');
     },
-    _addParts (e) {
+    _addParts(e) {
         this._closePartsModal();
-        Object.keys(e.detail).forEach(type => {
-            for (let i = 0; i < e.detail[type]; i++) {
+        Object.keys(e.detail).forEach((type) => {
+            for (let i = 0; i < e.detail[type]; i += 1) {
                 this._addPart({ detail: type });
             }
         });
     },
-    _partsChanged () {
+    _partsChanged() {
         this.fire('parts-changed', this.parts);
     },
-    _newPartRequest (e) {
-        let model;
+    _newPartRequest(e) {
         if (!e.detail || !e.detail.data || !e.detail.data.product) {
             return;
         }
-        model = e.detail.data;
+        const model = e.detail.data;
 
         // Too early
         if (!Array.isArray(this.parts)) {
@@ -192,9 +174,9 @@ Polymer({
             this._addHardwarePart(model.product);
         }
     },
-    _addHardwarePart (product) {
+    _addHardwarePart(product) {
         let model;
-        for (var i = 0; i < this.parts.length; i++) {
+        for (let i = 0; i < this.parts.length; i += 1) {
             model = this.parts[i];
             if (model.supportedHardware && model.supportedHardware.indexOf(product) >= 0) {
                 this._addPart({ detail: model.type });
@@ -202,26 +184,26 @@ Polymer({
             }
         }
     },
-    _addPart (e) {
-        let viewport = this.$.workspace.getViewport(),
-            viewportRect = viewport.getBoundingClientRect(),
-            model, part;
-        for (let i = 0; i < Kano.MakeApps.Parts.list.length; i++) {
+    _addPart(e) {
+        const viewport = this.$.workspace.getViewport();
+        const viewportRect = viewport.getBoundingClientRect();
+        let model;
+        for (let i = 0; i < Kano.MakeApps.Parts.list.length; i += 1) {
             model = Kano.MakeApps.Parts.list[i];
             if (model.type === e.detail) {
                 break;
             }
         }
-        model.position = this._getNewPartPosition(viewportRect);
-        part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
-        this.push('addedParts', part);
-        this._addedPartsCount++;
+        model.position = this._getNewPartPosition(viewportRect, this.addedParts.length);
+        const part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
+        this.dispatch({ type: 'ADD_PART', part });
         this.notifyChange('add-part', { part });
     },
-    _getNewPartPosition (viewportRect) {
-        let layoutIndex = this._addedPartsCount % 9,
-            layoutIterationIndex = Math.floor(this._addedPartsCount / 9),
-            x, y;
+    _getNewPartPosition(viewportRect, count) {
+        const layoutIndex = count % 9;
+        const layoutIterationIndex = Math.floor(count / 9);
+        let x;
+        let y;
 
         // Position the part on a 3x3 grid in the workspace
         x = (((layoutIndex % 3) * viewportRect.width / 3) + viewportRect.width / 6);
@@ -237,13 +219,13 @@ Polymer({
 
         return { x, y };
     },
-    _onModeReady () {
-        this.modeReady = true;
+    _onModeReady() {
         Kano.MakeApps.Utils.triggerResize();
     },
-    _partEditorDialogClosed (e) {
+    _partEditorDialogClosed(e) {
         let target = e.path ? e.path[0] : e.target;
         if (target === this.$['edit-part-dialog']) {
+            this.dispatch({ type: 'SELECT_PART', index: null });
             // Ensure the id will update
             this.set('selected.id', null);
             this.set('selected.name', this.$['edit-part-dialog-content'].name);
@@ -254,94 +236,87 @@ Polymer({
             this.$['edit-part-dialog-content'].stop();
         }
     },
-    _isPauseOverlayHidden (running, editableLayout) {
+    _isPauseOverlayHidden(running, editableLayout) {
         return running || editableLayout;
     },
-    _codeChanged () {
-        this.code = this._formatCode(this.code);
-        // Do not restart if the code didn't change
-        if (this.prevCode && this.code.snapshot.javascript === this.prevCode) {
-            return;
-        }
-        // Mark code as unsaved
-        if (this.prevCode) {
-            this.unsavedChanges = true;
-        }
-
+    _codeChanged() {
+        this.unsavedChanges = true;
         // Restart code if not editing
         if (!this.editableLayout) {
             this.toggleRunning(false);
             this.toggleRunning(true);
         }
-
-        this.prevCode = this.code.snapshot.javascript;
     },
-    _proxyChange (e) {
+    _proxyChange(e) {
         // Bug on chrome 49 on the kit, the event from kano-blockly stops here
         e.preventDefault();
         e.stopPropagation();
         this.fire('change', e.detail);
     },
-    deletePartClicked () {
+    deletePartClicked() {
         this._removePartInitiated(this.selected);
     },
-    _removePartInitiated (part) {
+    _removePartInitiated(part) {
         this.toBeRemoved = part;
         this.fire('tracking-event', {
-            name: 'part_remove_dialog_opened'
-        })
+            name: 'part_remove_dialog_opened',
+        });
         if (this.checkBlockDependency(part)) {
             this.$['dialog-external-use'].open();
         } else {
             this.$['dialog-confirm-delete'].open();
         }
     },
-    _removePartReceived (e) {
+    _removePartReceived(e) {
         let part = e.detail;
         this._removePartInitiated(part);
     },
-    _modalClosed (e) {
+    _modalClosed(e) {
         if (e.detail.confirmed) {
             switch (Polymer.dom(e).rootTarget.id) {
-                case 'dialog-confirm-delete': {
-                    this._dialogConfirmedDelete();
-                    break;
-                }
-                case 'dialog-reset-warning': {
-                    this._dialogConfirmedReset();
-                    break;
-                }
+            case 'dialog-confirm-delete': {
+                this._dialogConfirmedDelete();
+                break;
+            }
+            case 'dialog-reset-warning': {
+                this._dialogConfirmedReset();
+                break;
+            }
+            default: {
+                break;
+            }
             }
         } else {
             switch (Polymer.dom(e).rootTarget.id) {
-                case 'dialog-confirm-delete': {
-                    this.fire('tracking-event', {
-                        name: 'part_remove_dialog_closed'
-                    });
-                    break;
-                }
-                case 'dialog-reset-warning': {
-                    this.fire('tracking-event', {
-                        name: 'workspace_reset_dialog_closed'
-                    });
-                    break;
-                }
+            case 'dialog-confirm-delete': {
+                this.fire('tracking-event', {
+                    name: 'part_remove_dialog_closed'
+                });
+                break;
+            }
+            case 'dialog-reset-warning': {
+                this.fire('tracking-event', {
+                    name: 'workspace_reset_dialog_closed'
+                });
+                break;
+            }
+            default: {
+                break;
+            }
             }
         }
     },
-    _dialogConfirmedDelete () {
+    _dialogConfirmedDelete() {
         this._closePartSettings();
         this._deletePart(this.toBeRemoved);
         this.notifyChange('remove-part', {
-            part: this.toBeRemoved
+            part: this.toBeRemoved,
         });
     },
-    _dialogConfirmedReset () {
-        this.set('addedParts', []);
-        this.set('code', this._formatCode({}));
-        this.set('background', this.properties.background.value());
+    _dialogConfirmedReset() {
+        this.dispatch({ type: 'RESET_EDITOR' });
         this.fire('tracking-event', {
-            name: 'workspace_reset_dialog_confirmed'
+            name: 'workspace_reset_dialog_confirmed',
         });
         this.save();
         Kano.MakeApps.Parts.Part.clear();
@@ -350,18 +325,17 @@ Polymer({
             localStorage.removeItem(`savedApp-${this.mode.id}`);
         }
         this.unsavedChanges = false;
-        this._addedPartsCount = 0;
     },
-    checkBlockDependency (part) {
+    checkBlockDependency(part) {
         let xmlString, xml, parser, blocks, block, blockId, pieces;
         // Get the blockly xml and parse it
-        xmlString = this.code.snapshot.blocks;
+        xmlString = this.$['root-view'].$['code-editor'].getBlocks();
         parser = new DOMParser();
         xml = parser.parseFromString(xmlString, 'text/xml');
         // Get all the 'block' elements
         blocks = xml.getElementsByTagName('block');
         // Check for every one of them...
-        for (let k = 0, len = blocks.length; k < len; k++) {
+        for (let k = 0, len = blocks.length; k < len; k += 1) {
             block = blocks[k];
             blockId = block.getAttribute('type');
             pieces = blockId.split('#');
@@ -372,7 +346,7 @@ Polymer({
         }
         return false;
     },
-    updateColors () {
+    updateColors() {
         if (!this.defaultCategories) {
             return;
         }
@@ -380,19 +354,19 @@ Polymer({
             Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         }, 10);
     },
-    isPartDeletionDisabled () {
+    isPartDeletionDisabled() {
         return this.partEditorOpened || this.backgroundEditorOpened || this.running;
     },
-    backgroundChanged (e) {
+    backgroundChanged(e) {
         let property = e.path.split('.');
         property.shift();
         property = property.join('.');
         this.notifyChange('background', {
             property,
-            value: e.value
+            value: e.value,
         });
     },
-    selectedPartChanged (e) {
+    selectedPartChanged(e) {
         let property = e.path.split('.');
         property.shift();
         property = property.join('.');
@@ -401,7 +375,7 @@ Polymer({
             value: e.value
         });
     },
-    computeBackground () {
+    computeBackground() {
         let style = this.background.userStyle;
         return Object.keys(style).reduce((acc, property) => {
             acc += `${property}:${style[property]};`;
@@ -411,24 +385,25 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save (snapshot=false, to_json=true) {
-        let savedParts = this.addedParts.reduce((acc, part) => {
-            acc.push((to_json) ? part.toJSON() : part);
+    save(snapshot = false, toJson = true) {
+        const state = this.getState();
+        const savedParts = state.addedParts.reduce((acc, part) => {
+            acc.push((toJson) ? part.toJSON() : part);
             return acc;
-        }, []),
-            savedApp = {};
+        }, []);
+        const savedApp = {};
         savedApp.parts = savedParts;
-        savedApp.code = this.code;
+        savedApp.code = { snapshot: { javascript: state.code, blocks: this.$['root-view'].$['code-editor'].getBlocks() } };
         savedApp.background = this.background;
-        savedApp.mode = this.mode.id;
+        savedApp.mode = state.mode.id;
         if (snapshot) {
             savedApp.snapshot = true;
-            savedApp.selectedPart = this.addedParts.indexOf(this.selected);
+            savedApp.selectedPart = state.addedParts.indexOf(this.selected);
         }
 
         return savedApp;
     },
-    share (e) {
+    share(e) {
         if (e && e.detail && e.detail.keyboardEvent) {
             e.detail.keyboardEvent.preventDefault();
             e.detail.keyboardEvent.stopPropagation();
@@ -442,67 +417,62 @@ Polymer({
             }
         });
     },
-    compileApp () {
+    compileApp() {
         return {
             app: this.save(false, false),
             workspaceInfo: JSON.stringify(this.save()),
-            background: this.background.userStyle.background,
+            background: this.background,
             mode: this.mode,
             code: this.code,
-            parts: this.addedParts
+            parts: this.addedParts,
         };
     },
-    generateCover () {
+    generateCover() {
         return this.$.workspace.generateCover();
     },
     /**
      * Load the saved work from the local storage
      */
-    load (savedApp, parts) {
-        let addedParts,
-            part,
-            partsDict;
+    load(savedApp, parts) {
         if (!savedApp) {
             return;
         }
-
-        addedParts = savedApp.parts.map((savedPart) => {
-            for (let i = 0, len = parts.length; i < len; i++) {
+        let part;
+        const addedParts = savedApp.parts.map((savedPart) => {
+            for (let i = 0, len = parts.length; i < len; i += 1) {
                 if (parts[i].type === savedPart.type) {
                     savedPart = Object.assign({}, parts[i], savedPart);
                     break;
                 }
             }
-            part = Kano.MakeApps.Parts.create(savedPart,
-                                              this.mode.workspace.viewport);
+            part = Kano.MakeApps.Parts.create(savedPart, this.mode.workspace.viewport);
             return part;
         });
-        savedApp.code = this._formatCode(savedApp.code);
-        this.set('addedParts', addedParts);
+        savedApp.code = this._formatSnapshot(savedApp.code);
+        this.dispatch({ type: 'LOAD_ADDED_PARTS', parts: addedParts });
 
         // Update AppModules
-        partsDict = this.$.workspace.getPartsDict();
+        const partsDict = this.$.workspace.getPartsDict();
         Kano.AppModules.loadParts(partsDict);
 
         // Force a color update and a register block to make sure the loaded code will be
         // rendered with the right colors
         Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         this.$['root-view'].computeBlocks();
-        this.set('code', savedApp.code);
 
         // If there is no background, fall back to the default value
-        this.set('background', savedApp.background ? savedApp.background : this.properties.background.value());
+        this.dispatch({ type: 'UPDATE_BACKGROUND', value: savedApp.background });
         this.unsavedChanges = false;
     },
-    _formatCode (code) {
+    _formatSnapshot(code) {
         code = code || {};
         code.snapshot = code.snapshot || {};
         return code;
     },
-    reset () {
+    reset() {
         this.$['dialog-reset-warning'].open();
     },
-    onPartSettings () {
+    onPartSettings(e) {
         // No part selected, show the background editor
         if (!this.selected) {
             this._toggleFullscreenModal(false);
@@ -514,30 +484,29 @@ Polymer({
             this.notifyChange('open-part-settings', { part: this.selected });
         }
     },
-    _closePartSettings () {
+    _closePartSettings() {
         this.$['edit-part-dialog'].close();
     },
-    _toggleFullscreenModal (isFullScreen) {
+    _toggleFullscreenModal(isFullScreen) {
         this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['blocks-panel'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
         this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
-        //If modal is not fullscreen, use a custom overlay
+        // If modal is not fullscreen, use a custom overlay
         this.toggleClass('open', !isFullScreen, this.$['code-overlay']);
     },
-    _repositionPanel (e) {
+    _repositionPanel(e) {
         const target = this.$[Polymer.dom(e).rootTarget.id];
         this.async(() => target.parentElement.refit(), 10);
     },
-    _deletePart (part) {
-        let index = this.addedParts.indexOf(part);
-        this.splice('addedParts', index, 1);
+    _deletePart(part) {
+        this.dispatch({ type: 'REMOVE_PART', part });
         Kano.MakeApps.Parts.freeId(part);
         this.$.workspace.clearSelection();
 
         // Save the app to localStorage after part is removed
         localStorage.setItem(`savedApp-${this.mode.id}`, JSON.stringify(this.save()));
     },
-    _onPartsSet (parts) {
+    _onPartsSet(parts) {
         if (!this.queuedHardware) {
             return;
         }
@@ -564,9 +533,8 @@ Polymer({
                 }
             }
         }, 5);
-
     },
-    onPartReady (e) {
+    onPartReady(e) {
         let clone;
         interact(e.detail).draggable({
             onmove: (event) => {
@@ -620,25 +588,23 @@ Polymer({
             }
         });
     },
-    bindEvents () {
+    bindEvents() {
         this.updateWorkspaceRect = this.updateWorkspaceRect.bind(this);
         this.onIronSignal = this.onIronSignal.bind(this);
 
         this.$.workspace.addEventListener('viewport-resize', this.updateWorkspaceRect);
         document.addEventListener('iron-signal', this.onIronSignal);
     },
-    detachEvents () {
+    detachEvents() {
         this.$.workspace.removeEventListener('viewport-resize', this.updateWorkspaceRect);
         document.removeEventListener('iron-signal', this.onIronSignal);
     },
-    ready () {
+    ready() {
         this.reset = this.reset.bind(this);
         this._exportApp = this._exportApp.bind(this);
         this._importApp = this._importApp.bind(this);
-        this.modeReady = false;
     },
-    attached () {
-        this._addedPartsCount = 0;
+    attached() {
         this.target = document.body;
         this.partEditorOpened = false;
         this.backgroundEditorOpened = false;
@@ -649,34 +615,36 @@ Polymer({
         this._registerElement('blocks-panel', this.$['blocks-panel']);
         this._registerElement('parts-panel', this.$['parts-modal']);
     },
-    detached () {
+    detached() {
         Kano.MakeApps.Parts.clear();
         this.detachEvents();
     },
-    onIronSignal (e) {
+    onIronSignal(e) {
         if (!e.detail) {
             return;
         }
         switch (e.detail.name) {
-            case 'export-app':
-                this._exportApp();
-                break;
-            case 'import-app':
-                this._importApp();
-                break;
-            case 'reset-workspace':
-                this.reset();
-                break;
-            case 'new-part-request':
-                this._newPartRequest(e);
-                break;
+        case 'export-app':
+            this._exportApp();
+            break;
+        case 'import-app':
+            this._importApp();
+            break;
+        case 'reset-workspace':
+            this.reset();
+            break;
+        case 'new-part-request':
+            this._newPartRequest(e);
+            break;
+        default:
+            break;
         }
     },
-    _exportApp () {
-        let savedApp = this.save(),
-            a = document.createElement('a'),
-            file = new Blob([JSON.stringify(savedApp)], {type: 'application/kcode'}),
-            url = URL.createObjectURL(file);
+    _exportApp() {
+        const savedApp = this.save();
+        const a = document.createElement('a');
+        const file = new Blob([JSON.stringify(savedApp)], {type: 'application/kcode'});
+        const url = URL.createObjectURL(file);
         document.body.appendChild(a);
         a.download = 'my-app.kcode';
         a.href = url;
@@ -684,17 +652,17 @@ Polymer({
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         this.fire('tracking-event', {
-            name: 'app_exported'
+            name: 'app_exported',
         });
     },
-    _importApp () {
+    _importApp() {
         this.fileInput = document.createElement('input');
         this.fileInput.setAttribute('type', 'file');
         this.fileInput.style.display = 'none';
         this.fileInput.addEventListener('change', (evt) => {
-            let f = evt.target.files[0];
+            const f = evt.target.files[0];
             if (f) {
-                let r = new FileReader();
+                const r = new FileReader();
                 r.onload = (e) => {
                     // Read the mode
                     let app = JSON.parse(e.target.result);
@@ -709,24 +677,24 @@ Polymer({
         document.body.appendChild(this.fileInput);
         this.fileInput.click();
         this.fire('tracking-event', {
-            name: 'app_imported'
+            name: 'app_imported',
         });
     },
     _setCodeDisplay(code, workspaceTab) {
         if (workspaceTab === 'workspace') {
             return;
         }
-        return js_beautify(code, { 'indent_size': 2 });
+        return js_beautify(code, { indent_size: 2 });
     },
-    updateWorkspaceRect (e) {
+    updateWorkspaceRect(e) {
         this.set('workspaceRect', e.detail);
     },
     /**
      * Add draggable properties to the added element in the workspace
      * @param  {Event} e
      */
-    workspaceUiReady (e) {
-        let element = e.detail;
+    workspaceUiReady(e) {
+        const element = e.detail;
         if (element.instance) {
             return ;
         }
@@ -736,7 +704,7 @@ Polymer({
         this.draggables.push(element);
         this._enableDrag(element);
     },
-    getDragMoveListener (scale=false) {
+    getDragMoveListener(scale = false) {
         return (event) => {
             let target = event.target,
                 pos = target.model.position,
@@ -757,7 +725,7 @@ Polymer({
             target.notifyPath('model.position');
         };
     },
-    scaleToWorkspace (point) {
+    scaleToWorkspace(point) {
         let rect = this.workspaceRect,
             fullSize = this.mode.workspace.viewport;
 
@@ -766,29 +734,30 @@ Polymer({
             y: point.y / rect.height * fullSize.height
         };
     },
-    _runButtonClicked () {
+    _runButtonClicked() {
         this.fire('tracking-event', {
-            name: this.running ? 'app_paused' : 'app_played'
-        })
+            name: this.running ? 'app_paused' : 'app_played',
+        });
         this.toggleRunning();
     },
-    toggleRunning (state) {
-        this.running = typeof state === 'undefined' ? !this.running : state;
+    toggleRunning(state) {
+        const running = typeof state === 'undefined' ? !this.running : state;
+        this.dispatch({ type: 'SET_RUNNING_STATE', state: running });
     },
-    _cleanDraggables () {
+    _cleanDraggables() {
         if (!this.draggables) {
             this.draggables = [];
         }
         // If a part is removed, the element will disappear from the array
         this.draggables = this.draggables.filter((d) => !!d);
     },
-    _disableDrag () {
+    _disableDrag() {
         this._cleanDraggables();
         this.draggables.forEach((draggable) => {
             interact(draggable).draggable(false);
         });
     },
-    _enableDrag (el) {
+    _enableDrag(el) {
         let draggables,
             restrictEl;
         this._cleanDraggables();
@@ -817,18 +786,10 @@ Polymer({
             });
         });
     },
-    _onLockdownChanged (value) {
-        //Catch click events with backdrop
-        if (value) {
-            this.$.backdrop.open();
-        } else {
-            this.$.backdrop.close();
-        }
-    },
-    _refitPartModal () {
+    _refitPartModal() {
         this.$['edit-part-dialog'].refit();
     },
-    getMakeButtonClass (running, editableLayout) {
+    getMakeButtonClass(running, editableLayout) {
         let classes = [];
         if (running) {
             classes.push('running');
@@ -840,33 +801,26 @@ Polymer({
         }
         return classes.join(' ');
     },
-    applyHiddenClass () {
+    applyHiddenClass() {
         return this.running ? '' : 'hidden';
-    },
-    getMakeButtonLabel () {
-        if (this.running) {
-            return 'Stop';
-        }
-
-        return 'Make';
     },
     /**
      * Resize the workspace
      */
-    resizeWorkspace (e) {
+    resizeWorkspace(e) {
         this.pauseEvent(e);
         this.isResizing = true;
     },
     /**
      * Completed the resize action
      */
-    completedResizing () {
+    completedResizing() {
         this.isResizing = false;
     },
     /**
      * Used to prevent text selection when dragging
      */
-    pauseEvent (e) {
+    pauseEvent(e) {
         if (e.stopPropagation) {
             e.stopPropagation();
         }
@@ -880,26 +834,24 @@ Polymer({
     /**
      * Mouse moved handler
      */
-    mouseMoved (e) {
-        let workspacePanel = this.$['workspace-panel'],
-            container = this.$.section,
-            offsetPanel,
-            workspaceRelSize;
+    mouseMoved(e) {
+        const workspacePanel = this.$['workspace-panel'];
+        const container = this.$.section;
 
         if (!this.isResizing) {
             return;
         }
         this.pauseEvent(e);
 
-        offsetPanel = container.getBoundingClientRect().right - e.clientX;
+        const offsetPanel = container.getBoundingClientRect().right - e.clientX;
         workspacePanel.style.width = `${offsetPanel}px`;
 
-        //We need to trigger the resize of the kano-ui-workspace and the blockly workspace
+        // We need to trigger the resize of the kano-ui-workspace and the blockly workspace
         window.dispatchEvent(new Event('resize'));
     },
-    _runningChanged () {
+    _runningChanged() {
         this.notifyChange('running', {
-            value: this.running
+            value: this.running,
         });
         if (!this.running) {
             this._enableDrag();
@@ -909,42 +861,42 @@ Polymer({
             this.set('editableLayout', false);
         }
     },
-    _onLockdownClicked () {
+    _onLockdownClicked() {
         this.fire('lockdown-clicked');
     },
-    getBlockly () {
+    getBlockly() {
         return this.$['root-view'].getBlockly();
     },
-    getBlocklyWorkspace () {
+    getBlocklyWorkspace() {
         return this.$['root-view'].getBlocklyWorkspace();
     },
-    getWorkspace () {
+    getWorkspace() {
         return this.$.workspace;
     },
-    resetAppState () {
-        this.running = false;
+    resetAppState() {
+        this.dispatch({ type: 'SET_RUNNING_STATE', state: false });
 
         setTimeout(() => {
-            this.running = true;
+            this.dispatch({ type: 'SET_RUNNING_STATE', state: true });
         }, 0);
 
         this.fire('tracking-event', {
-            name: 'app_restarted'
+            name: 'app_restarted',
         });
     },
-    _openOfflineDialog () {
+    _openOfflineDialog() {
         this.$['dialog-offline'].open();
     },
-    isModeSimple (mode) {
-        return mode.id === "simple";
+    isModeSimple(mode) {
+        return mode.id === 'simple';
     },
-    _workspaceTabChanged (current, previous) {
+    _workspaceTabChanged(current, previous) {
         if (current && previous) {
             this.fire('tracking-event', {
                 name: 'workspace_view_changed',
                 data: {
-                    view: current
-                }
+                    view: current,
+                },
             });
         }
     }

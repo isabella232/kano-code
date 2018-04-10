@@ -1,9 +1,9 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../bower_components/marked-element/marked-element.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../iron-image/iron-image.html">
+<link rel="import" href="../../../../marked-element/marked-element.html">
+<link rel="import" href="../../../../paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-arrow/kano-arrow.html">
 <link rel="import" href="../kano-blockly-block/kano-blockly-block.html">
@@ -12,9 +12,9 @@
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-blockly-validator-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
-<link rel="import" href="../../bower_components/web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
+<link rel="import" href="../../../../web-components/kano-sound-player-behavior/kano-sound-player-behavior.html">
 
-<link rel="import" href="../../bower_components/kwc-style/typography.html">
+<link rel="import" href="../../../../kwc-style/typography.html">
 
 
 <!--
@@ -301,7 +301,7 @@ Example:
         <kano-arrow source="[[arrow.source]]" target="[[arrow.target]]" angle="[[arrow.angle]]" id="arrow" hidden$="[[idle]]">
             <iron-image slot="arrow-image" src="/assets/icons/white_arrow.svg" width="[[arrow.size]]" height="[[arrow.size]]" sizing="contain"></iron-image>
         </kano-arrow>
-        <kano-arrow target="[[beacon.target]]" bounce="0" angle="[[beacon.angle]]" offset="[[beacon.offset]]" hidden$="[[idle]]">
+        <kano-arrow target="[[_beacon.target]]" bounce="0" angle="[[_beacon.angle]]" offset="[[_beacon.offset]]" hidden$="[[idle]]">
             <div class="beacon-wrapper" slot="arrow-image">
                 <div class="ripple" id="ripple" on-animationiteration="_ringAnimationIterated" on-animationstart="_ringAnimationIterated"></div>
                 <div class="ring" id="ring"></div>
@@ -361,6 +361,7 @@ Example:
             arrow: {
                 type: Object
             },
+            beacon: Object,
             state: {
                 type: Object,
                 value: () => {
@@ -383,7 +384,9 @@ Example:
             }
         },
         observers: [
-            '_setupWithDelay(step, state.*)'
+            '_setupWithDelay(step, state.*)',
+            '_updateBeacon(beacon.*)',
+            '_updatTooltips(tooltips.*)',
         ],
         listeners: {
             'change': '_editorChanged'
@@ -404,13 +407,13 @@ Example:
                 this.updateTooltips();
             }
         },
-        computeSelectedStep () {
+        computeSelectedStep() {
             return this.steps[this.step];
         },
         /**
          * Find the blockly element and listens to the change event
          */
-        ready () {
+        ready() {
             this.modal = this.$.modal;
             this.highlight = {};
             this.loadSound('/assets/audio/sounds/ding.mp3');
@@ -422,8 +425,7 @@ Example:
                 'iron-resize': 'all'
             };
         },
-        attached () {
-            this.editor = Polymer.dom(this.$.content).getDistributedNodes()[0];
+        attached() {
             this.updateTooltips = this.updateTooltips.bind(this);
             this.addEventListener('mousewheel', this.updateTooltips, true);
             window.addEventListener('resize', this.updateTooltips);
@@ -431,7 +433,7 @@ Example:
                 this.addEventListener(eventName, this._onRefit);
             });
         },
-        detached () {
+        detached() {
             this.removeEventListener('mousewheel', this.updateTooltips);
             window.removeEventListener('resize', this.updateTooltips);
             Object.keys(this.eventsCausingRefit).forEach(eventName => {
@@ -439,7 +441,7 @@ Example:
             });
         },
         getToolbox () {
-            return this.editor.getBlocklyWorkspace().toolbox;
+            return this.workspace.toolbox;
         },
         _nextStep () {
             this.fire('next-step');
@@ -450,15 +452,15 @@ Example:
                 return;
             }
 
-            if (step.beacon) {
-                this._fitBeacon(step);
+            if (this.beacon) {
+                this._fitBeacon(this.beacon);
             }
 
             if (step.arrow) {
                 this._fitArrow(step);
             }
 
-            this._fitTooltips(step);
+            this._fitTooltips(this.tooltips);
         },
         _onRefit (e) {
             const targetConcerned = this.eventsCausingRefit[e.type];
@@ -471,14 +473,14 @@ Example:
                 return;
             }
 
-            if (step.beacon && this._targetIsConcerned(step.beacon.target, targetConcerned)) {
-                this._fitBeacon(step);
+            if (this.beacon && this._targetIsConcerned(this.beacon.target, targetConcerned)) {
+                this._fitBeacon(this.beacon);
             }
 
             if (step.arrow && this._targetIsConcerned(step.arrow.target, targetConcerned)) {
                 this._fitArrow(step);
             }
-            this._fitTooltips(step);
+            this._fitTooltips(this.tooltips);
         },
         /**
          * Checks if the target of the beacon matches the type of targets concerned by the refit event received
@@ -489,21 +491,18 @@ Example:
             }
             return typeof target === 'object' && Object.keys(target).some(key => targetTypes.indexOf(key) !== -1);
         },
-        computeTooltips (step) {
+        _updateTooltips() {
+            this.computeTooltips();
+        },
+        computeTooltips() {
+            const { tooltips } = this;
             this.set('tooltips', []);
             this.debounce('computeTooltips', () => {
-                this._fitTooltips(step, true);
+                this._fitTooltips(tooltips, true);
             }, 200);
         },
-        _fitTooltips (step, scroll) {
-            /* With hints disabled, only show tooltips for injected steps */
-            if (!this.state.hints.enabled && !step.injected) {
-                this.tooltips = [];
-                return;
-            }
-
-            let tooltips = step.tooltips || [];
-            tooltips = tooltips.map(tooltip => {
+        _fitTooltips(tooltips, scroll) {
+            const formattedTooltips = tooltips.map(tooltip => {
                 let copy = Object.assign({}, tooltip);
                 copy.target = this._getTargetElement(tooltip.location);
 
@@ -525,9 +524,9 @@ Example:
                 return copy;
             });
             // Forces a recompute on the dom-repeat to make sure all tooltips are updated
-            this.set('tooltips', []);
+            this.set('_tooltips', []);
             this.async(() => {
-                this.set('tooltips', tooltips);
+                this.set('_tooltips', formattedTooltips);
             });
         },
         _tooltipDomChanged (e) {
@@ -593,7 +592,11 @@ Example:
                 angle: step.arrow.angle || 0
             });
         },
-        computeBeacon (step) {
+        _updateBeacon() {
+            this.computeBeacon();
+        },
+        computeBeacon() {
+            const { beacon } = this;
             this.$.beacon.animate({
                 opacity: [1, 0]
             }, {
@@ -609,17 +612,17 @@ Example:
             this.toggleClass('animate', false, this.$.ripple);
             this.toggleClass('animate', false, this.$.core);
 
-            if (!step || !step.beacon || (!this.state.hints.enabled && !step.injected)) {
+            if (!beacon) {
                 return;
             }
 
             this.async(() => {
-                this._fitBeacon(step, true);
+                this._fitBeacon(beacon, true);
             }, 300);
         },
         _scrollWorkspaceOnTargetIfNeeded (target, location) {
             if (location && location.block) {
-                let workspace = this.editor.getBlocklyWorkspace(),
+                let workspace = this.workspace,
                     workspaceRect = workspace.svgBackground_.getBoundingClientRect(),
                     viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
                     viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
@@ -634,10 +637,10 @@ Example:
                 }
             }
         },
-        _fitBeacon (step, scroll) {
-            let target = this._getTargetElement(step.beacon.target),
-                angle = step.beacon.angle || 0,
-                offset = step.beacon.offset || 10,
+        _fitBeacon(beacon, scroll) {
+            let target = this._getTargetElement(beacon.target),
+                angle = beacon.angle || 0,
+                offset = beacon.offset || 10,
                 viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
                 viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
@@ -646,18 +649,18 @@ Example:
             }
 
             if (scroll) {
-                this._scrollWorkspaceOnTargetIfNeeded(target, step.beacon.target);
+                this._scrollWorkspaceOnTargetIfNeeded(target, beacon.target);
             }
 
             // Check if the target is out of the viewport (vertically)
             if (target && target.top + target.height > viewportHeight) {
-                if (step.beacon.target.flyout_block) {
+                if (beacon.target.flyout_block) {
                     let toolbox = this._getElement('blockly-toolbox');
                     // Force a scroll of the toolbox to move the target in the viewport. Add 50 to make sure it's not just at the border of the screen
                     toolbox.scrollTop = toolbox.scrollTop + (target.top + target.height - viewportHeight) + 300;
                 }
             }
-            this.set('beacon', {
+            this.set('_beacon', {
                 target,
                 angle,
                 offset
@@ -736,7 +739,6 @@ Example:
 
                 this.computeTooltips(step);
                 this.computeArrow(step);
-                this.computeBeacon(step);
                 this.computeHighlight(step);
                 this.computePhantomBlock(step);
                 this.computeSounds(step);
@@ -872,7 +874,7 @@ Example:
             }, 100);
         },
         getTargetBlock (selector) {
-            let block = this.editor.getBlocklyWorkspace().getBlockById(selector.id);
+            let block = this.workspace.getBlockById(selector.id);
 
             if (selector.shadow) {
                 block = block.getInput(selector.shadow).connection.targetBlock();
@@ -933,7 +935,7 @@ Example:
                 this.playSound(`/assets/audio/sounds/${this.step.play_on_end}.wav`);
             }
         },
-        _getLongestDelay () {
+        _getLongestDelay() {
             let step = this.step,
                 delayingElements = [],
                 currentDelay,
@@ -947,8 +949,8 @@ Example:
                     step.tooltips.forEach(tooltip => delayingElements.push(this._getTargetElement(tooltip.location)));
                 }
 
-                if (step.beacon) {
-                    delayingElements.push(this._getTargetElement(step.beacon.target));
+                if (this.beacon) {
+                    delayingElements.push(this._getTargetElement(this.beacon.target));
                 }
 
                 if (step.arrow) {

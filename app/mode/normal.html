@@ -1,0 +1,116 @@
+<link rel="import" href="../elements/kano-editor-normal/kano-editor-normal.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/canvas/blocks/general.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/canvas/blocks/paths.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/canvas/blocks/setters.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/canvas/blocks/shapes.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/canvas/blocks/space.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/button.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/box.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/text-input.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/text.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/map.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/sticker.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/scrolling-text.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/slider.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/oscillator.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/space/iss.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/weather/weather.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/kano/share.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/rss.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/data/sports.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/clock.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/speaker.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/synth.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/microphone.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/mouse.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/terminal.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/powerups/gyro-accelerometer.html">
+<link rel="import" href="../scripts/kano/make-apps/parts/powerups/motion-sensor.html">
+
+<script>
+    ((Kano) => {
+        const COLOR = '#82C23D';
+        const definition = {
+            id: 'normal',
+            name: 'Draw',
+            colour: COLOR,
+            defaultBlocks: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="60" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>`,
+            allowBackground: true,
+            workspace: {
+                viewport: {
+                    width: 512,
+                    height: 384
+                },
+                component: 'kano-workspace-normal'
+            },
+            sharing: {},
+            parts: ['clock', 'microphone', 'mouse', 'speaker', 'synth', 'button',
+                        'box', 'sticker', 'map', 'scrolling-text', 'slider',
+                        'text-input', 'text', 'rss', 'sports', 'weather', 'iss',
+                        'share', 'canvas', 'oscillator', 'motion-sensor', 'gyro-accelerometer',
+                        'terminal'],
+        };
+
+        const categories = [];
+        let blocks = [];
+
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.general);
+
+        blocks.push({
+            block: (part) => {
+                return {
+                    id: 'clear',
+                    message0: `${part.name}: clear drawing`,
+                    previousStatement: null,
+                    nextStatement: null
+                };
+            },
+            javascript: (part) => {
+                return function (block) {
+                    return `devices.get('${part.id}').reset();`;
+                };
+            }
+        });
+
+        blocks.push({
+            block: (part) => {
+                return {
+                    id: 'set_transparency',
+                    message0: `${part.name}: set transparency to %1`,
+                    args0: [{
+                        type: 'input_value',
+                        name: 'ALPHA',
+                        check: 'Number'
+                    }],
+                    previousStatement: null,
+                    nextStatement: null,
+                    shadow: {
+                        'ALPHA': `<shadow type="math_number"><field name="NUM">100</field></shadow>`
+                    }
+                };
+            },
+            javascript: (part) => {
+                return function (block) {
+                    let alpha = Blockly.JavaScript.valueToCode(block, 'ALPHA');
+                    return `devices.get('${part.id}').setTransparency(${alpha});`;
+                };
+            }
+        });
+
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.setters);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.space);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.paths);
+        blocks = blocks.concat(Kano.MakeApps.Parts.Canvas.shapes);
+
+        categories.push({
+            name: definition.name,
+            id: definition.id,
+            colour: COLOR,
+            blocks,
+        });
+
+        definition.categories = categories;
+
+        Kano.Code.Mode.define(definition.id, definition);
+    })(window.Kano);
+</script>

@@ -4,6 +4,7 @@
 <link rel="import" href="../../../scripts/kano/music/player.html">
 <link rel="import" href="../../../scripts/kano/make-apps/files/samples.html">
 <link rel="import" href="../../../scripts/kano/make-apps/files/cache.html">
+<link rel="import" href="../../../scripts/kano/make-apps/store.html">
 <dom-module id="kano-part-speaker">
     <template>
         <style>
@@ -29,7 +30,10 @@
 
         Polymer({
             is: 'kano-part-speaker',
-            behaviors: [Kano.MakeApps.PartsAPI.Base, Kano.Behaviors.UIBehavior],
+            behaviors: [
+                Kano.MakeApps.PartsAPI.Base,
+                Kano.Behaviors.UIBehavior,
+            ],
             observers: [
                 '_mutedChanged(model.muted)'
             ],
@@ -40,11 +44,12 @@
                 }
             },
             ready () {
+                const { config } = Kano.MakeApps.Store.getState();
                 this.sources = [];
                 this.players = [];
                 this.oscillators = [];
                 this.tts = new Kano.MakeApps.TextToSpeech();
-                this.tts.configure(Kano.MakeApps.config);
+                this.tts.configure(config);
                 try {
                     this.ctx = Kano.AudioContext;
                     this.webAudioSupported = true;

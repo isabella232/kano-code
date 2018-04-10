@@ -1,13 +1,9 @@
-<link rel="import" href="../../scripts/kano/make-apps/mode/mode.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/normal.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/light.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/simple.html">
-<link rel="import" href="../../scripts/kano/make-apps/mode/camera.html">
+<link rel="import" href="../../scripts/kano/make-apps/experiments.html">
+<link rel="import" href="../../scripts/kano/make-apps/store.html">
 <link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
-<link rel="import" href="../../scripts/kano/app-modules/index.html">
 <link rel="import" href="../../elements/behaviors/kano-view-behavior.html">
-<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../../../paper-toggle-button/paper-toggle-button.html">
 
 <dom-module id="kano-view-flags">
     <template>
@@ -74,17 +70,20 @@
     /* globals Polymer, Kano */
     Polymer({
         is: 'kano-view-flags',
-        behaviors: [Kano.Behaviors.ViewBehavior],
+        behaviors: [
+            Kano.Behaviors.ViewBehavior,
+            Kano.MakeApps.Store.ReceiverBehavior,
+        ],
         ready () {
-            Kano.MakeApps.Parts.init(Kano.MakeApps.config);
-            Kano.AppModules.init(Kano.MakeApps.config);
-            Kano.MakeApps.Blockly.init(Kano.MakeApps.config);
-            Kano.MakeApps.Mode.init(Kano.MakeApps.config);
-            this.flags = Kano.MakeApps.config.getFlags();
-            this.available = Object.keys(Kano.MakeApps.config.FLAGS.available).map(key => {
+            const { config } = this.getState();
+            Kano.MakeApps.Parts.init(config);
+            Kano.AppModules.init(config);
+            Kano.MakeApps.Blockly.init(config);
+            this.flags = Kano.MakeApps.experiments.getFlags();
+            this.available = Object.keys(Kano.MakeApps.experiments.FLAGS.available).map(key => {
                 return {
                     id: key,
-                    groups: Kano.MakeApps.config.FLAGS.available[key].join(', ')
+                    groups: Kano.MakeApps.experiments.FLAGS.available[key].join(', ')
                 };
             });
             this.changed = false;
@@ -117,7 +116,7 @@
             } else {
                 this.flags.experiments.push(exp);
             }
-            Kano.MakeApps.config.updateFlags(this.flags);
+            Kano.MakeApps.experiments.updateFlags(this.flags);
             this._notifyReload();
         },
         _refresh (e) {

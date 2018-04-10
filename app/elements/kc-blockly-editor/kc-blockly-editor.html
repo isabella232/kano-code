@@ -1,8 +1,9 @@
-<link rel="import" href="../../bower_components/kwc-blockly/kwc-blockly.html">
+<link rel="import" href="../blockly.html">
+<link rel="import" href="../../../../kwc-blockly/kwc-blockly.html">
 <link rel="import" href="../behaviors/kano-app-editor-behavior.html">
 <link rel="import" href="../behaviors/kano-app-element-registry-behavior.html">
 <link rel="import" href="../behaviors/kano-i18n-behavior.html">
-<link rel="import" href="../blockly.html">
+<link rel="import" href="../../../../iron-icon/iron-icon.html">
 <link rel="import" href="../kc-user-options/kc-user-options.html">
 <link rel="import" href="../kano-tooltip/kano-tooltip.html">
 <link rel="import" href="../kano-icons/kc-ui.html">
@@ -131,14 +132,14 @@
         <kwc-blockly id="code-editor"
                 toolbox="[[toolbox]]"
                 on-change="_onBlocklyChanged"
-                default-blocks="[[mode.defaultBlocks]]"
+                on-code-changed="_onCodeChanged"
                 on-blockly-ready="_onBlocklyReady"
                 no-trashcan="[[simple]]"
                 no-zoom-control="[[simple]]"
                 no-toolbox="[[simple]]">
                 <div class="toolbox-enhancer above" slot="above-toolbox">
                     <button type="button" class="logo icon" on-tap="_exitButtonTapped">
-                        <iron-icon class="block-logo" src="/assets/kano-logo-simple.svg"></iron-icon>
+                        <iron-icon class="block-logo" src$="/assets/kano-logo-simple.svg"></iron-icon>
                     </button>
                     <button type="button" class="menu icon" on-tap="_menuButtonTapped">
                         <iron-icon id="menu-icon" class="block-logo" icon="kc-ui:hamburger"></iron-icon>
@@ -167,12 +168,12 @@
             Kano.Behaviors.AppEditorBehavior,
             Kano.Behaviors.AppElementRegistryBehavior,
             Kano.Behaviors.I18nBehavior,
-            Kano.MakeApps.Store.ReceiverBehavior
+            Kano.Code.Store.ReceiverBehavior,
             ],
         properties: {
             parts: {
                 type: Array,
-                notify: true
+                linkState: 'addedParts',
             },
             toolbox: {
                 type: Array
@@ -182,15 +183,16 @@
             },
             code: {
                 type: Object,
-                notify: true,
-                observer: 'codeChanged'
+                linkState: 'code',
+            },
+            blocks: {
+                type: Object,
+                observer: 'blocksChanged',
+                linkState: 'blocks',
             },
             mode: {
-                type: Object
-            },
-            simple: {
-                type: Boolean,
-                value: false
+                type: Object,
+                linkState: 'mode',
             },
             user: {
                 type: Object,
@@ -208,51 +210,52 @@
             'computeToolboxDebounced(mode)',
             'defaultCategoriesLoaded(defaultCategories.events)'
         ],
-        _logoutTapped () {
+        _logoutTapped() {
             this.fire('logout');
             this._closeTooltip();
         },
-        _loginTapped () {
+        _loginTapped() {
             this.fire('login');
         },
-        _isLogoutHidden (logoutEnabled, user) {
+        _isLogoutHidden(logoutEnabled, user) {
             return !logoutEnabled || !user;
         },
-        _isProfileHidden (user) {
+        _isProfileHidden(user) {
             return !user;
         },
-        _closeTooltip () {
+        _closeTooltip() {
             this.$.tooltip.close();
         },
-        _isAuthenticated (user) {
+        _isAuthenticated(user) {
             return !!user;
         },
-        _computeAvatar (user) {
+        _computeAvatar(user) {
             if (!user || !user.avatar || !user.avatar.urls || !user.avatar.urls.circle) {
                 return '/assets/avatar/judoka-face.svg';
             }
             return user.avatar.urls.circle;
         },
-        _menuButtonTapped (e) {
+        _menuButtonTapped(e) {
             this.$.tooltip.target = this.$['menu-icon'].getBoundingClientRect();
             this.$.tooltip.open();
         },
-        _exitButtonTapped () {
+        _exitButtonTapped() {
             this.fire('exit-tapped');
         },
-        _onBlocklyReady () {
-            if (!this.simple) {
-                this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
-                this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
-            }
+        _onBlocklyReady() {
+            this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
+            this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
         },
-        codeChanged () {
-            if (!this.code) {
+        _onCodeChanged(e) {
+            this.dispatch({ type: 'UPDATE_CODE', code: e.detail.value });
+        },
+        blocksChanged() {
+            if (!this.blocks) {
                 return;
             }
-            this.$['code-editor'].load(this.code.snapshot);
+            this.$['code-editor'].loadBlocks(this.blocks);
         },
-        computeTriggerOptions () {
+        computeTriggerOptions() {
             let options = [[Blockly.Msg.APP_STARTS, 'global.start']];
             this.parts.forEach((part) => {
                 part.events.forEach((ev) => {
@@ -267,7 +270,7 @@
             }
             return options;
         },
-        _onBlocklyChanged (e) {
+        _onBlocklyChanged(e) {
             // Check if a create event follows a close-flyout event. If so, do not notify
             // of the close-flyout event
             if (e.detail.type === 'close-flyout') {
@@ -282,19 +285,11 @@
                 }
                 this.notifyChange('blockly', { event: e.detail });
             }
-            this.debounce('saveCode', () => {
-                this.saveCode();
-            }, 300);
         },
-        saveCode () {
-            this.$['code-editor'].save().then(snapshot => {
-                this.set('code.snapshot', snapshot);
-            });
-        },
-        ready () {
+        ready() {
             this.toolboxReady = false;
         },
-        defaultCategoriesLoaded (newVal, oldVal) {
+        defaultCategoriesLoaded(newVal, oldVal) {
             if (!newVal) {
                 return;
             }
@@ -321,7 +316,7 @@
                 }
             };
         },
-        computeBlocks () {
+        computeBlocks() {
             let events = [];
             this.parts
                 .forEach((part) => {
@@ -348,7 +343,7 @@
                 })
             }
         },
-        _registerBlock (part, definition) {
+        _registerBlock(part, definition) {
             let block = definition.block(part);
             block.colour = part.colour;
             block.id = `${part.id}#${block.id}`;
@@ -375,7 +370,7 @@
                 Blockly.JavaScript[block.id] = definition.javascript(part);
             }
         },
-        computeToolbox () {
+        computeToolbox() {
             let categories,
                 toolbox,
                 parts = this.parts,
@@ -455,7 +450,7 @@
             this.set('toolbox', toolbox);
             if (!this.toolboxReady) {
                 this.toolboxReady = true;
-                this.$['code-editor'].load(this.code.snapshot);
+                this.$['code-editor'].loadBlocks(this.blocks);
             }
         },
         _partsChanged (e) {

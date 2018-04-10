@@ -19,7 +19,8 @@
              */
             localize (key, fallback) {
                 let scopedKey = `${this._msgKeyPrefix}_${key}`;
-                return Kano.MakeApps.Msg[scopedKey] || Kano.MakeApps.Msg[key] || fallback || '';
+                const messages = Kano.Code.I18n.getMessages();
+                return messages[scopedKey] || messages[key] || fallback || '';
             }
         };
         

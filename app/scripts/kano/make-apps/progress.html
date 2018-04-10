@@ -1,5 +1,6 @@
 <link rel="import" href="./sdk.html">
-<link rel="import" href="./shared-storage.html">
+<link rel="import" href="./store.html">
+<link rel="import" href="../../../../../kano-shared-storage-client/kano-shared-storage-client.html">
 <script>
     (function (Kano) {
 
@@ -7,16 +8,16 @@
 
         let loadDebouncer = null,
             neverLoaded = true,
-            Progress,
             progress = {},
-            sharedStorage,
             storedProgress = localStorage.getItem('progress') || JSON.stringify({});
-        // Just grab the cross-storage instance here so nothing changes.
+
+
+        const { config } = Kano.MakeApps.Store.getState();
+        const sharedStorageWrapper = new Kano.KanoSharedStorageClient({ sharedStorageURL: config.SHARED_STORAGE_URL });
+        // Just grab the cross-storage instance here to support previous API..
+        const sharedStorage = sharedStorageWrapper._client;
         if (Kano.MakeApps.SharedStorage) {
             sharedStorage = Kano.MakeApps.SharedStorage._client;
-        }
-        if (!sharedStorage) {
-            throw new Error("Failed to initiate shared storage client.");
         }
         const LOAD_DEBOUNCE_DELAY = 3000;
 
@@ -30,12 +31,17 @@
             return group;
         }
 
-        Progress = {
+        class Progress {
+
+            constructor(config) {
+                this.config = config;
+                this.sdk = new Kano.MakeApps.SDK(this.config);
+            }
 
             reset () {
                 progress = {};
                 this.saveToStorage();
-            },
+            }
 
             updateProgress (group, storyNo, extension, storyId=null) {
                 let progressGroup;
@@ -59,27 +65,19 @@
                 this.saveToStorage();
 
                 return this.saveToRemote();
-            },
+            }
 
             saveToRemote () {
                 let p = Promise.resolve(progress);
                 // If the user is authenticated, we can proceed, otherwise the saved progress will be resolved
-                if (Kano.MakeApps.sdk.auth.getToken()) {
-                    p = new Promise((resolve, reject) => {
-                        // Update the values
-                        Kano.MakeApps.sdk.appStorage.set('make-apps', { progress }, (err, data) => {
-                            if (err) {
-                                return reject(err);
-                            }
-                            resolve(data.stats['make-apps'].progress);
-                        });
-                    }).catch(() => {
-                        // Whatever happens, return the current value
-                        return progress;
-                    });
+                if (this.sdk.getToken()) {
+                    p = this.sdk.setAppStat('make-apps', { progress }, (data) => {
+                        return data.stats['make-apps'].progress;
+                    })
+                    .catch(err => progress);
                 }
                 return p;
-            },
+            }
 
             loadProgress () {
                 let p;
@@ -88,21 +86,17 @@
                 p = Promise.resolve(progress);
 
                 // Sync if the user is logged
-                if (Kano.MakeApps.sdk.auth.getUser()) {
+                if (this.sdk.getUser()) {
                     return this.sync();
                 }
                 return p;
-            },
+            }
             sync () {
                 let p = Promise.resolve(progress),
                     loadFromRemote = new Promise((resolve, reject) => {
                         let needUpdate = false;
-                        Kano.MakeApps.sdk.appStorage.get('make-apps', (err, data) => {
+                        this.sdk.getAppStat('make-apps').then((data) => {
                             let keys;
-                            // Silent error
-                            if (err) {
-                                return reject(err);
-                            }
                             keys = Object.keys(progress);
                             data.progress = data.progress || {};
 
@@ -149,19 +143,19 @@
                     }, LOAD_DEBOUNCE_DELAY);
                 }
                 return p;
-            },
+            }
             recordOnboarding () {
                 sharedStorage.onConnect().then(function () {
                     return sharedStorage.set('onboarding', true);
                 });
-            },
+            }
             saveToStorage () {
                 let progressString = JSON.stringify(progress);
                 localStorage.setItem('progress', progressString);
                 sharedStorage.onConnect().then(function () {
                     return sharedStorage.set('progress', progressString);
                 });
-            },
+            }
             loadFromStorage () {
                 try {
                     progress = JSON.parse(localStorage.getItem('progress')) || {};
@@ -174,7 +168,7 @@
                     progress[group] = formatProgressGroup(progress[group]);
                 });
             }
-        };
+        }
 
         Kano.MakeApps.Progress = Kano.MakeApps.Progress || Progress;
 
