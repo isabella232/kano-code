@@ -1,97 +1,98 @@
 const COLOR = '#1198ff';
 
+class BlocklyAssets {
+    static get id() { return 'assets'; }
+    static register(Blockly) {
+        const stickerSet = Object.keys(Kano.MakeApps.Files.stickers);
+        Blockly.Blocks.assets_get_sticker = {
+            init: function init() {
+                const setDropdown = new Blockly.FieldDropdown(
+                    stickerSet.map(name => [name, name]),
+                    function validate(option) {
+                        this.sourceBlock_.updateShape_(option);
+                    },
+                );
 
-const register = (Blockly) => {
-    const stickerSet = Object.keys(Kano.MakeApps.Files.stickers);
-    Blockly.Blocks.assets_get_sticker = {
-        init: function init() {
-            const setDropdown = new Blockly.FieldDropdown(
-                stickerSet.map(name => [name, name]),
-                function validate(option) {
-                    this.sourceBlock_.updateShape_(option);
-                }
-            );
+                this.appendDummyInput()
+                    .appendField(setDropdown, 'SET');
 
-            this.appendDummyInput()
-                .appendField(setDropdown, 'SET');
+                this.setOutput('String');
 
-            this.setOutput('String');
+                this.setColour(COLOR);
 
-            this.setColour(COLOR);
+                this.setInputsInline(true);
 
-            this.setInputsInline(true);
+                this.createInputs_('animals');
+            },
+            updateShape_(option) {
+                this.removeInput('STICKER');
+                this.createInputs_(option);
+            },
+            createInputs_(option) {
+                const { stickers } = Kano.MakeApps.Files;
+                const options = Object.keys(stickers[option])
+                    .map(key => [stickers[option][key], key]);
+                const dropdown = new Blockly.FieldDropdown(options);
+                this.appendDummyInput('STICKER')
+                    .appendField(dropdown, 'STICKER');
+            },
+            domToMutation(xmlElement) {
+                const type = xmlElement.getAttribute('set');
+                this.updateShape_(type);
+            },
+            mutationToDom() {
+                const container = document.createElement('mutation');
+                const type = this.getFieldValue('SET');
+                container.setAttribute('set', type);
+                return container;
+            },
+        };
 
-            this.createInputs_('animals');
-        },
-        updateShape_(option) {
-            this.removeInput('STICKER');
-            this.createInputs_(option);
-        },
-        createInputs_(option) {
-            const { stickers } = Kano.MakeApps.Files;
-            const options = Object.keys(stickers[option]).map(key => [stickers[option][key], key]);
-            const dropdown = new Blockly.FieldDropdown(options);
-            this.appendDummyInput('STICKER')
-                .appendField(dropdown, 'STICKER');
-        },
-        domToMutation(xmlElement) {
-            const type = xmlElement.getAttribute('set');
-            this.updateShape_(type);
-        },
-        mutationToDom() {
-            const container = document.createElement('mutation');
-            const type = this.getFieldValue('SET');
-            container.setAttribute('set', type);
-            return container;
-        },
-    };
+        Blockly.JavaScript.assets_get_sticker = (block) => {
+            const sticker = block.getFieldValue('STICKER');
+            const set = block.getFieldValue('SET');
+            return [`assets.getSticker('${set}', '${sticker}')`];
+        };
 
-    Blockly.JavaScript.assets_get_sticker = function (block) {
-        let sticker = block.getFieldValue('STICKER'),
-            set     = block.getFieldValue('SET');
-        return [`assets.getSticker('${set}', '${sticker}')`];
-    };
+        Blockly.Blocks.assets_random_sticker = {
+            init() {
+                this.jsonInit({
+                    id: 'random_sticker',
+                    message0: Blockly.Msg.BLOCK_STICKER_RANDOM,
+                    colour: COLOR,
+                    output: 'String',
+                });
+            },
+        };
 
-    Blockly.Blocks.assets_random_sticker = {
-        init: function () {
-            this.jsonInit({
-                id      : 'random_sticker',
-                message0: Blockly.Msg.BLOCK_STICKER_RANDOM,
-                colour  : COLOR,
-                output  : 'String'
-            });
-        }
-    };
+        Blockly.JavaScript.assets_random_sticker = (block) => {
+            const code = ['assets.randomSticker()'];
+            return code;
+        };
 
-    Blockly.JavaScript.assets_random_sticker = function (block) {
-        let code = ['assets.randomSticker()'];
-        return code;
-    };
+        Blockly.Blocks.assets_random_sticker_from = {
+            init() {
+                this.jsonInit({
+                    id: 'random_from_set',
+                    message0: Blockly.Msg.BLOCK_STICKER_RANDOM_FROM,
+                    args0: [{
+                        type: 'field_dropdown',
+                        name: 'SET',
+                        options: Object.keys(Kano.MakeApps.Files.stickers).map(key => [key, key]),
+                    }],
+                    colour: COLOR,
+                    output: 'String',
+                });
+            },
+        };
 
-    Blockly.Blocks.assets_random_sticker_from = {
-        init: function () {
-            this.jsonInit({
-                id      : 'random_from_set',
-                message0: Blockly.Msg.BLOCK_STICKER_RANDOM_FROM,
-                args0   : [{
-                    type   : 'field_dropdown',
-                    name   : 'SET',
-                    options: Object.keys(Kano.MakeApps.Files.stickers).map(key => [key, key])
-                }],
-                colour: COLOR,
-                output: 'String'
-            });
-        }
-    };
+        Blockly.JavaScript.assets_random_sticker_from = (block) => {
+            const set = block.getFieldValue('SET') || 'animals';
+            const code = [`assets.randomSticker('${set}')`];
+            return code;
+        };
+    }
+}
 
-    Blockly.JavaScript.assets_random_sticker_from = function (block) {
-        let set  = block.getFieldValue('SET') || 'animals',
-            code = [`assets.randomSticker('${set}')`];
-        return code;
-    };
-};
 
-export default {
-    id: 'assets',
-    register,
-};
+export default BlocklyAssets;
