@@ -1,16 +1,28 @@
 import VM from './vm.js';
 import AppModulesLoader from './app-modules/index.js';
+import Plugin from './editor/plugin.js';
 
-class Runner {
-    constructor(editor, modules) {
-        this.editor = editor;
+class Runner extends Plugin {
+    constructor(modules) {
+        super();
         this.modules = modules;
-        this.appModulesLoader = new AppModulesLoader(this.editor, this.modules);
         this._onRunningStateChange = this._onRunningStateChange.bind(this);
     }
-    start() {
+    onInstall(editor) {
+        this.editor = editor;
+        this.appModulesLoader = new AppModulesLoader(this.editor, this.modules);
+    }
+    onInject() {
         this.appModulesLoader.start();
         this.editor.on('running-state-changed', this._onRunningStateChange);
+    }
+    onAppload() {
+        // Force refresh app state if was running
+        const running = this.editor.getRunningState();
+        if (running) {
+            this.editor.setRunningState(!running);
+            this.editor.setRunningState(running);
+        }
     }
     _onRunningStateChange() {
         const running = this.editor.getRunningState();

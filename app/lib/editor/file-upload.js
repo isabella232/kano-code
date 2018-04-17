@@ -1,9 +1,8 @@
-import EventEmitter from '../util/event-emitter.js';
+import Plugin from './plugin.js';
 
-class FileUpload extends EventEmitter {
-    constructor(editor, targetEl, overlay) {
+class FileUpload extends Plugin {
+    constructor(targetEl, overlay) {
         super();
-        this.editor = editor;
         this.targetEl = targetEl;
         this.overlay = overlay;
 
@@ -11,7 +10,10 @@ class FileUpload extends EventEmitter {
         this._onDragenter = this._onDragenter.bind(this);
         this._onDragleave = this._onDragleave.bind(this);
     }
-    start() {
+    onInstall(editor) {
+        this.editor = editor;
+    }
+    onInject() {
         this._bindEvents();
     }
     stop() {

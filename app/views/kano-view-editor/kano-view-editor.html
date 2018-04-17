@@ -4,7 +4,6 @@
 <link rel="import" href="../../scripts/kano/make-apps/actions/app.html">
 
 <link rel="import" href="../../scripts/kano/make-apps/utils.html">
-<link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
 <link rel="import" href="../../scripts/kano/make-apps/sdk.html">
@@ -132,6 +131,19 @@
             const { config } = this.getState();
             this.editor = new Kano.Code.Editor(config);
 
+            this.partsPlugin = new Kano.Code.Parts(Kano.Code.Legacy.PartTypes);
+            this.partsPlugin.setParts(Kano.Code.Legacy.Parts);
+            this.editor.addPlugin(this.partsPlugin);
+
+            this.storagePlugin = new Kano.Code.LocalStoragePlugin(this._getStorageKey.bind(this));
+            this.editor.addPlugin(this.storagePlugin);
+
+            this.blockly = new Kano.Code.Blockly(Kano.Code.BlocklyModules);
+            this.editor.addPlugin(this.blockly);
+
+            this.runner = new Kano.Code.Runner(Kano.Code.AppModules);
+            this.editor.addPlugin(this.runner);
+
             this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);
             this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);
         }
@@ -139,29 +151,36 @@
             super.connectedCallback();
             this.setupListeners();
             this.modal = this.$['share-modal'];
+
+            this.fileUpload = new Kano.Code.FileUpload(this, this.$['file-upload-overlay']);
+            this.fileUpload.on('upload', this._onFileDropped.bind(this));
+            this.editor.addPlugin(this.fileUpload);
+
             const slug = this.context.params.slug;
             let p;
-            let app;
             if (slug) {
                 p = this.loadRemix(slug).then(share => {
-                    app = share;
-                    return this.loadMode(share.mode);
+                    const app = share;
+                    return this.loadMode(share.mode)
+                        .then((mode) => {
+                            this.editor.setMode(mode);
+                            this.setupEditor();
+                            this.editor.load(app);
+                        });
                 });
             } else {
                 const modeId = this._getMode(this.context);
-                p = this.loadMode(modeId);
-                app = JSON.parse(localStorage.getItem(`savedApp-${modeId}`));
+                p = this.loadMode(modeId)
+                    .then((mode) => {
+                        this.editor.setMode(mode);
+                        this.setupEditor();
+                        this.storagePlugin.load();
+                    });
             }
             Promise.all([
                 p,
                 this.loadLanguages(),
-            ])
-            .then((results) => {
-                const mode = results[0];
-                this.editor.setMode(mode);
-                this.setupEditor();
-                this.dispatch({ type: 'LOAD_EDITOR_APP', data: app });
-            });
+            ]);
         }
         disconnectedCallback() {
             super.disconnectedCallback();
@@ -184,6 +203,7 @@
         loadRemix(slug) {
             this.dispatch({ type: 'LOAD_REMIX' });
             this.remixMode = true;
+            this.storagePlugin.disable();
             const { config } = this.getState();
             const sdk = new Kano.MakeApps.SDK(config);
             //loading component for remixing, we need to get data from the slug
@@ -216,20 +236,6 @@
             const { config } = this.getState();
             this.editor.on('share', shareInfo => this.share({ detail: shareInfo }));
             this.editor.on('exit', () => this._exit());
-            this.editor.on('change', () => this.save());
-
-            this.blockly = new Kano.Code.Blockly(this.editor, Kano.Code.BlocklyModules);
-            this.blockly.start();
-
-            this.hardware = new Kano.Code.Hardware(this.editor);
-            this.hardware.start();
-
-            this.runner = new Kano.Code.Runner(this.editor, Kano.Code.AppModules);
-            this.runner.start();
-
-            this.fileUpload = new Kano.Code.FileUpload(this.editor, this, this.$['file-upload-overlay']);
-            this.fileUpload.on('upload', this._onFileDropped.bind(this));
-            this.fileUpload.start();
 
             this.editor.setRunningState(true);
         }
@@ -237,7 +243,6 @@
             if (!this.app) {
                 return;
             }
-            this.editor.setParts(Kano.MakeApps.Parts.list);
             this.editor.load(this.app);
         }
         _pauseApp(modalOpen) {
@@ -265,15 +270,9 @@
             var modeFromQs = Kano.Util.Router.parseQsParam(this.context.querystring, 'mode');
             return modeFromQs ? modeFromQs : 'normal';
         }
-        save() {
-            // Save after 3secs without changes
-            if (!this.remixMode) {
-                this.debounce('save', () => {
-                    const savedApp = this.editor.save();
-                    const { id } = this.editor.getMode();
-                    localStorage.setItem(`savedApp-${id}`, JSON.stringify(savedApp));
-                }, 3000);
-            }
+        _getStorageKey() {
+            const { id } = this.editor.getMode();
+            return `savedApp-${id}`;
         }
         _activateSavePrompt() {
             this.showSavePrompt = true;

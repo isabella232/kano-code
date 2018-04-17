@@ -62,13 +62,12 @@ class AppModules {
     }
 
     generateStandaloneComponent(componentName, parts, background, mode, codes) {
-        const realCode = typeof codes === 'string' ? codes : codes.snapshot.javascript;
         let template = [];
         // TODO: find a better way to avoid having this script tag swallowed by crisper
         const scriptTagName = 'script';
         let tagName;
         let components;
-        const code = this.createAppCode('this.runner', realCode);
+        const code = this.createAppCode('this.runner', codes);
         let component;
         let partsString;
 

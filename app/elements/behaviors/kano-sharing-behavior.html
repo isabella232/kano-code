@@ -244,20 +244,10 @@ var SharingBehavior = {
         Kano.MakeApps.Parts.create({ partType: 'ui', type: 'light-animation' });
         return {
             "parts": [part],
-            "code": {
-                "snapshot": {
-                    "javascript": `global.when('start', function () {\n  devices.get('${part.id}').play();\n});\n`,
-                    "pseudo":`global.when('start', function () {\n  devices.get('${part.id}').play();\n});\n`,
-                    "blocks": `<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" x=\"290\" y=\"120\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"${part.id}#animation_play\" id=\"8?f2Z?XEcG~%9dcJ=~i1\"></block></statement></block></xml>`
-                }
-            },
-            "background": {
-                "name": "My app",
-                "userStyle": {
-                    "background": "#ffffff"
-                }
-            },
-            "mode":"lightboard"
+            "source": `<xml xmlns=\"http://www.w3.org/1999/xhtml\"><block type=\"part_event\" id=\"default_part_event_id\" x=\"290\" y=\"120\"><field name=\"EVENT\">global.start</field><statement name=\"DO\"><block type=\"${part.id}#animation_play\" id=\"8?f2Z?XEcG~%9dcJ=~i1\"></block></statement></block></xml>`,
+            "code": `global.when('start', function () {\n  devices.get('${part.id}').play();\n});\n`,
+            "background": "#ffffff",
+            "mode":"lightboard",
         };
     },
     /**

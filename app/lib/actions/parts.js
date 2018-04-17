@@ -8,7 +8,11 @@ const PartsActions = (store) => {
         switch (action.type) {
         case PARTS_TYPES.UPDATE_PART_LIST: {
             const mode = this.get('state.mode');
-            this.set('state.partsList', action.parts);
+            const partsMap = action.parts.reduce((acc, part) => {
+                acc[part.type] = part;
+                return acc;
+            }, {});
+            this.set('state.partsMap', partsMap);
             if (mode) {
                 const parts = action.parts.filter(part => mode.parts.indexOf(part.type) !== -1);
                 this.set('state.parts', parts);

@@ -1,0 +1,1 @@
+import Plugin from '../editor/plugin.js';

@@ -188,7 +188,7 @@
             blocks: {
                 type: Object,
                 observer: 'blocksChanged',
-                linkState: 'blocks',
+                linkState: 'source',
             },
             mode: {
                 type: Object,
@@ -492,6 +492,29 @@
         },
         getBlocklyWorkspace () {
             return this.$['code-editor'].getWorkspace();
+        },
+        canRemovePart(part) {
+            let xmlString, xml, parser, blocks, block, blockId, pieces;
+            // Get the blockly xml and parse it
+            xmlString = this.$['code-editor'].getBlocks();
+            parser = new DOMParser();
+            xml = parser.parseFromString(xmlString, 'text/xml');
+            // Get all the 'block' elements
+            blocks = xml.getElementsByTagName('block');
+            // Check for every one of them...
+            for (let k = 0, len = blocks.length; k < len; k += 1) {
+                block = blocks[k];
+                blockId = block.getAttribute('type');
+                pieces = blockId.split('#');
+                // ...if the type of the block is the part we're trying to delete
+                if (pieces[0] === part.id) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        getSource() {
+            return this.$['code-editor'].getBlocks();
         }
     });
 </script>

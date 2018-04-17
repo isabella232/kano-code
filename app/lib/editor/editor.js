@@ -2,17 +2,28 @@ import EventEmitter from '../util/event-emitter.js';
 import Config from '../config.js';
 import Store from './store.js';
 import ModeActions from '../actions/mode.js';
-import PartsActions from '../actions/parts.js';
 import EditorActions from '../actions/editor.js';
 import StoreObserver from './store-observer.js';
+import Toolbox from './toolbox.js';
 import { getMessages } from '../i18n/index.js';
+
+const PROXY_EVENTS = [
+    'share',
+    'exit',
+    'change',
+    'reset',
+    'add-part-request',
+    'remove-part-request',
+];
 
 class Editor extends EventEmitter {
     constructor(opts) {
         super();
         this.config = Config.merge(opts);
         this.config.restartCodeHandler = this.restartApp.bind(this);
+        this.elRegistry = new Map();
         this.rootEl = document.createElement('kano-app-editor');
+        this.elRegistry.set('editor', this.rootEl);
         this.rootEl.editor = this;
         this.store = Store.create({
             running: false,
@@ -22,18 +33,51 @@ class Editor extends EventEmitter {
         });
         this.storeObserver = new StoreObserver(this.store, this);
         this.modeActions = ModeActions(this.store);
-        this.partsActions = PartsActions(this.store);
         this.editorActions = EditorActions(this.store);
+
+        this.sourceType = 'blockly';
+        this.toolbox = new Toolbox();
 
         this.rootEl.storeId = this.store.id;
 
-        this.rootEl.addEventListener('share', this.onShare.bind(this));
-        this.rootEl.addEventListener('exit', this.onExit.bind(this));
-        this.rootEl.addEventListener('change', this.onChange.bind(this));
+        this.eventRemovers = PROXY_EVENTS.map(name => Editor.proxyEvent(this.rootEl, this, name));
 
-        // Legacy APIs wrapped here
-        // TODO: Interface these API better with a OO pattern
-        Kano.MakeApps.Parts.init();
+        this.plugins = [];
+    }
+
+    addPlugin(plugin) {
+        this.plugins.push(plugin);
+        plugin.onInstall(this);
+        if (this.injected) {
+            this.runPluginTask('onInject');
+        }
+    }
+
+    runPluginTask(taskName, ...args) {
+        this.plugins.forEach(plugin => plugin[taskName](...args));
+    }
+
+    setupElements() {
+        const workspace = this.rootEl.getWorkspace();
+        const addPartForm = this.rootEl.$['add-parts'];
+        const addPartDialog = this.rootEl.$['parts-modal'];
+        this.elRegistry.set('workspace', workspace);
+        this.elRegistry.set('add-parts-form', addPartForm);
+        this.elRegistry.set('add-parts-dialog', addPartDialog);
+    }
+
+    getElement(id) {
+        return this.elRegistry.get(id);
+    }
+
+    static proxyEvent(el, emitter, name) {
+        const onEvent = (e) => {
+            emitter.emit(name, e.detail);
+        };
+        el.addEventListener(name, onEvent);
+        return () => {
+            el.removeEventListener(name, onEvent);
+        };
     }
 
     inject(element = document.body, before = null) {
@@ -46,21 +90,19 @@ class Editor extends EventEmitter {
         element.appendChild(this.storeObserver.rootEl);
         if (before) {
             element.insertBefore(this.rootEl, before);
-            return;
+        } else {
+            element.appendChild(this.rootEl);
         }
-        element.appendChild(this.rootEl);
+        this.setupElements();
+        this.runPluginTask('onInject');
     }
     static enableLegacyI18nSupport() {
         window.Kano.MakeApps = window.Kano.MakeApps || {};
         window.Kano.MakeApps.Msg = getMessages();
     }
 
-    setParts(parts) {
-        this.partsActions.updatePartsList(parts);
-        this.trigger('parts-changed');
-    }
-
     setMode(modeDefinition) {
+        this.runPluginTask('onModeSet', modeDefinition);
         this.modeActions.updateMode(modeDefinition);
     }
 
@@ -73,18 +115,14 @@ class Editor extends EventEmitter {
         const { mode } = this.store.getState();
         this.load({
             parts: [],
-            code: {
-                snapshot: {
-                    blocks: mode.defaultBlocks,
-                },
-            },
+            source: mode.defaultSource,
         });
     }
 
     load(app) {
-        Kano.MakeApps.Parts.clear();
-        this.rootEl.load(app, Kano.MakeApps.Parts.list);
-        this.editorActions.loadBlocks(app.code.snapshot.blocks);
+        this.runPluginTask('onAppLoad', app);
+        this.editorActions.loadSource(app.source);
+        this.emit('loaded');
     }
 
     restartApp() {
@@ -92,20 +130,12 @@ class Editor extends EventEmitter {
         this.editorActions.setRunningState(true);
     }
 
-    onShare(e) {
-        this.emit('share', e.detail);
-    }
-
-    onExit() {
-        this.emit('exit');
-    }
-
-    onChange(e) {
-        this.emit('change', e.detail);
-    }
-
     save() {
-        return this.rootEl.save();
+        let app = this.rootEl.save();
+        this.plugins.forEach((plugin) => {
+            app = plugin.onSave(app);
+        });
+        return app;
     }
 
     share() {
@@ -129,6 +159,11 @@ class Editor extends EventEmitter {
     getRunningState() {
         const { running } = this.store.getState();
         return running;
+    }
+
+    getViewport() {
+        const ws = this.getWorkspace();
+        return ws.getViewport();
     }
 
     getWorkspace() {

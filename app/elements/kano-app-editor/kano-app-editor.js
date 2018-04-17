@@ -17,7 +17,7 @@ Polymer({
         },
         parts: {
             type: Array,
-            linkState: 'parts',
+            linkState: 'partsMap',
         },
         addedParts: {
             type: Array,
@@ -60,10 +60,6 @@ Polymer({
             type: Object,
             linkState: 'mode',
         },
-        partsMenuOpen: {
-            type: Boolean,
-            value: false,
-        },
         unsavedChanges: {
             type: Boolean,
             value: false,
@@ -77,15 +73,12 @@ Polymer({
         'updateColors(addedParts.splices)',
         'updateColors(defaultCategories.*)',
         '_codeChanged(code)',
-        '_partsChanged(parts.slices)',
         '_onPartsSet(parts)',
     ],
     listeners: {
         'mode-ready': '_onModeReady',
-        'add-part': '_addPart',
         'remove-part': '_removePartReceived',
         'save-button-clicked': 'share',
-        'open-parts-modal': '_openPartsModal',
         'edit-background': '_openBackgroundDialog',
         'iron-resize': '_refitPartModal',
         'feature-not-available-offline': '_openOfflineDialog',
@@ -131,32 +124,16 @@ Polymer({
             this.toggleClass('open', false, this.$['code-overlay']);
         }
     },
-    _openPartsModal() {
-        this.$['parts-modal'].open();
-        this.partsMenuOpen = true;
-        this.async(() => {
-            this.notifyChange('open-parts');
-        }, 500);
-    },
-    _closePartsModal() {
-        this.$['parts-modal'].close();
-    },
-    _partsModalClosed() {
-        this.$['add-parts'].reset();
-        this.partsMenuOpen = false;
-        this.notifyChange('close-parts');
-    },
-    _addParts(e) {
-        this._closePartsModal();
-        Object.keys(e.detail).forEach((type) => {
-            for (let i = 0; i < e.detail[type]; i += 1) {
-                this._addPart({ detail: type });
-            }
-        });
-    },
-    _partsChanged() {
-        this.fire('parts-changed', this.parts);
-    },
+    // _openPartsModal() {
+    //     TODO: Notify somehow
+    //     this.async(() => {
+    //         this.notifyChange('open-parts');
+    //     }, 500);
+    // },
+    // _partsModalClosed() {
+    //     TODO: Notify somehow
+    //     this.notifyChange('close-parts');
+    // },
     _newPartRequest(e) {
         if (!e.detail || !e.detail.data || !e.detail.data.product) {
             return;
@@ -185,42 +162,10 @@ Polymer({
         }
     },
     _addPart(e) {
-        const viewport = this.$.workspace.getViewport();
-        const viewportRect = viewport.getBoundingClientRect();
-        let model;
-        for (let i = 0; i < Kano.MakeApps.Parts.list.length; i += 1) {
-            model = Kano.MakeApps.Parts.list[i];
-            if (model.type === e.detail) {
-                break;
-            }
-        }
-        model.position = this._getNewPartPosition(viewportRect, this.addedParts.length);
-        const part = Kano.MakeApps.Parts.create(model, this.mode.workspace.viewport);
-        this.dispatch({ type: 'ADD_PART', part });
-        this.notifyChange('add-part', { part });
-    },
-    _getNewPartPosition(viewportRect, count) {
-        const layoutIndex = count % 9;
-        const layoutIterationIndex = Math.floor(count / 9);
-        let x;
-        let y;
-
-        // Position the part on a 3x3 grid in the workspace
-        x = (((layoutIndex % 3) * viewportRect.width / 3) + viewportRect.width / 6);
-        y = ((Math.floor(layoutIndex / 3) * viewportRect.height / 3)  + viewportRect.height / 6);
-
-        // Make sure the 10th part and so on have an offset
-        x += layoutIterationIndex * 20;
-        y += layoutIterationIndex * 20;
-
-        // Finally, restrict the position of the part to the workspace
-        x = Math.min(x, viewportRect.width - 20);
-        y = Math.min(y, viewportRect.height - 20);
-
-        return { x, y };
-    },
-    _onModeReady() {
-        Kano.MakeApps.Utils.triggerResize();
+        const type = e.detail;
+        this.dispatchEvent(new CustomEvent('add-part-request', { detail: type }));
+        // TODO: Notify the change in the plugin
+        // this.notifyChange('add-part', { part });
     },
     _partEditorDialogClosed(e) {
         let target = e.path ? e.path[0] : e.target;
@@ -290,13 +235,13 @@ Polymer({
             switch (Polymer.dom(e).rootTarget.id) {
             case 'dialog-confirm-delete': {
                 this.fire('tracking-event', {
-                    name: 'part_remove_dialog_closed'
+                    name: 'part_remove_dialog_closed',
                 });
                 break;
             }
             case 'dialog-reset-warning': {
                 this.fire('tracking-event', {
-                    name: 'workspace_reset_dialog_closed'
+                    name: 'workspace_reset_dialog_closed',
                 });
                 break;
             }
@@ -318,33 +263,13 @@ Polymer({
         this.fire('tracking-event', {
             name: 'workspace_reset_dialog_confirmed',
         });
-        this.save();
-        Kano.MakeApps.Parts.Part.clear();
         this.$.workspace.reset();
-        if (!this.remixMode) {
-            localStorage.removeItem(`savedApp-${this.mode.id}`);
-        }
+        this.dispatchEvent(new CustomEvent('reset'));
         this.unsavedChanges = false;
     },
     checkBlockDependency(part) {
-        let xmlString, xml, parser, blocks, block, blockId, pieces;
-        // Get the blockly xml and parse it
-        xmlString = this.$['root-view'].$['code-editor'].getBlocks();
-        parser = new DOMParser();
-        xml = parser.parseFromString(xmlString, 'text/xml');
-        // Get all the 'block' elements
-        blocks = xml.getElementsByTagName('block');
-        // Check for every one of them...
-        for (let k = 0, len = blocks.length; k < len; k += 1) {
-            block = blocks[k];
-            blockId = block.getAttribute('type');
-            pieces = blockId.split('#');
-            // ...if the type of the block is the part we're trying to delete
-            if (pieces[0] === part.id) {
-                return true;
-            }
-        }
-        return false;
+        const sourceEditor = this.$['root-view'];
+        return sourceEditor.canRemovePart(part);
     },
     updateColors() {
         if (!this.defaultCategories) {
@@ -385,15 +310,11 @@ Polymer({
     /**
      * Save the current work in the local storage
      */
-    save(snapshot = false, toJson = true) {
+    save(snapshot = false) {
         const state = this.getState();
-        const savedParts = state.addedParts.reduce((acc, part) => {
-            acc.push((toJson) ? part.toJSON() : part);
-            return acc;
-        }, []);
         const savedApp = {};
-        savedApp.parts = savedParts;
-        savedApp.code = { snapshot: { javascript: state.code, blocks: this.$['root-view'].$['code-editor'].getBlocks() } };
+        savedApp.code = state.code;
+        savedApp.source = this.$['root-view'].getSource();
         savedApp.background = this.background;
         savedApp.mode = state.mode.id;
         if (snapshot) {
@@ -433,41 +354,19 @@ Polymer({
     /**
      * Load the saved work from the local storage
      */
-    load(savedApp, parts) {
+    load(savedApp) {
         if (!savedApp) {
             return;
         }
-        let part;
-        const addedParts = savedApp.parts.map((savedPart) => {
-            for (let i = 0, len = parts.length; i < len; i += 1) {
-                if (parts[i].type === savedPart.type) {
-                    savedPart = Object.assign({}, parts[i], savedPart);
-                    break;
-                }
-            }
-            part = Kano.MakeApps.Parts.create(savedPart, this.mode.workspace.viewport);
-            return part;
-        });
-        savedApp.code = this._formatSnapshot(savedApp.code);
-        this.dispatch({ type: 'LOAD_ADDED_PARTS', parts: addedParts });
-
-        // Update AppModules
-        const partsDict = this.$.workspace.getPartsDict();
-        Kano.AppModules.loadParts(partsDict);
-
         // Force a color update and a register block to make sure the loaded code will be
         // rendered with the right colors
+        // TODO: Move to blockly plugin
         Kano.MakeApps.Utils.updatePartsColors(this.addedParts);
         this.$['root-view'].computeBlocks();
 
         // If there is no background, fall back to the default value
         this.dispatch({ type: 'UPDATE_BACKGROUND', value: savedApp.background });
         this.unsavedChanges = false;
-    },
-    _formatSnapshot(code) {
-        code = code || {};
-        code.snapshot = code.snapshot || {};
-        return code;
     },
     reset() {
         this.$['dialog-reset-warning'].open();
@@ -488,7 +387,7 @@ Polymer({
         this.$['edit-part-dialog'].close();
     },
     _toggleFullscreenModal(isFullScreen) {
-        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['blocks-panel'];
+        this.$['edit-part-dialog'].fitInto = isFullScreen ? window : this.$['source-panel'];
         this.$['edit-part-dialog'].withBackdrop = isFullScreen;
         this.toggleClass('large-modal', isFullScreen, this.$['edit-part-dialog-content']);
         // If modal is not fullscreen, use a custom overlay
@@ -499,12 +398,8 @@ Polymer({
         this.async(() => target.parentElement.refit(), 10);
     },
     _deletePart(part) {
-        this.dispatch({ type: 'REMOVE_PART', part });
-        Kano.MakeApps.Parts.freeId(part);
+        this.dispatchEvent(new CustomEvent('remove-part-request', { detail: part }));
         this.$.workspace.clearSelection();
-
-        // Save the app to localStorage after part is removed
-        localStorage.setItem(`savedApp-${this.mode.id}`, JSON.stringify(this.save()));
     },
     _onPartsSet(parts) {
         if (!this.queuedHardware) {
@@ -612,11 +507,12 @@ Polymer({
 
         this.bindEvents();
         this._registerElement('workspace-panel', this.$['workspace-panel']);
-        this._registerElement('blocks-panel', this.$['blocks-panel']);
+        this._registerElement('source-panel', this.$['source-panel']);
         this._registerElement('parts-panel', this.$['parts-modal']);
+        // Legacy
+        this._registerElement('blocks-panel', this.$['source-panel']);
     },
     detached() {
-        Kano.MakeApps.Parts.clear();
         this.detachEvents();
     },
     onIronSignal(e) {
@@ -667,8 +563,7 @@ Polymer({
                     // Read the mode
                     let app = JSON.parse(e.target.result);
                     this.set('mode', Kano.MakeApps.Mode.modes[app.mode]);
-                    Kano.MakeApps.Parts.clear();
-                    this.load(app, Kano.MakeApps.Parts.list);
+                    this.load(app);
                 };
                 r.readAsText(f);
                 document.body.removeChild(this.fileInput);

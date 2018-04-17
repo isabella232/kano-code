@@ -43,7 +43,7 @@
                 @apply --layout-horizontal-reverse;
                 @apply --layout-flex;
             }
-            :host section #blocks-panel {
+            :host section #source-panel {
                 @apply --layout-flex-auto;
                 @apply --layout-vertical;
                 @apply --kano-inset-box-shadow;
@@ -205,7 +205,7 @@
                     <kano-code-display id="code-display" code="[[_setCodeDisplay(code, workspaceTab)]]" lang="javascript"></kano-code-display>
                 </iron-pages>
             </div>
-            <div name="code" class="editor" id="blocks-panel">
+            <div name="code" class="editor" id="source-panel">
                 <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
                 <div main class="main">
                     <slot name="above-code"></slot>
@@ -214,9 +214,8 @@
                         id="root-view"
                         on-change="_proxyChange"
                         on-exit-tapped="_exitTapped"
-                        default-categories="{{defaultCategories}}"
-                        loading$="[[!mode]]"
-                        simple="[[isModeSimple(mode)]]"></kc-blockly-editor>
+                        default-categories="[[defaultCategories]]"
+                        loading$="[[!mode]]"></kc-blockly-editor>
                     <slot name="under-code"></slot>
                     <div id="code-overlay" class="code-overlay"></div>
                 </div>
@@ -271,8 +270,8 @@
                 on-value-changed="_backgroundChanged"
                 name="background"></kano-background-editor>
         </paper-dialog>
-        <paper-dialog id="parts-modal" entry-animation="from-big-animation" on-iron-overlay-closed="_partsModalClosed" with-backdrop>
-            <kano-add-parts id="add-parts" class="no-padding" available-parts="[[parts]]" used-parts="[[addedParts]]" on-cancel="_closePartsModal" on-confirm="_addParts"></kano-add-parts>
+        <paper-dialog id="parts-modal" entry-animation="from-big-animation" with-backdrop>
+            <kano-add-parts id="add-parts" class="no-padding" used-parts="[[addedParts]]" on-cancel="_closePartsModal"></kano-add-parts>
         </paper-dialog>
         <iron-a11y-keys target="[[target]]" keys="alt+p" on-keys-pressed="toggleParts"></iron-a11y-keys>
         <iron-a11y-keys target="[[target]]" keys="alt+s" on-keys-pressed="share"></iron-a11y-keys>

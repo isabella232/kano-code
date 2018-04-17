@@ -1,13 +1,17 @@
 import Registry from './registry.js';
 import { addMessage } from '../i18n/index.js';
+import Plugin from '../editor/plugin.js';
 
-class Blockly {
-    constructor(editor, modules) {
-        this.editor = editor;
+class Blockly extends Plugin {
+    constructor(modules) {
+        super();
         this.registry = new Registry();
         this.registry.defineAll(modules);
     }
-    start() {
+    onInstall(editor) {
+        this.editor = editor;
+    }
+    onInject() {
         Blockly.updateI18n();
         this.registry.register(window.Blockly);
         this.editor.setToolbox(this.registry.getToolbox());

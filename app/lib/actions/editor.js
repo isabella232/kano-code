@@ -3,7 +3,7 @@ import Store from '../store.js';
 const CONSTANTS = [
     'SET_RUNNING_STATE',
     'UPDATE_CODE',
-    'LOAD_BLOCKS',
+    'LOAD_Source',
     'RESET_EDITOR',
     'SELECT_PART',
     'UPDATE_PART',
@@ -22,16 +22,16 @@ const EditorActions = (store) => {
             this.set('state.code', action.code);
             break;
         }
-        case EDITOR_TYPES.LOAD_BLOCKS: {
-            // For performance reasons, we don't update the stringified blocks
-            // Force set value when loading blocks
-            this.set('state.blocks', null);
-            this.set('state.blocks', action.blocks);
+        case EDITOR_TYPES.LOAD_Source: {
+            // For performance reasons, we don't update the stringified source
+            // Force set value when loading source
+            this.set('state.source', null);
+            this.set('state.source', action.source);
             break;
         }
         case EDITOR_TYPES.RESET_EDITOR: {
             const { mode } = this.get('state');
-            this.set('state.blocks', mode.defaultBlocks);
+            this.set('state.source', mode.defaultCode);
             this.set('state.code', '');
             this.set('state.addedParts', []);
             this.set('state.background', '');
@@ -69,8 +69,8 @@ const EditorActions = (store) => {
         updateCode(code) {
             store.dispatch({ type: EDITOR_TYPES.UPDATE_CODE, code });
         },
-        loadBlocks(blocks) {
-            store.dispatch({ type: EDITOR_TYPES.LOAD_BLOCKS, blocks });
+        loadSource(source) {
+            store.dispatch({ type: EDITOR_TYPES.LOAD_Source, source });
         },
         reset() {
             store.dispatch({ type: EDITOR_TYPES.RESET_EDITOR });
