@@ -1,9 +1,18 @@
 const COLOR = '#ffc100';
 
 class BlocklyVariables {
+    static get type() { return 'blockly'; }
     static get id() { return 'variables'; }
-    static register(Blockly, registry) {
-        registry.upgradeCategoryColours(BlocklyVariables.id, COLOR);
+    static register(Blockly) {
+        [
+            'math_number',
+            'text',
+            'text_join',
+            'variables_set',
+            'variables_get',
+        ].forEach((blockId) => {
+            Blockly.Blocks[blockId].customColor = COLOR;
+        });
     }
     static get category() {
         return {

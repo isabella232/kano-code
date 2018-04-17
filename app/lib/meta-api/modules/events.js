@@ -1,8 +1,9 @@
 const COLOR = '#5fc9f3';
 
 class BlocklyEvents {
+    static get type() { return 'blockly'; }
     static get id() { return 'events'; }
-    static register(Blockly, registry) {
+    static register(Blockly) {
         // Create a block shell of the part_event if not there yet
         if (!Blockly.Blocks.part_event) {
             Blockly.Blocks.part_event = {
@@ -107,8 +108,6 @@ class BlocklyEvents {
             const statement = Blockly.JavaScript.statementToCode(block, 'DO');
             return `parts.whenCollisionBetween(${part1Id || null}, ${part2Id}, function () {\n${statement}});\n`;
         };
-
-        registry.upgradeCategoryColours(BlocklyEvents.id, COLOR);
     }
     static get category() {
         return {

@@ -3,8 +3,9 @@ import { localize } from '../../i18n/index.js';
 const COLOR = '#88c440';
 
 class BlocklyColor {
+    static get type() { return 'blockly'; }
     static get id() { return 'color'; }
-    static register(Blockly, registry) {
+    static register(Blockly) {
         Blockly.Blocks.random_colour = {
             init() {
                 const json = {
@@ -128,7 +129,7 @@ class BlocklyColor {
             return [code];
         };
 
-        registry.upgradeCategoryColours(BlocklyColor.id, COLOR);
+        Blockly.Blocks.colour_picker.customColor = COLOR;
     }
     static get category() {
         return {

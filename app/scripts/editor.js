@@ -3,14 +3,14 @@ import '../lib/legacy.js';
 import LocalStoragePlugin from '../lib/storage/local-storage.js';
 
 import Blockly from '../lib/blockly/index.js';
-import BlocklyAssets from '../lib/blockly/modules/assets.js';
-import BlocklyColor from '../lib/blockly/modules/color.js';
-import BlocklyControl from '../lib/blockly/modules/control.js';
-import BlocklyEvents from '../lib/blockly/modules/events.js';
-import BlocklyLists from '../lib/blockly/modules/lists.js';
-import BlocklyLogic from '../lib/blockly/modules/logic.js';
-import BlocklyMath from '../lib/blockly/modules/math.js';
-import BlocklyVariables from '../lib/blockly/modules/variables.js';
+import BlocklyAssets from '../lib/meta-api/modules/assets.js';
+import BlocklyColor from '../lib/meta-api/modules/color.js';
+import BlocklyControl from '../lib/meta-api/modules/control.js';
+import BlocklyEvents from '../lib/meta-api/modules/events.js';
+import BlocklyLists from '../lib/meta-api/modules/lists.js';
+import BlocklyLogic from '../lib/meta-api/modules/logic.js';
+import BlocklyMath from '../lib/meta-api/modules/math.js';
+import BlocklyVariables from '../lib/meta-api/modules/variables.js';
 
 import AppModules from '../lib/app-modules/app-modules.js';
 import AppModule from '../lib/app-modules/app-module.js';

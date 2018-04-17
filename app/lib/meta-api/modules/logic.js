@@ -4,8 +4,9 @@
 const COLOR = '#f75846';
 
 class BlocklyLogic {
+    static get type() { return 'blockly'; }
     static get id() { return 'logic'; }
-    static register(Blockly, registry) {
+    static register(Blockly) {
         Blockly.Blocks.logic_compare = {
             init() {
                 const options = [
@@ -79,8 +80,16 @@ class BlocklyLogic {
             const code = `parts.collisionBetween(${part1Id || null}, ${part2Id})`;
             return [code];
         };
-
-        registry.upgradeCategoryColours(BlocklyLogic.id, COLOR);
+        // Assign custom color to blockly core blocks
+        [
+            'controls_if',
+            'logic_compare',
+            'logic_operation',
+            'logic_negate',
+            'logic_boolean',
+        ].forEach((blockId) => {
+            Blockly.Blocks[blockId].customColor = COLOR;
+        });
     }
     static get category() {
         return {

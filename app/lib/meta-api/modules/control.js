@@ -1,8 +1,9 @@
 const COLOR = '#1198ff';
 
 class BlocklyControl {
+    static get type() { return 'blockly'; }
     static get id() { return 'control'; }
-    static register(Blockly, registry) {
+    static register(Blockly) {
         Blockly.Blocks.loop_forever = {
             init() {
                 const json = {
@@ -163,8 +164,6 @@ class BlocklyControl {
         };
 
         Blockly.JavaScript.restart_code = () => 'global.restartCode();';
-
-        registry.upgradeCategoryColours(BlocklyControl.id, COLOR);
     }
     static get category() {
         return {

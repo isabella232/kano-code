@@ -1,21 +1,6 @@
-import Registry from './registry.js';
 import { addMessage } from '../i18n/index.js';
-import Plugin from '../editor/plugin.js';
 
-class Blockly extends Plugin {
-    constructor(modules) {
-        super();
-        this.registry = new Registry();
-        this.registry.defineAll(modules);
-    }
-    onInstall(editor) {
-        this.editor = editor;
-    }
-    onInject() {
-        Blockly.updateI18n();
-        this.registry.register(window.Blockly);
-        this.editor.setToolbox(this.registry.getToolbox());
-    }
+class Blockly {
     static loadLang(url) {
         return fetch(url)
             .then(r => r.json())
@@ -26,9 +11,6 @@ class Blockly extends Plugin {
                 Object.assign(window.CustomBlocklyMsg, messages);
                 Object.assign(window.Blockly.Msg, messages);
             });
-    }
-    getToolbox() {
-        return this.registry.getToolbox();
     }
     static updateI18n() {
         // Adapt blockly messages to internal i18n engine

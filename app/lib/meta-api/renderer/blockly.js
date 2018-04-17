@@ -1,4 +1,52 @@
+import Defaults from '../../blockly/defaults.js';
+
 class BlocklyMetaRenderer {
+    constructor() {
+        this.defaults = new Defaults();
+    }
+    renderLegacyToolboxEntry(mod) {
+        mod.def.register(window.Blockly);
+        if (mod.def.defaults) {
+            Object.keys(mod.def.defaults).forEach((blockId) => {
+                this.defaults.define(blockId, mod.def.defaults[blockId]);
+            });
+        }
+        if (!mod.def.category) {
+            return null;
+        }
+        return this.defaults.createCategory(mod.def.category);
+    }
+    renderToolboxEntry(mod) {
+        // Legacy module signature
+        if (mod.def.type && mod.def.type === 'blockly') {
+            return this.renderLegacyToolboxEntry(mod);
+        }
+        const blocks = BlocklyMetaRenderer.render(mod);
+
+        const register = (Blockly) => {
+            blocks.forEach(block => block.register(Blockly));
+        };
+
+        const category = {
+            name: mod.getVerboseDisplay(),
+            id: mod.def.name,
+            colour: mod.getColor(),
+            blocks: blocks.map((block) => {
+                return {
+                    id: block.id,
+                    defaults: block.defaults ? Object.keys(block.defaults) : [],
+                };
+            }),
+        };
+
+        blocks.forEach((block) => {
+            this.defaults.define(block.id, block.defaults);
+        }, {});
+
+        register(window.Blockly);
+
+        return this.defaults.createCategory(category);
+    }
     static render(m) {
         switch (m.def.type) {
         case 'module': {
@@ -77,7 +125,7 @@ class BlocklyMetaRenderer {
         if (m.def.blockly && typeof m.def.blockly.postProcess === 'function') {
             json = m.def.blockly.postProcess(json);
         }
-        const defaults = params.filter(p => p.def.default).reduce((acc, p) => {
+        const defaults = params.filter(p => typeof p.def.default !== 'undefined').reduce((acc, p) => {
             acc[p.def.name.toUpperCase()] = p.def.default;
             return acc;
         }, {});
@@ -96,18 +144,27 @@ class BlocklyMetaRenderer {
                         const field = block.getField(argName);
                         let value;
                         if (field && !input) {
-                            value = block.getFieldValue(argName) || params[index].def.default || '';
+                            value = block.getFieldValue(argName);
+                            if (!value) {
+                                value = typeof params[index].def.default === 'undefined' ? '' : params[index].def.default;
+                            }
                             if (typeof value === 'string') {
                                 value = `'${value}'`;
                             }
                         } else {
                             switch (input.type) {
                             case Blockly.INPUT_VALUE: {
-                                value = Blockly.JavaScript.valueToCode(block, argName) || params[index].def.default || 'null';
+                                value = Blockly.JavaScript.valueToCode(block, argName);
+                                if (!value) {
+                                    value = typeof params[index].def.default === 'undefined' ? 'null' : params[index].def.default;
+                                }
                                 break;
                             }
                             case Blockly.NEXT_STATEMENT: {
-                                const statement = Blockly.JavaScript.statementToCode(block, argName) || params[index].def.default || '';
+                                let statement = Blockly.JavaScript.statementToCode(block, argName);
+                                if (!statement) {
+                                    statement = typeof params[index].def.default === 'undefined' ? '' : params[index].def.default;
+                                }
                                 value = `function() {\n${statement}\n}`;
                                 break;
                             }

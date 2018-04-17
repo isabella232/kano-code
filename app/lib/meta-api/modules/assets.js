@@ -1,6 +1,7 @@
 const COLOR = '#1198ff';
 
 class BlocklyAssets {
+    static get type() { return 'blockly'; }
     static get id() { return 'assets'; }
     static register(Blockly) {
         const stickerSet = Object.keys(Kano.MakeApps.Files.stickers);

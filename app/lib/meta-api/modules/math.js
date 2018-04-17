@@ -1,8 +1,9 @@
 const COLOR = '#ff9800';
 
 class BlocklyMath {
+    static get type() { return 'blockly'; }
     static get id() { return 'math'; }
-    static register(Blockly, registry) {
+    static register(Blockly) {
         Blockly.Blocks.math_arithmetic = {
             init() {
                 const options = [
@@ -274,6 +275,7 @@ class BlocklyMath {
                         name: 'RIGHT_HAND',
                         check: 'Number',
                     }],
+                    colour: COLOR,
                     inputsInline: true,
                     previousStatement: null,
                     nextStatement: null,
@@ -297,8 +299,22 @@ class BlocklyMath {
             code = `${leftHand} ${op} ${rightHand};\n`;
             return code;
         };
-
-        registry.upgradeCategoryColours(BlocklyMath.id, COLOR);
+        // Assign custom color to blockly core blocks
+        [
+            'math_number',
+            'math_arithmetic',
+            'math_single',
+            'math_trig',
+            'math_constant',
+            'math_number_property',
+            'math_round',
+            'math_modulo',
+            'math_constrain',
+            'math_min_max',
+            'math_sign',
+        ].forEach((blockId) => {
+            Blockly.Blocks[blockId].customColor = COLOR;
+        });
     }
     static get category() {
         return {

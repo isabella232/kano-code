@@ -36,13 +36,19 @@ class Editor extends EventEmitter {
         this.editorActions = EditorActions(this.store);
 
         this.sourceType = 'blockly';
-        this.toolbox = new Toolbox();
 
         this.rootEl.storeId = this.store.id;
+
+        this.rootEl.addEventListener('reset', () => {
+            this.reset();
+        });
 
         this.eventRemovers = PROXY_EVENTS.map(name => Editor.proxyEvent(this.rootEl, this, name));
 
         this.plugins = [];
+
+        this.toolbox = new Toolbox();
+        this.addPlugin(this.toolbox);
     }
 
     addPlugin(plugin) {
@@ -123,6 +129,10 @@ class Editor extends EventEmitter {
         this.runPluginTask('onAppLoad', app);
         this.editorActions.loadSource(app.source);
         this.emit('loaded');
+    }
+
+    reset() {
+        this.loadDefault();
     }
 
     restartApp() {

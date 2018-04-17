@@ -60,7 +60,7 @@ class MetaVariable extends Meta {
 }
 
 class MetaModule extends Meta {
-    
+
 }
 
 class MetaFunction extends Meta {

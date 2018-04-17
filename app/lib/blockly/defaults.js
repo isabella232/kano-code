@@ -116,22 +116,22 @@ class Defaults {
         };
         this.values = Object.assign({}, values);
     }
-    getShadowForBlock(type, inputs, colour) {
+    getShadowForBlock(type, inputs) {
         const blockValues = this.values[type];
         const shadow = {};
-        if (!blockValues) {
+        if (typeof blockValues === 'undefined') {
             return null;
         }
         inputs.forEach((input) => {
             switch (typeof blockValues[input]) {
             case 'number': {
-                shadow[input] = `<shadow type="math_number" colour="${colour}"><field name="NUM">${blockValues[input]}</field></shadow>`;
+                shadow[input] = `<shadow type="math_number"><field name="NUM">${blockValues[input]}</field></shadow>`;
                 break;
             }
             case 'string': {
                 // Check if it is a color
                 if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(blockValues[input])) {
-                    shadow[input] = `<shadow type="colour_picker" colour="${colour}"><field name="COLOUR">${blockValues[input]}</field></shadow>`;
+                    shadow[input] = `<shadow type="colour_picker"><field name="COLOUR">${blockValues[input]}</field></shadow>`;
                 }
                 break;
             }
@@ -158,7 +158,7 @@ class Defaults {
             }
             // Map the block id to its category
             this.categoryMap.set(block.id, opts.id);
-            shadow = this.getShadowForBlock(block.id, block.defaults, opts.colour);
+            shadow = this.getShadowForBlock(block.id, block.defaults);
             this.shadowMap.set(block.id, shadow);
             return { id: block.id, shadow };
         });
