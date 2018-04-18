@@ -131,6 +131,9 @@
             const { config } = this.getState();
             this.editor = new Kano.Code.Editor(config);
 
+            const userPlugin = new Kano.Code.UserPlugin();
+            this.editor.addPlugin(userPlugin);
+
             this.partsPlugin = new Kano.Code.Parts(Kano.Code.Legacy.PartTypes);
             this.partsPlugin.setParts(Kano.Code.Legacy.Parts);
             this.editor.addPlugin(this.partsPlugin);

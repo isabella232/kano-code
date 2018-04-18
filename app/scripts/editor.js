@@ -1,6 +1,7 @@
 import '../lib/legacy.js';
 
 import LocalStoragePlugin from '../lib/storage/local-storage.js';
+import UserPlugin from '../lib/user.js';
 
 import Blockly from '../lib/blockly/index.js';
 import BlocklyAssets from '../lib/meta-api/modules/assets.js';
@@ -136,6 +137,7 @@ window.Kano.Code.AppModules = [
 
 window.Kano.Code = window.Kano.Code || {};
 window.Kano.Code.Blockly = Blockly;
+window.Kano.Code.UserPlugin = UserPlugin;
 window.Kano.Code.BlocklyModules = [
     BlocklyEvents,
     BlocklyControl,

@@ -16,8 +16,8 @@ function checkAncestor(block, type) {
 
 class Data extends Part {
     static get id() { return 'data'; }
-    constructor(opts) {
-        super(opts);
+    constructor(opts, ...args) {
+        super(opts, ...args);
         let setConfigOptions;
         let getValueOptions;
         this.partType = Data.id;

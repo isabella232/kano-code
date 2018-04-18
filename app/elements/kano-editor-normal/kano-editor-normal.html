@@ -1,5 +1,6 @@
 <link rel="import" href="../../../../polymer/polymer.html">
-<link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
+<link rel="import" href="../kc-workspace-frame/kc-workspace-frame.html">
+<link rel="import" href="../kc-workspace-frame/kc-parts-controls.html">
 <link rel="import" href="../kano-workspace-normal/kano-workspace-normal.html">
 <dom-module id="kano-editor-normal">
     <template>
@@ -10,10 +11,13 @@
                 height: 100%;
                 padding-top: 12px;
             }
-            kano-default-workspace {
+            kc-workspace-frame {
                 @apply --layout-vertical;
                 @apply --layout-flex;
                 margin: 0 40px;
+            }
+            kc-parts-controls {
+                flex: 1;
             }
             kano-workspace-normal {
                 @apply --layout-flex;
@@ -46,25 +50,26 @@
                 color: #3A4248;
             }
         </style>
-        <kano-default-workspace id="wrapper"
+        <kc-workspace-frame id="wrapper"
                                 width="[[width]]"
                                 height="[[height]]"
                                 running="[[running]]"
                                 mouse-x="[[mousePositionX]]"
                                 mouse-y="[[mousePositionY]]"
-                                running="{{running}}"
-                                editable-layout="[[editableLayout]]"
-                                parts-menu-open="[[partsMenuOpen]]"
-                                parts="{{parts}}"
+                                running="{{running}}"                                
                                 show-mouse-position>
             <kano-workspace-normal id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot name="part" slot="part"></slot>
             </kano-workspace-normal>
-            <div class="part" id$="background" slot="extra-parts" on-tap="_editBackground">
-                <iron-icon class="background-icon" icon="aspect-ratio"></iron-icon>
-                <div>Background</div>
-            </div>
-        </kano-default-workspace>
+            <kc-parts-controls slot="controls"
+                                parts-menu-open="[[partsMenuOpen]]"
+                                parts="{{parts}}">
+                <div class="part" id$="background" slot="extra-parts" on-tap="_editBackground">
+                    <iron-icon class="background-icon" icon="aspect-ratio"></iron-icon>
+                    <div>Background</div>
+                </div>
+            </kc-parts-controls>
+        </kc-workspace-frame>
     </template>
     <script>
         /* globals Polymer, Kano */

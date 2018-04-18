@@ -76,7 +76,6 @@ Polymer({
         '_onPartsSet(parts)',
     ],
     listeners: {
-        'mode-ready': '_onModeReady',
         'remove-part': '_removePartReceived',
         'save-button-clicked': 'share',
         'edit-background': '_openBackgroundDialog',

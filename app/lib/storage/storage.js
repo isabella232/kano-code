@@ -10,7 +10,7 @@ class StoragePlugin extends Plugin {
         this.key = key;
         this._debouncedSave = debounce(() => {
             this.save();
-        }, 3000);
+        }, debounceDelay);
     }
     disable() {
         this.enabled = false;

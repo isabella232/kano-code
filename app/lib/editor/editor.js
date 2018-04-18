@@ -66,10 +66,13 @@ class Editor extends EventEmitter {
     setupElements() {
         const workspace = this.rootEl.getWorkspace();
         const addPartForm = this.rootEl.$['add-parts'];
+        const sourceView = this.rootEl.$['root-view'];
         const addPartDialog = this.rootEl.$['parts-modal'];
         this.elRegistry.set('workspace', workspace);
         this.elRegistry.set('add-parts-form', addPartForm);
         this.elRegistry.set('add-parts-dialog', addPartDialog);
+        this.elRegistry.set('source-view', sourceView);
+        this.elRegistry.set('toolbox-enhancer-above', sourceView.$['toolbox-enhancer-above']);
     }
 
     getElement(id) {

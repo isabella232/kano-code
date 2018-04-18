@@ -1,6 +1,7 @@
 <link rel="import" href="../../../../polymer/polymer.html">
 <link rel="import" href="../../../../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../kano-default-workspace/kano-default-workspace.html">
+<link rel="import" href="../kc-workspace-frame/kc-workspace-frame.html">
+<link rel="import" href="../kc-workspace-frame/kc-parts-controls.html">
 <link rel="import" href="../kano-workspace-lightboard/kano-workspace-lightboard.html">
 <dom-module id="kano-editor-lightboard">
     <template>
@@ -11,10 +12,13 @@
                 height: 100%;
                 padding-top: 12px;
             }
-            kano-default-workspace {
+            kc-workspace-frame {
                 @apply --layout-vertical;
                 @apply --layout-flex;
                 margin: 0 40px;
+            }
+            kc-parts-controls {
+                flex: 1;
             }
             kano-workspace-lightboard {
                 @apply --layout-flex;
@@ -25,18 +29,17 @@
                 display: none;
             }
         </style>
-        <kano-default-workspace id="wrapper"
+        <kc-workspace-frame id="wrapper"
                                 width="[[width]]"
                                 height="[[height]]"
-                                running="[[running]]"
-                                running="{{running}}"
-                                editable-layout="[[editableLayout]]"
-                                parts-menu-open="[[partsMenuOpen]]"
-                                parts="{{parts}}">
+                                running="{{running}}">
             <kano-workspace-lightboard id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot name="part" slot="part"></slot>
             </kano-workspace-lightboard>
-        </kano-default-workspace>
+            <kc-parts-controls slot="controls"
+                                parts-menu-open="[[partsMenuOpen]]"
+                                parts="{{parts}}"></kc-parts-controls>
+        </kc-workspace-frame>
     </template>
     <script>
         /* globals Polymer, Kano */
