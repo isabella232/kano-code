@@ -3,6 +3,14 @@ const COLOR = '#ff9800';
 class BlocklyMath {
     static get type() { return 'blockly'; }
     static get id() { return 'math'; }
+    static get typeScriptDefinition() {
+        return `
+            declare namespace math {
+                declare function random(min: number, max: number): number;
+                declare function lerp(from: number, to: number, percent: number): number;
+            }
+        `;
+    }
     static register(Blockly) {
         Blockly.Blocks.math_arithmetic = {
             init() {

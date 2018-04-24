@@ -50,7 +50,9 @@ class Meta {
 }
 
 class MetaParameter extends Meta {
-
+    getReturnType() {
+        return this.def.returnType;
+    }
 }
 
 class MetaVariable extends Meta {
