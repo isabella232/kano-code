@@ -510,6 +510,32 @@ Polymer({
         this._registerElement('parts-panel', this.$['parts-modal']);
         // Legacy
         this._registerElement('blocks-panel', this.$['source-panel']);
+
+        const tpl = document.createElement('template');
+
+        const elMap = {
+            blockly: 'kc-blockly-editor',
+            code: 'kc-code-editor',
+        };
+
+        const { sourceType } = this.getState();
+
+        tpl.innerHTML = `
+                <${elMap[sourceType]}
+                store-id="[[storeId]]"
+                id="root-view"
+                on-change="_proxyChange"
+                on-exit-tapped="_exitTapped"
+                default-categories="[[defaultCategories]]"
+                loading$="[[!mode]]"></${elMap[sourceType]}>`;
+
+        const template = Polymer.html`${tpl}`;
+
+        const instance = this._stampTemplate(template);
+
+        this.$['source-container'].appendChild(instance);
+
+        this.$['root-view'] = this.shadowRoot.querySelector('#root-view');
     },
     detached() {
         this.detachEvents();

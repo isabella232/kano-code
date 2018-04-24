@@ -106,8 +106,12 @@
                 @apply --layout-flex;
                 position: relative;
             }
-            kc-blockly-editor {
-                @apply --layout-flex;
+            #source-container {
+                display: flex;
+                flex: 1;
+            }
+            #source-container>* {
+                flex: 1;
             }
             :host #resize {
                 position: absolute;
@@ -209,13 +213,7 @@
                 <div id="resize" on-mousedown="resizeWorkspace" class="visible-when-running"></div>
                 <div main class="main">
                     <slot name="above-code"></slot>
-                    <kc-blockly-editor
-                        store-id="[[storeId]]"
-                        id="root-view"
-                        on-change="_proxyChange"
-                        on-exit-tapped="_exitTapped"
-                        default-categories="[[defaultCategories]]"
-                        loading$="[[!mode]]"></kc-blockly-editor>
+                    <div id="source-container"></div>
                     <slot name="under-code"></slot>
                     <div id="code-overlay" class="code-overlay"></div>
                 </div>

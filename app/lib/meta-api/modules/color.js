@@ -5,6 +5,19 @@ const COLOR = '#88c440';
 class BlocklyColor {
     static get type() { return 'blockly'; }
     static get id() { return 'color'; }
+    static get typeScriptDefinition() {
+        return `
+            declare namespace colour {
+                declare enum type {
+                    RGB: 'rgb',
+                    HSV: 'hsv'
+                }
+                declare function random(): string;
+                declare function create(type: color.type, a: number, b: number, c: number): string;
+                declare function lerp(from: number, to: number, percent: number): string;
+            }
+        `;
+    }
     static register(Blockly) {
         Blockly.Blocks.random_colour = {
             init() {

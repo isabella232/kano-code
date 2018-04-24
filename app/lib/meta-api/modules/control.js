@@ -3,6 +3,22 @@ const COLOR = '#1198ff';
 class BlocklyControl {
     static get type() { return 'blockly'; }
     static get id() { return 'control'; }
+    static get typeScriptDefinition() {
+        return `
+            declare namespace loop {
+                declare function forever(callback: function): void;
+            }
+            declare namespace time {
+                declare enum units {
+                    frames = 'frames',
+                    seconds = 'seconds',
+                    milliseconds = 'milliseconds',
+                }
+                declare function every(interval: number, unit: time.units, callback: function): void;
+                declare function later(delay: number, unit: time.units, callback: function): void;
+            }
+        `;
+    }
     static register(Blockly) {
         Blockly.Blocks.loop_forever = {
             init() {

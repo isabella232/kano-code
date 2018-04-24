@@ -25,17 +25,17 @@ class Editor extends EventEmitter {
         this.rootEl = document.createElement('kano-app-editor');
         this.elRegistry.set('editor', this.rootEl);
         this.rootEl.editor = this;
+        this.sourceType = opts.sourceType || 'blockly';
         this.store = Store.create({
             running: false,
             config: this.config,
             addedParts: [],
             workspaceTab: 'workspace',
+            sourceType: this.sourceType,
         });
         this.storeObserver = new StoreObserver(this.store, this);
         this.modeActions = ModeActions(this.store);
         this.editorActions = EditorActions(this.store);
-
-        this.sourceType = 'blockly';
 
         this.rootEl.storeId = this.store.id;
 
@@ -66,7 +66,7 @@ class Editor extends EventEmitter {
     setupElements() {
         const workspace = this.rootEl.getWorkspace();
         const addPartForm = this.rootEl.$['add-parts'];
-        const sourceView = this.rootEl.$['root-view'];
+        const sourceView = this.rootEl.shadowRoot.querySelector('#root-view');
         const addPartDialog = this.rootEl.$['parts-modal'];
         this.elRegistry.set('workspace', workspace);
         this.elRegistry.set('add-parts-form', addPartForm);
