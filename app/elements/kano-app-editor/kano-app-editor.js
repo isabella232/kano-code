@@ -49,8 +49,9 @@ Polymer({
             type: Boolean,
             value: false,
         },
-        defaultCategories: {
+        toolbox: {
             type: Object,
+            linkState: 'toolbox',
         },
         isResizing: {
             type: Boolean,
@@ -71,7 +72,7 @@ Polymer({
         'backgroundChanged(background.*)',
         'resetAppState(addedParts.splices)',
         'updateColors(addedParts.splices)',
-        'updateColors(defaultCategories.*)',
+        'updateColors(toolbox.*)',
         '_codeChanged(code)',
         '_onPartsSet(parts)',
     ],
@@ -271,7 +272,7 @@ Polymer({
         return sourceEditor.canRemovePart(part);
     },
     updateColors() {
-        if (!this.defaultCategories) {
+        if (!this.toolbox) {
             return;
         }
         this.debounce('updateColors', () => {

@@ -1,12 +1,13 @@
-import EventEmitter from '../util/event-emitter.js';
+import Plugin from '../editor/plugin.js';
 import KanoCodeChallenge from './kano-code.js';
 import Store from '../store.js';
 import ChallengeActions from '../actions/challenge.js';
 
 /* eslint no-underscore-dangle: "off" */
-class Challenge extends EventEmitter {
-    constructor(editor) {
+class Challenge extends Plugin {
+    constructor(partsPlugin) {
         super();
+        this.partsPlugin = partsPlugin;
         this.rootEl = document.createElement('kano-app-challenge');
         this.rootEl.addEventListener('next-step', this._nextStep.bind(this));
         this.rootEl.addEventListener('save', this._save.bind(this));
@@ -40,15 +41,21 @@ class Challenge extends EventEmitter {
         this._onFlyoutStateChanged = this.rootEl._onFlyoutStateChanged.bind(this.rootEl);
 
         this.rootEl.storeId = this.store.id;
+    }
+    setParts(parts) {
+        this.partsList = parts;
+    }
+    onInstall(editor) {
         this.setEditor(editor);
+    }
+    onInject() {
+
     }
     localize(...args) {
         return this.rootEl.localize(...args);
     }
     setEditor(editor) {
         this.editor = editor;
-        this.editor.rootEl.setAttribute('slot', 'editor');
-        this.editor.inject(this.rootEl);
     }
     initializeChallenge() {
         const blocklyWorkspace = this.editor.getBlocklyWorkspace();
@@ -227,18 +234,19 @@ class Challenge extends EventEmitter {
     setDefaultApp(defaultApp) {
         this.defaultApp = defaultApp;
     }
-    load(challenge, mode, categories) {
+    load(challenge, mode) {
         this.originalMode = mode;
+        const { toolbox } = this.editor.store.getState();
         // Filter Mode to get the challenge view of its features
         const challengeMode = Challenge.getChallengeMode(challenge, mode);
         this.editor.setMode(challengeMode);
         // Filter Catergories to get the categories view of their features
-        const challengeCategories = Challenge.getChallengeCategories(challenge, categories);
-        this.editor.setToolbox(challengeCategories);
-        this.setSceneVariables(Challenge.getSceneVariables(challengeCategories));
+        const challengeToolbox = Challenge.getChallengeToolbox(challenge, toolbox);
+        this.editor.editorActions.setToolbox(challengeToolbox);
+        this.setSceneVariables(Challenge.getSceneVariables(challengeToolbox));
         // Filter Parts to get the categories view of their features
-        const challengeParts = Challenge.getChallengeParts(challenge);
-        this.editor.setParts(challengeParts);
+        const challengeParts = Challenge.getChallengeParts(challenge, toolbox);
+        this.partsPlugin.setParts(challengeParts);
         this.editor.loadVariables(challenge.scene.variables);
         if (challenge.scene.defaultApp) {
             this.editor.load(JSON.parse(this.scene.defaultApp));
@@ -247,10 +255,10 @@ class Challenge extends EventEmitter {
         }
         this.challengeActions.load(challenge);
     }
-    static getSceneVariables(categories) {
+    static getSceneVariables(toolbox) {
         const sceneVariables = {};
-        Object.keys(categories).forEach((key) => {
-            sceneVariables[`${key}_color`] = categories[key].colour;
+        Object.keys(toolbox).forEach((key) => {
+            sceneVariables[`${key}_color`] = toolbox[key].colour;
         });
         return sceneVariables;
     }
@@ -274,34 +282,22 @@ class Challenge extends EventEmitter {
         }
         return mode;
     }
-    static getChallengeCategories(challenge, categories) {
-        const cats = {};
-        let cat;
-        cats.events = Object.assign({}, categories.events);
-        Object.keys(categories)
-            .filter(key => challenge.scene.modules.indexOf(key) >= 0)
-            .forEach((id) => {
-                // Clone the object, because we might change its blocks
-                cats[id] = Object.assign({}, categories[id]);
-            });
-
-        // Do not filter blocks if the list is not defined
-        if (challenge.scene.filterBlocks) {
-            // Remove the excluded blocks from the categories
-            Object.keys(challenge.scene.filterBlocks).forEach((catId) => {
-                cat = cats[catId];
-                if (!cat) {
-                    return;
+    static getChallengeToolbox(challenge, toolbox) {
+        const filter = challenge.scene.filterBlocks || challenge.scene.filterToolbox;
+        const filtered = toolbox.filter(entry => challenge.scene.modules.indexOf(entry.id) >= 0)
+            .map((entry) => {
+                const clone = Object.assign({}, entry);
+                if (!challenge.scene.filterBlocks || !filter[entry.id]) {
+                    return clone;
                 }
-                cat.blocks = cat.blocks
-                    .filter(block => challenge.scene.filterBlocks[catId].indexOf(block.id) !== -1);
+                clone.blocks = clone.blocks
+                    .filter(block => filter[entry.id].indexOf(block.id) !== -1);
+                return clone;
             });
-        }
-        return cats;
+        return filtered;
     }
-    static getChallengeParts(challenge) {
-        return Kano.MakeApps.Parts.list
-            .filter(part => challenge.scene.parts.indexOf(part.type) !== -1);
+    static getChallengeParts(challenge, toolbox) {
+        return toolbox.filter(part => challenge.scene.parts.indexOf(part.type) !== -1);
     }
     setSceneVariables(variables) {
         this.challengeActions.loadVariables(variables);
@@ -314,9 +310,11 @@ class Challenge extends EventEmitter {
         element.appendChild(this.store.providerElement);
         if (before) {
             element.insertBefore(this.rootEl, before);
-            return;
+        } else {
+            element.appendChild(this.rootEl);
         }
-        element.appendChild(this.rootEl);
+        this.editor.rootEl.setAttribute('slot', 'editor');
+        this.editor.inject(this.rootEl);
     }
 }
 

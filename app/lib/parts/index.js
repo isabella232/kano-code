@@ -43,6 +43,9 @@ class PartsPlugin extends Plugin {
             return;
         }
         const { mode } = this.editor.store.getState();
+        if (!mode) {
+            return;
+        }
         const modeParts = this.partList
             .filter(part => mode.parts.indexOf(part.type) !== -1);
         addPartsForm.availableParts = modeParts;

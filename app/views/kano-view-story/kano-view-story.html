@@ -15,7 +15,6 @@
 <link rel="import" href="../../elements/behaviors/kano-i18n-behavior.html">
 <!-- App scripts -->
 <link rel="import" href="../../scripts/kano/make-apps/blockly/blockly.html">
-<link rel="import" href="../../scripts/kano/make-apps/parts/parts.html">
 <link rel="import" href="../../scripts/kano/util/router.html">
 <link rel="import" href="../../scripts/kano/make-apps/stories.html">
 <link rel="import" href="../../scripts/kano/make-apps/progress.html">
@@ -124,9 +123,7 @@
                 },
                 store: {
                     type: Object,
-                    value: () => {
-                        return {};
-                    }
+                    value: () => ({}),
                 },
                 story: {
                     type: Object,
@@ -134,10 +131,10 @@
                 },
                 scene: {
                     type: Object,
-                    linkState: 'challenge.scene'
+                    linkState: 'challenge.scene',
                 },
                 addedParts: {
-                    type: Array
+                    type: Array,
                 },
                 sceneVariables: {
                     type: Object,
@@ -145,25 +142,25 @@
                 remix: {
                     type: Boolean,
                     value: false,
-                    observer: '_remixChanged'
+                    observer: '_remixChanged',
                 },
                 code: Object,
                 customAlert: Boolean,
                 loadingApp: {
                     type: Object,
-                    linkState: 'story.loadingApp'
+                    linkState: 'story.loadingApp',
                 },
                 editorApp: {
                     type: Object,
                     linkState: 'editor.app',
-                    observer: '_editorAppChanged'
+                    observer: '_editorAppChanged',
                 },
             };
         }
         static get observers() {
             return [
                 '_completedChanged(scene.completed)',
-                '_addedPartsChanged(addedParts.splices)'
+                '_addedPartsChanged(addedParts.splices)',
             ];
         }
         constructor() {
@@ -179,8 +176,23 @@
             this.modal = this.$['share-modal'];
 
             this.editor = new Kano.Code.Editor(config);
-            this.challenge = new Kano.Code.Challenge(this.editor);
+
+            const userPlugin = new Kano.Code.UserPlugin();
+            this.editor.addPlugin(userPlugin);
+
+            this.partsPlugin = new Kano.Code.Parts(Kano.Code.Legacy.PartTypes);
+            this.editor.addPlugin(this.partsPlugin);
+
+            this.editor.toolbox.setEntries(Kano.Code.BlocklyModules);
+
+            this.runner = new Kano.Code.Runner(Kano.Code.AppModules);
+            this.editor.addPlugin(this.runner);
+
+            this.challenge = new Kano.Code.Challenge(this.partsPlugin);
+            this.challenge.setParts(Kano.Code.Legacy.Parts);
             this.challenge.on('completed', this.challengeCompleted.bind(this));
+
+            this.editor.addPlugin(this.challenge);
 
             this._onModalChanged = this._onModalChanged.bind(this);
 
@@ -221,7 +233,7 @@
                         })
                         .then((mode) => {
                             this.setupEditor();
-                            this.challenge.load(story, mode, this.blockly.getToolbox());
+                            this.challenge.load(story, mode);
                             this.$['share-modal-content'].set('nextButtonLabel', Boolean(this.story.next) ? this.localize('NEXT_CHALLENGE', 'Next Challenge') : this.localize('BACK_TO_CHALLENGES', 'Back to Challenges'));
                             this.loading = false;
                         });
@@ -238,24 +250,10 @@
             }
             this.injected = true;
             this.challenge.inject(this.root, this.root.firstChild);
-            const { config } = this.getState();
             this.editor.on('share', (shareInfo) => this.share({ detail: shareInfo }));
             this.editor.on('exit', () => this._exit());
             this.editor.on('change', () => this.save());
             this.editor.on('save', () => this.saveApp());
-
-            this.blockly = new Kano.Code.Blockly(this.editor, Kano.Code.BlocklyModules);
-            this.blockly.start();
-
-            this.hardware = new Kano.Code.Hardware(this.editor);
-            this.hardware.start();
-
-            this.runner = new Kano.Code.Runner(this.editor);
-            this.runner.start();
-
-            this.fileUpload = new Kano.Code.FileUpload(this.editor, this);
-            this.fileUpload.on('upload', this._onFileDropped.bind(this));
-            this.fileUpload.start();
 
             this.challenge.on('next-challenge', this._nextChallenge);
 
@@ -264,7 +262,7 @@
         _nextChallenge() {
             this.goToNextChallenge();
         }
-        _editorAppChanged () {
+        _editorAppChanged() {
             if (!this.editorApp) {
                 return;
             }
@@ -483,8 +481,6 @@
         _remixChanged(remix) {
             if (remix) {
                 this.editor.setMode(this.originalMode);
-                this.editor.setToolbox(this.blockly.getToolbox());
-                this.editor.setParts(Kano.MakeApps.Parts.list);
                 // // Look for the previously removed blocks in the addedParts
                 // this.addedParts.forEach((part, i) => {
                 //     // Some blocks were removed, we need to add them back

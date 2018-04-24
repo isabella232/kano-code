@@ -115,11 +115,6 @@ class Editor extends EventEmitter {
         this.modeActions.updateMode(modeDefinition);
     }
 
-    setToolbox(toolbox) {
-        this._toolbox = toolbox;
-        this.rootEl.defaultCategories = this._toolbox;
-    }
-
     loadDefault() {
         const { mode } = this.store.getState();
         this.load({

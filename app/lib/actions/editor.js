@@ -2,6 +2,7 @@ import Store from '../store.js';
 
 const CONSTANTS = [
     'SET_RUNNING_STATE',
+    'SET_TOOLBOX',
     'UPDATE_CODE',
     'LOAD_Source',
     'RESET_EDITOR',
@@ -56,6 +57,10 @@ const EditorActions = (store) => {
             this.set('state.background', action.value);
             break;
         }
+        case EDITOR_TYPES.SET_TOOLBOX: {
+            this.set('state.toolbox', action.toolbox);
+            break;
+        }
         default: {
             break;
         }
@@ -74,6 +79,9 @@ const EditorActions = (store) => {
         },
         reset() {
             store.dispatch({ type: EDITOR_TYPES.RESET_EDITOR });
+        },
+        setToolbox(toolbox) {
+            store.dispatch({ type: EDITOR_TYPES.SET_TOOLBOX, toolbox });
         },
     };
 };

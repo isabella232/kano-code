@@ -37,9 +37,7 @@
                 },
                 toolbox: {
                     type: Array,
-                },
-                defaultCategories: {
-                    type: Object,
+                    linkState: 'toolbox',
                 },
                 code: {
                     type: Object,
@@ -81,10 +79,10 @@
             this.dispatch({ type: 'UPDATE_CODE', code });
         }
         computeToolbox() {
-            if (!this.defaultCategories || !window.monaco) {
+            if (!this.toolbox || !window.monaco) {
                 return;
             }
-            this.defaultCategories.forEach((category) => {
+            this.toolbox.forEach((category) => {
                 monaco.languages.typescript.javascriptDefaults
                     .addExtraLib(category.definitionFile, category.id);
             });
