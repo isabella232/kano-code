@@ -17,7 +17,7 @@ const PROXY_EVENTS = [
 ];
 
 class Editor extends EventEmitter {
-    constructor(opts) {
+    constructor(opts = {}) {
         super();
         this.config = Config.merge(opts);
         this.config.restartCodeHandler = this.restartApp.bind(this);

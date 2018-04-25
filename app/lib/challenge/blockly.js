@@ -26,6 +26,8 @@ class BlocklyChallenge extends Challenge {
         this.defineShorthand('change-input', this._changeInputShorthand);
 
         this.defineBehavior('phantom_block', this._onPhantomBlockEnter.bind(this), this._onPhantomBlockLeave);
+
+        this.createStore('blocks');
     }
     _updateStep(...args) {
         super._updateStep.apply(this, ...args);
@@ -175,6 +177,7 @@ class BlocklyChallenge extends Challenge {
         } else if ('shadow' in selector && 'name' in selector) {
             return this.getTargetBlockShadow(block.getInput(selector.name).connection.targetBlock(), selector.shadow);
         }
+        return null;
     }
     _matchCategory(validation, event) {
         if (validation.part || validation.rawPart) {
@@ -252,36 +255,44 @@ class BlocklyChallenge extends Challenge {
         // Check that the element that changed is the one we target
         return block.blockId === targetId;
     }
+    static getFirstNonShadowBlock(block) {
+        if (!block.isShadow()) {
+            return block;
+        }
+        return BlocklyChallenge.getFirstNonShadowBlock(block.getParent());
+    }
     _matchBlocklyValue(validation, event) {
-        let targetId = this.getTargetBlock(validation.target).id,
-            block = event,
-            failed = false,
-            workspaceBlock,
-            newValue;
-        // Check that the element that changed is the one we target
-        if (block.blockId === targetId) {
-            workspaceBlock = this.workspace.getBlockById(block.blockId);
-            newValue = workspaceBlock.getFieldValue(block.name);
-            if (validation.minLength &&
-                newValue.length &&
-                newValue.length < validation.minLength) {
+        const targetId = this.getTargetBlock(validation.target).id;
+        const eventBlock = this.workspace.getBlockById(event.blockId);
+        let block = eventBlock;
+        let failed = false;
+        if (block.id !== targetId) {
+            block = BlocklyChallenge.getFirstNonShadowBlock(block);
+            if (block.id !== targetId) {
+                return false;
+            }
+        }
+        const newValue = eventBlock.getFieldValue(event.name);
+        if (validation.minLength &&
+            newValue.length &&
+            newValue.length < validation.minLength) {
+            failed = true;
+        }
+        // Check that
+        // the value is set to the one we expect
+        // We use the double equal to be sure we catch Number/String
+        // parsing
+        if (validation.value) {
+            let { value } = validation;
+            if (value.event_from) {
+                value = `${this.stepIds[value.event_from]}.${value.event}`;
+            }
+            /* eslint eqeqeq: "off" */
+            if (newValue != value) {
                 failed = true;
             }
-            // Check that
-            // the value is set to the one we expect
-            // We use the double equal to be sure we catch Number/String
-            // parsing
-            if (validation.value) {
-                let value = validation.value;
-                if (value.event_from) {
-                    value = `${this.stepIds[value.event_from]}.${value.event}`;
-                }
-                if (newValue != value) {
-                    failed = true;
-                }
-            }
-            return !failed;
         }
+        return !failed;
     }
     _validate(validation, e) {
         let blocklyStep = validation,

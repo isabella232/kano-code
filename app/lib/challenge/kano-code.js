@@ -114,6 +114,58 @@ class KanoCodeChallenge extends BlocklyChallenge {
     get done() {
         return this.stepIndex === this.steps.length - 1;
     }
+    _createBlockShorthand(data) {
+        const steps = super._createBlockShorthand(data);
+
+        Object.assign(steps[0], {
+            banner: {
+                text: data.openFlyoutCopy || `Open the ${data.category} category`,
+            },
+            beacon: {
+                target: {
+                    category: data.category,
+                },
+            },
+        });
+
+        Object.assign(steps[1], {
+            banner: {
+                text: data.grabBlockCopy || 'Grab this block',
+            },
+            beacon: {
+                target: {
+                    flyout_block: data.blockType,
+                },
+            },
+        });
+
+        if (steps[2]) {
+            Object.assign(steps[2], {
+                banner: {
+                    text: data.connectCopy || 'Connect to this block',
+                },
+                beacon: {
+                    target: {
+                        block: data.connectTo,
+                    },
+                },
+            });
+        }
+
+        return steps;
+    }
+    _changeInputShorthand(data) {
+        const step = super._changeInputShorthand(data);
+        Object.assign(step, {
+            banner: {
+                text: data.bannerCopy || `Change this value to ${data.value}`,
+            },
+            beacon: {
+                target: data.block,
+            },
+        });
+        return step;
+    }
 }
 
 export default KanoCodeChallenge;
