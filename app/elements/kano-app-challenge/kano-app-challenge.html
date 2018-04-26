@@ -146,6 +146,7 @@ Example:
             super();
             this.changeCounts = {};
             this._onLockdownClick = this._onLockdownClick.bind(this);
+            this._onResize = this._onResize.bind(this);
         }
         connectedCallback() {
             super.connectedCallback();
@@ -154,10 +155,20 @@ Example:
             this._observer = new Polymer.FlattenedNodesObserver(this.$.content, (info) => {
                 this._processNewNodes(info.addedNodes);
             });
+            window.addEventListener('resize', this._onResize);
         }
         disconnectedCallback() {
             super.disconnectedCallback();
             this._observer.disconnect();
+            window.removeEventListener('resize', this._onResize);
+        }
+        _onResize() {
+            this._resizeDebouncer = Polymer.Debouncer.debounce(
+                this._resizeDebouncer,
+                Polymer.Async.timeOut.after(300),
+                () => {
+                    this._fitBanner();
+                });
         }
         _challengeChanged() {
             this.initializeChallenge();

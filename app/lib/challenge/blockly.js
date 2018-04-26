@@ -255,22 +255,13 @@ class BlocklyChallenge extends Challenge {
         // Check that the element that changed is the one we target
         return block.blockId === targetId;
     }
-    static getFirstNonShadowBlock(block) {
-        if (!block.isShadow()) {
-            return block;
-        }
-        return BlocklyChallenge.getFirstNonShadowBlock(block.getParent());
-    }
     _matchBlocklyValue(validation, event) {
         const targetId = this.getTargetBlock(validation.target).id;
         const eventBlock = this.workspace.getBlockById(event.blockId);
         let block = eventBlock;
         let failed = false;
         if (block.id !== targetId) {
-            block = BlocklyChallenge.getFirstNonShadowBlock(block);
-            if (block.id !== targetId) {
-                return false;
-            }
+            return false;
         }
         const newValue = eventBlock.getFieldValue(event.name);
         if (validation.minLength &&

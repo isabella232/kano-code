@@ -161,7 +161,7 @@ class KanoCodeChallenge extends BlocklyChallenge {
                 text: data.bannerCopy || `Change this value to ${data.value}`,
             },
             beacon: {
-                target: data.block,
+                target: { block: data.block },
             },
         });
         return step;

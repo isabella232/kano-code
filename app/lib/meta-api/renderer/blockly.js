@@ -27,11 +27,13 @@ class BlocklyMetaRenderer {
             blocks.forEach(block => block.register(Blockly));
         };
 
+        const filteredBlocks = blocks.filter(block => block.toolbox);
+
         const category = {
             name: mod.getVerboseDisplay(),
             id: mod.def.name,
             colour: mod.getColor(),
-            blocks: blocks.map((block) => {
+            blocks: filteredBlocks.map((block) => {
                 return {
                     id: block.id,
                     defaults: block.defaults ? Object.keys(block.defaults) : [],
@@ -126,7 +128,11 @@ class BlocklyMetaRenderer {
             json = m.def.blockly.postProcess(json);
         }
         const defaults = params.filter(p => typeof p.def.default !== 'undefined').reduce((acc, p) => {
-            acc[p.def.name.toUpperCase()] = p.def.default;
+            if (p.def.blockly && p.def.blockly.shadow) {
+                acc[p.def.name.toUpperCase()] = { shadow: p.def.blockly.shadow(p.def.default) };
+            } else {
+                acc[p.def.name.toUpperCase()] = p.def.default;
+            }
             return acc;
         }, {});
         const register = (Blockly) => {
@@ -136,6 +142,12 @@ class BlocklyMetaRenderer {
                 Blockly.Blocks[alias] = {
                     init() {
                         this.jsonInit(json);
+                        params.forEach((param) => {
+                            if (param.def.blockly && param.def.blockly.customField) {
+                                const input = this.getInput(param.def.name.toUpperCase());
+                                input.appendField(param.def.blockly.customField(Blockly), param.def.name.toUpperCase());
+                            }
+                        });
                     },
                 };
                 Blockly.JavaScript[alias] = (block) => {
@@ -143,7 +155,7 @@ class BlocklyMetaRenderer {
                         const input = block.getInput(argName);
                         const field = block.getField(argName);
                         let value;
-                        if (field && !input) {
+                        if (field) {
                             value = block.getFieldValue(argName);
                             if (!value) {
                                 value = typeof params[index].def.default === 'undefined' ? '' : params[index].def.default;
@@ -175,11 +187,18 @@ class BlocklyMetaRenderer {
                         }
                         return value;
                     });
-                    return `${m.getNameChain('.')}(${values.join(', ')});\n`;
+                    let code = `${m.getNameChain('.')}(${values.join(', ')})`;
+                    if (block.outputConnection) {
+                        code = [code];
+                    } else {
+                        code = `${code};\n`;
+                    }
+                    return code;
                 };
             });
         };
-        return { register, id: json.id, defaults };
+        const toolbox = m.def.blockly && typeof m.def.blockly.toolbox !== 'undefined' ? m.def.blockly.toolbox : true;
+        return { register, id: json.id, defaults, toolbox };
     }
     static renderBaseBlock(m) {
         const id = m.getNameChain();
@@ -191,6 +210,11 @@ class BlocklyMetaRenderer {
         };
     }
     static parseInputType(type, param) {
+        if (param.def.blockly && param.def.blockly.customField) {
+            return {
+                type: 'input_dummy',
+            };
+        }
         switch (type) {
         case Function: {
             return {
@@ -216,6 +240,9 @@ class BlocklyMetaRenderer {
         switch (type) {
         case Number: {
             return 'Number';
+        }
+        case String: {
+            return 'String';
         }
         case 'Color': {
             return 'Colour';
