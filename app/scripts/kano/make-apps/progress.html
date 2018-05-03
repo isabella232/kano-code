@@ -15,7 +15,7 @@
         const { config } = Kano.MakeApps.Store.getState();
         const sharedStorageWrapper = new Kano.KanoSharedStorageClient({ sharedStorageURL: config.SHARED_STORAGE_URL });
         // Just grab the cross-storage instance here to support previous API..
-        const sharedStorage = sharedStorageWrapper._client;
+        let sharedStorage = sharedStorageWrapper._client;
         if (Kano.MakeApps.SharedStorage) {
             sharedStorage = Kano.MakeApps.SharedStorage._client;
         }
