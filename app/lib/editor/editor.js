@@ -14,6 +14,7 @@ const PROXY_EVENTS = [
     'reset',
     'add-part-request',
     'remove-part-request',
+    'import',
 ];
 
 class Editor extends EventEmitter {
@@ -49,6 +50,10 @@ class Editor extends EventEmitter {
 
         this.toolbox = new Toolbox();
         this.addPlugin(this.toolbox);
+
+        this.on('import', (event) => {
+            this.load(event.app);
+        });
     }
 
     addPlugin(plugin) {

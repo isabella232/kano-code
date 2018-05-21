@@ -86,7 +86,8 @@ class BlocklyMetaRenderer {
             };
             Blockly.JavaScript[json.id] = () => [m.getNameChain('.')];
         };
-        return { register, id: json.id };
+        const toolbox = m.def.blockly && typeof m.def.blockly.toolbox !== 'undefined' ? m.def.blockly.toolbox : true;
+        return { register, id: json.id, toolbox };
     }
     static renderFunction(m) {
         let json = BlocklyMetaRenderer.renderBaseBlock(m);
@@ -145,7 +146,7 @@ class BlocklyMetaRenderer {
                         params.forEach((param) => {
                             if (param.def.blockly && param.def.blockly.customField) {
                                 const input = this.getInput(param.def.name.toUpperCase());
-                                input.appendField(param.def.blockly.customField(Blockly), param.def.name.toUpperCase());
+                                input.appendField(param.def.blockly.customField(Blockly, this), param.def.name.toUpperCase());
                             }
                         });
                     },

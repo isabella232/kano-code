@@ -63,12 +63,14 @@ class PartsPlugin extends Plugin {
         this.parts.clear();
         const { partsMap } = this.editor.store.getState();
         const { mode } = this.editor.store.getState();
-        app.parts.forEach((savedPart) => {
-            const model = partsMap[savedPart.type];
-            const instanceModel = Object.assign({}, model, savedPart);
-            const part = this.parts.create(instanceModel, mode.workspace.viewport);
-            this.partsActions.addPart(part);
-        });
+        if (app.parts) {
+            app.parts.forEach((savedPart) => {
+                const model = partsMap[savedPart.type];
+                const instanceModel = Object.assign({}, model, savedPart);
+                const part = this.parts.create(instanceModel, mode.workspace.viewport);
+                this.partsActions.addPart(part);
+            });
+        }
         this.editor.rootEl.load(app);
     }
     setParts(parts) {
