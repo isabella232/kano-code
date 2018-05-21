@@ -39,6 +39,7 @@ class Editor extends EventEmitter {
         this.editorActions = EditorActions(this.store);
 
         this.rootEl.storeId = this.store.id;
+        this.storeObserver.rootEl.storeId = this.store.id;
 
         this.rootEl.addEventListener('reset', () => {
             this.reset();
