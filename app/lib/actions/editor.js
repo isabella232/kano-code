@@ -23,7 +23,7 @@ const EditorActions = (store) => {
             this.set('state.code', action.code);
             break;
         }
-        case EDITOR_TYPES.LOAD_Source: {
+        case EDITOR_TYPES.LOAD_SOURCE: {
             // For performance reasons, we don't update the stringified source
             // Force set value when loading source
             this.set('state.source', null);
@@ -75,7 +75,7 @@ const EditorActions = (store) => {
             store.dispatch({ type: EDITOR_TYPES.UPDATE_CODE, code });
         },
         loadSource(source) {
-            store.dispatch({ type: EDITOR_TYPES.LOAD_Source, source });
+            store.dispatch({ type: EDITOR_TYPES.LOAD_SOURCE, source });
         },
         reset() {
             store.dispatch({ type: EDITOR_TYPES.RESET_EDITOR });

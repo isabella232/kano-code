@@ -588,8 +588,7 @@ Polymer({
                 r.onload = (e) => {
                     // Read the mode
                     let app = JSON.parse(e.target.result);
-                    this.set('mode', Kano.MakeApps.Mode.modes[app.mode]);
-                    this.load(app);
+                    this.dispatchEvent(new CustomEvent('import', { detail: { app } }));
                 };
                 r.readAsText(f);
                 document.body.removeChild(this.fileInput);
