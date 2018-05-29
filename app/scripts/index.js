@@ -1,14 +1,19 @@
+import { BlockAnimation } from './splash.js';
+import { config } from './config/config.js';
+import I18n from '../lib/i18n/index.js';
+
+window.Kano = window.Kano || {};
+window.Kano.MakeApps = window.Kano.MakeApps || {};
+window.Kano.MakeApps.Msg = window.Kano.MakeApps.Msg || {};
+
 const { userAgent } = window.navigator;
 
 const Bootstrap = {
     loaded: false,
     loadEventFired: false,
     kanoAppInserted: false,
-    isCore: window.Kano.MakeApps.config.TARGET === 'osonline',
+    isCore: config.TARGET === 'osonline',
     isPi: userAgent.indexOf('armv6l') !== -1 || userAgent.indexOf('armv7l') !== -1,
-    webComponentsSupported: ('registerElement' in document &&
-                                        'import' in document.createElement('link') &&
-                                        'content' in document.createElement('template')),
     getLang() {
         return 'en-US';
     },
@@ -57,45 +62,27 @@ const Bootstrap = {
      * Imports the elements bundle and the messages depending on the locale
      */
     lazyLoadElements() {
-        const elements = [];
         const lang = this.getLang();
-        let loaded = 0;
 
-        elements.push(`/elements/msg/${lang}.html`);
-        elements.push('/elements/elements.html');
-
-        elements.forEach((elementURL) => {
-            const elImport = document.createElement('link');
-            elImport.rel = 'import';
-            elImport.href = elementURL;
-            elImport.addEventListener('load', () => {
-                loaded += 1;
-                if (loaded === elements.length) {
-                    this.onElementsLoaded();
-                }
-            });
-            document.head.appendChild(elImport);
+        Promise.all([
+            I18n.load(`/locale/editor/${lang}.json`),
+            I18n.load(`/locale/blockly/${lang}.json`).then(m => window.CustomBlocklyMsg = m),
+            import('/elements/elements.js'),
+        ]).then(() => {
+            this.onElementsLoaded();
         });
     },
     /**
      * Optionally load the webcomponents polyfill and then load the elements bundle
      */
     deferLoading() {
-        let wcPoly;
         // Race condition cause of safari fix hack
         if (this.loadEventFired) {
             return;
         }
         this.loadEventFired = true;
         clearTimeout(this.loadTimeoutId);
-        if (!this.webComponentsSupported) {
-            wcPoly = document.createElement('script');
-            wcPoly.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
-            wcPoly.onload = this.lazyLoadElements;
-            document.head.appendChild(wcPoly);
-        } else {
-            this.lazyLoadElements();
-        }
+        this.lazyLoadElements();
     },
     registerSW() {
         if ('serviceWorker' in navigator) {
@@ -113,7 +100,7 @@ const Bootstrap = {
     },
     start() {
         this.redirectCore();
-        this.splash = new Kano.BlockAnimation(document.getElementById('blocks'));
+        this.splash = new BlockAnimation(document.getElementById('blocks'));
         this.splash.init();
         this.started = new Date();
         // Attach the loading of the dependencies when the page is loaded
@@ -126,12 +113,6 @@ const Bootstrap = {
         }
         // I am ashamed of this hack, but sometimes safari just doesn't fire the load event :(
         this.loadTimeoutId = setTimeout(this.deferLoading.bind(this), 1000);
-
-        window.Polymer = {
-            dom: 'shadow',
-            lazyRegister: false,
-            useNativeCSSProperties: true,
-        };
 
         this.registerSW();
     },
