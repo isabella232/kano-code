@@ -9,5 +9,6 @@ dev.PROJECTS_URL = dev.WORLD_URL + "/projects";
 dev.KANO_CODE_URL = "http://localhost:4000";
 dev.GOOGLE_API_KEY = "AIzaSyB3CO_eTW7T_bwAQFewuUqwNElg_b9B6lQ";
 dev.TAPCODE_URL = "https://tapcode-staging.kano.me";
+dev.ENABLE_CHALLENGE_GENERATOR = true;
 
 export { dev as config };

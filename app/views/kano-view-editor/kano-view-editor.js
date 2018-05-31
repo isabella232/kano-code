@@ -149,8 +149,11 @@ class KanoViewEditor extends Store.StateReceiver(
         this.runner = new Runner(AllModules);
         this.editor.addPlugin(this.runner);
 
-        this.challengeGeneratorPlugin = new ChallengeGeneratorPlugin();
-        this.editor.addPlugin(this.challengeGeneratorPlugin);
+        if (config.ENABLE_CHALLENGE_GENERATOR) {
+            this.challengeGeneratorPlugin = new ChallengeGeneratorPlugin();
+            this.editor.addPlugin(this.challengeGeneratorPlugin);
+        }
+
 
         this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);
         this._deactivateSavePrompt = this._deactivateSavePrompt.bind(this);

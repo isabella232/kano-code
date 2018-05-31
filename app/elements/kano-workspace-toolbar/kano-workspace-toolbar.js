@@ -2,17 +2,17 @@ import '@polymer/polymer/polymer-legacy.js';
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/iron-icon/iron-icon.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import '../kano-animated-svg/kano-animated-svg.js';
 import '../kano-tooltip/kano-tooltip.js';
 import '../kano-icons/kc-ui.js';
 import { AppElementRegistryBehavior } from '../behaviors/kano-app-element-registry-behavior.js';
 import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
 import '../inline-controls/kano-value-rendering/kano-value-rendering.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 /* globals Polymer, Kano */
 Polymer({
-  _template: html`
+    _template: html`
         <style>
             :host {
                 @apply --layout-horizontal;
@@ -200,195 +200,205 @@ Polymer({
             </button>
         </div>
         <kano-tooltip id="settings-tooltip" position="bottom" offset="16" auto-close="">
-            <ul>
-                <li>
-                    <button type="button" class="inline text" on-tap="_reset">
-                        <iron-icon icon="kc-ui:reset"></iron-icon>
-                        <div>[[localize('RESET_WORKSPACE', 'Reset Workspace')]]</div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="inline text" on-tap="_export">
-                        <iron-icon icon="kc-ui:export"></iron-icon>
-                        <div>[[localize('EXPORT', 'Export')]]</div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="inline text" on-tap="_import">
-                        <iron-icon icon="kc-ui:import"></iron-icon>
-                        <div>[[localize('IMPORT', 'Import')]]</div>
-                    </button>
-                </li>
-                <li>
-                    <a href="https://insights.hotjar.com/s?siteId=119134&amp;surveyId=9857" target="_blank" class="inline text">
-                        <iron-icon icon="kc-ui:feedback"></iron-icon>
-                        <div>[[localize('GIVE_FEEDBACK', 'Give Feedback')]]</div>
-                    </a>
-                </li>
+            <ul id="settings-list">
+                <template is="dom-repeat" items="[[settingsItems]]">
+                    <li>
+                        <button type="button" class="inline text" on-tap="_settingsItemTapped">
+                            <iron-icon icon="[[item.icon]]"></iron-icon>
+                            <div>[[item.label]]</div>
+                        </button>
+                    </li>
+                </template>
             </ul>
         </kano-tooltip>
 `,
 
-  is: 'kano-workspace-toolbar',
-  behaviors: [AppElementRegistryBehavior, I18nBehavior],
+    is: 'kano-workspace-toolbar',
+    behaviors: [AppElementRegistryBehavior, I18nBehavior],
 
-  properties: {
-      mouseX: {
-          type: Number
-      },
-      mouseY: {
-          type: Number
-      },
-      showMousePosition: {
-          type: Boolean,
-          value: false
-      },
-      running: {
-          type: Boolean,
-          value: false
-      },
-      editableLayout: {
-          type: Boolean,
-          value: false
-      },
-      partsMenuOpen: {
-          type: Boolean,
-          value: false
-      },
-      noPlayerBar: {
-          type: Boolean,
-          value: false
-      },
-      noPartControls: {
-          type: Boolean,
-          value: false
-      },
-      showSettings: {
-          type: Boolean,
-          value: false
-      },
-      playPauseLabel: {
-          typs: String,
-          value: 'Pause'
-      },
-      fullscreen: {
-          type: Boolean,
-          value: false
-      }
-  },
+    properties: {
+        mouseX: {
+            type: Number,
+        },
+        mouseY: {
+            type: Number,
+        },
+        showMousePosition: {
+            type: Boolean,
+            value: false,
+        },
+        running: {
+            type: Boolean,
+            value: false,
+        },
+        editableLayout: {
+            type: Boolean,
+            value: false,
+        },
+        partsMenuOpen: {
+            type: Boolean,
+            value: false,
+        },
+        noPlayerBar: {
+            type: Boolean,
+            value: false,
+        },
+        noPartControls: {
+            type: Boolean,
+            value: false,
+        },
+        showSettings: {
+            type: Boolean,
+            value: false,
+        },
+        playPauseLabel: {
+            typs: String,
+            value: 'Pause',
+        },
+        fullscreen: {
+            type: Boolean,
+            value: false,
+        },
+        settingsItems: {
+            type: Array,
+            value: () => [],
+        },
+    },
 
-  ready () {
-      this.makeButtonIconPaths = {
-          stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
-          running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
-      };
-  },
+    _settingsItemTapped(e) {
+        const item = e.model.get('item');
+        item.callback(e);
+    },
 
-  attached () {
-      this._registerElement('fullscreen-button', this.$['fullscreen-button']);
-      if (!this.noPartControls) {
-          this._registerElement('add-part-button', this.$['add-part-button']);
-      }
-  },
+    addMenuItem(label, icon, callback) {
+        this.push('settingsItems', { label, icon, callback });
+    },
 
-  mousePositionHidden (show) {
-      return !show;
-  },
+    ready() {
+        this.makeButtonIconPaths = {
+            stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
+            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z',
+        };
+        this.settingsItems = [{
+            label: this.localize('RESET_WORKSPACE', 'Reset Workspace'),
+            icon: 'kc-ui:reset',
+            callback: this._reset.bind(this),
+        }, {
+            label: this.localize('EXPORT', 'Export'),
+            icon: 'kc-ui:export',
+            callback: this._export.bind(this),
+        }, {
+            label: this.localize('IMPORT', 'Import'),
+            icon: 'kc-ui:import',
+            callback: this._import.bind(this),
+        }];
+    },
 
-  fullscreenClicked (e) {
-      this.$['fullscreen-tooltip'].close()
-      this.fire('fullscreen-button-clicked');
-  },
+    attached() {
+        this._registerElement('fullscreen-button', this.$['fullscreen-button']);
+        if (!this.noPartControls) {
+            this._registerElement('add-part-button', this.$['add-part-button']);
+        }
+    },
 
-  _runButtonClicked (e) {
-      this.$['play-tooltip'].close();
-      this.fire('run-button-clicked');
-      this.playPauseLabel = this.running ? 'Pause' : 'Play';
-  },
+    mousePositionHidden(show) {
+        return !show;
+    },
 
-  restartClicked (e) {
-      this.fire('restart-button-clicked');
-  },
+    fullscreenClicked(e) {
+        this.$['fullscreen-tooltip'].close();
+        this.fire('fullscreen-button-clicked');
+    },
 
-  _getRunningStatus (running) {
-      return running ? 'running' : 'stopped';
-  },
+    _runButtonClicked(e) {
+        this.$['play-tooltip'].close();
+        this.fire('run-button-clicked');
+        this.playPauseLabel = this.running ? 'Pause' : 'Play';
+    },
 
-  _computeEditingButtonLabel (editableLayout) {
-      return editableLayout ? this.localize('DONE', 'done') : this.localize('EDIT_LAYOUT', 'Edit Layout');
-  },
+    restartClicked(e) {
+        this.fire('restart-button-clicked');
+    },
 
-  _editLayoutClicked () {
-      this.fire('edit-layout-button-clicked');
-  },
+    _getRunningStatus(running) {
+        return running ? 'running' : 'stopped';
+    },
 
-  _togglePartsMenu () {
-      this.fire('toggle-parts-menu');
-  },
+    _computeEditingButtonLabel(editableLayout) {
+        return editableLayout ? this.localize('DONE', 'done') : this.localize('EDIT_LAYOUT', 'Edit Layout');
+    },
 
-  _computePartsMenuButtonLabel (open) {
-      return open ? this.localize('CLOSE', 'close') : this.localize('ADD_PARTS', 'add parts');
-  },
+    _editLayoutClicked() {
+        this.fire('edit-layout-button-clicked');
+    },
 
-  _applyButtonClass (open) {
-      return open ? 'open' : '';
-  },
+    _togglePartsMenu() {
+        this.fire('toggle-parts-menu');
+    },
 
-  _startTimer (e) {
-      const target = e.composedPath()[0];
-      this.hoverTimer = this.async(() => {
-          this._openTooltip(target);
-          this.hoverTimer = null;
-      }, 800);
-  },
+    _computePartsMenuButtonLabel(open) {
+        return open ? this.localize('CLOSE', 'close') : this.localize('ADD_PARTS', 'add parts');
+    },
 
-  _stopTimer (e) {
-      const target = e.composedPath()[0];
-      if (this.hoverTimer) {
-          this.cancelAsync(this.hoverTimer);
-      }
-      this._closeTooltip(target);
-  },
+    _applyButtonClass(open) {
+        return open ? 'open' : '';
+    },
 
-  _openTooltip (target) {
-      const tooltip = this.$[`${target.id}-tooltip`];
-      tooltip.target = target.getBoundingClientRect();
-      tooltip.open();
-  },
+    _startTimer(e) {
+        const target = e.composedPath()[0];
+        this.hoverTimer = this.async(() => {
+            this._openTooltip(target);
+            this.hoverTimer = null;
+        }, 800);
+    },
 
-  _closeTooltip (target) {
-      const tooltip = this.$[`${target.id}-tooltip`];
-      tooltip.close();
-  },
+    _stopTimer(e) {
+        const target = e.composedPath()[0];
+        if (this.hoverTimer) {
+            this.cancelAsync(this.hoverTimer);
+        }
+        this._closeTooltip(target);
+    },
 
-  _openSettings (e) {
-      const target = e.composedPath()[0];
-      const tooltip = this.$['settings-tooltip'];
-      tooltip.target = target.getBoundingClientRect();
-      tooltip.open();
-  },
+    _openTooltip(target) {
+        const tooltip = this.$[`${target.id}-tooltip`];
+        tooltip.target = target.getBoundingClientRect();
+        tooltip.open();
+    },
 
-  _reset () {
-      this.$['settings-tooltip'].close();
-      this.fire('iron-signal', { name: 'reset-workspace' });
-  },
+    _closeTooltip(target) {
+        const tooltip = this.$[`${target.id}-tooltip`];
+        tooltip.close();
+    },
 
-  _export () {
-      this.$['settings-tooltip'].close();
-      this.fire('iron-signal', { name: 'export-app' });
-  },
+    _openSettings(e) {
+        const target = e.composedPath()[0];
+        const tooltip = this.$['settings-tooltip'];
+        tooltip.target = target.getBoundingClientRect();
+        tooltip.open();
+    },
 
-  _import () {
-      this.$['settings-tooltip'].close();
-      this.fire('iron-signal', { name: 'import-app' });
-  },
+    _reset() {
+        this.$['settings-tooltip'].close();
+        this.fire('iron-signal', { name: 'reset-workspace' });
+    },
 
-  _save () {
-      this.$['settings-tooltip'].close();
-      this.fire('save-button-clicked');
-  },
+    _export() {
+        this.$['settings-tooltip'].close();
+        this.fire('iron-signal', { name: 'export-app' });
+    },
 
-  _getMinMaxIcon(fullscreen) {
-      return fullscreen ? 'minimize' : 'maximize';
-  }
+    _import() {
+        this.$['settings-tooltip'].close();
+        this.fire('iron-signal', { name: 'import-app' });
+    },
+
+    _save() {
+        this.$['settings-tooltip'].close();
+        this.fire('save-button-clicked');
+    },
+
+    _getMinMaxIcon(fullscreen) {
+        return fullscreen ? 'minimize' : 'maximize';
+    },
 });

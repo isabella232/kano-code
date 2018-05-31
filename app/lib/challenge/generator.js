@@ -25,6 +25,22 @@ class Challenge extends Plugin {
         const { renderer } = toolbox;
         this.defaults = renderer.defaults;
     }
+    onInject() {
+        const ws = this.editor.getWorkspace();
+        const { dropzone } = ws;
+        const rootEl = dropzone.shadowRoot || dropzone;
+        const frame = rootEl.querySelector('kc-workspace-frame');
+        if (!frame) {
+            return;
+        }
+        frame.addMenuOption('Generate Challenge', '', () => {
+            const data = this.generate();
+            const link = document.createElement('a');
+            link.href = `data:application/json,${JSON.stringify(data)}`;
+            link.download = 'challenge.json';
+            link.click();
+        });
+    }
     translate(type, key) {
         let result = this._translate(type, key);
         if (result === key) {
@@ -93,6 +109,9 @@ class Challenge extends Plugin {
         Object.keys(this.defaults.values).forEach((blockId) => {
             this.fieldDefaults[blockId] = {};
             const block = this.defaults.values[blockId];
+            if (!block) {
+                return;
+            }
             Object.keys(block).forEach((fieldId) => {
                 if (block[fieldId].default) {
                     this.fieldDefaults[blockId][fieldId] = block[fieldId].default;

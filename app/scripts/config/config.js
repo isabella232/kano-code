@@ -1,3 +1,3 @@
-import { config } from './production.js';
+import { config } from './staging.js';
 
 export { config };

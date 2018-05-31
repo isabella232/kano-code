@@ -14,6 +14,7 @@ const DEFAULT = {
         SCHEMA: 'kano_code',
     },
     GEO_API: 'http://kano-geoip-api.herokuapp.com/country/',
+    ENABLE_CHALLENGE_GENERATOR: false,
 };
 
 const Config = {
