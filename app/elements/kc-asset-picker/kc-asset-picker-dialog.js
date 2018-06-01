@@ -9,8 +9,9 @@ import { KcAssetPickerBehavior } from './kc-asset-picker-behavior.js';
 import { KwcFileManagerBehavior } from '@kano/kwc-file-picker/kwc-file-manager-behavior.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+
 Polymer({
-  _template: html`
+    _template: html`
         <style include="kc-asset-picker-style">
             :host {
                 color: white;                
@@ -73,19 +74,19 @@ Polymer({
         </div>
 `,
 
-  is: 'kc-asset-picker-dialog',
+    is: 'kc-asset-picker-dialog',
 
-  behaviors: [
-      KwcFileManagerBehavior,
-      KcAssetPickerBehavior,
-      PaperDialogBehavior
-  ],
+    behaviors: [
+        KwcFileManagerBehavior,
+        KcAssetPickerBehavior,
+        PaperDialogBehavior,
+    ],
 
-  properties: {
-      heading: String,
-      dismissLabel: {
-          type: String,
-          value: 'Cancel'
-      }
-  }
+    properties: {
+        heading: String,
+        dismissLabel: {
+            type: String,
+            value: 'Cancel',
+        },
+    },
 });

@@ -1,14 +1,13 @@
-import '@polymer/iron-image/iron-image.js';
-import { AnimatableBehavior } from '../behaviors/kano-animatable-behavior.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-/* globals Polymer, Kano */
+import '@polymer/iron-image/iron-image.js';
+import { AnimatableBehavior } from '../behaviors/kano-animatable-behavior.js';
 
 const IMAGE_PADDING = 20;
 const DEFAULT_SELECTED_COLOUR = '#84C69E';
 
 Polymer({
-  _template: html`
+    _template: html`
         <style>
             :host {
                 display: block;
@@ -65,76 +64,74 @@ Polymer({
         </div>
 `,
 
-  is: 'kano-ui-item',
-  behaviors: [AnimatableBehavior],
+    is: 'kano-ui-item',
+    behaviors: [AnimatableBehavior],
 
-  properties: {
-      model: {
-          type: Object,
-          value: () => {
-              return {};
-          }
-      },
-      size: {
-          type: Number,
-          value: 42
-      },
-      selected: {
-          type: Boolean,
-          value: false
-      },
-      instance: {
-          type: Boolean,
-          value: false
-      },
-      disabled: {
-          type: Boolean,
-          value: false
-      },
-      colour: {
-          type: String,
-          value: null
-      },
-      noLabel: {
-          type: Boolean,
-          value: false
-      }
-  },
+    properties: {
+        model: {
+            type: Object,
+            value: () => ({}),
+        },
+        size: {
+            type: Number,
+            value: 42,
+        },
+        selected: {
+            type: Boolean,
+            value: false,
+        },
+        instance: {
+            type: Boolean,
+            value: false,
+        },
+        disabled: {
+            type: Boolean,
+            value: false,
+        },
+        colour: {
+            type: String,
+            value: null,
+        },
+        noLabel: {
+            type: Boolean,
+            value: false,
+        },
+    },
 
-  observers: [
-      'computeContainerStyle(selected, instance, model.*, colour)'
-  ],
+    observers: [
+        'computeContainerStyle(selected, instance, model.*, colour)',
+    ],
 
-  attached () {
-      this.fire('ui-ready', this);
-  },
+    attached() {
+        this.fire('ui-ready', this);
+    },
 
-  computeLabel () {
-      return this.model.name || this.model.label;
-  },
+    computeLabel() {
+        return this.model ? (this.model.name || this.model.label) : '';
+    },
 
-  computeContainerStyle (selected, instance) {
-      let colour = this.colour;
-      this.debounce('computeContainerStyle', () => {
-          this.containerStyle = `background-color: ${colour};
+    computeContainerStyle() {
+        const { colour } = this;
+        this.debounce('computeContainerStyle', () => {
+            this.containerStyle = `background-color: ${colour};
                                   width: ${this.size + IMAGE_PADDING}px;
                                   height: ${this.size + IMAGE_PADDING}px;`;
-      }, 10);
-  },
+        }, 10);
+    },
 
-  computeLabelStyle (selected) {
-      if (this.noLabel) {
-          return 'display: none;';
-      }
+    computeLabelStyle(selected) {
+        if (this.noLabel) {
+            return 'display: none;';
+        }
 
-      if (this.instance) {
-          return;
-      }
-      let colour = selected ? DEFAULT_SELECTED_COLOUR : '';
-      return `color: ${colour};`;
-  },
+        if (this.instance) {
+            return '';
+        }
+        const colour = selected ? DEFAULT_SELECTED_COLOUR : '';
+        return `color: ${colour};`;
+    },
 
-  handleSelect () {
-      this.fire('selected', this.model);
-  }
+    handleSelect() {
+        this.fire('selected', this.model);
+    },
 });

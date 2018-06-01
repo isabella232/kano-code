@@ -2,11 +2,12 @@ const Base = {
     /**
      * Do a Object.assign, but also brings in the getter/setters
      */
-    applyMixin (target, source) {
+    applyMixin(target, source) {
         Object.assign(target, source);
-        Object.keys(source).forEach(key => {
+        Object.keys(source).forEach((key) => {
             let desc = Object.getOwnPropertyDescriptor(source, key),
-                getter, setter;
+                getter, 
+setter;
             if (typeof desc.get === 'function') {
                 getter = desc.get;
             }
@@ -16,49 +17,49 @@ const Base = {
             if (getter || setter) {
                 Object.defineProperty(target, key, {
                     get: getter,
-                    set: setter
+                    set: setter,
                 });
             }
         });
         return target;
     },
-    applyMixins (target) {
-        let args = Array.prototype.slice.apply(arguments);
+    applyMixins(target) {
+        const args = Array.prototype.slice.apply(arguments);
         args.shift();
-        args.forEach(source => {
+        args.forEach((source) => {
             this.applyMixin(target, source);
         });
         return target;
     },
-    attached () {
+    attached() {
         this.onCreated();
     },
-    detached () {
+    detached() {
         this.onDestroyed();
     },
-    onCreated () {
+    onCreated() {
         // In old apps, we refered to Kano.AppModules directly. Now we set a standalone appModules.
         // Keep this to ensure old apps and not yet updated clients still work
         this.appModules = this.appModules || Kano.AppModules;
     },
-    onDestroyed () {},
-    start () {
+    onDestroyed() {},
+    start() {
         if (this.model) {
             this.savedState = {
                 position: {
                     x: this.model.position.x,
-                    y: this.model.position.y
+                    y: this.model.position.y,
                 },
                 rotation: this.model.rotation,
                 scale: this.model.scale,
                 visible: this.model.visible,
                 userProperties: Object.assign({}, this.model.userProperties),
-                userStyle: Object.assign({}, this.model.userStyle)
+                userStyle: Object.assign({}, this.model.userStyle),
             };
         }
         this.isRunning = true;
     },
-    when (name, callback) {
+    when(name, callback) {
         this.userListeners = this.userListeners || {};
         if (!this.userListeners[name]) {
             this.userListeners[name] = [];
@@ -66,7 +67,7 @@ const Base = {
         this.userListeners[name].push(callback);
         this.addEventListener(name, callback);
     },
-    stop () {
+    stop() {
         if (this.userListeners) {
             Object.keys(this.userListeners).forEach((name) => {
                 if (Array.isArray(this.userListeners[name])) {
@@ -78,7 +79,7 @@ const Base = {
         }
         this.userListeners = {};
         if (this.savedState) {
-            let savedState = this.savedState || {};
+            const savedState = this.savedState || {};
             savedState.position = savedState.position || { x: 0, y: 0 };
             this.set('model.position.x', savedState.position.x);
             this.set('model.position.y', savedState.position.y);
@@ -86,88 +87,91 @@ const Base = {
             this.set('model.scale', savedState.scale);
             this.set('model.visible', savedState.visible);
             Object.keys(savedState.userProperties).forEach((propName) => {
-                if (this.model.nonvolatileProperties.indexOf(propName) < 0) {
-                    this.set('model.userProperties.' + propName, savedState.userProperties[propName]);
+                if (this.model && this.model.nonvolatileProperties.indexOf(propName) < 0) {
+                    this.set(`model.userProperties.${  propName}`, savedState.userProperties[propName]);
                 }
             });
             this.set('model.userStyle', savedState.userStyle);
         }
         this.isRunning = false;
     },
-    moveAlong (distance) {
+    moveAlong(distance) {
         let direction = (this.get('model.rotation') || 0) * Math.PI / 180,
             alongY = Math.round(parseInt(distance) * Math.sin(direction)),
             alongX = Math.round(parseInt(distance) * Math.cos(direction));
         this.move(alongX, alongY);
     },
-    move (x, y) {
-        let position = this.model.position;
+    move(x, y) {
+        const position = this.model.position;
         // Set separate values otherwise, the reference is compared and
         // change triggers are not fired
         this.set('model.position.x', position.x + x);
         this.set('model.position.y', position.y + y);
     },
-    setXY (x, y) {
+    setXY(x, y) {
         this.setX(x);
         this.setY(y);
     },
-    setX (x) {
+    setX(x) {
         this.set('model.position.x', x);
     },
-    setY (y) {
+    setY(y) {
         this.set('model.position.y', y);
     },
-    getX () {
+    getX() {
         return this.get('model.position.x');
     },
-    getY () {
+    getY() {
         return this.get('model.position.y');
     },
-    getSize () {
+    getSize() {
         return this.get('model.scale');
     },
-    getRotation () {
+    getRotation() {
         return this.get('model.rotation');
     },
-    rotate (deg) {
-        let rotation = this.model.rotation;
+    rotate(deg) {
+        const rotation = this.model.rotation;
         this.set('model.rotation', parseInt(rotation) + parseInt(deg));
     },
-    absolute_rotate (deg) {
+    absolute_rotate(deg) {
         this.set('model.rotation', parseInt(deg));
     },
-    scale (factor) {
+    scale(factor) {
         this.set('model.scale', factor);
     },
-    resize (factor) {
-        let curFactor = this.get('model.scale') || 100;
+    resize(factor) {
+        const curFactor = this.get('model.scale') || 100;
         this.set('model.scale', curFactor * factor / 100);
     },
-    show (visibility) {
+    show(visibility) {
         this.set('model.visible', visibility);
     },
-    toggleVisibility () {
+    toggleVisibility() {
         this.set('model.visible', !this.model.visible);
     },
-    hexToRgb (hex) {
+    hexToRgb(hex) {
         hex = (hex) ? hex.substr(1) : 0;
-        var bigint = parseInt(hex, 16);
-        var r = (bigint >> 16) & 255;
-        var g = (bigint >> 8) & 255;
-        var b = bigint & 255;
+        let bigint = parseInt(hex, 16);
+        let r = (bigint >> 16) & 255;
+        let g = (bigint >> 8) & 255;
+        let b = bigint & 255;
 
         return { r, g, b };
     },
-    rgbToHsl (r, g, b) {
+    rgbToHsl(r, g, b) {
         r /= 255, g /= 255, b /= 255;
 
-        var max = Math.max(r, g, b), min = Math.min(r, g, b);
-        var h, s, l = (max + min) / 2;
+        let max = Math.max(r, g, b), 
+min = Math.min(r, g, b);
+        let h, 
+s, 
+l = (max + min) / 2;
 
         if (max == min) {
             h = s = 0; // achromatic
         } else {
-            var d = max - min;
+            let d = max - min;
             s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
             switch (max) {
@@ -181,7 +185,7 @@ const Base = {
 
         return { h, s, l };
     },
-    throttle (id, cb, delay) {
+    throttle(id, cb, delay) {
         // Push the logic to next event loop iteration. This let the blocking calls to the same id stack up
         setTimeout(() => {
             Base.nextCall = Base.nextCall || {};
@@ -203,7 +207,7 @@ const Base = {
                 Base.waiting[id] = cb;
             }
         });
-    }
+    },
 };
 
 /**

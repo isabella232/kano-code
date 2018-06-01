@@ -1,5 +1,5 @@
 import { AudioPlayer } from '../../scripts/kano/music/player.js';
-import { Cache } from '../../scripts/kano/make-apps/files/cache.js';
+import { AssetLoader } from '../../lib/asset/loader.js';
 
 const KcAssetPickerBehavior = {
     properties: {
@@ -18,12 +18,17 @@ const KcAssetPickerBehavior = {
             type: Object,
             notify: true,
         },
+        assetsRoot: {
+            type: String,
+            value: '/',
+        },
     },
     observers: [
         '_pathChanged(path)',
         '_openStateChanged(opened)',
     ],
     attached() {
+        this.assetLoader = new AssetLoader(this.assetsRoot);
         this.playButtonIcons = {
             stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
             running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z',
@@ -53,7 +58,7 @@ const KcAssetPickerBehavior = {
         return !paused && playing === index ? 'running' : 'stopped';
     },
     preloadSample(filename) {
-        return Cache.getFile('samples', filename);
+        return this.assetLoader.getAsset(filename);
     },
     _previewSample(e) {
         const item = e.model.get('item');

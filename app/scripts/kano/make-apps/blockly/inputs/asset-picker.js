@@ -1,17 +1,20 @@
 import '../../../../../elements/kc-asset-picker/kc-asset-picker-dialog.js';
-Blockly.FieldAssetPicker = function (heading, type, rootDir, value, opt_validator) {
+
+Blockly.FieldAssetPicker = function FieldAssetPicker(heading, type, rootDir, value, root, opt_validator) {
     this._heading = heading;
     this._type = type;
     this._rootDir = rootDir;
     this._expandedValue = value;
+    this.root = root;
     Blockly.FieldAssetPicker.superClass_.constructor.call(this, this._expandedValue.item.name, opt_validator);
 };
 goog.inherits(Blockly.FieldAssetPicker, Blockly.Field);
 
 Blockly.FieldAssetPicker.prototype.showEditor_ = function () {
     this.customEl = document.createElement('kc-asset-picker-dialog');
+    this.customEl.assetsRoot = this.root;
     this.customEl.updateStyles({
-        '--kc-asset-picker-highlight-color': this.sourceBlock_.getColour()
+        '--kc-asset-picker-highlight-color': this.sourceBlock_.getColour(),
     });
     this.customEl.style.maxHeight = '600px';
     this.customEl.style.height = '80vh';

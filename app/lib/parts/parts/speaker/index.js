@@ -7,6 +7,6 @@ const root = config.KANO_CODE_URL;
 const samples = SamplesGenerator(root);
 const samplesDir = SamplesDirGenerator(root);
 
-const speaker = SpeakerFactory(root, samples, samplesDir);
+const speaker = SpeakerFactory(root, samples, samplesDir, 'Drum Machine');
 
 export default speaker;

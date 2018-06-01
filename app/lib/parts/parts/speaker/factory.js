@@ -2,8 +2,10 @@ import '../../../../scripts/kano/make-apps/blockly/inputs/asset-picker.js';
 import { localize } from '../../../i18n/index.js';
 import './kano-part-speaker.js';
 
-const SpeakerFactory = (root, samples, samplesDir) => {
+const SpeakerFactory = (appRoot, samples, samplesDir, defaultCategory) => {
     const COLOUR = '#FFB347';
+
+    const root = `${appRoot}/assets/audio/samples/`;
 
     const speaker = {
         partType: 'hardware',
@@ -154,7 +156,7 @@ const SpeakerFactory = (root, samples, samplesDir) => {
 
                         this.setInputsInline(true);
 
-                        this.updateShape_('Drum Machine');
+                        this.updateShape_(defaultCategory);
                     },
                     updateShape_(option) {
                         this.removeInput('SAMPLE');
@@ -210,7 +212,7 @@ const SpeakerFactory = (root, samples, samplesDir) => {
                     init() {
                         const defaultCat = samples.children[0];
 
-                        const setDropdown = new Blockly.FieldAssetPicker(Blockly.Msg.BLOCK_SPEAKER_PICKER_HEADING, 'samples', samples, { path: `${samples.name}/${defaultCat.name}`, item: defaultCat.children[0] });
+                        const setDropdown = new Blockly.FieldAssetPicker(Blockly.Msg.BLOCK_SPEAKER_PICKER_HEADING, 'samples', samples, { path: `${samples.name}/${defaultCat.name}`, item: defaultCat.children[0] }, root);
 
                         this.setColour(part.colour);
 

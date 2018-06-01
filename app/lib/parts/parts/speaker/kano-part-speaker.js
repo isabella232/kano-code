@@ -41,7 +41,7 @@ Polymer({
 
     ready() {
         const { config } = Store.getState();
-        this.assetLoader = new AssetLoader(`${this.model.userProperties.root}/assets/audio/samples/`);
+        this.assetLoader = new AssetLoader(this.model.userProperties.root);
         this.sources = [];
         this.players = [];
         this.oscillators = [];
