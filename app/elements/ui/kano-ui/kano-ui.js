@@ -9,7 +9,6 @@ import '../kano-part-hardware/kano-part-hardware.js';
 import '../kano-ui-sticker/kano-ui-sticker.js';
 import '../kano-ui-scrolling-text/kano-ui-scrolling-text.js';
 import '../../part/kano-part-terminal/kano-part-terminal.js';
-import '../../part/kano-part-speaker/kano-part-speaker.js';
 import '../../part/kano-part-synth/kano-part-synth.js';
 import '../../part/kano-part-microphone/kano-part-microphone.js';
 import '../../part/kano-part-mouse/kano-part-mouse.js';

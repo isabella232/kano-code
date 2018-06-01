@@ -1,60 +1,61 @@
 import { AudioPlayer } from '../../scripts/kano/music/player.js';
 import { Cache } from '../../scripts/kano/make-apps/files/cache.js';
+
 const KcAssetPickerBehavior = {
     properties: {
         type: {
-            type: String
+            type: String,
         },
         playing: {
             type: Number,
-            value: null
+            value: null,
         },
         paused: {
             type: Boolean,
-            value: true
+            value: true,
         },
         value: {
             type: Object,
-            notify: true
-        }
+            notify: true,
+        },
     },
     observers: [
         '_pathChanged(path)',
-        '_openStateChanged(opened)'
+        '_openStateChanged(opened)',
     ],
-    attached () {
+    attached() {
         this.playButtonIcons = {
             stopped: 'M 4,18 10.5,14 10.5,6 4,2 z M 10.5,14 17,10 17,10 10.5,6 z',
-            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z'
+            running: 'M 2,18 6,18 6,2 2,2 z M 11,18 15,18 15,2 11,2 z',
         };
     },
-    detached () {
+    detached() {
         if (this._player) {
             this._player.stop();
         }
     },
-    _openStateChanged (opened) {
+    _openStateChanged(opened) {
         if (!opened && this._player) {
             this._player.stop();
         }
     },
-    _pathChanged () {
+    _pathChanged() {
         if (this._player) {
             this._player.stop();
         }
     },
-    _selectAsset (e) {
+    _selectAsset(e) {
         const item = e.model.get('item');
         this.select(item[this.nameProp], this.path);
         this.set('value', { item, path: this.path });
     },
-    _getPlayingStatus (playing, index, paused) {
-        return !paused && playing === index ? 'running' : 'stopped'; 
+    _getPlayingStatus(playing, index, paused) {
+        return !paused && playing === index ? 'running' : 'stopped';
     },
-    preloadSample (filename) {
+    preloadSample(filename) {
         return Cache.getFile('samples', filename);
     },
-    _previewSample (e) {
+    _previewSample(e) {
         const item = e.model.get('item');
         const index = e.model.get('index');
         e.preventDefault();
@@ -64,7 +65,7 @@ const KcAssetPickerBehavior = {
             return;
         }
         this.preloadSample(item.filename)
-            .then(buffer => {
+            .then((buffer) => {
                 if (this._player) {
                     this._player.stop();
                 }
@@ -86,7 +87,7 @@ const KcAssetPickerBehavior = {
                 });
                 this._player.play();
             });
-    }
+    },
 };
 
 export { KcAssetPickerBehavior };

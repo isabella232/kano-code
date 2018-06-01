@@ -5,7 +5,7 @@ import { types } from './samples.js';
 let cache = {};
 
 export const Cache = {
-    getFile (type, name) {
+    getFile(type, name) {
         const url = generators[type](name);
         let cachedPromise = this.get(url);
         if (!cachedPromise) {
@@ -20,36 +20,34 @@ export const Cache = {
         }
         return cachedPromise;
     },
-    load (type, url) {
+    load(type, url) {
         return fetch(url)
-            .then(r => {
+            .then((r) => {
                 switch (type) {
-                    case 'audio': {
-                        return r.arrayBuffer()
-                            .then(data => {
-                                return new Promise((resolve, reject) => {
-                                    AudioPlayer.context.decodeAudioData(data, (buffer) => {
-                                        return resolve(buffer);
-                                    });
-                                });
-                            });
-                    }
-                    case 'json': {
-                        return r.json();
-                    }
-                    default: {
-                        return r.text();
-                    }
+                case 'audio': {
+                    return r.arrayBuffer()
+                        .then(data => new Promise((resolve, reject) => {
+                            AudioPlayer.context.decodeAudioData(data, buffer => resolve(buffer));
+                        }));
+                }
+                case 'json': {
+                    return r.json();
+                }
+                default: {
+                    return r.text();
+                }
                 }
             });
     },
-    get (url) {
+    get(url) {
         return cache[url];
     },
-    set (url, promise) {
+    set(url, promise) {
         cache[url] = promise;
     },
-    clearCache () {
+    clearCache() {
         cache = {};
-    }
+    },
 };
+
+export default Cache;

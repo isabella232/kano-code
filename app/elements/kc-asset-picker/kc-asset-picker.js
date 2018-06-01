@@ -7,16 +7,14 @@ import '@kano/kwc-icons/kwc-icons.js';
 import '@kano/kwc-style/color.js';
 import '@kano/kwc-style/typography.js';
 import '@polymer/iron-icon/iron-icon.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import '../kano-animated-svg/kano-animated-svg.js';
 import './kc-asset-picker-style.js';
 import { KcAssetPickerBehavior } from './kc-asset-picker-behavior.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-
-KcAssetPickerBehavior
 
 Polymer({
-  _template: html`
+    _template: html`
         <style include="kc-asset-picker-style">
             :host {
                 display: block;
@@ -62,10 +60,10 @@ Polymer({
         </div>
 `,
 
-  is: 'kc-asset-picker',
+    is: 'kc-asset-picker',
 
-  behaviors: [
-      KwcFileManagerBehavior,
-      KcAssetPickerBehavior
-  ]
+    behaviors: [
+        KwcFileManagerBehavior,
+        KcAssetPickerBehavior,
+    ],
 });

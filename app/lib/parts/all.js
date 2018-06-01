@@ -12,7 +12,7 @@ import Oscillator from './parts/oscillator.js';
 import PictureList from './parts/picture-list.js';
 import ScrollingText from './parts/scrolling-text.js';
 import Slider from './parts/slider.js';
-import Speaker from './parts/speaker.js';
+import Speaker from './parts/speaker/index.js';
 import Sticker from './parts/sticker.js';
 import Synth from './parts/synth.js';
 import Terminal from './parts/terminal.js';
