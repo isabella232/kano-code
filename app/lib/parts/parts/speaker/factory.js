@@ -1,3 +1,4 @@
+import '../../../../scripts/kano/make-apps/blockly/inputs/asset-picker.js';
 import { localize } from '../../../i18n/index.js';
 import './kano-part-speaker.js';
 

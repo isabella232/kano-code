@@ -1,4 +1,11 @@
 import { AudioPlayer } from '../../../../scripts/kano/music/player.js';
+
+function isPi() {
+    const { userAgent } = window.navigator;
+
+    return userAgent.indexOf('armv6l') !== -1 ||
+           userAgent.indexOf('armv7l') !== -1;
+}
 /*
  *
  * Speech synthesis service
@@ -22,7 +29,7 @@ class TextToSpeech {
     configure(c) {
         this.config = c;
 
-        if (window.speechSynthesis && !window.ClientUtil.isPi()) {
+        if (window.speechSynthesis && !isPi()) {
             this.backend = this.browser;
             this.backendStop = this.browserStop;
         }
