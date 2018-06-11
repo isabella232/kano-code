@@ -9,7 +9,6 @@ import MapPart from './parts/map/index.js';
 import Microphone from './parts/microphone/index.js';
 import Mouse from './parts/mouse/index.js';
 import Oscillator from './parts/oscillator/index.js';
-import PictureList from './parts/picture-list/index.js';
 import ScrollingText from './parts/scrolling-text/index.js';
 import Slider from './parts/slider/index.js';
 import Speaker from './parts/speaker/index.js';
@@ -18,13 +17,6 @@ import Synth from './parts/synth/index.js';
 import Terminal from './parts/terminal/index.js';
 import TextInput from './parts/text-input/index.js';
 import Text from './parts/text/index.js';
-import GyroAccelerometer from './parts/powerups/gyro-accelerometer.js';
-import MotionSensor from './parts/powerups/motion-sensor.js';
-import LightAnimationDisplay from './parts/lightboard/light-animation-display.js';
-import LightAnimation from './parts/lightboard/light-animation.js';
-import LightCircle from './parts/lightboard/light-circle.js';
-import LightFrame from './parts/lightboard/light-frame.js';
-import LightRectangle from './parts/lightboard/light-rectangle.js';
 import RSS from './parts/data/rss.js';
 import Sports from './parts/data/sports.js';
 import Share from './parts/data/kano/share.js';
@@ -40,7 +32,6 @@ const Parts = [
     Microphone,
     Mouse,
     Oscillator,
-    PictureList,
     ScrollingText,
     Slider,
     Speaker,
@@ -49,13 +40,6 @@ const Parts = [
     Terminal,
     TextInput,
     Text,
-    GyroAccelerometer,
-    MotionSensor,
-    LightAnimationDisplay,
-    LightAnimation,
-    LightCircle,
-    LightFrame,
-    LightRectangle,
     RSS,
     Sports,
     Share,

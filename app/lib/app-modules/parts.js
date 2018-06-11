@@ -13,6 +13,8 @@ class PartsModule extends AppModule {
 
     static get name() { return 'parts'; }
 
+    static get aliases() { return ['devices']; }
+
     loadParts(parts) {
         this._parts = parts;
     }

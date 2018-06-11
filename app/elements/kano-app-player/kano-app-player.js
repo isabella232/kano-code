@@ -9,15 +9,24 @@
   then delete this comment!
 */
 import '@polymer/polymer/polymer-legacy.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
 
 import '@kano/kwc-icons/kwc-icons.js';
 import '../kano-app-player-toolbar/kano-app-player-toolbar.js';
 import { Utils } from '../../scripts/kano/make-apps/utils.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+
+import HardwareAPI from '../../lib/hardware/hardware-api.js';
+import AppModules from '../../lib/app-modules/app-modules.js';
+import { AllModules } from '../../lib/app-modules/all.js';
+import '../ui/kano-ui-viewport/kano-ui-viewport.js';
+import '../kano-workspace-normal/kano-workspace-normal.js';
+
+import './all-parts.js';
+
 Polymer({
-  _template: html`
+    _template: html`
         <style>
             :host([layout="vertical"]) {
                 @apply --layout-vertical-reverse;
@@ -111,185 +120,200 @@ Polymer({
         </template>
 `,
 
-  is: 'kano-app-player',
+    is: 'kano-app-player',
 
-  properties: {
-      src: {
-          type: String,
-          observer: '_srcChanged'
-      },
-      componentContent: {
-          type: String,
-          observer: '_componentContentChanged'
-      },
-      slug: {
-          type: String
-      },
-      failed: {
-          type: Boolean,
-          value:false
-      },
-      fullscreen: {
-          type: Boolean,
-          value: false
-      },
-      layout: {
-          type: String,
-          value: 'vertical',
-          reflectToAttribute: true
-      },
-      showToolbar: {
-          type: Boolean,
-          value: false
-      },
-      running: {
-          type: Boolean,
-          value: false
-      },
-      toolbarLayout: {
-          type: String,
-          computed: '_toolbarLayout(layout, fullscreen)'
-      }
-  },
+    properties: {
+        src: {
+            type: String,
+            observer: '_srcChanged',
+        },
+        componentContent: {
+            type: String,
+            observer: '_componentContentChanged',
+        },
+        slug: {
+            type: String,
+        },
+        failed: {
+            type: Boolean,
+            value: false,
+        },
+        fullscreen: {
+            type: Boolean,
+            value: false,
+        },
+        layout: {
+            type: String,
+            value: 'vertical',
+            reflectToAttribute: true,
+        },
+        showToolbar: {
+            type: Boolean,
+            value: false,
+        },
+        running: {
+            type: Boolean,
+            value: false,
+        },
+        toolbarLayout: {
+            type: String,
+            computed: '_toolbarLayout(layout, fullscreen)',
+        },
+    },
 
-  _srcChanged() {
-      // Check that we are loading an html file. Inspecting the extension is not the best solution
-      // as any server could return html content. This prevents loading of late setups bindings. For
-      // example, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
-      if (!this.src || !/(.*\.html)|(data:text\/html;base64,.*)/.test(this.src)) {
-          return;
-      }
-      this.debounce('importApp', () => {
-          this.importHref(this.src, this._onAppFileLoad.bind(this), this._onAppFileError.bind(this));
-      });
-  },
+    _srcChanged() {
+        // Check that we are loading an html file. Inspecting the extension is not the best solution
+        // as any server could return html content. This prevents loading of late setups bindings. For
+        // example, Vue.js will set the property to {{item.attachment_url}} a few times before applying the binding
+        if (!this.src || !/(.*\.html)|(data:text\/html;base64,.*)/.test(this.src)) {
+            return;
+        }
+        this.debounce('importApp', () => {
+            const link = document.createElement('link');
+            link.rel = 'import';
+            link.href = this.src;
+            link.onload = this._onAppFileLoad.bind(this);
+            link.onerror = this._onAppFileError.bind(this);
+            window.Polymer = Polymer;
+            window.Kano = window.Kano || {};
+            window.Kano.MakeApps = window.Kano.MakeApps || {};
+            window.Kano.AppModules = AppModules;
+            AllModules.forEach((Mod) => {
+                AppModules.define(Mod.name, Mod);
+            });
+            window.Kano.MakeApps.HardwareAPI = HardwareAPI;
+            window.Kano.MakeApps.config = {};
+            document.head.appendChild(link);
+        });
+    },
 
-  _componentContentChanged() {
-      const content = this.componentContent;
-      this.debounce('appendApp', () => {
-          if (!this.componentContent) {
-              return;
-          }
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(this.componentContent, 'text/html');
+    _componentContentChanged() {
+        const content = this.componentContent;
+        this.debounce('appendApp', () => {
+            if (!this.componentContent) {
+                return;
+            }
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(this.componentContent, 'text/html');
 
-          // The script is copied and attached separately to make sure it runs
-          const script = doc.getElementsByTagName('script')[0];
-          const scriptCopy = document.createElement('script');
-          scriptCopy.innerHTML = script.innerHTML;
-          document.head.appendChild(doc.body.firstChild);
-          document.head.appendChild(scriptCopy);
-          this._onAppFileLoad();
-      });
-  },
+            // The script is copied and attached separately to make sure it runs
+            const script = doc.getElementsByTagName('script')[0];
+            const scriptCopy = document.createElement('script');
+            scriptCopy.innerHTML = script.innerHTML;
+            document.head.appendChild(doc.body.firstChild);
+            document.head.appendChild(scriptCopy);
+            this._onAppFileLoad();
+        });
+    },
 
-  _onAppFileLoad() {
-      let root = dom(this.root),
-          c, styleElm;
-      // Create the component. Older shares were generated with the tagName `kano-user-component`
-      try {
-          c = this.create(`kano-${this.slug}`);
-          if (c.constructor === HTMLElement) {
-              throw new Error('Element not registered');
-          }
-      } catch (e) {
-          c = this.create('kano-user-component');
-      }
-      c.className = 'user-app kano-app-player';
-      // Support apps exported with error
-      c.$$ = function (id) {
-          if (['#light', '#camera', '#normal', '#dropzone'].indexOf(id) !== -1 && this.$.screen) {
-              return this.$.screen;
-          }
-          return dom(this.root).querySelector(id);
-      };
-      /** Inject app styles on old shares */
-      root.appendChild(c);
-      styleElm = c.$$('style');
-      if (!styleElm) {
-          let styleElm = document.createElement('style');
-          styleElm.innerHTML = c.appModules.componentStyles;
-          c.root.appendChild(styleElm);
-      }
-      if (this.$.container) {
-          root.removeChild(this.$.container);
-          this.$.container = null;
-      }
-      if (this.component) {
-          root.removeChild(this.component);
-      }
-      this.component = c;
-      this.component.addEventListener('restart-code', this._reset.bind(this));
-      this.fire('app-ready');
-      this.async(() => {
-          this.component.$$('kano-ui-viewport').resizeView();
-      });
-      this.running = true;
-      this.fullscreen = false;
-  },
+    _onAppFileLoad() {
+        let root = dom(this.root),
+            c,
+            styleElm;
+        // Create the component. Older shares were generated with the tagName `kano-user-component`
+        try {
+            c = this.create(`kano-${this.slug}`);
+            if (c.constructor === HTMLElement) {
+                throw new Error('Element not registered');
+            }
+        } catch (e) {
+            c = this.create('kano-user-component');
+        }
+        c.className = 'user-app kano-app-player';
+        // Support apps exported with error
+        c.$$ = function (id) {
+            if (['#light', '#camera', '#normal', '#dropzone'].indexOf(id) !== -1 && this.$.screen) {
+                return this.$.screen;
+            }
+            return dom(this.root).querySelector(id);
+        };
+        /** Inject app styles on old shares */
+        root.appendChild(c);
+        styleElm = c.$$('style');
+        if (!styleElm) {
+            const styleElm = document.createElement('style');
+            styleElm.innerHTML = c.appModules.componentStyles;
+            c.root.appendChild(styleElm);
+        }
+        if (this.$.container) {
+            root.removeChild(this.$.container);
+            this.$.container = null;
+        }
+        if (this.component) {
+            root.removeChild(this.component);
+        }
+        this.component = c;
+        this.component.addEventListener('restart-code', this._reset.bind(this));
+        this.fire('app-ready');
+        this.async(() => {
+            this.component.$$('kano-ui-viewport').resizeView();
+        });
+        this.running = true;
+        this.fullscreen = false;
+    },
 
-  _onAppFileError (e) {
-      this.failed = true;
-  },
+    _onAppFileError(e) {
+        this.failed = true;
+    },
 
-  start () {
-      if (this.component.start) {
-          this.component.start();
-      } else {
-          // For compatibility with old shares
-          this.component.attached();
-      }
-      this.running = true;
-  },
+    start() {
+        if (this.component.start) {
+            this.component.start();
+        } else {
+            // For compatibility with old shares
+            this.component.attached();
+        }
+        this.running = true;
+    },
 
-  stop () {
-      this.running = false;
-      if (this.component) {
-          this.component.stop();
-      }
-  },
+    stop() {
+        this.running = false;
+        if (this.component) {
+            this.component.stop();
+        }
+    },
 
-  detached () {
-      this.stop();
-      if (!this.component) {
-          return;
-      }
-      // Previous versions of the shares, didn't tear down the hardware once detached
-      // This detects these old versions and manually tears down thei hardware api
-      if (!this.component.hwAPI
+    detached() {
+        this.stop();
+        if (!this.component) {
+            return;
+        }
+        // Previous versions of the shares, didn't tear down the hardware once detached
+        // This detects these old versions and manually tears down thei hardware api
+        if (!this.component.hwAPI
           && this.component.appModules
           && this.component.appModules.modules.lightboard) {
-          this.component.appModules.modules.lightboard.api.tearDown();
-      }
-  },
+            this.component.appModules.modules.lightboard.api.tearDown();
+        }
+    },
 
-  getWorkspace () {
-      return this.component.workspace;
-  },
+    getWorkspace() {
+        return this.component.workspace;
+    },
 
-  _toggleRunning () {
-      if (this.running) {
-          this.stop();
-      } else {
-          this.start();
-      }
-  },
+    _toggleRunning() {
+        if (this.running) {
+            this.stop();
+        } else {
+            this.start();
+        }
+    },
 
-  _reset () {
-      this.stop();
+    _reset() {
+        this.stop();
 
-      setTimeout(this.start.bind(this), 0);
-  },
+        setTimeout(this.start.bind(this), 0);
+    },
 
-  _toggleFullscreen () {
-      this.toggleClass('fullscreen');
-      this.component.$$('kano-ui-viewport').resizeView();
-      this.fullscreen = !this.fullscreen;
+    _toggleFullscreen() {
+        this.toggleClass('fullscreen');
+        this.component.$$('kano-ui-viewport').resizeView();
+        this.fullscreen = !this.fullscreen;
 
-      Utils.triggerResize();
-  },
+        Utils.triggerResize();
+    },
 
-  _toolbarLayout  (layout, fullscreen) {
-      return layout === 'vertical' || fullscreen ? 'horizontal' : 'vertical';
-  }
+    _toolbarLayout(layout, fullscreen) {
+        return layout === 'vertical' || fullscreen ? 'horizontal' : 'vertical';
+    },
 });

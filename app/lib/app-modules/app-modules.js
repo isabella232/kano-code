@@ -27,6 +27,11 @@ class AppModules {
 
     define(name, ModuleClass) {
         this.modules[name] = new ModuleClass();
+        if (ModuleClass.aliases) {
+            ModuleClass.aliases.forEach((alias) => {
+                this.modules[alias] = this.modules[name];
+            });
+        }
     }
 
     config(config) {
@@ -242,6 +247,10 @@ class AppModules {
 
     static get modules() {
         return this.default.modules;
+    }
+
+    static define(...args) {
+        this.default.define(...args);
     }
 
     static createStandalone() {
