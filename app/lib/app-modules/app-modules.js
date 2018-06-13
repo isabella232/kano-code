@@ -59,10 +59,6 @@ class AppModules {
     createAppCode(prefix, code) {
         const moduleNames = Object.keys(this.modules);
         const moduleImports = moduleNames.map(name => `${prefix}.getModule('${name}')`);
-        // This adds a module called devices that returns the part module.
-        // Used for older apps support
-        moduleNames.push('devices');
-        moduleImports.push(`${prefix}.getModule('parts')`);
         return `(function (${moduleNames.join(', ')}) {\n${code}\nglobal.emit('start');\n})(${moduleImports.join(', ')});\n`;
     }
 
