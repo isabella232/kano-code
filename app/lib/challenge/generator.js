@@ -36,7 +36,7 @@ class Challenge extends Plugin {
         frame.addMenuOption('Generate Challenge', '', () => {
             const data = this.generate();
             const link = document.createElement('a');
-            link.href = `data:application/json,${JSON.stringify(data)}`;
+            link.href = `data:application/json,${encodeURIComponent(JSON.stringify(data, null, '    '))}`;
             link.download = 'challenge.json';
             link.click();
         });
@@ -476,10 +476,21 @@ class Challenge extends Plugin {
         } else {
             parent = null;
         }
+
         if (parent) {
+            let shadow;
+            let connectionTargetNode = parent;
+            if (parent.tagName === 'shadow') {
+                const valueNode = parent.parentNode;
+                if (valueNode.tagName === 'value') {
+                    shadow = valueNode.getAttribute('name');
+                    connectionTargetNode = valueNode.parentNode;
+                }
+            }
             step.connectCopy = commentData.connectText || '< CONNECT BLOCK >';
             step.connectTo = {
-                id: parent.getAttribute('challengeId'),
+                id: connectionTargetNode.getAttribute('challengeId'),
+                shadow,
                 inputName,
             };
         } else {
