@@ -304,6 +304,10 @@ Polymer({
     _onBlocklyReady() {
         this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
         this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
+        // TODO: kwc-blockly should be able to report this at any moment. But at this exact point
+        // it doesn't. Use `getFlyout` once kwc-blockly fixes this issue
+        const flyout = this.flyout ? this.$['code-editor'].$.flyout : this.$['code-editor'].$.toolbox.$.flyout;
+        this._registerElement('blockly-flyout', flyout);
     },
 
     _onCodeChanged(e) {
@@ -528,7 +532,10 @@ Polymer({
             this.set('noToolbox', false);
         }
         // Update the flyout element as it can change
-        this._registerElement('blockly-flyout', this.$['code-editor'].getFlyout());
+        // TODO: kwc-blockly should be able to report this at any moment. But at this exact point
+        // it doesn't. Use `getFlyout` once kwc-blockly fixes this issue
+        const flyout = this.flyout ? this.$['code-editor'].$.flyout : this.$['code-editor'].$.toolbox.$.flyout;
+        this._registerElement('blockly-flyout', flyout);
         if (!this.toolboxReady) {
             this.toolboxReady = true;
             this.$['code-editor'].loadBlocks(this.blocks);
