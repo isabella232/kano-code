@@ -1,5 +1,7 @@
 # Editor
 
+![alt text](../../../docs/views.png "Kano Code")
+
 ## Toolbox
 
 The editor will have a `toolbox` property. This property allows you to define the toolbox for the source code editor.
