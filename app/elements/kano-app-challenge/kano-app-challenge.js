@@ -129,6 +129,9 @@ class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
                 linkState: 'id',
                 observer: '_challengeChanged',
             },
+            tooltips: {
+                linkState: 'tooltips',
+            },
         };
     }
     constructor() {
@@ -157,8 +160,8 @@ class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
             timeOut.after(300),
             () => {
                 this._fitBanner();
-            }
-);
+            },
+        );
     }
     _challengeChanged() {
         this.initializeChallenge();
@@ -200,14 +203,14 @@ class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
         processedText = processedText.replace(blockReg, (match, before, type, after) => {
             const pieces = type.split('#');
             if (pieces.length > 1) {
-                pieces[0] = this.stepIds[pieces[0]] || pieces[0];
+                pieces[0] = this.challengeClass.engine._processPart(pieces[0]);
             }
             type = pieces.join('#');
             return `<kano-blockly-block${before}type="${type}"${after}></kano-blockly-block>`;
         });
 
         // Inject variables to markdown syntax
-        processedText = Object.keys(variables).reduce((acc, key) => acc.replace(new RegExp('\\$\\{' + key + '\\}', 'g'), variables[key] || ''), processedText);
+        processedText = Object.keys(variables).reduce((acc, key) => acc.replace(new RegExp(`\\$\\{${  key  }\\}`, 'g'), variables[key] || ''), processedText);
 
 
         /* Replace native emoji and return */

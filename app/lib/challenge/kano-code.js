@@ -23,6 +23,45 @@ class KanoCodeChallenge extends BlocklyChallenge {
         this.addValidation('light-animation-preview-changed', this.matchValue);
 
         this.addOppositeAction('add-part', 'close-parts', this._partsClosed);
+
+        this.defineShorthand('create-part', this._createPartShorthand.bind(this));
+    }
+    _getOpenPartsDialogStep(data) {
+        return {
+            validation: {
+                'open-parts': true,
+            },
+            beacon: {
+                target: 'add-part-button',
+            },
+            banner: {
+                text: data.openPartsCopy || 'Open the parts dialog',
+            },
+        };
+    }
+    _getCreatePartStep(data) {
+        return {
+            validation: {
+                'add-part': {
+                    type: data.part,
+                    id: data.alias,
+                },
+            },
+            beacon: {
+                target: `parts-panel-${data.part}`,
+            },
+            tooltips: [{
+                text: data.addPartCopy || `Click '${data.part}' to add it.`,
+                position: 'top',
+                location: 'parts-panel',
+            }],
+        };
+    }
+    _createPartShorthand(data) {
+        const openPartsDialogStep = this._getOpenPartsDialogStep(data);
+        const createStep = this._getCreatePartStep(data);
+        const steps = [openPartsDialogStep, createStep];
+        return steps;
     }
     _updateStep() {
         super._updateStep();
@@ -88,6 +127,22 @@ class KanoCodeChallenge extends BlocklyChallenge {
 
         return true;
     }
+    _processPart(part) {
+        if (part.target && part.type) {
+            const partId = this.getFromStore(PARTS_STORE, part.target);
+            const blockId = `${partId}#${part.type}`;
+            part.type = blockId;
+            return part;
+        } else if (part.part && part.type) {
+            const partId = this.getFromStore(PARTS_STORE, part.part);
+            return `${partId}#${part.type}`;
+        } else if (part.part) {
+            return this.getFromStore(PARTS_STORE, part.part) || part;
+        } else if (part.rawPart) {
+            return part.rawPart;
+        }
+        return part;
+    }
     matchValue(validation, event) {
         return validation.value === event.value;
     }
@@ -101,12 +156,12 @@ class KanoCodeChallenge extends BlocklyChallenge {
         }
         // If an id is provided, save the id of the added part
         if (validation.id) {
-            this.addToStore(PARTS_STORE, validation.id, event.part.id);
+            this.addToStore(PARTS_STORE, validation.id, event.data.part.id);
         }
         return true;
     }
     matchPartType(validation, event) {
-        return validation.type === event.part.type;
+        return validation.type === event.data.part.type;
     }
     matchSettingsInteraction(validation, event) {
         return validation.setting === event.setting;

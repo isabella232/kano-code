@@ -33,7 +33,7 @@ const behaviors = [
     MediaQueryBehavior,
     I18nBehavior,
 ];
-class KanoPartEditor extends Store.StateReceiver(mixinBehaviors(behaviors, PolymerElement),) {
+class KanoPartEditor extends Store.StateReceiver(mixinBehaviors(behaviors, PolymerElement)) {
     static get template() {
         return html`
         <style include="kano-code-shared-styles">

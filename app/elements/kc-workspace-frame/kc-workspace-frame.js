@@ -213,7 +213,7 @@ Polymer({
     },
 
     addMenuOption(label, icon, callback) {
-        this.$.toolbar.addMenuItem(label, icon, callback);
+        return this.$.toolbar.addMenuItem(label, icon, callback);
     },
 
     _setViewportHeight() {

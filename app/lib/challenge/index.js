@@ -2,7 +2,12 @@ import Plugin from '../editor/plugin.js';
 import KanoCodeChallenge from './kano-code.js';
 import Store from '../store.js';
 import ChallengeActions from '../actions/challenge.js';
-import { Challenge as ChallengeGeneratorPlugin } from './generator.js';
+import { Challenge as ChallengeGeneratorPlugin } from './generator/index.js';
+
+const EDITOR_EVENTS = [
+    'open-parts',
+    'add-part',
+];
 
 /* eslint no-underscore-dangle: "off" */
 class Challenge extends Plugin {
@@ -49,9 +54,6 @@ class Challenge extends Plugin {
     onInstall(editor) {
         this.setEditor(editor);
     }
-    onInject() {
-
-    }
     localize(...args) {
         return this.rootEl.localize(...args);
     }
@@ -67,13 +69,23 @@ class Challenge extends Plugin {
         this.engine.addEventListener('history-back', this._historyBack);
         this.engine.addEventListener('history-forward', this._historyForward);
         this.editor.on('change', this._editorChanged.bind(this));
-        // this.$.ui.editor = this.editor;
+        this.editorListeners = [];
+        // TODO: Remove these listeners when challenge done
+        EDITOR_EVENTS.forEach((eventName) => {
+            const callback = (e) => {
+                this.editor.logger.debug('[CHALLENGE]', `Editor fired: ${eventName}`, e);
+                this.engine.triggerEvent(eventName, e);
+            };
+            this.editor.on(eventName, callback);
+            this.editorListeners.push(callback);
+            this.editor.logger.debug('[CHALLENGE]', `Listening to ${eventName} for challenge`);
+        });
         blocklyWorkspace.addChangeListener(this._onFlyoutStateChanged);
         this.rootEl._fitBanner();
 
         this.engine.defineBehavior('banner', this._displayBanner, this._hideBanner);
         this.engine.defineBehavior('beacon', this._displayBeacon, this._hideBeacon);
-        this.engine.defineBehavior('tooltips', this.rootEl._displayTooltips, this.rootEl._hideTooltips);
+        this.engine.defineBehavior('tooltips', this._displayTooltips, this._hideTooltips);
 
         this.engine.definePropertyProcessor([
             'beacon.target.flyout_block',
@@ -81,6 +93,13 @@ class Challenge extends Plugin {
             'tooltips.*.location.block',
             'tooltips.*.location.flyout_block',
         ], this.engine._processBlock.bind(this.engine));
+        this.engine.definePropertyProcessor([
+            'beacon.target.category',
+            'beacon.target.flyout_block',
+            'tooltips.*.location.category',
+            'validation.blockly.open-flyout',
+            'validation.blockly.create',
+        ], this.engine._processPart.bind(this.engine));
         this.engine.definePropertyProcessor([
             'banner.head',
             'banner.text',
@@ -117,6 +136,7 @@ class Challenge extends Plugin {
         if (!this.engine) {
             return;
         }
+        this.editor.logger.debug('[CHALLENGE]', `Editor fired: ${e.type}`, e);
         this.engine.triggerEvent(e.type, e);
     }
     _onStepChanged() {
@@ -249,9 +269,6 @@ class Challenge extends Plugin {
         this.editor.editorActions.setToolbox(challengeToolbox);
         this.editor.editorActions.setFlyoutMode(challenge.scene.flyoutMode);
         this.setSceneVariables(Challenge.getSceneVariables(challengeToolbox));
-        // Filter Parts to get the categories view of their features
-        const challengeParts = Challenge.getChallengeParts(challenge, toolbox);
-        this.partsPlugin.setParts(challengeParts);
         this.editor.loadVariables(challenge.scene.variables);
         if (challenge.scene.defaultApp) {
             this.editor.load(JSON.parse(challenge.scene.defaultApp));
@@ -268,11 +285,11 @@ class Challenge extends Plugin {
         return sceneVariables;
     }
     static getChallengeMode(challenge, mode) {
+        const newMode = Object.assign({}, mode);
         // In case we filter blocks in the categories of the mode
         if (challenge.scene.filterBlocks) {
             const whitelist = challenge.scene.filterBlocks[mode.id];
             if (whitelist) {
-                const newMode = Object.assign({}, mode);
                 newMode.categories = newMode.categories.map((category, index) => {
                     const newCategory = Object.assign({}, category);
                     // Filter the blocks of this category to the one whitelisted
@@ -282,10 +299,12 @@ class Challenge extends Plugin {
                     });
                     return newCategory;
                 });
-                return newMode;
             }
         }
-        return mode;
+        if (challenge.scene.parts) {
+            newMode.parts = mode.parts.filter(part => challenge.scene.parts.indexOf(part.type) !== -1);
+        }
+        return newMode;
     }
     static getChallengeToolbox(challenge, toolbox) {
         if (challenge.scene.blocks) {
@@ -306,12 +325,6 @@ class Challenge extends Plugin {
                 return clone;
             });
         return filtered;
-    }
-    static getChallengeParts(challenge, toolbox) {
-        if (!challenge.scene.parts) {
-            return toolbox;
-        }
-        return toolbox.filter(part => challenge.scene.parts.indexOf(part.type) !== -1);
     }
     setSceneVariables(variables) {
         this.challengeActions.loadVariables(variables);

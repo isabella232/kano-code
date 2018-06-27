@@ -12,13 +12,14 @@ import '../kano-part-list-item/kano-part-list-item.js';
 import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
 import { AppEditorBehavior } from '../behaviors/kano-app-editor-behavior.js';
 import { AppElementRegistryBehavior } from '../behaviors/kano-app-element-registry-behavior.js';
+import { Store } from '../../scripts/legacy/store.js';
 
-class KCPartsControls extends mixinBehaviors([
+class KCPartsControls extends Store.StateReceiver(mixinBehaviors([
     I18nBehavior,
     AppEditorBehavior,
     AppElementRegistryBehavior,
     IronResizableBehavior,
-], PolymerElement) {
+], PolymerElement)) {
     static get template() {
         return html`
         <style>
@@ -165,9 +166,7 @@ class KCPartsControls extends mixinBehaviors([
                 type: Boolean,
             },
             parts: {
-                type: Array,
-                value: () => [],
-                notify: true,
+                linkState: 'addedParts',
             },
         };
     }
@@ -193,8 +192,8 @@ class KCPartsControls extends mixinBehaviors([
     }
     _partsElementsRepeaterChanged() {
         let allPartsEl = dom(this.root).querySelectorAll('.part'),
-            partEl, 
-partElId;
+            partEl,
+            partElId;
         for (let i = 0; i < allPartsEl.length; i++) {
             partEl = allPartsEl[i];
             partElId = partEl.getAttribute('id');

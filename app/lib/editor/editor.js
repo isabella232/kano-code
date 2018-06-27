@@ -5,6 +5,12 @@ import ModeActions from '../actions/mode.js';
 import EditorActions from '../actions/editor.js';
 import StoreObserver from './store-observer.js';
 import Toolbox from './toolbox.js';
+import Runner from './runner.js';
+import { Logger } from '../log/index.js';
+import { DefaultWorkspaceViewProvider } from './workspace/default.js';
+import { OutputModule } from './output/module.js';
+
+import '../../elements/kano-app-editor/kano-app-editor.js';
 
 const PROXY_EVENTS = [
     'share',
@@ -21,6 +27,8 @@ class Editor extends EventEmitter {
         super();
         this.config = Config.merge(opts);
         this.config.restartCodeHandler = this.restartApp.bind(this);
+        this.logger = new Logger();
+        this.logger.setLevel(this.config.LOG_LEVEL);
         this.elRegistry = new Map();
         this.rootEl = document.createElement('kano-app-editor');
         this.elRegistry.set('editor', this.rootEl);
@@ -56,11 +64,14 @@ class Editor extends EventEmitter {
         this.toolbox = new Toolbox();
         this.addPlugin(this.toolbox);
 
+        this.runner = new Runner();
+        this.runner.addModule(OutputModule);
+        this.addPlugin(this.runner);
+
         this.on('import', (event) => {
             this.load(event.app);
         });
     }
-
     addPlugin(plugin) {
         this.plugins.push(plugin);
         plugin.onInstall(this);
@@ -68,11 +79,9 @@ class Editor extends EventEmitter {
             plugin.onInject();
         }
     }
-
     runPluginTask(taskName, ...args) {
         this.plugins.forEach(plugin => plugin[taskName](...args));
     }
-
     setupElements() {
         const workspace = this.rootEl.getWorkspace();
         const addPartForm = this.rootEl.$['add-parts'];
@@ -84,11 +93,9 @@ class Editor extends EventEmitter {
         this.elRegistry.set('source-view', sourceView);
         this.elRegistry.set('toolbox-enhancer-above', sourceView.$['toolbox-enhancer-above']);
     }
-
     getElement(id) {
         return this.elRegistry.get(id);
     }
-
     static proxyEvent(el, emitter, name) {
         const onEvent = (e) => {
             emitter.emit(name, e.detail);
@@ -98,7 +105,6 @@ class Editor extends EventEmitter {
             el.removeEventListener(name, onEvent);
         };
     }
-
     inject(element = document.body, before = null) {
         if (this.injected) {
             return;
@@ -111,15 +117,14 @@ class Editor extends EventEmitter {
         } else {
             element.appendChild(this.rootEl);
         }
+        this.appendWorkspaceView();
         this.setupElements();
         this.runPluginTask('onInject');
     }
-
     setMode(modeDefinition) {
-        this.runPluginTask('onModeSet', modeDefinition);
         this.modeActions.updateMode(modeDefinition);
+        this.runPluginTask('onModeSet', modeDefinition);
     }
-
     loadDefault() {
         const { mode } = this.store.getState();
         this.load({
@@ -127,22 +132,18 @@ class Editor extends EventEmitter {
             source: mode.defaultSource,
         });
     }
-
     load(app) {
         this.runPluginTask('onAppLoad', app);
         this.editorActions.loadSource(app.source);
         this.emit('loaded');
     }
-
     reset() {
         this.loadDefault();
     }
-
     restartApp() {
         this.editorActions.setRunningState(false);
         this.editorActions.setRunningState(true);
     }
-
     save() {
         let app = this.rootEl.save();
         this.plugins.forEach((plugin) => {
@@ -150,48 +151,38 @@ class Editor extends EventEmitter {
         });
         return app;
     }
-
     share() {
         this.rootEl.share();
     }
-
     getMode() {
         const { mode } = this.store.getState();
         return mode;
     }
-
     getSource() {
         const { source } = this.store.getState();
         return source;
     }
-
     getCode() {
         const { code } = this.store.getState();
         return code;
     }
-
     setRunningState(state) {
         this.editorActions.setRunningState(state);
     }
-
     getRunningState() {
         const { running } = this.store.getState();
         return running;
     }
-
     getViewport() {
         const ws = this.getWorkspace();
         return ws.getViewport();
     }
-
     getWorkspace() {
         return this.rootEl.getWorkspace();
     }
-
     getBlocklyWorkspace() {
         return this.rootEl.getBlocklyWorkspace();
     }
-
     loadVariables(variables) {
         const workspace = this.getBlocklyWorkspace();
         if (variables && workspace) {
@@ -200,9 +191,27 @@ class Editor extends EventEmitter {
             });
         }
     }
+    registerWorkspaceViewProvider(provider) {
+        this.workspaceProvider = provider;
+    }
+    appendWorkspaceView() {
+        if (!this.workspaceProvider) {
+            this.workspaceProvider = new DefaultWorkspaceViewProvider(this);
+        }
+        this.rootEl.$.workspace.appendView(this.workspaceProvider);
+    }
     get addedParts() {
         const { addedParts } = this.store.getState();
         return addedParts;
+    }
+    get sourceEditor() {
+        return this.getElement('source-view');
+    }
+    get outputView() {
+        return this.workspaceView.outputView;
+    }
+    get workspaceView() {
+        return this.workspaceProvider;
     }
 }
 

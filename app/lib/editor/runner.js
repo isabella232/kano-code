@@ -1,19 +1,23 @@
-import VM from './vm.js';
-import AppModulesLoader from './app-modules/index.js';
-import Plugin from './editor/plugin.js';
+import VM from '../vm.js';
+import AppModulesLoader from '../app-modules/index.js';
+import Plugin from './plugin.js';
 
 class Runner extends Plugin {
-    constructor(modules) {
+    constructor() {
         super();
-        this.modules = modules;
+        this.modules = [];
         this._onRunningStateChange = this._onRunningStateChange.bind(this);
+    }
+    addModule(mod) {
+        const mods = Array.isArray(mod) ? mod : [mod];
+        mods.forEach(m => this.modules.push(m));
+        this._updateModules();
     }
     onInstall(editor) {
         this.editor = editor;
-        this.appModulesLoader = new AppModulesLoader(this.editor, this.modules);
     }
     onInject() {
-        this.appModulesLoader.start();
+        this._updateModules();
         this.editor.on('running-state-changed', this._onRunningStateChange);
     }
     onAppload() {
@@ -24,6 +28,17 @@ class Runner extends Plugin {
             this.editor.setRunningState(running);
         }
     }
+    _updateModules() {
+        if (!this.editor || !this.editor.injected) {
+            return;
+        }
+        if (this.appModulesLoader) {
+            const { appModules } = this.appModulesLoader;
+            appModules.stop();
+        }
+        this.appModulesLoader = new AppModulesLoader(this.editor, this.modules);
+        this.appModulesLoader.start();
+    }
     _onRunningStateChange() {
         const running = this.editor.getRunningState();
         const { appModules } = this.appModulesLoader;
@@ -33,10 +48,6 @@ class Runner extends Plugin {
             if (!running) {
                 return;
             }
-            // Get the parts elements from the workspace
-            const parts = this.editor.getWorkspace().getPartsDict();
-            // Tell AppModules where to find the parts
-            appModules.loadParts(parts);
             const code = this.editor.getCode();
             // Generate the code
             const appCode = appModules.createAppCode('AppModules', code);
@@ -46,6 +57,7 @@ class Runner extends Plugin {
             const vm = new VM({ AppModules: appModules });
             // Run the code
             vm.runInContext(appCode);
+            appModules.afterRun();
         });
     }
 }

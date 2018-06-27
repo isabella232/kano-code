@@ -18,7 +18,7 @@ const definition = {
     sharing: {
         cover: 'still'
     },
-    defaultSource: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="60" y="120" id="default_event_part_id"><field name="EVENT">camera.camera-shutter-button</field><statement name="DO"><block type="camera#take_picture" id="default_take_picture_id"></block></statement></block></xml>`,
+    defaultSource: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="global_when" x="60" y="120" id="default_event_part_id"><field name="EVENT">camera.camera-shutter-button</field><statement name="DO"><block type="camera#take_picture" id="default_take_picture_id"></block></statement></block></xml>`,
     colour: COLOR,
     parts: ['clock', 'microphone', 'mouse', 'speaker', 'synth', 'button',
                 'box', 'sticker', 'map', 'picture-list',

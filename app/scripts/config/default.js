@@ -18,4 +18,6 @@ config.GEO_API = 'http://kano-geoip-api.herokuapp.com/country/';
 
 config.BLOCKLY_MEDIA = '/node_modules/@kano/kwc-blockly/blockly_built/media/';
 
+config.LOG_LEVEL = -1;
+
 export { config };

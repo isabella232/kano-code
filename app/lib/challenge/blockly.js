@@ -194,9 +194,7 @@ class BlocklyChallenge extends Challenge {
         return null;
     }
     _matchCategory(validation, event) {
-        if (validation.part || validation.rawPart) {
-            validation = validation.part ? this.stepIds[validation.part] : validation.rawPart;
-        } else if (validation.value) {
+        if (validation.value) {
             validation = validation.value;
         }
         return event.categoryId === validation;

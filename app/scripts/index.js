@@ -58,6 +58,10 @@ const Bootstrap = {
         document.addEventListener('kano-routing-load-finish', Bootstrap.onFirstPageLoaded);
         Bootstrap.kanoAppInserted = true;
     },
+    addBlocklyMsg(msg) {
+        window.CustomBlocklyMsg = window.CustomBlocklyMsg || {};
+        Object.assign(window.CustomBlocklyMsg, msg);
+    },
     /**
      * Imports the elements bundle and the messages depending on the locale
      */
@@ -66,7 +70,9 @@ const Bootstrap = {
 
         Promise.all([
             I18n.load(`/locale/editor/${lang}.json`),
-            I18n.load(`/locale/blockly/${lang}.json`).then(m => window.CustomBlocklyMsg = m),
+            I18n.load(`/locale/blockly/${lang}.json`).then(m => this.addBlocklyMsg(m)),
+            I18n.load(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/constants.json`).then(m => this.addBlocklyMsg(m)),
+            I18n.load(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/en.json`).then(m => this.addBlocklyMsg(m)),
             import('../elements/elements.js'),
         ]).then(() => {
             this.onElementsLoaded();

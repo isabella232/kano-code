@@ -46,6 +46,9 @@ class BlocklyMetaRenderer {
         }, {});
 
         register(window.Blockly);
+        if (!filteredBlocks.length || (typeof mod.def.toolbox !== 'undefined' && mod.def.toolbox === false)) {
+            return null;
+        }
 
         return this.defaults.createCategory(category);
     }
@@ -67,6 +70,9 @@ class BlocklyMetaRenderer {
         return null;
     }
     static renderModule(m) {
+        if (!m.symbols) {
+            return [];
+        }
         return m.symbols.reduce((acc, sym) => {
             const rendered = BlocklyMetaRenderer.render(sym);
             if (Array.isArray(rendered)) {
@@ -152,6 +158,9 @@ class BlocklyMetaRenderer {
                     },
                 };
                 Blockly.JavaScript[alias] = (block) => {
+                    if (m.def.blockly && typeof m.def.blockly.javascript === 'function') {
+                        return m.def.blockly.javascript(Blockly, block);
+                    }
                     const values = argsMap.map((argName, index) => {
                         const input = block.getInput(argName);
                         const field = block.getField(argName);
@@ -229,7 +238,24 @@ class BlocklyMetaRenderer {
             };
         }
         case Number:
+        case String:
         default: {
+            if (param.def.blockly && param.def.blockly.field) {
+                let t;
+                switch (type) {
+                case Number:
+                    t = 'field_number';
+                    break;
+                case String:
+                default:
+                    t = 'field_input';
+                    break;
+                }
+                return {
+                    type: t,
+                    value: param.def.default,
+                };
+            }
             return {
                 type: 'input_value',
                 check: BlocklyMetaRenderer.parseType(type),

@@ -5,7 +5,7 @@ import '../kano-workspace-normal/kano-workspace-normal.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { WorkspaceBehavior } from '../behaviors/kano-workspace-behavior.js';
-/* globals Polymer, Kano */
+
 Polymer({
     _template: html`
         <style>
@@ -58,7 +58,7 @@ Polymer({
             <kano-workspace-normal id="workspace" width="[[width]]" height="[[height]]" slot="workspace">
                 <slot name="part" slot="part"></slot>
             </kano-workspace-normal>
-            <kc-parts-controls slot="controls" parts-menu-open="[[partsMenuOpen]]" parts="{{parts}}">
+            <kc-parts-controls slot="controls" parts-menu-open="[[partsMenuOpen]]" parts="[[parts]]" store-id="[[storeId]]">
                 <div class="part" id\$="background" slot="extra-parts" on-tap="_editBackground">
                     <iron-icon class="background-icon" icon="aspect-ratio"></iron-icon>
                     <div>Background</div>
@@ -90,7 +90,6 @@ Polymer({
         },
         parts: {
             type: Array,
-            notify: true,
         },
     },
 

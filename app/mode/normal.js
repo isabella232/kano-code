@@ -59,7 +59,7 @@ const definition = {
     id: 'normal',
     name: 'Draw',
     colour: COLOR,
-    defaultSource: '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" x="60" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>',
+    defaultSource: '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="global_when" x="60" y="120" id="default_part_event_id"><field name="EVENT">global.start</field></block></xml>',
     allowBackground: true,
     workspace: {
         viewport: {
