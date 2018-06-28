@@ -33,9 +33,10 @@ yarn serve
 
 ### Demos
 
-While serving, visit:
+While serving, visit any of those:
 
 http://localhost:4000/demo/simple/index.html
+http://localhost:4000/demo/pong/index.html
 
 # Most of the documentation after this point is outdated:
 -----
