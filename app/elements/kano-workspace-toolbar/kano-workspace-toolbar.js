@@ -10,7 +10,7 @@ import '../kano-icons/kc-ui.js';
 import { AppElementRegistryBehavior } from '../behaviors/kano-app-element-registry-behavior.js';
 import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
 import '../inline-controls/kano-value-rendering/kano-value-rendering.js';
-/* globals Polymer, Kano */
+
 Polymer({
     _template: html`
         <style>
@@ -271,7 +271,18 @@ Polymer({
     },
 
     addMenuItem(label, icon, callback) {
+        // TODO: Better menut item API based on pure js
+        const position = this.settingsItems.length;
+        const menuItem = {
+            update: (label, icon, callback) => {
+                this.set(`settingsItems.${position}`, { label, icon, callback });
+            },
+            dispose: () => {
+                this.splice('settingsItems', position, 1);
+            },
+        };
         this.push('settingsItems', { label, icon, callback });
+        return menuItem;
     },
 
     ready() {

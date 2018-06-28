@@ -317,7 +317,7 @@ Polymer({
                 </div>
             </div>
         </kano-arrow>
-        <template is="dom-repeat" items="{{tooltips}}" as="tooltip" on-dom-change="_tooltipDomChanged">
+        <template is="dom-repeat" items="[[_tooltips]]" as="tooltip" on-dom-change="_tooltipDomChanged">
             <kano-tooltip id\$="tooltip-[[index]]" target="[[tooltip.target]]" position="[[tooltip.position]]" z-index="[[tooltip.zIndex]]" tracking="[[tooltip.tracking]]" bounce\$="[[tooltip.bounce]]" on-tap="_stopPropagation" hidden\$="[[idle]]">
                 <div class="tooltip-content">
                     <div class="tooltip-text">
@@ -379,7 +379,7 @@ Polymer({
     observers: [
         '_setupWithDelay(step, state.*)',
         '_updateBeacon(beacon.*)',
-        '_updatTooltips(tooltips.*)',
+        '_updateTooltips(tooltips.*)',
     ],
 
     listeners: {
@@ -504,13 +504,16 @@ Polymer({
 
     computeTooltips() {
         const { tooltips } = this;
-        this.set('tooltips', []);
+        this.set('_tooltips', []);
         this.debounce('computeTooltips', () => {
             this._fitTooltips(tooltips, true);
         }, 200);
     },
 
     _fitTooltips(tooltips, scroll) {
+        if (!tooltips) {
+            return;
+        }
         const formattedTooltips = tooltips.map((tooltip) => {
             const copy = Object.assign({}, tooltip);
             copy.target = this._getTargetElement(tooltip.location);

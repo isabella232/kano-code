@@ -1,6 +1,7 @@
 
 class AppModules {
-    constructor() {
+    constructor(editor) {
+        this.editor = editor;
         this.modules = {};
     }
     get componentStyles() {
@@ -26,7 +27,7 @@ class AppModules {
     }
 
     define(name, ModuleClass) {
-        this.modules[name] = new ModuleClass();
+        this.modules[name] = new ModuleClass(this.editor);
         if (ModuleClass.aliases) {
             ModuleClass.aliases.forEach((alias) => {
                 this.modules[alias] = this.modules[name];
@@ -58,8 +59,8 @@ class AppModules {
 
     createAppCode(prefix, code) {
         const moduleNames = Object.keys(this.modules);
-        const moduleImports = moduleNames.map(name => `${prefix}.getModule('${name}')`);
-        return `(function (${moduleNames.join(', ')}) {\n${code}\nglobal.emit('start');\n})(${moduleImports.join(', ')});\n`;
+        const moduleImports = moduleNames.filter(name => name).map(name => `${prefix}.getModule('${name}')`);
+        return `(function (${moduleNames.join(', ')}) {\n${code}\n})(${moduleImports.join(', ')});\n`;
     }
 
     generateStandaloneComponent(componentName, parts, background, mode, codes) {
@@ -192,6 +193,10 @@ class AppModules {
             this._runModuleLifecycleStep('stop');
             this.state = 'stopped';
         }
+    }
+
+    afterRun() {
+        this._runModuleLifecycleStep('afterRun');
     }
 
     addModule(id, m) {

@@ -63,6 +63,7 @@ class PartsPlugin extends Plugin {
     _openPartsDialog() {
         const addPartsDialog = this.editor.getElement('add-parts-dialog');
         addPartsDialog.open();
+        this.editor.emit('open-parts');
     }
     onAppLoad(app) {
         this.parts.clear();
@@ -92,16 +93,17 @@ class PartsPlugin extends Plugin {
         this.parts.freeId(part.name);
     }
     addPart(type) {
-        const viewport = this.editor.getViewport();
-        const viewportRect = viewport.getBoundingClientRect();
+        const { outputView } = this.editor;
+        const outputRect = outputView.getBoundingClientRect();
         const { partsMap } = this.editor.store.getState();
         const model = partsMap[type];
         const instanceModel = Object.assign({}, model);
         const { addedParts } = this.editor.store.getState();
-        instanceModel.position = PartsPlugin.getNewPartPosition(viewportRect, addedParts.length);
+        instanceModel.position = PartsPlugin.getNewPartPosition(outputRect, addedParts.length);
         const { mode } = this.editor.store.getState();
         const part = this.parts.create(instanceModel, mode.workspace.viewport);
         this.partsActions.addPart(part);
+        this.editor.emit('add-part', { part });
     }
     static getNewPartPosition(viewportRect, count) {
         const layoutIndex = count % 9;

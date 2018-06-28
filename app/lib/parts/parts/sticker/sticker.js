@@ -17,8 +17,7 @@ export const StickerMixin = base => class extends BaseMixin(base) {
     randomSticker(fromSet) {
         let sets;
         let set = fromSet;
-        const srcProp = this.model.customizable.properties[0];
-        const stickerSet = srcProp.options.stickers;
+        const stickerSet = this.model.config.stickers;
         if (!set) {
             sets = Object.keys(stickerSet);
             set = sets[Math.floor(Math.random() * sets.length)];

@@ -1,5 +1,6 @@
 class AppModule {
-    constructor() {
+    constructor(editor) {
+        this.editor = editor;
         this.lifecycle = {};
         this.methods = {};
     }

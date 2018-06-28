@@ -8,7 +8,6 @@ import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 import { SoundPlayerBehavior } from '@kano/web-components/kano-sound-player-behavior/kano-sound-player-behavior.js';
 import '../../elements/kano-app-challenge/kano-app-challenge.js';
-import '../../elements/kano-app-editor/kano-app-editor.js';
 import '../../elements/kano-challenge-completed-modal/kano-challenge-completed-modal.js';
 import '../../elements/kano-share-modal/kano-share-modal.js';
 import { SharingBehavior } from '../../elements/behaviors/kano-sharing-behavior.js';
@@ -23,11 +22,11 @@ import '../../scripts/kano/make-apps/actions/app.js';
 import { Utils } from '../../scripts/kano/make-apps/utils.js';
 import { experiments } from '../../scripts/kano/make-apps/experiments.js';
 import { ViewBehavior } from '../../elements/behaviors/kano-view-behavior.js';
-import { Editor, UserPlugin, PartsPlugin, Runner, Mode } from '../../lib/index.js';
-import { PartTypes, Parts } from '../../lib/parts/all.js';
+import { Editor, UserPlugin, PartsPlugin, Mode } from '../../lib/index.js';
 import { AllModules } from '../../lib/app-modules/all.js';
 import { AllApis } from '../../scripts/meta-api/all.js';
 import { Challenge } from '../../lib/challenge/index.js';
+import { KanoCodeWorkspaceViewProvider } from '../../scripts/workspace/index.js';
 
 const behaviors = [
     ViewBehavior,
@@ -183,16 +182,14 @@ class KanoViewStory extends Store.StateReceiver(
         const userPlugin = new UserPlugin();
         this.editor.addPlugin(userPlugin);
 
-        this.partsPlugin = new PartsPlugin(PartTypes);
+        this.partsPlugin = new PartsPlugin();
         this.editor.addPlugin(this.partsPlugin);
 
         this.editor.toolbox.setEntries(AllApis);
 
-        this.runner = new Runner(AllModules);
-        this.editor.addPlugin(this.runner);
+        this.editor.runner.addModule(AllModules);
 
         this.challenge = new Challenge(this.partsPlugin);
-        this.challenge.setParts(Parts);
         this.challenge.on('completed', this.challengeCompleted.bind(this));
 
         this.editor.addPlugin(this.challenge);
@@ -251,6 +248,13 @@ class KanoViewStory extends Store.StateReceiver(
         if (this.injected) {
             return;
         }
+        const mode = this.editor.getMode();
+        const workspaceViewProvider = new KanoCodeWorkspaceViewProvider(
+            this.editor,
+            mode.editorTagName || `kano-editor-${mode.id}`,
+            mode.workspace.viewport,
+        );
+        this.editor.registerWorkspaceViewProvider(workspaceViewProvider);
         this.injected = true;
         this.challenge.inject(this.root, this.root.firstChild);
         this.editor.on('share', (shareInfo) => this.share({ detail: shareInfo }));

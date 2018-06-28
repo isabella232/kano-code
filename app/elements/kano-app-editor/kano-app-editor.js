@@ -944,8 +944,8 @@ class KanoAppEditor extends Store.StateReceiver(mixinBehaviors([
         });
     }
     _enableDrag(el) {
-        let draggables,
-            restrictEl;
+        let draggables;
+        let restrictEl;
         this._cleanDraggables();
         if (el) {
             draggables = [el];
@@ -957,7 +957,7 @@ class KanoAppEditor extends Store.StateReceiver(mixinBehaviors([
                 return;
             }
             restrictEl = draggable.model.restrict === 'workspace' ?
-                this.$.workspace.getViewport().getRestrictElement() : this.$['workspace-panel'];
+                this.editor.outputView.getRestrictElement() : this.$['workspace-panel'];
             interact(draggable).draggable({
                 onmove: this.getDragMoveListener(true),
                 onend: (e) => {

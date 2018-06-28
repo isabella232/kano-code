@@ -23,7 +23,7 @@ const definition = {
         padding: 10,
         color: '#263238'
     },
-    defaultSource: '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="part_event" id="default_part_event_id" colour="#33a7ff" x="60" y="120"><field name="EVENT">global.start</field></block></xml>',
+    defaultSource: '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="global_when" id="default_part_event_id" colour="#33a7ff" x="60" y="120"><field name="EVENT">global.start</field></block></xml>',
     events: [{
         label: 'UP pressed',
         id: 'lightboard-js-up',

@@ -7,6 +7,7 @@ class GlobalModule extends AppModule {
         this.addMethod('emit', '_emit');
         this.addMethod('restartCode', '_restartCode');
         this.addLifecycleStep('stop', '_reset');
+        this.addLifecycleStep('afterRun', '_afterRun');
         this._reset();
     }
 
@@ -43,6 +44,10 @@ class GlobalModule extends AppModule {
         if (this._restartCodeHandler) {
             this._restartCodeHandler();
         }
+    }
+
+    _afterRun() {
+        this._emit('start');
     }
 }
 

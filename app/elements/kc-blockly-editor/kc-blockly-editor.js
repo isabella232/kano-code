@@ -1,6 +1,8 @@
-import '../blockly.js';
+import { PolymerElement } from '@polymer/polymer/polymer-element.js';
+import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 import '@kano/kwc-blockly/kwc-blockly.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import '@kano/kwc-blockly/blocks.js';
+import '@kano/kwc-blockly/javascript.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import '@polymer/iron-icon/iron-icon.js';
 import { AppEditorBehavior } from '../behaviors/kano-app-editor-behavior.js';
@@ -14,8 +16,15 @@ import '../../scripts/kano/make-apps/actions/user.js';
 import '../kano-style/themes/dark.js';
 import { Store } from '../../scripts/legacy/store.js';
 
-Polymer({
-    _template: html`
+const behaviors = [
+    AppEditorBehavior,
+    AppElementRegistryBehavior,
+    I18nBehavior,
+];
+
+class KCBlocklyEditor extends Store.StateReceiver(mixinBehaviors([behaviors], PolymerElement)) {
+    static get template() {
+        return html`
         <style>
             :host {
                 display: block;
@@ -34,8 +43,7 @@ Polymer({
                 --kwc-blockly-toolbox: {
                     padding-top: 0;
                     background: var(--kc-secondary-color);
-                }
-                ;
+                };
             }
         
             .shell {
@@ -185,122 +193,106 @@ Polymer({
         <kano-tooltip id="tooltip" position="bottom" offset="8" auto-close="">
             <kc-user-options on-logout="_closeTooltip"></kc-user-options>
         </kano-tooltip>
-`,
-
-    is: 'kc-blockly-editor',
-
-    behaviors: [
-        AppEditorBehavior,
-        AppElementRegistryBehavior,
-        I18nBehavior,
-        Store.ReceiverBehavior,
-    ],
-
-    properties: {
-        noUser: {
-            type: Boolean,
-            value: true,
-        },
-        noBack: {
-            type: Boolean,
-            value: true,
-        },
-        parts: {
-            type: Array,
-            linkState: 'addedParts',
-        },
-        toolbox: {
-            type: Array,
-        },
-        noToolbox: {
-            type: Boolean,
-            value: false,
-        },
-        flyout: {
-            type: Array,
-        },
-        defaultCategories: {
-            type: Object,
-            linkState: 'toolbox',
-        },
-        code: {
-            type: Object,
-            linkState: 'code',
-        },
-        blocks: {
-            type: Object,
-            observer: 'blocksChanged',
-            linkState: 'source',
-        },
-        mode: {
-            type: Object,
-            linkState: 'mode',
-        },
-        user: {
-            type: Object,
-            linkState: 'user',
-        },
-        logoutEnabled: {
-            type: Boolean,
-            linkState: 'editor.logoutEnabled',
-        },
-        flyoutMode: {
-            linkState: 'blockly.flyoutMode',
-        },
-        media: {
-            type: String,
-        },
-    },
-
-    observers: [
-        'computeToolbox(parts)',
-        '_partsChanged(parts.*)',
-        'computeToolboxDebounced(defaultCategories.*)',
-        'computeToolboxDebounced(mode)',
-        'defaultCategoriesLoaded(defaultCategories.events)',
-    ],
-
+`;
+    }
+    static get is() { return 'kc-blockly-editor'; }
+    static get properties() {
+        return {
+            noUser: {
+                type: Boolean,
+                value: true,
+            },
+            noBack: {
+                type: Boolean,
+                value: true,
+            },
+            parts: {
+                type: Array,
+                linkState: 'addedParts',
+            },
+            toolbox: {
+                type: Array,
+            },
+            noToolbox: {
+                type: Boolean,
+                value: false,
+            },
+            flyout: {
+                type: Array,
+            },
+            defaultCategories: {
+                linkState: 'toolbox',
+                value: null,
+            },
+            code: {
+                type: Object,
+                linkState: 'code',
+            },
+            blocks: {
+                type: Object,
+                observer: 'blocksChanged',
+                linkState: 'source',
+            },
+            mode: {
+                type: Object,
+                linkState: 'mode',
+            },
+            user: {
+                type: Object,
+                linkState: 'user',
+            },
+            logoutEnabled: {
+                type: Boolean,
+                linkState: 'editor.logoutEnabled',
+            },
+            flyoutMode: {
+                linkState: 'blockly.flyoutMode',
+            },
+            media: {
+                type: String,
+            },
+        };
+    }
+    static get observers() {
+        return [
+            'computeToolbox(parts)',
+            'computeToolbox(defaultCategories.*)',
+            'computeToolbox(mode)',
+            '_partsChanged(parts.*)',
+        ];
+    }
     _logoutTapped() {
-        this.fire('logout');
+        this.dispatchEvent(new CustomEvent('logout', { bubbles: true }));
         this._closeTooltip();
-    },
-
+    }
     _loginTapped() {
-        this.fire('login');
-    },
-
+        this.dispatchEvent(new CustomEvent('login', { bubbles: true }));
+    }
     _isLogoutHidden(logoutEnabled, user) {
         return !logoutEnabled || !user;
-    },
-
+    }
     _isProfileHidden(user) {
         return !user;
-    },
-
+    }
     _closeTooltip() {
         this.$.tooltip.close();
-    },
-
+    }
     _isAuthenticated(user) {
         return !!user;
-    },
-
+    }
     _computeAvatar(user) {
         if (!user || !user.avatar || !user.avatar.urls || !user.avatar.urls.circle) {
             return '/assets/avatar/judoka-face.svg';
         }
         return user.avatar.urls.circle;
-    },
-
+    }
     _menuButtonTapped(e) {
         this.$.tooltip.target = this.$['menu-icon'].getBoundingClientRect();
         this.$.tooltip.open();
-    },
-
+    }
     _exitButtonTapped() {
-        this.fire('exit-tapped');
-    },
-
+        this.dispatchEvent(new CustomEvent('exit-tapped', { bubbles: true }));
+    }
     _onBlocklyReady() {
         this._registerElement('blockly-bin', this.$['code-editor'].workspace.svgGroup_.querySelector('.blocklyTrash'));
         this._registerElement('blockly-toolbox', this.$['code-editor'].getToolbox());
@@ -308,35 +300,16 @@ Polymer({
         // it doesn't. Use `getFlyout` once kwc-blockly fixes this issue
         const flyout = this.flyout ? this.$['code-editor'].$.flyout : this.$['code-editor'].$.toolbox.$.flyout;
         this._registerElement('blockly-flyout', flyout);
-    },
-
+    }
     _onCodeChanged(e) {
         this.dispatch({ type: 'UPDATE_CODE', code: e.detail.value });
-    },
-
+    }
     blocksChanged() {
         if (!this.blocks) {
             return;
         }
         this.$['code-editor'].loadBlocks(this.blocks);
-    },
-
-    computeTriggerOptions() {
-        const options = [[Blockly.Msg.APP_STARTS, 'global.start']];
-        this.parts.forEach((part) => {
-            part.events.forEach((ev) => {
-                options.push([`${part.name} ${ev.label}`, `${part.id}.${ev.id}`]);
-            });
-        });
-        // Add events of the current mode
-        if (this.mode.events) {
-            this.mode.events.forEach((ev) => {
-                options.push([`${this.mode.name} ${ev.label}`, `${this.mode.id}.${ev.id}`]);
-            });
-        }
-        return options;
-    },
-
+    }
     _onBlocklyChanged(e) {
         // Check if a create event follows a close-flyout event. If so, do not notify
         // of the close-flyout event
@@ -352,63 +325,32 @@ Polymer({
             }
             this.notifyChange('blockly', { event: e.detail });
         }
-    },
-
+    }
     ready() {
+        super.ready();
         const { config } = this.getState();
         this.media = config.BLOCKLY_MEDIA;
         this.toolboxReady = false;
-    },
-
-    defaultCategoriesLoaded(newVal, oldVal) {
-        if (!newVal) {
-            return;
-        }
-        const computeTriggerOptions = this.computeTriggerOptions.bind(this);
-        const colour = this.defaultCategories.events ? this.defaultCategories.events.colour : '';
-        Blockly.Blocks.part_event = {
-            init() {
-                const json = {
-                    id: 'part_event',
-                    colour,
-                    message0: Blockly.Msg.GLOBAL_EVENT,
-                    args0: [{
-                        type: 'field_dropdown',
-                        name: 'EVENT',
-                        options: computeTriggerOptions,
-                    }],
-                    message1: '%1',
-                    args1: [{
-                        type: 'input_statement',
-                        name: 'DO',
-                    }],
-                };
-                this.jsonInit(json);
-            },
-        };
-    },
-
+    }
     computeBlocks() {
-        const events = [];
         const blocks = [];
-        this.parts
-            .forEach((part) => {
-                part.blocks.forEach((definition) => {
-                    if (typeof definition === 'object') {
-                        blocks.push({ part, definition });
-                    }
+        if (this.parts) {
+            this.parts
+                .forEach((part) => {
+                    part.blocks.forEach((definition) => {
+                        if (typeof definition === 'object') {
+                            blocks.push({ part, definition });
+                        }
+                    });
+                    // Also register the legacy blocks to support shares made with previous block API
+                    part.legacyBlocks.forEach((definition) => {
+                        if (typeof definition === 'object') {
+                            blocks.push({ part, definition });
+                        }
+                    });
                 });
-                // Also register the legacy blocks to support shares made with previous block API
-                part.legacyBlocks.forEach((definition) => {
-                    if (typeof definition === 'object') {
-                        blocks.push({ part, definition });
-                    }
-                });
-                part.events.forEach((ev) => {
-                    events.push(ev);
-                });
-            });
-        if (this.mode.categories) {
+        }
+        if (this.mode && this.mode.categories) {
             this.mode.categories.forEach((category) => {
                 category.blocks.forEach((definition) => {
                     blocks.push({ part: this.mode, definition });
@@ -416,8 +358,7 @@ Polymer({
             });
         }
         blocks.forEach(({ part, definition }) => this._registerBlock(part, definition));
-    },
-
+    }
     _registerBlock(part, definition) {
         const block = definition.block(part);
         block.colour = part.colour;
@@ -444,51 +385,51 @@ Polymer({
             }
             Blockly.JavaScript[block.id] = definition.javascript(part);
         }
-    },
-
+    }
     computeToolbox() {
         let categories,
             toolbox,
             parts = this.parts,
             blocks,
             weight;
-        if (!parts || !this.defaultCategories || !this.mode) {
+        if (!this.defaultCategories) {
             return;
         }
         this.computeBlocks();
-        // Reset events blocks
         weight = {
             ui: 1,
             data: 2,
             hardware: 3,
         };
-        categories = parts
-            .map((ui) => {
-                blocks = ui.blocks.map((definition) => {
-                    if (typeof definition === 'string') {
+        if (parts) {
+            categories = parts
+                .map((ui) => {
+                    blocks = ui.blocks.map((definition) => {
+                        if (typeof definition === 'string') {
+                            return {
+                                id: definition,
+                                colour: ui.colour,
+                            };
+                        }
+                        const block = definition.block(ui);
+                        block.colour = ui.colour;
+                        block.id = `${ui.id}#${block.id}`;
                         return {
-                            id: definition,
-                            colour: ui.colour,
+                            id: block.id,
+                            colour: block.colour,
+                            shadow: block.shadow,
                         };
-                    }
-                    const block = definition.block(ui);
-                    block.colour = ui.colour;
-                    block.id = `${ui.id}#${block.id}`;
+                    });
                     return {
-                        id: block.id,
-                        colour: block.colour,
-                        shadow: block.shadow,
+                        name: ui.name,
+                        colour: ui.colour,
+                        id: ui.id,
+                        weight: weight[ui.partType],
+                        blocks,
                     };
-                });
-                return {
-                    name: ui.name,
-                    colour: ui.colour,
-                    id: ui.id,
-                    weight: weight[ui.partType],
-                    blocks,
-                };
-            })
-            .sort((a, b) => a.weight - b.weight);
+                })
+                .sort((a, b) => a.weight - b.weight);
+        }
 
         categories = categories || [];
         categories = categories.filter(category => category.blocks.length);
@@ -502,7 +443,7 @@ Polymer({
         toolbox = Object.keys(this.defaultCategories).map(id => this.defaultCategories[id]);
 
         // Generate the toolbox for the special mode
-        if (this.mode.categories) {
+        if (this.mode && this.mode.categories) {
             this.mode.categories.forEach((category) => {
                 const modeCat = {
                     name: category.name,
@@ -540,8 +481,7 @@ Polymer({
             this.toolboxReady = true;
             this.$['code-editor'].loadBlocks(this.blocks);
         }
-    },
-
+    }
     _partsChanged(e) {
         // If the name changes, the id will do as well
         const idChanged = e.path.indexOf('name') === e.path.length - 4;
@@ -571,21 +511,24 @@ Polymer({
                 }, 200);
             }
         }
-    },
-
+    }
     _updateIdRegistry() {
         // Keeps a record of all the ids. If one changes, we can get the old value from here
         this._idRegistry = this.parts.map(part => part.id);
-    },
-
+    }
     computeToolboxDebounced() {
-        this.debounce('computeToolbox', () => this.computeToolbox(), 200);
-    },
-
+        this.computeToolbox();
+    }
     getBlocklyWorkspace() {
         return this.$['code-editor'].getWorkspace();
-    },
-
+    }
+    get workspace() {
+        return this.getBlocklyWorkspace();
+    }
+    get Blockly() {
+        // TODO: Get kwc-blockly to give it to us
+        return window.Blockly;
+    }
     canRemovePart(part) {
         let xmlString,
             xml,
@@ -611,9 +554,10 @@ Polymer({
             }
         }
         return false;
-    },
-
+    }
     getSource() {
         return this.$['code-editor'].getBlocks();
-    },
-});
+    }
+}
+
+customElements.define(KCBlocklyEditor.is, KCBlocklyEditor);

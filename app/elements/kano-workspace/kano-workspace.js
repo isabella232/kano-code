@@ -82,7 +82,6 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             },
             mode: {
                 type: Object,
-                observer: '_modeChanged',
                 linkState: 'mode',
             },
             background: {
@@ -111,6 +110,9 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
         this.devices = {};
         this.devices.get = this._getPartById.bind(this);
         this._partSelected = this._partSelected.bind(this);
+    }
+    get view() {
+        return this.dropzone;
     }
     connectedCallback() {
         super.connectedCallback();
@@ -194,40 +196,13 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             dropzone.setBackground(bg);
         }
     }
-    _modeChanged(mode) {
+    appendView(workspaceView) {
+        this.workspaceView = workspaceView;
         const placeholder = this.$$('#workspace-placeholder');
-        const modeId = mode.id;
-        const tagName = mode.editorTagName || `kano-editor-${modeId}`;
-        const tpl = document.createElement('template');
-
-        tpl.innerHTML = `<${tagName} id$="[[mode.id]]"
-                                          parts="[[parts]]"
-                                          class="dropzone"
-                                          width="[[mode.workspace.viewport.width]]"
-                                          height="[[mode.workspace.viewport.height]]"
-                                          running="[[running]]">
-                                          </${tagName}>`;
-
-        const template = html`${tpl}`;
-        this.instance = this._stampTemplate(template);
-
-        /* Remove old dropzone and add new one */
-        if (this.dropzone) {
-            placeholder.removeChild(this.dropzone);
-        }
-        placeholder.appendChild(this.instance);
-
-        /* Update dropzone reference */
-        this.dropzone = this.shadowRoot.querySelector(`#${this.mode.id}`);
-
-        if (this.dropzone.setBackground) {
-            this.dropzone.setBackground(this.background);
-        }
-
+        placeholder.appendChild(workspaceView.root);
         this.parts.forEach((model, index) => {
             this.insertPart(`#${index}`);
         });
-        this.fire('mode-ready');
     }
     onTap(e) {
         let target;
@@ -235,7 +210,7 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             return;
         }
         target = e.path ? e.path[0] : e.target;
-        if (target === this.dropzone) {
+        if (target === this.workspaceView.root) {
             this.clearSelection();
         } else if (target === this.$.content) {
             this.clearSelection();
@@ -243,20 +218,21 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
         }
     }
     clearSelection() {
-        if (this.dropzone) {
-            const selectedPartElement = this.dropzone.querySelector('.selected');
+        if (this.workspaceView) {
+            const selectedPartElement = this.workspaceView.root.querySelector('.selected');
             this.toggleClass('selected', false, selectedPartElement);
         }
         this.dispatch({ type: 'SELECT_PART', index: null });
     }
     partFromElement() {
-        const model = this.tappedElement.model;
-        for (let i = 0; i <= this.parts.length; i++) {
+        const { model } = this.tappedElement;
+        for (let i = 0; i <= this.parts.length; i += 1) {
             const part = this.parts[i];
             if (model.id === part.id) {
                 return part;
             }
         }
+        return null;
     }
     _partSelected(e) {
         const part = e.detail;
@@ -268,7 +244,7 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             this.fire('close-settings');
             this.clearSelection();
         } else {
-            const selectedPartElement = this.dropzone.querySelector('.selected');
+            const selectedPartElement = this.workspaceView.root.querySelector('.selected');
             this.toggleClass('selected', false, selectedPartElement);
             const partIndex = this.parts.indexOf(part);
             this.dispatch({ type: 'SELECT_PART', index: partIndex });
@@ -277,10 +253,10 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
     _selectedChanged() {
         const part = this.selected;
         let partElement;
-        if (!this.dropzone || !part) {
+        if (!this.workspaceView || !part) {
             return;
         }
-        partElement = this.dropzone.querySelector(`#${part.id}`);
+        partElement = this.workspaceView.root.querySelector(`#${part.id}`);
         this.toggleClass('selected', true, partElement);
         this.fire('open-settings');
     }
@@ -323,7 +299,7 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
     }
     insertPart(key) {
         const model = this.get(`parts.${key}`);
-        if (!this.dropzone) {
+        if (!this.workspaceView) {
             return;
         }
         const { tagName } = model;
@@ -348,24 +324,25 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
   * top, which means it needs to be last the DOM).
   */
     _attachPartElementToDOM(element) {
-        let model = element.model,
-            reverseParts = this.parts.slice().reverse(),
-            index = reverseParts.indexOf(model);
+        const { model } = element;
+        const reverseParts = this.parts.slice().reverse();
+        const index = reverseParts.indexOf(model);
+        const { partsRoot } = this.workspaceView;
 
-        if (index < reverseParts.indexOf(this.dropzone.lastChild.model)) {
+        if (partsRoot.lastChild && index < reverseParts.indexOf(partsRoot.lastChild.model)) {
             /* If the element doesn't belong at the end,
           find the right element to insert it before */
-            for (let i = 0; i < this.dropzone.children.length; i++) {
-                let child = this.dropzone.children[i],
-                    childIndex = reverseParts.indexOf(child.model);
+            for (let i = 0; i < partsRoot.children.length; i += 1) {
+                const child = partsRoot.children[i];
+                const childIndex = reverseParts.indexOf(child.model);
                 if (childIndex > index) {
-                    this.dropzone.insertBefore(element, child);
+                    partsRoot.insertBefore(element, child);
                     break;
                 }
             }
         } else {
             /* If ll existing elements come before this one, append it. */
-            this.dropzone.appendChild(element);
+            partsRoot.appendChild(element);
         }
     }
     removePart(key) {
@@ -373,7 +350,8 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
         if (!element) {
             return;
         }
-        this.dropzone.removeChild(element);
+        const { partsRoot } = this.workspaceView;
+        partsRoot.removeChild(element);
         delete this.elements[key];
     }
     getPartsDict() {
@@ -386,10 +364,10 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             acc[model.id] = this.elements[key];
             return acc;
         }, {});
-        if (this.dropzone) {
-            dict[this.mode.id] = this.dropzone.getViewport();
+        if (this.workspaceView) {
+            dict[this.mode.id] = this.workspaceView.outputView;
             // Support legacy apps
-            dict.dropzone = this.dropzone.getViewport();
+            dict.dropzone = this.workspaceView.outputView;
         }
         return dict;
     }
@@ -424,8 +402,8 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
         );
     }
     reset() {
-        if (this.dropzone) {
-            this.dropzone.clear();
+        if (this.workspaceView) {
+            this.workspaceView.clear();
         }
         this.fire('tracking-event', {
             name: 'workspace_reset',

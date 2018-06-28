@@ -5,20 +5,20 @@ import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 import { I18nBehavior } from '../../elements/behaviors/kano-i18n-behavior.js';
 import { SharingBehavior } from '../../elements/behaviors/kano-sharing-behavior.js';
-import '../../elements/kano-app-editor/kano-app-editor.js';
 import '../../elements/kano-editor-topbar/kano-editor-topbar.js';
 import '../../elements/kano-share-modal/kano-share-modal.js';
 import '../../elements/kc-file-upload-overlay/kc-file-upload-overlay.js';
 import { AllModules } from '../../lib/app-modules/all.js';
 import { ChallengeGeneratorPlugin } from '../../lib/challenge/index.js';
-import { Editor, FileUploadPlugin, I18n, LocalStoragePlugin, Mode, PartsPlugin, Runner, UserPlugin } from '../../lib/index.js';
-import { AllApis } from '../../scripts/meta-api/all.js';
+import { Editor, FileUploadPlugin, I18n, LocalStoragePlugin, Mode, PartsPlugin, UserPlugin } from '../../lib/index.js';
+import { AllApis, EventsModuleFactory } from '../../scripts/meta-api/all.js';
 import '../../scripts/kano/make-apps/actions/app.js';
 import '../../scripts/kano/make-apps/blockly/blockly.js';
 import { SDK } from '../../scripts/kano/make-apps/sdk.js';
 import { Store } from '../../scripts/kano/make-apps/store.js';
 import '../../scripts/kano/make-apps/utils.js';
 import { Router } from '../../scripts/kano/util/router.js';
+import { KanoCodeWorkspaceViewProvider } from '../../scripts/workspace/index.js';
 
 const behaviors = [
     SharingBehavior,
@@ -120,7 +120,7 @@ class KanoViewEditor extends Store.StateReceiver(
             remixLoadingAlertOpened: {
                 type: Boolean,
                 linkState: 'editor.remixLoadingAlertOpened',
-            }
+            },
         };
     }
     static get observers() {
@@ -142,10 +142,13 @@ class KanoViewEditor extends Store.StateReceiver(
         this.storagePlugin = new LocalStoragePlugin(this._getStorageKey.bind(this));
         this.editor.addPlugin(this.storagePlugin);
 
-        this.editor.toolbox.setEntries(AllApis);
+        const EventsModule = EventsModuleFactory(this.editor);
 
-        this.runner = new Runner(AllModules);
-        this.editor.addPlugin(this.runner);
+        const toolboxEntries = [EventsModule, ...AllApis];
+
+        this.editor.toolbox.setEntries(toolboxEntries);
+
+        this.editor.runner.addModule(AllModules);
 
         if (config.ENABLE_CHALLENGE_GENERATOR) {
             this.challengeGeneratorPlugin = new ChallengeGeneratorPlugin();
@@ -244,8 +247,14 @@ class KanoViewEditor extends Store.StateReceiver(
         return Mode.load(id, url);
     }
     setupEditor() {
+        const mode = this.editor.getMode();
+        const workspaceViewProvider = new KanoCodeWorkspaceViewProvider(
+            this.editor,
+            mode.editorTagName || `kano-editor-${mode.id}`,
+            mode.workspace.viewport,
+        );
+        this.editor.registerWorkspaceViewProvider(workspaceViewProvider);
         this.editor.inject(this.root, this.root.firstChild);
-        const { config } = this.getState();
         this.editor.on('share', shareInfo => this.share({ detail: shareInfo }));
         this.editor.on('exit', () => this._exit());
 

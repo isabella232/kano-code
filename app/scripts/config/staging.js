@@ -9,4 +9,5 @@ staging.KANO_CODE_URL = "https://apps-staging.kano.me";
 staging.GOOGLE_API_KEY = "AIzaSyB3CO_eTW7T_bwAQFewuUqwNElg_b9B6lQ";
 staging.TAPCODE_URL = "https://tapcode-staging.kano.me";
 staging.ENABLE_CHALLENGE_GENERATOR = true;
+staging.LOG_LEVEL = 10;
 export { staging as config };
