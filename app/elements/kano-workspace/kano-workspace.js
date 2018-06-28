@@ -82,7 +82,6 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
             },
             mode: {
                 type: Object,
-                // observer: '_modeChanged',
                 linkState: 'mode',
             },
             background: {
@@ -204,41 +203,6 @@ class KanoWorkspace extends Store.StateReceiver(mixinBehaviors(behaviors, Polyme
         this.parts.forEach((model, index) => {
             this.insertPart(`#${index}`);
         });
-    }
-    _modeChanged(mode) {
-        const placeholder = this.$$('#workspace-placeholder');
-        const modeId = mode.id;
-        const tagName = mode.editorTagName || `kano-editor-${modeId}`;
-        const tpl = document.createElement('template');
-
-        tpl.innerHTML = `<${tagName} id$="[[mode.id]]"
-                                          parts="[[parts]]"
-                                          class="dropzone"
-                                          width="[[mode.workspace.viewport.width]]"
-                                          height="[[mode.workspace.viewport.height]]"
-                                          running="[[running]]">
-                                          </${tagName}>`;
-
-        const template = html`${tpl}`;
-        this.instance = this._stampTemplate(template);
-
-        /* Remove old dropzone and add new one */
-        if (this.dropzone) {
-            placeholder.removeChild(this.dropzone);
-        }
-        placeholder.appendChild(this.instance);
-
-        /* Update dropzone reference */
-        this.dropzone = this.shadowRoot.querySelector(`#${this.mode.id}`);
-
-        if (this.dropzone.setBackground) {
-            this.dropzone.setBackground(this.background);
-        }
-
-        this.parts.forEach((model, index) => {
-            this.insertPart(`#${index}`);
-        });
-        this.fire('mode-ready');
     }
     onTap(e) {
         let target;
