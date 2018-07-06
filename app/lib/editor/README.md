@@ -151,7 +151,7 @@ except that they closes this dialog.
 ![alt text](../../../docs/dialogs/alert.png "Alert")
 
 ```js
-const alert = editor.registerAlert({
+const alert = editor.dialogs.registerAlert({
     heading: 'My heading',
     text: 'My text',
     buttonLabel: 'Got it',
@@ -171,7 +171,7 @@ action.
 
 ![alt text](../../../docs/dialogs/confirm.png "Confirm")
 ```js
-const alert = editor.registerConfirm({
+const alert = editor.dialogs.registerConfirm({
     heading: 'My heading',
     text: 'My text',
     confirmLabel: 'Yes',
@@ -205,7 +205,7 @@ class MyDialogProvider extends code.DialogProvider {
     }
 }
 
-const alert = editor.registerDialogProvider(new MyDialogProvider());
+const alert = editor.dialogs.registerDialogProvider(new MyDialogProvider());
 
 alert.open(); // Opens the alert
 alert.close();
