@@ -101,6 +101,13 @@ class Editor extends EventEmitter {
         this.elementsRegistry.set('source-view', sourceView);
         this.elementsRegistry.set('toolbox-enhancer-above', sourceView.$['toolbox-enhancer-above']);
     }
+    /**
+     * TODO: Remove once the editor moved to a better element registry API
+     * Ads an element to the old app-element-registry-behavior
+     */
+    registerLegacyElement(id, el) {
+        this.rootEl._registerElement(id, el);
+    }
     getElement(id) {
         return this.elementsRegistry.get(id);
     }

@@ -12,6 +12,7 @@ export class AddPartDialogProvider extends DialogProvider {
         this.form.style.margin = '0';
         this.form.addEventListener('confirm', this._onConfirm);
         this.form.addEventListener('elements-changed', this._elementsChanged);
+        this.editor.registerLegacyElement('parts-panel', this.form);
     }
     setParts(parts) {
         this.form.availableParts = parts;
@@ -30,7 +31,7 @@ export class AddPartDialogProvider extends DialogProvider {
         const elements = e.detail;
         elements.forEach((el) => {
             const id = el.getAttribute('id');
-            this.editor.elementsRegistry.set(`parts-panel-${id}`, el);
+            this.editor.registerLegacyElement(`parts-panel-${id}`, el);
         });
     }
 }

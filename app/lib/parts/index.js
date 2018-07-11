@@ -412,8 +412,8 @@ class PartsPlugin extends Plugin {
                     type: 'create-part',
                     part: part.type,
                     alias: generator.partsIds[part.id],
-                    openPartsCopy: '<OPEN PARTS DIALOG>',
-                    addPartCopy: '<ADD PART>',
+                    openPartsCopy: `Add a **${part.label}** part, use the Add Parts button`,
+                    addPartCopy: `Select the **${part.label}** part to add it to your app`,
                 };
             });
             challenge.steps = steps.concat(challenge.steps);
