@@ -1,6 +1,6 @@
 import VM from '../vm.js';
 import AppModulesLoader from '../app-modules/index.js';
-import Plugin from './plugin.js';
+import { Plugin } from './plugin.js';
 
 class Runner extends Plugin {
     constructor() {
