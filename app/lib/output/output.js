@@ -94,6 +94,7 @@ export class Output extends PluginReceiver {
         if (this.outputViewProvider) {
             this.outputViewProvider.onInject();
         }
+        this.runPluginTask('onInject');
     }
     onExport(data) {
         return this.plugins.reduce((d, plugin) => plugin.onExport(d), data);

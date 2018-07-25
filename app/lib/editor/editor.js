@@ -147,6 +147,7 @@ class Editor extends EditorOrPlayer {
         }
         this.appendWorkspaceView();
         this.setupElements();
+        this.output.onInject();
         if (this.workspaceProvider) {
             this.workspaceProvider.onInject();
         }
