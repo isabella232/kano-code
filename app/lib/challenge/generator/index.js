@@ -1,6 +1,6 @@
 import { Plugin } from '../../editor/plugin.js';
 import { GeneratorAPIProvider } from './api.js';
-import { labelMap } from '../../parts/parts/speaker/factory.js'
+import { labelMap, setupFieldProxy } from './label-map.js';
 
 const GENERATOR_BLOCKS = [
     'generator_banner',
@@ -20,6 +20,7 @@ class Challenge extends Plugin {
         this.reset();
         this.middlewares = [];
         this.blockCount = {};
+        setupFieldProxy(window.Blockly);
     }
     addMiddleware(middleware) {
         this.middlewares.push(middleware);
