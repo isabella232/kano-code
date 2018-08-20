@@ -1,3 +1,4 @@
+import { TelemetryClient } from '@kano/telemetry/index.js';
 import Config from '../config.js';
 import Store from './store.js';
 import EditorActions from '../actions/editor.js';
@@ -76,6 +77,8 @@ class Editor extends EditorOrPlayer {
 
         this.creation = new CreationPlugin();
         this.addPlugin(this.creation);
+
+        this.telemetry = new TelemetryClient({ scope: 'kc-editor' });
 
         this.on('import', (event) => {
             this.load(event.app);
@@ -164,6 +167,7 @@ class Editor extends EditorOrPlayer {
             this._queuedVariables = null;
         }
         this.runPluginTask('onInject');
+        this.telemetry.trackEvent({ name: 'ide_opened' });
     }
     dispose() {
         if (this.injected) {
@@ -176,12 +180,14 @@ class Editor extends EditorOrPlayer {
             this.workspaceView.onDispose();
         }
         this.runPluginTask('onDispose');
+        this.telemetry.trackEvent({ name: 'ide_exited' });
     }
     load(app) {
         this.runPluginTask('onImport', app);
         this.output.runPluginTask('onImport', app);
         this.editorActions.loadSource(app.source);
         this.emit('loaded');
+        this.telemetry.trackEvent({ name: 'app_imported' });
     }
     reset() {
         const source = this.profile ? this.profile.source : '';
@@ -217,6 +223,7 @@ class Editor extends EditorOrPlayer {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        this.telemetry.trackEvent({ name: 'app_exported' });
     }
     importFromDisk() {
         this.fileInput = document.createElement('input');

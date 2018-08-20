@@ -1,4 +1,5 @@
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+import { html } from '@polymer/polymer/polymer-element.js';
+import { TelemetryClient } from '@kano/telemetry/index.js';
 import Parts from './parts.js';
 import PartsActions from '../actions/parts.js';
 import { Plugin } from '../editor/plugin.js';
@@ -22,6 +23,9 @@ export class PartsPlugin extends Plugin {
         this.setParts(this.outputPlugin.partList);
         this._onPartSelected = this._onPartSelected.bind(this);
         this._onEditPartDialogClosed = this._onEditPartDialogClosed.bind(this);
+        this._onAddPartDialogClosed = this._onAddPartDialogClosed.bind(this);
+
+        this._telemetry = new TelemetryClient({ scope: 'parts' });
     }
     onInstall(editor) {
         this.editor = editor;
@@ -32,6 +36,8 @@ export class PartsPlugin extends Plugin {
         // app-editor is still requesting to create parts on hardware detection
         this.editor.on('add-part-request', this._onAddPartRequest.bind(this));
         this.editor.on('remove-part-request', this._onRemovePartRequest.bind(this));
+
+        this.editor.telemetry.mount(this._telemetry);
     }
     onInject() {
         this.setupDialogs();
@@ -54,8 +60,9 @@ export class PartsPlugin extends Plugin {
 
         this.addPartDialogProvider = new AddPartDialogProvider(this.editor);
         this.addPartDialogProvider.on('confirm', this._onAddPartsFormConfirmed.bind(this));
-
+        
         this.addPartDialog = this.editor.dialogs.registerDialog(this.addPartDialogProvider);
+        this.addPartDialog.on('cancel', this._onAddPartDialogClosed);
     }
     setupPartsControls() {
         const { workspaceView } = this.editor;
@@ -104,6 +111,9 @@ export class PartsPlugin extends Plugin {
         }
         e.detail.keyboardEvent.preventDefault();
         e.detail.keyboardEvent.stopPropagation();
+    }
+    _onAddPartDialogClosed() {
+        this._telemetry.trackEvent({ name: 'parts_tray_closed' });
     }
     _onEditPartDialogClosed() {
         const { selectedPartIndex, addedParts } = this.editor.store.getState();
@@ -195,6 +205,7 @@ export class PartsPlugin extends Plugin {
             });
             alertDelete.on('close', () => {
                 alertDelete.dispose();
+                this._telemetry.trackEvent({ name: 'part_remove_dialog_closed' });
             });
             alertDelete.open();
         } else {
@@ -206,9 +217,11 @@ export class PartsPlugin extends Plugin {
                 this.removePart(part);
                 this.editor.emit('remove-part', { part });
                 confirmDelete.dispose();
+                this._telemetry.trackEvent({ name: 'part_remove_dialog_closed' });
             });
             confirmDelete.open();
         }
+        this._telemetry.trackEvent({ name: 'part_remove_dialog_opened' });
     }
     setPartTypes(types) {
         this.types = types;
@@ -228,6 +241,12 @@ export class PartsPlugin extends Plugin {
     _onAddPartsFormConfirmed(type) {
         this.addPartDialog.close();
         this.addPart(type);
+        this._telemetry.trackEvent({
+            name: 'part_added',
+            properties: {
+                part_name: type,
+            },
+        });
     }
     _openPartsDialog() {
         const { addedParts } = this.editor.store.getState();
@@ -235,6 +254,7 @@ export class PartsPlugin extends Plugin {
         this.addPartDialogProvider.setParts(this.partList);
         this.addPartDialog.open();
         this.editor.emit('open-parts');
+        this._telemetry.trackEvent({ name: 'parts_tray_opened' });
     }
     onImport(app) {
         this.parts.clear();
@@ -269,6 +289,12 @@ export class PartsPlugin extends Plugin {
     }
     _onRemovePartRequest(e) {
         this.removePart(e);
+        this._telemetry.trackEvent({
+            name: 'part_removed',
+            parameters: {
+                part_name: e.type,
+            },
+        });
     }
     removePart(part) {
         this.removePartElement(part);

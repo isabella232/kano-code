@@ -1,3 +1,4 @@
+import { TelemetryClient } from '@kano/telemetry/index.js';
 import { Plugin } from '../plugin.js';
 import { Subscriptions, subscribe } from '../../util/subscription.js';
 
@@ -5,9 +6,12 @@ export class WorkspaceToolbar extends Plugin {
     constructor() {
         super();
         this.subscriptions = new Subscriptions();
+
+        this._telemetry = new TelemetryClient({ scope: 'workspace_toolbar' });
     }
     onInstall(editor) {
         this.editor = editor;
+        this.editor.telemetry.mount(this._telemetry);
     }
     onInject() {
         const { workspaceView } = this.editor;
@@ -36,24 +40,31 @@ export class WorkspaceToolbar extends Plugin {
     }
     restart() {
         this.editor.output.restart();
+        this._telemetry.trackEvent({ name: 'restart_clicked' });
     }
     toggleRun() {
         this.editor.output.toggleRunningState();
+        this._telemetry.trackEvent({ name: 'run_clicked' });
     }
     toggleFullscreen() {
         this.editor.output.toggleFullscreen();
+        this._telemetry.trackEvent({ name: 'fullscreen_clicked', properties: { value: this.editor.output.getFullscreen() } });
     }
     reset() {
         this.editor.reset();
+        this._telemetry.trackEvent({ name: 'reset_clicked' });
     }
     export() {
         this.editor.exportToDisk();
+        this._telemetry.trackEvent({ name: 'export_clicked' });
     }
     import() {
         this.editor.importFromDisk();
+        this._telemetry.trackEvent({ name: 'import_clicked' });
     }
     save() {
         this.editor.creation.init();
+        this._telemetry.trackEvent({ name: 'save_clicked' });
     }
     addEntry(...args) {
         if (!this.toolbar) {
