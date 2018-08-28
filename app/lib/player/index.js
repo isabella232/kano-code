@@ -8,9 +8,16 @@ export class Player extends EditorOrPlayer {
     constructor() {
         super();
         this.output = new Output();
+        this.enableFullscreen();
     }
     static registerProfile(profile) {
         profiles.set(profile.id, profile);
+    }
+    disableFullscreen() {
+        this._fullscreenEnabled = false;
+    }
+    enableFullscreen() {
+        this._fullscreenEnabled = true;
     }
     load(data) {
         const profile = profiles.get(data.profile);
@@ -73,7 +80,7 @@ export class Player extends EditorOrPlayer {
         this.setFullscreen(!this.getFullscreen());
     }
     _updateFullscreen() {
-        if (!this.outputRoot) {
+        if (!this.outputRoot || !this._fullscreenEnabled) {
             return;
         }
         if (this._fullscreen) {

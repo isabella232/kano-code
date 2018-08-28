@@ -1,5 +1,4 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
-
 import '@kano/kwc-icons/kwc-icons.js';
 import '../kc-player-toolbar/kc-player-toolbar.js';
 
@@ -14,24 +13,14 @@ class KCPlayer extends PolymerElement {
     static get template() {
         return html`
         <style>
-            :host([layout="vertical"]) {
-                @apply --layout-vertical;
-                @apply --layout-center;
+            :host {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch;
             }
-            :host([layout="horizontal"]) {
-                padding: 16px 60px;
-                position: relative;
-                @apply --layout-horizontal;
-                @apply --layout-center;
-            }
-            :host .user-app {
-                @apply --layout-flex;
-                @apply --layout-self-stretch;
-                height: 100%;
-                width: 100%;
-            }
-            :host(.fullscreen) {
-                padding: 5vh 16px;
+            :host([fullscreen]) {
+                padding: 64px 16px;
                 position: fixed;
                 top: 0px;
                 left: 0px;
@@ -41,36 +30,34 @@ class KCPlayer extends PolymerElement {
                 z-index: 100;
                 background-color: var(--color-chateau);
             }
-            :host([layout="horizontal"].fullscreen) {
-                @apply --layout-vertical-reverse;
-                @apply --layout-justified;
-                @apply --layout-center;
+            :host([fullscreen]) kc-player-toolbar {
+                margin-top: 64px;
             }
-            :host(.fullscreen) .user-app {
-                width: 60%;
-                height: 40%;
-                margin: auto;
+            :host([fullscreen]) .close {
+                display: block;
             }
-            :host(.fullscreen) kc-player-toolbar {
-                margin: 0 auto 40px auto;
-                width: 40%;
-            }
-            :host(.fullscreen) .close {
+            .close {
+                display: none;
                 cursor: pointer;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                padding: 16px;
+                background: transparent;
+                border: 0;
+            }
+            .close .icon {
                 color: var(--color-porcelain);
                 height: 16px;
-                position: absolute;
-                right: 20px;
-                top: 20px;
                 width: 16px;
             }
             #container {
-                @apply(--layout-vertical);
-                @apply(--layout-flex);
-                @apply(--layout-center);
-                @apply(--layout-center-justified);
                 position: relative;
-                text-align: center;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch;
             }
             #container>* {
                 width: 100%;
@@ -78,18 +65,6 @@ class KCPlayer extends PolymerElement {
             }
             h1.error {
                 color: var(--color-red, red);
-            }
-            :host([layout="vertical"]) kc-player-toolbar {
-                width: 100%;
-            }
-            :host([layout="horizontal"]) kc-player-toolbar {
-                position: absolute;
-                right: 0;
-                top: 8%;
-                z-index: 10;
-            }
-            :host([layout="horizontal"].fullscreen) kc-player-toolbar {
-                position: relative;
             }
             *[hidden] {
                 display: none !important;
@@ -105,8 +80,10 @@ class KCPlayer extends PolymerElement {
             </template>
         </div>
         <template is="dom-if" if="[[showToolbar]]">
-            <iron-icon class="icon close" hidden\$="[[!fullscreen]]" icon="kano-icons:close" on-tap="_toggleFullscreen"></iron-icon>
-            <kc-player-toolbar layout="[[toolbarLayout]]" running="[[running]]" on-run-button-clicked="_toggleRunning" on-reset-button-clicked="_reset" on-fullscreen-button-clicked="_toggleFullscreen"></kc-player-toolbar>
+            <button class="close" on-click="_toggleFullscreen">
+                <iron-icon class="icon" icon="kano-icons:close"></iron-icon>
+            </button>
+            <kc-player-toolbar running="[[running]]" on-run-button-clicked="_toggleRunning" on-reset-button-clicked="_reset" on-fullscreen-button-clicked="_toggleFullscreen"></kc-player-toolbar>
         </template>
         `;
     }
@@ -120,22 +97,14 @@ class KCPlayer extends PolymerElement {
                 type: Boolean,
                 value: false,
             },
-            layout: {
-                type: String,
-                value: 'vertical',
-                reflectToAttribute: true,
-            },
             showToolbar: {
                 type: Boolean,
                 value: false,
             },
-            toolbarLayout: {
-                type: String,
-                computed: '_toolbarLayout(layout, fullscreen)',
-            },
             fullscreen: {
                 type: Boolean,
                 value: false,
+                reflectToAttribute: true,
             },
             running: {
                 type: Boolean,
@@ -151,6 +120,7 @@ class KCPlayer extends PolymerElement {
             this.player.dispose();
         }
         this.player = new Player();
+        this.player.disableFullscreen();
 
         fetch(this.src)
             .then(r => r.json())
@@ -160,7 +130,10 @@ class KCPlayer extends PolymerElement {
             })
             .then(() => {
                 this.player.setRunningState(true);
-                this.dispatchEvent(new CustomEvent('app-ready'));
+            })
+            .catch((e) => {
+                this.failed = true;
+                throw e;
             });
     }
     disconnectedCallback() {
@@ -180,9 +153,6 @@ class KCPlayer extends PolymerElement {
     _toggleFullscreen() {
         this.player.toggleFullscreen();
         this.fullscreen = this.player.getFullscreen();
-    }
-    _toolbarLayout(layout, fullscreen) {
-        return layout === 'vertical' || fullscreen ? 'horizontal' : 'vertical';
     }
 }
 

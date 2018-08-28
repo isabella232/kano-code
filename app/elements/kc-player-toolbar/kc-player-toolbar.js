@@ -56,7 +56,7 @@ class KCPlayerToolbar extends PolymerElement {
                 width: 58px;
                 height: 58px;
             }
-            .icon:nth-child(n+2) {
+            .icon:nth-child(n+3) {
                 margin-left: 16px;
             }
             :host([layout="vertical"]) .panel .icon:nth-child(n+2) {
