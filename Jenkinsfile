@@ -22,7 +22,7 @@ pipeline {
                 install_dep()
             }
         }
-
+    }
     post {
         failure {
             notify_failure_to_committers()
