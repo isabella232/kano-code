@@ -23,50 +23,6 @@ pipeline {
             }
         }
 
-        stage('test') {
-            steps {
-                node('win-test') {
-                    prepare_env()
-                    checkout scm
-                    install_dep()
-                    sh "./node_modules/.bin/gulp validate-challenges"
-                    run_tests()
-                }
-            }
-        }
-
-        stage('build') {
-            steps {
-                sh "gulp build"
-            }
-        }
-
-        stage('deploy') {
-            steps {
-                script {
-                    def bucket = ''
-                    if (env.BRANCH_NAME == "jenkins") {
-                        echo 'deploy skipped'
-                    } else if (env.BRANCH_NAME == "prod") {
-                        deploy("production", false)
-
-                        // Rebuild the config of the index with the kit's target env
-                        env.TARGET = "osonline"
-                        sh "gulp copy-index"
-                        deploy("production-kit", false)
-                    } else if (env.BRANCH_NAME == "rc") {
-                        deploy("rc", true)
-                    } else if (env.NODE_ENV=="staging") {
-                        deploy("staging", true)
-
-                        sh "gulp doc"
-                        sh "./node_modules/.bin/kart archive ./www-doc -a releases.kano.me -r . --name kano-code-doc --channel main --release"
-                    }
-                }
-            }
-        }
-    }
-
     post {
         failure {
             notify_failure_to_committers()
@@ -75,7 +31,6 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
-
         timeout(time: 60, unit: 'MINUTES')
     }
 }
@@ -92,27 +47,5 @@ def prepare_env () {
 }
 
 def install_dep () {
-    sh "npm install --ignore-scripts"
-    sh "rm -rf app/bower_components"
-    sh "./node_modules/.bin/bower cache clean"
-    sh "./node_modules/.bin/bower install"
-}
-
-def run_tests () {
-    sh "mkdir -p test-results"
-    sh "./node_modules/.bin/gulp wct"
-    sh "TEST_PORT=4445 ./node_modules/.bin/cucumberjs tests --format=json > test-results/cucumber.json"
-    junit allowEmptyResults: true, testResults: 'test-results/wct.xml'
-    cucumber 'test-results/cucumber.json'
-    sh "rm -rf www test-results"
-}
-
-def deploy(branch, release) {
-    def cmd = "./node_modules/.bin/kart archive ./www -a releases.kano.me -r . --channel ${branch}"
-
-    if (release) {
-        cmd = cmd + " --release"
-    }
-
-    sh cmd
+    sh "yarn --production=false"
 }
