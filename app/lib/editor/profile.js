@@ -4,6 +4,7 @@ export class EditorProfile {
     constructor(editor) {
         this.editor = editor;
     }
+    onInstall() {}
     get plugins() { return []; }
     get toolbox() { return []; }
     get outputProfile() { return new OutputProfile(); }

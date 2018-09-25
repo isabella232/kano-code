@@ -207,6 +207,9 @@ class Editor extends EditorOrPlayer {
             this.workspaceView.onDispose();
         }
         this.runPluginTask('onDispose');
+        if (window.Kano.Code.mainEditor === this) {
+            window.Kano.Code.mainEditor = null;
+        }
         this.telemetry.trackEvent({ name: 'ide_exited' });
     }
     load(app) {
