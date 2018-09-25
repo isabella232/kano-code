@@ -59,6 +59,9 @@ class VM {
         // Call the function.`this` will be set to undefined inside the VM if not set in the context
         window.userCode.apply(thisValue, contextKeywords.map(keyword => this.context[keyword]));
     }
+    dispose() {
+        delete window.userCode;
+    }
 }
 
 export default VM;

@@ -12,6 +12,10 @@ class AppModulesLoader {
             this.appModules.define(Mod.id, Mod);
         });
     }
+    dispose() {
+        this.appModules.dispose();
+        this.modules = null;
+    }
 }
 
 export default AppModulesLoader;

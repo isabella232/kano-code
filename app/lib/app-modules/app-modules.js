@@ -80,6 +80,11 @@ class AppModules {
         }
         return this.modules[rootName].instrumentize(method, parts.join('.'));
     }
+    dispose() {
+        this.stop();
+        this.output = null;
+        this.modules = null;
+    }
 }
 
 AppModules.default = new AppModules();

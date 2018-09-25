@@ -24,6 +24,7 @@ export class Subscriptions {
     }
     dispose() {
         this.subs.forEach(sub => sub.dispose());
+        this.subs = null;
     }
     static subscribe(...args) {
         return subscribe(...args);
