@@ -50,9 +50,9 @@ export class Runner extends Plugin {
         // Start all the modules. Will also trigger the `start` event from `global`
         appModules.start();
         // Prepare a sandbox exposing AppModules
-        const vm = new VM({ AppModules: appModules });
+        this.vm = new VM({ AppModules: appModules });
         // Run the code
-        vm.runInContext(appCode);
+        this.vm.runInContext(appCode);
         appModules.afterRun();
     }
     instrumentize(method) {
@@ -60,8 +60,10 @@ export class Runner extends Plugin {
         return appModules.instrumentize(method);
     }
     dispose() {
-        const { appModules } = this.appModulesLoader;
-        appModules.stop();
+        this.appModulesLoader.dispose();
+        this.vm.dispose();
+        this.modules = null;
+        this.appModulesLoader = null;
     }
 }
 
