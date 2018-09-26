@@ -229,6 +229,7 @@ Polymer({
             }
             .beacon-wrapper {
                 position: relative;
+                max-width: 30px;
                 @apply --layout-vertical;
                 @apply --layout-center;
                 @apply --layout-center-justified;

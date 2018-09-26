@@ -106,17 +106,6 @@ Polymer({
             #banner-save-button:hover iron-icon {
                 opacity: 0.85;
             }
-            :host(.green-cta) #banner-button {
-                background: var(--color-grassland);
-                font-weight: bold;
-                transition: background 300ms;
-            }
-            :host(.green-cta) #banner-button:hover {
-                background: var(--color-apple);
-            }
-            :host(.green-cta) #banner-button:active {
-                background: #B8FA63;
-            }
             .markdown-html p {
                 margin: 0px;
             }
@@ -215,7 +204,7 @@ Polymer({
             <kwc-button ghost="" variant="tertiary" icon-id="kwc-ui-icons:save" on-tap="_saveTapped" hidden\$="[[!showSaveButton]]">
                 [[localize('SAVE', 'Save')]]
             </kwc-button>
-            <kwc-button class\$="[[_computeButtonClass(buttonState)]]" on-tap="_buttonTapped" variant="primary">
+            <kwc-button id="banner-button" class\$="[[_computeButtonClass(buttonState)]]" on-tap="_buttonTapped" variant="primary">
                             [[buttonLabel]]
             </kwc-button>
             </div>
