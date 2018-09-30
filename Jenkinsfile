@@ -28,7 +28,9 @@ pipeline {
         }
         stage('install dependencies') {
             steps {
-                install_dep()
+                sshagent(['read-only-github']) {
+                    install_dep()
+                }
             }
         }
     }
