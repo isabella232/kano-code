@@ -146,10 +146,7 @@ class Editor extends EditorOrPlayer {
         this.elementsRegistry.set('toolbox-enhancer-above', sourceView.$['toolbox-enhancer-above']);
 
         this.sourceEditor.addEventListener('code-changed', (e) => {
-            this.output.setCode(e.detail.value);
-            this.rootEl.code = e.detail.value;
-            this.unsavedChanges = true;
-            this.output.restart();
+            this.setCode(e.detail.value);
         });
     }
     /**
@@ -221,7 +218,14 @@ class Editor extends EditorOrPlayer {
     }
     reset() {
         const source = this.profile ? this.profile.source : '';
+        this.setCode(null);
         this.load({ source });
+    }
+    setCode(content) {
+        this.output.setCode(content);
+        this.rootEl.code = content;
+        this.unsavedChanges = true;
+        this.output.restart();
     }
     restartApp() {
         this.output.restart();
