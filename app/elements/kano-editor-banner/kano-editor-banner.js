@@ -204,7 +204,7 @@ Polymer({
             </div>
         </div>
             <div class="buttons">
-            <kwc-button ghost="" variant="tertiary" icon-id="kwc-ui-icons:save" on-click="_saveTapped" hidden\$="[[!showSaveButton]]">
+            <kwc-button id="banner-save-button" ghost variant="tertiary" icon-id="kwc-ui-icons:save" on-click="_saveTapped" hidden$="[[!showSaveButton]]">
                 [[localize('SAVE', 'Save')]]
             </kwc-button>
             <div id="banner-button-container">
@@ -261,12 +261,10 @@ Polymer({
             type: Boolean,
         },
     },
-    
     attached() {
         this.animationSupported = 'animate' in HTMLElement.prototype;
         this._registerElement('banner-button', this.$['banner-button']);
     },
-
     _fadeInButton(id, duration) {
         this.$['banner-button'].setAttribute('data-animate', (duration + 150));
         // register element with updated 'data-animate' attribute

@@ -10,12 +10,15 @@ node {
         rm -rf kc/**/*
         mkdir -p kc/app
         mkdir -p kc/app/assets
+        mkdir -p kc/app/assets/audio
         cp -r app/elements kc/app/elements
         cp -r app/lib kc/app/lib
         cp -r app/locale kc/app/locale
         cp -r app/scripts kc/app/scripts
         cp -r app/assets/vendor kc/app/assets/vendor
+        cp -r app/assets/audio/sounds kc/app/assets/audio/sounds
         cp package.json ./kc/package.json
+        sed -i -e 's/"version": "3.0.0-beta.2"/"version": "1.0.0-alpha.${env.BUILD_NUMBER}"/g' ./kc/package.json
       """
     }
     stage('Push') {

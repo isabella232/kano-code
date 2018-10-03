@@ -1,24 +1,3 @@
-/**
-
-`kano-app-challenge`
-
-Example:
-    <kano-app-challenge steps="[[steps]]" step="1"></kano-app-challenge>
-
- The following custom properties and mixins are also available for styling:
-
- Custom property | Description | Default
- ----------------|-------------|----------
-
-@group Kano Elements
-@hero hero.svg
-@demo demo/kano-app-challenge.html
-*/
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
-*/
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
@@ -33,7 +12,7 @@ import { Store } from '../../scripts/legacy/store.js';
 import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
 import '../kano-editor-banner/kano-editor-banner.js';
 
-const BANNER_SOUND = '/assets/audio/sounds/card_set.wav';
+const BANNER_SOUND = '/assets/audio/sounds/card_set.mp3';
 
 class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
     SoundPlayerBehavior,
@@ -142,7 +121,6 @@ class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
     connectedCallback() {
         super.connectedCallback();
         this._processMarkdown = this._processMarkdown.bind(this);
-        this.loadSound(BANNER_SOUND);
         this._observer = new FlattenedNodesObserver(this.$.content, (info) => {
             this._processNewNodes(info.addedNodes);
         });
@@ -177,10 +155,13 @@ class KanoAppChallenge extends Store.StateReceiver(mixinBehaviors([
         }
         this.editor = editorEl.editor;
         this.$.ui.workspace = editorEl.getBlocklyWorkspace();
+        this.$.ui.setMediaPath(this.editor.asAbsoluteMediaPath());
+        this._bannerSoundUrl = this.editor.asAbsoluteMediaPath(BANNER_SOUND);
+        this.loadSound(this._bannerSoundUrl);
         this._fitBanner();
     }
     animateBannerIn() {
-        this.playSound(BANNER_SOUND);
+        this.playSound(this._bannerSoundUrl);
         if ('animate' in HTMLElement.prototype) {
             this.$.banner.animate({
                 opacity: [0, 1],

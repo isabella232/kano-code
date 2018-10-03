@@ -52,6 +52,7 @@ class Editor extends EditorOrPlayer {
         this.elementsRegistry.set('editor', this.rootEl);
         this.rootEl.editor = this;
         this.sourceType = opts.sourceType || 'blockly';
+        this._setupMediaPath(opts.mediaPath);
         this.store = Store.create({
             config: this.config,
             addedParts: [],
@@ -107,6 +108,13 @@ class Editor extends EditorOrPlayer {
         this._registeredEvents = [];
 
         window.Kano.Code.mainEditor = this;
+    }
+    _setupMediaPath(path = '/') {
+        this._mediaPath = path.endsWith('/') ? path.slice(0, -1) : path;
+    }
+    asAbsoluteMediaPath(path = '') {
+        const normalized = path.replace(/^(\.\/|\.\.\/|\/)/, '');
+        return `${this._mediaPath}/${normalized}`;
     }
     registerEvent(name) {
         this._registeredEvents.push(name);

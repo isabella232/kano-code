@@ -1,31 +1,15 @@
-/**
-
-`kano-challenge-ui`
-
-Example:
-    <kano-challenge-ui step="[[currentStep]]"></kano-challenge-ui>
-
- The following custom properties and mixins are also available for styling:
-
- Custom property | Description | Default
- ----------------|-------------|----------
-
-@group Kano Elements
-@hero hero.svg
-@demo ./demo/kano-challenge-ui.html
-*/
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
-*/
 import '@polymer/polymer/polymer-legacy.js';
 
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@polymer/iron-image/iron-image.js';
 import '@polymer/marked-element/marked-element.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
+import { SoundPlayerBehavior } from '@kano/web-components/kano-sound-player-behavior/kano-sound-player-behavior.js';
+import '@kano/kwc-style/typography.js';
 import '../kano-tooltip/kano-tooltip.js';
 import '../kano-arrow/kano-arrow.js';
 import '../kano-blockly-block/kano-blockly-block.js';
@@ -34,11 +18,8 @@ import '../kano-value-preview/kano-value-preview.js';
 import { AppElementRegistryBehavior } from '../behaviors/kano-app-element-registry-behavior.js';
 import '../behaviors/kano-blockly-validator-behavior.js';
 import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
-import { SoundPlayerBehavior } from '@kano/web-components/kano-sound-player-behavior/kano-sound-player-behavior.js';
-import '@kano/kwc-style/typography.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+
+const DING_SOUND = '/assets/audio/sounds/ding.mp3';
 
 Polymer({
     _template: html`
@@ -400,14 +381,17 @@ Polymer({
             this.updateTooltips();
         }
     },
-
+    setMediaPath(path) {
+        this._mediaPath = path;
+        this._dingSound = `${path}${DING_SOUND}`;
+        this.loadSound(this._dingSound);
+    },
     /**
    * Find the blockly element and listens to the change event
    */
     ready() {
         this.modal = this.$.modal;
         this.highlight = {};
-        this.loadSound('/assets/audio/sounds/ding.mp3');
         this._onRefit = this._onRefit.bind(this);
         this.eventsCausingRefit = {
             'toolbox-scroll': ['flyout_block'],
@@ -655,13 +639,16 @@ Polymer({
         this.toggleClass('animate', true, this.$.core);
     },
 
-    _ringAnimationIterated(e) {
+    _ringAnimationIterated() {
         if (this._ringAnimationCount > 4 || this.idle) {
             return;
         }
         this._ringSoundTimeout = setTimeout(() => {
-            this.playSound('/assets/audio/sounds/ding.mp3');
-            this._ringAnimationCount++;
+            // If no mediaPath is set, skip playing the sound
+            if (this._dingSound) {
+                this.playSound(this._dingSound);
+            }
+            this._ringAnimationCount += 1;
         }, 4600 * 0.80);
     },
 
@@ -771,7 +758,6 @@ Polymer({
         }
         return null;
     },
-    
     getTargetBlockInput(selector) {
         let block = this.getTargetBlock(selector),
             connection,
@@ -820,22 +806,26 @@ Polymer({
 
         return pos;
     },
-
     _setupWithDelay() {
         /* Toggle idle state to show elements with a little delay when the step loads in.
       This also allows to read the current data-animate values of target elements */
         this.idle = true;
-        this.async(this._turnOnVisibility, 250);
+        this.async(() => this._turnOnVisibility(), 250);
     },
-
     _turnOnVisibility() {
         const delay = this._getLongestDelay();
 
         if (delay) {
             this.async(() => this._refitUiElements('all'), delay);
-            this.async(() => this.idle = false, delay + 50);
+            this.async(() => {
+                this.idle = false;
+            }, delay + 50);
         } else {
             this.idle = false;
         }
+    },
+    _getLongestDelay() {
+        // TODO: This is to make the refit async work. Update once proper API is designed
+        return 50;
     },
 });

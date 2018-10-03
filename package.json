@@ -8,21 +8,14 @@
   "version": "3.0.0-beta.2",
   "main": "index.js",
   "scripts": {
-    "start": "gulp serve-prod",
-    "test": "gulp wct && cucumber-js tests --format=json > test-results/cucumber.json",
-    "build": "gulp build",
-    "dev": "gulp dev",
-    "watch": "gulp watch",
-    "content-snap": "bash kano-content-package.sh",
-    "install:all": "npm install && bower install",
-    "install:all:build": "npm install && bower install && gulp build",
-    "build-engine": "gulp build-engine",
     "serve": "node ./tasks/serve",
-    "docs": "esdoc"
+    "docs": "esdoc",
+    "checkstyle": "eslint ./app"
   },
   "author": "Paul Varache <perso@paulvarache.ninja>",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^4.19.1",
     "@kano/es6-resolution": "^1.0.7",
     "@polymer/iron-component-page": "^3.0.0-pre.18",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.18",
@@ -100,6 +93,7 @@
   },
   "dependencies": {
     "@kano/common": "^1.0.2",
+    "@kano/eslint-config": "^1.0.0",
     "@kano/kwc-behaviors": "^3.0.0-beta.4",
     "@kano/kwc-blockly": "^3.0.0-beta.29",
     "@kano/kwc-button": "^3.0.0-beta.3",
