@@ -61,7 +61,10 @@ export class Runner extends Plugin {
     }
     dispose() {
         this.appModulesLoader.dispose();
-        this.vm.dispose();
+        if (this.vm) {
+            this.vm.dispose();
+            this.vm = null;
+        }
         this.modules = null;
         this.appModulesLoader = null;
     }

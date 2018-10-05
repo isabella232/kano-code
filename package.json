@@ -10,13 +10,16 @@
   "scripts": {
     "serve": "node ./tasks/serve",
     "docs": "esdoc",
-    "checkstyle": "eslint ./app"
+    "test": "web-tester run ./tests/unit",
+    "test-ci": "yarn run --silent test > test-results.xml",
+    "checkstyle": "eslint ./app/lib ./app/elements",
+    "checkstyle-ci": "yarn checkstyle -f checkstyle -o eslint.xml"
   },
   "author": "Paul Varache <perso@paulvarache.ninja>",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^4.19.1",
     "@kano/es6-resolution": "^1.0.7",
+    "@kano/web-tester": "^1.0.0-alpha.3",
     "@polymer/iron-component-page": "^3.0.0-pre.18",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.18",
     "@polymer/iron-test-helpers": "^3.0.0-pre.18",
@@ -32,6 +35,8 @@
     "cucumber": "^3.0.0",
     "esdoc": "^1.1.0",
     "esdoc-standard-plugin": "^1.0.0",
+    "eslint": "^4.19.1",
+    "eslint-plugin-mocha": "^5.2.0",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-babel": "^6.1.2",

@@ -1,6 +1,5 @@
 import { AppModule } from '../../../app/lib/app-modules/app-module.js';
 import { Output } from '../../../app/lib/output/output.js';
-import { setup, test, assert, suite, teardown } from '../tools.js';
 
 suite('AppModule', () => {
     suite('#addMethod', () => {

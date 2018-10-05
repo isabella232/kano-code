@@ -1,5 +1,4 @@
 import * as code from '../../../app/lib/index.js';
-import { setup, test, assert, suite, teardown } from '../tools.js';
 
 suite('Editor', () => {
     suite('#inject', () => {

@@ -1,5 +1,4 @@
 import * as code from '../../../app/lib/index.js';
-import { setup, test, suite } from '../tools.js';
 
 suite('Editor', () => {
     suite('#dispose', () => {

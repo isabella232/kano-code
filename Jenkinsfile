@@ -33,10 +33,25 @@ pipeline {
                 }
             }
         }
+        stage('checkstyle') {
+            steps {
+                sh "yarn checkstyle-ci || exit 0"
+            }
+        }
+        stage('test') {
+            steps {
+                install_chrome_dependencies()
+                sh "yarn test-ci"
+            }
+        }
     }
     post {
-        failure {
-            notify_failure_to_committers()
+        always {
+            junit allowEmptyResults: true, testResults: 'test-results.xml'
+            step([$class: 'CheckStylePublisher', pattern: 'eslint.xml'])
+        }
+        regression {
+            notify_culprits currentBuild.result
         }
     }
     options {

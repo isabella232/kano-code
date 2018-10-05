@@ -5,4 +5,7 @@ module.exports = {
         "no-underscore-dangle": ["off"],
         "no-param-reassign": ["off"],
     },
+    plugins: [
+        'mocha',
+    ],
 };

@@ -1,9 +1,7 @@
 import { AppModule } from '../../../app/lib/app-modules/app-module.js';
 import { Output } from '../../../app/lib/output/output.js';
-import { setup, test, assert, suite, teardown, mocha } from '../tools.js';
 
 suite('Runner', () => {
-    // Added to window by the VM
     mocha.globals(['userCode']);
     suite('#instrumentation', () => {
         let output;
@@ -12,7 +10,7 @@ suite('Runner', () => {
             methodCalled = false;
 
             const TestModule = class extends AppModule {
-                static get name() {
+                static get id() {
                     return 'test';
                 }
                 constructor() {
