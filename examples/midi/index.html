@@ -20,160 +20,26 @@
 </head>
 <body>
     <script type="module">
-        import * as code from '../../app/lib/index.js';
-        import { PartsOutputPlugin, PartsPlugin } from '../../app/lib/parts/index.js';
-        import PartsModule from '../../app/lib/app-modules/parts.js';
-        import Hardware from '../../app/lib/parts/hardware/index.js';
+        import I18n, { getLang, load as loadLang } from '../../app/lib/i18n/index.js';
 
-        import Speaker from '../../app/lib/parts/parts/speaker/index.js';
-
-        import '../../app/elements/kc-workspace-frame/kc-parts-controls.js';
-
-        class MIDIModule extends code.AppModule {
-            static get id() {
-                return 'midi';
-            }
-            constructor(output) {
-                super(output);
-                this.addLifecycleStep('start', '_start');
-                this.addMethod('getKnob', '_getKnob');
-
-                this._controls = new Map();
-            }
-            _start() {
-                if (!this._initialized) {
-                    this._init();
-                    this._initialized = true;
-                }
-            }
-            _init() {
-                navigator.requestMIDIAccess()
-                    .then((access) => {
-                        const it = access.inputs.values();
-                        const inst = it.next();
-                        const input = inst.value;
-                        input.onmidimessage = (message) => {
-                            const [command, note, velocity] = message.data;
-                            switch (command) {
-                            case 176: {
-                                this._controls.set(note, velocity);
-                                break;
-                            }
-                            default: {
-                                break;
-                            }
-                            }
-                        };
-                    })
-                    .catch((e) => {
-                        console.error(e);
-                        throw e;
-                    });
-            }
-            _getKnob(id) {
-                return this._controls.get(id || 52);
+        function loadBlocklyMsg(m) {
+            if ('Blockly' in window) {
+                Object.assign(window.Blockly.Msg, m);
+            } else {
+                window.CustomBlocklyMsg = window.CustomBlocklyMsg || {};
+                Object.assign(window.CustomBlocklyMsg, m);
             }
         }
+        const lang = getLang();
+        const root = '/';
 
-
-        // Output: Creates the canvas, render on refresh
-        class MIDIOutputViewProvider extends code.OutputViewProvider {
-            onInstall(output) {
-                this.output = output;
-                this._root = document.createElement('canvas');
-                this._root.style.background = '#f9f9f9';
-                this._root.style.maxWidth = '100%';
-                this._root.style.maxHeight = '100%';
-                this._root.width = 500;
-                this._root.height = 500;
-            }
-            get root() {
-                return this._root;
-            }
-            get partsRoot() {
-                return this._root;
-            }
-        }
-
-        // Workspace: Just hosts the output
-        class MIDIWorkspaceViewProvider extends code.WorkspaceViewProvider {
-            onInstall(editor) {
-                this.editor = editor;
-                this._root = document.createElement('div');
-                const c = document.createElement('kc-parts-controls');
-                c.storeId = editor.store.id;
-                this._root.appendChild(c);
-                this._root.style.textAlign = 'center';
-            }
-            get partsControls() {
-                return this._root.querySelector('kc-parts-controls');
-            }
-            get root() {
-                return this._root;
-            }
-            get outputViewRoot() {
-                return this.root;
-            }
-        }
-        
-        // OutputProfile: Loads OutputView and modules together
-        class MIDIOutputProfile extends code.OutputProfile {
-            constructor() {
-                super();
-                this._outputViewProvider = new MIDIOutputViewProvider();
-                this.partsPlugin = new PartsOutputPlugin([Hardware], [Speaker]);
-            }
-            get id() { return 'MIDI'; }
-            get outputViewProvider() {
-                return this._outputViewProvider;
-            }
-            get modules() {
-                return [MIDIModule, PartsModule];
-            }
-            get plugins() {
-                return [this.partsPlugin];
-            }
-        }
-
-        code.Player.registerProfile(new MIDIOutputProfile());
-
-        // Toolbox: Defines coding API available for users
-        const MIDIToolbox = {
-            type: 'module',
-            name: 'midi',
-            color: '#0d47a1',
-            symbols: [{
-                type: 'function',
-                name: 'getKnob',
-                verbose: 'knob 1',
-                returnType: Number,
-            }],
-        };
-
-        // EditorProfile: Loads WorkspaceViewProvider and Toolbox together
-        const workspaceProfile = {
-            onInstall() {
-                this.partsPlugin = new PartsPlugin(this.outputProfile.partsPlugin);
-            },
-            outputProfile: new MIDIOutputProfile(),
-            workspaceViewProvider: new MIDIWorkspaceViewProvider(),
-            toolbox: [MIDIToolbox],
-            get plugins() {
-                return [this.partsPlugin];
-            },
-        };
-
-        // Create editor
-        const editor = new code.Editor();
-
-        // Load profile
-        editor.registerProfile(workspaceProfile);
-
-        // Add to the window
-        editor.inject();
-
-        // Start the output
-        editor.output.setRunningState(true);
-    </script>
+        // Load Kano Code locales and elements
+        Promise.all([
+            loadLang(`${root}app/locale/editor/${lang}.json`),
+            loadLang(`${root}app/locale/blockly/${lang}.json`).then(m => loadBlocklyMsg(m)),
+            loadLang(`${root}node_modules/@kano/kwc-blockly/blockly_built/msg/json/en.json`).then(m => loadBlocklyMsg(m)),
+            loadLang(`${root}node_modules/@kano/kwc-blockly/blockly_built/msg/json/constants.json`).then(m => loadBlocklyMsg(m)),
+        ]).then(() => import('./index.js'));
+</script>
 </body>
 </html>
