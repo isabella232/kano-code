@@ -25,11 +25,14 @@
                 .then(r => r.json())
                 .then((creation) => {
                     const player = new code.Player();
-        
+
                     player.load(creation);
-        
+
                     player.inject();
-        
+                    setTimeout(() => {
+                        player.output.setRunningState(true);
+                    });
+
                     window.player = player;
                 });
         </script>

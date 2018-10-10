@@ -1,5 +1,6 @@
 import './pong.js';
 import * as code from '../../app/lib/index.js';
+/* globals Pong */
 
 // Define what the output will be, In this case, an instance of Pong.js
 class PongOutputView extends code.OutputViewProvider {
@@ -11,8 +12,8 @@ class PongOutputView extends code.OutputViewProvider {
         this.pong = new Pong(this.root);
         // Add keyboard controls for player A
         this.pong.players.a.addControls({
-            'up': 'w',
-            'down': 's',
+            up: 'w',
+            down: 's',
         });
 
         // Add behaviour for player B
@@ -26,16 +27,12 @@ class PongOutputView extends code.OutputViewProvider {
     }
     // Every time the output restarts, resets all values
     start() {
-        if (!this.started) {
-            this.pong.resize();
-            this.started = true;
-        }
-        this.pong.resize();
         this.pong.reset();
         this.pong.setBackgroundColor(0x000000);
         this.pong.setBallColor(0xffffff);
         this.pong.setBallSize(10);
         setTimeout(() => {
+            this.pong.resize();
             this.pong.start();
         });
     }
@@ -45,12 +42,12 @@ class PongOutputView extends code.OutputViewProvider {
 // In more complex situations, you will need to wrap the methods to not expose the
 // whole API to the VM
 class PongModule extends code.AppModule {
-    static get name() { return 'pong'; }
+    static get id() { return 'pong'; }
     constructor(...args) {
         super(...args);
         this.addLifecycleStep('start', '_start');
     }
-    _start(s) {
+    _start() {
         const { outputView } = this.output;
         this.methods = outputView.pong;
     }
