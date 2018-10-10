@@ -13,7 +13,6 @@ import { I18nBehavior } from '../behaviors/kano-i18n-behavior.js';
 import '../kc-user-options/kc-user-options.js';
 import '../kano-tooltip/kano-tooltip.js';
 import '../kano-icons/kc-ui.js';
-import '../../scripts/kano/make-apps/store.js';
 import '../../scripts/kano/make-apps/actions/user.js';
 import '../kano-style/themes/dark.js';
 import { Store } from '../../scripts/legacy/store.js';

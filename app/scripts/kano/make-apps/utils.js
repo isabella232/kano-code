@@ -1,5 +1,3 @@
-import { config } from '../../config/default.js';
-
 const Utils = {};
 export { Utils };
 
@@ -126,19 +124,6 @@ Utils.displayBlockInputs = function () {
         });
         console.log(inputs);
     });
-};
-
-/**
- * Check for internet connection and return a promise that will
- * yield a boolean.
- */
-Utils.onLine = function () {
-    return fetch(`${config.API_URL}/ping`).then((res) => {
-        if (res.ok) {
-            return res.text().then(body => body.trim() === 'pong');
-        }
-        return false;
-    }).catch(e => false);
 };
 
 Utils.setColorRange = function (hs, items = []) {
