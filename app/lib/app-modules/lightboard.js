@@ -1,7 +1,7 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 import PixelFont from './pixel-font.js';
 
-class LightboardModule extends AppModule {
+export class LightboardModule extends AppModule {
     constructor() {
         super();
         this.backgroundColor = '#000000';

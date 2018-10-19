@@ -51,7 +51,7 @@ const category = {
     blocks: categoryBlocks,
 };
 
-export const DrawToolbox = {
+export const DrawAPI = {
     type: 'blockly',
     id: 'draw',
     typeScriptDefinition: `
@@ -83,4 +83,7 @@ export const DrawToolbox = {
     defaults: {},
 };
 
-export default DrawToolbox;
+// Alias
+export const DrawToolbox = DrawAPI;
+
+export default DrawAPI;

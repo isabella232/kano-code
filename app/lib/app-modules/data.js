@@ -1,4 +1,4 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
 const THROTTLE_DELAY = 1000;
 
@@ -14,7 +14,7 @@ emojiMap['11d'] = '\u26C8 ';
 emojiMap['13d'] = '\uD83C\uDF28';
 emojiMap['50d'] = '\uD83C\uDF2B';
 
-class DataModule extends AppModule {
+export class DataModule extends AppModule {
     constructor() {
         super();
         this.cache = {};

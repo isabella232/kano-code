@@ -13,7 +13,7 @@ const CORE_BLOCKS = [
     'lists_setIndex',
 ];
 
-const BlocklyLists = {
+export const ListsAPI = {
     type: 'blockly',
     id: ID,
     register(Blockly) {
@@ -39,4 +39,4 @@ const BlocklyLists = {
     },
 };
 
-export default BlocklyLists;
+export default ListsAPI;

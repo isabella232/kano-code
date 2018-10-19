@@ -1,33 +1,14 @@
-import CameraModule from './camera.js';
-import GlobalModule from './global.js';
-import ColourModule from './colour.js';
-import DataModule from './data.js';
-import DateModule from './date.js';
-import LightboardModule from './lightboard.js';
-import LoopModule from './loop.js';
-import LoopsModule from './loops.js';
-import MathModule from './math.js';
-import MicModule from './mic.js';
-import PartsModule from './parts.js';
-import TiltModule from './tilt.js';
-import MotionModule from './motion.js';
-import TimeModule from './time.js';
-
-export const AllModules = [
-    CameraModule,
-    GlobalModule,
-    ColourModule,
-    DataModule,
-    DateModule,
-    LightboardModule,
-    LoopModule,
-    LoopsModule,
-    MathModule,
-    MicModule,
-    PartsModule,
-    TiltModule,
-    MotionModule,
-    TimeModule,
-];
-
-export default AllModules;
+export * from './camera.js';
+export * from './global.js';
+export * from './colour.js';
+export * from './data.js';
+export * from './date.js';
+export * from './lightboard.js';
+export * from './loop.js';
+export * from './loops.js';
+export * from './math.js';
+export * from './mic.js';
+export * from './parts.js';
+export * from './tilt.js';
+export * from './motion.js';
+export * from './time.js';

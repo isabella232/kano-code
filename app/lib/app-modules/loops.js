@@ -1,6 +1,6 @@
-import LoopModule from './loop.js';
+import { LoopModule } from './loop.js';
 
-class LoopsModule extends LoopModule {
+export class LoopsModule extends LoopModule {
     static get id() { return 'loops'; }
 }
 

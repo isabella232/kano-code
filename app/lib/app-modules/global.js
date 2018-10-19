@@ -1,6 +1,6 @@
 import { AppModule } from './app-module.js';
 
-class GlobalModule extends AppModule {
+export class GlobalModule extends AppModule {
     constructor(output) {
         super(output);
         this.addMethod('when', '_when');

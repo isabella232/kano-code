@@ -9,29 +9,43 @@ if (supportedLanguages.indexOf(lang) === -1) {
     lang = 'en-US';
 }
 
-function localize(key, fallback = '') {
+function addBlocklyMsg(m) {
+    if ('Blockly' in window) {
+        Object.assign(window.Blockly.Msg, m);
+    } else {
+        window.CustomBlocklyMsg = window.CustomBlocklyMsg || {};
+        Object.assign(window.CustomBlocklyMsg, m);
+    }
+}
+
+function loadJSON(url) {
+    return fetch(url)
+        .then(r => r.json());
+}
+
+export function localize(key, fallback = '') {
     return messages[key] || fallback;
 }
 
-function addMessage(key, message) {
+export function addMessage(key, message) {
     messages[key] = message;
 }
 
-function load(url) {
-    return fetch(url)
-        .then(r => r.json())
+
+export function load(url) {
+    return loadJSON(url)
         .then((m) => {
             Object.assign(messages, m);
             return m;
         });
 }
 
-function getLang() {
+export function getLang() {
     return lang;
 }
 
 // Legacy I18n support
-function getMessages() {
+export function getMessages() {
     return messages;
 }
 
@@ -41,18 +55,19 @@ export const I18nMixin = base => class extends base {
     }
 };
 
+export function loadBlocklyMsg(url) {
+    return load(url)
+        .then((m) => {
+            addBlocklyMsg(m);
+            return m;
+        });
+}
+
 export default {
     localize,
     addMessage,
     load,
     getLang,
     getMessages,
-};
-
-export {
-    localize,
-    addMessage,
-    load,
-    getLang,
-    getMessages,
+    loadBlocklyMsg,
 };

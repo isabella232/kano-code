@@ -1,6 +1,6 @@
-import DongleModule from './dongle.js';
+import { DongleModule } from './dongle.js';
 
-class TiltModule extends DongleModule {
+export class TiltModule extends DongleModule {
     static get id() { return 'gyroAccelerometer'; }
 }
 

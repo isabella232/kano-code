@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class DongleModule extends AppModule {
+export class DongleModule extends AppModule {
     constructor() {
         super();
 

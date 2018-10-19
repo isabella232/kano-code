@@ -1,6 +1,6 @@
-import DongleModule from './dongle.js';
+import { DongleModule } from './dongle.js';
 
-class MotionModule extends DongleModule {
+export class MotionModule extends DongleModule {
     static get id() { return 'motionSensor'; }
 }
 

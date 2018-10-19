@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class LoopModule extends AppModule {
+export class LoopModule extends AppModule {
     constructor() {
         super();
         this.intervals = [];

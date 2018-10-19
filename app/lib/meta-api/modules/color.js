@@ -4,7 +4,7 @@ const COLOR = '#88c440';
 
 const ID = 'color';
 
-const BlocklyColor = {
+export const ColorAPI = {
     type: 'blockly',
     id: ID,
     typeScriptDefinition: `
@@ -170,7 +170,7 @@ const BlocklyColor = {
             TO: '#ffffff',
             PERCENT: 50,
         },
-    }
-}
+    },
+};
 
-export default BlocklyColor;
+export default ColorAPI;

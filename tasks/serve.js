@@ -11,4 +11,4 @@ connect()
     .use(serveStatic(`${__dirname}/../`))
     .listen(4000);
 
-console.log('Listening on port 4000');
+console.log('Serving at http://localhost:4000');
