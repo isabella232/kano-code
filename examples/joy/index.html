@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Kano Code midi example</title>
     <style>
         html, body {
             width: 100%;
@@ -20,139 +20,16 @@
 </head>
 <body>
     <script type="module">
-        import * as code from '../../app/lib/index.js';
-        import { Joy } from './joy.js';
+        import * as i18n from '../../i18n.js';
+        const lang = i18n.getLang();
 
-        // Output: Creates the canvas, render on refresh
-        class JoyOutputViewProvider extends code.OutputViewProvider {
-            onInstall(output) {
-                this.output = output;
-                this._root = document.createElement('canvas');
-                this._root.style.background = '#f9f9f9';
-                this._root.style.maxWidth = '100%';
-                this._root.style.maxHeight = '100%';
-                this._root.width = 500;
-                this._root.height = 500;
-
-                this.step = 10;
-            }
-            get root() {
-                return this._root;
-            }
-            start() {
-                const ctx = this._root.getContext('2d');
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                setTimeout(() => {
-                    Joy.render(this._root, this.step);
-                });
-            }
-            render(ctx) {
-                // Ensures the output rendered
-                return new Promise(resolve => setTimeout(() => {
-                    ctx.fillStyle = '#f9f9f9';
-                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                    ctx.drawImage(this._root, 0, 0);
-                    resolve();
-                }, 100));
-            }
-        }
-
-        // Workspace: Just hosts the output
-        class JoyWorkspaceViewProvider extends code.WorkspaceViewProvider {
-            onInstall(editor) {
-                this.editor = editor;
-                this._root = document.createElement('div');
-                this._root.style.textAlign = 'center';
-            }
-            get root() {
-                return this._root;
-            }
-            get outputViewRoot() {
-                return this.root;
-            }
-        }
-
-        // Module: Defines the Runner API
-        class JoyModule extends code.AppModule {
-            static get id() {
-                return 'joy';
-            }
-            constructor(output) {
-                super(output);
-                this.addMethod('setStep', '_setStep');
-            }
-            _setStep(s) {
-                const { outputView } = this.output;
-                outputView.step = s;
-            }
-        }
-        
-        // OutputProfile: Loads OutputView and modules together
-        class JoyOutputProfile extends code.OutputProfile {
-            constructor() {
-                super();
-                this._outputViewProvider = new JoyOutputViewProvider();
-            }
-            get id() { return 'joy'; }
-            get outputViewProvider() {
-                return this._outputViewProvider;
-            }
-            get modules() {
-                return [JoyModule];
-            }
-        }
-
-        code.Player.registerProfile(new JoyOutputProfile());
-
-        // Toolbox: Defines coding API available for users
-        const JoyToolbox = {
-            type: 'module',
-            name: 'joy',
-            color: '#0d47a1',
-            symbols: [{
-                type: 'function',
-                name: 'setStep',
-                verbose: 'set step',
-                parameters: [{
-                    name: 'step',
-                    verbose: '',
-                    returnType: Number,
-                    default: 10,
-                }],
-            }],
-        };
-
-        class CreationLocalStorageProvider extends code.CreationStorageProvider {
-            write(creationBundle) {
-                localStorage.setItem('joy-creation', JSON.stringify({
-                    title: creationBundle.title,
-                    description: creationBundle.description,
-                    creation: creationBundle.creation,
-                }));
-            }
-        }
-
-        // EditorProfile: Loads WorkspaceViewProvider and Toolbox together
-        const workspaceProfile = {
-            onInstall() {},
-            outputProfile: new JoyOutputProfile(),
-            workspaceViewProvider: new JoyWorkspaceViewProvider(),
-            toolbox: [JoyToolbox],
-            creationPreviewProvider: new code.CreationImagePreviewProvider({ width: 500, height: 500 }),
-            creationStorageProvider: new CreationLocalStorageProvider(),
-        };
-
-        // Create editor
-        const editor = new code.Editor();
-
-        // Load profile
-        editor.registerProfile(workspaceProfile);
-
-        // Add to the window
-        editor.inject();
-
-        // Start the output
-        editor.output.setRunningState(true);
-    </script>
+        // Load Kano Code locales and elements
+        Promise.all([
+            i18n.load(`/app/locale/editor/${lang}.json`),
+            i18n.loadBlocklyMsg(`/app/locale/blockly/${lang}.json`),
+            i18n.loadBlocklyMsg(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/en.json`),
+            i18n.loadBlocklyMsg(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/constants.json`),
+        ]).then(() => import('./index.js'));
+</script>
 </body>
 </html>
