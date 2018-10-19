@@ -1,5 +1,6 @@
-import './pong.js';
-import * as code from '../../app/lib/index.js';
+import './vendor/pong.js';
+import * as code from '../../index.js';
+import * as modules from '../../modules.js';
 /* globals Pong */
 
 // Define what the output will be, In this case, an instance of Pong.js
@@ -14,15 +15,6 @@ class PongOutputView extends code.OutputViewProvider {
         this.pong.players.a.addControls({
             up: 'w',
             down: 's',
-        });
-
-        // Add behaviour for player B
-        this.pong.on('update', () => {
-            if (this.pong.players.b.y < this.pong.balls[0].y) {
-                this.pong.players.b.move(1);
-            } else if (this.pong.players.b.y > this.pong.balls[0].y) {
-                this.pong.players.b.move(-1);
-            }
         });
     }
     // Every time the output restarts, resets all values
@@ -53,10 +45,43 @@ class PongModule extends code.AppModule {
     }
 }
 
+class AIModule extends code.AppModule {
+    static get id() { return 'ai'; }
+    constructor(...args) {
+        super(...args);
+        const { outputView } = this.output;
+        this.pong = outputView.pong;
+        this.addMethod('position', '_position');
+        this.addMethod('move', '_move');
+    }
+    _position() {
+        return this.pong.players.b.y;
+    }
+    _move(amount) {
+        this.pong.players.b.move(amount);
+    }
+}
+
+class BallModule extends code.AppModule {
+    static get id() { return 'ball'; }
+    constructor(...args) {
+        super(...args);
+        const { outputView } = this.output;
+        this.pong = outputView.pong;
+        this.addMethod('position', '_position');
+    }
+    _position() {
+        if (!this.pong.balls.length) {
+            return 0;
+        }
+        return this.pong.balls[0].y;
+    }
+}
+
 export class PongOutputProfile extends code.OutputProfile {
     get id() { return 'pong'; }
     get outputViewProvider() { return new PongOutputView(); }
-    get modules() { return [PongModule]; }
+    get modules() { return [PongModule, AIModule, BallModule, modules.TimeModule]; }
 }
 
 export default PongOutputProfile;
