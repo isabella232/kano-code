@@ -11,6 +11,7 @@ node {
         mkdir -p kc/app
         mkdir -p kc/app/assets
         mkdir -p kc/app/assets/audio
+        cp -r *.js kc/
         cp -r app/elements kc/app/elements
         cp -r app/lib kc/app/lib
         cp -r app/locale kc/app/locale
