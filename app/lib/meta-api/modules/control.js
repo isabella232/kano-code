@@ -2,7 +2,7 @@ const COLOR = '#1198ff';
 
 const ID = 'control';
 
-const BlocklyControl = {
+export const ControlAPI = {
     type: 'blockly',
     id: ID,
     typeScriptDefinition: `
@@ -218,4 +218,4 @@ const BlocklyControl = {
     },
 };
 
-export default BlocklyControl;
+export default ControlAPI;

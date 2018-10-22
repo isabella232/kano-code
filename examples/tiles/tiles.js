@@ -10,7 +10,10 @@ export class Tiles {
         const yStep = ctx.canvas.height / this.ny;
         for (let x = 0; x < ctx.canvas.width; x += xStep) {
             for (let y = 0; y < ctx.canvas.height; y += yStep) {
+                ctx.save();
+                ctx.translate(x, y);
                 this.userDraw(ctx, x, y, xStep, yStep);
+                ctx.restore();
             }
         }
     }

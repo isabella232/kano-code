@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class MathModule extends AppModule {
+export class MathModule extends AppModule {
     constructor() {
         super();
 
@@ -11,7 +11,7 @@ class MathModule extends AppModule {
     static get id() { return 'math'; }
     _sign(x) {
         x = +x; // convert to a number
-        if (x === 0 || isNaN(x)) {
+        if (x === 0 || Number.isNaN(x)) {
             return x;
         }
         return x > 0 ? 1 : -1;

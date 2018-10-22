@@ -41,7 +41,7 @@ window.Kano.Code = window.Kano.Code || {};
  * editor.inject(document.body);
  * ```
  */
-class Editor extends EditorOrPlayer {
+export class Editor extends EditorOrPlayer {
     constructor(opts = {}) {
         super();
         this.config = Config.merge(opts);
@@ -60,7 +60,7 @@ class Editor extends EditorOrPlayer {
             sourceType: this.sourceType,
             // When using blockly, can apply specific options
             blockly: {
-                flyoutMode: false,
+                flyoutMode: typeof opts.flyoutMode === 'undefined' ? false : opts.flyoutMode,
             },
             editingBackground: false,
         });

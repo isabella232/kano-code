@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class TimeModule extends AppModule {
+export class TimeModule extends AppModule {
     constructor() {
         super();
         this.timeouts = [];

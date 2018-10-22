@@ -5,7 +5,7 @@ const COLOR = '#f75846';
 
 const ID = 'logic';
 
-const BlocklyLogic = {
+export const LogicAPI = {
     type: 'blockly',
     id: ID,
     register(Blockly) {
@@ -81,9 +81,9 @@ const BlocklyLogic = {
             BOOL: 'TRUE',
         },
         logic_operation: {
-            OP: 'and'
-        }
+            OP: 'and',
+        },
     },
 };
 
-export default BlocklyLogic;
+export default LogicAPI;

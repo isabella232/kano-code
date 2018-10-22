@@ -2,7 +2,7 @@ const COLOR = '#ffc100';
 
 const ID = 'variables';
 
-const BlocklyVariables = {
+export const VariablesAPI = {
     type: 'blockly',
     id: ID,
     register(Blockly) {
@@ -38,4 +38,4 @@ const BlocklyVariables = {
     },
 };
 
-export default BlocklyVariables;
+export default VariablesAPI;

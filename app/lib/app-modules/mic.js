@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class MicModule extends AppModule {
+export class MicModule extends AppModule {
     constructor() {
         super();
 

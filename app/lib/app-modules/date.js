@@ -1,6 +1,6 @@
-import AppModule from './app-module.js';
+import { AppModule } from './app-module.js';
 
-class DateModule extends AppModule {
+export class DateModule extends AppModule {
     constructor() {
         super();
 
@@ -12,8 +12,8 @@ class DateModule extends AppModule {
     static get id() { return 'date'; }
 
     _getCurrent() {
-        let current = {},
-            date = new Date();
+        const current = {};
+        const date = new Date();
         current.year = date.getFullYear();
         current.month = date.getMonth() + 1;
         current.day = date.getDate();

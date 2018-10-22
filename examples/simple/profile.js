@@ -1,7 +1,7 @@
 import { OutputProfile, AppModule } from '../../app/lib/index.js';
 
 export class DrawModule extends AppModule {
-    static get name() { return 'draw'; }
+    static get id() { return 'draw'; }
     constructor(...args) {
         super(...args);
         this.addMethod('square', '_square');

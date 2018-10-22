@@ -2,7 +2,7 @@ const COLOR = '#ff9800';
 
 const ID = 'math';
 
-const BlocklyMath = {
+export const MathAPI = {
     type: 'blockly',
     id: ID,
     typeScriptDefinition: `
@@ -394,4 +394,4 @@ const BlocklyMath = {
     },
 };
 
-export default BlocklyMath;
+export default MathAPI;

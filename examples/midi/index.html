@@ -20,25 +20,15 @@
 </head>
 <body>
     <script type="module">
-        import I18n, { getLang, load as loadLang } from '../../app/lib/i18n/index.js';
-
-        function loadBlocklyMsg(m) {
-            if ('Blockly' in window) {
-                Object.assign(window.Blockly.Msg, m);
-            } else {
-                window.CustomBlocklyMsg = window.CustomBlocklyMsg || {};
-                Object.assign(window.CustomBlocklyMsg, m);
-            }
-        }
-        const lang = getLang();
-        const root = '/';
+        import * as i18n from '../../i18n.js';
+        const lang = i18n.getLang();
 
         // Load Kano Code locales and elements
         Promise.all([
-            loadLang(`${root}app/locale/editor/${lang}.json`),
-            loadLang(`${root}app/locale/blockly/${lang}.json`).then(m => loadBlocklyMsg(m)),
-            loadLang(`${root}node_modules/@kano/kwc-blockly/blockly_built/msg/json/en.json`).then(m => loadBlocklyMsg(m)),
-            loadLang(`${root}node_modules/@kano/kwc-blockly/blockly_built/msg/json/constants.json`).then(m => loadBlocklyMsg(m)),
+            i18n.load(`/app/locale/editor/${lang}.json`),
+            i18n.loadBlocklyMsg(`/app/locale/blockly/${lang}.json`),
+            i18n.loadBlocklyMsg(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/en.json`),
+            i18n.loadBlocklyMsg(`/node_modules/@kano/kwc-blockly/blockly_built/msg/json/constants.json`),
         ]).then(() => import('./index.js'));
 </script>
 </body>
