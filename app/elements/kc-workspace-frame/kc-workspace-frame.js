@@ -160,9 +160,9 @@ Polymer({
             <kc-workspace-toolbar running="[[running]]"
                                     no-part-controls=""
                                     on-save-button-clicked="_toggleFullscreen"
-                                    on-pause-run-button-clicked="_runButtonClicked"
+                                    on-run-clicked="_runButtonClicked"
                                     on-fullscreen-clicked="_toggleFullscreen"
-                                    on-restart-button-clicked="_resetAppState"
+                                    on-restart-clicked="_restartClicked"
                                     fullscreen="[[fullscreen]]"></kc-workspace-toolbar>
         </div>
         <iron-a11y-keys keys="meta+enter" on-keys-pressed="_goFullscreen" target="[[target]]"></iron-a11y-keys>
@@ -239,7 +239,8 @@ Polymer({
                     style.left = `calc(50% - (70vh * ${aspectRatio} / 2))`;
                 }
             } else {
-                // We are not fullscreen so set the viewport height relative to the width of the workspace
+                // We are not fullscreen so set the viewport
+                // height relative to the width of the workspace
                 style.width = 'auto';
                 style.height = `${this.offsetWidth * aspectRatio}px`;
                 style.top = 'auto';
@@ -282,6 +283,10 @@ Polymer({
 
     _resetAppState() {
         this.fire('reset-app-state');
+    },
+
+    _restartClicked() {
+        this.fire('restart-clicked');
     },
 
     _runButtonClicked() {
