@@ -156,7 +156,7 @@ class KCWorkspaceToolbar extends I18nMixin(PolymerElement) {
             </button>
         </template>
         <kano-tooltip id="tooltip-play" class="fly" position="top" offset="16"><div class="text">[[_computePlayTitle(running)]]</div></kano-tooltip>
-        <button id="entry-play" class="tool" type="button" on-tap="_playClicked" on-mouseenter="_startPlayTimer" on-mouseleave="_stopPlayTimer">
+        <button id="entry-play" class="tool" type="button" on-click="_playClicked" on-mouseenter="_startPlayTimer" on-mouseleave="_stopPlayTimer">
             <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="[[_getRunningStatus(running)]]" hidden\$="[[noPlayerBar]]"></kano-animated-svg>
         </button>
         <kano-tooltip id="settings-tooltip" position="bottom" offset="16" auto-close>
