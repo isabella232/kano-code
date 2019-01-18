@@ -8,7 +8,7 @@ import '@polymer/iron-image/iron-image.js';
 import '@polymer/marked-element/marked-element.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
-import { SoundPlayerBehavior } from '@kano/web-components/kano-sound-player-behavior/kano-sound-player-behavior.js';
+import { SoundPlayerBehavior } from '../kano-sound-player-behavior/kano-sound-player-behavior.js';
 import '@kano/kwc-style/typography.js';
 import '../kano-tooltip/kano-tooltip.js';
 import '../kano-arrow/kano-arrow.js';

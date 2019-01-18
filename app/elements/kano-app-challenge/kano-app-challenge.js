@@ -1,7 +1,7 @@
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
-import { SoundPlayerBehavior } from '@kano/web-components/kano-sound-player-behavior/kano-sound-player-behavior.js';
+import { SoundPlayerBehavior } from '../kano-sound-player-behavior/kano-sound-player-behavior.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
 import { timeOut } from '@polymer/polymer/lib/utils/async.js';

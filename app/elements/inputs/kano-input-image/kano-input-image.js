@@ -1,7 +1,7 @@
-import '@kano/web-components/kano-glint-animation/kano-glint-animation.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { Input } from '../behaviors.js';
+import '../../kano-glint-animation/kano-glint-animation.js';
 import '../../kano-fs/kano-fs.js';
 import '../kano-file-picker-modal/kano-file-picker-modal.js';
 

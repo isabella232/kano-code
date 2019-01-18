@@ -13,7 +13,6 @@ import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/iron-overlay-behavior/iron-overlay-backdrop.js';
-import '@kano/web-components/kano-alert/kano-alert.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
@@ -30,6 +29,7 @@ import '../kano-part-editor/kano-part-editor.js';
 import '../kc-blockly-editor/kc-blockly-editor.js';
 import '../kano-animated-svg/kano-animated-svg.js';
 import '../kano-code-display/kano-code-display.js';
+import '../kano-alert/kano-alert.js';
 import { Utils } from '../../scripts/kano/make-apps/utils.js';
 import { Store } from '../../scripts/legacy/store.js';
 

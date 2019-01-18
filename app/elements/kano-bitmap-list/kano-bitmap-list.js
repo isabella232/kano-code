@@ -22,13 +22,14 @@ import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@kano/polymer-sortablejs/polymer-sortablejs.js';
 import '@kano/x-carousel/x-carousel.js';
-import '@kano/web-components/kano-alert/kano-alert.js';
 import '@kano/kwc-icons/kwc-icons.js';
-import { AppEditorBehavior } from '../behaviors/kano-app-editor-behavior.js';
-import '../kano-bitmap-renderer/kano-bitmap-renderer.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import { AppEditorBehavior } from '../behaviors/kano-app-editor-behavior.js';
+import '../kano-bitmap-renderer/kano-bitmap-renderer.js';
+import '../kano-alert/kano-alert.js';
+
 Polymer({
   _template: html`
         <style>

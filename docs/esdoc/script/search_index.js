@@ -6,6 +6,18 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "@kano/code/lib/editor/activity-bar.js~activitybarentry",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html",
+    "<span>ActivityBarEntry</span> <span class=\"search-result-import-path\">@kano/code/lib/editor/activity-bar.js</span>",
+    "class"
+  ],
+  [
+    "@kano/code/lib/editor/activity-bar.js~activitybartooltipentry",
+    "class/lib/editor/activity-bar.js~ActivityBarTooltipEntry.html",
+    "<span>ActivityBarTooltipEntry</span> <span class=\"search-result-import-path\">@kano/code/lib/editor/activity-bar.js</span>",
+    "class"
+  ],
+  [
     "@kano/code/lib/parts/dialogs/add-part.js~addpartdialogprovider",
     "class/lib/parts/dialogs/add-part.js~AddPartDialogProvider.html",
     "<span>AddPartDialogProvider</span> <span class=\"search-result-import-path\">@kano/code/lib/parts/dialogs/add-part.js</span>",
@@ -21,12 +33,6 @@ window.esdocSearchIndex = [
     "@kano/code/lib/meta-api/modules/all.js~allapis",
     "variable/index.html#static-variable-AllApis",
     "<span>AllApis</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/all.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/app-modules/all.js~allmodules",
-    "variable/index.html#static-variable-AllModules",
-    "<span>AllModules</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/all.js</span>",
     "variable"
   ],
   [
@@ -54,15 +60,9 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "@kano/code/lib/app-modules/assets.js~assetsmodule",
-    "variable/index.html#static-variable-AssetsModule",
-    "<span>AssetsModule</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/assets.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/assets.js~assetsmodule",
-    "variable/index.html#static-variable-AssetsModule",
-    "<span>AssetsModule</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/assets.js</span>",
+    "@kano/code/lib/meta-api/modules/assets.js~assetsapi",
+    "variable/index.html#static-variable-AssetsAPI",
+    "<span>AssetsAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/assets.js</span>",
     "variable"
   ],
   [
@@ -102,46 +102,10 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "@kano/code/lib/meta-api/modules/color.js~blocklycolor",
-    "variable/index.html#static-variable-BlocklyColor",
-    "<span>BlocklyColor</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/color.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/control.js~blocklycontrol",
-    "variable/index.html#static-variable-BlocklyControl",
-    "<span>BlocklyControl</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/control.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/lists.js~blocklylists",
-    "variable/index.html#static-variable-BlocklyLists",
-    "<span>BlocklyLists</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/lists.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/logic.js~blocklylogic",
-    "variable/index.html#static-variable-BlocklyLogic",
-    "<span>BlocklyLogic</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/logic.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/math.js~blocklymath",
-    "variable/index.html#static-variable-BlocklyMath",
-    "<span>BlocklyMath</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/math.js</span>",
-    "variable"
-  ],
-  [
     "@kano/code/lib/meta-api/renderer/blockly.js~blocklymetarenderer",
     "class/lib/meta-api/renderer/blockly.js~BlocklyMetaRenderer.html",
     "<span>BlocklyMetaRenderer</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/renderer/blockly.js</span>",
     "class"
-  ],
-  [
-    "@kano/code/lib/meta-api/modules/variables.js~blocklyvariables",
-    "variable/index.html#static-variable-BlocklyVariables",
-    "<span>BlocklyVariables</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/variables.js</span>",
-    "variable"
   ],
   [
     "@kano/code/lib/hardware/camera.js~camera",
@@ -180,6 +144,12 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
+    "@kano/code/lib/meta-api/modules/color.js~colorapi",
+    "variable/index.html#static-variable-ColorAPI",
+    "<span>ColorAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/color.js</span>",
+    "variable"
+  ],
+  [
     "@kano/code/lib/app-modules/colour.js~colourmodule",
     "class/lib/app-modules/colour.js~ColourModule.html",
     "<span>ColourModule</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/colour.js</span>",
@@ -196,6 +166,12 @@ window.esdocSearchIndex = [
     "class/lib/editor/dialogs/confirm.js~Confirm.html",
     "<span>Confirm</span> <span class=\"search-result-import-path\">@kano/code/lib/editor/dialogs/confirm.js</span>",
     "class"
+  ],
+  [
+    "@kano/code/lib/meta-api/modules/control.js~controlapi",
+    "variable/index.html#static-variable-ControlAPI",
+    "<span>ControlAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/control.js</span>",
+    "variable"
   ],
   [
     "@kano/code/lib/creation/creation-preview-provider.js~creationanimationpreviewprovider",
@@ -310,6 +286,12 @@ window.esdocSearchIndex = [
     "class/lib/app-modules/dongle.js~DongleModule.html",
     "<span>DongleModule</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/dongle.js</span>",
     "class"
+  ],
+  [
+    "@kano/code/lib/meta-api/modules/draw.js~drawapi",
+    "variable/index.html#static-variable-DrawAPI",
+    "<span>DrawAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/draw.js</span>",
+    "variable"
   ],
   [
     "@kano/code/lib/app-modules/draw.js~drawmodulefactory",
@@ -498,6 +480,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "@kano/code/lib/meta-api/modules/lists.js~listsapi",
+    "variable/index.html#static-variable-ListsAPI",
+    "<span>ListsAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/lists.js</span>",
+    "variable"
+  ],
+  [
     "@kano/code/lib/storage/local-storage.js~localstorageplugin",
     "class/lib/storage/local-storage.js~LocalStoragePlugin.html",
     "<span>LocalStoragePlugin</span> <span class=\"search-result-import-path\">@kano/code/lib/storage/local-storage.js</span>",
@@ -510,6 +498,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "@kano/code/lib/meta-api/modules/logic.js~logicapi",
+    "variable/index.html#static-variable-LogicAPI",
+    "<span>LogicAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/logic.js</span>",
+    "variable"
+  ],
+  [
     "@kano/code/lib/app-modules/loop.js~loopmodule",
     "class/lib/app-modules/loop.js~LoopModule.html",
     "<span>LoopModule</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/loop.js</span>",
@@ -520,6 +514,12 @@ window.esdocSearchIndex = [
     "class/lib/app-modules/loops.js~LoopsModule.html",
     "<span>LoopsModule</span> <span class=\"search-result-import-path\">@kano/code/lib/app-modules/loops.js</span>",
     "class"
+  ],
+  [
+    "@kano/code/lib/meta-api/modules/math.js~mathapi",
+    "variable/index.html#static-variable-MathAPI",
+    "<span>MathAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/math.js</span>",
+    "variable"
   ],
   [
     "@kano/code/lib/app-modules/math.js~mathmodule",
@@ -894,6 +894,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "@kano/code/lib/meta-api/modules/variables.js~variablesapi",
+    "variable/index.html#static-variable-VariablesAPI",
+    "<span>VariablesAPI</span> <span class=\"search-result-import-path\">@kano/code/lib/meta-api/modules/variables.js</span>",
+    "variable"
+  ],
+  [
     "@kano/code/lib/editor/workspace/toolbar.js~workspacetoolbar",
     "class/lib/editor/workspace/toolbar.js~WorkspaceToolbar.html",
     "<span>WorkspaceToolbar</span> <span class=\"search-result-import-path\">@kano/code/lib/editor/workspace/toolbar.js</span>",
@@ -1074,6 +1080,12 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
+    "@kano/code/lib/i18n/index.js~loadblocklymsg",
+    "function/index.html#static-function-loadBlocklyMsg",
+    "<span>loadBlocklyMsg</span> <span class=\"search-result-import-path\">@kano/code/lib/i18n/index.js</span>",
+    "function"
+  ],
+  [
     "@kano/code/lib/i18n/index.js~localize",
     "function/index.html#static-function-localize",
     "<span>localize</span> <span class=\"search-result-import-path\">@kano/code/lib/i18n/index.js</span>",
@@ -1170,12 +1182,6 @@ window.esdocSearchIndex = [
     "variable"
   ],
   [
-    "@kano/code/lib/parts/parts/speaker/index.js~speaker",
-    "variable/index.html#static-variable-speaker",
-    "<span>speaker</span> <span class=\"search-result-import-path\">@kano/code/lib/parts/parts/speaker/index.js</span>",
-    "variable"
-  ],
-  [
     "@kano/code/lib/parts/parts/mouse/index.js~speedx",
     "variable/index.html#static-variable-speedX",
     "<span>speedX</span> <span class=\"search-result-import-path\">@kano/code/lib/parts/parts/mouse/index.js</span>",
@@ -1191,12 +1197,6 @@ window.esdocSearchIndex = [
     "@kano/code/lib/parts/parts/data/sports.js~sports",
     "variable/index.html#static-variable-sports",
     "<span>sports</span> <span class=\"search-result-import-path\">@kano/code/lib/parts/parts/data/sports.js</span>",
-    "variable"
-  ],
-  [
-    "@kano/code/lib/parts/parts/sticker/index.js~sticker",
-    "variable/index.html#static-variable-sticker",
-    "<span>sticker</span> <span class=\"search-result-import-path\">@kano/code/lib/parts/parts/sticker/index.js</span>",
     "variable"
   ],
   [
@@ -1710,6 +1710,12 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
+    "lib/app-modules/app-modules.js~appmodules#dispose",
+    "class/lib/app-modules/app-modules.js~AppModules.html#instance-method-dispose",
+    "lib/app-modules/app-modules.js~AppModules#dispose",
+    "method"
+  ],
+  [
     "lib/app-modules/app-modules.js~appmodules#getmodule",
     "class/lib/app-modules/app-modules.js~AppModules.html#instance-method-getModule",
     "lib/app-modules/app-modules.js~AppModules#getModule",
@@ -1756,12 +1762,6 @@ window.esdocSearchIndex = [
     "class/lib/app-modules/app-modules.js~AppModules.html#instance-method-stop",
     "lib/app-modules/app-modules.js~AppModules#stop",
     "method"
-  ],
-  [
-    "lib/app-modules/assets.js",
-    "file/lib/app-modules/assets.js.html",
-    "lib/app-modules/assets.js",
-    "file"
   ],
   [
     "lib/app-modules/camera.js",
@@ -1977,6 +1977,12 @@ window.esdocSearchIndex = [
     "lib/app-modules/index.js~appmodulesloader#constructor",
     "class/lib/app-modules/index.js~AppModulesLoader.html#instance-constructor-constructor",
     "lib/app-modules/index.js~AppModulesLoader#constructor",
+    "method"
+  ],
+  [
+    "lib/app-modules/index.js~appmodulesloader#dispose",
+    "class/lib/app-modules/index.js~AppModulesLoader.html#instance-method-dispose",
+    "lib/app-modules/index.js~AppModulesLoader#dispose",
     "method"
   ],
   [
@@ -3468,6 +3474,12 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
+    "lib/creation/index.js~creationplugin#player",
+    "class/lib/creation/index.js~CreationPlugin.html#instance-member-player",
+    "lib/creation/index.js~CreationPlugin#player",
+    "member"
+  ],
+  [
     "lib/creation/index.js~creationplugin#reset",
     "class/lib/creation/index.js~CreationPlugin.html#instance-method-reset",
     "lib/creation/index.js~CreationPlugin#reset",
@@ -3525,6 +3537,90 @@ window.esdocSearchIndex = [
     "lib/editor/activity-bar.js~activitybar#registerentry",
     "class/lib/editor/activity-bar.js~ActivityBar.html#instance-method-registerEntry",
     "lib/editor/activity-bar.js~ActivityBar#registerEntry",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybar#registertooltipentry",
+    "class/lib/editor/activity-bar.js~ActivityBar.html#instance-method-registerTooltipEntry",
+    "lib/editor/activity-bar.js~ActivityBar#registerTooltipEntry",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybar#size",
+    "class/lib/editor/activity-bar.js~ActivityBar.html#instance-get-size",
+    "lib/editor/activity-bar.js~ActivityBar#size",
+    "member"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#constructor",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-constructor-constructor",
+    "lib/editor/activity-bar.js~ActivityBarEntry#constructor",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#createdom",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-method-createDom",
+    "lib/editor/activity-bar.js~ActivityBarEntry#createDom",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#disable",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-method-disable",
+    "lib/editor/activity-bar.js~ActivityBarEntry#disable",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#dispose",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-method-dispose",
+    "lib/editor/activity-bar.js~ActivityBarEntry#dispose",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#enable",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-method-enable",
+    "lib/editor/activity-bar.js~ActivityBarEntry#enable",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#ondidactivate",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-get-onDidActivate",
+    "lib/editor/activity-bar.js~ActivityBarEntry#onDidActivate",
+    "member"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#onwillinject",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-method-onWillInject",
+    "lib/editor/activity-bar.js~ActivityBarEntry#onWillInject",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#opts",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-member-opts",
+    "lib/editor/activity-bar.js~ActivityBarEntry#opts",
+    "member"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybarentry#root",
+    "class/lib/editor/activity-bar.js~ActivityBarEntry.html#instance-member-root",
+    "lib/editor/activity-bar.js~ActivityBarEntry#root",
+    "member"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybartooltipentry#constructor",
+    "class/lib/editor/activity-bar.js~ActivityBarTooltipEntry.html#instance-constructor-constructor",
+    "lib/editor/activity-bar.js~ActivityBarTooltipEntry#constructor",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybartooltipentry#dispose",
+    "class/lib/editor/activity-bar.js~ActivityBarTooltipEntry.html#instance-method-dispose",
+    "lib/editor/activity-bar.js~ActivityBarTooltipEntry#dispose",
+    "method"
+  ],
+  [
+    "lib/editor/activity-bar.js~activitybartooltipentry#onwillinject",
+    "class/lib/editor/activity-bar.js~ActivityBarTooltipEntry.html#instance-method-onWillInject",
+    "lib/editor/activity-bar.js~ActivityBarTooltipEntry#onWillInject",
     "method"
   ],
   [
@@ -3759,6 +3855,12 @@ window.esdocSearchIndex = [
     "lib/editor/editor.js~editor#appendworkspaceview",
     "class/lib/editor/editor.js~Editor.html#instance-method-appendWorkspaceView",
     "lib/editor/editor.js~Editor#appendWorkspaceView",
+    "method"
+  ],
+  [
+    "lib/editor/editor.js~editor#asabsolutemediapath",
+    "class/lib/editor/editor.js~Editor.html#instance-method-asAbsoluteMediaPath",
+    "lib/editor/editor.js~Editor#asAbsoluteMediaPath",
     "method"
   ],
   [
@@ -4005,6 +4107,12 @@ window.esdocSearchIndex = [
     "lib/editor/editor.js~editor#save",
     "class/lib/editor/editor.js~Editor.html#instance-method-save",
     "lib/editor/editor.js~Editor#save",
+    "method"
+  ],
+  [
+    "lib/editor/editor.js~editor#setcode",
+    "class/lib/editor/editor.js~Editor.html#instance-method-setCode",
+    "lib/editor/editor.js~Editor#setCode",
     "method"
   ],
   [
@@ -4302,6 +4410,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "lib/editor/profile.js~editorprofile#oninstall",
+    "class/lib/editor/profile.js~EditorProfile.html#instance-method-onInstall",
+    "lib/editor/profile.js~EditorProfile#onInstall",
+    "method"
+  ],
+  [
     "lib/editor/profile.js~editorprofile#outputprofile",
     "class/lib/editor/profile.js~EditorProfile.html#instance-get-outputProfile",
     "lib/editor/profile.js~EditorProfile#outputProfile",
@@ -4389,6 +4503,12 @@ window.esdocSearchIndex = [
     "lib/editor/runner.js~runner#output",
     "class/lib/editor/runner.js~Runner.html#instance-member-output",
     "lib/editor/runner.js~Runner#output",
+    "member"
+  ],
+  [
+    "lib/editor/runner.js~runner#vm",
+    "class/lib/editor/runner.js~Runner.html#instance-member-vm",
+    "lib/editor/runner.js~Runner#vm",
     "member"
   ],
   [
@@ -5700,6 +5820,12 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
+    "lib/meta-api/index.js",
+    "file/lib/meta-api/index.js.html",
+    "lib/meta-api/index.js",
+    "file"
+  ],
+  [
     "lib/meta-api/module.js",
     "file/lib/meta-api/module.js.html",
     "lib/meta-api/module.js",
@@ -5733,6 +5859,12 @@ window.esdocSearchIndex = [
     "lib/meta-api/module.js~meta#getnamechain",
     "class/lib/meta-api/module.js~Meta.html#instance-method-getNameChain",
     "lib/meta-api/module.js~Meta#getNameChain",
+    "method"
+  ],
+  [
+    "lib/meta-api/module.js~meta#getroot",
+    "class/lib/meta-api/module.js~Meta.html#instance-method-getRoot",
+    "lib/meta-api/module.js~Meta#getRoot",
     "method"
   ],
   [
@@ -6204,6 +6336,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "lib/output/profile.js~outputprofile#oninstall",
+    "class/lib/output/profile.js~OutputProfile.html#instance-method-onInstall",
+    "lib/output/profile.js~OutputProfile#onInstall",
+    "method"
+  ],
+  [
     "lib/output/profile.js~outputprofile#outputprovider",
     "class/lib/output/profile.js~OutputProfile.html#instance-get-outputProvider",
     "lib/output/profile.js~OutputProfile#outputProvider",
@@ -6562,12 +6700,6 @@ window.esdocSearchIndex = [
     "class/lib/parts/index.js~PartsPlugin.html#instance-method-addToolboxEntry",
     "lib/parts/index.js~PartsPlugin#addToolboxEntry",
     "method"
-  ],
-  [
-    "lib/parts/index.js~partsplugin#challengegeneratormiddleware",
-    "class/lib/parts/index.js~PartsPlugin.html#instance-get-challengeGeneratorMiddleware",
-    "lib/parts/index.js~PartsPlugin#challengeGeneratorMiddleware",
-    "member"
   ],
   [
     "lib/parts/index.js~partsplugin#checkblockdependency",
@@ -7392,12 +7524,6 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "lib/parts/parts/speaker/index.js",
-    "file/lib/parts/parts/speaker/index.js.html",
-    "lib/parts/parts/speaker/index.js",
-    "file"
-  ],
-  [
     "lib/parts/parts/speaker/kano-part-speaker.js",
     "file/lib/parts/parts/speaker/kano-part-speaker.js.html",
     "lib/parts/parts/speaker/kano-part-speaker.js",
@@ -8076,30 +8202,6 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "lib/util/subscription.js~subscriptions#constructor",
-    "class/lib/util/subscription.js~Subscriptions.html#instance-constructor-constructor",
-    "lib/util/subscription.js~Subscriptions#constructor",
-    "method"
-  ],
-  [
-    "lib/util/subscription.js~subscriptions#dispose",
-    "class/lib/util/subscription.js~Subscriptions.html#instance-method-dispose",
-    "lib/util/subscription.js~Subscriptions#dispose",
-    "method"
-  ],
-  [
-    "lib/util/subscription.js~subscriptions#push",
-    "class/lib/util/subscription.js~Subscriptions.html#instance-method-push",
-    "lib/util/subscription.js~Subscriptions#push",
-    "method"
-  ],
-  [
-    "lib/util/subscription.js~subscriptions#subs",
-    "class/lib/util/subscription.js~Subscriptions.html#instance-member-subs",
-    "lib/util/subscription.js~Subscriptions#subs",
-    "member"
-  ],
-  [
     "lib/util/subscription.js~subscriptions.subscribe",
     "class/lib/util/subscription.js~Subscriptions.html#static-method-subscribe",
     "lib/util/subscription.js~Subscriptions.subscribe",
@@ -8128,6 +8230,12 @@ window.esdocSearchIndex = [
     "class/lib/vm.js~VM.html#instance-member-context",
     "lib/vm.js~VM#context",
     "member"
+  ],
+  [
+    "lib/vm.js~vm#dispose",
+    "class/lib/vm.js~VM.html#instance-method-dispose",
+    "lib/vm.js~VM#dispose",
+    "method"
   ],
   [
     "lib/vm.js~vm#runincontext",

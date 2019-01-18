@@ -1,4 +1,5 @@
-import '@kano/web-components/kano-alert/kano-alert.js';
+import { button, tertiary } from '@kano/styles/button.js';
+import '../../../elements/kano-alert/kano-alert.js';
 import { Base } from './base.js';
 
 export class Alert extends Base {
@@ -9,16 +10,18 @@ export class Alert extends Base {
     }
     createDom(opts) {
         const root = document.createElement('kano-alert');
+        root.appendChild(button.content.cloneNode(true));
+        root.appendChild(tertiary.content.cloneNode(true));
         // OverlayInto is defined, Do not use modal nor backdrop
         root.modal = typeof this.overlayInto === 'undefined';
         root.withBackdrop = typeof this.overlayInto !== 'undefined';
         root.fitInto = this.fitInto;
         root.heading = opts.heading;
         root.text = opts.text;
-        const button = this.createButton(opts.buttonLabel);
-        button.className = 'kano-alert-secondary';
-        button.setAttribute('dialog-dismiss', '');
-        root.appendChild(button);
+        const buttonEl = this.createButton(opts.buttonLabel || 'Ok');
+        buttonEl.className = 'btn tertiary kano-alert-primary';
+        buttonEl.setAttribute('dialog-dismiss', '');
+        root.appendChild(buttonEl);
         return root;
     }
     _onClose() {

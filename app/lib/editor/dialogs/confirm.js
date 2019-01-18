@@ -1,4 +1,5 @@
-import '@kano/web-components/kano-alert/kano-alert.js';
+import { button, tertiary } from '@kano/styles/button.js';
+import '../../../elements/kano-alert/kano-alert.js';
 import { Alert } from './alert.js';
 
 const DEFAULT_OPTS = {
@@ -10,6 +11,8 @@ export class Confirm extends Alert {
     createDom(opts) {
         const options = Object.assign({}, DEFAULT_OPTS, opts);
         const root = document.createElement('kano-alert');
+        root.appendChild(button.content.cloneNode(true));
+        root.appendChild(tertiary.content.cloneNode(true));
         // OverlayInto is defined, Do not use modal nor backdrop
         root.modal = typeof this.overlayInto === 'undefined';
         root.withBackdrop = typeof this.overlayInto !== 'undefined';
@@ -17,10 +20,10 @@ export class Confirm extends Alert {
         root.heading = options.heading;
         root.text = options.text;
         const confirm = this.createButton(options.confirmLabel);
-        confirm.className = 'kano-alert-primary';
+        confirm.className = 'btn kano-alert-primary';
         confirm.setAttribute('dialog-confirm', '');
         const dismiss = this.createButton(options.dismissLabel);
-        dismiss.className = 'kano-alert-secondary';
+        dismiss.className = 'btn tertiary kano-alert-secondary';
         dismiss.setAttribute('dialog-dismiss', '');
         root.appendChild(confirm);
         root.appendChild(dismiss);
