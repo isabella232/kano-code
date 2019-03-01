@@ -3,6 +3,10 @@ import { PartInlineDisplay } from './inline-display.js';
 import { Part } from './part.js';
 import { Editor } from '../editor/editor.js';
 
+interface InlineDisplayConstructor {
+    new(...args : any[]) : PartInlineDisplay;
+}
+
 /**
  * Describes the editor experience for a part.
  * Toolbox, color, icon, inline display,...
@@ -19,7 +23,7 @@ export interface IPartAPI {
     // Template containing an SVG icon
     icon : HTMLTemplateElement;
     // Widget that will be displayed in the part list when a part is added
-    inlineDisplay? : Type<PartInlineDisplay>;
+    inlineDisplay? : InlineDisplayConstructor;
     // Called when a part of that type is added to the editor. This is not called in a player
     onInstall?(editor : Editor, part : Part) : void;
 };
