@@ -1,6 +1,8 @@
 #!groovy
 @Library('kanolib') _
 
+def utils;
+
 pipeline {
     agent {
         label 'ubuntu_18.04_with_docker'
@@ -9,6 +11,7 @@ pipeline {
         stage('checkout') {
             steps {
                 checkout scm
+                utils = load 'jenkins/utils.groovy'
             }
         }
         stage('install dependencies') {
@@ -31,8 +34,8 @@ pipeline {
                     // Use puppeteer enabled docker image
                     docker.image('kanocomputing/puppeteer').inside('--cap-add=SYS_ADMIN') {
                         // Run the Unit test
-                        sh "yarn test-ci"
-                        sh "yarn coverage-ci"
+                        sh "yarn ci:test"
+                        sh "yarn ci:coverage"
                     }
                 }
             }
@@ -47,14 +50,7 @@ pipeline {
                     docker.image('node:8-alpine').inside {
                         sh "yarn docs"
                     }
-                    docker.image('ughly/alpine-aws-cli').inside {
-                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'kart', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            // Clean previous docs
-                            sh "aws s3 rm s3://code-docs.kano.me/${version} --recursive"
-                            // Upload files
-                            sh "aws s3 cp ./docs/ s3://code-docs.kano.me/${version} --recursive"
-                        }
-                    }
+                    utils.uploadDocs()
                 }
             }
         }
@@ -63,46 +59,23 @@ pipeline {
         always {
             junit allowEmptyResults: true, testResults: 'test-results.xml'
             cobertura coberturaReportFile: 'coverage/cobertura-coverage.xml'
-            updatePR()
+            script {
+                github.updatePRWithCoverageData file: 'coverage/coverage-summary.md'
+            }
         }
         regression {
-            notify_culprits currentBuild.result
+            script {
+                email.notifyCulprits()
+            }
+        }
+        fixed {
+            script {
+                email.notifyCulprits()
+            }
         }
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         timeout(time: 60, unit: 'MINUTES')
-    }
-}
-
-/**
- * Reads the coverage report and post it on a potential github PR
- */
-def updatePR() {
-    def idFile = '.gh-comment-id'
-    try {
-        if (!env.CHANGE_ID) {
-            return;
-        }
-        def markdown
-        try {
-            markdown = readFile 'coverage/coverage-summary.md'
-        } catch(Exception e) {
-            return;
-        }
-        def commentId
-        try {
-            commentId = readFile(idFile) as Long
-        } catch (Exception e) {}
-        if (commentId) {
-            pullRequest.editComment(commentId, markdown)
-        } else {
-            def comment = pullRequest.comment(markdown)
-            writeFile file: idFile, text: comment.id.toString()
-            comment = null
-        }
-    } catch(Exception e) {
-        // Delete the file in case of errors
-        sh "rm ${idFile}"
     }
 }
