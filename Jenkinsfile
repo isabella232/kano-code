@@ -52,7 +52,7 @@ pipeline {
                     docker.image('node:8-alpine').inside {
                         sh "yarn docs"
                     }
-                    utils.uploadDocs()
+                    utils.uploadDocs version
                 }
             }
         }
