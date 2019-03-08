@@ -11,7 +11,9 @@ pipeline {
         stage('checkout') {
             steps {
                 checkout scm
-                utils = load 'jenkins/utils.groovy'
+                script {
+                    utils = load 'jenkins/utils.groovy'
+                }
             }
         }
         stage('install dependencies') {
