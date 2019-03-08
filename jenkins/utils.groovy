@@ -11,12 +11,13 @@ def uploadDocs(version) {
 <html>
    <head>
       <title>HTML Meta Tag</title>
-      <meta http-equiv = "refresh" content = "2; url = /${version}/index.html" />
+      <meta http-equiv = "refresh" content = "0; url = /${version}/index.html" />
    </head>
 </html>
             """;
             writeFile(file: 'redirect.html', text: redirectFile, encoding: "UTF-8")
-            sh "aws s3 cp redirect.html s3://code-docs.kano.me/latest/index.html --recursive --quiet"
+            sh "aws s3 cp redirect.html s3://code-docs.kano.me/index.html --quiet"
+            sh "aws s3 cp redirect.html s3://code-docs.kano.me/latest/index.html --quiet"
         }
     }
 }
