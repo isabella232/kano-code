@@ -3,7 +3,7 @@ import { KanoCodeChallenge } from './kano-code.js';
 import { BlocklySourceEditor } from '../editor/source-editor/blockly.js';
 import { transformChallenge } from './legacy.js';
 import { IToolboxWhitelist } from '../editor/toolbox.js';
-import { subscribe, IDisposable, EventEmitter } from '@kano/common/index.js';
+import { IDisposable, EventEmitter, subscribeDOM } from '@kano/common/index.js';
 
 // window namespaces used for easy access to editors in development
 window.Kano = window.Kano || {};
@@ -105,7 +105,8 @@ export class Challenge {
         }
         // Engine is defined as the editor is injected
         const engine = this.engine!;
-        subscribe(engine, 'done', () => {
+        // The engine uses a similar API to the DOM events
+        subscribeDOM(engine as unknown as HTMLElement, 'done', () => {
             this.editor.toolbox.setWhitelist(null);
             this._onDidEnd.fire();
         }, this, this.subscriptions);
