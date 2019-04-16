@@ -52,20 +52,6 @@ pipeline {
                     docker.image('node:8-alpine').inside {
                         sh "yarn docs"
                     }
-                    utils.uploadDocs version
-                }
-            }
-        }
-        stage('docs') {
-            steps {
-                script {
-                    if (env.BRANCH_NAME !== "master") {
-                        return;
-                    }
-                    def version = get_npm_package_version();
-                    docker.image('node:8-alpine').inside {
-                        sh "yarn docs"
-                    }
                     docker.image('ughly/alpine-aws-cli').inside {
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'kart', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                             // Clean previous docs
