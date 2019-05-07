@@ -2,7 +2,6 @@ import '@polymer/iron-a11y-keys/iron-a11y-keys.js';
 import { close } from '@kano/icons/ui.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import '../ui/kano-ui-viewport/kano-ui-viewport.js';
-import '../kc-workspace-toolbar/kc-workspace-toolbar.js';
 import { button } from '@kano/styles/button.js';
 
 class KcWorkspaceFrame extends PolymerElement {
@@ -31,6 +30,7 @@ class KcWorkspaceFrame extends PolymerElement {
                     border: none;
                 };
             }
+
             .pause-overlay {
                 position: absolute;
                 top: 0px;
@@ -50,15 +50,13 @@ class KcWorkspaceFrame extends PolymerElement {
             #workspace-placeholder {
                 height: 100%;
             }
-            kc-workspace-toolbar {
-                padding: 20px 0;
-            }
+
             .controls {
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
                 flex: 1 1 auto;
                 box-sizing: border-box;
+                margin: 12px 0;
             }
             :host(:not(.fullscreen)) .overlay {
                 display: none;
@@ -72,13 +70,7 @@ class KcWorkspaceFrame extends PolymerElement {
                 z-index: 300;
                 background: var(--kano-app-editor-workspace-background, #f2f2f2);
             }
-            :host(.fullscreen) kc-workspace-toolbar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                z-index: 302;
-            }
+
             button#fullscreen-close {
                 align-self: flex-end;
                 background: rgba(255, 255, 255, 0.25);
@@ -109,8 +101,9 @@ class KcWorkspaceFrame extends PolymerElement {
                 fill: rgba(255, 255, 255, 1);
             }
             button#fullscreen-close {
-                width: 20px;
-                height: 20px;
+                width: 30px;
+                height: 30px;
+                border-radius: 15px;
             }
             [hidden] {
                 display: none !important;
@@ -122,7 +115,6 @@ class KcWorkspaceFrame extends PolymerElement {
             </div>
         </kano-ui-viewport>
         <div class="controls">
-            <kc-workspace-toolbar id="toolbar"></kc-workspace-toolbar>
             <slot name="controls"></slot>
         </div>
         <div class="overlay">

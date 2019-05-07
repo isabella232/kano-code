@@ -24,6 +24,9 @@ export class KCAddPart extends LitElement {
                 background-color: var(--kano-app-editor-workspace-background);
                 font-family: var(--font-body);
                 min-width: 240px;
+                /* TODO: make scrollable / new design ticket SX-798 */
+                max-height: 100vh;
+                overflow-y: scroll;
             }
             header {
                 display: flex;
@@ -45,6 +48,10 @@ export class KCAddPart extends LitElement {
             }
             kc-add-part-item {
                 margin-bottom: 8px;
+            }
+            kc-add-part-item svg {
+                width: 24px !important;
+                height: 24px !important;
             }
         `;
     }
