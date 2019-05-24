@@ -7,6 +7,9 @@ pipeline {
     agent {
         label 'ubuntu_18.04_with_docker'
     }
+    environment {
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true'
+    }
     stages {
         stage('checkout') {
             steps {
@@ -23,8 +26,7 @@ pipeline {
                         sh "apk update && apk upgrade && apk add --no-cache bash git openssh"
                         sh "mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts"
                         sshagent(['read-only-github']) {
-                            sh "yarn"
-                            sh "yarn tsc"
+                            sh "yarn build"
                         }
                     }
                 }

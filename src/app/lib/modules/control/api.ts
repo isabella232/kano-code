@@ -4,23 +4,44 @@ const COLOR = '#1198ff';
 
 const ID = 'control';
 
+const everyUnits = [
+    [
+        'seconds',
+        'seconds',
+    ],
+    [
+        'milliseconds',
+        'milliseconds',
+    ],
+    [
+        'frames',
+        'frames',
+    ],
+];
+
+const inTimeUnits = [
+    [
+        'seconds',
+        'seconds',
+    ],
+    [
+        'milliseconds',
+        'milliseconds',
+    ],
+];
+
 export const ControlAPI = {
     type: 'blockly',
     id: ID,
-    typeScriptDefinition: `
-        declare namespace loop {
-            declare function forever(callback: function): void;
-        }
-        declare namespace time {
-            declare enum units {
-                frames = 'frames',
-                seconds = 'seconds',
-                milliseconds = 'milliseconds',
-            }
-            declare function every(interval: number, unit: time.units, callback: function): void;
-            declare function later(delay: number, unit: time.units, callback: function): void;
-        }
-    `,
+    typeScriptDefinition: `const loop = {
+    forever(callback : function) : void;
+};
+
+const time = {
+    every(interval : number, unit : 'seconds'|'milliseconds'|'frames', callback : function) : void;
+    later(delay : number, unit : 'seconds'|'milliseconds'|'frames', callback : function) : void;
+};
+`,
     register(Blockly : Blockly) {
         Blockly.Blocks.loop_forever = {
             init() {
@@ -62,20 +83,7 @@ export const ControlAPI = {
                     }, {
                         type: 'field_dropdown',
                         name: 'UNIT',
-                        options: [
-                            [
-                                'seconds',
-                                'seconds',
-                            ],
-                            [
-                                'milliseconds',
-                                'milliseconds',
-                            ],
-                            [
-                                'frames',
-                                'frames',
-                            ],
-                        ],
+                        options: everyUnits,
                     }],
                     message1: `${Blockly.Msg.CONTROLS_REPEAT_INPUT_DO} %1`,
                     args1: [{
@@ -108,16 +116,7 @@ export const ControlAPI = {
                     }, {
                         type: 'field_dropdown',
                         name: 'UNIT',
-                        options: [
-                            [
-                                'seconds',
-                                'seconds',
-                            ],
-                            [
-                                'milliseconds',
-                                'milliseconds',
-                            ],
-                        ],
+                        options: inTimeUnits,
                     }],
                     message1: `${Blockly.Msg.CONTROLS_REPEAT_INPUT_DO} %1`,
                     args1: [{
@@ -218,6 +217,14 @@ export const ControlAPI = {
         },
         repeat_x_times: {
             N: 10,
+        },
+    },
+    labels: {
+        every_x_seconds: {
+            UNIT: everyUnits,
+        },
+        in_x_time: {
+            UNIT: inTimeUnits,
         },
     },
 };
