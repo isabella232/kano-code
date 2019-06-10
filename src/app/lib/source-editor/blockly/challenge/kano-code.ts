@@ -25,6 +25,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     private bannerIconProvider? : IBannerIconProvider;
     public progress : number = 0;
     private stylesheet : HTMLStyleElement;
+    private bannerTitle : string = '';
 
     constructor(editor : Editor) {
         super(editor);
@@ -168,6 +169,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         } else {
             this.banner.setIconNode(null);
         }
+        this.banner.setTitle(this.bannerTitle);
         if (nextButton) {
             const button = this.banner.addButton(typeof nextButton === 'string' ? nextButton : 'Next');
             button.onDidClick(() => this.nextStep());
@@ -353,6 +355,9 @@ export class KanoCodeChallenge extends BlocklyChallenge {
      */
     setBannerIconProvider(provider : IBannerIconProvider) {
         this.bannerIconProvider = provider;
+    }
+    setBannerTitle(title : string) {
+        this.bannerTitle = title;
     }
     setSteps(steps : any[]) {
         this.stripGeneratorSteps(steps);

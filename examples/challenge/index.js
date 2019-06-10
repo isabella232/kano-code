@@ -19,6 +19,12 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
                     ch.onDidRequestNextChallenge(() => {
                         console.log('User wants to leave');
                     });
+                    const img = document.createElement('img');
+                    img.src = '/examples/assets/sw/droid.svg'
+                    ch.engine.setBannerIconProvider({
+                        getDomNode() { return img; }
+                    });
+                    ch.engine.setBannerTitle('Step by Step');
                     ch.start();
                 });
         });
