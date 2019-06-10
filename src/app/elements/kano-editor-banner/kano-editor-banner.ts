@@ -13,14 +13,16 @@ import { challengeStyles } from '../../lib/challenge/styles.js';
 export class KCEditorBanner extends LitElement {
 
     @property({ type: String })
-    public text : string = '';
+    public text: string = '';
 
     @property({ type: Number })
-    public progress : number = 0;
+    public progress: number = 0;
+
+    @property({ type: String })
+    public title = '';
 
     static get styles() {
         return [css`
-        
             :host {
                 position: relative;
                 display: flex;
@@ -35,10 +37,7 @@ export class KCEditorBanner extends LitElement {
             slot[name="avatar"]::slotted(*) {
                 width: 56px;
                 height: 56px;
-                display: inline;
-                vertical-align: middle;
-                position: absolute;
-                top: -15px;
+                margin-bottom: 25px;
             }
         
             .content {
@@ -46,40 +45,58 @@ export class KCEditorBanner extends LitElement {
                 font-family: var(--font-body);
                 font-size: 16px;
                 color: #22272D;
-                min-width: 200px;
-                padding: 10px 14px 14px 14px;
+                padding: 12px;
             }
 
             .actions::slotted(*) {
-                margin-top: 4px;
+                margin-top: 12px;
             }
             .title {
-                color: #3e4042;
-                opacity: 0.4;
+                color: var(--color-grey);
                 font-weight: bold;
                 display: inline;
+                flex: 1;
             }
             .markdown-html p {
-                line-height: 28px;
+                line-height: 20px;
                 margin: 0px;
                 font-weight: bold;
-            }
-            .markdown-html kano-blockly-block {
-                line-height: 0px;
-                vertical-align: middle;
-                display: inline-block;
             }
             [hidden] {
                 display: none !important;
             }
             .block {
-                border-bottom: 1px solid rgb(62, 64, 66, 0.3);
-                padding: 10px 0 10px 16px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                border-bottom: 1px solid var(--color-stone);
+                padding: 0px 12px;
                 font-family: var(--font-body);
                 font-size: 16px;
             }
             .remix {
-                border-top: 1px solid rgb(62, 64, 66, 0.3);
+                border-top: 1px solid var(--color-stone);
+            }
+
+            .block-button {
+                margin: 5px 10px 0 0;
+                border-radius: 6px;
+                padding: 1px;
+                color: #FFFF;
+                background-color: #3e4042;
+                opacity: 0.5;
+                border-radius: 15px;
+                padding: 3px 12px;
+                font-weight: bold;
+                font-family: var(--font-body);
+                font-size: 16px;
+                cursor: pointer;
+            }
+            .block-button:focus {
+                outline: none;
+            }
+            .block.block-1 {
+                height: 32px;
             }
 
         `, challengeStyles];
@@ -90,7 +107,7 @@ export class KCEditorBanner extends LitElement {
         <div class="block block-1">
             <slot name="block-button"></slot>
             <slot name="avatar"></slot>
-            <slot name="title" class="title"></slot>
+            <div class="title">${this.title}</div>
         </div>
         <div class="content">
             <slot name="avatar"></slot>
