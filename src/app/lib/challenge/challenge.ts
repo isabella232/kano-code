@@ -24,8 +24,12 @@ export interface IChallengeData {
     defaultApp? : string;
     partsWhitelist? : IToolboxWhitelist;
     whitelist? : IToolboxWhitelist;
+    flyoutMode?: boolean
 }
-
+/**
+ * A Stepp-by-step controller Code editor
+ * [[include:challenge-widgets.md]]
+ */
 export class Challenge extends ChallengeBase {
     public editor : Editor;
     public data : IChallengeData;
@@ -104,6 +108,9 @@ export class Challenge extends ChallengeBase {
         }
         if (this.data.whitelist) {
             this.editor.toolbox.setWhitelist(this.data.whitelist);
+        }
+        if (this.data.flyoutMode) {
+            this.editor.sourceEditor.setFlyoutMode(this.data.flyoutMode);
         }
     }
     start() {

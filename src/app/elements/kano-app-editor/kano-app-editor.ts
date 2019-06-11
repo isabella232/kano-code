@@ -149,7 +149,11 @@ export class KanoAppEditor extends LitElement {
                 display: flex;
                 margin: 0 12px -16px 20px;
             }
-
+            #workspace-host {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+            }
             .controls {
                 display: flex;
                 flex: 1;

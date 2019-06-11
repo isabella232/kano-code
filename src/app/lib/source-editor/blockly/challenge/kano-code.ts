@@ -5,6 +5,7 @@ import { BeaconWidget } from '../../../challenge/widget/beacon.js';
 import { subscribeTimeout, IDisposable, dispose } from '@kano/common/index.js';
 import { Part } from '../../../parts/part.js';
 import { Tooltip } from '../../../widget/tooltip.js';
+import { DismissableTooltip } from '../../../widget/dismissable-tooltip.js';
 import { challengeStyles } from '../../../challenge/styles.js';
 import '../../../challenge/components/kc-toolbox-entry-preview.js';
 import '../../../challenge/components/kc-part-api-preview.js';
@@ -24,6 +25,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     private bannerIconProvider? : IBannerIconProvider;
     public progress : number = 0;
     private stylesheet : HTMLStyleElement;
+    private bannerTitle : string = '';
 
     constructor(editor : Editor) {
         super(editor);
@@ -75,6 +77,12 @@ export class KanoCodeChallenge extends BlocklyChallenge {
                     <kc-toolbox-entry-preview name="${result.entry.name}" color="${result.entry.colour}"></kc-toolbox-entry-preview>
                 `;
             } else if (result.api && result.api.icon) {
+                // Make sure the svg element has the correct xmlns to render
+                const { icon } = result.api;
+                const svg = icon.content.querySelector('svg');
+                if (svg) {
+                    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                }
                 // Matches a part api
                 return `
                     <kc-part-api-preview label="${result.api.label}" icon="${dataURI(result.api.icon)}"></kc-part-api-preview>
@@ -92,7 +100,15 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     protected displayTooltips(tooltips : any[]) {
         tooltips.forEach((tooltipData) => {
             // Create the tooltip widget and add it to the editor
-            const tooltip = new Tooltip();
+            let tooltip : Tooltip|DismissableTooltip;
+            if (!tooltipData.sticky) {
+                tooltip = new DismissableTooltip();
+                (tooltip as DismissableTooltip).onDidDismiss(() => {
+                    tooltip.close();
+                });
+            } else {
+                tooltip = new Tooltip();
+            }
             this.editor.addContentWidget(tooltip);
             // Keep a reference to the widgets
             this.tooltips.push(tooltip);
@@ -153,6 +169,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         } else {
             this.banner.setIconNode(null);
         }
+        this.banner.setTitle(this.bannerTitle);
         if (nextButton) {
             const button = this.banner.addButton(typeof nextButton === 'string' ? nextButton : 'Next');
             button.onDidClick(() => this.nextStep());
@@ -338,6 +355,9 @@ export class KanoCodeChallenge extends BlocklyChallenge {
      */
     setBannerIconProvider(provider : IBannerIconProvider) {
         this.bannerIconProvider = provider;
+    }
+    setBannerTitle(title : string) {
+        this.bannerTitle = title;
     }
     setSteps(steps : any[]) {
         this.stripGeneratorSteps(steps);
