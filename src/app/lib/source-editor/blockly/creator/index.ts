@@ -12,6 +12,8 @@ import { BlocklyStepper } from './stepper/blockly-stepper.js';
 import { IDisposable, dispose } from '@kano/common/index.js';
 export * from './helpers.js';
 import './copy.js';
+import { Part } from '../../../parts/part.js';
+import { blockExceptions, IExceptionMapItem } from './block-exceptions.js';
 
 const CUSTOM_BLOCKS = ['generator_step', 'generator_banner', 'generator_id', 'generator_name', 'generator_challengeEnd'];
 
@@ -29,9 +31,11 @@ export class BlocklyCreator extends Creator<BlocklyStepper> {
     sourceEditor? : BlocklySourceEditor;
     helpers : ICreatorHelper[];
     aliases : IDisposable[] = [];
+    blockExceptionMap: Map<string, IExceptionMapItem> | undefined;
     constructor(editor : Editor, opts : ICreatorOptions) {
         super(editor, opts);
         this.helpers = getHelpers('blockly') || [];
+        this.blockExceptionMap = blockExceptions;
     }
     createStepper() {
         return new BlocklyStepper(this.editor);
@@ -237,17 +241,17 @@ export class BlocklyCreator extends Creator<BlocklyStepper> {
     }
     blockToSteps(block : HTMLElement) : IGeneratedStep[] {
         const renderer = this.editor.toolbox.renderer as BlocklyMetaRenderer;
-        const type = block.getAttribute('type');
+        let blockType = block.getAttribute('type');
         const id = block.getAttribute('id');
-        if (!type) {
+        if (!blockType) {
             return [];
         }
         // Handle the blocks from the generator category separately
-        if (CUSTOM_BLOCKS.indexOf(type) !== -1) {
+        if (CUSTOM_BLOCKS.indexOf(blockType) !== -1) {
             return this.customBlockToSteps(block);
         }
         // Find the toolbox entry that matches this block type
-        const entry = renderer.getEntryForBlock(type);
+        const entry = renderer.getEntryForBlock(blockType);
         if (!entry) {
             return [];
         }
@@ -266,6 +270,11 @@ export class BlocklyCreator extends Creator<BlocklyStepper> {
                 // No step or the step didn't define an alias, use the part id
                 category = `part#${matchingPart.id}>toolbox`;
             }
+            const partType = (matchingPart.constructor as typeof Part).type;
+            const metaPartBlock = renderer.getIdForBlock(blockType);
+            if (metaPartBlock) {
+                this.addToPartsList(partType, metaPartBlock.def.name);
+            }
         }
         // Resolve an eventual parent connection
         let connectionQuery = this.getConnectionForStatementOrValue(block);
@@ -275,7 +284,7 @@ export class BlocklyCreator extends Creator<BlocklyStepper> {
             data: {
                 type: 'create-block',
                 category,
-                blockType: type,
+                blockType,
                 alias: this.createAlias(),
                 openFlyoutCopy: this.getCopy('openFlyout', category),
                 grabBlockCopy: this.getCopy('grabBlock'),
@@ -299,7 +308,31 @@ export class BlocklyCreator extends Creator<BlocklyStepper> {
         for (const child of block.children) {
             blockSteps = blockSteps.concat(this.nodeToSteps(child as HTMLElement));
         }
+        const metaBlock = renderer.getIdForBlock(blockType);
+        if (metaBlock) {
+            const [ blockCategory, blockName ] = this.checkForBlockExceptions(entry.def.name, metaBlock.def.name);
+            this.addToWhitelist(blockCategory, blockName);
+        } else {
+            const [ blockCategory, blockName ] = this.checkForBlockExceptions(entry.def.name, blockType);
+            this.addToWhitelist(blockCategory, blockName);
+        }
         return blockSteps;
+    }
+    checkForBlockExceptions(legacyCategory: string, legacyType: string) : string[] {
+        if (!this.blockExceptionMap) {
+            return [];
+        }
+        const categoryExceptions = this.blockExceptionMap.get(legacyCategory);
+        if (!categoryExceptions) {
+            return [legacyCategory, legacyType];
+        }
+        let category;
+        let type;
+
+        category = categoryExceptions.category || legacyCategory;
+        const { blocks } = categoryExceptions;
+        type = blocks.get(legacyType) || legacyType;
+        return [category, type];
     }
     getOriginalStepFromSource(source : string) {
         return this.stepper.originalSteps.get(source);
