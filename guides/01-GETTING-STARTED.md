@@ -59,12 +59,12 @@ Refresh the web page, open the devTools (Cmd+Shift+I or Ctrl+Shift+I) and you sh
 Now it's time to load all the language files:
 
 ```js
-import * as i18n from '@kano/code/i18n.js';
+import * as i18n from '../../i18n.js';
 
 const lang = i18n.getLang();
 
 // Load the languages packs. Including the blockly languages packs
-i18n.load(lang, { blockly: true })
+i18n.load(lang, { blockly: true, kanoCodePath: '/' })
     .then(() => {
         console.log('loaded');
     });
@@ -73,8 +73,8 @@ i18n.load(lang, { blockly: true })
 After refresh, you should be able to see the locale files being loaded in the network tab of the devTools. Now it's time to create the editor:
 
 ```js
-import * as code from '@kano/code/index.js';
-import * as i18n from '@kano/code/i18n.js';
+import * as code from '../../index.js';
+import * as i18n from '../../i18n.js';
 
 const lang = i18n.getLang();
 
