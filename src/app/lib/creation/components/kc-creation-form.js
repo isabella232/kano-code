@@ -3,7 +3,7 @@ import '@polymer/iron-image/iron-image.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import '@kano/Styles/input.js';
+import '@kano/styles/input.js';
 import '@kano/kwc-icons/kwc-ui-icons.js';
 import { I18nMixin } from '../../i18n/index.js';
 import { BlockAnimation } from '../../splash.js';
@@ -515,7 +515,7 @@ class KCCreationForm extends I18nMixin(PolymerElement) {
                 </form>
                 <div id="saving-process" class="saving" name="saving">
                     <div class="blocks" id="gif-creation-blocks"></div>
-                    <span>[[localize('Saving', 'Saving')]]…</span>
+                    <span>[[localize('SAVING', 'Saving')]]…</span>
                 </div>
                 <div class="fail" name="failure">
                     <div class="title">[[localize('SAVING_FAILED', 'Saving failed')]]</div>

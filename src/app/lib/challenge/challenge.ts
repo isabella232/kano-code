@@ -19,6 +19,7 @@ window.Kano.Code = window.Kano.Code || {};
 
 export interface IChallengeData {
     id : string,
+    name : string,
     version? : string;
     steps : any[];
     defaultApp? : string;
@@ -123,7 +124,8 @@ export class Challenge extends ChallengeBase {
         engine.onDidRequestNextChallenge(() => this._onDidRequestNextChallenge.fire(), this, this.subscriptions);
         // The engine uses a similar API to the DOM events
         subscribeDOM(engine as unknown as HTMLElement, 'done', () => {
-            this.editor.toolbox.setWhitelist(null);
+            this.editor.toolbox.setWhitelist({});
+            this.editor.parts.setWhitelist({});
             this._onDidEnd.fire();
         }, this, this.subscriptions);
         engine.start();
