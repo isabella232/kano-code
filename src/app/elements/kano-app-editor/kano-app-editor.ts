@@ -72,8 +72,8 @@ export class KanoAppEditor extends LitElement {
                 background-color: var(--kano-app-editor-workspace-background, #f2f2f2);
                 display: flex;
                 flex-direction: row;
-                align-self: flex-end;
-                margin-top: 10px;
+                /* align-self: flex-end;
+                margin-top: 10px; */
             }
             .tab {
                 align-self: center;
