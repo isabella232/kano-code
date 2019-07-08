@@ -23,6 +23,7 @@ export class Stamp {
         const previousY = this.session.pos.y;
         const percent = size / 100;
         const img = new Image;
+        //to do: replace this with a .bind
         const session = this.session;
         
         if (!sticker) {
@@ -31,10 +32,10 @@ export class Stamp {
 
         img.onload = function() {
             const scale = img.width / img.height;
-            session.ctx.translate(previousX, previousY);
-            session.ctx.moveTo(0,0);
-            session.ctx.rotate(rotation * Math.PI / 180);
-            session.ctx.translate(-previousX, -previousY);
+            // session.ctx.translate(previousX, previousY);
+            // session.ctx.moveTo(0,0);
+            // session.ctx.rotate(rotation * Math.PI / 180);
+            // session.ctx.translate(-previousX, -previousY);
 
             session.ctx.drawImage(
                 img,
@@ -43,7 +44,13 @@ export class Stamp {
                 img.width / scale * percent,
             );
 
-            session.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // session.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // session.ctx.translate(previousX, previousY);
+            // session.ctx.rotate(-rotation * Math.PI / 180);
+            // session.ctx.moveTo(previousX, previousY)
+            // session.pos.x = previousX
+            // session.pos.y = previousY
+            // session.ctx.translate(-previousX, -previousY);
         };
         img.crossOrigin = "Anonymous";
         img.src = resolve(all[sticker.toString()]);
