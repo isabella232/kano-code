@@ -377,7 +377,7 @@ export class BlocklyMetaRenderer implements IMetaRenderer {
                             if (label.length) {
                                 blocklyInput.appendField(label, 'PREFIX');
                             }
-                            blocklyInput.appendField(p.def.blockly.customField(Blockly, this), pName);
+                            blocklyInput.appendField(p.def.blockly.customField(Blockly, this, 'change this'), pName);
                         } else if (input.type === 'field_input') {
                             blocklyInput = this.appendDummyInput();
                             if (label.length) {
