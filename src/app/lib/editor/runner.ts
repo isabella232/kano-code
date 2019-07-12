@@ -8,7 +8,7 @@ import { AppModuleConstructor } from '../app-modules/app-modules.js';
 export class Runner extends Plugin {
     private modules : AppModuleConstructor[] = [];
     private output? : Output;
-    private appModulesLoader : AppModulesLoader|null = null;
+    public appModulesLoader : AppModulesLoader|null = null;
     private vm : VM|null = null;
     public variables : VariableStore = new VariableStore();
     constructor() {

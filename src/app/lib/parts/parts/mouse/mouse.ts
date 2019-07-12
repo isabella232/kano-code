@@ -4,11 +4,8 @@ import { subscribeDOM, EventEmitter } from '@kano/common/index.js';
 import { PartComponent } from '../../component.js';
 import { Sticker } from '../sticker/types.js';
 import { transformLegacyMouse } from './legacy.js';
-import { stamps } from '../../../modules/stamp/data.js';
 import * as StampFunctions from '../../../modules/stamp/stamp.js';
 import { resolve, reduceAllImages } from '../../../util/image-stamp.js';
-
-const all = reduceAllImages(stamps);
 
 class MouseComponent extends PartComponent {
     @property({ type: EventEmitter, value: new EventEmitter(), noReset: true })
@@ -34,6 +31,7 @@ export class MousePart extends Part {
     private _imageCache : Map<string, string> = new Map();
     @component(MouseComponent)
     public core : MouseComponent;
+    public _stickers? : { default: string; set: string[][]; };
     static transformLegacy(app : any) {
         transformLegacyMouse(app);
     }
@@ -91,6 +89,7 @@ export class MousePart extends Part {
         this.resize(context);
         this.core.onDidInvalidate(() => this.render(), this, this.subscriptions);
         this._root = context.dom.root;
+        this._stickers = context.stickers;
     }
     resize(context : IPartContext) {
         this._rect = context.dom.root.getBoundingClientRect() as DOMRect;
@@ -104,6 +103,10 @@ export class MousePart extends Part {
             return;
         }
         const sticker = this.core.cursor.get();
+        let all = [];
+        if (this._stickers) {
+            all = reduceAllImages(this._stickers.set);
+        }
         if (sticker && all[sticker]) {
             this.loadImage(resolve(all[sticker]))
                 .then((url) => {
@@ -140,10 +143,14 @@ export class MousePart extends Part {
         this.core.invalidate();
     }
     random() {
-        return StampFunctions.random();
+        if (this._stickers) {
+            return StampFunctions.random(this._stickers.set);
+        }
     }
     randomFrom(index : string) {
-        return StampFunctions.randomFrom(index);
+        if (this._stickers) {
+            return StampFunctions.randomFrom(index, this._stickers.set, this._stickers.default);
+        }
     }
     loadImage(url : string) : Promise<string> {
         if (this._imageCache.has(url)) {

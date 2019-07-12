@@ -1,4 +1,4 @@
-import { IVisualsContext, IAudioContext, IDOMContext } from '../app/lib/output/output.js';
+import { IVisualsContext, IAudioContext, IDOMContext, IStickerContext } from '../app/lib/output/output.js';
 import { Microphone } from '../app/lib/output/microphone.js';
 import { IEvent } from '@kano/common/index.js';
 
@@ -33,6 +33,7 @@ export class PartContextStub {
     public visuals : IVisualsContext;
     public audio : IAudioContext;
     public dom : IDOMContext;
+    public stickers : IStickerContext;
     constructor() {
         this.visuals = {
             get canvas() {
@@ -55,6 +56,10 @@ export class PartContextStub {
             root: document.createElement('div'),
             onDidResize: (() => {}) as unknown as IEvent<void>,
         };
+        this.stickers = {
+            default: 'cat',
+            set: [['Animals', 'animals'], ['Faces', 'faces']]
+        }
     }
     wasCalled(stub : any, args? : any[]) : boolean {
         const calls = this.getCalls(stub);

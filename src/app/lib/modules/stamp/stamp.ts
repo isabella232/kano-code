@@ -3,6 +3,23 @@ import { Instrument } from '../../app-modules/instrument.js';
 import { defaultStamp, stamps } from './data.js';
 import { reduceAllImages } from '../../util/image-stamp.js';
 
+export function random(stamps) {
+    const all = reduceAllImages(stamps);
+    const allKeys = Object.keys(all);
+    const idx = Math.floor(Math.random() * allKeys.length);
+    return allKeys[idx];
+}
+
+export function randomFrom(index: string, stamps, defaultStamp) {
+    const set = stamps.find(stamp => stamp.id === index);
+    if (!set) {
+        return defaultStamp
+    }
+    const allKeys = Object.keys(set.stickers);
+    const idx = Math.floor(Math.random() * allKeys.length);
+    return allKeys[idx];
+}
+
 export class StampModule extends AppModule {
     static get id() {
         return 'stamp';
@@ -10,7 +27,7 @@ export class StampModule extends AppModule {
     
     constructor(output : any, ds? : any, set? :any) {
         super(output);
-        console.log(output, ds, set);
+        // console.log(output, ds, set);
 
         this.addMethod('_defaultStamp', ds ? ds : defaultStamp);
         this.addMethod('_stamps', set ? set : stamps);

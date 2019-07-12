@@ -22,6 +22,10 @@ export interface IPartContext {
         root : HTMLElement;
         onDidResize : IEvent<void>;
     };
+    stickers : {
+        default : string;
+        set : Array<Array<string>>;
+    }
 }
 
 /**

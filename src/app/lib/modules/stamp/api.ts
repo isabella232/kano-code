@@ -1,8 +1,8 @@
 import { IMetaDefinition } from '../../meta-api/module.js';
-import { Block } from '@kano/kwc-blockly/blockly.js';
+import { Block, FieldDropdown } from '@kano/kwc-blockly/blockly.js';
 import { StampsField } from '../../blockly/fields/stamps-field.js';
-import { defaultStamp, stamps } from './data.js';
 import { resolve } from '../../util/image-stamp.js';
+import { Editor } from '../../index.js';
 import { _ } from '../../i18n/index.js';
 
 
@@ -16,16 +16,18 @@ const getImage : IMetaDefinition = {
         verbose: '',
         returnType: 'Sticker',
         blockly: {
-            customField(blockly: Blockly, block: Block, editor) {
-                const images = stamps.map((image) => {
+            customField(blockly: Blockly, block: Block, editor : Editor) {
+                // sources the current sticker set from the stamp module instance
+                const { stamps, defaultStamp } = editor.output.runner.appModulesLoader.appModules.modules.stamp.methods;
+                const images = stamps().map((image : any) => {
                     return {
                         id: image.id,
                         label: image.label,
                         stickers: Object.keys(image.stickers).map(id => ({ id, src: resolve(image.stickers[id])})),
                     };
                 });
-                console.log(editor.output.outputProfile.modules)
-                return new StampsField(defaultStamp, images);
+
+                return new StampsField(defaultStamp(), images);
             },
         },
     }],
@@ -56,7 +58,14 @@ export const randomFrom : IMetaDefinition = {
         name: 'set',
         verbose: '',
         returnType: 'Enum',
-        enum: stamps.map<[string, string]>(stamp => [stamp.label, stamp.id]),
+        blockly: {
+            customField(blockly: Blockly, block: Block, editor : Editor) {
+                // sources the current sticker set from the stamp module instance
+                const { stamps } = editor.output.runner.appModulesLoader.appModules.modules.stamp.methods;
+                const list = stamps().map(stamp => [stamp.label, stamp.id])
+                return new FieldDropdown(list)
+            }
+        }
     }]
 }
 

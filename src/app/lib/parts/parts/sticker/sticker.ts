@@ -1,27 +1,43 @@
 import { part, component } from '../../decorators.js';
 import { DOMPart } from '../dom/dom.js';
-import { stamps, defaultStamp } from '../../../modules/stamp/data.js';
+// import { stamps, defaultStamp } from '../../../modules/stamp/data.js';
 import { reduceAllImages, resolve } from '../../../util/image-stamp.js';
 import { transformLegacySticker } from './legacy.js';
 import { StickerComponent } from './sticker-component.js';
 import * as StampFunctions from '../../../modules/stamp/stamp.js';
+import { IPartContext } from '../../part.js';
 
-const all = reduceAllImages(stamps);
+// const all = reduceAllImages(stamps);
 
 @part('sticker')
 export class StickerPart extends DOMPart<HTMLDivElement> {
     @component(StickerComponent)
     public core : StickerComponent;
+    public _stickers? : { default: string; set: string[][]; };
+
     static transformLegacy(app : any) {
         transformLegacySticker(app);
     }
-    static get items() { return stamps; }
-    static get defaultSticker() { return defaultStamp; }
+    public get items() { 
+        if(this._stickers) {
+            return this._stickers.set;
+        }
+    }
+    public get defaultSticker() { 
+        if(this._stickers) {
+            return this._stickers.default;
+        }
+    }
     constructor() {
         super();
         this.core = this._components.get('core') as StickerComponent;
         this.core.invalidate();
     }
+
+    onInstall(context : IPartContext) {
+        this._stickers = context.stickers;
+    }
+
     getElement() : HTMLDivElement {
         const el = document.createElement('div');
         el.style.width = '100px';
@@ -37,7 +53,10 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         if (!this.core.invalidated) {
             return;
         }
-        
+        let all = [];
+        if (this._stickers) {
+            all = reduceAllImages(this._stickers.set);
+        }
         const sticker = this.core.image.get();
         if (sticker && all[sticker]) {
             this._el.style.backgroundImage = `url(${resolve(all[sticker])})`;
@@ -49,6 +68,10 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         let url = '';
         if (transform) {
             this.applyTransform(ctx);
+        }
+        let all = [];
+        if (this._stickers) {
+            all = reduceAllImages(this._stickers.set);
         }
         const sticker = this.core.image.get();
         if (sticker && all[sticker]) {
@@ -71,9 +94,13 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this.core.invalidate();
     }
     random() {
-        return StampFunctions.random;
+        if (this._stickers) {
+            return StampFunctions.random(this._stickers.set);
+        }
     }
-    randomFrom(setId : string) {
-        return StampFunctions.randomFrom(setId);
+    randomFrom(index : string) {
+        if (this._stickers) {
+            return StampFunctions.randomFrom(index, this._stickers.set, this._stickers.default);
+        }
     }
 }

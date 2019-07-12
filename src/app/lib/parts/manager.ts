@@ -37,6 +37,10 @@ export class PartsManager {
             visuals: this.output.visuals,
             audio: this.output.audio,
             dom: this.output.dom,
+            stickers: {
+                default: this.output.runner.appModulesLoader.appModules.modules.stamp.methods.defaultStamp(),
+                set: this.output.runner.appModulesLoader.appModules.modules.stamp.methods.stamps(),
+            }
         });
         this._parts.add(part);
         return part;

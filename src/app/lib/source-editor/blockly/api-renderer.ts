@@ -2,6 +2,7 @@ import { MetaModule, Meta, MetaVariable, MetaFunction, IMetaRenderer, ICategory,
 import { walkUpstream } from '../../util/blockly.js';
 import { Block, FieldTextInput } from '@kano/kwc-blockly/blockly.js';
 import { resolveLegacyShadowTree, resolveShadowTree } from './shadow.js';
+import { Editor } from '../../index.js';
 
 export type IBlocklyCategory = ICategory & {
     blocks : any[];
@@ -37,7 +38,8 @@ interface IRenderedBlock {
 const definitionsMap : Map<string, Meta> = new Map();
 
 export class BlocklyMetaRenderer implements IMetaRenderer {
-    constructor(editor) {
+    _editor: Editor;
+    constructor(editor: Editor) {
         this._editor = editor;
     }
 
