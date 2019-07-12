@@ -5,7 +5,7 @@ interface IMethodTree {
     [K : string] : Function|string|IMethodTree|any;
 }
 
-class SubModule {
+export class SubModule {
     private root : IMethodTree;
     constructor(root : any) {
         this.root = root;

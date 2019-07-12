@@ -465,7 +465,7 @@ export class BlocklySourceEditor implements SourceEditor {
     }
     getApiRenderer() {
         if (!this.apiRenderer) {
-            this.apiRenderer = new BlocklyMetaRenderer();
+            this.apiRenderer = new BlocklyMetaRenderer(this.editor);
         }
         return this.apiRenderer;
     }

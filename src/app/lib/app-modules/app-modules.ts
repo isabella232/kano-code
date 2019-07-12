@@ -60,6 +60,7 @@ export class AppModules {
             if (typeof mod.executeLifecycleStep === 'function') {
                 mod.executeLifecycleStep(name);
             }
+            console.log(modulesArray);
         });
     }
     start() {

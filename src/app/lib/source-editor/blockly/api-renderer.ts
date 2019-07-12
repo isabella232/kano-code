@@ -37,6 +37,10 @@ interface IRenderedBlock {
 const definitionsMap : Map<string, Meta> = new Map();
 
 export class BlocklyMetaRenderer implements IMetaRenderer {
+    constructor(editor) {
+        this._editor = editor;
+    }
+
     public defaultsMap : Map<string, IBlockDefaults> = new Map();
     public blocksMap : Map<string, MetaModule> = new Map();
     public legacyBlocksMap : Map<string, ILegacyModule> = new Map();
@@ -341,6 +345,7 @@ export class BlocklyMetaRenderer implements IMetaRenderer {
             }
             return acc;
         }, {} as any);
+        const editor = this._editor;
         // Exclude scoped params for the blockly interface generation
         const blocksParams = params.filter(p => !p.def.blockly || !p.def.blockly.scope);
         const register = (Blockly : any) => {
@@ -377,7 +382,7 @@ export class BlocklyMetaRenderer implements IMetaRenderer {
                             if (label.length) {
                                 blocklyInput.appendField(label, 'PREFIX');
                             }
-                            blocklyInput.appendField(p.def.blockly.customField(Blockly, this, 'change this'), pName);
+                            blocklyInput.appendField(p.def.blockly.customField(Blockly, this, editor), pName);
                         } else if (input.type === 'field_input') {
                             blocklyInput = this.appendDummyInput();
                             if (label.length) {

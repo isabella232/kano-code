@@ -16,7 +16,7 @@ const getImage : IMetaDefinition = {
         verbose: '',
         returnType: 'Sticker',
         blockly: {
-            customField(Blockly, Blocks, editor) {
+            customField(blockly: Blockly, block: Block, editor) {
                 const images = stamps.map((image) => {
                     return {
                         id: image.id,
@@ -24,7 +24,7 @@ const getImage : IMetaDefinition = {
                         stickers: Object.keys(image.stickers).map(id => ({ id, src: resolve(image.stickers[id])})),
                     };
                 });
-                console.log(Blockly, Blocks, this)
+                console.log(editor.output.outputProfile.modules)
                 return new StampsField(defaultStamp, images);
             },
         },
