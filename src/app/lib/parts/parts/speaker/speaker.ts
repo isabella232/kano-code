@@ -118,6 +118,14 @@ export class SpeakerPart extends Part {
         });
         this.players.length = 0;
     }
+    randomFrom(id: string) {
+        const set = SpeakerPart.items.find(set => set.id === id);
+        if (!set) {
+            return SpeakerPart.defaultSample;
+        }
+        const sample = set.samples[Math.floor(Math.random() * set.samples.length)];
+        return sample.id;
+    }
     set pitch(r : number) {
         this.core.playbackRate = Math.min(Math.max(r, 0), 200) / 100;
         this.core.invalidate();
