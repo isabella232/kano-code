@@ -36,25 +36,24 @@ export class StampModule extends AppModule {
 
         this._defaultStamp = (this.constructor as typeof StampModule).defaultSticker;
         (this.constructor as typeof StampModule).stickers.forEach((set) => {
-            const stickerSet = { id: set.id, label: set.label, stickers: [] };
+            const stickerSet = { id: set.id, label: set.label };
             this._stamps.push(stickerSet);
-            stickerSet.stickers.push(Object.assign(set.stickers, {}));
+            stickerSet.stickers = (Object.assign(set.stickers, {}));
         })
 
         this.addMethod('random', this.random);
         this.addMethod('randomFrom', this.randomFrom);
-        this.addMethod('defaultStamp', this.defaultStamp);
-        this.addMethod('stamps', this.stamps);
-        this.addMethod('_defaultStamp', this._defaultStamp);
-        this.addMethod('_stamps', this._stamps);
+        this.addMethod('defaultStamp', () => {
+            return this._defaultStamp
+        });
+        this.addMethod('stamps', () => {
+            return this._stamps
+        });
     }
-    defaultStamp() { return this._defaultStamp }
-
-    stamps() { return this._stamps }
     
     random() {
-        console.log(StampModule.defaultSticker)
         const all = reduceAllImages(this.stamps());
+        console.log(all)
         const allKeys = Object.keys(all);
         const idx = Math.floor(Math.random() * allKeys.length);
         return allKeys[idx];

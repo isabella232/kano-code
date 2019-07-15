@@ -18,7 +18,6 @@ const getImage : IMetaDefinition = {
         blockly: {
             customField(blockly: Blockly, block: Block, editor : Editor) {
                 // sources the current sticker set from the stamp module instance
-                console.log(editor)
                 const stampModule = editor.output.outputProfile.modules.find(module => module.name === 'StampModule')
                 const { stickers, defaultSticker } = stampModule;
                 const images = stickers.map((image : any) => {
