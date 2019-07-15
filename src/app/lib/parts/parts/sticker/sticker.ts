@@ -13,14 +13,14 @@ import { IPartContext } from '../../part.js';
 export class StickerPart extends DOMPart<HTMLDivElement> {
     @component(StickerComponent)
     public core : StickerComponent;
-    public _stickers? : { default: string; set: string[][]; };
+    public _stickers? : { default: string; sets: string[][]; };
 
     static transformLegacy(app : any) {
         transformLegacySticker(app);
     }
     public get items() { 
         if(this._stickers) {
-            return this._stickers.set;
+            return this._stickers.sets;
         }
     }
     public get defaultSticker() { 
@@ -53,9 +53,9 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         if (!this.core.invalidated) {
             return;
         }
-        let all = [];
+        let all = []
         if (this._stickers) {
-            all = reduceAllImages(this._stickers.set);
+            all = reduceAllImages(this._stickers.sets);
         }
         const sticker = this.core.image.get();
         if (sticker && all[sticker]) {
@@ -71,7 +71,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
         let all = [];
         if (this._stickers) {
-            all = reduceAllImages(this._stickers.set);
+            all = reduceAllImages(this._stickers.sets);
         }
         const sticker = this.core.image.get();
         if (sticker && all[sticker]) {
@@ -95,12 +95,12 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
     }
     random() {
         if (this._stickers) {
-            return StampFunctions.random(this._stickers.set);
+            return StampFunctions.random(this._stickers.sets);
         }
     }
     randomFrom(index : string) {
         if (this._stickers) {
-            return StampFunctions.randomFrom(index, this._stickers.set, this._stickers.default);
+            return StampFunctions.randomFrom(index, this._stickers.sets, this._stickers.default);
         }
     }
 }

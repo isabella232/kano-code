@@ -39,7 +39,7 @@ export interface IDOMContext {
 
 export interface IStickerContext {
     default: string,
-    set: Array<Array<string>>,
+    sets: Array<Array<string>>,
 }
 
 export type IConfigResolver = <T>(key : string) => T|null;

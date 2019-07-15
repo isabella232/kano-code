@@ -24,7 +24,7 @@ export interface IPartContext {
     };
     stickers : {
         default : string;
-        set : Array<Array<string>>;
+        sets : Array<Array<string>>;
     }
 }
 

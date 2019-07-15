@@ -31,7 +31,7 @@ export class MousePart extends Part {
     private _imageCache : Map<string, string> = new Map();
     @component(MouseComponent)
     public core : MouseComponent;
-    public _stickers? : { default: string; set: string[][]; };
+    public _stickers? : { default: string; sets: string[][]; };
     static transformLegacy(app : any) {
         transformLegacyMouse(app);
     }
@@ -105,7 +105,7 @@ export class MousePart extends Part {
         const sticker = this.core.cursor.get();
         let all = [];
         if (this._stickers) {
-            all = reduceAllImages(this._stickers.set);
+            all = reduceAllImages(this._stickers.sets);
         }
         if (sticker && all[sticker]) {
             this.loadImage(resolve(all[sticker]))
@@ -144,12 +144,12 @@ export class MousePart extends Part {
     }
     random() {
         if (this._stickers) {
-            return StampFunctions.random(this._stickers.set);
+            return StampFunctions.random(this._stickers.sets);
         }
     }
     randomFrom(index : string) {
         if (this._stickers) {
-            return StampFunctions.randomFrom(index, this._stickers.set, this._stickers.default);
+            return StampFunctions.randomFrom(index, this._stickers.sets, this._stickers.default);
         }
     }
     loadImage(url : string) : Promise<string> {

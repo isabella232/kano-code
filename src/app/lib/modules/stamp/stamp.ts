@@ -1,6 +1,6 @@
 import { SubModule, AppModule } from '../../app-modules/app-module.js';
 import { Instrument } from '../../app-modules/instrument.js';
-import { defaultStamp, stamps } from './data.js';
+import * as data from './data.js';
 import { reduceAllImages } from '../../util/image-stamp.js';
 
 export function random(stamps) {
@@ -21,37 +21,49 @@ export function randomFrom(index: string, stamps, defaultStamp) {
 }
 
 export class StampModule extends AppModule {
+    private _defaultStamp = '';
+    private _stamps = [];
+
+    static get defaultSticker() { return data.defaultStamp }
+    static get stickers() { return data.stamps }
+
     static get id() {
         return 'stamp';
     }
     
-    constructor(output : any, ds? : any, set? :any) {
+    constructor(output : any) {
         super(output);
-        // console.log(output, ds, set);
 
-        this.addMethod('_defaultStamp', ds ? ds : defaultStamp);
-        this.addMethod('_stamps', set ? set : stamps);
+        this._defaultStamp = (this.constructor as typeof StampModule).defaultSticker;
+        (this.constructor as typeof StampModule).stickers.forEach((set) => {
+            const stickerSet = { id: set.id, label: set.label, stickers: [] };
+            this._stamps.push(stickerSet);
+            stickerSet.stickers.push(Object.assign(set.stickers, {}));
+        })
 
         this.addMethod('random', this.random);
         this.addMethod('randomFrom', this.randomFrom);
         this.addMethod('defaultStamp', this.defaultStamp);
         this.addMethod('stamps', this.stamps);
+        this.addMethod('_defaultStamp', this._defaultStamp);
+        this.addMethod('_stamps', this._stamps);
     }
-    defaultStamp() { return defaultStamp }
+    defaultStamp() { return this._defaultStamp }
 
-    stamps() { return stamps }
+    stamps() { return this._stamps }
     
     random() {
-        const all = reduceAllImages(stamps);
+        console.log(StampModule.defaultSticker)
+        const all = reduceAllImages(this.stamps());
         const allKeys = Object.keys(all);
         const idx = Math.floor(Math.random() * allKeys.length);
         return allKeys[idx];
     }
 
     randomFrom(index: string) {
-        const set = stamps.find(stamp => stamp.id === index);
+        const set = this.stamps().find(stamp => stamp.id === index);
         if (!set) {
-            return defaultStamp
+            return this.defaultStamp
         }
         const allKeys = Object.keys(set.stickers);
         const idx = Math.floor(Math.random() * allKeys.length);

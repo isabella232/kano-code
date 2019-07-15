@@ -58,7 +58,7 @@ export class PartContextStub {
         };
         this.stickers = {
             default: 'cat',
-            set: [['Animals', 'animals'], ['Faces', 'faces']]
+            sets: [['Animals', 'animals'], ['Faces', 'faces']]
         }
     }
     wasCalled(stub : any, args? : any[]) : boolean {

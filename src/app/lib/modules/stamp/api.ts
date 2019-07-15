@@ -18,8 +18,10 @@ const getImage : IMetaDefinition = {
         blockly: {
             customField(blockly: Blockly, block: Block, editor : Editor) {
                 // sources the current sticker set from the stamp module instance
-                const { stamps, defaultStamp } = editor.output.runner.appModulesLoader.appModules.modules.stamp.methods;
-                const images = stamps().map((image : any) => {
+                console.log(editor)
+                const stampModule = editor.output.outputProfile.modules.find(module => module.name === 'StampModule')
+                const { stickers, defaultSticker } = stampModule;
+                const images = stickers.map((image : any) => {
                     return {
                         id: image.id,
                         label: image.label,
@@ -27,7 +29,7 @@ const getImage : IMetaDefinition = {
                     };
                 });
 
-                return new StampsField(defaultStamp(), images);
+                return new StampsField(defaultSticker, images);
             },
         },
     }],
@@ -61,8 +63,10 @@ export const randomFrom : IMetaDefinition = {
         blockly: {
             customField(blockly: Blockly, block: Block, editor : Editor) {
                 // sources the current sticker set from the stamp module instance
-                const { stamps } = editor.output.runner.appModulesLoader.appModules.modules.stamp.methods;
-                const list = stamps().map(stamp => [stamp.label, stamp.id])
+                // const { stamps } = editor.output.runner.appModulesLoader.appModules.modules.stamp.methods;
+                const stampModule = editor.output.outputProfile.modules.find(module => module.name === 'StampModule')
+                const { stickers } = stampModule;
+                const list = stickers.map(sticker => [sticker.label, sticker.id])
                 return new FieldDropdown(list)
             }
         }
