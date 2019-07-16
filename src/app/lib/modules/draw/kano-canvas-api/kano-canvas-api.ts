@@ -14,6 +14,7 @@ export interface ICanvasAPISettings {
     width : number;
     height : number;
     ratio? : number;
+    stickers? : any; // UPDATE THIS!!
 }
 
 export class Canvas {
@@ -45,6 +46,7 @@ export class Canvas {
             width: settings.width,
             height: settings.height,
             ratio: settings.ratio || 1,
+            stickers: settings.stickers || {},
             pos: {
                 x: settings.width / 2,
                 y: settings.height / 2,

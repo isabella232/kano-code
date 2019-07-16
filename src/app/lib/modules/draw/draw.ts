@@ -25,6 +25,7 @@ export class DrawModule extends AppModule {
             ctx,
             width: this.output.visuals.width,
             height: this.output.visuals.height,
+            stickers: this.output.resources.get('stickers')      
         });
 
         const draw = this;
