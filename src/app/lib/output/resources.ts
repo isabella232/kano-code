@@ -5,6 +5,7 @@ export interface IResource {
     id : string,
     label : string,
     path : string,
+    src? : string,
 }
 
 export interface IResourceCategory {
@@ -13,20 +14,32 @@ export interface IResourceCategory {
     stickers : { [key:string]: IResource }
 }
 
+export interface IResourceArrayCategory {
+    id : string,
+    label : string,
+    stickers : IResource[]
+}
+
 export interface IResourceInformation {
     default? : string,
-    categories? : { [key:string]: IResourceCategory }
+    categories? : { [key:string]: IResourceCategory },
+    // categorisedStickers?
+    // categoryEnum?
+    getUrl? : (id: string) => string | undefined,
+    getRandom? : () => string,
+    // getRandomFrom?
 }
 
 export interface IResources {
-    stickers? : IResourceInformation
+    stickers? : IResourceInformation,
+    get: (id: string) => IResourceInformation | Error
 }
 
 export class Stickers implements IResourceInformation {
     default : string;
     categories : { [key : string]: IResourceCategory };
-    all: [];
-    allCategorised: [];
+    all: IResource[];
+    allCategorised: IResourceArrayCategory[];
 
     constructor() {
         this.default = '';
@@ -90,7 +103,7 @@ export class Stickers implements IResourceInformation {
         }
 
         Object.keys(this.categories).forEach(category => {
-            let categoryObject = {
+            let categoryObject : IResourceArrayCategory = {
                 id: this.categories[category].id,
                 label: this.categories[category].label,
                 stickers: []

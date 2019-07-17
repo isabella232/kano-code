@@ -1,5 +1,5 @@
 import { Plugin } from './plugin.js';
-import { MetaModule, IMetaRenderer, IAPIDefinition, IAPIFunctionDefition } from '../meta-api/module.js';
+import { MetaModule, IMetaRenderer, IAPIDefinition, IAPIJointDefinition } from '../meta-api/module.js';
 import Editor from './editor.js';
 import { QueryEngine } from './selector/selector.js';
 
@@ -26,7 +26,7 @@ export class ToolboxEntry {
 export class Toolbox extends Plugin {
     private editor? : Editor;
     public renderer? : IMetaRenderer;
-    private entries : IAPIDefinition[]|IAPIFunctionDefition[] = [];
+    private entries : IAPIJointDefinition[] = [];
     private whitelist : IToolboxWhitelist|null = null;
     onInstall(editor : Editor) {
         this.editor = editor;
@@ -90,7 +90,7 @@ export class Toolbox extends Plugin {
         }
         const toolbox = entries
             .map(entry => {
-                if (typeof entry === 'function') {
+                if (typeof entry === 'function' && this.editor) {
                     entry = entry(this.editor);
                 }
 

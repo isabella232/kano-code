@@ -5,9 +5,9 @@ import { shapes } from './blocks/shapes.js';
 import { space } from './blocks/space.js';
 import { stamp } from './blocks/stamp.js';
 import { registerRepeatDrawing } from './blocks/repeats.js';
-import { defaultStamp } from '../stamp/data.js';
 import { DrawModule } from './draw.js';
 import { _ } from '../../i18n/index.js';
+import Editor from '../../editor/editor.js';
 
 const COLOR = '#82C23D';
 let blocks : any[] = [];
@@ -25,7 +25,6 @@ blocks.push({
         return 'ctx.reset();\n';
     },
 });
-
 
 blocks = blocks.concat(setters);
 blocks = blocks.concat(space);
@@ -71,99 +70,102 @@ const category = {
     blocks: categoryBlocks,
 };
 
-export const DrawAPI = {
-    type: 'blockly',
-    id: DrawModule.id,
-    name: DrawModule.id,
-    typeScriptDefinition: `
-        declare namespace draw {}
-    `,
-    register(Blockly : Blockly) {
-        const definitions : any[] = [];
-        blocks.forEach((definition) => {
-            if (typeof definition === 'object') {
-                definitions.push(definition);
-            }
-        });
-        definitions.forEach((definition) => {
-            const block = definition.block(DrawAPI.category);
-            block.colour = COLOR;
-            const id = `draw_${block.id}`;
-            if (!block.doNotRegister) {
-                Blockly.Blocks[id] = {
-                    init() {
-                        this.jsonInit(block);
-                    },
-                };
-                Blockly.Blocks[id].customColor = block.colour;
-            }
-            Blockly.JavaScript[id] = definition.javascript(DrawAPI.category);
-        });
-        registerRepeatDrawing(Blockly, COLOR);
-    },
-    category,
-    defaults: {
-        draw_set_background_color: {
-            COLOR: '#ffffff',
+export function DrawAPI (editor: Editor) {
+    const stickers = editor.output.resources.get('stickers');
+    return {
+        type: 'blockly',
+        id: DrawModule.id,
+        name: DrawModule.id,
+        typeScriptDefinition: `
+            declare namespace draw {}
+        `,
+        register(Blockly : Blockly) {
+            const definitions : any[] = [];
+            blocks.forEach((definition) => {
+                if (typeof definition === 'object') {
+                    definitions.push(definition);
+                }
+            });
+            definitions.forEach((definition) => {
+                const block = definition.block(category);
+                block.colour = COLOR;
+                const id = `draw_${block.id}`;
+                if (!block.doNotRegister) {
+                    Blockly.Blocks[id] = {
+                        init() {
+                            this.jsonInit(block);
+                        },
+                    };
+                    Blockly.Blocks[id].customColor = block.colour;
+                }
+                Blockly.JavaScript[id] = definition.javascript(category);
+            });
+            registerRepeatDrawing(Blockly, COLOR);
         },
-        draw_set_transparency: {
-            ALPHA: 100,
-        },
-        draw_line_to: {
-            X: 5,
-            Y: 5,
-        },
-        draw_line: {
-            X: 5,
-            Y: 5,
-        },
-        draw_color: {
-            COLOR: '#000',
-        },
-        draw_stroke: {
-            COLOR: '#000',
-            SIZE: 1,
-        },
-        draw_circle: {
-            RADIUS: 5,
-        },
-        draw_ellipse: {
-            RADIUSX: 5,
-            RADIUSY: 5,
-        },
-        draw_square: {
-            SIZE: 5,
-        },
-        draw_rectangle: {
-            WIDTH: 5,
-            HEIGHT: 5,
-        },
-        draw_arc: {
-            RADIUS: 5,
-            START: 0,
-            END: 1,
-            CLOSE: true,
-        },
-        draw_move_to: {
-            X: 5,
-            Y: 5,
-        },
-        draw_move: {
-            X: 5,
-            Y: 5,
-        },
-        draw_repeat_drawing: {
-            REPEATS: 6,
-            ROTATION: 60
-        },
-        draw_stamp: {
-            STICKER: {
-                shadow: `<shadow type="stamp_getImage"><field name="STICKER">${defaultStamp}</field></shadow>`
+        category,
+        defaults: {
+            draw_set_background_color: {
+                COLOR: '#ffffff',
             },
-            SIZE: 100,
-            ROTATION: 0
-        }
-    },
+            draw_set_transparency: {
+                ALPHA: 100,
+            },
+            draw_line_to: {
+                X: 5,
+                Y: 5,
+            },
+            draw_line: {
+                X: 5,
+                Y: 5,
+            },
+            draw_color: {
+                COLOR: '#000',
+            },
+            draw_stroke: {
+                COLOR: '#000',
+                SIZE: 1,
+            },
+            draw_circle: {
+                RADIUS: 5,
+            },
+            draw_ellipse: {
+                RADIUSX: 5,
+                RADIUSY: 5,
+            },
+            draw_square: {
+                SIZE: 5,
+            },
+            draw_rectangle: {
+                WIDTH: 5,
+                HEIGHT: 5,
+            },
+            draw_arc: {
+                RADIUS: 5,
+                START: 0,
+                END: 1,
+                CLOSE: true,
+            },
+            draw_move_to: {
+                X: 5,
+                Y: 5,
+            },
+            draw_move: {
+                X: 5,
+                Y: 5,
+            },
+            draw_repeat_drawing: {
+                REPEATS: 6,
+                ROTATION: 60
+            },
+            draw_stamp: {
+                STICKER: {
+                    shadow: `<shadow type="stamp_getImage"><field name="STICKER">${stickers.default}</field></shadow>`
+                },
+                SIZE: 100,
+                ROTATION: 0
+            }
+        },
+    }
 };
 
 export default DrawAPI;

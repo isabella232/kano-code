@@ -37,7 +37,10 @@ export interface IAPIDefinition extends IMetaDefinition {
 
 export interface IAPIFunctionDefition {
     (editor: Editor): IAPIDefinition;
+    type: 'module',
 }
+
+export type IAPIJointDefinition = (IAPIDefinition | IAPIFunctionDefition)
 
 export class Meta {
     public def : IMetaDefinition;

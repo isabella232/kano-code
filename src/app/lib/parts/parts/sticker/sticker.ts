@@ -20,6 +20,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         super();
         this._stickers = {};
         this.core = this._components.get('core') as StickerComponent;
+        console.log(this.core)
         this.core.invalidate();
     }
     onInstall(context : IPartContext) {
@@ -56,7 +57,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             this.applyTransform(ctx);
         }
         const sticker = this.core.image.get();
-        console.log(sticker)
+        
         if (sticker && this._stickers.getUrl) {
             url = this._stickers.getUrl(sticker);
         }

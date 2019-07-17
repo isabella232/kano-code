@@ -1,4 +1,4 @@
-import {Stickers, Resources, IResources, IResourceInformation} from './resources.js'
+import { Stickers, Resources } from './resources.js'
 
 class defaultStickers extends Stickers {
     constructor() {
