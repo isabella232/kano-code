@@ -11,6 +11,9 @@ import { ToolboxEntry, IToolboxWhitelist } from '../editor/toolbox.js';
 import { QueryEngine } from '../editor/selector/selector.js';
 import { IPartsControlsEntry } from '../../elements/kc-workspace-frame/kc-parts-controls.js';
 import { _ } from '../i18n/index.js';
+import Output from '../output/output.js';
+
+type PartAPIOrFactory = IPartAPI // update this
 
 interface IPartRecord {
     type : string;
@@ -372,7 +375,12 @@ export class EditorPartsManager {
         }
     }
     registerAPI(partAPI : IPartAPI) {
-        this.apiRegistry.set(partAPI.type, partAPI);
+        if (typeof partAPI === 'function') {
+            const partAPIwithEditor = partAPI(this.editor);
+            this.apiRegistry.set(partAPIwithEditor.type, partAPIwithEditor);
+        } else {
+            this.apiRegistry.set(partAPI.type, partAPI);
+        }
     }
     reset() {
         this.parts.forEach((_, id) => {

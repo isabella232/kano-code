@@ -37,6 +37,7 @@ export class PartsManager {
             visuals: this.output.visuals,
             audio: this.output.audio,
             dom: this.output.dom,
+            stickers: this.output.resources.get('stickers'),
         });
         this._parts.add(part);
         return part;

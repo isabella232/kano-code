@@ -1,11 +1,11 @@
 import { Part, IPartContext } from '../../part.js';
+import { IResourceInformation } from '../../../output/resources.js';
 import { part, property, component } from '../../decorators.js';
 import { subscribeDOM, EventEmitter } from '@kano/common/index.js';
 import { PartComponent } from '../../component.js';
 import { Sticker } from '../sticker/types.js';
 import { transformLegacyMouse } from './legacy.js';
 import { stamps } from '../../../modules/stamp/data.js';
-import * as StampFunctions from '../../../modules/stamp/stamp.js';
 import { resolve, reduceAllImages } from '../../../util/image-stamp.js';
 
 const all = reduceAllImages(stamps);
@@ -32,6 +32,7 @@ export class MousePart extends Part {
     private _lastMoveEvent : number|null = null;
     private _root : HTMLElement|null = null;
     private _imageCache : Map<string, string> = new Map();
+    private _stickers: IResourceInformation;
     @component(MouseComponent)
     public core : MouseComponent;
     static transformLegacy(app : any) {
@@ -40,6 +41,7 @@ export class MousePart extends Part {
     constructor() {
         super();
         this.core = this._components.get('core') as MouseComponent;
+        this._stickers = {};
     }
     onInstall(context : IPartContext) {
         // Listen to the resize event ot update the rect and scale
@@ -91,6 +93,8 @@ export class MousePart extends Part {
         this.resize(context);
         this.core.onDidInvalidate(() => this.render(), this, this.subscriptions);
         this._root = context.dom.root;
+
+        this._stickers = context.stickers;
     }
     resize(context : IPartContext) {
         this._rect = context.dom.root.getBoundingClientRect() as DOMRect;
@@ -140,10 +144,10 @@ export class MousePart extends Part {
         this.core.invalidate();
     }
     random() {
-        return StampFunctions.random();
+        return this._stickers.getRandom();
     }
     randomFrom(index : string) {
-        return StampFunctions.randomFrom(index);
+        return this._stickers.getRandomFrom(index);
     }
     loadImage(url : string) : Promise<string> {
         if (this._imageCache.has(url)) {
