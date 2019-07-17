@@ -2,12 +2,9 @@ import { part, component } from '../../decorators.js';
 import { IResourceInformation } from '../../../output/resources.js';
 import { DOMPart } from '../dom/dom.js';
 import { stamps, defaultStamp } from '../../../modules/stamp/data.js';
-import { reduceAllImages, resolve } from '../../../util/image-stamp.js';
 import { transformLegacySticker } from './legacy.js';
 import { StickerComponent } from './sticker-component.js';
 import { IPartContext } from '../../part.js';
-
-const all = reduceAllImages(stamps);
 
 @part('sticker')
 export class StickerPart extends DOMPart<HTMLDivElement> {
@@ -26,6 +23,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this.core.invalidate();
     }
     onInstall(context : IPartContext) {
+        context.dom.root.appendChild(this._el);
         this._stickers = context.stickers;
     }
     getElement() : HTMLDivElement {
@@ -45,12 +43,8 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
 
         const sticker = this.core.image.get();
-        // console.log(sticker)
-        if (sticker && all[sticker]) {
-            // console.log(this._stickers.getUrl(sticker))
-            // console.log(resolve(all[sticker]))
-            // this._el.style.backgroundImage = `url(${this._stickers.getUrl(sticker)})`;
-            this._el.style.backgroundImage = `url(${resolve(all[sticker])})`;
+        if (sticker && this._stickers.getUrl) {
+            this._el.style.backgroundImage = `url(${this._stickers.getUrl(sticker)})`;
         }
 
         this.core.apply();
@@ -63,9 +57,8 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
         const sticker = this.core.image.get();
         console.log(sticker)
-        if (sticker && all[sticker]) {
-            // url = this._stickers.getUrl(sticker);
-            url = resolve(all[sticker]);
+        if (sticker && this._stickers.getUrl) {
+            url = this._stickers.getUrl(sticker);
         }
         const imageLoaded = new Promise((res) => {
             const img = new Image();
