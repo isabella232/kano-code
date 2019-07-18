@@ -26,14 +26,17 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             getRandomFrom: () => { return '' }
         };
         this.core = this._components.get('core') as StickerComponent;
-        console.log(this.core)
         this.core.invalidate();
     }
     onInstall(context : IPartContext) {
-        context.dom.root.appendChild(this._el);
         if (context.stickers) {
             this._stickers = context.stickers;
         }
+        if (this._stickers.default) {
+            this.core.image.set(this._stickers.default)
+            this.core.invalidate();
+        }
+        context.dom.root.appendChild(this._el);
     }
     getElement() : HTMLDivElement {
         const el = document.createElement('div');
@@ -52,7 +55,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
 
         const sticker = this.core.image.get();
-        if (sticker && this._stickers.getUrl) {
+        if (sticker) {
             this._el.style.backgroundImage = `url(${this._stickers.getUrl(sticker)})`;
         }
 

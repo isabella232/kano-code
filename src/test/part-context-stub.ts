@@ -2,6 +2,7 @@ import { IVisualsContext, IAudioContext, IDOMContext } from '../app/lib/output/o
 import { IResourceInformation } from '../app/lib/output/resources.js';
 import { Microphone } from '../app/lib/output/microphone.js';
 import { IEvent } from '@kano/common/index.js';
+import { defaultResources } from '../app/lib/output/defaultResources.js';
 
 function stub(target : any, key : string, descriptor : any) {
     const originalMethod = descriptor.value;
@@ -34,7 +35,7 @@ export class PartContextStub {
     public visuals : IVisualsContext;
     public audio : IAudioContext;
     public dom : IDOMContext;
-    public stickers: IResourceInformation;
+    public stickers: IResourceInformation | undefined;
     constructor() {
         this.visuals = {
             get canvas() {
@@ -57,13 +58,8 @@ export class PartContextStub {
             root: document.createElement('div'),
             onDidResize: (() => {}) as unknown as IEvent<void>,
         };
-        this.stickers = {
-            categorisedStickers: [],
-            categoryEnum: [],
-            getUrl: () => '',
-            getRandom: () => '',
-            getRandomFrom: (id: string) => ''
-        }
+        const resources = new defaultResources
+        this.stickers = resources.get('stickers');
     }
     wasCalled(stub : any, args? : any[]) : boolean {
         const calls = this.getCalls(stub);

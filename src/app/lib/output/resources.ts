@@ -72,17 +72,10 @@ export class Stickers implements IResourceInformation {
             console.warn('A sticker with this name has already been created')
             return
         }
-        let fullPath = path
 
-        // TODO: handle functions
-        // if (typeof path === 'function') {
-        //     fullPath = 
-        // }
-
-        this.categories[category].stickers[id] = { id, label, path: fullPath }  
+        this.categories[category].stickers[id] = { id, label, path: path }  
     }
     setDefault(id : string) {
-        // add check to see whether the id exists
         this.default = id;
     }
 
@@ -150,7 +143,10 @@ export class Stickers implements IResourceInformation {
             console.warn(`No sticker provided`);
             return '';
         }
-        const selectedSticker = this.stickerSet.find(sticker => sticker.id === id)
+        let selectedSticker = this.stickerSet.find(sticker => sticker.id === id)
+        if (!selectedSticker) {
+            selectedSticker = this.stickerSet.find(sticker => sticker.id === this.default)
+        }
         if (!selectedSticker) {
             console.warn(`Sticker ${id} does not exist`)
             return '';

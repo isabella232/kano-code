@@ -1,5 +1,6 @@
 import { Editor } from './editor.js';
 import { SourceEditor, registerSourceEditor } from '../source-editor/source-editor.js';
+import { Resources } from '../output/resources.js';
 import { QueryEngine } from './selector/selector.js';
 import { IMetaRenderer } from '../meta-api/module.js';
 import { EventEmitter } from '@kano/common/index.js';
@@ -36,6 +37,7 @@ suite('Editor', () => {
         let editor : Editor;
         setup(() => {
             editor = new Editor({ sourceType: 'test' });
+            editor.output.registerResources(new Resources());
         });
         teardown(() => {
             editor.dispose();
