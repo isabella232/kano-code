@@ -9,7 +9,7 @@ import { subscribeDOM } from '@kano/common/index.js';
 interface IItemData {
     id : string;
     label : string;
-    stickers : { id : string, src : string }[];
+    resources : { id : string, src : string }[];
 }
 
 export class StampsField extends FieldIcon {
@@ -30,7 +30,7 @@ export class StampsField extends FieldIcon {
                 return {
                     id: set.id,
                     label: set.label,
-                    items: set.stickers.map((sticker) => ({ id: sticker.id, label: sticker.id, image: sticker.src })),
+                    items: set.resources.map((sticker) => ({ id: sticker.id, label: sticker.id, image: sticker.src })),
                 };
             });
             subscribeDOM(this.domNode, 'value-changed', (e : CustomEvent) => {
@@ -74,7 +74,7 @@ export class StampsField extends FieldIcon {
     }
     getItemForValue(value : string) : { id : string, src : string }|null {
         for (let i = 0; i < this.items.length; i += 1) {
-            const found = this.items[i].stickers.find(s => s.id === value);
+            const found = this.items[i].resources.find(s => s.id === value);
             if (found) {
                 return found;
             }

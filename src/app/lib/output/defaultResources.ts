@@ -8,7 +8,7 @@ class defaultStickers extends Stickers {
             animals: {
                 label: 'Animals',
                 id: 'animals',
-                stickers: {
+                resources: {
                     bee: { id: 'bee', label: 'Bee', path: 'animals/animal-bee.svg' },
                     bird: { id: 'bird', label: 'Bird', path: 'animals/animal-bird.svg' },
                     blowfish:
@@ -103,7 +103,7 @@ class defaultStickers extends Stickers {
             holidays: {
                 label: 'Holidays',
                 id: 'holidays',
-                stickers: { 
+                resources: { 
                     candle: { id: 'candle',
                       label: 'Candle',
                       path: 'holidays/holidays-candle.svg' },
@@ -119,7 +119,7 @@ class defaultStickers extends Stickers {
             kano: {
                 label: 'Kano',
                 id: 'kano',
-                stickers: {
+                resources: {
                     arrow: { id: 'arrow', label: 'Arrow', path: 'kano/arrow.svg' },
                     face: { id: 'face', label: 'Face', path: 'kano/judoka-face.svg' },
                     record: { id: 'record', label: 'Record', path: 'kano/judoka-record.svg' },
@@ -131,7 +131,7 @@ class defaultStickers extends Stickers {
             masks: {
                 label: 'Masks',
                 id: 'masks',
-                stickers: {
+                resources: {
                     alien: { id: 'alien', label: 'Alien', path: 'masks/mask-alien.svg' },
                     bear: { id: 'bear', label: 'Bear', path: 'masks/mask-bear.svg' },
                     blank: { id: 'blank', label: 'Blank', path: 'masks/mask-blank.svg' },
@@ -203,7 +203,7 @@ class defaultStickers extends Stickers {
             food: {
                 label: 'Food',
                 id: 'food',
-                stickers: {
+                resources: {
                     burger: { id: 'burger', label: 'Burger', path: 'food/food-burger.svg' },
                     burrito:
                     { id: 'burrito',
@@ -249,7 +249,7 @@ class defaultStickers extends Stickers {
             music: {
                 label: 'Music',
                 id: 'music',
-                stickers: {
+                resources: {
                     bell: { id: 'bell', label: 'Bell', path: 'music/music-bell.svg' },
                     drum: { id: 'drum', label: 'Drum', path: 'music/music-drum.svg' },
                     guitar: { id: 'guitar', label: 'Guitar', path: 'music/music-guitar.svg' },
@@ -272,7 +272,7 @@ class defaultStickers extends Stickers {
             'street-art': {
                 label: 'Street Art',
                 id: 'street-art',
-                stickers: {
+                resources: {
                     bolt: { id: 'bolt', label: 'Bolt', path: 'street-art/bolt.svg' },
                     creeper:
                     { id: 'creeper',
@@ -334,7 +334,7 @@ class defaultStickers extends Stickers {
             other: {
                 label: 'Other',
                 id: 'other',
-                stickers: {
+                resources: {
                     avocado:
                     { id: 'avocado',
                         label: 'Avocado',
@@ -453,7 +453,7 @@ class defaultStickers extends Stickers {
             data: {
                 label: 'Photo',
                 id: 'data',
-                stickers: {
+                resources: {
                     animal:
                     { id: 'animal',
                       label: 'Animal',
@@ -514,7 +514,7 @@ class defaultStickers extends Stickers {
             space: {
                 label: 'Space',
                 id: 'space',
-                stickers: { 
+                resources: { 
                     america:
                     { id: 'america',
                       label: 'America',
@@ -557,7 +557,7 @@ class defaultStickers extends Stickers {
             vehicles: {
                 label: 'Vehicles',
                 id: 'vehicles',
-                stickers: { ambulance:
+                resources: { ambulance:
                     { id: 'ambulance',
                       label: 'Ambulance',
                       path: 'vehicles/ambulance.svg' },

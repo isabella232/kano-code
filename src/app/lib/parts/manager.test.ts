@@ -9,14 +9,14 @@ suite('PartsManager', () => {
     test('#registerPart()', () => {
         const output = new Output();
         const manager = new PartsManager(output);
-        
+
         @part('test')
         class TestPart extends Part {}
-        
+
         manager.registerPart(TestPart);
-        
+
         const registered = manager.getRegisteredParts();
-        
+
         assert.equal(registered.get('test'), TestPart);
     });
     test('#addPart()', () => {

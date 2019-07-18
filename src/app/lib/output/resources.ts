@@ -11,13 +11,13 @@ export interface IResource {
 export interface IResourceCategory {
     id : string,
     label : string,
-    stickers : { [key:string]: IResource }
+    resources : { [key:string]: IResource }
 }
 
 export interface IResourceArrayWithSrc {
     id : string,
     label : string,
-    stickers : {
+    resources : {
         id: string,
         src: string,
     }[]
@@ -26,7 +26,7 @@ export interface IResourceArrayWithSrc {
 export interface IResourceArrayCategory {
     id : string,
     label : string,
-    stickers : IResource[]
+    resources : IResource[]
 }
 
 export interface IResourceInformation {
@@ -61,19 +61,19 @@ export class Stickers implements IResourceInformation {
             console.warn('Category already exists')
             return
         }
-        this.categories[id] = { id, label, stickers: {} };
+        this.categories[id] = { id, label, resources: {} };
     }
     add(category : string, id : string, label : string, path : string) {
         if (!this.categories[category]) {
             console.warn('Category does not exist')
             return
         }
-        if (this.categories[category].stickers[id]) {
+        if (this.categories[category].resources[id]) {
             console.warn('A sticker with this name has already been created')
             return
         }
 
-        this.categories[category].stickers[id] = { id, label, path: path }  
+        this.categories[category].resources[id] = { id, label, path: path }  
     }
     setDefault(id : string) {
         this.default = id;
@@ -86,14 +86,14 @@ export class Stickers implements IResourceInformation {
         return encodeURI(join(prefix, path));
     }
 
-    get stickerSet() {
+    get resourceSet() {
         if (this.all.length > 0) {
             return this.all
         }
         
         Object.keys(this.categories).forEach(category => {
-            Object.keys(this.categories[category].stickers).forEach(sticker => {
-                this.all.push(this.categories[category].stickers[sticker])
+            Object.keys(this.categories[category].resources).forEach(sticker => {
+                this.all.push(this.categories[category].resources[sticker])
             })
         })
         return this.all;
@@ -108,12 +108,12 @@ export class Stickers implements IResourceInformation {
             let categoryObject : IResourceArrayWithSrc = {
                 id: this.categories[category].id,
                 label: this.categories[category].label,
-                stickers: []
+                resources: []
             }
-            Object.keys(this.categories[category].stickers).forEach(
+            Object.keys(this.categories[category].resources).forEach(
                 sticker => {
                     const stickerObject = {id: sticker, src: this.getUrl(sticker)}
-                    categoryObject.stickers.push( stickerObject )}
+                    categoryObject.resources.push( stickerObject )}
             )
             this.allCategorised.push(categoryObject)
         })
@@ -125,7 +125,7 @@ export class Stickers implements IResourceInformation {
     }
 
     getRandom() {
-        return this.stickerSet[Math.floor(Math.random() * this.stickerSet.length)].id;
+        return this.resourceSet[Math.floor(Math.random() * this.resourceSet.length)].id;
     }
 
     getRandomFrom(id: string) {
@@ -133,8 +133,8 @@ export class Stickers implements IResourceInformation {
             console.warn('Category does not exist')
             return this.default
         } else {
-            const randomKey = Object.keys(this.categories[id].stickers)[Math.floor(Math.random() * Object.keys(this.categories[id].stickers).length)]
-            return this.categories[id].stickers[randomKey].id;
+            const randomKey = Object.keys(this.categories[id].resources)[Math.floor(Math.random() * Object.keys(this.categories[id].resources).length)]
+            return this.categories[id].resources[randomKey].id;
         }
     }
 
@@ -143,9 +143,9 @@ export class Stickers implements IResourceInformation {
             console.warn(`No sticker provided`);
             return '';
         }
-        let selectedSticker = this.stickerSet.find(sticker => sticker.id === id)
+        let selectedSticker = this.resourceSet.find(sticker => sticker.id === id)
         if (!selectedSticker) {
-            selectedSticker = this.stickerSet.find(sticker => sticker.id === this.default)
+            selectedSticker = this.resourceSet.find(sticker => sticker.id === this.default)
         }
         if (!selectedSticker) {
             console.warn(`Sticker ${id} does not exist`)
@@ -155,7 +155,7 @@ export class Stickers implements IResourceInformation {
     }
 
     getLabel(id: string) {
-        const selectedSticker = this.stickerSet.find(sticker => sticker.id === id)
+        const selectedSticker = this.resourceSet.find(sticker => sticker.id === id)
         if (!selectedSticker) {
             console.warn('Sticker does not exist')
             return
