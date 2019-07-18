@@ -11,9 +11,9 @@ import { ToolboxEntry, IToolboxWhitelist } from '../editor/toolbox.js';
 import { QueryEngine } from '../editor/selector/selector.js';
 import { IPartsControlsEntry } from '../../elements/kc-workspace-frame/kc-parts-controls.js';
 import { _ } from '../i18n/index.js';
-import Output from '../output/output.js';
 
-type PartAPIOrFactory = IPartAPI // update this
+type PartAPIOrFactory = IPartAPI | IPartFactory // update this
+type IPartFactory = (editor : Editor) => IPartAPI
 
 interface IPartRecord {
     type : string;
@@ -374,7 +374,7 @@ export class EditorPartsManager {
             this.editor.toolbox.whitelistEntry(partRecord.part.id, list);
         }
     }
-    registerAPI(partAPI : IPartAPI) {
+    registerAPI(partAPI : PartAPIOrFactory) {
         if (typeof partAPI === 'function') {
             const partAPIwithEditor = partAPI(this.editor);
             this.apiRegistry.set(partAPIwithEditor.type, partAPIwithEditor);

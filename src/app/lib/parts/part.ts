@@ -23,7 +23,7 @@ export interface IPartContext {
         root : HTMLElement;
         onDidResize : IEvent<void>;
     };
-    stickers: IResourceInformation,
+    stickers: IResourceInformation | undefined,
 }
 
 /**

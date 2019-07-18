@@ -18,7 +18,10 @@ function getImage(editor : Editor) : IMetaDefinition {
             blockly: {
                 customField() {
                     const stickers = editor.output.resources.get('stickers')
-                    return new StampsField(stickers.default, stickers.categorisedStickers);
+                    if (stickers) {
+                        const defaultSticker = stickers.default ? stickers.default : ''
+                        return new StampsField(defaultSticker, stickers.categorisedStickers);
+                    }
                 },
             },
         }],
@@ -41,7 +44,11 @@ export const random : IMetaDefinition = {
 };
 
 export function randomFrom(editor : Editor) : IMetaDefinition {
-    const stickerEnum = editor.output.resources.get('stickers').categoryEnum
+    const stickers = editor.output.resources.get('stickers');
+    let stickerEnum : [string, string][] = [];
+    if (stickers) {
+        stickerEnum = stickers.categoryEnum;
+    }
     return {
         type: 'function',
         name: 'randomFrom',

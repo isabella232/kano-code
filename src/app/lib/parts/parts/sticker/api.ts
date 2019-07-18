@@ -8,6 +8,7 @@ import { _ } from '../../../i18n/index.js';
 
 export function StickerAPI(editor: Editor) : IPartAPI {
     const stickers = editor.output.resources.get('stickers');
+    const defaultSticker = stickers ? stickers.default : '';
     return {
         type: StickerPart.type,
         label: _('PART_STICKER_LABEL', 'Sticker'),
@@ -20,7 +21,7 @@ export function StickerAPI(editor: Editor) : IPartAPI {
             setter: true,
             getter: false,
             returnType: 'Sticker',
-            default: stickers.default,
+            default: defaultSticker,
             blockly: {
                 shadow(defaultValue : string) {
                     return `<shadow type="stamp_getImage"><field name="STICKER">${defaultValue}</field></shadow>`;

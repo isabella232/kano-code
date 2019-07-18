@@ -11,6 +11,7 @@ const mouse = svg`<svg viewBox="0 0 64 64" preserveAspectRatio="xMidYMid meet" f
 
 export function MouseAPI(editor: Editor) : IPartAPI {
     const stickers = editor.output.resources.get('stickers')
+    const defaultSticker = stickers ? stickers.default : '';
 
     return {
         type: MousePart.type,
@@ -45,7 +46,7 @@ export function MouseAPI(editor: Editor) : IPartAPI {
             setter: true,
             getter: false,
             returnType: 'Sticker',
-            default: stickers.default,
+            default: defaultSticker,
             blockly: {
                 shadow(defaultValue : string) {
                     return `<shadow type="stamp_getImage"><field name="STICKER">${defaultValue}</field></shadow>`;

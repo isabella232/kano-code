@@ -41,7 +41,13 @@ export class MousePart extends Part {
     constructor() {
         super();
         this.core = this._components.get('core') as MouseComponent;
-        this._stickers = {};
+        this._stickers = {
+            categorisedStickers: [],
+            categoryEnum: [],
+            getUrl: () => { return '' },
+            getRandom: () => { return '' },
+            getRandomFrom: () => { return '' }
+        };
     }
     onInstall(context : IPartContext) {
         // Listen to the resize event ot update the rect and scale
@@ -93,8 +99,10 @@ export class MousePart extends Part {
         this.resize(context);
         this.core.onDidInvalidate(() => this.render(), this, this.subscriptions);
         this._root = context.dom.root;
-
-        this._stickers = context.stickers;
+        
+        if (context.stickers) {
+            this._stickers = context.stickers;
+        }
     }
     resize(context : IPartContext) {
         this._rect = context.dom.root.getBoundingClientRect() as DOMRect;

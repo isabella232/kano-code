@@ -1,17 +1,26 @@
 import { Output } from './output.js';
 import { join } from '../util/path.js';
+import { Sticker } from '../parts/parts/sticker/types.js';
 
 export interface IResource {
     id : string,
     label : string,
-    path : string,
-    src? : string,
+    path : string
 }
 
 export interface IResourceCategory {
     id : string,
     label : string,
     stickers : { [key:string]: IResource }
+}
+
+export interface IResourceArrayWithSrc {
+    id : string,
+    label : string,
+    stickers : {
+        id: string,
+        src: string,
+    }[]
 }
 
 export interface IResourceArrayCategory {
@@ -23,23 +32,23 @@ export interface IResourceArrayCategory {
 export interface IResourceInformation {
     default? : string,
     categories? : { [key:string]: IResourceCategory },
-    // categorisedStickers?
-    // categoryEnum?
-    getUrl? : (id: string) => string | undefined,
-    getRandom? : () => string,
-    // getRandomFrom?
+    categorisedStickers : IResourceArrayWithSrc[],
+    categoryEnum : [string, string][],
+    getUrl : (id: string | Sticker | null) => string,
+    getRandom : () => string,
+    getRandomFrom : (id: string) => string,
 }
 
 export interface IResources {
     stickers? : IResourceInformation,
-    get: (id: string) => IResourceInformation | Error
+    get: (id: string) => IResourceInformation | undefined
 }
 
 export class Stickers implements IResourceInformation {
     default : string;
     categories : { [key : string]: IResourceCategory };
     all: IResource[];
-    allCategorised: IResourceArrayCategory[];
+    allCategorised: IResourceArrayWithSrc[];
 
     constructor() {
         this.default = '';
@@ -103,16 +112,14 @@ export class Stickers implements IResourceInformation {
         }
 
         Object.keys(this.categories).forEach(category => {
-            let categoryObject : IResourceArrayCategory = {
+            let categoryObject : IResourceArrayWithSrc = {
                 id: this.categories[category].id,
                 label: this.categories[category].label,
                 stickers: []
             }
             Object.keys(this.categories[category].stickers).forEach(
                 sticker => {
-                    let stickerObject = Object.assign({}, this.categories[category].stickers[sticker])
-                    stickerObject.id = sticker
-                    stickerObject.src = this.getUrl(sticker)
+                    const stickerObject = {id: sticker, src: this.getUrl(sticker)}
                     categoryObject.stickers.push( stickerObject )}
             )
             this.allCategorised.push(categoryObject)
@@ -138,11 +145,15 @@ export class Stickers implements IResourceInformation {
         }
     }
 
-    getUrl(id: string) {
+    getUrl(id: string | Sticker | null) {
+        if (!id) {
+            console.warn(`No sticker provided`);
+            return '';
+        }
         const selectedSticker = this.stickerSet.find(sticker => sticker.id === id)
         if (!selectedSticker) {
             console.warn(`Sticker ${id} does not exist`)
-            return
+            return '';
         }
         return this.resolve(selectedSticker.path);
     }
@@ -167,7 +178,8 @@ export class Resources implements IResources {
         if (id === 'stickers') {
             return this.stickers;
         } else {
-            return new Error('Unknown resource requested');
+            console.warn('Unknown resource requested');
+            return
         }
     }
 }

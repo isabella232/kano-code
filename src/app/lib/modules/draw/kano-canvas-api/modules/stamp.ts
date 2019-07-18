@@ -42,8 +42,13 @@ export class Stamp {
             session.ctx.setTransform(1, 0, 0, 1, 0, 0);
         };
         img.crossOrigin = "Anonymous";
-        // img.src = resolve(all[sticker.toString()]);
-        img.src = session.stickers.getUrl(sticker)
+        
+        if (sticker && session.stickers && session.stickers.getUrl(sticker)) {
+            img.src = session.stickers.getUrl(sticker);
+        } else {
+            console.warn('stickers not available');
+            img.src = '';
+        }
 
     };
 

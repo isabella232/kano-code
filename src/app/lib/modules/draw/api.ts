@@ -159,7 +159,7 @@ export function DrawAPI (editor: Editor) {
             },
             draw_stamp: {
                 STICKER: {
-                    shadow: `<shadow type="stamp_getImage"><field name="STICKER">${stickers.default}</field></shadow>`
+                    shadow: `<shadow type="stamp_getImage"><field name="STICKER">${stickers ? stickers.default : ''}</field></shadow>`
                 },
                 SIZE: 100,
                 ROTATION: 0
