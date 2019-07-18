@@ -5,10 +5,6 @@ import { subscribeDOM, EventEmitter } from '@kano/common/index.js';
 import { PartComponent } from '../../component.js';
 import { Sticker } from '../sticker/types.js';
 import { transformLegacyMouse } from './legacy.js';
-import { stamps } from '../../../modules/stamp/data.js';
-import { resolve, reduceAllImages } from '../../../util/image-stamp.js';
-
-const all = reduceAllImages(stamps);
 
 class MouseComponent extends PartComponent {
     @property({ type: EventEmitter, value: new EventEmitter(), noReset: true })
@@ -32,7 +28,7 @@ export class MousePart extends Part {
     private _lastMoveEvent : number|null = null;
     private _root : HTMLElement|null = null;
     private _imageCache : Map<string, string> = new Map();
-    private _stickers: IResourceInformation;
+    private _stickers: IResourceInformation | undefined;
     @component(MouseComponent)
     public core : MouseComponent;
     static transformLegacy(app : any) {
@@ -42,7 +38,7 @@ export class MousePart extends Part {
         super();
         this.core = this._components.get('core') as MouseComponent;
         this._stickers = {
-            categorisedStickers: [],
+            categorisedResource: [],
             categoryEnum: [],
             getUrl: () => { return '' },
             getRandom: () => { return '' },
@@ -100,8 +96,8 @@ export class MousePart extends Part {
         this.core.onDidInvalidate(() => this.render(), this, this.subscriptions);
         this._root = context.dom.root;
         
-        if (context.stickers) {
-            this._stickers = context.stickers;
+        if (context.resources.get('stickers')) {
+            this._stickers = context.resources.get('stickers');
         }
     }
     resize(context : IPartContext) {
@@ -116,8 +112,8 @@ export class MousePart extends Part {
             return;
         }
         const sticker = this.core.cursor.get();
-        if (sticker && all[sticker]) {
-            this.loadImage(resolve(all[sticker]))
+        if (sticker && this._stickers && this._stickers.getUrl(sticker)) {
+            this.loadImage(this._stickers.getUrl(sticker))
                 .then((url) => {
                     this._root!.style.cursor = `url('${url}'), auto`;
                 });
@@ -152,10 +148,14 @@ export class MousePart extends Part {
         this.core.invalidate();
     }
     random() {
-        return this._stickers.getRandom();
+        if (this._stickers) {
+            return this._stickers.getRandom();
+        }
     }
     randomFrom(index : string) {
-        return this._stickers.getRandomFrom(index);
+        if (this._stickers) {
+            return this._stickers.getRandomFrom(index);
+        }
     }
     loadImage(url : string) : Promise<string> {
         if (this._imageCache.has(url)) {

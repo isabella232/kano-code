@@ -1,25 +1,22 @@
 import { part, component } from '../../decorators.js';
 import { IResourceInformation } from '../../../output/resources.js';
 import { DOMPart } from '../dom/dom.js';
-import { stamps, defaultStamp } from '../../../modules/stamp/data.js';
 import { transformLegacySticker } from './legacy.js';
 import { StickerComponent } from './sticker-component.js';
 import { IPartContext } from '../../part.js';
 
 @part('sticker')
 export class StickerPart extends DOMPart<HTMLDivElement> {
-    private _stickers: IResourceInformation;
+    private _stickers: IResourceInformation | undefined;
     @component(StickerComponent)
     public core : StickerComponent;
     static transformLegacy(app : any) {
         transformLegacySticker(app);
     }
-    static get items() { return stamps; }
-    static get defaultSticker() { return defaultStamp; }
     constructor() {
         super();
         this._stickers = {
-            categorisedStickers: [],
+            categorisedResource: [],
             categoryEnum: [],
             getUrl: () => { return '' },
             getRandom: () => { return '' },
@@ -29,10 +26,10 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this.core.invalidate();
     }
     onInstall(context : IPartContext) {
-        if (context.stickers) {
-            this._stickers = context.stickers;
+        if (context.resources.get('stickers')) {
+            this._stickers = context.resources.get('stickers');
         }
-        if (this._stickers.default) {
+        if (this._stickers && this._stickers.default) {
             this.core.image.set(this._stickers.default)
             this.core.invalidate();
         }
@@ -55,7 +52,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
 
         const sticker = this.core.image.get();
-        if (sticker) {
+        if (sticker && this._stickers) {
             this._el.style.backgroundImage = `url(${this._stickers.getUrl(sticker)})`;
         }
 
@@ -69,7 +66,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         }
         const sticker = this.core.image.get();
         
-        if (sticker && this._stickers.getUrl(sticker)) {
+        if (sticker && this._stickers) {
             url = this._stickers.getUrl(sticker);
         }
         const imageLoaded = new Promise((res) => {
@@ -89,8 +86,13 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this.core.invalidate();
     }
     random() {
-        return this._stickers.getRandom();
+        if (this._stickers) {
+            return this._stickers.getRandom();
+        }
     }
     randomFrom(setId : string) {
-        return this._stickers.getRandomFrom(setId);    }
+        if (this._stickers) {
+            return this._stickers.getRandomFrom(setId);
+        }    
+    }
 }

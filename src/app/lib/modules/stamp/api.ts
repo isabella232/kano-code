@@ -20,7 +20,7 @@ function getImage(editor : Editor) : IMetaDefinition {
                     const stickers = editor.output.resources.get('stickers')
                     if (stickers) {
                         const defaultSticker = stickers.default ? stickers.default : ''
-                        return new StampsField(defaultSticker, stickers.categorisedStickers);
+                        return new StampsField(defaultSticker, stickers.categorisedResource);
                     }
                 },
             },

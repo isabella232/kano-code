@@ -32,7 +32,7 @@ export interface IResourceArrayCategory {
 export interface IResourceInformation {
     default? : string,
     categories? : { [key:string]: IResourceCategory },
-    categorisedStickers : IResourceArrayWithSrc[],
+    categorisedResource : IResourceArrayWithSrc[],
     categoryEnum : [string, string][],
     getUrl : (id: string | Sticker | null) => string,
     getRandom : () => string,
@@ -44,7 +44,7 @@ export interface IResources {
     get: (id: string) => IResourceInformation | undefined
 }
 
-export class Stickers implements IResourceInformation {
+export class Resource implements IResourceInformation {
     default : string;
     categories : { [key : string]: IResourceCategory };
     all: IResource[];
@@ -99,7 +99,7 @@ export class Stickers implements IResourceInformation {
         return this.all;
     }
 
-    get categorisedStickers() {
+    get categorisedResource() {
         if (this.allCategorised.length > 0) {
             return this.allCategorised
         }
@@ -167,7 +167,7 @@ export class Stickers implements IResourceInformation {
 export class Resources implements IResources {
     stickers: IResourceInformation;
     constructor() {
-        this.stickers = new Stickers;
+        this.stickers = new Resource;
     }
 
     get(id: string) {

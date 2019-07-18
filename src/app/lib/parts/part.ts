@@ -2,7 +2,7 @@ import { IDisposable, IEvent } from '@kano/common/index.js';
 import { collectPrototype } from './util.js';
 import { PartComponent } from './component.js';
 import { Microphone } from '../output/microphone.js';
-import { IResourceInformation } from '../output/resources.js';
+import { IResources } from '../output/resources.js';
 
 /**
  * Declares the APIs available for the part to use.
@@ -23,7 +23,7 @@ export interface IPartContext {
         root : HTMLElement;
         onDidResize : IEvent<void>;
     };
-    stickers: IResourceInformation | undefined,
+    resources: IResources,
 }
 
 /**

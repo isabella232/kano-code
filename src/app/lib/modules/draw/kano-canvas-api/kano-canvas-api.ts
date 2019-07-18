@@ -48,7 +48,7 @@ export class Canvas {
             height: settings.height,
             ratio: settings.ratio || 1,
             stickers: settings.stickers || {
-                categorisedStickers: [],
+                categorisedResource: [],
                 categoryEnum: [],
                 getUrl: () => { return '' },
                 getRandom: () => { return '' },

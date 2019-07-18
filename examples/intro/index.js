@@ -4,7 +4,7 @@ import * as APIs from '../../toolbox.js';
 import { LocalStoragePlugin } from '../../dist/app/lib/storage/local-storage.js';
 import { Player } from '../../dist/app/lib/index.js';
 import { CreationImagePreviewProvider } from '../../dist/app/lib/creation/providers/image.js';
-import { defaultResources } from '../../dist/app/lib/output/defaultResources.js';
+import { defaultResources } from '../../dist/app/lib/output/default-resources.js';
 
 const Shapes = {
     type: 'module',

@@ -1,6 +1,6 @@
-import { Stickers, Resources } from './resources.js'
+import { Resource, Resources } from './resources.js'
 
-class defaultStickers extends Stickers {
+class defaultStickers extends Resource {
     constructor() {
         super();
         this.default = 'crocodile';
