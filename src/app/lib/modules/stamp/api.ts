@@ -3,8 +3,6 @@ import { Block } from '@kano/kwc-blockly/blockly.js';
 import { StampsField } from '../../blockly/fields/stamps-field.js';
 import { _ } from '../../i18n/index.js';
 import { Editor } from '../../editor/editor.js';
-import { defaultStamp, stamps } from './data.js';
-import { resolve } from '../../util/image-stamp.js';
 import { random, randomFrom } from './common.js';
 
 function getImage(editor : Editor) : IMetaDefinition {
@@ -37,34 +35,6 @@ function getImage(editor : Editor) : IMetaDefinition {
         }
     }
 };
-
-// export const random : IMetaDefinition = {
-//     type: 'function', 
-//     name: 'random',
-//     verbose: _('PART_STICKER_RANDOM', 'random'),
-//     returnType: 'Sticker'
-// };
-
-// export function randomFrom(editor : Editor) : IMetaDefinition {
-//     const stickers = editor.output.resources.get('stickers');
-//     let stickerEnum : [string, string][] = [];
-//     if (stickers) {
-//         stickerEnum = stickers.categoryEnum;
-//     }
-//     return {
-//         type: 'function',
-//         name: 'randomFrom',
-//         verbose: _('PART_STICKER_RANDOM_FROM', 'random'),
-//         returnType: 'Sticker',
-//         parameters: [{
-//             type: 'parameter',
-//             name: 'set',
-//             verbose: '',
-//             returnType: 'Enum',
-//             enum: stickerEnum,
-//         }]
-//     }
-// }
 
 function hideBlock(block : IMetaDefinition) {
     const newBlock = Object.assign({}, block);
