@@ -12,6 +12,10 @@ import '../../../challenge/components/kc-part-api-preview.js';
 import { dataURI } from '@kano/icons-rendering/index.js';
 import { DropdownFieldStepHelper } from './helpers/dropdown.js';
 import { button } from '@kano/styles/button.js';
+import { CancellationTokenSource } from 'monaco-editor';
+import { Engine } from '../../../challenge/engine.js';
+import { IStepData } from '../../../creator/creator.js';
+import { GestureHelper } from './helpers/gesture.js';
 
 export interface IBannerIconProvider {
     getDomNode() : HTMLElement;
@@ -40,6 +44,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
 
         // Shorthand for quick part validation
         this.defineShorthand('create-part', this._createPartShorthand.bind(this));
+        this.defineShorthand('sw-gesture', this._swGestureShorthand.bind(this));
 
         // Define the challenges widgets for each step through the challenge data
         this.defineBehavior('banner', this.displayBanner.bind(this), this.hideBanner.bind(this));
@@ -60,6 +65,8 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         this.editor.domNode.shadowRoot!.appendChild(button.content.cloneNode(true));
 
         this.helpers.push(new DropdownFieldStepHelper());
+
+        this.helpers.push(new GestureHelper());
     }
     /**
      * Parses the provided text, extract and replace eventual template values with preview widgets.
@@ -351,6 +358,21 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         });
         return step;
     }
+
+    _swGestureShorthand(data : any) {
+        // @TODO replace video link. Placeholder at the moment.
+        const text = `This is for the *${data.gesture}* gesture <video width="250" height="180" autoplay><source src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" /></video>`;
+        return {
+            "validation": {
+                "gesture": data.gesture
+            },
+            "banner": {
+                "text": text,
+                "nextButton": true,
+            }
+        };
+    }
+
     /**
      * Defines the provider for the banner icon. This provider will define a DOM node tu use instead of the progress circle
      * @param provider A banner icon provider
