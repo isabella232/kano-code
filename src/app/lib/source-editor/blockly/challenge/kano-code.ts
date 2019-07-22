@@ -12,11 +12,7 @@ import '../../../challenge/components/kc-part-api-preview.js';
 import { dataURI } from '@kano/icons-rendering/index.js';
 import { DropdownFieldStepHelper } from './helpers/dropdown.js';
 import { button } from '@kano/styles/button.js';
-import { CancellationTokenSource } from 'monaco-editor';
-import { Engine } from '../../../challenge/engine.js';
-import { IStepData } from '../../../creator/creator.js';
 import { GestureHelper } from './helpers/gesture.js';
-import Output from '../../../output/output.js';
 
 export interface IBannerIconProvider {
     getDomNode() : HTMLElement;
