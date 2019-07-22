@@ -1,9 +1,5 @@
 import { ISession } from '../utils.js';
 import { Sticker } from '../../../../parts/parts/sticker/types.js';
-import { reduceAllImages, resolve } from '../../../../util/image-stamp.js';
-import { stamps } from '../../../stamp/data.js';
-
-const all = reduceAllImages(stamps);
 
 export class Stamp {
     private session : ISession;
@@ -46,7 +42,13 @@ export class Stamp {
             session.ctx.setTransform(1, 0, 0, 1, 0, 0);
         };
         img.crossOrigin = "Anonymous";
-        img.src = resolve(all[sticker.toString()]);
+        
+        if (sticker && session.stickers && session.stickers.getUrl(sticker)) {
+            img.src = session.stickers.getUrl(sticker);
+        } else {
+            console.warn('stickers not available');
+            img.src = '';
+        }
 
     };
 

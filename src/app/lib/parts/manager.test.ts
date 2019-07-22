@@ -1,6 +1,7 @@
 import * as sinon from 'sinon/pkg/sinon-esm.js';
 import { PartsManager } from './manager.js';
 import { Output } from '../output/output.js';
+import { Resources } from '../output/resources.js';
 import { Part } from './part.js';
 import { part } from './decorators.js';
 
@@ -20,6 +21,7 @@ suite('PartsManager', () => {
     });
     test('#addPart()', () => {
         const output = new Output();
+        output.registerResources(new Resources());
         const manager = new PartsManager(output);
 
         sinon.stub(output, 'visuals').value({});

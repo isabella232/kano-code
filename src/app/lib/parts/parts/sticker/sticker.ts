@@ -1,26 +1,39 @@
 import { part, component } from '../../decorators.js';
+import { IResourceInformation } from '../../../output/resources.js';
 import { DOMPart } from '../dom/dom.js';
-import { stamps, defaultStamp } from '../../../modules/stamp/data.js';
-import { reduceAllImages, resolve } from '../../../util/image-stamp.js';
 import { transformLegacySticker } from './legacy.js';
 import { StickerComponent } from './sticker-component.js';
-import * as StampFunctions from '../../../modules/stamp/stamp.js';
-
-const all = reduceAllImages(stamps);
+import { IPartContext } from '../../part.js';
 
 @part('sticker')
 export class StickerPart extends DOMPart<HTMLDivElement> {
+    private _stickers: IResourceInformation | undefined;
     @component(StickerComponent)
     public core : StickerComponent;
     static transformLegacy(app : any) {
         transformLegacySticker(app);
     }
-    static get items() { return stamps; }
-    static get defaultSticker() { return defaultStamp; }
     constructor() {
         super();
+        this._stickers = {
+            categorisedResource: [],
+            categoryEnum: [],
+            getUrl: () => { return '' },
+            getRandom: () => { return '' },
+            getRandomFrom: () => { return '' }
+        };
         this.core = this._components.get('core') as StickerComponent;
         this.core.invalidate();
+    }
+    onInstall(context : IPartContext) {
+        if (context.resources.get('stickers')) {
+            this._stickers = context.resources.get('stickers');
+        }
+        if (this._stickers && this._stickers.default) {
+            this.core.image.set(this._stickers.default)
+            this.core.invalidate();
+        }
+        context.dom.root.appendChild(this._el);
     }
     getElement() : HTMLDivElement {
         const el = document.createElement('div');
@@ -37,11 +50,12 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         if (!this.core.invalidated) {
             return;
         }
-        
+
         const sticker = this.core.image.get();
-        if (sticker && all[sticker]) {
-            this._el.style.backgroundImage = `url(${resolve(all[sticker])})`;
+        if (sticker && this._stickers) {
+            this._el.style.backgroundImage = `url(${this._stickers.getUrl(sticker)})`;
         }
+
         this.core.apply();
     }
     renderComponents(ctx: CanvasRenderingContext2D) : Promise<void> {
@@ -51,8 +65,9 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             this.applyTransform(ctx);
         }
         const sticker = this.core.image.get();
-        if (sticker && all[sticker]) {
-            url = resolve(all[sticker]);
+        
+        if (sticker && this._stickers) {
+            url = this._stickers.getUrl(sticker);
         }
         const imageLoaded = new Promise((res) => {
             const img = new Image();
@@ -71,9 +86,13 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this.core.invalidate();
     }
     random() {
-        return StampFunctions.random;
+        if (this._stickers) {
+            return this._stickers.getRandom();
+        }
     }
     randomFrom(setId : string) {
-        return StampFunctions.randomFrom(setId);
+        if (this._stickers) {
+            return this._stickers.getRandomFrom(setId);
+        }    
     }
 }

@@ -1,12 +1,15 @@
 import { StickerPart } from './sticker.js';
-import { Sticker } from './types.js';;
+import { Sticker } from './types.js';
+import { PartContextStub } from '../../../../../test/part-context-stub.js';
 
 suite('StickerPart', () => {
     test('#render()', () => {
+        const stub = new PartContextStub();
         const nonExistingImage = '$$unknown$$';
         const existingImage = 'camel';
         const sticker = new StickerPart();
-
+        sticker.onInstall(stub);
+        
         sticker.core.image = new Sticker(nonExistingImage);
         sticker.core.invalidated = true;
 

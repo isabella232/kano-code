@@ -4,6 +4,7 @@ import { OutputModule } from './module.js';
 import { DefaultOutputViewProvider } from './default.js';
 import { Plugin, PluginLifecycleStep } from '../editor/plugin.js';
 import { OutputViewProvider, IOutputProvider } from './index.js';
+import { IResources, Resources } from './resources.js';
 import { PartsManager } from '../parts/manager.js';
 import { Part } from '../parts/part.js';
 import { Microphone } from './microphone.js';
@@ -62,6 +63,7 @@ export class Output extends PluginReceiver {
     public parts : PartsManager;
     public outputViewProvider? : IOutputProvider;
     public outputProfile? : IOutputProfile;
+    public outputResources? : IResources;
     public get visuals() : IVisualsContext {
         if (!this.outputViewProvider) {
             throw new Error('Could not get visuals: Output view was not registered');
@@ -79,6 +81,12 @@ export class Output extends PluginReceiver {
             throw new Error('Could not get DOM: Output view was not registered');
         }
         return this.outputViewProvider.getDOM();
+    }
+    public get resources() : IResources {
+        if (!this.outputResources) {
+            throw new Error('Could not get resources: Resources were not initialised');
+        }
+        return this.outputResources;
     }
     // Events
     private _onDidRunningStateChange : EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -155,6 +163,9 @@ export class Output extends PluginReceiver {
         if (this.outputProfile.parts) {
             this.outputProfile.parts.forEach(p => this.parts.registerPart(p));
         }
+    }
+    registerResources(resources : IResources) {
+        this.outputResources = resources;
     }
     ensureOutputView() {
         if (!this.outputViewProvider) {

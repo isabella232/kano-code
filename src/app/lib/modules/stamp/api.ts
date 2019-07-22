@@ -1,39 +1,38 @@
 import { IMetaDefinition } from '../../meta-api/module.js';
 import { Block } from '@kano/kwc-blockly/blockly.js';
 import { StampsField } from '../../blockly/fields/stamps-field.js';
-import { defaultStamp, stamps } from './data.js';
-import { resolve } from '../../util/image-stamp.js';
+import { _ } from '../../i18n/index.js';
+import { Editor } from '../../editor/editor.js';
 import { random, randomFrom } from './common.js';
 
-const getImage : IMetaDefinition = {
-    type: 'function',
-    name: 'getImage',
-    verbose: '',
-    parameters: [{
-        type: 'parameter',
-        name: 'sticker',
+function getImage(editor : Editor) : IMetaDefinition {
+    return {
+        type: 'function',
+        name: 'getImage',
         verbose: '',
+        parameters: [{
+            type: 'parameter',
+            name: 'sticker',
+            verbose: '',
+            returnType: 'Sticker',
+            blockly: {
+                customField() {
+                    const stickers = editor.output.resources.get('stickers')
+                    if (stickers) {
+                        const defaultSticker = stickers.default ? stickers.default : ''
+                        return new StampsField(defaultSticker, stickers.categorisedResource);
+                    }
+                },
+            },
+        }],
         returnType: 'Sticker',
         blockly: {
-            customField() {
-                const images = stamps.map((image) => {
-                    return {
-                        id: image.id,
-                        label: image.label,
-                        stickers: Object.keys(image.stickers).map(id => ({ id, src: resolve(image.stickers[id])})),
-                    };
-                });
-                return new StampsField(defaultStamp, images);
+            toolbox: false,
+            javascript(Blockly : Blockly, block: Block) {
+                const value = block.getFieldValue('STICKER');
+                return [`'${value || ""}'`, Blockly.JavaScript.ORDER_ATOMIC];
             },
-        },
-    }],
-    returnType: 'Sticker',
-    blockly: {
-        toolbox: false,
-        javascript(Blockly : Blockly, block: Block) {
-            const value = block.getFieldValue('STICKER');
-            return [`'${value || ""}'`, Blockly.JavaScript.ORDER_ATOMIC];
-        },
+        }
     }
 };
 
@@ -43,16 +42,18 @@ function hideBlock(block : IMetaDefinition) {
     return newBlock;
 }
 
-export const StampAPI = {
-    type: 'module',
-    name: 'stamp',
-    verbose: 'Stamp',
-    color: '#00c7b6',
-    symbols: [
-        getImage,
-        hideBlock(random),
-        hideBlock(randomFrom)
-    ]
+export function StampAPI (editor: Editor) {
+    return {
+        type: 'module',
+        name: 'stamp',
+        verbose: 'Stamp',
+        color: '#00c7b6',
+        symbols: [
+            getImage(editor),
+            hideBlock(random),
+            hideBlock(randomFrom(editor))
+        ]
+    }
 }
 
 export default StampAPI;

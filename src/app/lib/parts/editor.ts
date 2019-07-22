@@ -12,6 +12,9 @@ import { QueryEngine } from '../editor/selector/selector.js';
 import { IPartsControlsEntry } from '../../elements/kc-workspace-frame/kc-parts-controls.js';
 import { _ } from '../i18n/index.js';
 
+type PartAPIOrFactory = IPartAPI | IPartFactory // update this
+type IPartFactory = (editor : Editor) => IPartAPI
+
 interface IPartRecord {
     type : string;
     toolboxEntry : ToolboxEntry;
@@ -371,8 +374,13 @@ export class EditorPartsManager {
             this.editor.toolbox.whitelistEntry(partRecord.part.id, list);
         }
     }
-    registerAPI(partAPI : IPartAPI) {
-        this.apiRegistry.set(partAPI.type, partAPI);
+    registerAPI(partAPI : PartAPIOrFactory) {
+        if (typeof partAPI === 'function') {
+            const partAPIwithEditor = partAPI(this.editor);
+            this.apiRegistry.set(partAPIwithEditor.type, partAPIwithEditor);
+        } else {
+            this.apiRegistry.set(partAPI.type, partAPI);
+        }
     }
     reset() {
         this.parts.forEach((_, id) => {

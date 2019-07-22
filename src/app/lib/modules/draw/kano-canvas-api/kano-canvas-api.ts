@@ -7,6 +7,7 @@ import { Setters } from './modules/setters.js';
 import { Shapes } from './modules/shapes.js';
 import { Stamp } from './modules/stamp.js';
 import { Text } from './modules/text.js';
+import { IResourceInformation } from '../../../output/resources.js';
 import { ISession } from './utils.js';
 
 export interface ICanvasAPISettings {
@@ -14,6 +15,7 @@ export interface ICanvasAPISettings {
     width : number;
     height : number;
     ratio? : number;
+    stickers? : IResourceInformation;
 }
 
 export class Canvas {
@@ -45,6 +47,13 @@ export class Canvas {
             width: settings.width,
             height: settings.height,
             ratio: settings.ratio || 1,
+            stickers: settings.stickers || {
+                categorisedResource: [],
+                categoryEnum: [],
+                getUrl: () => { return '' },
+                getRandom: () => { return '' },
+                getRandomFrom: () => { return '' }
+            },
             pos: {
                 x: settings.width / 2,
                 y: settings.height / 2,
