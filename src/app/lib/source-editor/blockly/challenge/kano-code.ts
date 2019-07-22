@@ -28,6 +28,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     private stylesheet : HTMLStyleElement;
     private bannerTitle : string = '';
 
+
     constructor(editor : Editor) {
         super(editor);
         this.editor = editor;
@@ -351,6 +352,8 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         });
         return step;
     }
+
+
     /**
      * Defines the provider for the banner icon. This provider will define a DOM node tu use instead of the progress circle
      * @param provider A banner icon provider
