@@ -8,16 +8,13 @@ export class GestureHelper implements IStepHelper {
     enter(challenge : KanoCodeChallenge, step : IStepData): void {
         const eventsMod = challenge.editor.output.runner.getModule('events');
         this.swipeListener = eventsMod._onDidSwipe.event((type : String) => {
-            if (type == step.validation.gesture) {
-                // success.
-                challenge.nextStep();
-            }
+            challenge.triggerEvent('sw-gesture', { gesture: type });
         });
     }
     leave(challenge : KanoCodeChallenge, step : IStepData) : void {
         if (this.swipeListener) this.swipeListener.dispose();
     }
     test(challenge : KanoCodeChallenge, step : IStepData) {
-        return step.validation && step.validation.gesture;
+        return step.validation && step.validation['sw-gesture'];
     }
 }
