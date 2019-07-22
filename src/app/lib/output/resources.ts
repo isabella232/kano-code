@@ -165,17 +165,13 @@ export class Resource implements IResourceInformation {
 }
 
 export class Resources implements IResources {
-    stickers: IResourceInformation;
+    resources: Map <string, IResourceInformation>
     constructor() {
-        this.stickers = new Resource;
+        this.resources = new Map();
+        this.resources.set('stickers', new Resource);
     }
 
     get(id: string) {
-        if (id === 'stickers') {
-            return this.stickers;
-        } else {
-            console.warn('Unknown resource requested');
-            return
-        }
+        return this.resources.get(id)
     }
 }

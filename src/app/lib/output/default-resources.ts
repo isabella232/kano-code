@@ -579,6 +579,6 @@ class defaultStickers extends Resource {
 export class defaultResources extends Resources{
     constructor() {
         super();
-        this.stickers = new defaultStickers;
+        this.resources.set('stickers', new defaultStickers);
     }
 }
