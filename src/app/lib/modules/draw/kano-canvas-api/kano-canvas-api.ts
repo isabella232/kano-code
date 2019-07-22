@@ -52,7 +52,8 @@ export class Canvas {
                 categoryEnum: [],
                 getUrl: () => { return '' },
                 getRandom: () => { return '' },
-                getRandomFrom: () => { return '' }
+                getRandomFrom: () => { return '' },
+                cacheValue: () => { return new HTMLImageElement()}
             },
             pos: {
                 x: settings.width / 2,

@@ -42,7 +42,8 @@ export class MousePart extends Part {
             categoryEnum: [],
             getUrl: () => { return '' },
             getRandom: () => { return '' },
-            getRandomFrom: () => { return '' }
+            getRandomFrom: () => { return '' },
+            cacheValue: () => { return new HTMLImageElement() }
         };
     }
     onInstall(context : IPartContext) {

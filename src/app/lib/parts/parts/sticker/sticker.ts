@@ -20,7 +20,8 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             categoryEnum: [],
             getUrl: () => { return '' },
             getRandom: () => { return '' },
-            getRandomFrom: () => { return '' }
+            getRandomFrom: () => { return '' },
+            cacheValue: () => { return new HTMLImageElement() }
         };
         this.core = this._components.get('core') as StickerComponent;
         this.core.invalidate();

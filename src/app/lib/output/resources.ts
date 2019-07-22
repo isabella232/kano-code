@@ -37,6 +37,7 @@ export interface IResourceInformation {
     getUrl : (id: string | Sticker | null) => string,
     getRandom : () => string,
     getRandomFrom : (id: string) => string,
+    cacheValue: (id: string | Sticker) => HTMLImageElement | undefined
 }
 
 export interface IResources {
@@ -44,11 +45,12 @@ export interface IResources {
     get: (id: string) => IResourceInformation | undefined
 }
 
-export class Resource implements IResourceInformation {
+export class Resource<T> implements IResourceInformation {
     default : string;
     categories : { [key : string]: IResourceCategory };
     all: IResource[];
     allCategorised: IResourceArrayWithSrc[];
+    cache = new Map<string | Sticker, T>()
 
     constructor() {
         this.default = '';
@@ -124,6 +126,34 @@ export class Resource implements IResourceInformation {
         return Object.keys(this.categories).map<[string, string]>(category => [this.categories[category].label, this.categories[category].id])
     }
 
+    cacheValue(id: string | Sticker, type = 'image') {
+        if (type != 'image') {
+            console.warn('cached item type not recognised')
+            return
+        }
+
+        if (this.cache.get(id)) {
+            return this.cache.get(id)
+        }
+
+        const newImage = this.syncLoadImg(this.getUrl(id))
+
+        this.cache.set(id, newImage);
+        return newImage
+    }
+
+    syncLoadImg(src : string, timeout = 500) {
+        const img = new Image();
+        const started = Date.now();
+        img.src = src;
+        while(true) {
+            if (img.complete || img.naturalWidth || Date.now() - started > timeout) {
+                break;
+            }
+        }
+        return img;
+    }
+
     getRandom() {
         return this.resourceSet[Math.floor(Math.random() * this.resourceSet.length)].id;
     }
@@ -168,7 +198,7 @@ export class Resources implements IResources {
     resources: Map <string, IResourceInformation>
     constructor() {
         this.resources = new Map();
-        this.resources.set('stickers', new Resource);
+        this.resources.set('stickers', new Resource<HTMLImageElement>());
     }
 
     get(id: string) {

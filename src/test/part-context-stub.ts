@@ -2,7 +2,7 @@ import { IVisualsContext, IAudioContext, IDOMContext } from '../app/lib/output/o
 import { IResources } from '../app/lib/output/resources.js';
 import { Microphone } from '../app/lib/output/microphone.js';
 import { IEvent } from '@kano/common/index.js';
-import { defaultResources } from '../app/lib/output/default-resources.js';
+import { DefaultResources } from '../app/lib/output/default-resources.js';
 
 function stub(target : any, key : string, descriptor : any) {
     const originalMethod = descriptor.value;
@@ -58,7 +58,7 @@ export class PartContextStub {
             root: document.createElement('div'),
             onDidResize: (() => {}) as unknown as IEvent<void>,
         };
-        this.resources = new defaultResources;
+        this.resources = new DefaultResources;
     }
     wasCalled(stub : any, args? : any[]) : boolean {
         const calls = this.getCalls(stub);
