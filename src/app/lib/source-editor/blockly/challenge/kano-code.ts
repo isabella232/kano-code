@@ -16,6 +16,7 @@ import { CancellationTokenSource } from 'monaco-editor';
 import { Engine } from '../../../challenge/engine.js';
 import { IStepData } from '../../../creator/creator.js';
 import { GestureHelper } from './helpers/gesture.js';
+import Output from '../../../output/output.js';
 
 export interface IBannerIconProvider {
     getDomNode() : HTMLElement;
@@ -31,6 +32,7 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     public progress : number = 0;
     private stylesheet : HTMLStyleElement;
     private bannerTitle : string = '';
+    protected gestureHelperCallback? : CallableFunction;
 
     constructor(editor : Editor) {
         super(editor);
@@ -65,8 +67,10 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         this.editor.domNode.shadowRoot!.appendChild(button.content.cloneNode(true));
 
         this.helpers.push(new DropdownFieldStepHelper());
-
         this.helpers.push(new GestureHelper());
+    }
+    setGestureHelperCallback(callback : CallableFunction) {
+        this.gestureHelperCallback = callback;
     }
     /**
      * Parses the provided text, extract and replace eventual template values with preview widgets.
@@ -360,8 +364,12 @@ export class KanoCodeChallenge extends BlocklyChallenge {
     }
 
     _swGestureShorthand(data : any) {
-        // @TODO replace video link. Placeholder at the moment.
-        const text = `This is for the *${data.gesture}* gesture <video width="250" height="180" autoplay><source src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" /></video>`;
+        if (!this.gestureHelperCallback) {
+            throw new Error('No gesture helper callback registered.')
+        }
+        const src = this.gestureHelperCallback(data.gesture);
+
+        const text = `This is how to do a *${data.gesture}* gesture <video width="250" height="180" autoplay><source src="${src}" /></video>`;
         return {
             "validation": {
                 "gesture": data.gesture
