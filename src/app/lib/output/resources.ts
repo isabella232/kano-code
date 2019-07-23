@@ -50,7 +50,7 @@ export class Resource<T> implements IResourceInformation {
     categories : { [key : string]: IResourceCategory };
     all: IResource[];
     allCategorised: IResourceArrayWithSrc[];
-    cache = new Map<string | Sticker, T>()
+    cache = new Map<string | Sticker, HTMLImageElement | undefined>()
 
     constructor() {
         this.default = '';
