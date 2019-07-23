@@ -42,7 +42,7 @@ export class Stamp {
                 session.pos.x - (stamp.width * percent / 2),
                 session.pos.y - (stamp.height * percent / 2),
                 scale * stamp.height * percent,
-                stamp.width / (scale * percent),
+                (stamp.width / scale) * percent,
             );
     
             // reset transformation
