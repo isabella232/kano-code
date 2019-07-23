@@ -39,15 +39,15 @@ export class Stamp {
     
             session.ctx.drawImage(
                 stamp,
-                session.pos.x - stamp.width * percent / 2,
-                session.pos.y - stamp.height * percent / 2,
+                session.pos.x - (stamp.width * percent / 2),
+                session.pos.y - (stamp.height * percent / 2),
                 scale * stamp.height * percent,
-                stamp.width / scale * percent,
+                stamp.width / (scale * percent),
             );
     
             // reset transformation
             session.ctx.translate(previousX, previousY);
-            session.ctx.rotate(-rotation * Math.PI / 180);
+            session.ctx.rotate(-rotation * (Math.PI / 180));
             session.ctx.moveTo(0,0);
             session.ctx.translate(-previousX, -previousY);
         }

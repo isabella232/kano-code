@@ -127,7 +127,7 @@ export class Resource<T> implements IResourceInformation {
     }
 
     cacheValue(id: string | Sticker, type = 'image') {
-        if (type != 'image') {
+        if (type !== 'image') {
             console.warn('cached item type not recognised')
             return
         }
@@ -142,7 +142,7 @@ export class Resource<T> implements IResourceInformation {
         return newImage
     }
 
-    syncLoadImg(src : string, timeout = 500) {
+    syncLoadImg(src : string, timeout = 50) {
         const img = new Image();
         const started = Date.now();
         img.src = src;
