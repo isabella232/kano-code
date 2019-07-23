@@ -18,45 +18,42 @@ export class Stamp {
         const previousX = this.session.pos.x;
         const previousY = this.session.pos.y;
         const percent = size / 100;
-        const img = new Image;
         const session = this.session;
         
         if (!sticker) {
             return;
         }
 
-        img.onload = function() {
-            const scale = img.width / img.height;
+        if (session && session.stickers) {
+            const stamp = session.stickers.cacheValue(sticker);
+
+            if (!stamp) {
+                return
+            }
+    
+            const scale = stamp.width / stamp.height;
             session.ctx.translate(previousX, previousY);
             session.ctx.moveTo(0,0);
             session.ctx.rotate(rotation * Math.PI / 180);
             session.ctx.translate(-previousX, -previousY);
-
+    
             session.ctx.drawImage(
-                img,
-                session.pos.x,session.pos.y,
-                scale * img.height * percent,
-                img.width / scale * percent,
+                stamp,
+                session.pos.x - (stamp.width * percent / 2),
+                session.pos.y - (stamp.height * percent / 2),
+                scale * stamp.height * percent,
+                stamp.width / (scale * percent),
             );
-
-            session.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        };
-        img.crossOrigin = "Anonymous";
-        
-        if (sticker && session.stickers && session.stickers.getUrl(sticker)) {
-            img.src = session.stickers.getUrl(sticker);
-        } else {
-            console.warn('stickers not available');
-            img.src = '';
+    
+            // reset transformation
+            session.ctx.translate(previousX, previousY);
+            session.ctx.rotate(-rotation * (Math.PI / 180));
+            session.ctx.moveTo(0,0);
+            session.ctx.translate(-previousX, -previousY);
         }
 
-    };
 
-    /*
-    * Selects a random image from the sticker list
-    *
-    * @return void
-    */
+    };
 };
 
 export default Stamp;

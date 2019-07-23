@@ -1,6 +1,6 @@
 import { Resource, Resources } from './resources.js'
 
-class defaultStickers extends Resource {
+class DefaultStickers extends Resource<HTMLImageElement> {
     constructor() {
         super();
         this.default = 'crocodile';
@@ -576,9 +576,9 @@ class defaultStickers extends Resource {
     }
 }
 
-export class defaultResources extends Resources{
+export class DefaultResources extends Resources{
     constructor() {
         super();
-        this.resources.set('stickers', new defaultStickers);
+        this.resources.set('stickers', new DefaultStickers());
     }
 }
