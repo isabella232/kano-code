@@ -2,6 +2,7 @@ import { Briefing } from '../../../briefing/briefing.js';
 import { registerBriefing } from '../../../briefing/index.js';
 import { BriefingFloatingMenu } from './widget/floating-menu.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
+import { _ } from '../../../i18n/index.js';
 
 export class BlocklyBriefing extends Briefing {
     resetConfirm? : Confirm;
@@ -9,9 +10,9 @@ export class BlocklyBriefing extends Briefing {
     getResetConfirm() {
         if (!this.resetConfirm) {
             this.resetConfirm = this.editor.dialogs.registerConfirm({
-                buttonLabel: 'Confirm',
-                heading: 'Are you sure you want to reset your briefing?',
-                text: 'You will loose all your changes',
+                buttonLabel: _('DIALOG_RESET_BRIEFING_LABEL', 'Confirm'),
+                heading: _('DIALOG_RESET_BRIEFING_HEADING', 'Are you sure you want to reset your briefing?'),
+                text: _('DIALOG_RESET_BRIEFING_TEXT', 'You will lose all your changes'),
             });
             this.resetConfirm.onDidConfirm(() => this.reset());
         }

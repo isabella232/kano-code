@@ -29,9 +29,9 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
                 description: 'Bow to the creation king!!!'
             }],
         });
-        editor.inject(document.body);
-
+        
         editor.onDidInject(() => {
             remix.start();
         });
+        editor.inject(document.body);
     });

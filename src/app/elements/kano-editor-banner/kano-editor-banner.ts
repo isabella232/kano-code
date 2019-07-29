@@ -105,10 +105,10 @@ export class KCEditorBanner extends LitElement {
             <div class="title">${this.title}</div>
         </div>
         <div class="content">
-            <slot name="avatar"></slot>
             <div class="markdown-html" id="markdown-html">
                 ${marked(this.text)}
             </div>
+            <slot name="content"></slot>
             <slot name="actions" class="actions"></slot>
         </div>
         <!-- @TODO are we supporting remix for first release? should they have their own banner given markup design differ? -->

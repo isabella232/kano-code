@@ -1,6 +1,7 @@
 import { RemixFloatingMenu } from './widget/floating-menu.js';
 import { registerRemix, IRemix, Remix } from '../../../remix/index.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
+import { _ } from '../../../i18n/index.js';
 
 export class BlocklyRemix extends Remix {
     resetConfirm? : Confirm;
@@ -9,9 +10,9 @@ export class BlocklyRemix extends Remix {
     getResetConfirm() {
         if (!this.resetConfirm) {
             this.resetConfirm = this.editor.dialogs.registerConfirm({
-                buttonLabel: 'Confirm',
-                heading: 'Are you sure you want to reset your remix?',
-                text: 'You will loose all your changes',
+                buttonLabel: _('DIALOG_RESET_REMIX_LABEL', 'Confirm'),
+                heading: _('DIALOG_RESET_REMIX_HEADING', 'Are you sure you want to reset your remix?'),
+                text: _('DIALOG_RESET_REMIX_TEXT', 'You will lose all your changes'),
             });
             this.resetConfirm.onDidConfirm(() => this.reset());
         }
@@ -29,6 +30,7 @@ export class BlocklyRemix extends Remix {
             return;
         }
         this.menu = new RemixFloatingMenu(this.data.title, this.data.suggestions);
+        this.menu.addEntry();
         this.menu.onDidSelectSuggestion((s) => this.selectSuggestion(s));
         this.menu.onDidRequestReset(() => {
             const dialog = this.getResetConfirm();

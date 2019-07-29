@@ -1,12 +1,13 @@
 import '@kano/styles/typography.js';
-import { customElement, html, property, css } from 'lit-element/lit-element.js';
+import { customElement, html, property, css, LitElement } from 'lit-element/lit-element.js';
 import { classMap } from 'lit-html/directives/class-map';
 import { IRemixSuggestion } from '../../../../remix/remix.js';
 import { EventEmitter, subscribeDOM } from '@kano/common/index.js';
-import { KCBriefingFloatingMenu, BriefingFloatingMenu } from '../../briefing/widget/floating-menu.js';
+import { BriefingFloatingMenu } from '../../briefing/widget/floating-menu.js';
+import { _ } from '../../../../i18n/index.js';
 
-@customElement('kc-remix-floating-menu')
-export class KCRemixFloatingMenu extends KCBriefingFloatingMenu {
+@customElement('kc-remix-suggestions')
+export class KCRemixSuggestions extends LitElement {
 
     @property({ type: Array })
     suggestions : string[] = [];
@@ -16,7 +17,7 @@ export class KCRemixFloatingMenu extends KCBriefingFloatingMenu {
 
     static get styles() {
         return [css`
-            .content>button {
+            button {
                 background: transparent;
                 border: none;
                 cursor: pointer;
@@ -30,29 +31,25 @@ export class KCRemixFloatingMenu extends KCBriefingFloatingMenu {
                 padding: 8px;
                 margin-bottom: 4px;
             }
-            .content>button:focus,
-            .content>button:hover,
-            .content>button.selected {
+            button:focus,
+            button:hover,
+            button.selected {
                 background: var(--color-stone);
                 outline: none;
             }
-        `].concat(KCBriefingFloatingMenu.styles);
+        `]
     }
-    renderActions() {
-        return html`
-            <button class="btn secondary" @click=${() => this._onResetClick()}>Reset</button>
-            <button class="btn secondary" @click=${() => this._onDoneClick()}>I'm done</button>
-            <button class="btn secondary" @click=${() => this._onExamplesClick()}>Examples</button>
-        `;
-    }
-    _onExamplesClick() {
-        this.dispatchEvent(new CustomEvent('examples-clicked'));
-    }
-    renderContent() {
+
+    renderSuggestions() {
         return this.suggestions.map((s, index) => html`
             <button @click=${() => this._onClick(index)} class=${classMap({ selected: this.selectedSuggestionIndex === index })}>${s}</button>
         `);
     }
+
+    render() {
+        return html`${this.renderSuggestions()}`;
+    }
+
     _onClick(index : number) {
         this.dispatchEvent(new CustomEvent('suggestion-clicked', { detail: index }));
     }
@@ -60,7 +57,6 @@ export class KCRemixFloatingMenu extends KCBriefingFloatingMenu {
 
 export class RemixFloatingMenu extends BriefingFloatingMenu {
     protected suggestions : IRemixSuggestion[];
-    protected menuNode? : KCRemixFloatingMenu;
 
     protected _onDidSelectSuggestion : EventEmitter<IRemixSuggestion> = new EventEmitter();
     get onDidSelectSuggestion() { return this._onDidSelectSuggestion.event; }
@@ -70,31 +66,32 @@ export class RemixFloatingMenu extends BriefingFloatingMenu {
 
     constructor(title: string, suggestions : IRemixSuggestion[]) {
         super(title);
-        this.title = 'Remix list';
         this.suggestions = suggestions;
+        const examplesBtn = this.addButton(_('EXAMPLES_BUTTON', 'Examples'));
+        examplesBtn.onDidClick(() => { 
+            this._onDidRequestExamples.fire(); 
+        });
     }
-    getMenuNode() {
-        if (!this.menuNode) {
-            this.menuNode = new KCRemixFloatingMenu();
-            this.menuNode.title = this.title;
-            this.menuNode.header = this.header;
-            this.menuNode.suggestions = this.suggestions.map(s => s.title);
-            subscribeDOM(this.menuNode, 'suggestion-clicked', (e : CustomEvent<number>) => {
-                if (this.menuNode) {
-                    this.menuNode.selectedSuggestionIndex = e.detail;
-                }
-                const suggestion = this.suggestions[e.detail];
-                this._onDidSelectSuggestion.fire(suggestion);
-            }, this, this.subscriptions);
-            subscribeDOM(this.menuNode, 'reset-clicked', () => this._onDidRequestReset.fire(), this, this.subscriptions);
-            subscribeDOM(this.menuNode, 'examples-clicked', () => this._onDidRequestExamples.fire(), this, this.subscriptions);
-            subscribeDOM(this.menuNode, 'done-clicked', () => this._onDidEnd.fire(), this, this.subscriptions);
-        }
-        return this.menuNode;
+
+    addEntry() {
+        const domNode = this.getBannerEl();
+        const suggestionsElement = document.createElement('kc-remix-suggestions') as KCRemixSuggestions;
+        suggestionsElement.slot = 'content';
+        suggestionsElement.suggestions = this.suggestions.map(s => s.title);
+        subscribeDOM(suggestionsElement, 'suggestion-clicked', (e : CustomEvent) => { 
+            const suggestion = this.suggestions[e.detail];
+            if (!suggestion) {
+                return
+            }
+
+            this._onDidSelectSuggestion.fire(suggestion);
+        });
+        domNode.appendChild(suggestionsElement);
     }
+
     deselectSuggestion() {
-        if (this.menuNode) {
-            this.menuNode.selectedSuggestionIndex = -1;
-        }
+        // if (this.menuNode) {
+        //     this.menuNode.selectedSuggestionIndex = -1;
+        // }
     }
 }

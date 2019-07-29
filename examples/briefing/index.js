@@ -13,9 +13,12 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
             id: '001_brief',
             instruction: 'Hello people, hahahahahahaha HAHAHAHAHA HAHAAHAHAH Lol',
         });
-        editor.inject(document.body);
-
+        briefing.onDidEnd(() => {
+            console.log('requested end');
+        })
+        
         editor.onDidInject(() => {
             briefing.start();
         });
+        editor.inject(document.body);
     });
