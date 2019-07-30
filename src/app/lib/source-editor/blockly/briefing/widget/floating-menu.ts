@@ -14,6 +14,7 @@ export class BriefingFloatingMenu extends BannerWidget {
 
     constructor(title: string) {
         super();
+        this.setTitle(_('BRIEFING', 'Briefing'));
         this.setText(title);
         const resetBtn = this.addButton(_('RESET_BUTTON', 'Reset'));
         resetBtn.onDidClick(() => {this._onDidRequestReset.fire()});

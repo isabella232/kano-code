@@ -6,7 +6,6 @@ import { marked } from '../../lib/directives/marked.js';
 import '../kano-blockly-block/kano-blockly-block.js';
 import './kano-value-preview.js';
 import { challengeStyles } from '../../lib/challenge/styles.js';
-
 @customElement('kc-editor-banner')
 export class KCEditorBanner extends LitElement {
 
@@ -36,6 +35,10 @@ export class KCEditorBanner extends LitElement {
                 width: 56px;
                 height: 56px;
                 margin-bottom: 25px;
+            }
+
+            slot[name="actions"]::slotted(*) {
+                margin-right: 8px;
             }
         
             .content {

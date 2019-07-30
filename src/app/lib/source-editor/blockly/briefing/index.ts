@@ -2,11 +2,12 @@ import { Briefing } from '../../../briefing/briefing.js';
 import { registerBriefing } from '../../../briefing/index.js';
 import { BriefingFloatingMenu } from './widget/floating-menu.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
+import { button } from '@kano/styles/button.js';
 import { _ } from '../../../i18n/index.js';
-
 export class BlocklyBriefing extends Briefing {
     resetConfirm? : Confirm;
     menu? : BriefingFloatingMenu;
+    
     getResetConfirm() {
         if (!this.resetConfirm) {
             this.resetConfirm = this.editor.dialogs.registerConfirm({
@@ -23,9 +24,12 @@ export class BlocklyBriefing extends Briefing {
     }
     start() {
         super.start();
+        this.editor.domNode.shadowRoot!.appendChild(button.content.cloneNode(true));
+
         if (!this.data) {
             return;
         }
+        console.log(this.data)
         this.menu = new BriefingFloatingMenu(this.data.instruction || '');
         this.menu.onDidRequestReset(() => {
             const dialog = this.getResetConfirm();

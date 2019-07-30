@@ -1,6 +1,7 @@
 import { RemixFloatingMenu } from './widget/floating-menu.js';
 import { registerRemix, IRemix, Remix } from '../../../remix/index.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
+import { button } from '@kano/styles/button.js';
 import { _ } from '../../../i18n/index.js';
 
 export class BlocklyRemix extends Remix {
@@ -26,6 +27,8 @@ export class BlocklyRemix extends Remix {
     }
     start() {
         super.start();
+        this.editor.domNode.shadowRoot!.appendChild(button.content.cloneNode(true));
+
         if (!this.data) {
             return;
         }
