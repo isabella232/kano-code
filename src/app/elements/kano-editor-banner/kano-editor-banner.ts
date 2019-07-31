@@ -37,9 +37,6 @@ export class KCEditorBanner extends LitElement {
                 margin-bottom: 25px;
             }
 
-            slot[name="actions"]::slotted(*) {
-                margin-right: 8px;
-            }
         
             .content {
                 flex-direction: column;
@@ -48,9 +45,14 @@ export class KCEditorBanner extends LitElement {
                 color: #22272D;
                 padding: 12px;
             }
+
             .actions::slotted(*) {
                 margin-top: 12px;
             }
+            .actions::slotted(.reset) {
+                float: right;
+            }
+            
             .title {
                 color: var(--color-grey);
                 font-weight: bold;
