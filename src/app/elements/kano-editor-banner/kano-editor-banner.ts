@@ -106,6 +106,7 @@ export class KCEditorBanner extends LitElement {
             <slot name="block-button"></slot>
             <slot name="avatar"></slot>
             <div class="title">${this.title}</div>
+            <slot name="heading-action"></slot>
         </div>
         <div class="content">
             <div class="markdown-html" id="markdown-html">
@@ -114,12 +115,6 @@ export class KCEditorBanner extends LitElement {
             <slot name="content"></slot>
             <slot name="actions" class="actions"></slot>
         </div>
-        <!-- @TODO are we supporting remix for first release? should they have their own banner given markup design differ? -->
-        <!-- <div class="block remix">
-            <slot name="title-remix" class="title-remix"></slot>
-            <slot name="tips" class="tips"></slot>
-            <slot name="block-remix-actions" class="actions"></slot>
-        </div> -->
 `;
     }
 }

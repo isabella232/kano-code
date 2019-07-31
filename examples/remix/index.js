@@ -28,7 +28,15 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
                 img: 'https://s3-eu-west-1.amazonaws.com/world.kano.me/share-items/covers/5cc9612132dd0f1555fff373.gif',
                 description: 'Bow to the creation king!!!'
             }],
+            nextChallengeButton: 'Onwards to the next adventure!'
         });
+
+        remix.onDidEnd(() => {
+            console.log('requested end');
+        })
+        remix.onDidRequestNextChallenge(() => {
+            console.log('go to next challenge');
+        })
         
         editor.onDidInject(() => {
             remix.start();

@@ -12,14 +12,26 @@ export class BriefingFloatingMenu extends BannerWidget {
     protected _onDidEnd : EventEmitter = new EventEmitter();
     get onDidEnd() { return this._onDidEnd.event; }
 
-    constructor(title: string) {
+    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
+    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
+
+    constructor(text: string, nextChallenge : string | Boolean) {
         super();
         this.setTitle(_('BRIEFING', 'Briefing'));
-        this.setText(title);
+        this.setText(text);
+
         const resetBtn = this.addButton(_('RESET_BUTTON', 'Reset'));
         resetBtn.onDidClick(() => {this._onDidRequestReset.fire()});
-        const endBtn = this.addButton(_('FINISH_BUTTON', 'Finish'));
-        endBtn.onDidClick(() => {this._onDidEnd.fire()});
+        
+        if (nextChallenge) {
+            const nextChallengeButton = this.addButton(typeof nextChallenge === 'string' ? nextChallenge : _('NEXT_CHALLENGE_BUTTON', 'Next Challenge'));
+            nextChallengeButton.onDidClick(() => {
+                this._onDidRequestNextChallenge.fire()
+            });
+        } else {
+            const endBtn = this.addButton(_('FINISH_BUTTON', 'Finish'));
+            endBtn.onDidClick(() => {this._onDidEnd.fire()});
+        }
     }
     dispose() {
         this.subscriptions.forEach(d => d.dispose());

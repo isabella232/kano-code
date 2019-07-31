@@ -8,6 +8,9 @@ export abstract class ChallengeBase {
     protected _onDidEnd = new EventEmitter();
     get onDidEnd() { return this._onDidEnd.event; }
 
+    protected _onDidRequestShare = new EventEmitter();
+    get onDidRequestShare() { return this._onDidRequestShare.event; }
+
     constructor(editor : Editor) {
         this.editor = editor;
     }

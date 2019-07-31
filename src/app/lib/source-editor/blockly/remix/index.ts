@@ -2,12 +2,17 @@ import { RemixFloatingMenu } from './widget/floating-menu.js';
 import { registerRemix, IRemix, Remix } from '../../../remix/index.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
 import { button } from '@kano/styles/button.js';
+import { EventEmitter } from '@kano/common/index.js';
 import { _ } from '../../../i18n/index.js';
 
 export class BlocklyRemix extends Remix {
     resetConfirm? : Confirm;
     menu? : RemixFloatingMenu;
     data? : IRemix;
+
+    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
+    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
+
     getResetConfirm() {
         if (!this.resetConfirm) {
             this.resetConfirm = this.editor.dialogs.registerConfirm({
@@ -32,9 +37,14 @@ export class BlocklyRemix extends Remix {
         if (!this.data) {
             return;
         }
-        this.menu = new RemixFloatingMenu(this.data.title, this.data.suggestions);
+        this.menu = new RemixFloatingMenu(
+            this.data.title,
+            this.data.suggestions,
+            this.data.nextChallengeButton ? this.data.nextChallengeButton : false
+        );
         this.menu.addEntry();
         this.menu.onDidSelectSuggestion((s) => this.selectSuggestion(s));
+        this.menu.onDidDeselectSuggestion(() => super.deselectSuggestion());
         this.menu.onDidRequestReset(() => {
             const dialog = this.getResetConfirm();
             dialog.open();
@@ -46,6 +56,7 @@ export class BlocklyRemix extends Remix {
             this.dialog.open();
         });
         this.menu.onDidEnd(() => this._onDidEnd.fire());
+        this.menu.onDidRequestNextChallenge(() => this._onDidRequestNextChallenge.fire())
         this.editor.addContentWidget(this.menu);
     }
     deselectSuggestion() {

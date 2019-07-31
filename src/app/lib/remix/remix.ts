@@ -19,6 +19,7 @@ export interface IRemix {
     app : any;
     suggestions : IRemixSuggestion[];
     samples : IRemixSample[];
+    nextChallengeButton? : string | Boolean;
 }
 
 export class Remix extends ChallengeBase {
@@ -33,7 +34,6 @@ export class Remix extends ChallengeBase {
             throw new Error('Could not start challenge: No data was provided');
         }
         this.dialog = this.editor.dialogs.registerDialog(new RemixDialogProvider(this.data));
-        // this.dialog.open();
         this.editor.load(this.data.app);
     }
     selectSuggestion(suggestion : IRemixSuggestion) {

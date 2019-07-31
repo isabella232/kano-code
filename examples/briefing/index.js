@@ -12,9 +12,13 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
         briefing.setData({
             id: '001_brief',
             instruction: 'Hello people, hahahahahahaha HAHAHAHAHA HAHAAHAHAH Lol',
+            nextChallengeButton: 'try another challenge',
         });
         briefing.onDidEnd(() => {
             console.log('requested end');
+        })
+        briefing.onDidRequestNextChallenge(() => {
+            console.log('go to next challenge');
         })
         
         editor.onDidInject(() => {

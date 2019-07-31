@@ -57,6 +57,30 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
         node.slot = 'avatar';
         bannerEl.appendChild(node);
     }
+    addMenuButton(text : string) {
+        const bannerEl = this.getBannerEl();
+        const el = document.createElement('button');
+        el.textContent = text;
+        el.slot = 'heading-action';
+        el.classList.add('btn');
+
+        bannerEl.appendChild(el);
+
+        const emitter = new EventEmitter();
+
+        const sub = subscribeDOM(el, 'click', () => emitter.fire());
+
+        const button = {
+            dispose: () => {
+                el.remove();
+                emitter.dispose();
+                sub.dispose();
+            },
+            onDidClick: emitter.event,
+        };
+
+        return button;
+    }
     addButton(text : string, primary = false) {
         const bannerEl = this.getBannerEl();
         const el = document.createElement('button');

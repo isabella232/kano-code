@@ -30,11 +30,12 @@ export class KCRemixSuggestions extends LitElement {
                 padding: 8px;
                 width: 100%;
             }
-            button:focus,
-            button:hover,
+            button:focus {
+                outline: none;
+            }
+            button:hover, 
             button.selected {
                 background: var(--color-stone);
-                outline: none;
             }
             button:first-child {
                 margin-top: 8px;
@@ -49,13 +50,13 @@ export class KCRemixSuggestions extends LitElement {
     renderSuggestions() {
         return this.suggestions.map((s, index) => html`
             <button @click=${() => this._onClick(index)} class=${classMap({ selected: this.selectedSuggestionIndex === index })}>${s}</button>
-        `);
+            `);
     }
-
+    
     render() {
         return html`${this.renderSuggestions()}`;
     }
-
+    
     _onClick(index : number) {
         this.dispatchEvent(new CustomEvent('suggestion-clicked', { detail: index }));
     }
@@ -63,18 +64,22 @@ export class KCRemixSuggestions extends LitElement {
 
 export class RemixFloatingMenu extends BriefingFloatingMenu {
     protected suggestions : IRemixSuggestion[];
-
+    protected menuNode: KCRemixSuggestions | undefined;
+    
     protected _onDidSelectSuggestion : EventEmitter<IRemixSuggestion> = new EventEmitter();
     get onDidSelectSuggestion() { return this._onDidSelectSuggestion.event; }
+
+    protected _onDidDeselectSuggestion : EventEmitter = new EventEmitter();
+    get onDidDeselectSuggestion() { return this._onDidDeselectSuggestion.event; }
 
     protected _onDidRequestExamples : EventEmitter = new EventEmitter();
     get onDidRequestExamples() { return this._onDidRequestExamples.event; }
 
-    constructor(title: string, suggestions : IRemixSuggestion[]) {
-        super(title);
+    constructor(title: string, suggestions : IRemixSuggestion[], nextChallenge: string | Boolean) {
+        super(title, nextChallenge);
         this.suggestions = suggestions;
         this.setTitle(_('REMIX', 'Remix'));
-        const examplesBtn = this.addButton(_('EXAMPLES_BUTTON', 'Examples'));
+        const examplesBtn = this.addMenuButton(_('EXAMPLES_BUTTON', 'Examples'));
         examplesBtn.onDidClick(() => { 
             this._onDidRequestExamples.fire(); 
         });
@@ -91,14 +96,22 @@ export class RemixFloatingMenu extends BriefingFloatingMenu {
                 return
             }
 
-            this._onDidSelectSuggestion.fire(suggestion);
+            if (suggestionsElement.selectedSuggestionIndex === e.detail) {
+                this.deselectSuggestion();
+            } else {
+                this._onDidSelectSuggestion.fire(suggestion);
+                suggestionsElement.selectedSuggestionIndex = e.detail;
+            }
+
         });
+        this.menuNode = suggestionsElement;
         domNode.appendChild(suggestionsElement);
     }
 
     deselectSuggestion() {
-        // if (this.menuNode) {
-        //     this.menuNode.selectedSuggestionIndex = -1;
-        // }
+        if (this.menuNode) {
+            this.menuNode.selectedSuggestionIndex = -1;
+        }
+        this._onDidDeselectSuggestion.fire();
     }
 }
