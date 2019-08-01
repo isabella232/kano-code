@@ -43,6 +43,11 @@ export class BlocklyRemix extends Remix {
             this.data.nextChallengeButton ? this.data.nextChallengeButton : false
         );
         this.menu.addEntry();
+        if (this.data.icon) {
+            const domNode = this.data.icon.getDomNode();
+            this.menu.setIconNode(domNode);
+        }
+
         this.menu.onDidSelectSuggestion((s) => this.selectSuggestion(s));
         this.menu.onDidDeselectSuggestion(() => super.deselectSuggestion());
         this.menu.onDidRequestReset(() => {

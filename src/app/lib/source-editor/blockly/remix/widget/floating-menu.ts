@@ -4,6 +4,7 @@ import { classMap } from 'lit-html/directives/class-map';
 import { IRemixSuggestion } from '../../../../remix/remix.js';
 import { EventEmitter, subscribeDOM } from '@kano/common/index.js';
 import { BriefingFloatingMenu } from '../../briefing/widget/floating-menu.js';
+import { circle } from '@kano/icons/ui.js';
 import { _ } from '../../../../i18n/index.js';
 
 @customElement('kc-remix-suggestions')
@@ -42,15 +43,34 @@ export class KCRemixSuggestions extends LitElement {
                 border-top: 1px solid var(--color-grey);
             }
             button:last-child {
-                margin-bottom: 16px;
+                margin-bottom: 8px;
+            }
+
+            .suggestion-circle {
+                width: 12px;
+                fill: var(--color-stone);
+                margin-right: 4px;
+            }
+
+            .selected .suggestion-circle {
+                fill: var(--color-candlelight);
+                stroke: var(--color-pumpkin);
             }
         `]
     }
 
     renderSuggestions() {
-        return this.suggestions.map((s, index) => html`
-            <button @click=${() => this._onClick(index)} class=${classMap({ selected: this.selectedSuggestionIndex === index })}>${s}</button>
-            `);
+        return this.suggestions.map((s, index) => {
+            const instance = circle.content.cloneNode(true);
+            return html`
+            <button @click=${() => this._onClick(index)} class=${classMap({ selected: this.selectedSuggestionIndex === index })}>
+                <svg class="suggestion-circle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    ${instance}
+                </svg>
+                ${s}
+            </button>
+            `
+            });
     }
     
     render() {

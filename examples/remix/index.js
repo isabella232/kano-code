@@ -9,13 +9,15 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
     .then(() => {
         const editor = new code.Editor({ sourceType: 'blockly' });
         const remix = challenge.createRemix(editor);
+        const img = document.createElement('img');
+        img.src = '/examples/assets/sw/droid.svg'
         remix.setData({
             title: 'This is a remix thingy, enagage with it please',
             app: { source: '<xml><block x="200" y="300" id="block1" type="app_onStart"><value name="CALLBACK"><block type="draw_set_background_color" id="block2"><value name="COLOR"><shadow type="colour_picker" id="block3"></shadow></value></block></value></block></xml>' },
             suggestions: [{
                 title: 'First block thing haha',
                 target: 'block#block1',
-                content: 'Hello. Do somethig here? Maybe?'
+                content: 'Hello. Do somethig here? Maybe? Hello. Do somethig here? Maybe? Hello. Do somethig here? Maybe? Hello. Do somethig here? Maybe?'
             }, {
                 title: 'Other block yeah?',
                 target: 'block#block3>input#COLOUR',
@@ -28,7 +30,10 @@ i18n.load(lang, { blockly: true, kanoCodePath: '/' })
                 img: 'https://s3-eu-west-1.amazonaws.com/world.kano.me/share-items/covers/5cc9612132dd0f1555fff373.gif',
                 description: 'Bow to the creation king!!!'
             }],
-            nextChallengeButton: 'Onwards!'
+            nextChallengeButton: 'Onwards!',
+            icon: {
+                getDomNode() { return img; }
+            }
         });
 
         remix.onDidEnd(() => {

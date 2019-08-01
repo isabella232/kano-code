@@ -20,6 +20,9 @@ export interface IRemix {
     suggestions : IRemixSuggestion[];
     samples : IRemixSample[];
     nextChallengeButton? : string | Boolean;
+    icon: {
+        getDomNode() : HTMLElement;
+    };
 }
 
 export class Remix extends ChallengeBase {
@@ -44,6 +47,7 @@ export class Remix extends ChallengeBase {
         this.tooltip = new RemixTooltip();
         const target = this.editor.queryElement(suggestion.target);
         this.tooltip.setText(suggestion.content);
+        this.tooltip.addStatusIcon();
         this.tooltip.setPosition('bottom');
         this.tooltip.setOffset(0);
         this.tooltip.onDidDismiss(() => {

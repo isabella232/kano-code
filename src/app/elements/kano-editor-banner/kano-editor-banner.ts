@@ -37,19 +37,22 @@ export class KCEditorBanner extends LitElement {
                 margin-bottom: 25px;
             }
 
+            .info {
+                padding: 0 12px;
+            }
         
             .content {
                 flex-direction: column;
                 font-family: var(--font-body);
                 font-size: 16px;
                 color: #22272D;
+            }
+
+            .actions {
                 padding: 12px;
             }
 
-            .actions::slotted(*) {
-                margin-top: 12px;
-            }
-            .actions::slotted(.reset) {
+            slot[name="actions"]::slotted(.reset) {
                 float: right;
             }
             
@@ -59,11 +62,16 @@ export class KCEditorBanner extends LitElement {
                 display: inline;
                 flex: 1;
             }
+
+            .markdown-html {
+                padding: 12px;
+            }
             .markdown-html p {
                 line-height: 20px;
                 margin: 0px;
                 font-weight: bold;
             }
+
             [hidden] {
                 display: none !important;
             }
@@ -108,14 +116,18 @@ export class KCEditorBanner extends LitElement {
             <slot name="block-button"></slot>
             <slot name="avatar"></slot>
             <div class="title">${this.title}</div>
-            <slot name="heading-action"></slot>
         </div>
         <div class="content">
             <div class="markdown-html" id="markdown-html">
                 ${marked(this.text)}
             </div>
+            <div class="info">
+                <slot name="info"></slot>
+            </div>
             <slot name="content"></slot>
-            <slot name="actions" class="actions"></slot>
+            <div class="actions">
+                <slot name="actions"></slot>
+            </div>
         </div>
 `;
     }

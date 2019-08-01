@@ -2,7 +2,7 @@ import { KCEditorBanner } from '../../../elements/kano-editor-banner/kano-editor
 import { EventEmitter, subscribeDOM, IEvent } from '@kano/common/index.js';
 import 'twemoji-min/2/twemoji.min.js';
 import { BlocklyEditorBannerWidget } from '../../widget/blockly-banner.js';
-import { reset } from '@kano/icons/ui.js';
+import { eye, reset } from '@kano/icons/ui.js';
 
 export interface IBannerData {
     text : string;
@@ -62,9 +62,12 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
         const bannerEl = this.getBannerEl();
         const el = document.createElement('button');
         el.textContent = text;
-        el.slot = 'heading-action';
-        el.classList.add('btn');
-
+        el.slot = 'info';
+        el.classList.add('btn', 'secondary', 'inverted');
+        
+        const instance = eye.content.cloneNode(true);
+        el.insertBefore(instance, el.firstChild);
+        
         bannerEl.appendChild(el);
 
         const emitter = new EventEmitter();
@@ -92,8 +95,7 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
             el.classList.add('secondary');
         }
         if (isReset) {
-            el.classList.add('reset');
-            el.classList.add('inverted');
+            el.classList.add('reset', 'inverted');
             const instance = reset.content.cloneNode(true);
             el.insertBefore(instance, el.firstChild);
         }

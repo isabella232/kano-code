@@ -16,6 +16,8 @@ export class Tooltip implements IEditorWidget {
             <style>
                 .markdown-html {
                     padding: 0px 16px;
+                    max-width: 300px;
+                    text-align: left;
                     color: var(--color-black);
                 }
             </style>
@@ -36,6 +38,9 @@ export class Tooltip implements IEditorWidget {
             this.domNode.style.fontWeight = 'bold';
         }
         return this.domNode;
+    }
+    getTextNode() {
+        return this.getDomNode().getElementsByClassName('markdown-html')[0].getElementsByTagName('p')[0]
     }
     setCaret(caret : CaretType) {
         const domNode = this.getDomNode();
