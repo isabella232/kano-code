@@ -58,6 +58,32 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
         node.slot = 'avatar';
         bannerEl.appendChild(node);
     }
+
+    setHint(text : string) {
+        const bannerEl = this.getBannerEl();
+        bannerEl.hintText = window.twemoji.parse(text);
+    }
+    
+    addHintButton(text : string) {
+        const bannerEl = this.getBannerEl();
+        const el = document.createElement('button');
+        el.textContent = text;
+        el.slot = 'hint-button';
+        el.classList.add('hint');
+        bannerEl.appendChild(el);
+        const emitter = new EventEmitter();
+        const sub = subscribeDOM(el, 'click', () => emitter.fire());
+        const button = {
+            dispose: () => {
+                el.remove();
+                emitter.dispose();
+                sub.dispose();
+            },
+            onDidClick: emitter.event,
+        };
+
+        return button;
+    }
     addMenuButton(text : string) {
         const bannerEl = this.getBannerEl();
         const el = document.createElement('button');
@@ -120,6 +146,10 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
     hide() {
         const domNode = this.getDomNode();
         domNode.style.display = 'none';
+    }
+    showHint() {
+        const bannerEl = this.getBannerEl();
+        bannerEl.hintDisplayed = true;
     }
     show() {
         const bannerEl = this.getBannerEl();

@@ -18,6 +18,12 @@ export class KCEditorBanner extends LitElement {
     @property({ type: String })
     public title = '';
 
+    @property({ type: String })
+    public hintText: string = '';
+
+    @property({ type: Boolean })
+    public hintDisplayed: boolean = false;
+
     static get styles() {
         return [css`
             :host {
@@ -41,6 +47,21 @@ export class KCEditorBanner extends LitElement {
                 padding: 0 12px;
             }
         
+            slot[name="hint-button"]::slotted(button) {
+                border-radius: 5px;
+                color: orange;
+                border: none;
+                font-weight: bold;
+                font-family: var(--font-body);
+                font-size: 16px;
+                color: #FF6900;
+                cursor: pointer;
+                outline: none;
+            }
+            slot[name="hint-button"]::slotted(button:hover) {
+                color: #D95000;
+            }
+            
             .content {
                 flex-direction: column;
                 font-family: var(--font-body);
@@ -113,12 +134,18 @@ export class KCEditorBanner extends LitElement {
             }
         `, challengeStyles];
     }
+    renderHint() {
+        if (!this.hintText.length || !this.hintDisplayed) return;
+        return html`<div class="hint">${marked(this.hintText)}</div>`;
+    }
+
     render() {
         return html`
         <div class="block block-1">
-            <slot name="block-button"></slot>
             <slot name="avatar"></slot>
-            <div class="title">${this.title}</div>
+            <div class="title">${this.title}
+            <slot name="hint-button"></slot>
+        </div>
         </div>
         <div class="content">
             <div class="markdown-html" id="markdown-html">
@@ -128,6 +155,7 @@ export class KCEditorBanner extends LitElement {
                 <slot name="info"></slot>
             </div>
             <slot name="content"></slot>
+            ${this.renderHint()}
             <div class="actions">
                 <slot name="actions"></slot>
             </div>
