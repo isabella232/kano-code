@@ -52,6 +52,7 @@ export class BlocklyRemix extends Remix {
         this.menu.onDidSelectSuggestion((s) => this.selectSuggestion(s));
         this.menu.onDidDeselectSuggestion(() => super.deselectSuggestion());
         this.menu.onDidRequestReset(() => {
+            this.deselectSuggestion();
             const dialog = this.getResetConfirm();
             dialog.open();
         });

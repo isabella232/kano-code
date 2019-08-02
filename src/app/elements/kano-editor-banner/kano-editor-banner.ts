@@ -130,7 +130,7 @@ export class KCEditorBanner extends LitElement {
             .block.block-1 {
                 height: 32px;
                 border-radius: 6px 6px 0 0;
-                background-color: var(--button-action-background)
+                background-color: var(--button-action-background);
             }
         `, challengeStyles];
     }
