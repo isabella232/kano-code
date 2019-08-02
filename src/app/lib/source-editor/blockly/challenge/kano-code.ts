@@ -58,7 +58,6 @@ export class KanoCodeChallenge extends BlocklyChallenge {
         this.stylesheet.textContent = challengeStyles.cssText;
         this.editor.domNode.shadowRoot!.appendChild(this.stylesheet);
         this.editor.domNode.shadowRoot!.appendChild(button.content.cloneNode(true));
-        console.log(this.editor.domNode.shadowRoot)
 
         this.helpers.push(new DropdownFieldStepHelper());
     }
