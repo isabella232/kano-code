@@ -27,7 +27,7 @@ export class KCRemixSuggestions extends LitElement {
                 font-weight: bold;
                 text-align: left;
                 color: inherit;
-                border-bottom: 1px solid var(--color-grey);
+                border-bottom: 1px solid var(--color-porcelain);
                 padding: 8px;
                 width: 100%;
             }
@@ -36,14 +36,11 @@ export class KCRemixSuggestions extends LitElement {
             }
             button:hover, 
             button.selected {
-                background: var(--color-stone);
+                background: var(--button-action-background);
             }
             button:first-child {
-                margin-top: 8px;
-                border-top: 1px solid var(--color-grey);
-            }
-            button:last-child {
-                margin-bottom: 8px;
+                /* margin-top: 8px; */
+                border-top: 1px solid var(--color-porcelain);
             }
 
             .suggestion-circle {
@@ -98,7 +95,6 @@ export class RemixFloatingMenu extends BriefingFloatingMenu {
     constructor(title: string, suggestions : IRemixSuggestion[], nextChallenge: string | Boolean) {
         super(title, nextChallenge);
         this.suggestions = suggestions;
-        this.setTitle(_('REMIX', 'Remix'));
         const examplesBtn = this.addMenuButton(_('EXAMPLES_BUTTON', 'Examples'));
         examplesBtn.onDidClick(() => { 
             this._onDidRequestExamples.fire(); 

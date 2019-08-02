@@ -38,6 +38,11 @@ export class BlocklyBriefing extends Briefing {
             this.data.instruction || '', 
             this.data.nextChallengeButton ? this.data.nextChallengeButton : false
         );
+        this.menu.setTitle(this.data.title || _('BRIEFING', 'Brief'));
+        if (this.data.icon) {
+            const domNode = this.data.icon.getDomNode();
+            this.menu.setIconNode(domNode);
+        }
         this.menu.onDidRequestReset(() => {
             const dialog = this.getResetConfirm();
             dialog.open();

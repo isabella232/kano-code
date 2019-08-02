@@ -54,6 +54,7 @@ export class KCEditorBanner extends LitElement {
 
             slot[name="actions"]::slotted(.reset) {
                 float: right;
+                margin-right: 8px;
             }
             
             .title {
@@ -64,7 +65,7 @@ export class KCEditorBanner extends LitElement {
             }
 
             .markdown-html {
-                padding: 12px;
+                padding: 12px 12px 0 12px;
             }
             .markdown-html p {
                 line-height: 20px;
@@ -107,6 +108,8 @@ export class KCEditorBanner extends LitElement {
             }
             .block.block-1 {
                 height: 32px;
+                border-radius: 6px 6px 0 0;
+                background-color: var(--button-action-background)
             }
         `, challengeStyles];
     }

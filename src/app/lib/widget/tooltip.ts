@@ -16,8 +16,9 @@ export class Tooltip implements IEditorWidget {
             <style>
                 .markdown-html {
                     padding: 0px 16px;
-                    max-width: 300px;
+                    max-width: 260px;
                     text-align: left;
+                    line-height: 1.2;
                     color: var(--color-black);
                 }
             </style>

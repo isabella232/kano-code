@@ -38,10 +38,11 @@ export class BlocklyRemix extends Remix {
             return;
         }
         this.menu = new RemixFloatingMenu(
-            this.data.title,
+            this.data.instruction,
             this.data.suggestions,
             this.data.nextChallengeButton ? this.data.nextChallengeButton : false
         );
+        this.menu.setTitle(this.data.title || _('REMIX', 'Remix'));
         this.menu.addEntry();
         if (this.data.icon) {
             const domNode = this.data.icon.getDomNode();
