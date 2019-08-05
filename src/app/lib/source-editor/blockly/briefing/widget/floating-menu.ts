@@ -1,26 +1,9 @@
 import '@kano/styles/typography.js';
-import { customElement, html } from 'lit-element/lit-element.js';
-import { EventEmitter, subscribeDOM, IDisposable } from '@kano/common/index.js';
-import { FloatingMenu, KCFloatingMenu } from '../../../../widget/floating-menu.js';
+import { EventEmitter, IDisposable } from '@kano/common/index.js';
+import { BannerWidget } from '../../../../challenge/widget/banner.js';
+import { _ } from '../../../../i18n/index.js';
 
-@customElement('kc-briefing-floating-menu')
-export class KCBriefingFloatingMenu extends KCFloatingMenu {
-    renderActions() {
-        return html`
-            <button class="btn secondary" @click=${() => this._onResetClick()}>Reset</button>
-            <button class="btn secondary" @click=${() => this._onDoneClick()}>I'm done</button>
-        `;
-    }
-    _onResetClick() {
-        this.dispatchEvent(new CustomEvent('reset-clicked'));
-    }
-    _onDoneClick() {
-        this.dispatchEvent(new CustomEvent('done-clicked'));
-    }
-}
-
-export class BriefingFloatingMenu extends FloatingMenu {
-    protected menuNode? : KCBriefingFloatingMenu;
+export class BriefingFloatingMenu extends BannerWidget {
     protected subscriptions : IDisposable[] = [];
 
     protected _onDidRequestReset : EventEmitter = new EventEmitter();
@@ -29,18 +12,25 @@ export class BriefingFloatingMenu extends FloatingMenu {
     protected _onDidEnd : EventEmitter = new EventEmitter();
     get onDidEnd() { return this._onDidEnd.event; }
 
-    constructor(title: string) {
-        super('Briefing', title);
-    }
-    getMenuNode() {
-        if (!this.menuNode) {
-            this.menuNode = new KCBriefingFloatingMenu();
-            this.menuNode.title = this.title;
-            this.menuNode.header = this.header;
-            subscribeDOM(this.menuNode, 'reset-clicked', () => this._onDidRequestReset.fire(), this, this.subscriptions);
-            subscribeDOM(this.menuNode, 'done-clicked', () => this._onDidEnd.fire(), this, this.subscriptions);
+    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
+    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
+
+    constructor(text: string, nextChallenge : string | Boolean) {
+        super();
+        this.setText(text);
+
+        const resetBtn = this.addButton(_('RESET_BUTTON', 'Reset'), false, true);
+        resetBtn.onDidClick(() => {this._onDidRequestReset.fire()});
+        
+        if (nextChallenge) {
+            const nextChallengeButton = this.addButton(typeof nextChallenge === 'string' ? nextChallenge : _('NEXT_CHALLENGE_BUTTON', 'Next Challenge'));
+            nextChallengeButton.onDidClick(() => {
+                this._onDidRequestNextChallenge.fire()
+            });
+        } else {
+            const endBtn = this.addButton(_('FINISH_BUTTON', 'Finish'));
+            endBtn.onDidClick(() => {this._onDidEnd.fire()});
         }
-        return this.menuNode;
     }
     dispose() {
         this.subscriptions.forEach(d => d.dispose());

@@ -12,7 +12,13 @@ export class DismissableTooltip extends Tooltip {
     render(markdown : string) {
         return html`
             <style>
-                button {
+                p > svg {
+                    width: 12px;
+                    margin-right: 8px;
+                    fill: var(--color-candlelight);
+                    stroke: var(--color-pumpkin);
+                }
+                .tooltip-button {
                     display: flex;
                     flex-direction: row;
                     align-items: center;
@@ -27,7 +33,7 @@ export class DismissableTooltip extends Tooltip {
                     cursor: pointer;
                     font-family: var(--font-body);
                 }
-                button>svg {
+                .tooltip-button>svg {
                     width: 10px;
                     height: 10px;
                     background: var(--color-grey);
@@ -36,17 +42,17 @@ export class DismissableTooltip extends Tooltip {
                     padding: 5px;
                     margin-right: 4px;
                 }
-                button:focus,
-                button:hover {
+                .tooltip-button:focus,
+                .tooltip-button:hover {
                     color: var(--color-chateau);
                     outline: none;
                 }
-                button:hover>svg {
+                .tooltip-button:hover>svg {
                     background: var(--color-carnation);
                 }
             </style>
             ${super.render(markdown)}
-            <button @click=${() => this._onClick()}>${templateContent(close)}<span>Got it</span></button>
+            <button class="tooltip-button" @click=${() => this._onClick()}>${templateContent(close)}<span>Got it</span></button>
         `;
     }
     _onClick() {

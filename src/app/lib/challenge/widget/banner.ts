@@ -2,6 +2,7 @@ import { KCEditorBanner } from '../../../elements/kano-editor-banner/kano-editor
 import { EventEmitter, subscribeDOM, IEvent } from '@kano/common/index.js';
 import 'twemoji-min/2/twemoji.min.js';
 import { BlocklyEditorBannerWidget } from '../../widget/blockly-banner.js';
+import { eye, reset } from '@kano/icons/ui.js';
 
 export interface IBannerData {
     text : string;
@@ -83,14 +84,46 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
 
         return button;
     }
-    addButton(text : string, primary = false) {
+    addMenuButton(text : string) {
         const bannerEl = this.getBannerEl();
         const el = document.createElement('button');
         el.textContent = text;
+        el.slot = 'info';
+        el.classList.add('btn', 'secondary', 'inverted');
+        
+        const instance = eye.content.cloneNode(true);
+        el.insertBefore(instance, el.firstChild);
+        
+        bannerEl.appendChild(el);
+
+        const emitter = new EventEmitter();
+
+        const sub = subscribeDOM(el, 'click', () => emitter.fire());
+
+        const button = {
+            dispose: () => {
+                el.remove();
+                emitter.dispose();
+                sub.dispose();
+            },
+            onDidClick: emitter.event,
+        };
+
+        return button;
+    }
+    addButton(text : string, primary = false, isReset = false) {
+        const bannerEl = this.getBannerEl();
+        const el = document.createElement('button');
         el.slot = 'actions';
+        el.textContent = text;
         el.classList.add('btn');
         if (!primary) {
             el.classList.add('secondary');
+        }
+        if (isReset) {
+            el.classList.add('reset', 'inverted');
+            const instance = reset.content.cloneNode(true);
+            el.insertBefore(instance, el.firstChild);
         }
 
         bannerEl.appendChild(el);

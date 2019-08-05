@@ -6,7 +6,6 @@ import { marked } from '../../lib/directives/marked.js';
 import '../kano-blockly-block/kano-blockly-block.js';
 import './kano-value-preview.js';
 import { challengeStyles } from '../../lib/challenge/styles.js';
-
 @customElement('kc-editor-banner')
 export class KCEditorBanner extends LitElement {
 
@@ -43,6 +42,11 @@ export class KCEditorBanner extends LitElement {
                 height: 56px;
                 margin-bottom: 25px;
             }
+
+            .info {
+                padding: 0 12px;
+            }
+        
             slot[name="hint-button"]::slotted(button) {
                 border-radius: 5px;
                 color: orange;
@@ -56,29 +60,40 @@ export class KCEditorBanner extends LitElement {
             }
             slot[name="hint-button"]::slotted(button:hover) {
                 color: #D95000;
-            }s
+            }
+            
             .content {
                 flex-direction: column;
                 font-family: var(--font-body);
                 font-size: 16px;
                 color: #22272D;
+            }
+
+            .actions {
                 padding: 12px;
             }
-            .actions::slotted(*) {
-                margin-top: 12px;
+
+            slot[name="actions"]::slotted(.reset) {
+                float: right;
+                margin-right: 8px;
             }
- 
+            
             .title {
                 color: var(--color-grey);
                 font-weight: bold;
                 display: inline;
                 flex: 1;
             }
+
+            .markdown-html {
+                padding: 12px 12px 0 12px;
+            }
             .markdown-html p {
                 line-height: 20px;
                 margin: 0px;
                 font-weight: bold;
             }
+
             [hidden] {
                 display: none !important;
             }
@@ -114,8 +129,9 @@ export class KCEditorBanner extends LitElement {
             }
             .block.block-1 {
                 height: 32px;
+                border-radius: 6px 6px 0 0;
+                background-color: var(--button-action-background);
             }
-       
         `, challengeStyles];
     }
     renderHint() {
@@ -132,12 +148,17 @@ export class KCEditorBanner extends LitElement {
         </div>
         </div>
         <div class="content">
-            <slot name="avatar"></slot>
             <div class="markdown-html" id="markdown-html">
                 ${marked(this.text)}
             </div>
+            <div class="info">
+                <slot name="info"></slot>
+            </div>
+            <slot name="content"></slot>
             ${this.renderHint()}
-            <slot name="actions" class="actions"></slot>
+            <div class="actions">
+                <slot name="actions"></slot>
+            </div>
         </div>
 `;
     }

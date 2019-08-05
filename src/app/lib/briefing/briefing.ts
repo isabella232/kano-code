@@ -10,6 +10,11 @@ export interface IBriefingData {
     id : string;
     samples : IBriefingSample[];
     instruction? : string;
+    title? : string;
+    nextChallengeButton? : string | Boolean;
+    icon? : {
+        getDomNode() : HTMLElement;
+    };
 }
 
 export class Briefing extends ChallengeBase {
