@@ -29,7 +29,9 @@ export class DefaultOutputViewProvider extends OutputViewProvider {
     }
     onInstall(output: Output) {
         super.onInstall(output);
-        output.registerResources(new DefaultResources());
+        if (!output.outputResources) {
+            output.registerResources(new DefaultResources());
+        }
         this.parts = output.parts;
     }
     getVisuals() : IVisualsContext {
