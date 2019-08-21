@@ -134,7 +134,9 @@ export class BannerWidget extends BlocklyEditorBannerWidget {
 
         const button = {
             dispose: () => {
-                el.remove();
+                if (el.parentNode === bannerEl) {
+                    bannerEl.removeChild(el);
+                }
                 emitter.dispose();
                 sub.dispose();
             },
