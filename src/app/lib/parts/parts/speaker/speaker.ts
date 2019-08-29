@@ -116,11 +116,15 @@ export class SpeakerPart extends Part {
         this._play(id, true);
     }
     stop() {
-        while (this.players.length > 0) {
+
+        // using a decrementing loop to ensure array is fully traversed, even when spliced
+        for (var i = this.players.length; i > 0 ; i--) {
             try {
-                this.players[0].stop();
+                this.players[i - 1].stop();
             } catch (e) {}
-        }
+        } 
+
+        this.players.length = 0;
     }
     randomFrom(id: string) {
         const set = this._samples.find(set => set.id === id);
