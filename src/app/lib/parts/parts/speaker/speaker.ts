@@ -118,7 +118,7 @@ export class SpeakerPart extends Part {
     stop() {
 
         // using a decrementing loop to ensure array is fully traversed, even when spliced
-        for (var i = this.players.length; i > 0 ; i--) {
+        for (var i = this.players.length; i > 0 ; i -= 1) {
             try {
                 this.players[i - 1].stop();
             } catch (e) {}
