@@ -116,13 +116,11 @@ export class SpeakerPart extends Part {
         this._play(id, true);
     }
     stop() {
-        this.players.forEach((player) => {
-            // Ignore sources not started
+        while (this.players.length > 0) {
             try {
-                player.stop();
+                this.players[0].stop();
             } catch (e) {}
-        });
-        this.players.length = 0;
+        }
     }
     randomFrom(id: string) {
         const set = this._samples.find(set => set.id === id);
