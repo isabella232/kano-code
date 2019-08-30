@@ -4,7 +4,7 @@ import { setters } from './blocks/setters.js';
 import { shapes } from './blocks/shapes.js';
 import { space } from './blocks/space.js';
 import { stamp } from './blocks/stamp.js';
-import { registerRepeatDrawing } from './blocks/repeats.js';
+import { registerRepeatDrawing, registerRepeatInCircle } from './blocks/repeats.js';
 import { DrawModule } from './draw.js';
 import { _ } from '../../i18n/index.js';
 import Editor from '../../editor/editor.js';
@@ -55,6 +55,10 @@ categoryBlocks.push({
     colour: COLOR,
 });
 categoryBlocks.push({
+    id: 'draw_repeat_in_circle',
+    colour: COLOR,
+});
+categoryBlocks.push({
     id: 'stamp_random',
     colour: COLOR,
 });
@@ -97,6 +101,7 @@ export function DrawAPI (editor: Editor) {
                 Blockly.JavaScript[id] = definition.javascript(category);
             });
             registerRepeatDrawing(Blockly, COLOR);
+            registerRepeatInCircle(Blockly, COLOR);
         },
         category,
         defaults: {
@@ -152,6 +157,9 @@ export function DrawAPI (editor: Editor) {
             draw_repeat_drawing: {
                 REPEATS: 6,
                 ROTATION: 60
+            },
+            draw_repeat_in_circle: {
+                REPEATS: 6,
             },
             draw_stamp: {
                 STICKER: {
