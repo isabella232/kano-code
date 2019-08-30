@@ -19,7 +19,6 @@ export class Repeats {
         const previousY = this.session.pos.y;
         const moveX = movementX ? movementX : 0;
         const moveY = movementY ? movementY : 0;
-
         // moves drawing context to centre around rotation point
         this.session.ctx.translate(previousX, previousY);
         this.session.ctx.moveTo(0, 0);
@@ -39,6 +38,17 @@ export class Repeats {
         this.session.pos.x = previousX
         this.session.pos.y = previousY
     };
+
+    /*
+    * Repeat a drawing a specified number of times, with angles repeated
+    *
+    * @param {Number} repeats
+    * @return void
+    */
+   repeatInCircle(repeats : number, callback: Function) {
+       const angle = 360 / repeats;
+       this.repeatDrawing(repeats, angle, 0, 0, callback);
+   }
 
 
 }

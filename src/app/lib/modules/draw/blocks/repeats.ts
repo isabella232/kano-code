@@ -51,4 +51,35 @@ export const registerRepeatDrawing = (Blockly : Blockly, defaultColor: string) =
     };
 }
 
-export default registerRepeatDrawing
+export const registerRepeatInCircle = (Blockly : Blockly, defaultColor: string) => {
+    Blockly.Blocks.draw_repeat_in_circle = {
+        init() {
+            const json = {
+                id: 'draw_repeat_in_circle',
+                lookup: 'repeat_in_circle(repeats)',
+                message0: `Draw: ${Blockly.Msg.BLOCK_CANVAS_REPEAT_IN_CIRCLE}`,
+                args0: [{
+                    type: "input_value",
+                    name: "REPEATS",
+                    check: 'Number'
+                }],
+                message1: `%1`,
+                args1: [{
+                    type: 'input_statement',
+                    name: 'STATEMENT',
+                }],
+                previousStatement: null,
+                nextStatement: null,
+            };
+            this.jsonInit(json);
+        }
+    };
+    Blockly.Blocks.draw_repeat_in_circle.customColor = defaultColor;
+
+    Blockly.JavaScript.draw_repeat_in_circle = (block : Block) => {
+        let statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT'),
+        repeats = Blockly.JavaScript.valueToCode(block, 'REPEATS', Blockly.JavaScript.ORDER_COMMA) || 'null'
+
+        return `ctx.repeatInCircle(${repeats}, function(){\n${statement}});`;
+    };
+}
