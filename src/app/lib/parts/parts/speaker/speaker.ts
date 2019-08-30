@@ -116,12 +116,14 @@ export class SpeakerPart extends Part {
         this._play(id, true);
     }
     stop() {
-        this.players.forEach((player) => {
-            // Ignore sources not started
+
+        // using a decrementing loop to ensure array is fully traversed, even when spliced
+        for (var i = this.players.length; i > 0 ; i -= 1) {
             try {
-                player.stop();
+                this.players[i - 1].stop();
             } catch (e) {}
-        });
+        } 
+
         this.players.length = 0;
     }
     randomFrom(id: string) {
