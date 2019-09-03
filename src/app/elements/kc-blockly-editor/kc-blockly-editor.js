@@ -33,6 +33,7 @@ class KCBlocklyEditor extends PolymerElement {
                     border-right: 2px solid var(--kc-border-color);
                 };
             }
+
             [hidden] {
                 display: none !important;
             }
