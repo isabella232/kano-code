@@ -19,6 +19,7 @@ export class TextPart extends DOMPart<HTMLDivElement> {
     getElement() : HTMLDivElement {
         const el = document.createElement('div');
         el.title = 'text';
+        el.style.fontSize = '32px';
         return el;
     }
     render() {

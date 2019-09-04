@@ -34,6 +34,7 @@ export class TerminalPart extends Part {
         this.domNode.style.overflow = 'hidden';
         this.domNode.style.background = 'rgba(0, 0, 0, 0.9)';
         this.domNode.style.color = 'green';
+        this.domNode.style.fontSize = '32px';
     }
     onInstall(context : IPartContext) {
         context.dom.root.appendChild(this.domNode);

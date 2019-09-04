@@ -15,13 +15,13 @@ export const LegacyUtil = {
         const tpl = document.createElement('template');
 
         function mathValue(input : string, value : number) {
-            return `<value name="${input}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`
+            return `<value name="${input}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`;
         }
         function textValue(input : string, value : string) {
-            return `<value name="${input}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`
+            return `<value name="${input}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`;
         }
         function colorValue(input : string, value : string) {
-            return `<value name="${input}"><shadow type="colour_picker"><field name="COLOUR">${value}</field></shadow></value>`
+            return `<value name="${input}"><shadow type="colour_picker"><field name="COLOUR">${value}</field></shadow></value>`;
         }
 
         const uiParts = ['button', 'text', 'text-input', 'sticker', 'slider'];

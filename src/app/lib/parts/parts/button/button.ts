@@ -36,6 +36,9 @@ export class ButtonPart extends DOMPart {
     getElement() {
         const el = document.createElement('button');
         el.classList.add('btn');
+        el.style.fontSize = '32px';
+        el.style.height = '64px';
+        el.style.padding = '0 28px';
         el.title = 'button';
         return el;
     }

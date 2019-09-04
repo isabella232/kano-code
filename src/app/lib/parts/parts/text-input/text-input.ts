@@ -25,6 +25,8 @@ export class TextInputPart extends DOMPart<HTMLInputElement> {
     getElement() : HTMLInputElement {
         const el = document.createElement('input');
         el.title = 'text-input';
+        el.style.fontSize = '32px';
+        el.style.padding = '8px';
         return el;
     }
     render() {
