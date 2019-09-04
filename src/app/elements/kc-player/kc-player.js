@@ -90,6 +90,7 @@ class KCPlayer extends PolymerElement {
                 flex-direction: column;
                 justify-content: center;
                 align-items: stretch;
+                padding-bottom: 124px;
             }
             #container>* {
                 width: 100%;
@@ -109,7 +110,7 @@ class KCPlayer extends PolymerElement {
                 margin-top: 16px;
                 position: absolute;
                 align-self: center;
-                bottom: 35px;
+                bottom: 12px;
             }
         </style>
         <div id="container">
