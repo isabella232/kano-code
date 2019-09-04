@@ -241,8 +241,8 @@ export class KanoAppEditor extends LitElement {
                                     attr-for-selected="id"
                                     .selected=${this.workspaceTab}
                                     autoselect>
-                            ${this.getTab(_('CREATION', 'Creation'), 'workspace')}
-                            ${this.getTab(_('CODE_DISPLAY', 'Code'), 'code-display')}
+                            ${this.getTab(_('CANVAS', 'Canvas'), 'workspace')}
+                            ${this.getTab(_('CODE_DISPLAY', 'Javascript'), 'code-display')}
                         </div>
                         <div class="controls">
                             <kc-workspace-toolbar id="toolbar"></kc-workspace-toolbar>
