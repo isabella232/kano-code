@@ -60,6 +60,8 @@ export class Output extends PluginReceiver {
     private _running : boolean = false;
     private _fullscreen : boolean = false;
     private _code : string = '';
+    private _loading? : Promise<any>;
+    private _queuedStart = false;
     public parts : PartsManager;
     public outputViewProvider? : IOutputProvider;
     public outputProfile? : IOutputProfile;
@@ -173,8 +175,17 @@ export class Output extends PluginReceiver {
         }
     }
     setRunningState(running : boolean) {
-        this._running = running;
-        this._onDidRunningStateChange.fire(this._running);
+        if (this._loading) {
+            if (!this._queuedStart) {
+                this._loading.then(() => {
+                    this._running = running;
+                    this._onDidRunningStateChange.fire(this._running);
+                });
+            }
+        } else {
+            this._running = running;
+            this._onDidRunningStateChange.fire(this._running);
+        }
     }
     getRunningState() {
         return this._running;
@@ -217,6 +228,19 @@ export class Output extends PluginReceiver {
             this.outputProfile.onInject();
         }
         this.parts.onInject();
+
+        this._loading = this.resources.load((progress: number) => {
+            if (this.outputViewProvider) {
+                this.outputViewProvider.updateProgress(progress);
+            }
+        }).then(() => {
+            this._loading = undefined;
+
+            if (this.outputViewProvider) {
+                this.outputViewProvider.updateProgress(1.0);
+            }
+        });
+
         this.runPluginTask('onInject');
     }
     onExport(data : any) {

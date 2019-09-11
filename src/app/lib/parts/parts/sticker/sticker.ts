@@ -18,10 +18,12 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
         this._stickers = {
             categorisedResource: [],
             categoryEnum: [],
+            resourceSet: [],
             getUrl: () => { return '' },
             getRandom: () => { return '' },
             getRandomFrom: () => { return '' },
-            cacheValue: () => { return new HTMLImageElement() }
+            cacheValue: () => { return new HTMLImageElement() },
+            load: () => { return Promise.resolve(); },
         };
         this.core = this._components.get('core') as StickerComponent;
         this.core.invalidate();
@@ -66,7 +68,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             this.applyTransform(ctx);
         }
         const sticker = this.core.image.get();
-        
+
         if (this._stickers) {
             url = this._stickers.getUrl(sticker || this._stickers.default || '');
         }

@@ -17,6 +17,7 @@ export interface IOutputProvider {
     getAudio() : IAudioContext;
     getDOM() : IDOMContext;
     resize() : void;
+    updateProgress(value: number) : void;
 }
 
 export abstract class OutputViewProvider implements IOutputProvider {
@@ -44,6 +45,7 @@ export abstract class OutputViewProvider implements IOutputProvider {
     getAudio() : any {
         throw new Error('Could not get audio context: The output did not create an AudioContext');
     }
+    updateProgress(value: number) {}
     abstract getDOM() : IDOMContext;
     abstract resize() : void;
 };

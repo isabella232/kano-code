@@ -28,6 +28,7 @@ export interface IResourceArrayCategory {
 
 export interface IResourceInformation {
     default? : string;
+    resourceSet : IResource[];
     categories? : { [key : string] : IResourceCategory };
     categorisedResource : IResourceArrayWithSrc[];
     categoryEnum : [string, string][];
@@ -35,18 +36,20 @@ export interface IResourceInformation {
     getRandom : () => string;
     getRandomFrom : (id : string) => string;
     cacheValue: (id : string | Sticker) => HTMLImageElement | undefined;
+    load: (resource : IResource) => Promise<any>;
 }
 
 export interface IResources {
     stickers? : IResourceInformation;
-    get: (id: string) => IResourceInformation | undefined;
+    get : (id : string) => IResourceInformation | undefined;
+    load: (progress : (value: number) => void) => Promise<any>;
 }
 
 export class Resource<T> implements IResourceInformation {
     default : string;
-    categories : { [key : string]: IResourceCategory };
-    all: IResource[];
-    allCategorised: IResourceArrayWithSrc[];
+    categories : { [key : string] : IResourceCategory };
+    all : IResource[];
+    allCategorised : IResourceArrayWithSrc[];
     cache = new Map<string | Sticker, HTMLImageElement | undefined>();
 
     constructor() {
@@ -122,34 +125,55 @@ export class Resource<T> implements IResourceInformation {
         return Object.keys(this.categories).map<[string, string]>(category => [this.categories[category].label, this.categories[category].id]);
     }
 
-    cacheValue(id: string | Sticker, type = 'image') {
+    cacheValue(id : string | Sticker, type = 'image') {
         if (type !== 'image') {
             console.warn('cached item type not recognised');
             return;
         }
 
-        if (this.cache.get(id)) {
+        // if (this.cache.get(id)) {
             return this.cache.get(id);
-        }
+        // }
 
-        const newImage = this.syncLoadImg(this.getUrl(id));
+        // const newImage = this.syncLoadImg(this.getUrl(id));
 
-        this.cache.set(id, newImage);
-        return newImage;
+        // this.cache.set(id, newImage);
+        // return newImage;
     }
 
-    syncLoadImg(src : string, timeout = 50) {
-        const img = new Image();
-        const started = Date.now();
-        img.crossOrigin = "Anonymous";
-        img.src = src;
-        while(true) {
-            if (img.complete || img.naturalWidth || Date.now() - started > timeout) {
-                break;
-            }
-        }
-        return img;
+    load(resource : IResource) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const started = Date.now();
+            img.crossOrigin = "Anonymous";
+            const onLoad = () => {
+                this.cache.set(resource.id, img);
+                resolve();
+                img.removeEventListener('load', onLoad);
+            };
+            const onError = () => {
+                reject();
+                img.removeEventListener('error', onError);
+            };
+
+            img.addEventListener('load', onLoad);
+            img.addEventListener('error', onError);
+            img.src = this.resolve(resource.path);
+        });
     }
+
+    // syncLoadImg(src : string, timeout = 50) {
+    //     const img = new Image();
+    //     const started = Date.now();
+    //     img.crossOrigin = "Anonymous";
+    //     img.src = src;
+    //     while(true) {
+    //         if (img.complete || img.naturalWidth || Date.now() - started > timeout) {
+    //             break;
+    //         }
+    //     }
+    //     return img;
+    // }
 
     getRandom() {
         return this.resourceSet[Math.floor(Math.random() * this.resourceSet.length)].id;
@@ -165,7 +189,7 @@ export class Resource<T> implements IResourceInformation {
         }
     }
 
-    getUrl(id: string | Sticker | null) {
+    getUrl(id : string | Sticker | null) {
         if (!id) {
             console.warn(`No sticker provided`);
             return '';
@@ -181,7 +205,7 @@ export class Resource<T> implements IResourceInformation {
         return this.resolve(selectedSticker.path);
     }
 
-    getLabel(id: string) {
+    getLabel(id : string) {
         const selectedSticker = this.resourceSet.find(sticker => sticker.id === id)
         if (!selectedSticker) {
             console.warn('Sticker does not exist');
@@ -200,6 +224,33 @@ export class Resources implements IResources {
     }
 
     get(id: string) {
-        return this.resources.get(id)
+        return this.resources.get(id);
+    }
+
+    load(progress: (value : number) => void) {
+        let total = 0;
+        this.resources.forEach((resource) => {
+            total += resource.resourceSet.length;
+        });
+
+        let completed = 0;
+        const promises : Promise<any>[] = [];
+
+        this.resources.forEach((resource : IResourceInformation) => {
+            resource.resourceSet.forEach((r : IResource) => {
+                const p = resource.load(r)
+                    .then(() => {
+                        completed += 1;
+                        progress(completed / total);
+                    }).catch(() => {
+                        /* Report progress even for failed images */
+                        completed += 1;
+                        progress(completed / total);
+                    });
+                promises.push(p);
+            });
+        });
+
+        return Promise.all(promises);
     }
 }
