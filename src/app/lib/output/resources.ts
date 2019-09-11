@@ -131,14 +131,7 @@ export class Resource<T> implements IResourceInformation {
             return;
         }
 
-        // if (this.cache.get(id)) {
-            return this.cache.get(id);
-        // }
-
-        // const newImage = this.syncLoadImg(this.getUrl(id));
-
-        // this.cache.set(id, newImage);
-        // return newImage;
+        return this.cache.get(id);
     }
 
     load(resource : IResource) {
@@ -161,19 +154,6 @@ export class Resource<T> implements IResourceInformation {
             img.src = this.resolve(resource.path);
         });
     }
-
-    // syncLoadImg(src : string, timeout = 50) {
-    //     const img = new Image();
-    //     const started = Date.now();
-    //     img.crossOrigin = "Anonymous";
-    //     img.src = src;
-    //     while(true) {
-    //         if (img.complete || img.naturalWidth || Date.now() - started > timeout) {
-    //             break;
-    //         }
-    //     }
-    //     return img;
-    // }
 
     getRandom() {
         return this.resourceSet[Math.floor(Math.random() * this.resourceSet.length)].id;
