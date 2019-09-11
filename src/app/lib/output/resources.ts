@@ -143,9 +143,11 @@ export class Resource<T> implements IResourceInformation {
                 this.cache.set(resource.id, img);
                 resolve();
                 img.removeEventListener('load', onLoad);
+                img.removeEventListener('error', onError);
             };
             const onError = () => {
                 reject();
+                img.removeEventListener('load', onLoad);
                 img.removeEventListener('error', onError);
             };
 
