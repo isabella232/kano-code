@@ -15,6 +15,7 @@ export class DefaultOutputViewProvider extends OutputViewProvider {
     private _audioContext : AudioContext = new AudioContext();
     private _microphone : Microphone;
     private _onDidResize : EventEmitter = new EventEmitter();
+    private _progressBar : HTMLDivElement;
     constructor() {
         super();
         this.canvas = document.createElement('canvas') as HTMLCanvasElement;
@@ -23,6 +24,16 @@ export class DefaultOutputViewProvider extends OutputViewProvider {
         this.canvas.style.width = '100%';
         this.canvas.style.background = 'white';
 
+        this._progressBar = document.createElement('div') as HTMLDivElement;
+        this._progressBar.style.width = '0%';
+        this._progressBar.style.height = '5px';
+        this._progressBar.style.background = '#ff6900';
+        this._progressBar.style.display = 'none';
+        this._progressBar.style.position = 'absolute';
+        this._progressBar.style.top = '0px';
+        this._progressBar.style.left = '0px';
+
+        this.root.appendChild(this._progressBar);
         this.root.appendChild(this.canvas);
 
         this._microphone = new Microphone(this._audioContext);
@@ -40,6 +51,10 @@ export class DefaultOutputViewProvider extends OutputViewProvider {
             width: 800,
             height: 600,
         };
+    }
+    updateProgress(value : number) {
+        this._progressBar.style.display = (value <= 0 || value >= 1.0) ? 'none' : 'block';
+        this._progressBar.style.width = `${value * 100}%`;
     }
     getAudio() : IAudioContext {
         return {

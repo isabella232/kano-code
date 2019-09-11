@@ -50,10 +50,12 @@ export class Canvas {
             stickers: settings.stickers || {
                 categorisedResource: [],
                 categoryEnum: [],
+                resourceSet: [],
                 getUrl: () => { return '' },
                 getRandom: () => { return '' },
                 getRandomFrom: () => { return '' },
-                cacheValue: () => { return new HTMLImageElement()}
+                cacheValue: () => { return new HTMLImageElement()},
+                load: () => { return Promise.resolve(); }
             },
             pos: {
                 x: settings.width / 2,
