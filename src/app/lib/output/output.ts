@@ -176,7 +176,7 @@ export class Output extends PluginReceiver {
     }
     setRunningState(running : boolean) {
         if (this._loading) {
-            if (!this._queuedStart) {
+            if (!this._queuedStart && running) {
                 this._queuedStart = true;
                 this._loading.then(() => {
                     this._running = running;
