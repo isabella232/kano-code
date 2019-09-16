@@ -176,9 +176,10 @@ export class Output extends PluginReceiver {
     }
     setRunningState(running : boolean) {
         if (this._loading) {
-            if (!this._queuedStart) {
+            if (!this._queuedStart && running) {
                 this._queuedStart = true;
                 this._loading.then(() => {
+                    console.log(`then fired with state: ${running} 🏃‍♀️`)
                     this._running = running;
                     this._onDidRunningStateChange.fire(this._running);
                     this._queuedStart = false;
