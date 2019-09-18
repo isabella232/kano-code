@@ -44,7 +44,7 @@ export class MousePart extends Part {
             getUrl: () => { return '' },
             getRandom: () => { return '' },
             getRandomFrom: () => { return '' },
-            cacheValue: () => { return new HTMLImageElement() },
+            cacheValue: () => { return new HTMLCanvasElement() },
             load: () => { return Promise.resolve(); },
         };
     }

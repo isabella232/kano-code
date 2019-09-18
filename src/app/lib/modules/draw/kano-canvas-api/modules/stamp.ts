@@ -1,6 +1,7 @@
 import { ISession } from '../utils.js';
 import { calculateFullTransform } from '../transformation.js';
 import { Sticker } from '../../../../parts/parts/sticker/types.js';
+import { RESOURCE_CACHE_RESOLUTION_MULTIPLIER } from '../../../../output/resources.js';
 
 export class Stamp {
     private session : ISession;
@@ -30,20 +31,22 @@ export class Stamp {
             const stamp = session.stickers.cacheValue(sticker);
 
             if (!stamp) {
-                return
+                return;
             }
 
             const aspectRatio = stamp.width / stamp.height;
 
             const all = calculateFullTransform({x: previousX, y: previousY}, rotation, percent, aspectRatio);
-            session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2])
+            session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2]);
 
+            const width = stamp.width / RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
+            const height = stamp.height / RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
             session.ctx.drawImage(
                 stamp,
-                Math.floor((previousX - (stamp.width * percent / 2)) / percent),
-                Math.floor((previousY - (stamp.height * percent / 2)) / percent),
-                stamp.width,
-                stamp.height
+                Math.floor((previousX - (width * percent / 2)) / percent),
+                Math.floor((previousY - (height * percent / 2)) / percent),
+                width,
+                height
             );
 
             session.ctx.setTransform(
