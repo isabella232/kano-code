@@ -1,6 +1,6 @@
 import { Resource, Resources } from './resources.js'
 
-class DefaultStickers extends Resource<HTMLImageElement> {
+class DefaultStickers extends Resource<HTMLCanvasElement> {
     constructor() {
         super();
         this.default = 'crocodile';
@@ -97,13 +97,13 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                     { id: 'unicorn',
                     label: 'Unicorn',
                     path: 'animals/animal-unicorn.svg' },
-                    whale: { id: 'whale', label: 'Whale', path: 'animals/animal-whale.svg' } 
+                    whale: { id: 'whale', label: 'Whale', path: 'animals/animal-whale.svg' }
                 },
-            }, 
+            },
             holidays: {
                 label: 'Holidays',
                 id: 'holidays',
-                resources: { 
+                resources: {
                     candle: { id: 'candle',
                       label: 'Candle',
                       path: 'holidays/holidays-candle.svg' },
@@ -113,9 +113,9 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                       label: 'Gingerbread',
                       path: 'holidays/holidays-gingerbread.svg' },
                     hat: { id: 'hat', label: 'Hat', path: 'holidays/holidays-hat.svg' },
-                    tree: { id: 'tree', label: 'Tree', path: 'holidays/holidays-tree.svg' } 
+                    tree: { id: 'tree', label: 'Tree', path: 'holidays/holidays-tree.svg' }
                 },
-            }, 
+            },
             kano: {
                 label: 'Kano',
                 id: 'kano',
@@ -127,7 +127,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                     robotnik: { id: 'robotnik', label: 'Robotnik', path: 'kano/robotnik.svg' },
                     star: { id: 'star', label: 'Star', path: 'kano/star.svg' }
                 },
-            }, 
+            },
             masks: {
                 label: 'Masks',
                 id: 'masks',
@@ -199,7 +199,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                     label: 'Traditional',
                     path: 'masks/mask-traditional.svg' }
                 },
-            }, 
+            },
             food: {
                 label: 'Food',
                 id: 'food',
@@ -245,7 +245,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                     label: 'Watermelon',
                     path: 'food/food-watermelon.svg' }
                 },
-            }, 
+            },
             music: {
                 label: 'Music',
                 id: 'music',
@@ -268,7 +268,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                         label: 'Trumpet',
                         path: 'music/music-trumpet.svg' }
                 },
-            }, 
+            },
             'street-art': {
                 label: 'Street Art',
                 id: 'street-art',
@@ -330,7 +330,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                         label: 'Supreme',
                         path: 'street-art/supreme-code.svg' }
                 },
-            }, 
+            },
             other: {
                 label: 'Other',
                 id: 'other',
@@ -449,7 +449,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                         label: 'Pancakes',
                         path: 'other/other-waffles.svg' }
                 },
-            }, 
+            },
             data: {
                 label: 'Photo',
                 id: 'data',
@@ -514,7 +514,7 @@ class DefaultStickers extends Resource<HTMLImageElement> {
             space: {
                 label: 'Space',
                 id: 'space',
-                resources: { 
+                resources: {
                     america:
                     { id: 'america',
                       label: 'America',
@@ -551,9 +551,9 @@ class DefaultStickers extends Resource<HTMLImageElement> {
                     telescope:
                         { id: 'telescope',
                         label: 'Telescope',
-                        path: 'space/telescope.svg' } 
+                        path: 'space/telescope.svg' }
                 },
-            }, 
+            },
             vehicles: {
                 label: 'Vehicles',
                 id: 'vehicles',

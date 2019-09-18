@@ -22,7 +22,7 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             getUrl: () => { return '' },
             getRandom: () => { return '' },
             getRandomFrom: () => { return '' },
-            cacheValue: () => { return new HTMLImageElement() },
+            cacheValue: () => { return new HTMLCanvasElement() },
             load: () => { return Promise.resolve(); },
         };
         this.core = this._components.get('core') as StickerComponent;

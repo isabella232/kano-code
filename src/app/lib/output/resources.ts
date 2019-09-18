@@ -2,6 +2,8 @@ import { Output } from './output.js';
 import { join } from '../util/path.js';
 import { Sticker } from '../parts/parts/sticker/types.js';
 
+export const RESOURCE_CACHE_RESOLUTION_MULTIPLIER = 2;
+
 export interface IResource {
     id : string;
     label : string;
@@ -35,7 +37,7 @@ export interface IResourceInformation {
     getUrl : (id : string | Sticker | null) => string;
     getRandom : () => string;
     getRandomFrom : (id : string) => string;
-    cacheValue: (id : string | Sticker) => HTMLImageElement | undefined;
+    cacheValue: (id : string | Sticker) => HTMLCanvasElement | undefined;
     load: (resource : IResource) => Promise<any>;
 }
 
@@ -50,7 +52,7 @@ export class Resource<T> implements IResourceInformation {
     categories : { [key : string] : IResourceCategory };
     all : IResource[];
     allCategorised : IResourceArrayWithSrc[];
-    cache = new Map<string | Sticker, HTMLImageElement | undefined>();
+    cache = new Map<string | Sticker, HTMLCanvasElement | undefined>();
 
     constructor() {
         this.default = '';
@@ -134,13 +136,25 @@ export class Resource<T> implements IResourceInformation {
         return this.cache.get(id);
     }
 
+    rasteriseImage(img : HTMLImageElement) {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
+        canvas.height = img.height * RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        return canvas;
+    }
+
     load(resource : IResource) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             const started = Date.now();
             img.crossOrigin = "Anonymous";
             const onLoad = () => {
-                this.cache.set(resource.id, img);
+                this.cache.set(resource.id, this.rasteriseImage(img));
                 resolve();
                 img.removeEventListener('load', onLoad);
                 img.removeEventListener('error', onError);
@@ -202,7 +216,7 @@ export class Resources implements IResources {
 
     constructor() {
         this.resources = new Map();
-        this.resources.set('stickers', new Resource<HTMLImageElement>());
+        this.resources.set('stickers', new Resource<HTMLCanvasElement>());
     }
 
     get(id: string) {
