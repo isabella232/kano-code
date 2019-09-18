@@ -1,5 +1,6 @@
 import { Palette } from './modules/palette.js';
 import { IResourceInformation } from '../../../output/resources.js';
+import { ITransformationArray } from './transformation.js';
 
 export interface ISession {
     ctx : CanvasRenderingContext2D;
@@ -7,6 +8,8 @@ export interface ISession {
     ratio : number;
     width : number;
     height : number;
+    rotation? : number;
+    transformation? : ITransformationArray;
     stickers? : IResourceInformation;
     settings : {
         bg : string|null;

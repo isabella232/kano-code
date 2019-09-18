@@ -1,4 +1,5 @@
 import { ISession } from '../utils.js';
+import { calculateFullTransform, multiply } from '../transformation.js';
 import { Sticker } from '../../../../parts/parts/sticker/types.js';
 
 export class Stamp {
@@ -15,10 +16,11 @@ export class Stamp {
     * @return void
     */
     stamp(sticker: Sticker, size: number, rotation: number) {
-        const previousX = this.session.pos.x;
-        const previousY = this.session.pos.y;
-        const percent = size / 100;
         const session = this.session;
+        const previousX = session.pos.x;
+        const previousY = session.pos.y;
+        const percent = size !== 0 ? size / 100 : 0.001;
+        const previousTransform = session.transformation ? session.transformation : [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
         if (!sticker) {
             return;
@@ -31,58 +33,28 @@ export class Stamp {
                 return
             }
 
-            const scale = stamp.width / stamp.height;
-            const r = rotation * (Math.PI / 180);
-            const xx = Math.cos(r) * scale;
-            const xy = Math.sin(r) * scale;
+            const aspectRatio = stamp.width / stamp.height;
 
-            const multiply = (a: any, b: any) => {
-                const aNumRows = a.length;
-                const aNumCols = a[0].length; 
-                const bNumCols = b[0].length;
-                const m = new Array(aNumRows);
-                for (let r = 0; r < aNumRows; r+=1) {
-                    m[r] = new Array(bNumCols);
-                    for (let c = 0; c < bNumCols; c+=1) {
-                        m[r][c] = 0;
-                        for (var i = 0; i < aNumCols; i+=1) {
-                            m[r][c] += a[r][i] * b[i][c];
-                        }
-                    }
-                }
-                return m;
-            }
-
-            const translate1 = [
-                [Math.cos(0),-Math.sin(0), -previousX],
-                [Math.sin(0), Math.cos(0), -previousY],
-                [0, 0, 1],
-            ];
-            const rotate = [
-                [xx, -xy, 0],
-                [xy, xx, 0],
-                [0, 0, 1],
-            ];
-            const translate2 = [
-                [Math.cos(0), -Math.sin(0), previousX],
-                [Math.sin(0), Math.cos(0), previousY],
-                [0, 0, 1],
-            ];
-            
-            const all = multiply(multiply(translate2, rotate), translate1);
-            
-            session.ctx.save();
+            const all = calculateFullTransform({x: previousX, y: previousY}, rotation, percent, aspectRatio);
             session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2])
+
             session.ctx.drawImage(
                 stamp,
-                previousX - (stamp.width * percent / 2),
-                previousY - (stamp.height * percent / 2),
-                stamp.width * percent,
-                stamp.height * percent,
+                Math.floor((previousX - (stamp.width * percent / 2)) / percent),
+                Math.floor((previousY - (stamp.height * percent / 2)) / percent),
+                stamp.width,
+                stamp.height
             );
 
-            // reset transformation
-            session.ctx.restore();
+            session.ctx.setTransform(
+                previousTransform[0][0],
+                previousTransform[1][0],
+                previousTransform[0][1],
+                previousTransform[1][1],
+                previousTransform[0][2],
+                previousTransform[1][2]
+                );
+
         }
     };
 };
