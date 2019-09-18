@@ -1,4 +1,5 @@
 import { ISession } from '../utils.js';
+import { calculateRotation, multiply } from '../transformation.js';
 
 export class Repeats {
     private session : ISession;
@@ -13,30 +14,36 @@ export class Repeats {
     * @param {Number} movement
     * @return void
     */
-    repeatDrawing(repeats : number, rotation : number, movementX : number, movementY : number, callback: Function) {
-        
+    repeatDrawing(repeats : number, rotation : number, movementX : number, movementY : number, callback: Function) {   
         const previousX = this.session.pos.x;
         const previousY = this.session.pos.y;
         const moveX = movementX ? movementX : 0;
         const moveY = movementY ? movementY : 0;
-        // moves drawing context to centre around rotation point
-        this.session.ctx.translate(previousX, previousY);
-        this.session.ctx.moveTo(0, 0);
+        if(!this.session.transformation) {
+            this.session.transformation = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+        }
+        const previousTransform = this.session.transformation || [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
         for( var i = 0; i < repeats; i++ ) {
-            this.session.pos = {x: 0 + moveX * i, y: 0 + moveY * i};
-            callback();
-            this.session.ctx.rotate(rotation * Math.PI / 180);
+            this.session.pos = { x: previousX + moveX * i, y: previousY + moveY * i };
+            callback(); 
+            const all = calculateRotation({x: previousX, y: previousY}, rotation);
+            this.session.transformation = multiply(this.session.transformation, all); 
+            this.session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2]);
         }
 
-        
         // resets changes
-        const totalRotation = repeats * rotation * Math.PI / 180;
-        this.session.ctx.rotate(-totalRotation);
-        
-        this.session.ctx.translate(-previousX, -previousY);
-        this.session.pos.x = previousX;
-        this.session.pos.y = previousY;
+        this.session.ctx.setTransform(
+            previousTransform[0][0],
+            previousTransform[1][0],
+            previousTransform[0][1],
+            previousTransform[1][1],
+            previousTransform[0][2],
+            previousTransform[1][2]
+        );
+
+        this.session.pos = { x: previousX, y: previousY };
+
     };
 
     /*
@@ -45,10 +52,10 @@ export class Repeats {
     * @param {Number} repeats
     * @return void
     */
-   repeatInCircle(repeats : number, callback: Function) {
-       const angle = 360 / repeats;
-       this.repeatDrawing(repeats, angle, 0, 0, callback);
-   }
+    repeatInCircle(repeats : number, callback: Function) {
+        const angle = 360 / repeats;
+        this.repeatDrawing(repeats, angle, 0, 0, callback);
+    }
 
 
 }
