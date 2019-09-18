@@ -8,7 +8,6 @@ export interface ISession {
     ratio : number;
     width : number;
     height : number;
-    rotation? : number;
     transformation? : ITransformationArray;
     stickers? : IResourceInformation;
     settings : {

@@ -1,5 +1,5 @@
 import { ISession } from '../utils.js';
-import { calculateFullTransform, multiply } from '../transformation.js';
+import { calculateFullTransform } from '../transformation.js';
 import { Sticker } from '../../../../parts/parts/sticker/types.js';
 
 export class Stamp {
