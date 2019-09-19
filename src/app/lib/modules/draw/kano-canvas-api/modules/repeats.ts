@@ -14,7 +14,7 @@ export class Repeats {
     * @param {Number} movement
     * @return void
     */
-    repeatDrawing(repeats : number, rotation : number, movementX : number, movementY : number, callback: Function) {   
+    repeatDrawing(repeats : number, rotation : number, movementX : number, movementY : number, callback: Function) {
         const previousX = this.session.pos.x;
         const previousY = this.session.pos.y;
         const moveX = movementX ? movementX : 0;
@@ -24,11 +24,13 @@ export class Repeats {
         }
         const previousTransform = this.session.transformation || [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
+        this.session.ctx.beginPath();
+
         for( var i = 0; i < repeats; i++ ) {
             this.session.pos = { x: previousX + moveX * i, y: previousY + moveY * i };
-            callback(); 
+            callback();
             const all = calculateRotation({x: previousX, y: previousY}, rotation);
-            this.session.transformation = multiply(this.session.transformation, all); 
+            this.session.transformation = multiply(this.session.transformation, all);
             this.session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2]);
         }
 
@@ -41,6 +43,8 @@ export class Repeats {
             previousTransform[0][2],
             previousTransform[1][2]
         );
+
+        this.session.ctx.closePath();
 
         this.session.pos = { x: previousX, y: previousY };
 
