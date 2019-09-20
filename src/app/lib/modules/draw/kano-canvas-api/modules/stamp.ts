@@ -34,10 +34,8 @@ export class Stamp {
                 return;
             }
 
-            const aspectRatio = stamp.width / stamp.height;
-
             session.ctx.beginPath();
-            const all = calculateFullTransform({x: previousX, y: previousY}, rotation, percent, aspectRatio);
+            const all = calculateFullTransform({x: previousX, y: previousY}, rotation, percent);
             session.ctx.transform(all[0][0], all[1][0], all[0][1], all[1][1], all[0][2], all[1][2]);
 
             const width = stamp.width / RESOURCE_CACHE_RESOLUTION_MULTIPLIER;

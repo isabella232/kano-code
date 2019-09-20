@@ -4,7 +4,7 @@ export interface ITransformationArray {
 
 export const multiply = (a: any, b: any) => {
     const aNumRows = a.length;
-    const aNumCols = a[0].length; 
+    const aNumCols = a[0].length;
     const bNumCols = b[0].length;
     const m = new Array(aNumRows);
     for (let r = 0; r < aNumRows; r+=1) {
@@ -43,11 +43,11 @@ export function calculateRotation(origin: {x: number, y: number}, angle: number)
     return multiply(multiply(translate2, rotate), translate1);
 }
 
-export function calculateFullTransform(origin: {x: number, y: number}, angle: number, scale: number, aspectRatio: number) {
+export function calculateFullTransform(origin: {x: number, y: number}, angle: number, scale: number) {
 
     const r = angle * (Math.PI / 180);
-    const xx = Math.cos(r) * aspectRatio;
-    const xy = Math.sin(r) * aspectRatio;
+    const xx = Math.cos(r);
+    const xy = Math.sin(r);
 
     const translate1 = [
         [Math.cos(0),-Math.sin(0), -origin.x],
