@@ -11,7 +11,6 @@ export class TimeModule extends AppModule {
 
         this.addMethod('every', '_every');
         this.addMethod('later', '_later');
-        this.addMethod('forever', '_forever');
 
         this.addLifecycleStep('stop', '_stop');
     }
@@ -20,10 +19,6 @@ export class TimeModule extends AppModule {
 
     getId() {
         return this.incr++;
-    }
-
-    _forever(callback : () => void) {
-        return this._every(1, 'frames', callback);
     }
 
     _every(interval : number, unit : 'seconds'|'milliseconds'|'frames', callback : () => void) {

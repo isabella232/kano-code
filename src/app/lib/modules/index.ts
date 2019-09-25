@@ -5,4 +5,5 @@ export * from './logic/logic.js';
 export * from './math/math.js';
 export * from './parts/parts.js';
 export * from './control/time.js';
+export * from './control/loop.js';
 export * from './stamp/stamp.js';
