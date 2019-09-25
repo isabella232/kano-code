@@ -36,13 +36,10 @@ export const ControlAPI = {
     id: ID,
     name: ID,
     typeScriptDefinition: `
-const loop = {
-    forever(callback : function) : void;
-};
-
 const time = {
     every(interval : number, unit : 'seconds'|'milliseconds'|'frames', callback : function) : void;
     later(delay : number, unit : 'seconds'|'milliseconds'|'frames', callback : function) : void;
+    forever(callback : function) : void;
 };
 `,
     register(Blockly : Blockly) {
@@ -70,7 +67,7 @@ const time = {
 
         Blockly.JavaScript.loop_forever = (block : Block) => {
             const statement = Blockly.JavaScript.statementToCode(block, 'DO');
-            return `loop.forever(function () {\n${statement}});\n`;
+            return `time.forever(function () {\n${statement}});\n`;
         };
 
 
