@@ -50,7 +50,10 @@ class BlocklyChallenge extends Engine {
     }
     _updateStep() {
         super._updateStep();
-        Blockly.WidgetDiv.hide();
+        // Fixes an issue with challenges on iOS 12. Does not fix Dad fingers issue
+        Promise.resolve().then(() => {
+            Blockly.WidgetDiv.hide();
+        });
     }
     _wrongCategory() {
         this._updateStep();
