@@ -44,15 +44,10 @@ export class Repeats {
             previousTransform[1][2]
         );
 
-        this.session.transformation = [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-        ];
-
         this.session.ctx.closePath();
 
         this.session.pos = { x: previousX, y: previousY };
+
     };
 
     /*
