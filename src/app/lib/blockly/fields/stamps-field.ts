@@ -6,19 +6,36 @@ import '../../../elements/kc-indexed-picker.js';
 import { KCIndexedPicker } from '../../../elements/kc-indexed-picker.js';
 import { subscribeDOM } from '@kano/common/index.js';
 
-interface IItemData {
+export interface IItemDataResource {
     id : string;
     label : string;
-    resources : { id : string, src : string }[];
+    src : string;
+}
+
+export interface IItemData {
+    id : string;
+    label : string;
+    resources: IItemDataResource[];
 }
 
 export class StampsField extends FieldIcon {
     private domNode : KCIndexedPicker|null = null;
-    private items : IItemData[];
-    constructor(value : string, items : IItemData[], optValidator? : () => void) {
+    private label: string = '';
+    private items: IItemData[];
+    constructor(value : string, items : IItemData[], optValidator? : () => void, legacyIds? : Map<string, string>) {
         super(value, optValidator);
         this.items = items;
+        if (legacyIds) {
+            this.setLegacyIdMap(legacyIds);
+        }
     }
+    
+    render_() {
+        this.legacyValueCheck(this.getValue());
+        this.label = this.getLabelFromValue(this.getValue());
+        super.render_();
+    }
+
     showEditor_() {
         if (!this.domNode) {
             this.domNode = document.createElement('kc-indexed-picker') as KCIndexedPicker;
@@ -30,11 +47,12 @@ export class StampsField extends FieldIcon {
                 return {
                     id: set.id,
                     label: set.label,
-                    items: set.resources.map((sticker) => ({ id: sticker.id, label: sticker.id, image: sticker.src })),
+                    items: set.resources.map((sticker) => ({ id: sticker.id, label: sticker.label, image: sticker.src })),
                 };
             });
             subscribeDOM(this.domNode, 'value-changed', (e : CustomEvent) => {
-                this.setValue(e.detail);
+                this.setLabel(e.detail.label);
+                this.setValue(e.detail.id);
             });
         }
         Blockly.WidgetDiv.show(
@@ -72,21 +90,40 @@ export class StampsField extends FieldIcon {
             this.sourceBlock_.RTL,
         );
     }
-    getItemForValue(value : string) : { id : string, src : string }|null {
-        for (let i = 0; i < this.items.length; i += 1) {
-            const found = this.items[i].resources.find(s => s.id === value);
-            if (found) {
-                return found;
-            }
-        }
-        return null;
-    }
     getIcon(value : string) {
         const item = this.getItemForValue(value);
         if (item) {
             return item.src;
         }
         return '';
+    }
+    getDisplayText_() {
+        return this.getLabel();
+    }
+    getOptions() {
+        return this.items;
+    }
+    getItemForValue(value: string): { id: string, label: string, src: string } | null {
+        for (let i = 0; i < this.items.length; i += 1) {
+            const found = this.items[i].resources.find((s: IItemDataResource) => s.id === value);
+            if (found) {
+                return found;
+            }
+        }
+        return null;
+    }
+    getLabelFromValue(value: string): string {
+        const item = this.getItemForValue(value);
+        if (item) {
+            return item.label;
+        }
+        return '';
+    }
+    setLabel(label: string) {
+        this.label = label;
+    }
+    getLabel() {
+        return this.label;
     }
     static widgetDispose_() {}
 }

@@ -1,9 +1,10 @@
 import { Field, utils, Blockly } from '@kano/kwc-blockly/blockly.js';
 
-export abstract class FieldIcon extends Field {
+export class FieldIcon extends Field {
     private spacing: number = 6;
     private sizeParams: { width: number, height: number, padding: [number, number, number, number] };
     private textHide: boolean = false;
+    private legacyIdMap: Map<string, string>;
     protected imageElement_: SVGElement | null = null;
     protected textElement_: SVGTextElement | null = null;
     constructor(value: string, optValidator?: () => void) {
@@ -15,6 +16,7 @@ export abstract class FieldIcon extends Field {
         };
         // External size used by blockly to layout the field in the block
         this.size_.height = this.sizeParams.height;
+        this.legacyIdMap = new Map();
         this.setValue(value);
     }
     init() {
@@ -59,6 +61,7 @@ export abstract class FieldIcon extends Field {
             this.size_.width = 0;
             return;
         }
+        this.legacyValueCheck(this.getValue());
         const url = this.getIcon(this.getValue());
         this.textElement_.textContent = this.getDisplayText_();
         this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url || '');
@@ -91,10 +94,25 @@ export abstract class FieldIcon extends Field {
             Blockly.WidgetDiv.hide();
         } else if (!this.sourceBlock_.isInFlyout) {
             this.showEditor_();
+            // Seeing as preventdefault is being called, and we want some of 
+            // the default functionality, triggering a UI Event click to tell the 
+            // workspace that the widget has been opened. 
+            const event = new (Blockly.Events.Ui as any)(this.sourceBlock_, 'click', undefined, undefined);
+            Blockly.Events.fire(event);
             e.preventDefault();
             e.stopPropagation();
         }
     }
-    abstract showEditor_(): void;
-    abstract getIcon(value: string): string;
+    legacyValueCheck(value : string) {
+        const newId = this.legacyIdMap.get(value);
+        if (newId) {
+            this.setValue(newId);
+        }
+    }
+    setLegacyIdMap(map : Map<string, string>) {
+        this.legacyIdMap = map;
+    }
+    showEditor_() {};
+    getIcon(id: string) { return ''; };
+    getLabel() { return ''; };
 }
