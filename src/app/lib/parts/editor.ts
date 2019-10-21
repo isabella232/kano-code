@@ -61,6 +61,18 @@ export class EditorPartsManager {
         const partsWhitelist = Object.keys(this.whitelist);
         partsControls.addPartsHidden = !partsWhitelist.length;
     }
+    // Reset workspace to include all parts
+    clearWhiteList() {
+        if (!this.editor.workspaceView || !this.editor.workspaceView.partsControls) {
+            return;
+        }
+        const { partsControls } = this.editor.workspaceView;
+        this.whitelist = null;
+        const partsWhitelist = Array.from(this.apiRegistry.keys());
+        // set whitelist to list all available parts
+        this.addDialogProvider.setWhitelist(partsWhitelist);
+        partsControls.addPartsHidden = !partsWhitelist.length;
+    }
     onInject() {
         if (!this.editor.workspaceView) {
             return;
