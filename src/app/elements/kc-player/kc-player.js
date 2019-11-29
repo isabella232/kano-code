@@ -17,22 +17,25 @@ class KCPlayer extends PolymerElement {
             :host {
                 display: flex;
                 flex-direction: column;
+                height: 100%;
                 justify-content: center;
                 align-items: stretch;
+                overflow: hidden;
+                box-sizing: border-box;
             }
             :host([fullscreen]) {
                 padding: 64px 16px;
                 position: fixed;
-                top: 0px;
-                left: 0px;
-                max-width: 100%;
-                width: 100%;
-                height: 100%;
-                z-index: 100;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                z-index: 1;
                 background-color: #292F35;
             }
             :host([fullscreen]) kc-player-toolbar {
-                margin-top: 64px;
+                position: fixed;
+                top: 92vh;
             }
             :host([fullscreen]) .close {
                 display: flex;
@@ -85,20 +88,8 @@ class KCPlayer extends PolymerElement {
                 color: #FFF;
             }
             #container {
-                position: relative;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: stretch;
-                overflow: hidden;
-                /* Hack to make it seem not broken */
-                /* Rebuilding the CSS for this In Progress - Paul McK 05/09/19 */
-                margin-top: 7px;
-            }
-            #container>* {
-                width: 100%;
-                height: 100%;
+                box-shadow: 0 4px 4px 0px rgba(0, 0, 0, 0.15);
+                margin-bottom: 20px;
             }
             .error-message {
                 color: var(--color-porcelain);
@@ -106,13 +97,14 @@ class KCPlayer extends PolymerElement {
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                min-height: 400px;
             }
             *[hidden] {
                 display: none !important;
             }
             kc-player-toolbar {
-                margin-top: 16px;
-                position: absolute;
+                margin: 16px auto;
+                position: relative;
                 align-self: center;
                 bottom: 12px;
             }
@@ -166,7 +158,6 @@ class KCPlayer extends PolymerElement {
             this.player.dispose();
         }
         this.player = new Player();
-        this.player.disableFullscreen();
 
         this.sub = subscribeDOM(window, 'resize', () => this._triggerResize());
 

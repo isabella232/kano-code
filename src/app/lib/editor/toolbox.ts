@@ -68,8 +68,8 @@ export class Toolbox extends Plugin {
         return disposableEntry;
     }
     removeEntry(entry : IAPIDefinition) {
-        const index = this.entries.indexOf(entry);
-        this.entries.splice(index, 1);
+        const index = this._entries.indexOf(entry);
+        this._entries.splice(index, 1);
         this.update();
     }
     updateEntry(oldEntry : IAPIDefinition, entry : IAPIDefinition) {
