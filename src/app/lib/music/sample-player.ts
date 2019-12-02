@@ -14,7 +14,7 @@ export class SamplePlayer {
     private paused : boolean = true;
     public playing : boolean = true;
     public source : AudioBufferSourceNode|null = null;
-    private pausedAt : number|null = null;
+    public pausedAt : number|null = null;
     private startedAt : number|null = null;
     private _onDidEnd : EventEmitter = new EventEmitter();
     private _onDidStart : EventEmitter = new EventEmitter();
