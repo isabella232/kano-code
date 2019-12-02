@@ -115,7 +115,9 @@ export class SpeakerPart extends Part {
                 // Remove play when it finishes
                 player.onDidEnd(() => {
                     const idx = this.players.indexOf(player);
-                    this.players.splice(idx, 1);
+                    if (idx !== -1) {
+                        this.players.splice(idx, 1);
+                    }
                 });
                 this.players.push(player);
             });
