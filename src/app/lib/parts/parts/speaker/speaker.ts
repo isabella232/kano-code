@@ -114,8 +114,10 @@ export class SpeakerPart extends Part {
                 player.volume = this.core.volume;
                 // Remove play when it finishes
                 player.onDidEnd(() => {
-                    const idx = this.players.indexOf(player);
-                    this.players.splice(idx, 1);
+                    if (player.playing) {
+                        const idx = this.players.indexOf(player);
+                        this.players.splice(idx, 1);
+                    }
                 });
                 this.players.push(player);
             });

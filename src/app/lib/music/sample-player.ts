@@ -12,7 +12,7 @@ export class SamplePlayer {
     public output : AudioNode;
     private _volume : number = 0.4;
     private paused : boolean = true;
-    private playing : boolean = true;
+    public playing : boolean = true;
     public source : AudioBufferSourceNode|null = null;
     private pausedAt : number|null = null;
     private startedAt : number|null = null;
