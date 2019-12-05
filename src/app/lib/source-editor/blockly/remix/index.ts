@@ -30,6 +30,7 @@ export class BlocklyRemix extends Remix {
             return;
         }
         this.editor.load(this.data.app);
+        this.editor.setCode(this.data.app.code);
     }
     start() {
         super.start();
