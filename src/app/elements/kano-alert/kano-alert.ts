@@ -119,6 +119,9 @@ export class KanoAlert extends (mixinBehaviors([PaperDialogBehavior], PolymerEle
             .actions ::slotted(button.kano-alert-secondary:hover) {
                 background: #e9e9e9;
             }
+            marked-element {
+                display: none;
+            }
         </style>
         <slot name="icon">
             <div class="badge">
@@ -128,8 +131,7 @@ export class KanoAlert extends (mixinBehaviors([PaperDialogBehavior], PolymerEle
         <div class="dialog-text">
             <h2>[[heading]]</h2>
             <div class="markdown-html" slot="markdown-html" inner-h-t-m-l="[[markedText]]"></div>
-            <marked-element markdown="[[text]]">
-            </marked-element>
+            <marked-element markdown="[[text]]"></marked-element>
             <div class="actions">
                 <slot name="actions">
                     <button id="primary-btn" type="button" class="btn primary" dialog-confirm>Confirm</button>
