@@ -5,12 +5,22 @@ import { Microphone } from './microphone.js';
 import { EventEmitter } from '@kano/common/index.js';
 import { DefaultResources } from './default-resources.js';
 
-window.AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+let audioContextSingleton : AudioContext|null = null;
+
+/**
+ * Returns a singleton instance of an audio context
+ */
+function getAudioContext() {
+    if (!audioContextSingleton) {
+        audioContextSingleton = new (AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContextSingleton;
+}
 
 export class DefaultOutputViewProvider extends OutputViewProvider {
     private canvas : HTMLCanvasElement;
     public parts?: PartsManager;
-    private _audioContext : AudioContext = new AudioContext();
+    private _audioContext : AudioContext = getAudioContext();
     private _microphone : Microphone;
     private _onDidResize : EventEmitter = new EventEmitter();
     private _progressBar : HTMLDivElement;
