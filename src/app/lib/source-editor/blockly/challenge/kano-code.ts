@@ -243,13 +243,38 @@ export class KanoCodeChallenge extends BlocklyChallenge {
             const resolvedPosition = widget.getResolvedPosition();
             const metrics = workspace.getMetrics();
 
-            if (widget.isBlockPosition && resolvedPosition && resolvedPosition.x > metrics.viewWidth) {
-                const scrollTotal = metrics.contentWidth - metrics.viewWidth;
-                const x = (resolvedPosition.x / metrics.contentWidth) * scrollTotal;
+            const isOutOfBounds = (metrics : any, position : any) => {
+                return (position.x && position.y && metrics.viewHeight && metrics.viewWidth)
+                    && (
+                        position.x < 0
+                        || position.x > metrics.viewWidth
+                        || position.y < 0
+                        || position.y > metrics.viewHeight
+                    )    
+            }
+            
+            // check if beacon applies to a block that is currently out of view
+            if (widget.isBlockPosition() && resolvedPosition) {
+                if (isOutOfBounds(metrics, resolvedPosition)) {
+                    const block = this.editor.querySelector(data);
+                    if (block) {
+                        workspace.centerOnBlock(block.getId());
+                    }
+                }
+            } else {
+                // check if beacon is for opening the toolbar for a block...
+                //...that will be attached to another block currently out of view
+                const idx = this.stepIndex;
+                const checkValidationType = (idx : any, type : any) => {
+                    return this.steps[idx] && this.steps[idx].validation && this.steps[idx].validation.blockly && this.steps[idx].validation.blockly[type]
+                }
 
-                // @ts-ignore
-                const { handlePosition_, ratio_ } = workspace.scrollbar.vScroll;
-                workspace.scrollbar.set(x, handlePosition_ / ratio_);
+                if (checkValidationType(idx, 'open-flyout') && checkValidationType(idx + 1, 'create') && checkValidationType(idx + 2, 'connect')) {                    
+                    const block = this.editor.querySelector(this.steps[idx + 2].beacon);
+                    if (block && block.getPosition && isOutOfBounds(metrics, block.getPosition())) {
+                        workspace.centerOnBlock(block.getId());
+                    }
+                }
             }
 
         }, 300);
