@@ -8,7 +8,7 @@ This repository `kano-code` is where we (Kano) develop Kano Code, our user frien
 
 ![Kano Code Editor](./screen.png)
 
-Kano Code is part of [Kano World](https://world.kano.me) and our [apps](https://kano.me/apps)
+Kano Code is part of [Kano World](https://world.kano.me) and our [apps](https://kano.me/app)
 
 ## Contributing
 
