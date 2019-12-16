@@ -255,21 +255,6 @@ export const shapes = [{
             return `ctx.polygon(${points.join(', ')}, ${close});`;
         };
     }
-},{
-    block: (part : any) => {
-        return {
-            id: 'pixel',
-            lookup: 'pixel()',
-            message0: `${part.name}: ${Blockly.Msg.BLOCK_CANVAS_PIXEL}`,
-            previousStatement: null,
-            nextStatement: null
-        };
-    },
-    javascript: (part : any) => {
-        return function (block: Block) {
-            return `ctx.pixel();`;
-        };
-    }
 }];
 
 export default shapes;
