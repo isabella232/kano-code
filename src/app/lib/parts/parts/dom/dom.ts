@@ -58,10 +58,11 @@ export abstract class DOMPart<T extends HTMLElement = HTMLElement> extends Part 
         }
         if (this.transform.invalidated && this._canvasScale) {
             // this.size / 2 is for transforming to center of image instead of corner
+            // the scale is multiplied by 2 to make parts more visible
             const transform = {
                 x: (this.transform.x * this._canvasScale) - (this.size.width / 2),
                 y: (this.transform.y * this._canvasScale) - (this.size.height / 2),
-                scale: this.transform.scale * this._canvasScale,
+                scale: this.transform.scale * this._canvasScale * 2,
             };
             this._el.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}, ${transform.scale}) rotate(${this.transform.rotation}deg)`;
             this._el.style.opacity = this.transform.opacity.toString();
