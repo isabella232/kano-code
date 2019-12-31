@@ -59,8 +59,8 @@ export class ColourModule extends AppModule {
     }
 
     _random() {
-        const num = Math.floor(Math.random() * Math.pow(2, 24));
-        return `#${(`00000${num.toString(16)}`).substr(-6)}`;
+        const rgb = this.HSVtoRGB(Math.random() * 100, 0.8, 1);
+        return this.RGBtoHEX(rgb.r, rgb.g, rgb.b);
     }
 
     _luminance(hex : string, lum : number = 0) {
