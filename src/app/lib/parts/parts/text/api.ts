@@ -25,6 +25,59 @@ export const TexAPI : IPartAPI = {
         getter: false,
         returnType: 'Color',
         default: '#000000',
+    }, {
+        type: 'variable',
+        name: 'font',
+        verbose: _('PART_TEXT_FONT', 'font'),
+        setter: true,
+        getter: false,
+        returnType: 'Enum',
+        enum: [
+            [
+                _('PART_TEXT_Bariol', 'Bariol'),
+                'bariol',
+            ],
+            [
+                _('PART_TEXT_ARIAL', 'Arial'),
+                'arial',
+            ],
+            [
+                _('PART_TEXT_TIMES', 'Times'),
+                'times',
+            ],
+            [
+                _('PART_TEXT_HELVETICA', 'Helvetica'),
+                'helvetica',
+            ],
+            [
+                _('PART_TEXT_VERDANA', 'Verdana'),
+                'verdana',
+            ],
+            [
+                _('PART_TEXT_OPTIMA', 'Optima'),
+                'optima',
+            ],
+            [
+                _('PART_TEXT_CAMBRIA', 'Cambria'),
+                'cambria',
+            ],
+            [
+                _('PART_TEXT_GARAMOND', 'Garamond'),
+                'garamond',
+            ],
+            [
+                _('PART_TEXT_MONACO', 'Monaco'),
+                'monaco',
+            ],
+            [
+                _('PART_TEXT_DIDOT', 'Didot'),
+                'didot',
+            ],
+            [
+                _('PART_TEXT_BRUSH', 'Brush Script MT'),
+                'brush script mt',
+            ],
+        ]
     }, ...TransformAPI],
     onInstall(editor : Editor, part : TextPart) {
         onTransformInstall(editor, part);
