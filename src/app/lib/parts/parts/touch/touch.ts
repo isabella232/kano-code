@@ -118,6 +118,28 @@ export class TouchPart extends Part {
         }, this, this.subscriptions);
         // Trigger an initial resize to populate the scale and rect
         this.resize(context);
+
+        // On mouse down fire the down event. Also starts listening to the mouse up event.
+        // The mouse events are added to the ongoingTouch array with an identifier of -2
+            // the identifier is set as negative to distinguish it from genuine touch events, also avoiding -1 because of findIndex()
+        subscribeDOM(context.dom.root, 'mousedown', (e: MouseEvent) => {
+            this._addOngoingTouch(Object.assign(e, {identifier: -2}) as unknown as Touch);
+            const moveSub = subscribeDOM(context.dom.root, 'mousemove', (e: Event) => {
+                this._removeOngoingTouch(Object.assign(e, {identifier: -2}) as unknown as Touch);
+                this._addOngoingTouch(Object.assign(e, {identifier: -2}) as unknown as Touch);
+                this.core.touchMove.fire();
+            }, this, this.subscriptions);
+
+            const upSub = subscribeDOM(window as unknown as HTMLElement, 'mouseup', () => {
+                if (moveSub) { moveSub.dispose(); }
+                upSub.dispose();
+                this._removeOngoingTouch(Object.assign(e, {identifier: -2}) as unknown as Touch);
+                this.core.touchEnd.fire();
+            });
+            this.core.touchStart.fire();
+
+        }, this, this.subscriptions);
+        
     }
     resize(context : IPartContext) {
         this._rect = context.dom.root.getBoundingClientRect() as DOMRect;
