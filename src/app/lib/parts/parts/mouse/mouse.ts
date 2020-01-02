@@ -48,41 +48,47 @@ export class MousePart extends Part {
             load: () => { return Promise.resolve(); },
         };
     }
+    updatePosition(context : IPartContext, pageX : number, pageY : number) {
+        // In case no resize event is triggered before the mouse part is added
+        if (!this._rect) {
+            return;
+        }
+        // Adjust the cursor position by making the coordinates relative to the top left corner of the output
+        // Also applies the scale
+        const x = Math.max(0, Math.min(context.visuals.width, (pageX - this._rect.left) * this._scale));
+        const y = Math.max(0, Math.min(context.visuals.height, (pageY - this._rect.top) * this._scale));
+
+        // Record the current timestamp
+        const now = Date.now();
+
+        // When no event is received after 100ms, reset the mouse speed
+        if (this._lastMoveEvent === null || now - this._lastMoveEvent > 100) {
+            this._dx = 0;
+            this._dy = 0;
+        } else {
+            this._dx = x - this._x;
+            this._dy = y - this._y;
+        }
+
+        this._x = x;
+        this._y = y;
+
+        // Update last event time
+        this._lastMoveEvent = now;
+
+        this.core.move.fire();
+    }
+
     onInstall(context : IPartContext) {
         // Listen to the resize event ot update the rect and scale
         context.dom.onDidResize(() => {
             this.resize(context);
         });
+
         subscribeDOM(context.dom.root, 'mousemove', (e : MouseEvent) => {
             let { pageX, pageY } = e;
-            // In case no resize event is triggered before the mouse part is added
-            if (!this._rect) {
-                return;
-            }
-            // Adjust the cursor position by making the coordinates relative to the top left corner of the output
-            // Also applies the scale
-            const x = Math.max(0, Math.min(context.visuals.width, (pageX - this._rect.left) * this._scale));
-            const y = Math.max(0, Math.min(context.visuals.height, (pageY - this._rect.top) * this._scale));
-
-            // Record the current timestamp
-            const now = Date.now();
-
-            // When no event is received after 100ms, reset the mouse speed
-            if (this._lastMoveEvent === null || now - this._lastMoveEvent > 100) {
-                this._dx = 0;
-                this._dy = 0;
-            } else {
-                this._dx = x - this._x;
-                this._dy = y - this._y;
-            }
-
-            this._x = x;
-            this._y = y;
-
-            // Update last event time
-            this._lastMoveEvent = now;
-
-            this.core.move.fire();
+            
+            this.updatePosition(context, pageX, pageY);
         }, this, this.subscriptions);
         // On mouse down fire the down event. Also starts listening to the up event.
         // If a up event happens anywhere, fire the up event. This makes sure if the user clicks
@@ -94,6 +100,25 @@ export class MousePart extends Part {
             });
             this.core.down.fire();
         }, this, this.subscriptions);
+
+        // Add touch events - will apply to only one of the touches at a time
+        subscribeDOM(context.dom.root, 'touchstart', () => {
+            const upSub = subscribeDOM(window as unknown as HTMLElement, 'touchend', () => {
+                upSub.dispose();
+                this.core.up.fire();
+            });
+            const cancelSub = subscribeDOM(window as unknown as HTMLElement, 'touchcancel', () => {
+                cancelSub.dispose();
+                this.core.up.fire();
+            });
+            this.core.down.fire();
+        }, this, this.subscriptions)
+
+        subscribeDOM(context.dom.root, 'touchmove', (e : TouchEvent) => {
+            let { pageX, pageY } = e.changedTouches[0];
+            this.updatePosition(context, pageX, pageY);
+        }, this, this.subscriptions);
+
         // Trigger an initial resize to populate the scale and rect
         this.resize(context);
         this.core.onDidInvalidate(() => this.render(), this, this.subscriptions);
