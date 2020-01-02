@@ -28,8 +28,9 @@ export class TextPart extends DOMPart<HTMLDivElement> {
         }
         this._el.textContent = this.core.value;
         this._el.style.color = this.core.color;
-        this._el.style.fontFamily = this.core.font;
+        this._el.style.fontFamily = this.core.font || 'Bariol';
         this._el.style.fontSize = '16px';
+        (this._el.style as any).willChange = 'unset';
         this.core.apply();
     }
     get value() {
