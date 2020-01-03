@@ -5,6 +5,31 @@ export class Shapes {
     constructor(session : ISession) {
         this.session = session;
     }
+
+    /*
+    * Draw an isosceles triangle using current cursor position as origin
+    *
+    * @param {Number} width
+    * @param {Number} height
+    * @return void
+    */
+    triangle(width : number, height : number) {
+        var x, y;
+        Utils.startShape(this.session);
+
+        x = this.session.pos.x * this.session.ratio;
+        y = this.session.pos.y * this.session.ratio;
+
+        width *= this.session.ratio;
+        height *= this.session.ratio;
+
+        this.session.ctx.moveTo(x - width / 2, y + height / 2);
+        this.session.ctx.lineTo(x, y - height / 2);
+        this.session.ctx.lineTo(x + width / 2, y + height / 2);
+        this.session.ctx.fill();
+        Utils.endShape(this.session);
+    };
+
     /*
     * Draw a rectangle using current cursor position as origin
     *

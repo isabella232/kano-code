@@ -101,6 +101,33 @@ export const shapes = [{
 },{
     block: (part : any) => {
         return {
+            id: 'triangle',
+            lookup: 'triangle(width, height)',
+            message0: `${part.name}: ${Blockly.Msg.BLOCK_CANVAS_TRIANGLE}`,
+            args0: [{
+                type: "input_value",
+                name: "WIDTH",
+                check: 'Number'
+            },{
+                type: "input_value",
+                name: "HEIGHT",
+                check: 'Number',
+                align: 'RIGHT'
+            }],
+            previousStatement: null,
+            nextStatement: null,
+        };
+    },
+    javascript: (part : any) => {
+        return function (block: Block) {
+            let width = Blockly.JavaScript.valueToCode(block, 'WIDTH', Blockly.JavaScript.ORDER_COMMA) || 'null',
+                height = Blockly.JavaScript.valueToCode(block, 'HEIGHT', Blockly.JavaScript.ORDER_COMMA) || 'null';
+            return `ctx.triangle(${width}, ${height});`;
+        };
+    }
+},{
+    block: (part : any) => {
+        return {
             id: 'arc',
             lookup: 'arc(radius, start, end, close)',
             message0: `${part.name}: ${Blockly.Msg.BLOCK_CANVAS_ARC}`,
