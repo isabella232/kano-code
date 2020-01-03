@@ -142,6 +142,10 @@ export function DrawAPI (editor: Editor) {
                 WIDTH: 5,
                 HEIGHT: 5,
             },
+            draw_triangle: {
+                WIDTH: 5,
+                HEIGHT: 5,
+            },
             draw_arc: {
                 RADIUS: 5,
                 START: 0,
