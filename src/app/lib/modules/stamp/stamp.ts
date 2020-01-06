@@ -14,8 +14,13 @@ export class StampModule extends AppModule {
             }
             return stickers.getRandomFrom(id);
         }
+
+        function stampChoice(id : string) {
+            return id;
+        }
         
         this.addMethod('random', random);
+        this.addMethod('stampChoice', stampChoice);
     }
 
 }

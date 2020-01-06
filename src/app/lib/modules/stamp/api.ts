@@ -3,7 +3,7 @@ import { Block } from '@kano/kwc-blockly/blockly.js';
 import { StampsField } from '../../blockly/fields/stamps-field.js';
 import { _ } from '../../i18n/index.js';
 import { Editor } from '../../editor/editor.js';
-import { random } from './common.js';
+import { random, stampChoice } from './common.js';
 
 function getImage(editor : Editor) : IMetaDefinition {
     return {
@@ -52,6 +52,7 @@ export function StampAPI (editor: Editor) {
         symbols: [
             getImage(editor),
             hideBlock(random(editor)),
+            hideBlock(stampChoice(editor)),
         ]
     }
 }

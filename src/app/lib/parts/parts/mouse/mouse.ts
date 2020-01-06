@@ -184,6 +184,9 @@ export class MousePart extends Part {
         }
         return this._stickers.getRandomFrom(id);
     }
+    stampChoice(id : string) {
+        return id;
+    }
     loadImage(url : string) : Promise<string> {
         if (this._imageCache.has(url)) {
             return Promise.resolve(this._imageCache.get(url)!);

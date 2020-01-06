@@ -63,6 +63,10 @@ categoryBlocks.push({
     id: 'stamp_random',
     colour: COLOR,
 });
+categoryBlocks.push({
+    id: 'stamp_stampChoice',
+    colour: COLOR,
+});
 
 const category = {
     name: _('MODULE_DRAW_NAME', 'Draw'),

@@ -94,8 +94,11 @@ export class StickerPart extends DOMPart<HTMLDivElement> {
             return '';
         }
         if (id === 'all') {
-            return this._stickers.getRandom()
+            return this._stickers.getRandom();
         }
         return this._stickers.getRandomFrom(id);
+    }
+    stampChoice(id : string) {
+        return id;
     }
 }
