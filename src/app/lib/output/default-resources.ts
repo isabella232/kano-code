@@ -105,6 +105,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Goat',
                         path: 'animals/animal-goat.svg',
                     },
+                    horse: {
+                        id: 'horse',
+                        label: 'Horse',
+                        path: 'animals/animal-horse.svg',
+                    },
                     ladybug: {
                         id: 'ladybug',
                         label: 'Ladybug',
@@ -187,75 +192,134 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                     },
                 },
             },
-            holidays: {
-                label: 'Holidays',
-                id: 'holidays',
+            food: {
+                label: 'Food',
+                id: 'food',
                 resources: {
-                    candle: {
-                        id: 'candle',
-                      label: 'Candle',
-                      path: 'holidays/holidays-candle.svg',
+                    avocado: {
+                        id: 'avocado',
+                        label: 'Avocado',
+                        path: 'other/other-avocado.svg',
                     },
-                    gift: {
-                        id: 'gift',
-                        label: 'Gift',
-                        path: 'holidays/holidays-gift.svg',
+                    burger: {
+                        id: 'burger',
+                        label: 'Burger',
+                        path: 'food/food-burger.svg',
                     },
-                    gingerbread: {
-                        id: 'gingerbread',
-                        label: 'Gingerbread',
-                        path: 'holidays/holidays-gingerbread.svg',
+                    burrito: {
+                        id: 'burrito',
+                        label: 'Burrito',
+                        path: 'food/food-burrito.svg',
                     },
-                    hat: {
-                        id: 'hat',
-                        label: 'Hat',
-                        path: 'holidays/holidays-hat.svg',
+                    cake: {
+                        id: 'cake',
+                        label: 'Cake',
+                        path: 'other/other-cake.svg',
                     },
-                    tree: {
-                        id: 'tree',
-                        label: 'Tree',
-                        path: 'holidays/holidays-tree.svg',
+                    candy: {
+                        id: 'candy',
+                        label: 'Candy',
+                        path: 'food/food-candy.svg',
                     },
-                },
-            },
-            kano: {
-                label: 'Kano',
-                id: 'kano',
-                resources: {
-                    arrow: {
-                        id: 'arrow',
-                        label: 'Arrow',
-                        path: 'kano/arrow.svg',
+                    cheese: {
+                        id: 'cheese',
+                        label: 'Cheese',
+                        path: 'food/food-cheese.svg',
                     },
-                    judoka: {
-                        id: 'judoka',
-                        label: 'Judoka',
-                        path: 'kano/judoka-face.svg',
+                    cherry: {
+                        id: 'cherry',
+                        label: 'Cherry',
+                        path: 'food/food-cherry.svg',
                     },
-                    record: {
-                        id: 'record',
-                        label: 'Record',
-                        path: 'kano/judoka-record.svg',
+                    'chicken-leg': {
+                        id: 'chicken-leg',
+                        label: 'Chicken leg',
+                        path: 'food/food-chicken.svg',
                     },
-                    planet: {
-                        id: 'planet',
-                        label: 'Planet',
-                        path: 'kano/planet.svg',
+                    donut: {
+                        id: 'donut',
+                        label: 'Donut',
+                        path: 'food/food-donut.svg',
                     },
-                    robotnik: {
-                        id: 'robotnik',
-                        label: 'Robotnik',
-                        path: 'kano/robotnik.svg',
+                    eggplant: {
+                        id: 'eggplant',
+                        label: 'Eggplant',
+                        path: 'food/food-eggplant.svg',
                     },
-                    star: {
-                        id: 'star',
-                        label: 'Star',
-                        path: 'kano/star.svg',
+                    hotdog: {
+                        id: 'hotdog',
+                        label: 'Hotdog',
+                        path: 'other/other-hotdog.svg',
+                    },
+                    icecream: {
+                        id: 'icecream',
+                        label: 'Icecream',
+                        path: 'food/food-icecream.svg',
+                    },
+                    melon: {
+                        id: 'melon',
+                        label: 'Melon',
+                        path: 'food/food-melon.svg',
+                    },
+                    noodles: {
+                        id: 'noodles',
+                        label: 'Noodles',
+                        path: 'food/food-noodles.svg',
+                    },
+                    pancakes: {
+                        id: 'pancakes',
+                        label: 'Pancakes',
+                        path: 'other/other-waffles.svg',
+                    },
+                    peach: {
+                        id: 'peach',
+                        label: 'Peach',
+                        path: 'food/food-peach.svg',
+                    },
+                    pineapple: {
+                        id: 'pineapple',
+                        label: 'Pineapple',
+                        path: 'food/food-pineapple.svg',
+                    },
+                    pizza: {
+                        id: 'pizza',
+                        label: 'Pizza',
+                        path: 'food/food-pizza.svg',
+                    },
+                    popcorn: {
+                        id: 'popcorn',
+                        label: 'Popcorn',
+                        path: 'other/other-popcorn.svg',
+                    },
+                    tempura: {
+                        id: 'tempura',
+                        label: 'Tempura',
+                        path: 'food/food-shrimp.svg',
+                    },
+                    sushi: {
+                        id: 'sushi',
+                        label: 'Sushi',
+                        path: 'food/food-sushi.svg',
+                    },
+                    taco: {
+                        id: 'taco',
+                        label: 'Taco',
+                        path: 'food/food-taco.svg',
+                    },
+                    tomato: {
+                        id: 'tomato',
+                        label: 'Tomato',
+                        path: 'food/food-tomato.svg',
+                    },
+                    watermelon: {
+                        id: 'watermelon',
+                        label: 'Watermelon',
+                        path: 'food/food-watermelon.svg',
                     },
                 },
             },
             masks: {
-                label: 'Masks',
+                label: 'Faces',
                 id: 'masks',
                 resources: {
                     alien: {
@@ -317,6 +381,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'easter-island',
                         label: 'Easter island',
                         path: 'masks/mask-easter-island.svg',
+                    },
+                    face: {
+                        id: 'face',
+                        label: 'Face',
+                        path: 'other/other-face.svg',
                     },
                     fox: {
                         id: 'fox',
@@ -437,108 +506,12 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'traditional',
                         label: 'Traditional',
                         path: 'masks/mask-traditional.svg',
-                },
-                },
-            },
-            food: {
-                label: 'Food',
-                id: 'food',
-                resources: {
-                    burger: {
-                        id: 'burger',
-                        label: 'Burger',
-                        path: 'food/food-burger.svg',
                     },
-                    burrito: {
-                        id: 'burrito',
-                        label: 'Burrito',
-                        path: 'food/food-burrito.svg',
-                    },
-                    candy: {
-                        id: 'candy',
-                        label: 'Candy',
-                        path: 'food/food-candy.svg',
-                    },
-                    cheese: {
-                        id: 'cheese',
-                        label: 'Cheese',
-                        path: 'food/food-cheese.svg',
-                    },
-                    cherry: {
-                        id: 'cherry',
-                        label: 'Cherry',
-                        path: 'food/food-cherry.svg',
-                    },
-                    'chicken-leg': {
-                        id: 'chicken-leg',
-                        label: 'Chicken leg',
-                        path: 'food/food-chicken.svg',
-                    },
-                    donut: {
-                        id: 'donut',
-                        label: 'Donut',
-                        path: 'food/food-donut.svg',
-                    },
-                    eggplant: {
-                        id: 'eggplant',
-                        label: 'Eggplant',
-                        path: 'food/food-eggplant.svg',
-                    },
-                    icecream: {
-                        id: 'icecream',
-                        label: 'Icecream',
-                        path: 'food/food-icecream.svg',
-                    },
-                    melon: {
-                        id: 'melon',
-                        label: 'Melon',
-                        path: 'food/food-melon.svg',
-                    },
-                    noodles: {
-                        id: 'noodles',
-                        label: 'Noodles',
-                        path: 'food/food-noodles.svg',
-                    },
-                    peach: {
-                        id: 'peach',
-                        label: 'Peach',
-                        path: 'food/food-peach.svg',
-                    },
-                    pineapple: {
-                        id: 'pineapple',
-                        label: 'Pineapple',
-                        path: 'food/food-pineapple.svg',
-                    },
-                    pizza: {
-                        id: 'pizza',
-                        label: 'Pizza',
-                        path: 'food/food-pizza.svg',
-                    },
-                    tempura: {
-                        id: 'tempura',
-                        label: 'Tempura',
-                        path: 'food/food-shrimp.svg',
-                    },
-                    sushi: {
-                        id: 'sushi',
-                        label: 'Sushi',
-                        path: 'food/food-sushi.svg',
-                    },
-                    taco: {
-                        id: 'taco',
-                        label: 'Taco',
-                        path: 'food/food-taco.svg',
-                    },
-                    tomato: {
-                        id: 'tomato',
-                        label: 'Tomato',
-                        path: 'food/food-tomato.svg',
-                    },
-                    watermelon: {
-                        id: 'watermelon',
-                        label: 'Watermelon',
-                        path: 'food/food-watermelon.svg',
-                    },
+                    'mask-unicorn': {
+                        id: 'mask-unicorn',
+                        label: 'Unicorn',
+                        path: 'masks/mask-unicorn.svg',
+                  },
                 },
             },
             music: {
@@ -560,6 +533,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Guitar',
                         path: 'music/music-guitar.svg',
                     },
+                    keytar: {
+                        id: 'keytar',
+                        label: 'Keytar',
+                        path: 'other/other-keytar.svg',
+                    },
                     note: {
                         id: 'note',
                         label: 'Note',
@@ -569,6 +547,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'notes',
                         label: 'Notes',
                         path: 'music/music-musical-notes.svg',
+                    },
+                    piano: {
+                        id: 'piano',
+                        label: 'Piano',
+                        path: 'other/other-piano-keyboard.svg',
                     },
                     pick: {
                         id: 'pick',
@@ -678,219 +661,8 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                     }
                 },
             },
-            other: {
-                label: 'Other',
-                id: 'other',
-                resources: {
-                    avocado: {
-                        id: 'avocado',
-                        label: 'Avocado',
-                        path: 'other/other-avocado.svg',
-                    },
-                    baseball: {
-                        id: 'baseball',
-                        label: 'Baseball',
-                        path: 'other/other-ball-baseball.svg',
-                    },
-                    basketball: {
-                        id: 'basketball',
-                        label: 'Basketball',
-                        path: 'other/other-ball-basketball.svg',
-                    },
-                    football: {
-                        id: 'football',
-                        label: 'Football',
-                        path: 'other/other-ball-football.svg',
-                    },
-                    tennisball: {
-                        id: 'tennisball',
-                        label: 'Tennisball',
-                        path: 'other/other-ball-tennis.svg',
-                    },
-                    ball: {
-                        id: 'ball',
-                        label: 'Ball',
-                        path: 'other/other-ball.svg',
-                    },
-                    cactus: {
-                        id: 'cactus',
-                        label: 'Cactus',
-                        path: 'other/other-cactus.svg',
-                    },
-                    cake: {
-                        id: 'cake',
-                        label: 'Cake',
-                        path: 'other/other-cake.svg',
-                    },
-                    clap: {
-                        id: 'clap',
-                        label: 'Clap',
-                        path: 'other/other-clap.svg',
-                    },
-                    controller: {
-                        id: 'controller',
-                        label: 'Controller',
-                        path: 'other/other-controller.svg',
-                    },
-                    clubs: {
-                        id: 'clubs',
-                        label: 'Clubs',
-                        path: 'other/other-clubs.svg',
-                    },
-                    diamonds: {
-                    id: 'diamonds',
-                        label: 'Diamonds',
-                        path: 'other/other-diamonds.svg',
-                    },
-                    hearts: {
-                        id: 'hearts',
-                        label: 'Hearts',
-                        path: 'other/other-hearts.svg',
-                    },
-                    spades: {
-                        id: 'spades',
-                        label: 'Spades',
-                        path: 'other/other-spades.svg',
-                    },
-                    dice: {
-                        id: 'dice',
-                        label: 'Dice',
-                        path: 'other/other-dice.svg',
-                    },
-                    eightball: {
-                        id: 'eightball',
-                        label: 'Eightball',
-                        path: 'other/other-eightball.svg',
-                    },
-                    face: {
-                        id: 'face',
-                        label: 'Face',
-                        path: 'other/other-face.svg',
-                    },
-                    ghost: {
-                        id: 'ghost',
-                        label: 'Ghost',
-                        path: 'other/other-ghost.svg',
-                    },
-                    hotdog: {
-                        id: 'hotdog',
-                        label: 'Hotdog',
-                        path: 'other/other-hotdog.svg',
-                    },
-                    keyboard: {
-                        id: 'keyboard',
-                        label: 'Keyboard',
-                        path: 'other/other-keyboard.svg',
-                    },
-                    keytar: {
-                        id: 'keytar',
-                        label: 'Keytar',
-                        path: 'other/other-keytar.svg',
-                    },
-                    lightning: {
-                        id: 'lightning',
-                        label: 'Lightning',
-                        path: 'other/other-lightning-bolt.svg',
-                    },
-                    map: {
-                        id: 'map',
-                        label: 'Map',
-                        path: 'other/other-map.svg',
-                    },
-                    medal: {
-                        id: 'medal',
-                        label: 'Medal',
-                        path: 'other/other-medal.svg',
-                    },
-                    medal2: {
-                        id: 'medal2',
-                        label: 'Medal2',
-                        path: 'other/other-medal-2.svg',
-                    },
-                    microphone: {
-                        id: 'microphone',
-                        label: 'Microphone',
-                        path: 'other/other-microphone.svg',
-                    },
-                    micropscope: {
-                        id: 'micropscope',
-                        label: 'Micropscope',
-                        path: 'other/other-micropscope.svg',
-                    },
-                    minecraft: {
-                        id: 'minecraft',
-                        label: 'Minecraft',
-                        path: 'other/other-minecraft-block.svg',
-                    },
-                    paintbrush: {
-                        id: 'paintbrush',
-                        label: 'Paintbrush',
-                        path: 'other/other-paintbrush.svg',
-                    },
-                    palmtree: {
-                        id: 'palmtree',
-                        label: 'Palmtree',
-                        path: 'other/other-palmtree.svg',
-                    },
-                    pen: {
-                        id: 'pen',
-                        label: 'Pen',
-                        path: 'other/other-pen.svg',
-                    },
-                    piano: {
-                        id: 'piano',
-                        label: 'Piano',
-                        path: 'other/other-piano-keyboard.svg',
-                    },
-                    poop: {
-                        id: 'poop',
-                        label: 'Poop',
-                        path: 'other/other-poop.svg',
-                    },
-                    popcorn: {
-                        id: 'popcorn',
-                        label: 'Popcorn',
-                        path: 'other/other-popcorn.svg',
-                    },
-                    'space-invader': {
-                        id: 'space-invader',
-                        label: 'Space invader',
-                        path: 'other/other-space-invader.svg',
-                    },
-                    spider2: {
-                        id: 'spider2',
-                        label: 'Spider2',
-                        path: 'animals/animal-spider-2.svg',
-                    },
-                    sprout: {
-                        id: 'sprout',
-                        label: 'Sprout',
-                        path: 'other/other-sprout.svg',
-                    },
-                    thermometer: {
-                        id: 'thermometer',
-                        label: 'Thermometer',
-                        path: 'other/other-thermometer.svg',
-                    },
-                    toadstool: {
-                        id: 'toadstool',
-                        label: 'Toadstool',
-                        path: 'other/other-toadstool.svg',
-                    },
-                    trophy: {
-                        id: 'trophy',
-                        label: 'Trophy',
-                        path: 'other/other-trophy.svg',
-                    },
-                    pancakes: {
-                        id: 'pancakes',
-                        label: 'Pancakes',
-                        path: 'other/other-waffles.svg',
-                    },
-                },
-            },
             data: {
-                label: 'Photo',
+                label: 'Expressions',
                 id: 'data',
                 resources: {
                     'animal-nose': {
@@ -948,6 +720,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Eyes',
                         path: 'photo-play/photo-eyes.svg',
                     },
+                    'heart-eyes': {
+                        id: 'heart-eyes',
+                        label: 'Heart eyes',
+                        path: 'photo-play/photo-heart-eyes.svg',
+                    },
                     heart: {
                         id: 'heart',
                         label: 'Heart',
@@ -973,6 +750,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Nose',
                         path: 'photo-play/photo-nose.svg',
                     },
+                    'smiley-mouth': {
+                        id: 'smiley-mouth',
+                        label: 'Smiley mouth',
+                        path: 'photo-play/photo-smile.svg',
+                    },
                     sunglasses: {
                         id: 'sunglasses',
                         label: 'Sunglasses',
@@ -987,6 +769,139 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'zzz',
                         label: 'Zzz',
                         path: 'photo-play/photo-zzz.svg',
+                    },
+                },
+            },
+            holidays: {
+                label: 'Holidays',
+                id: 'holidays',
+                resources: {
+                    candle: {
+                        id: 'candle',
+                      label: 'Candle',
+                      path: 'holidays/holidays-candle.svg',
+                    },
+                    gift: {
+                        id: 'gift',
+                        label: 'Gift',
+                        path: 'holidays/holidays-gift.svg',
+                    },
+                    gingerbread: {
+                        id: 'gingerbread',
+                        label: 'Gingerbread',
+                        path: 'holidays/holidays-gingerbread.svg',
+                    },
+                    hat: {
+                        id: 'hat',
+                        label: 'Hat',
+                        path: 'holidays/holidays-hat.svg',
+                    },
+                    tree: {
+                        id: 'tree',
+                        label: 'Tree',
+                        path: 'holidays/holidays-tree.svg',
+                    },
+                },
+            },
+            kano: {
+                label: 'Kano',
+                id: 'kano',
+                resources: {
+                    arrow: {
+                        id: 'arrow',
+                        label: 'Arrow',
+                        path: 'kano/arrow.svg',
+                    },
+                    judoka: {
+                        id: 'judoka',
+                        label: 'Judoka',
+                        path: 'kano/judoka-face.svg',
+                    },
+                    record: {
+                        id: 'record',
+                        label: 'Record',
+                        path: 'kano/judoka-record.svg',
+                    },
+                    planet: {
+                        id: 'planet',
+                        label: 'Planet',
+                        path: 'kano/planet.svg',
+                    },
+                    robotnik: {
+                        id: 'robotnik',
+                        label: 'Robotnik',
+                        path: 'kano/robotnik.svg',
+                    },
+                    star: {
+                        id: 'star',
+                        label: 'Star',
+                        path: 'kano/star.svg',
+                    },
+                },
+            },
+            buildings: {
+                label: 'Buildings',
+                id: 'buildings',
+                resources: {
+                    bank: {
+                        id: 'bank',
+                        label: 'Bank',
+                        path: 'buildings/buildings-bank.svg',
+                    },
+                    castle: {
+                        id: 'castle',
+                        label: 'Castle',
+                        path: 'buildings/buildings-castle.svg',
+                    },
+                    factory: {
+                        id: 'factory',
+                        label: 'Factory',
+                        path: 'buildings/buildings-factory.svg',
+                    },
+                    fountain: {
+                        id: 'fountain',
+                        label: 'Fountain',
+                        path: 'buildings/buildings-fountain.svg',
+                    },
+                    hospital: {
+                        id: 'hospital',
+                        label: 'Hospital',
+                        path: 'buildings/buildings-hospital.svg',
+                    },
+                    hotel: {
+                        id: 'hotel',
+                        label: 'Hotel',
+                        path: 'buildings/buildings-hotel.svg',
+                    },
+                    house: {
+                        id: 'house',
+                        label: 'House',
+                        path: 'buildings/buildings-house.svg',
+                    },
+                    'old-house': {
+                        id: 'old-house',
+                        label: 'Old house',
+                        path: 'buildings/buildings-old-house.svg',
+                    },
+                    office: {
+                        id: 'office',
+                        label: 'Office',
+                        path: 'buildings/buildings-office.svg',
+                    },
+                    school: {
+                        id: 'school',
+                        label: 'School',
+                        path: 'buildings/buildings-school.svg',
+                    },
+                    store: {
+                        id: 'store',
+                        label: 'Store',
+                        path: 'buildings/buildings-store.svg',
+                    },
+                    tent: {
+                        id: 'tent',
+                        label: 'Tent',
+                        path: 'buildings/buildings-tent.svg',
                     },
                 },
             },
@@ -1094,7 +1009,7 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
             vehicles: {
                 label: 'Vehicles',
                 id: 'vehicles',
-                resources: { 
+                resources: {
                     ambulance: {
                         id: 'ambulance',
                         label: 'Ambulance',
@@ -1119,7 +1034,198 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'taxi',
                         label: 'Taxi',
                         path: 'vehicles/taxi.svg',
+                    },
+                    train: {
+                        id: 'train',
+                        label: 'Train',
+                        path: 'vehicles/train.svg',
+                    },
+                    'train-carriage': {
+                        id: 'train-carriage',
+                        label: 'Train carriage',
+                        path: 'vehicles/train-carriage.svg',
                     }
+                },
+            },
+            other: {
+                label: 'Other',
+                id: 'other',
+                resources: {
+                    balloon: {
+                        id: 'balloon',
+                        label: 'Balloon',
+                        path: 'other/other-balloon.svg',
+                    },
+                    baseball: {
+                        id: 'baseball',
+                        label: 'Baseball',
+                        path: 'other/other-ball-baseball.svg',
+                    },
+                    basketball: {
+                        id: 'basketball',
+                        label: 'Basketball',
+                        path: 'other/other-ball-basketball.svg',
+                    },
+                    football: {
+                        id: 'football',
+                        label: 'Football',
+                        path: 'other/other-ball-football.svg',
+                    },
+                    tennisball: {
+                        id: 'tennisball',
+                        label: 'Tennisball',
+                        path: 'other/other-ball-tennis.svg',
+                    },
+                    ball: {
+                        id: 'ball',
+                        label: 'Ball',
+                        path: 'other/other-ball.svg',
+                    },
+                    cactus: {
+                        id: 'cactus',
+                        label: 'Cactus',
+                        path: 'other/other-cactus.svg',
+                    },
+                    clap: {
+                        id: 'clap',
+                        label: 'Clap',
+                        path: 'other/other-clap.svg',
+                    },
+                    controller: {
+                        id: 'controller',
+                        label: 'Controller',
+                        path: 'other/other-controller.svg',
+                    },
+                    clubs: {
+                        id: 'clubs',
+                        label: 'Clubs',
+                        path: 'other/other-clubs.svg',
+                    },
+                    diamonds: {
+                    id: 'diamonds',
+                        label: 'Diamonds',
+                        path: 'other/other-diamonds.svg',
+                    },
+                    hearts: {
+                        id: 'hearts',
+                        label: 'Hearts',
+                        path: 'other/other-hearts.svg',
+                    },
+                    spades: {
+                        id: 'spades',
+                        label: 'Spades',
+                        path: 'other/other-spades.svg',
+                    },
+                    dice: {
+                        id: 'dice',
+                        label: 'Dice',
+                        path: 'other/other-dice.svg',
+                    },
+                    eightball: {
+                        id: 'eightball',
+                        label: 'Eightball',
+                        path: 'other/other-eightball.svg',
+                    },
+                    ghost: {
+                        id: 'ghost',
+                        label: 'Ghost',
+                        path: 'other/other-ghost.svg',
+                    },
+                    keyboard: {
+                        id: 'keyboard',
+                        label: 'Keyboard',
+                        path: 'other/other-keyboard.svg',
+                    },
+                    lightning: {
+                        id: 'lightning',
+                        label: 'Lightning',
+                        path: 'other/other-lightning-bolt.svg',
+                    },
+                    map: {
+                        id: 'map',
+                        label: 'Map',
+                        path: 'other/other-map.svg',
+                    },
+                    medal: {
+                        id: 'medal',
+                        label: 'Medal',
+                        path: 'other/other-medal.svg',
+                    },
+                    medal2: {
+                        id: 'medal2',
+                        label: 'Medal2',
+                        path: 'other/other-medal-2.svg',
+                    },
+                    microphone: {
+                        id: 'microphone',
+                        label: 'Microphone',
+                        path: 'other/other-microphone.svg',
+                    },
+                    micropscope: {
+                        id: 'micropscope',
+                        label: 'Micropscope',
+                        path: 'other/other-micropscope.svg',
+                    },
+                    minecraft: {
+                        id: 'minecraft',
+                        label: 'Minecraft',
+                        path: 'other/other-minecraft-block.svg',
+                    },
+                    paintbrush: {
+                        id: 'paintbrush',
+                        label: 'Paintbrush',
+                        path: 'other/other-paintbrush.svg',
+                    },
+                    palmtree: {
+                        id: 'palmtree',
+                        label: 'Palmtree',
+                        path: 'other/other-palmtree.svg',
+                    },
+                    pen: {
+                        id: 'pen',
+                        label: 'Pen',
+                        path: 'other/other-pen.svg',
+                    },
+                    poop: {
+                        id: 'poop',
+                        label: 'Poop',
+                        path: 'other/other-poop.svg',
+                    },
+                    rainbow: {
+                        id: 'rainbow',
+                        label: 'Rainbow',
+                        path: 'other/other-rainbow.svg',
+                    },
+                    'space-invader': {
+                        id: 'space-invader',
+                        label: 'Space invader',
+                        path: 'other/other-space-invader.svg',
+                    },
+                    spider2: {
+                        id: 'spider2',
+                        label: 'Spider2',
+                        path: 'animals/animal-spider-2.svg',
+                    },
+                    sprout: {
+                        id: 'sprout',
+                        label: 'Sprout',
+                        path: 'other/other-sprout.svg',
+                    },
+                    thermometer: {
+                        id: 'thermometer',
+                        label: 'Thermometer',
+                        path: 'other/other-thermometer.svg',
+                    },
+                    toadstool: {
+                        id: 'toadstool',
+                        label: 'Toadstool',
+                        path: 'other/other-toadstool.svg',
+                    },
+                    trophy: {
+                        id: 'trophy',
+                        label: 'Trophy',
+                        path: 'other/other-trophy.svg',
+                    },
                 },
             }
         }
