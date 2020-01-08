@@ -105,9 +105,9 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Goat',
                         path: 'animals/animal-goat.svg',
                     },
-                    horse: {
-                        id: 'horse',
-                        label: 'Horse',
+                    'horse-body': {
+                        id: 'horse-body',
+                        label: 'Horse galloping',
                         path: 'animals/animal-horse.svg',
                     },
                     ladybug: {
@@ -434,7 +434,7 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                     },
                     'monkey-head': {
                         id: 'mask-monkey',
-                        label: 'Monkey Mask',
+                        label: 'Monkey Face',
                         path: 'masks/mask-monkey.svg',
                     },
                     'mouse-head': {
