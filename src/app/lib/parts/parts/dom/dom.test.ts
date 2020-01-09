@@ -49,7 +49,7 @@ suite('DOMPart', () => {
 
             part.render();
 
-            assert.equal((part as any)._el.style.transform, `translate(${x - 10/2}px, ${y - 10/2}px) scale(${scale}, ${scale}) rotate(${rotation}deg)`);
+            assert.equal((part as any)._el.style.transform, `translate(${x - 10/2}px, ${y - 10/2}px) scale(${scale * 2}, ${scale * 2}) rotate(${rotation}deg)`);
         });
         test('#rotation', () => {
             return new Promise((resolve) => {
@@ -70,8 +70,8 @@ suite('DOMPart', () => {
                 const part = new DOMTest();
 
                 part.transform.onDidInvalidate(() => {
-                    assert.equal(part.transform.x, distance);
-                    assert.equal(part.transform.y, 0);
+                    assert.equal(part.transform.x, distance + 400);
+                    assert.equal(part.transform.y, 300);
                     resolve();
                 });
 

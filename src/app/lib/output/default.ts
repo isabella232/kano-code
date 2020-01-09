@@ -10,8 +10,10 @@ let audioContextSingleton : AudioContext|null = null;
 /**
  * Returns a singleton instance of an audio context
  */
+
 function getAudioContext() {
-    if (!audioContextSingleton) {
+    if (!audioContextSingleton || audioContextSingleton.state === 'closed') {
+        audioContextSingleton = null;
         audioContextSingleton = new (AudioContext || (window as any).webkitAudioContext)();
     }
     return audioContextSingleton;
@@ -31,6 +33,7 @@ export class DefaultOutputViewProvider extends OutputViewProvider {
         this.canvas.height = 600;
         this.canvas.style.width = '100%';
         this.canvas.style.background = 'white';
+        this.canvas.style.display = 'block';
 
         this._progressBar = document.createElement('div') as HTMLDivElement;
         this._progressBar.style.width = '0%';

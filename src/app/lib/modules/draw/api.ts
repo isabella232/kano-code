@@ -63,6 +63,10 @@ categoryBlocks.push({
     id: 'stamp_random',
     colour: COLOR,
 });
+categoryBlocks.push({
+    id: 'stamp_stampChoice',
+    colour: COLOR,
+});
 
 const category = {
     name: _('MODULE_DRAW_NAME', 'Draw'),
@@ -139,6 +143,10 @@ export function DrawAPI (editor: Editor) {
                 SIZE: 5,
             },
             draw_rectangle: {
+                WIDTH: 5,
+                HEIGHT: 5,
+            },
+            draw_triangle: {
                 WIDTH: 5,
                 HEIGHT: 5,
             },

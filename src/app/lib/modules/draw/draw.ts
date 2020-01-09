@@ -39,6 +39,7 @@ export class DrawModule extends AppModule {
             ellipse: this.modules.shapes.ellipse.bind(this.modules.shapes),
             square: this.modules.shapes.square.bind(this.modules.shapes),
             rectangle: this.modules.shapes.rectangle.bind(this.modules.shapes),
+            triangle: this.modules.shapes.triangle.bind(this.modules.shapes),
             arc: this.modules.shapes.arc.bind(this.modules.shapes),
             polygon: this.modules.shapes.polygon.bind(this.modules.shapes),
             pixel: this.modules.shapes.pixel.bind(this.modules.shapes),

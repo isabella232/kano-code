@@ -28,6 +28,9 @@ export class TextPart extends DOMPart<HTMLDivElement> {
         }
         this._el.textContent = this.core.value;
         this._el.style.color = this.core.color;
+        this._el.style.fontFamily = this.core.font || 'Bariol';
+        this._el.style.fontSize = '16px';
+        (this._el.style as any).willChange = 'unset';
         this.core.apply();
     }
     get value() {
@@ -43,6 +46,13 @@ export class TextPart extends DOMPart<HTMLDivElement> {
     }
     set color(c : string) {
         this.core.color = c;
+        this.core.invalidate();
+    }
+    get font() {
+        return this.core.font;
+    }
+    set font(f: string) {
+        this.core.font = f;
         this.core.invalidate();
     }
 }
