@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { svg } from '@kano/icons-rendering/index.js';
 
 export const play = svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M8 5v14l11-7z"></path></g></svg>`;

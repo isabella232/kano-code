@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-iconset-svg/iron-iconset-svg.js';
 const $_documentContainer = document.createElement('template');

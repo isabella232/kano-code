@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import '@kano/styles/typography.js';
 import { LitElement, css, html, property, customElement } from 'lit-element/lit-element.js';
 import { templateContent } from '../../lib/directives/template-content.js';
