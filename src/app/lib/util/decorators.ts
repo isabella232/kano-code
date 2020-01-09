@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 export function memoize(target: any, key: string, descriptor: any) {
 	let fnKey: string | null = null;
 	let fn: Function | null = null;

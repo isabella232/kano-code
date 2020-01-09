@@ -1,5 +1,25 @@
 # Kano Code
 
+## The Repository
+
+This repository `kano-code` is where we (Kano) develop Kano Code, our user friendly creative coding editor. This source code is available for everyone under the standard GPLv2 license.
+
+## Kano Code
+
+![Kano Code Editor](./screen.png)
+
+Kano Code is part of [Kano World](https://world.kano.me) and our [apps](https://kano.me/app)
+
+## Contributing
+
+There are many ways in which you can participate in the project, for example:
+
+ - [Submit bugs and feature requests](https://github.com/KanoComputing/kano-code/issues), and help us verify as they are checked in
+ - Review [source code changes](https://github.com/KanoComputing/kano-code/pulls)
+ - Review the [guides](https://github.com/KanoComputing/kano-code/tree/master/guides) and make pull requests for anything from typos to new content
+
+If you are interested in fixing issues and contributing directly to the code base, please see the document [How to Setup](./SETUP.md)
+
 ## Usage
 
 ```js
@@ -11,57 +31,9 @@ editor.inject(document.body);
 
 ```
 
-## Development
+## License
 
-This project is going under a transition to TypeScript. The TypeScript compiler is setup to allow JavaScript files.
-If you are about to create a new file, create a TypeScript file instead of a JavaScript file. If you are about to make a lot of changes to a file, if possible, move it to TypeScript.
+Copyright (C) 2019 Kano Computing Ltd.
 
-### Setup
+License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 
-Install dependencies
-
-```sh
-yarn
-```
-
-### watch
-
-```sh
-yarn tsc --watch
-```
-
-### Serve
-
-In a separate terminal
-
-```sh
-yarn serve
-```
-
-Browse the directories under `examples` to run the editor.
-
-### Test
-
-While writing tests, run
-
-```sh
-yarn serve-test
-```
-
-And open the prompted URL to run your tests. You can click on a suite to only run that suite.
-
-### Documentation
-
-Documentation is hosted at https://code-docs.kano.me. The website infrastructure is deployed using terraform. To update the infrastructure, change the files under `terraform` and run:
-
-```
-cd terraform
-terraform init
-terraform apply
-```
-
-The documentation is deployed by jenkins and scoped to the version in `package.json`
-
-### Publish
-
-Run `yarn publish`, update version. Make sure to update version in kit-app-ui as well.

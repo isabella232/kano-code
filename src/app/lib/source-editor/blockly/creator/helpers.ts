@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { registerCreatorHelper } from '../../../creator/index.js';
 import { IGeneratedStep } from '../../../creator/creator.js';
 import { Field, FieldColour, FieldDropdown, FieldVariable, Workspace, Variables, FieldNumber, FieldTextInput } from '@kano/kwc-blockly/blockly.js';

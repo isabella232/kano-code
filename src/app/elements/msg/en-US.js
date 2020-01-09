@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 export const Msg$0 = {};
 Msg$0['add-parts-1'] = "We'll start by adding parts to our app.";
 Msg$0['add-parts-2'] = "To build the interface of the app, we need parts";

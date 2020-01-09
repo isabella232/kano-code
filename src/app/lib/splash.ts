@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 let MARGIN = 10,
     MIN_WIDTH = 15,
     SPACE_LIMIT = 100,

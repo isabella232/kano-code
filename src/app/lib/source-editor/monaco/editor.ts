@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import '../../../../vendor/monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
 import '../../../../vendor/monaco-editor/esm/vs/basic-languages/monaco.contribution.js';
 import { SimpleEditorModelResolverService } from '../../../../vendor/monaco-editor/esm/vs/editor/standalone/browser/simpleServices.js';

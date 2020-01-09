@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { LitElement, html, css, property, customElement, query } from 'lit-element/lit-element.js';
 import { IGeneratedStep } from '../creator.js';
 import { IDisposable, EventEmitter, dispose } from '@kano/common/index.js';

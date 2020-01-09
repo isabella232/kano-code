@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { IVisualsContext, IAudioContext, IDOMContext } from '../app/lib/output/output.js';
 import { IResources } from '../app/lib/output/resources.js';
 import { Microphone } from '../app/lib/output/microphone.js';

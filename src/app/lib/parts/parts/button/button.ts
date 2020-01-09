@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { button } from '@kano/styles/button.js';
 import { DOMPart } from '../dom/dom.js';
 import { IPartContext } from '../../part.js';

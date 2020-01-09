@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { part, component } from '../../decorators.js';
 import { IResourceInformation } from '../../../output/resources.js';
 import { DOMPart } from '../dom/dom.js';

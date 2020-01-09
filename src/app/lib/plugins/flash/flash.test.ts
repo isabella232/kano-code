@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import * as sinon from 'sinon/pkg/sinon-esm.js';
 import { Flash, addFlashField } from './flash.js';
 import { Block } from '@kano/kwc-blockly/blockly.js';

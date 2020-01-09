@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016-2020 Kano Computing Ltd.
+ * License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ */
+
 import { KCEditorBanner } from '../../../elements/kano-editor-banner/kano-editor-banner.js';
 import { EventEmitter, subscribeDOM, IEvent } from '@kano/common/index.js';
 import { twemoji } from '@kano/twemoji/index.es.js';
