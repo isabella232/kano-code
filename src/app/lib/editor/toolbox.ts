@@ -78,8 +78,8 @@ export class Toolbox extends Plugin {
         this.update();
     }
     updateEntry(oldEntry : IAPIDefinition, entry : IAPIDefinition) {
-        const index = this.entries.indexOf(oldEntry);
-        this.entries.splice(index, 1, entry);
+        const index = this._entries.indexOf(oldEntry);
+        this._entries.splice(index, 1, entry);
         this.update();
     }
     setWhitelist(whitelist : IToolboxWhitelist|null) {

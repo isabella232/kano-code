@@ -205,7 +205,7 @@ export class KCPartsControls extends LitElement {
         return this.renderRoot.querySelector(`#part-${id}`) as HTMLElement;
     }
     addEntry(model : IStackEntry) : IPartsControlsEntry {
-        const item = model;
+        let item = model;
         const entry : IPartsControlsEntry = {
             _onDidChangeName: new EventEmitter<string>(),
             get onDidChangeName() { return this._onDidChangeName.event },
@@ -214,6 +214,8 @@ export class KCPartsControls extends LitElement {
                 const index = this.parts.indexOf(item);
                 this.parts.splice(index, 1, model);
                 this.parts = [...this.parts];
+                item = model;
+                item.entry = entry;
             },
             dispose: () => {
                 item.inlineDisplay.onDispose();
