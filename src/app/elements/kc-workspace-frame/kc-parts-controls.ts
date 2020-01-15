@@ -240,6 +240,9 @@ export class KCPartsControls extends LitElement {
         if (existing) {
             return 'A part with that name already exist';
         }
+        if (!newName.length) {
+            return 'A part name can\'t be empty';
+        }
         if (!/^[a-z]/i.test(newName)) {
             return 'A part name must begin with a letter';
         }
