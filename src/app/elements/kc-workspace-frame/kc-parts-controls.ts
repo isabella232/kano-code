@@ -205,17 +205,18 @@ export class KCPartsControls extends LitElement {
         return this.renderRoot.querySelector(`#part-${id}`) as HTMLElement;
     }
     addEntry(model : IStackEntry) : IPartsControlsEntry {
-        let item = model;
+        const item = model;
         const entry : IPartsControlsEntry = {
             _onDidChangeName: new EventEmitter<string>(),
             get onDidChangeName() { return this._onDidChangeName.event },
             update: (model : IStackEntry) => {
                 item.inlineDisplay.onDispose();
                 const index = this.parts.indexOf(item);
-                this.parts.splice(index, 1, model);
+                const newItem = model;
+                newItem.entry = entry;
+
+                this.parts.splice(index, 1, newItem);
                 this.parts = [...this.parts];
-                item = model;
-                item.entry = entry;
             },
             dispose: () => {
                 item.inlineDisplay.onDispose();
@@ -237,10 +238,13 @@ export class KCPartsControls extends LitElement {
     _validatePartName(oldName : string, newName : string) {
         const existing = this.parts.find(p => newName !== oldName && p.name === newName);
         if (existing) {
-            return 'A part with that name already exist';
+            return _('PART_NAME_ALREADY_EXISTS', 'A part with that name already exist');
+        }
+        if (!newName.length) {
+            return _('PART_NAME_EMPTY', 'A part name can\'t be empty');
         }
         if (!/^[a-z]/i.test(newName)) {
-            return 'A part name must begin with a letter';
+            return _('PART_NAME_INVALID_FIRST_CHAR', 'A part name must begin with a letter');
         }
         return true;
     }
