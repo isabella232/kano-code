@@ -239,6 +239,9 @@ export class KCPartsControls extends LitElement {
         if (existing) {
             return 'A part with that name already exist';
         }
+        if (!/^[a-z]/i.test(newName)) {
+            return 'A part name must begin with a letter';
+        }
         return true;
     }
 }
