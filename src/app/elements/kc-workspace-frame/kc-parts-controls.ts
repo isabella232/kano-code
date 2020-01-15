@@ -238,13 +238,13 @@ export class KCPartsControls extends LitElement {
     _validatePartName(oldName : string, newName : string) {
         const existing = this.parts.find(p => newName !== oldName && p.name === newName);
         if (existing) {
-            return 'A part with that name already exist';
+            return _('PART_NAME_ALREADY_EXISTS', 'A part with that name already exist');
         }
         if (!newName.length) {
-            return 'A part name can\'t be empty';
+            return _('PART_NAME_EMPTY', 'A part name can\'t be empty');
         }
         if (!/^[a-z]/i.test(newName)) {
-            return 'A part name must begin with a letter';
+            return _('PART_NAME_INVALID_FIRST_CHAR', 'A part name must begin with a letter');
         }
         return true;
     }
