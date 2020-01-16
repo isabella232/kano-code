@@ -35,7 +35,7 @@ export class WorkspaceToolbar extends Plugin {
         if (!this.editor || !this.editor.workspaceView) {
             return;
         }
-   
+
         const editorShadowRoot = this.editor.root;
         if (editorShadowRoot) {
             this.toolbar = editorShadowRoot.querySelector('kc-workspace-toolbar');
@@ -53,7 +53,7 @@ export class WorkspaceToolbar extends Plugin {
         });
         entry.onDidActivate(() => this.reset());
         this.defaultEntries.set('reset', entry);
-        
+
         entry = this.addSettingsEntry({
             title: 'Export',
             ironIcon: 'kc-ui:export',
@@ -155,11 +155,11 @@ export class WorkspaceToolbar extends Plugin {
         this.resetDialog.open();
         this._telemetry.trackEvent({ name: 'reset_clicked' });
     }
-    export() {
+    export(fileName?: string) {
         if (!this.editor) {
             return;
         }
-        this.editor.exportToDisk();
+        this.editor.exportToDisk(fileName);
         this._telemetry.trackEvent({ name: 'export_clicked' });
     }
     import() {

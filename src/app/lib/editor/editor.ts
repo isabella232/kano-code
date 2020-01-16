@@ -198,7 +198,7 @@ export class Editor extends EditorOrPlayer {
         });
         this.sourceEditor.onDidLayout(() => this._onDidLayoutChange.fire());
         this.sourceEditor.registerQueryHandlers(this.queryEngine);
-        
+
         this.dialogs.onDidLayout(() => this._onDidLayoutChange.fire());
 
         this.queryEngine.registerTagHandler('alias', aliasTagHandlerFactory(this.queryEngine, this.selectorAliases));
@@ -300,7 +300,7 @@ export class Editor extends EditorOrPlayer {
             element.appendChild(this.domNode);
         }
         // Force a synchronous component update. No performance implications as it is about to render anyway
-        // Makes inject a synchronous method. Way easier to handle injection 
+        // Makes inject a synchronous method. Way easier to handle injection
         (this.domNode as any).update();
         this.appendSourceEditor();
         this.appendWorkspaceView();
@@ -416,13 +416,13 @@ export class Editor extends EditorOrPlayer {
     /**
      * Downloads a .kcode file with the exported app
      */
-    exportToDisk() {
+    exportToDisk(fileName = 'my-app.kcode') {
         const savedApp = this.export();
         const a = document.createElement('a');
         const file = new Blob([JSON.stringify(savedApp)], { type: 'application/kcode' });
         const url = URL.createObjectURL(file);
         document.body.appendChild(a);
-        a.download = 'my-app.kcode';
+        a.download = fileName;
         a.href = url;
         a.click();
         document.body.removeChild(a);
