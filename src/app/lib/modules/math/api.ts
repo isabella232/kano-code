@@ -185,7 +185,7 @@ export const MathAPI = {
 
         Blockly.JavaScript.math_sign = (block : Block) => {
             let arg = Blockly.JavaScript.valueToCode(block, 'ARG', Blockly.JavaScript.ORDER_NONE),
-                code = `math.sign(${arg}})`;
+                code = `math.sign(${arg})`;
             return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
         };
 
