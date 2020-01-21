@@ -482,6 +482,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Santa',
                         path: 'masks/mask-santa.svg',
                     },
+                    shh: {
+                        id: 'shh',
+                        label: 'Shh',
+                        path: 'masks/mask-shh.svg',
+                    },
                     skull: {
                         id: 'skull',
                         label: 'Skull',
