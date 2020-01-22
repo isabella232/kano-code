@@ -65,8 +65,8 @@ export abstract class DOMPart<T extends HTMLElement = HTMLElement> extends Part 
             // this.size / 2 is for transforming to center of image instead of corner
             // the scale is multiplied by 2 to make parts more visible
             const transform = {
-                x: (this.transform.x * this._canvasScale) - (this.size.width / 2),
-                y: (this.transform.y * this._canvasScale) - (this.size.height / 2),
+                x: Math.round((this.transform.x * this._canvasScale) - (this.size.width / 2)),
+                y: Math.round((this.transform.y * this._canvasScale) - (this.size.height / 2)),
                 scale: this.transform.scale * this._canvasScale * 2,
             };
             this._el.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}, ${transform.scale}) rotate(${this.transform.rotation}deg)`;
@@ -145,8 +145,8 @@ export abstract class DOMPart<T extends HTMLElement = HTMLElement> extends Part 
     }
     moveAlong(distance : number) {
         const direction = (this.transform.rotation || 0) * Math.PI / 180;
-        const alongY = Math.round(distance * Math.sin(direction));
-        const alongX = Math.round(distance * Math.cos(direction));
+        const alongY = distance * Math.sin(direction);
+        const alongX = distance * Math.cos(direction);
         this.move(alongX, alongY);
     }
     move(x : number, y : number) {
