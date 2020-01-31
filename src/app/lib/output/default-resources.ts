@@ -1009,6 +1009,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Telescope',
                         path: 'space/telescope.svg',
                     },
+                    ufo: {
+                        id: 'ufo',
+                        label: 'UFO',
+                        path: 'space/ufo.svg',
+                    },
                 },
             },
             vehicles: {
