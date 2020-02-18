@@ -73,7 +73,7 @@ categoryBlocks.push({
     colour: COLOR,
 });
 
-let category = {
+const category = {
     name: _('MODULE_DRAW_NAME', 'Draw'),
     id: 'draw',
     colour: COLOR,
@@ -82,8 +82,11 @@ let category = {
 
 export function DrawAPI (editor: Editor, removeBackground: Boolean = false) {
     const stickers = editor.output.resources.get('stickers');
+    let newCategory : {}
     if (removeBackground) {
-        category = {...category, blocks: categoryBlocks.filter(block => block.id !== 'draw_set_background_color')}
+        newCategory = {...category, blocks: categoryBlocks.filter(block => block.id !== 'draw_set_background_color')}
+    } else {
+        newCategory = category
     }
     return {
         type: 'blockly',
@@ -100,7 +103,7 @@ export function DrawAPI (editor: Editor, removeBackground: Boolean = false) {
                 }
             });
             definitions.forEach((definition) => {
-                const block = definition.block(category);
+                const block = definition.block(newCategory);
                 block.colour = COLOR;
                 const id = `draw_${block.id}`;
                 if (!block.doNotRegister) {
@@ -111,13 +114,13 @@ export function DrawAPI (editor: Editor, removeBackground: Boolean = false) {
                     };
                     Blockly.Blocks[id].customColor = block.colour;
                 }
-                Blockly.JavaScript[id] = definition.javascript(category);
+                Blockly.JavaScript[id] = definition.javascript(newCategory);
             });
             registerRepeatDrawing(Blockly, COLOR);
             registerRepeatInCircle(Blockly, COLOR);
             registerAnglePicker(Blockly);
         },
-        category,
+        category: newCategory,
         defaults: {
             draw_set_background_color: {
                 COLOR: '#ffffff',
