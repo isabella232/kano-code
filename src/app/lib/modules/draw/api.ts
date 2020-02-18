@@ -73,15 +73,18 @@ categoryBlocks.push({
     colour: COLOR,
 });
 
-const category = {
+let category = {
     name: _('MODULE_DRAW_NAME', 'Draw'),
     id: 'draw',
     colour: COLOR,
     blocks: categoryBlocks,
 };
 
-export function DrawAPI (editor: Editor) {
+export function DrawAPI (editor: Editor, removeBackground: Boolean = false) {
     const stickers = editor.output.resources.get('stickers');
+    if (removeBackground) {
+        category = {...category, blocks: categoryBlocks.filter(block => block.id !== 'draw_set_background_color')}
+    }
     return {
         type: 'blockly',
         id: DrawModule.id,
