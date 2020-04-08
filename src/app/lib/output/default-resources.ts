@@ -392,6 +392,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Face',
                         path: 'other/other-face.svg',
                     },
+                    facemask: {
+                        id: 'facemask',
+                        label: 'Facemask',
+                        path: 'masks/mask-facemask.svg',
+                    },
                     fox: {
                         id: 'fox',
                         label: 'Fox',
@@ -416,6 +421,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         id: 'horse',
                         label: 'Horse',
                         path: 'masks/mask-horse.svg',
+                    },
+                    ill: {
+                        id: 'ill',
+                        label: 'Ill',
+                        path: 'masks/mask-ill.svg',
                     },
                     koala: {
                         id: 'koala',
