@@ -19,18 +19,28 @@ class KcWorkspaceFrame extends PolymerElement {
                 flex-direction: column;
                 height: 100%;
             }
+            :host .content-wrapper {
+                width: 100%;
+                padding-bottom: 75%;
+                position: relative;
+                margin-top: 14px;
+            }
             :host(.fullscreen) #content {
                 position: fixed;
                 top: 0;
                 left: 0;
-                z-index: 301;
+                width: 100%;
+                height: 100%;
                 margin: 0;
             }
             :host #content {
-                position: relative;
-                width: auto;
-                margin-top: 14px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
                 transition: background linear 150ms;
+                z-index: 300;
             }
             :host.running #content {
                 --kano-ui-viewport: {
@@ -60,31 +70,37 @@ class KcWorkspaceFrame extends PolymerElement {
                 box-sizing: border-box;
                 margin: 12px 0;
             }
-            :host(:not(.fullscreen)) .overlay {
+
+            :host(:not(.fullscreen)) .fullscreen-backdrop {
                 display: none;
             }
-            .overlay {
+            .fullscreen-backdrop {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                z-index: 300;
                 background: var(--kano-app-editor-workspace-background, #f2f2f2);
+                z-index: 300;
             }
 
+            :host(:not(.fullscreen)) button#fullscreen-close {
+                display: none;
+            }
             button#fullscreen-close {
                 align-self: flex-end;
-                background: rgba(255, 255, 255, 0.25);
+                background: #5e6367;
                 color: rgba(255, 255, 255, 0.75);
                 border-radius: 3px;
                 position: fixed;
                 top: 16px;
                 right: 16px;
                 padding: 0px;
+                z-index: 301;
+                transition: all linear 250ms;
             }
             button#fullscreen-close:hover {
-                background: rgba(255, 255, 255, 0.5);
+                background: #95979a;
             }
             paper-dialog {
                 background: transparent;
@@ -119,19 +135,20 @@ class KcWorkspaceFrame extends PolymerElement {
                 display: none !important;
             }
         </style>
-        <kano-ui-viewport id="content" mode="scaled" view-width="[[width]]" view-height="[[height]]">
-            <div id="workspace-placeholder">
-                <slot name="workspace"></slot>
-            </div>
-        </kano-ui-viewport>
+        <div class="fullscreen-backdrop"></div>
+        <div class="content-wrapper">
+            <kano-ui-viewport id="content" mode="scaled" centered view-width="[[width]]" view-height="[[height]]">
+                <div id="workspace-placeholder">
+                    <slot name="workspace"></slot>
+                </div>
+            </kano-ui-viewport>
+        </div>
         <div class="controls">
             <slot name="controls"></slot>
         </div>
-        <div class="overlay">
-            <button id="fullscreen-close" class="btn" on-tap="_closeFullscreen">
-                <div class="icon">${close}</div>
-            </button>
-        </div>
+        <button id="fullscreen-close" class="btn" on-tap="_closeFullscreen">
+            <div class="icon">${close}</div>
+        </button>
         <iron-a11y-keys keys="meta+enter" on-keys-pressed="_goFullscreen" target="[[target]]"></iron-a11y-keys>
         <iron-a11y-keys keys="esc" on-keys-pressed="_cancelFullscreen" target="[[target]]"></iron-a11y-keys>
 `;
@@ -177,36 +194,6 @@ class KcWorkspaceFrame extends PolymerElement {
         return this.$.toolbar.addMenuItem(label, icon, callback);
     }
     _setViewportHeight() {
-        window.requestAnimationFrame(() => {
-            let aspectRatio = this.height / this.width;
-            const { style } = this.$.content;
-            if (!this.$.content.isVisible) {
-                return;
-            }
-            if (this.fullscreen) {
-                // Portrait
-                if (window.innerHeight > window.innerWidth * aspectRatio) {
-                    style.width = '84vw';
-                    style.height = `calc(84vw * ${aspectRatio})`;
-                    style.top = `calc(50% - (84vw * ${aspectRatio} / 2))`;
-                    style.left = 'calc(50% - 42vw)';
-                } else {
-                    // Landscape
-                    aspectRatio = 1 / aspectRatio;
-                    style.height = '84vh';
-                    style.width = `calc(84vh * ${aspectRatio})`;
-                    style.top = 'calc(50% - 42vh)';
-                    style.left = `calc(50% - (84vh * ${aspectRatio} / 2))`;
-                }
-            } else {
-                // We are not fullscreen so set the viewport
-                // height relative to the width of the workspace
-                style.width = 'auto';
-                style.height = `${this.offsetWidth * aspectRatio}px`;
-                style.top = 'auto';
-                style.left = 'auto';
-            }
-        });
         this.$.content.resizeView();
     }
     _goFullscreen() {

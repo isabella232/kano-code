@@ -210,6 +210,12 @@ export class Editor extends EditorOrPlayer {
         this.addPlugin(this.toolbox);
         this.addPlugin(this.activityBar);
 
+        this.output.onDidFullscreenChange(() => {
+            const toolbar = this.domNode.workspaceToolbar;
+            if (toolbar) {
+                toolbar.fullscreen = this.output.getFullscreen();
+            }
+        });
 
         this.fileUpload = new FileUpload(this.domNode, defaultDropOverlayProvider);
 

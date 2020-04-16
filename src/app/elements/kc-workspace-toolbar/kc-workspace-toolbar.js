@@ -35,7 +35,14 @@ export class KCWorkspaceToolbar extends I18nMixin(PolymerElement) {
                 display: flex;
                 flex-direction: row;
             }
-            .fullscreen,
+            .fullscreen {
+                position: fixed;
+                bottom: 20px;
+                left: 0;
+                width: 100%;
+                z-index: 301;
+                justify-content: center;
+            }
             .pause {
                 border-right: 2px solid #eee;
             }
@@ -120,6 +127,10 @@ export class KCWorkspaceToolbar extends I18nMixin(PolymerElement) {
             }
             button.tool {
                 border-radius: 18px;
+                background-color: #5e6367;
+            }
+            button.tool:hover {
+                background-color: #95979a;
             }
             ul li button:focus {
                 outline: none;
@@ -155,28 +166,30 @@ export class KCWorkspaceToolbar extends I18nMixin(PolymerElement) {
             <span>, y:</span>
             <kano-value-rendering font="bold 24px Bariol" width="32" height="16" value="[[mouseY]]" text-align="end" offset-x="25"></kano-value-rendering>
         </div> -->
-        <template is="dom-repeat" items="[[entries]]" filter="_isRight">
-            <kano-tooltip id$="tooltip-[[item.id]]" class="fly" position="top" offset="16"><div class="text">[[item.title]]</div></kano-tooltip>
-            <button id$="entry-[[item.id]]" type="button" class="tool" on-click="_entryClicked" on-mouseenter="_startEntryTimer" on-mouseleave="_stopEntryTimer">
-                <iron-icon icon="[[item.ironIcon]]" src="[[item.icon]]"></iron-icon>
+        <div class$="content [[_fullscreenClass(fullscreen)]]">
+            <template is="dom-repeat" items="[[entries]]" filter="_isRight">
+                <kano-tooltip id$="tooltip-[[item.id]]" class="fly" position="top" offset="16"><div class="text">[[item.title]]</div></kano-tooltip>
+                <button id$="entry-[[item.id]]" type="button" class="tool" on-click="_entryClicked" on-mouseenter="_startEntryTimer" on-mouseleave="_stopEntryTimer">
+                    <iron-icon icon="[[item.ironIcon]]" src="[[item.icon]]"></iron-icon>
+                </button>
+            </template>
+            <kano-tooltip id="tooltip-play" class="fly" position="top" offset="16"><div class="text">[[_computePlayTitle(running)]]</div></kano-tooltip>
+            <button id="entry-play" class="tool" type="button" on-click="_playClicked" on-mouseenter="_startPlayTimer" on-mouseleave="_stopPlayTimer">
+                <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="[[_getRunningStatus(running)]]" hidden$="[[noPlayerBar]]"></kano-animated-svg>
             </button>
-        </template>
-        <kano-tooltip id="tooltip-play" class="fly" position="top" offset="16"><div class="text">[[_computePlayTitle(running)]]</div></kano-tooltip>
-        <button id="entry-play" class="tool" type="button" on-click="_playClicked" on-mouseenter="_startPlayTimer" on-mouseleave="_stopPlayTimer">
-            <kano-animated-svg width="19" height="21" paths="[[makeButtonIconPaths]]" selected="[[_getRunningStatus(running)]]" hidden$="[[noPlayerBar]]"></kano-animated-svg>
-        </button>
-        <kano-tooltip id="settings-tooltip" position="[[_settingsPostion(fullscreen)]]" offset="16" auto-close>
-            <ul id="settings-list">
-                <template is="dom-repeat" items="[[settingsEntries]]">
-                    <li>
-                        <button type="button" class="inline text" on-tap="_settingsItemTapped">
-                            <iron-icon icon="[[item.ironIcon]]" src="[[item.icon]]"></iron-icon>
-                            <div>[[item.title]]</div>
-                        </button>
-                    </li>
-                </template>
-            </ul>
-        </kano-tooltip>
+            <kano-tooltip id="settings-tooltip" position="[[_settingsPostion(fullscreen)]]" offset="16" auto-close>
+                <ul id="settings-list">
+                    <template is="dom-repeat" items="[[settingsEntries]]">
+                        <li>
+                            <button type="button" class="inline text" on-tap="_settingsItemTapped">
+                                <iron-icon icon="[[item.ironIcon]]" src="[[item.icon]]"></iron-icon>
+                                <div>[[item.title]]</div>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+            </kano-tooltip>
+        </div>
 `;
     }
     static get properties() {
@@ -330,6 +343,10 @@ export class KCWorkspaceToolbar extends I18nMixin(PolymerElement) {
 
         e.preventDefault();
         e.stopPropagation();
+    }
+
+    _fullscreenClass(fullscreen) {
+        return fullscreen ? 'fullscreen' : '';
     }
 }
 
