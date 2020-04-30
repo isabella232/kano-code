@@ -54,6 +54,7 @@ export interface IEditorOptions {
     sourceType? : string;
     mediaPath? : string;
     blockly? : any;
+    BLOCKLY_MEDIA?: string;
 }
 
 export interface ICreationBundle {}
