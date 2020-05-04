@@ -78,9 +78,11 @@ export class Remix extends ChallengeBase {
                 });
         }
     }
+
     stop() {}
+    
     dispose() {
-        // dispose banner 
+        // teardown banner 
         if (this.editor.contentWidgets) {
             this.editor.contentWidgets.getWidgets().forEach((widget) => {
                 this.editor.removeContentWidget(widget);
