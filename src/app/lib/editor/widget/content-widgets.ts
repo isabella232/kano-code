@@ -73,4 +73,7 @@ export class ContentWidgets {
         const idx = this.widgets.indexOf(widget);
         this.widgets.splice(idx, 1);
     }
+    getWidgets(): IEditorWidget[]{
+        return this.widgets;
+    }
 }
