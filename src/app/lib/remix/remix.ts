@@ -78,5 +78,17 @@ export class Remix extends ChallengeBase {
                 });
         }
     }
-    dispose() {}
+    stop() {}
+    dispose() {
+        // dispose banner 
+        if (this.editor.contentWidgets) {
+            this.editor.contentWidgets.getWidgets().forEach((widget) => {
+                this.editor.removeContentWidget(widget);
+            });
+        }
+
+        if (window.Kano.Code.mainChallenge === this) {
+            window.Kano.Code.mainChallenge = null;
+        }
+    }
 }
