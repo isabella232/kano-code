@@ -7,7 +7,6 @@ import { RemixFloatingMenu } from './widget/floating-menu.js';
 import { registerRemix, IRemix, Remix, IRemixSuggestion } from '../../../remix/index.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
 import { button } from '@kano/styles/button.js';
-import { EventEmitter } from '@kano/common/index.js';
 import { _ } from '../../../i18n/index.js';
 import { debounce } from '../../../decorators.js';
 
@@ -15,9 +14,6 @@ export class BlocklyRemix extends Remix {
     resetConfirm? : Confirm;
     menu? : RemixFloatingMenu;
     data? : IRemix;
-
-    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
-    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
 
     getResetConfirm() {
         if (!this.resetConfirm) {

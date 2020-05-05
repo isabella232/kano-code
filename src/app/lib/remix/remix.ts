@@ -7,7 +7,6 @@ import { RemixTooltip } from './widget/tooltip.js';
 import { ChallengeBase } from '../challenge/base.js';
 import Dialog from '../editor/dialogs/dialog.js';
 import { RemixDialogProvider } from './dialog.js';
-import { debounce } from '../decorators.js';
 
 
 export interface IRemixSuggestion {
@@ -80,7 +79,7 @@ export class Remix extends ChallengeBase {
     }
 
     stop() {}
-    
+
     dispose() {
         // teardown banner 
         if (this.editor.contentWidgets) {
