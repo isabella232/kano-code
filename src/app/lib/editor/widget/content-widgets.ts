@@ -66,6 +66,7 @@ export class ContentWidgets {
         // This value is to make sure they appear on top of Blockly's widget div
         domNode.style.zIndex = '200000';
     }
+    
     removeWidget(widget : IEditorWidget) {
         if (this.domNode.contains(widget.getDomNode())) {
             this.domNode.removeChild(widget.getDomNode());
@@ -73,6 +74,7 @@ export class ContentWidgets {
         const idx = this.widgets.indexOf(widget);
         this.widgets.splice(idx, 1);
     }
+
     getWidgets(): IEditorWidget[]{
         return this.widgets;
     }
