@@ -9,13 +9,9 @@ import { BriefingFloatingMenu } from './widget/floating-menu.js';
 import { Confirm } from '../../../editor/dialogs/confirm.js';
 import { button } from '@kano/styles/button.js';
 import { _ } from '../../../i18n/index.js';
-import { EventEmitter } from '@kano/common/index.js';
 export class BlocklyBriefing extends Briefing {
     resetConfirm? : Confirm;
     menu? : BriefingFloatingMenu;
-
-    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
-    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
 
     getResetConfirm() {
         if (!this.resetConfirm) {

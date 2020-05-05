@@ -5,7 +5,7 @@
 
 import { BlocklySourceEditor } from '../source-editor/blockly.js';
 import { transformChallenge } from './legacy.js';
-import { IDisposable, EventEmitter, subscribeDOM, dispose } from '@kano/common/index.js';
+import { IDisposable, subscribeDOM, dispose } from '@kano/common/index.js';
 import { IToolboxWhitelist } from '../editor/toolbox.js';
 import { Editor } from '../editor/editor.js';
 import { Engine } from './engine.js';
@@ -41,9 +41,6 @@ export class Challenge extends ChallengeBase {
     public data : IChallengeData;
     public engine? : Engine;
     private subscriptions : IDisposable[] = [];
-
-    private _onDidRequestNextChallenge : EventEmitter = new EventEmitter();
-    get onDidRequestNextChallenge() { return this._onDidRequestNextChallenge.event; }
 
     constructor(editor : Editor, challengeData : IChallengeData) {
         super(editor);

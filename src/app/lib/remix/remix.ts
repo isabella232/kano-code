@@ -7,7 +7,6 @@ import { RemixTooltip } from './widget/tooltip.js';
 import { ChallengeBase } from '../challenge/base.js';
 import Dialog from '../editor/dialogs/dialog.js';
 import { RemixDialogProvider } from './dialog.js';
-import { debounce } from '../decorators.js';
 
 
 export interface IRemixSuggestion {
@@ -78,5 +77,19 @@ export class Remix extends ChallengeBase {
                 });
         }
     }
-    dispose() {}
+
+    stop() {}
+
+    dispose() {
+        // teardown banner 
+        if (this.editor.contentWidgets) {
+            this.editor.contentWidgets.getWidgets().forEach((widget) => {
+                this.editor.removeContentWidget(widget);
+            });
+        }
+
+        if (window.Kano.Code.mainChallenge === this) {
+            window.Kano.Code.mainChallenge = null;
+        }
+    }
 }
