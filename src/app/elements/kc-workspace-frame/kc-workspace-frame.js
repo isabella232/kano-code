@@ -32,6 +32,7 @@ class KcWorkspaceFrame extends PolymerElement {
                 width: 100%;
                 height: 100%;
                 margin: 0;
+                z-index: 300;
             }
             :host #content {
                 position: absolute;
@@ -40,7 +41,6 @@ class KcWorkspaceFrame extends PolymerElement {
                 width: 100%;
                 height: 100%;
                 transition: background linear 150ms;
-                z-index: 300;
             }
             :host.running #content {
                 --kano-ui-viewport: {
