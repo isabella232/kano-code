@@ -62,7 +62,7 @@ export class KCEditorBanner extends LitElement {
             .info {
                 padding: 0 12px;
             }
-        
+
             slot[name="hint-button"]::slotted(button) {
                 border-radius: 5px;
                 border: none;
@@ -77,7 +77,7 @@ export class KCEditorBanner extends LitElement {
             slot[name="hint-button"]::slotted(button:hover) {
                 color: #D95000;
             }
-            
+
             .content {
                 flex-direction: column;
                 font-family: var(--font-body);
@@ -93,7 +93,7 @@ export class KCEditorBanner extends LitElement {
                 float: right;
                 margin-right: 8px;
             }
-            
+
             .title {
                 color: var(--color-grey);
                 font-weight: bold;
@@ -176,6 +176,7 @@ export class KCEditorBanner extends LitElement {
     }
 
     render() {
+        const textContent = this.text ? marked(this.text.trim()) : '';
         return html`
         <div class="block block-1">
             <slot name="avatar"></slot>
@@ -184,9 +185,7 @@ export class KCEditorBanner extends LitElement {
         </div>
         </div>
         <div class="content">
-            <div class="markdown-html" id="markdown-html">
-                ${marked(this.text)}
-            </div>
+            <div class="markdown-html" id="markdown-html">${textContent}</div>
             <div class="info">
                 <slot name="info"></slot>
             </div>
