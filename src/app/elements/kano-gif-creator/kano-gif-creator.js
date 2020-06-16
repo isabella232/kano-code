@@ -5,7 +5,8 @@
 
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-import 'gif.js/dist/gif.js';
+// Package no longer included in package.json
+// import 'gif.js/dist/gif.js';
 
 Polymer({
     _template: html`
