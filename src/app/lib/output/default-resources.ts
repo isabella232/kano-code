@@ -382,6 +382,11 @@ class DefaultStickers extends Resource<HTMLCanvasElement> {
                         label: 'Dog head',
                         path: 'masks/mask-dog.svg',
                     },
+                    dragon: {
+                        id: 'dragon',
+                        label: 'Dragon',
+                        path: 'masks/mask-dragon.svg',
+                    },
                     'easter-island': {
                         id: 'easter-island',
                         label: 'Easter island',
