@@ -149,18 +149,6 @@ export class Resource<T> implements IResourceInformation {
 
     rasteriseImage(img : HTMLImageElement) {
         const canvas = document.createElement('canvas');
-
-        /* Normalise stickers to fit a 150x150 bounding box */
-        if ((img.width !== 150 && img.height !== 150) || (img.width > 150 || img.height > 150)) {
-            if (img.width >= img.height) {
-                img.height = Math.round((150 / img.width) * img.height);
-                img.width = 150;
-            } else {
-                img.width = Math.round((150 / img.height) * img.width);
-                img.height = 150;
-            }
-        }
-
         canvas.width = img.width * RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
         canvas.height = img.height * RESOURCE_CACHE_RESOLUTION_MULTIPLIER;
         const ctx = canvas.getContext('2d');
