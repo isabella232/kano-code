@@ -437,10 +437,6 @@ class BlocklyChallenge extends Engine {
         }
         return this._checkEvent(validation, detail);
     }
-
-    dispose() {
-        super.dispose();
-    }
 }
 
 export default BlocklyChallenge;
