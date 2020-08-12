@@ -57,6 +57,12 @@ class BlocklyChallenge extends Engine {
         super._updateStep();
         // Fixes an issue with challenges on iOS 12. Does not fix Dad fingers issue
         Promise.resolve().then(() => {
+            // Move the blocklyWidgetDiv to the same level as the editor div for beacons to layer correctly
+            const editorParent = this.editor.domNode.parentNode;
+            if(editorParent) {
+                editorParent.insertBefore(Blockly.WidgetDiv.DIV, this.editor.domNode);
+            }
+
             Blockly.WidgetDiv.hide();
         });
     }

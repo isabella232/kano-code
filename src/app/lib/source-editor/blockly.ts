@@ -6,7 +6,7 @@
 import { EventEmitter, subscribeDOM, IDisposable } from '@kano/common/index.js';
 import { SourceEditor } from './source-editor.js';
 import '../../elements/kc-blockly-editor/kc-blockly-editor.js';
-import { Workspace, Block, Input, utils, Connection, Field } from '@kano/kwc-blockly/blockly.js';
+import { Workspace, Block, Blockly, Input, utils, Connection, Field } from '@kano/kwc-blockly/blockly.js';
 import './blockly/patches/index.js';
 import Editor from '../editor/editor.js';
 import { QueryEngine, ISelector, IQueryResult } from '../editor/selector/selector.js';
@@ -36,6 +36,12 @@ export class BlocklySourceEditor implements SourceEditor {
             this._onDidSourceChange.fire(e.detail);
         });
         this.editor.onDidInject(() => {
+            // If the widgetDiv has been removed from the DOM but exists in blockly add it back to the DOM
+            const hasWidgetDiv = document.body.querySelectorAll('.blocklyWidgetDiv').length;
+            if(!hasWidgetDiv && Blockly.WidgetDiv.DIV) {
+                document.body.appendChild(Blockly.WidgetDiv.DIV);
+            }
+
             const workspace = (this.domNode as any).getBlocklyWorkspace() as Workspace;
             workspace.addChangeListener((e) => {
                 // Be greedy for now. TODO: tweak this to ignore non relevent events
