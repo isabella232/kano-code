@@ -41,7 +41,7 @@ export interface ILoadOptions {
 }
 
 export function load(lang : string, opts : ILoadOptions = { modulesPath: DEFAULT_MODULES_PATH }) {
-    const locale = SUPPORTED_LOCALES.includes(lang.toLowerCase()) ? lang : DEFAULT_LOCALE;
+    const locale = SUPPORTED_LOCALES.includes(lang.toLowerCase()) ? lang.toLowerCase() : DEFAULT_LOCALE;
     const modulesPath = opts.modulesPath || DEFAULT_MODULES_PATH;
     const kanoCodePath = opts.kanoCodePath || path.join(modulesPath, '/@kano/code');
     const tasks : Promise<IMessageDB>[] = [loadMessages(path.join(kanoCodePath, `/locale/editor/${locale}.json`))];
