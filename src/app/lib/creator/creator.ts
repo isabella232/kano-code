@@ -263,7 +263,7 @@ export abstract class Creator<T extends Stepper> {
         });
         downloadButton.onDidActivate(() => {
             const challengeSource = this.generateChallenge();
-            downloadFile(`${challengeSource.id || 'untitled-challenge'}.kch`, JSON.stringify(challengeSource, null, '    '));
+            downloadFile(`${challengeSource.id || 'untitled-challenge'}.json`, JSON.stringify(challengeSource, null, '    '));
         });
         this.subscriptions.push(downloadButton);
     }
