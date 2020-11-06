@@ -21,7 +21,7 @@ class KCBlocklyEditor extends PolymerElement {
                 position: relative;
                 background-color: var(--color-grey-darker, grey);
             }
-        
+
             :host kwc-blockly,
             :host kano-code-editor {
                 position: absolute;
@@ -31,12 +31,12 @@ class KCBlocklyEditor extends PolymerElement {
                 height: 100%;
                 transition: opacity 200ms linear;
             }
-        
+
             :host kwc-blockly {
                 --kwc-blockly-toolbox: {
                     background: var(--kc-secondary-color);
-                    border-right: 2px solid var(--kc-border-color);
                 };
+                --kwc-blockly-toolbox-border-right: 2px solid var(--kc-border-color);
             }
 
             [hidden] {
